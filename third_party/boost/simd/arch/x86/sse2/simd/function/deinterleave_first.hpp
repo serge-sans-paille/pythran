@@ -38,8 +38,8 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()(const A0 & a0, const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      auto const  x = _mm_unpacklo_epi16(a0,a1)
-                , y = _mm_unpackhi_epi16(a0,a1);
+      auto const  x = _mm_unpacklo_epi16(a0,a1);
+      auto const  y = _mm_unpackhi_epi16(a0,a1);
 
       return _mm_unpacklo_epi16 ( _mm_unpacklo_epi16(x,y)
                                 , _mm_unpackhi_epi16(x,y)

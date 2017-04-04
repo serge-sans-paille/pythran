@@ -33,7 +33,7 @@ namespace boost { namespace simd { namespace ext
 
     // Aggregate case: fill in the storage by calling load twice
     template<typename... N> static BOOST_FORCEINLINE
-    target_t do_(Begin const& b, aggregate_storage const&, brigand::list<N...> const&)
+    target_t do_(Begin const& b, aggregate_storage const&, nsm::list<N...> const&)
     {
       Begin   b1 = b  + target_t::traits::element_size
             , b2 = b1 + target_t::traits::element_size;
@@ -45,7 +45,7 @@ namespace boost { namespace simd { namespace ext
 
     // Other case: Fill a pack piecewise
     template<typename K, typename... N> static BOOST_FORCEINLINE
-    target_t do_(Begin const& b, K const&, brigand::list<N...> const&) BOOST_NOEXCEPT
+    target_t do_(Begin const& b, K const&, nsm::list<N...> const&) BOOST_NOEXCEPT
     {
       return target_t(b[N::value]...);
     }

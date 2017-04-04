@@ -11,11 +11,18 @@
 
 #include <boost/predef/architecture.h>
 #include <boost/predef/compiler.h>
+#include <boost/predef/os.h>
 
 #if BOOST_ARCH_X86
 
-#if BOOST_COMP_INTEL || BOOST_COMP_INTEL_EMULATED || BOOST_COMP_GNUC || BOOST_COMP_CLANG
-#define BOOST_SIMD_CPUID_HEADER
+#if BOOST_COMP_GNUC || BOOST_COMP_CLANG
+  #define BOOST_SIMD_CPUID_HEADER
+#else
+  #if BOOST_OS_LINUX
+    #if BOOST_COMP_INTEL || BOOST_COMP_INTEL_EMULATED
+      #define BOOST_SIMD_CPUID_HEADER
+    #endif
+  #endif
 #endif
 
 #if defined(BOOST_SIMD_CPUID_HEADER)

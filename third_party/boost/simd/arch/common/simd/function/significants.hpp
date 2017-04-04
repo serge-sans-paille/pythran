@@ -12,6 +12,8 @@
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_SIGNIFICANTS_HPP_INCLUDED
 #include <boost/simd/detail/overload.hpp>
 
+#include <boost/simd/detail/nsm.hpp>
+#include <boost/simd/meta/cardinal_of.hpp>
 #include <boost/simd/meta/hierarchy/simd.hpp>
 #include <boost/simd/detail/assert_utils.hpp>
 #include <boost/simd/function/abs.hpp>
@@ -38,34 +40,50 @@ namespace boost { namespace simd { namespace ext
    namespace bd = boost::dispatch;
    namespace bs = boost::simd;
 
-//   WARNING AN "IMPLEMENT_IF" WAS PRESENT IN THE ORIGINAL FILE
-
    BOOST_DISPATCH_OVERLOAD_IF( significants_
-                          , (typename A0, typename A1, typename X)
-                          , (detail::is_native<X>)
-                          , bd::cpu_
-                          , bs::pack_< bd::floating_<A0>, X>
-                          , bs::pack_< bd::integer_<A1>, X>
-                          )
+                             , (typename A0, typename A1, typename X)
+                             , ( nsm::and_<
+                                 detail::is_native<X>,
+                                 nsm::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
+                                 >
+                               )
+                             , bd::cpu_
+                             , bs::pack_< bd::floating_<A0>, X>
+                             , bs::pack_< bd::integer_<A1>, X>
+                             )
    {
-      BOOST_FORCEINLINE A0 operator()( const A0& a0, const  A1&  a1) const BOOST_NOEXCEPT
-      {
-        BOOST_ASSERT_MSG( assert_all(is_gtz(a1))
-                        , "Number of significant digits must be positive"
-                        );
-        using iA0 =  bd::as_integer_t<A0>;
-        iA0 exp = a1 - iceil(log10(abs(a0)));
-        A0 fac = tenpower(exp);
-        A0 scaled = round(a0*fac);
-  #ifndef BOOST_SIMD_NO_INVALIDS
-        A0 r = if_else(is_invalid(a0), a0, scaled/fac);
-  #else
-        A0 r =  scaled/fac;
-  #endif
-        return if_zero_else(is_eqz(a0), r);
-      }
+     BOOST_FORCEINLINE A0 operator()( const A0& a0, const  A1&  a1) const BOOST_NOEXCEPT
+     {
+       BOOST_ASSERT_MSG( assert_all(is_gtz(a1))
+                       , "Number of significant digits must be positive"
+                       );
+       using iA0 =  bd::as_integer_t<A0>;
+       iA0 expo = bitwise_cast<iA0>(a1) - iceil(log10(abs(a0)));
+       A0 fac       = tenpower(expo);
+       A0 scaled    = round(a0*fac);
+#ifndef BOOST_SIMD_NO_INVALIDS
+       A0 r = if_else(is_invalid(a0), a0, scaled/fac);
+#else
+       A0 r =  scaled/fac;
+#endif
+       return if_zero_else(is_eqz(a0), r);
+     }
    };
 
+  BOOST_DISPATCH_OVERLOAD( significants_
+                         , (typename A0, typename A1, typename X)
+                         , bd::cpu_
+                         , bs::pack_< bd::floating_<A0>, X>
+                         , bd::scalar_< bd::integer_<A1>>
+                         )
+  {
+
+    BOOST_FORCEINLINE A0 operator()( const A0& a0, A1 a1 ) const BOOST_NOEXCEPT
+    {
+      using iA0 = bd::as_integer_t<A0>;
+      return significants(a0, iA0(a1));
+    }
+  };
 
 } } }
 

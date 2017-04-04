@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -11,15 +11,18 @@
 #ifndef BOOST_SIMD_FUNCTION_SLICE_LOW_HPP_INCLUDED
 #define BOOST_SIMD_FUNCTION_SLICE_LOW_HPP_INCLUDED
 
+#if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-#if defined(DOXYGEN_ONLY)
   /*!
     @ingroup group-swar
     Type-preserving pack lower slicing
 
     This function object returns the lower slice of a simd::pack, i.e a simd::pack of same type
     containing the lower half of ts argument.
+
+
+    @par Header <boost/simd/function/slice_low.hpp>
 
     @par Semantic:
 
@@ -35,13 +38,11 @@ namespace boost { namespace simd
     pack<T,N/2> c( a[0], ..., a[N/2-1]);
     @endcode
 
-    @see slice
-    @see slice_high
-    @see combine
+    @see slice, slice_high, combine
   **/
-  ValueO2 slice_low(Value const & x);
-#endif
+  ValueO slice_low(Value1 const& x);
 } }
+#endif
 
 #include <boost/simd/function/simd/slice_low.hpp>
 

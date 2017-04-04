@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,27 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-hyperbolic
-    Function object implementing sech capabilities
+    This function object returns the hyperbolic secant: \f$1/\cosh(x)\f$.
 
-    Returns the hyperbolic secant: \f$1/\cosh(x)\f$.
 
-    @par Semantic:
+    @see cosh, sinh, tanh, csch, sinhcosh
 
-    For every parameter of floating type @c T
 
-    @code
-    T r = sech(x);
-    @endcode
+    @par Header <boost/simd/function/sech.hpp>
 
-    @see rec, cosh
+    @par Example:
+
+      @snippet sech.cpp sech
+
+    @par Possible output:
+
+      @snippet sech.txt sech
 
   **/
-  Value sech(Value const & v0);
+  IEEEValue sech(IEEEValue const& x);
 } }
 #endif
 

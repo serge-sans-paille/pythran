@@ -25,6 +25,7 @@
 #include <boost/simd/function/divides.hpp>
 #include <boost/simd/function/hypot.hpp>
 #include <boost/simd/function/if_else.hpp>
+#include <boost/simd/function/if_nan_else.hpp>
 #include <boost/simd/function/nbtrue.hpp>
 #include <boost/simd/function/is_greater.hpp>
 #include <boost/simd/function/is_less.hpp>
@@ -101,7 +102,11 @@ namespace boost { namespace simd { namespace ext
         }
         A0 tmp =  if_else(is_greater(x, Oneosqrteps<A0>()),
                           x, average(x, hypot(One<A0>(), x)));
+       #ifndef  BOOST_SIMD_NO_NANS
+        return if_nan_else(is_nan(a0), bitwise_xor(if_else(lthalf, z, log(tmp)+Log_2<A0>()), bts));
+       #else
        return bitwise_xor(if_else(lthalf, z, log(tmp)+Log_2<A0>()), bts);
+       #endif
       }
    };
 

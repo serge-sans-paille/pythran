@@ -113,6 +113,22 @@ namespace boost { namespace simd { namespace ext
       return _mm_castsi128_pd(a0);
     }
   };
+
+  //------------------------------------------------------------------------------------------------
+  // bitwise cast integer<->integer
+  BOOST_DISPATCH_OVERLOAD ( bitwise_cast_
+                          , (typename A0, typename Target)
+                          , bs::sse2_
+                          , bs::pack_<bd::integer_<A0>,bs::sse_>
+                          , bd::target_<bs::pack_<bd::integer_<Target>,bs::sse_>>
+                          )
+  {
+    using target = typename Target::type;
+    BOOST_FORCEINLINE target operator()(A0 const& a0, Target const&) const
+    {
+      return a0.storage();
+    }
+  };
 } } }
 
 #endif

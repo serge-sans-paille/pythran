@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, if_zero_else_one_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, if_zero_else_one_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::if_zero_else_one_,if_zero_else_one);

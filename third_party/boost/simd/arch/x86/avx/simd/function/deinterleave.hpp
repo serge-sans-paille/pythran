@@ -26,52 +26,8 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( deinterleave_
                           , (typename A0)
                           , bs::avx_
-                          , bs::pack_<bd::type64_<A0>, bs::avx_>
-                          , bs::pack_<bd::type64_<A0>, bs::avx_>
-                         )
-  {
-    BOOST_FORCEINLINE std::array<A0,2> operator()(A0 const& a0, A0 const& a1 ) const BOOST_NOEXCEPT
-    {
-      auto b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
-      auto p0 = _mm256_permute2f128_pd(b0,b1,0x20);
-      auto p1 = _mm256_permute2f128_pd(b0,b1,0x31);
-
-      A0 f = bitwise_cast<A0>( _mm256_unpacklo_pd( p0, p1 ) );
-      A0 s = bitwise_cast<A0>( _mm256_unpackhi_pd( p0, p1 ) );
-
-      return {f,s};
-    }
-  };
-
-  BOOST_DISPATCH_OVERLOAD ( deinterleave_
-                          , (typename A0)
-                          , bs::avx_
-                          , bs::pack_<bd::type32_<A0>, bs::avx_>
-                          , bs::pack_<bd::type32_<A0>, bs::avx_>
-                         )
-  {
-    BOOST_FORCEINLINE std::array<A0,2> operator()(A0 const& a0, A0 const& a1 ) const BOOST_NOEXCEPT
-    {
-      auto b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
-      auto x  = _mm256_permute2f128_ps(b0,b1,0x20);
-      auto y  = _mm256_permute2f128_ps(b0,b1,0x31);
-      auto u0 = _mm256_unpacklo_ps(x,y);
-      auto u1 = _mm256_unpackhi_ps(x,y);
-
-      A0 f = bitwise_cast<A0>( _mm256_unpacklo_ps( u0, u1 ) );
-      A0 s = bitwise_cast<A0>( _mm256_unpackhi_ps( u0, u1 ) );
-
-      return {f,s};
-    }
-  };
-
-  BOOST_DISPATCH_OVERLOAD ( deinterleave_
-                          , (typename A0)
-                          , bs::avx_
-                          , bs::pack_<bd::integer_<A0>, bs::avx_>
-                          , bs::pack_<bd::integer_<A0>, bs::avx_>
+                          , bs::pack_<bd::fundamental_<A0>, bs::avx_>
+                          , bs::pack_<bd::fundamental_<A0>, bs::avx_>
                          )
   {
     BOOST_FORCEINLINE std::array<A0,2> operator()(A0 const& a0, A0 const& a1 ) const BOOST_NOEXCEPT
@@ -88,3 +44,4 @@ namespace boost { namespace simd { namespace ext
 } } }
 
 #endif
+

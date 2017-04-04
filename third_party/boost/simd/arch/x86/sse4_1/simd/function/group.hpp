@@ -11,7 +11,6 @@
 
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/constant/constant.hpp>
-#include <boost/simd/function/bitwise_cast.hpp>
 #include <boost/simd/function/shift_right.hpp>
 #include <boost/simd/function/saturated.hpp>
 #include <boost/simd/detail/dispatch/meta/downgrade.hpp>

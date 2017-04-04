@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,30 +14,25 @@
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
- /*!
+  /*!
     @ingroup group-reduction
-    Function object implementing all capabilities
+   This function object returns @c true if all elements of the argument are
+   non zero.
 
-    Returns @ref True if all elements of the input vector are non zero.
+    @par Header <boost/simd/function/all.hpp>
 
-    @par Semantic:
+    @see ant, none, nbtrue
 
-    For every parameter of type T
+    @par Example:
 
-    @code
-    bool r = all(x);
-    @endcode
+      @snippet all.cpp all
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    bool r = true;
-    for(result_type i = 0; i != meta::cardinal_of<T>; ++i)
-      if (!x[i]) {r =  false; break; }
-    @endcode
+      @snippet all.txt all
 
   **/
-  Value all(Value const & v0);
+  bool all(Value const &x);
 } }
 #endif
 

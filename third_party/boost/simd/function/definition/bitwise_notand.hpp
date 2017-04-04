@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, bitwise_notand_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, bitwise_notand_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::bitwise_notand_,bitwise_notand);

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,29 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing frac capabilities
-
-    This function returns the fractional part of the input
-
-    @par Semantic:
-
-    @code
-    auto r = frac(x);
-    @endcode
-
-    is similar to:
-
-    @code
-    auto r =  x-trunc(x);
-    @endcode
+    This function object returns the fractional part of the input i.e. `x-trunc(x)`.
 
     @see trunc, modf
 
+
+    @par Header <boost/simd/function/frac.hpp>
+
+    @par Example:
+
+      @snippet frac.cpp frac
+
+    @par Possible output:
+
+      @snippet frac.txt frac
+
   **/
-  Value frac(Value const & v0);
+  Value frac(Value const& x);
 } }
 #endif
 

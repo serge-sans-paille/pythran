@@ -18,12 +18,9 @@
 #include <boost/simd/detail/constant/pio2_2.hpp>
 #include <boost/simd/constant/pio2_3.hpp>
 #include <boost/simd/constant/pio_4.hpp>
-#include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 #include <boost/simd/function/if_else.hpp>
-#include <boost/simd/function/is_greater.hpp>
+#include <boost/simd/function/if_one_else_zero.hpp>
 #include <boost/simd/function/genmask.hpp>
-#include <boost/simd/function/multiplies.hpp>
-#include <boost/simd/function/minus.hpp>
 #include <utility>
 
 namespace boost { namespace simd { namespace ext
@@ -37,15 +34,14 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_ < bd::floating_<A0>, X>
                           )
   {
-    using int_t = bd::as_integer_t<A0>;
-    using result_t = std::pair<int_t, A0>;
+    using result_t = std::pair<A0, A0>;
     BOOST_FORCEINLINE result_t operator() ( A0 const& x) const BOOST_NOEXCEPT
     {
-      auto test = is_greater(x, Pio_4<A0>());
+      auto test = x > Pio_4<A0>();
       A0 xr = x-Pio2_1<A0>();
       xr -= Pio2_2<A0>();
       xr -= Pio2_3<A0>();
-      return {-bitwise_cast<int_t>(genmask(test)),if_else(test, xr, x)};
+      return {if_one_else_zero(test),if_else(test, xr, x)};
     }
   };
 

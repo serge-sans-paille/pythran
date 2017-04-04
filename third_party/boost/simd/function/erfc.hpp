@@ -1,7 +1,7 @@
 //==================================================================================================
 /*!
   @file
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,35 +14,31 @@
 namespace boost { namespace simd
 {
 
- /*!
-  @ingroup group-euler
-    Function object implementing erfc capabilities
-
-  Computes the complementary error function
+  /*!
+    @ingroup group-euler
+   This fFunction object computes the complementary error function
    \f$\displaystyle \frac{2}{\sqrt\pi}\int_{x}^{\infty} e^{-t^2}\mbox{d}t\f$
 
-  @par Semantic:
 
-  For every parameter of floating type T
 
-  @code
-  T r = erfc(x);
-  @endcode
+    @par Header <boost/simd/function/erfc.hpp>
 
-  is similar to:
+    @par Decorators
 
-  @code
-  T0 r = oneminus(erf(x));
-  @endcode
+   - std_ calls @c std::erfc
 
-  @par Decorators
+    @see erf, erfcx
 
-  std_ for floating entries provides access to @c std::erfc
 
-  @see erf, erfcx, oneminus
+    @par Example:
 
+      @snippet erfc.cpp erfc
+
+    @par Possible output:
+
+      @snippet erfc.txt erfc
   **/
-  Value erfc(Value const & v0);
+  IEEEValue erfc(IEEEValue const& x);
 } }
 #endif
 

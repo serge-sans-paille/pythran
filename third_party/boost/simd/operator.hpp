@@ -18,7 +18,7 @@ namespace boost { namespace simd
     @ingroup group-functions
     @defgroup group-operator Operators
 
-    These functions provides scalar and SIMD version of the native C and C++ operators.
+    These functions provide scalar and SIMD version of the native C and C++ operators.
 
     Operators are provided in infix and prefix notations, except for scalar floating types
     as C++ does not allow overloading of operators for these types. Operators &, |, ~,  % and
@@ -31,6 +31,8 @@ namespace boost { namespace simd
     Here is the list of of operators and their infix associated notation.
     These remarks are only valid if the prefix notation is used and at least one parameter is a pack:
     otherwise infix operators on scalars are regulated by usual C++ langage rules.
+
+    All operators are included as soon as <boost/simd/pack.hpp> is included.
 
     <center>
     | Name                    | op  | arity |   types      |  precondition/result                          |

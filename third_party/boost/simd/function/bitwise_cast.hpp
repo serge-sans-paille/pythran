@@ -2,7 +2,7 @@
 /*!
   @file
 
-  Copyright 2016 NumScale SAS
+  @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,36 +14,32 @@
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-/*!
-      @ingroup group-bitwise
-      Function object function implementing bitwise_cast capabilities
+  /*!
+    @ingroup group-bitwise
 
-      Performs a bit-preserving cast of its parameters into an arbitrary
-      type @c Target.
+    This function object function implementing bitwise_cast capabilities
 
+    Performs a bit-preserving cast of its parameters into an arbitrary
+    type @c Target.
 
-      @par Semantic
+    @pre `sizeof(Value) == sizeof(Target)`
 
-      For any value @c x of type @c T and for type @c Target,
-      of same bit size as T
+    @par Header <boost/simd/function/bitwise_cast.hpp>
 
+    @par Example:
 
-      @code
-      Target r = bitwise_cast<Target>(x);
-      @endcode
+      @snippet bitwise_cast.cpp bitwise_cast
 
-      @pre
-      @code
-      sizeof(T) == sizeof(Target)
-      @endcode
+    @par Possible output:
 
-      @tparam Target @c Target type to cast toward
-      @param  @c x Value to cast
+      @snippet bitwise_cast.txt bitwise_cast
 
-      @return A value of type @c Target which is bit-equivalent to @c x.
-    **/
-    Target bitwise_cast(Value const& x);
-  }
+    @param x Value to cast
+
+    @return A value of type @c Target which is bit-equivalent to @c x.
+  **/
+  template <typename Target>
+  Target bitwise_cast(Value const& x);
 } }
 #endif
 

@@ -28,10 +28,10 @@ namespace boost { namespace simd { namespace ext
                           , bd::scalar_ < bd::arithmetic_<A0> >
                           )
   {
-    BOOST_FORCEINLINE void operator() ( A0 a0, A0 & frac,A0 & ent) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void operator() ( A0 a0, A0 & rest,A0 & rounded) const BOOST_NOEXCEPT
     {
-      ent = simd::trunc(a0);
-      frac = a0 - ent;
+      rounded = simd::trunc(a0);
+      rest    = a0 - rounded;
     }
   };
   BOOST_DISPATCH_OVERLOAD ( modf_
@@ -43,9 +43,9 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator() ( A0 a0,A0 & ent) const BOOST_NOEXCEPT
     {
-      A0 frac;
-      simd::modf(a0,frac,ent);
-      return frac;
+      A0 floating;
+      simd::modf(a0,floating,ent);
+      return floating;
     }
   };
   BOOST_DISPATCH_OVERLOAD ( modf_
@@ -70,11 +70,11 @@ namespace boost { namespace simd { namespace ext
                           , bd::scalar_ < bd::arithmetic_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() (const std_tag &,  A0 a0, A0 & ent) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator() (const std_tag &,  A0 a0, A0 & rounded) const BOOST_NOEXCEPT
     {
-      A0 frac;
-      frac = std::modf(a0,&ent);
-      return frac;
+      A0 rest;
+      rest = std::modf(a0,&rounded);
+      return rest;
     }
   };
 

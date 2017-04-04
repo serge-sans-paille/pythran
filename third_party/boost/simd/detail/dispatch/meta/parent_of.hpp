@@ -15,7 +15,7 @@
 #define BOOST_SIMD_DETAIL_DISPATCH_META_PARENT_OF_HPP_INCLUDED
 
 #include <boost/utility/enable_if.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {

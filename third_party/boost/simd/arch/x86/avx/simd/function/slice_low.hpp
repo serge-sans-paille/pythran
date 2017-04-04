@@ -15,6 +15,7 @@
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/hierarchy.hpp>
 #include <boost/config.hpp>
+#include <boost/simd/logical.hpp>
 
 namespace boost { namespace simd { namespace ext
 {

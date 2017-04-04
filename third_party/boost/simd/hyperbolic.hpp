@@ -18,16 +18,18 @@ namespace boost { namespace simd
     @ingroup group-functions
     @defgroup group-hyperbolic  Hyperbolic functions
 
-    These functions provides scalar and SIMD version of
+    These functions provide scalar and SIMD version of
     hyperbolic  and inverse hyperbolic functions.
+
+    All these functions can be included individually or all of them just by including <boost/simd/hyperbolic.hpp>
 
     - Direct hyperbolic functors
 
        <center>
-         | name          | name         | name           | name         |
+         |               |              |                |              |
          |:-------------:|:------------:|:--------------:|:------------:|
-         | @ref cosh     | @ref csch    | @ref sinh      | @ref sinhcosh|
-         | @ref coth     | @ref sech    | @ref sinhc     | @ref tanh    |
+         | @ref cosh     | @ref coth    | @ref csch      | @ref sech    |
+         | @ref sinh     | @ref sinhc   | @ref sinhcosh  | @ref tanh    |
        </center>
 
           @ref sinhc is the hyperbolic sinus cardinal function
@@ -39,14 +41,32 @@ namespace boost { namespace simd
           @ref sech and @ref csch are the hyperbolic secant (inverse of
           the hyperbolic cosine) and cosecant (inverse of the hyperbolic sine)
 
+           @par Example:
+
+              @snippet direct_hyperbolic.cpp direct_hyperbolic
+
+           @par Possible output:
+
+              @snippet direct_hyperbolic.txt direct_hyperbolic
+
     - Inverse hyperbolic functors
 
        <center>
-         | name        | name         | name        |
+         |             |              |             |
          |:-----------:|:------------:|:-----------:|
-         | @ref acosh  | @ref acsch   | @ref asinh  |
-         | @ref acoth  | @ref asech   | @ref atanh  |
+         | @ref acosh  | @ref acoth   | @ref acsch  |
+         | @ref asech  | @ref asinh   | @ref atanh  |
        </center>
+
+         @par Example:
+
+            @snippet inverse_hyperbolic.cpp inverse_hyperbolic
+
+         @par Possible output:
+
+            @snippet inverse_hyperbolic.txt inverse_hyperbolic
+
+
     **/
 
 } }

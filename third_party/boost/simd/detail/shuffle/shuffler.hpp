@@ -10,7 +10,7 @@
 #define BOOST_SIMD_DETAIL_SHUFFLE_SHUFFLER_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/constant/zero.hpp>
 
 namespace boost { namespace simd { namespace detail
@@ -45,9 +45,10 @@ namespace boost { namespace simd { namespace detail
     template<typename T>
     static BOOST_FORCEINLINE T switch_(T const&,T const& a1, a1_side const&)
     {
-      return boost::simd::shuffle < remap<P0,-int(2+sizeof...(Ps))>::value
-                                  , remap<P1,-int(2+sizeof...(Ps))>::value
-                                  , remap<Ps,-int(2+sizeof...(Ps))>::value...
+      static int const pattern_size = 2 + int(sizeof...(Ps));
+      return boost::simd::shuffle < remap<P0,-pattern_size>::value
+                                  , remap<P1,-pattern_size>::value
+                                  , remap<Ps,-pattern_size>::value...
                                   >(a1);
     }
 

@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate t\f$\frac\pi{2}\f$.
 
+
+    @par Header <boost/simd/constant/pio_2.hpp>
+
     @par Semantic:
 
     @code
@@ -48,8 +51,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/pio_2.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/pio_2.hpp>
+#include <boost/simd/constant/simd/pio_2.hpp>
 
 #endif

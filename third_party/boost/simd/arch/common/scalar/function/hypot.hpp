@@ -10,8 +10,7 @@
 //==================================================================================================
 #ifndef BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_HYPOT_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_HYPOT_HPP_INCLUDED
-#include <boost/simd/function/fast.hpp>
-#include <boost/simd/function/fast.hpp>
+#include <boost/simd/function/pedantic.hpp>
 
 
 #ifndef BOOST_SIMD_NO_INVALIDS
@@ -41,12 +40,14 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( hypot_
                           , (typename A0)
                           , bd::cpu_
+                          , bs::pedantic_tag
                           , bd::scalar_<bd::floating_<A0> >
                           , bd::scalar_<bd::floating_<A0> >
                           )
   {
 
-    BOOST_FORCEINLINE A0 operator() ( A0 a0, A0 a1) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator() (const pedantic_tag &,
+                                     A0 a0, A0 a1) const BOOST_NOEXCEPT
     {
       using i_t = bd::as_integer_t<A0>;
       #ifndef BOOST_SIMD_NO_INVALIDS
@@ -57,7 +58,8 @@ namespace boost { namespace simd { namespace ext
       A0 i =  bs::abs(a1);
       i_t e =  exponent(bs::max(i, r));
       e = bs::min(bs::max(e,Minexponent<A0>()),Maxexponentm1<A0>());
-      return bs::ldexp(sqrt(sqr(bs::ldexp(r, -e))+sqr(bs::ldexp(i, -e))), e);
+      return bs::pedantic_(ldexp)(sqrt(sqr(bs::pedantic_(ldexp)(r, -e))
+                                       +sqr(bs::pedantic_(ldexp)(i, -e))), e);
     }
   };
   BOOST_DISPATCH_OVERLOAD ( hypot_
@@ -79,13 +81,12 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( hypot_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::fast_tag
                           , bd::scalar_<bd::floating_<A0> >
                           , bd::scalar_<bd::floating_<A0> >
                           )
   {
 
-    BOOST_FORCEINLINE A0 operator() (const fast_tag &,  A0  a0, A0  a1
+    BOOST_FORCEINLINE A0 operator() ( A0  a0, A0  a1
                                     ) const BOOST_NOEXCEPT
     {
       return boost::simd::sqrt(bs::fma(a0, a0, sqr(a1)));

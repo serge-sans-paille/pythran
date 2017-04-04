@@ -11,11 +11,14 @@
 #ifndef BOOST_SIMD_DETAIL_DECORATOR_HPP_INCLUDED
 #define BOOST_SIMD_DETAIL_DECORATOR_HPP_INCLUDED
 
-#include <boost/simd/detail/dispatch/function/functor.hpp>
 #include <boost/config.hpp>
+#include <boost/simd/detail/dispatch/detail/declval.hpp>
+#include <boost/simd/detail/dispatch/function/functor.hpp>
 
 namespace boost { namespace simd
 {
+  namespace bd = boost::dispatch;
+
   // decorator function hierarchy - simple specialization point
   template<typename Decorator> struct decorator_ : boost::dispatch::unspecified_<Decorator>
   {
@@ -31,7 +34,7 @@ namespace boost { namespace simd
 
       template<typename... Args> BOOST_FORCEINLINE
       auto operator()(Args&&... args) const
-          -> decltype(std::declval<parent const>()(Decorator(), std::forward<Args>(args)...) )
+          -> decltype(bd::detail::declval<parent const>()(Decorator(), std::forward<Args>(args)...) )
       {
         return static_cast<parent const&>(*this)( Decorator(), std::forward<Args>(args)... );
       }

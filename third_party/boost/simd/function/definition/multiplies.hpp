@@ -24,7 +24,7 @@ namespace boost { namespace simd
   }
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, multiplies_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, multiplies_)
   }
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::multiplies_,multiplies);
 } }

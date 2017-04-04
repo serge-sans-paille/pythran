@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,26 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing acscpi capabilities
+    This function object returns the inverse secant in \f$\pi\f$ multiples:
+    \f$(1/\pi) \arcsin(1/x)\f$.
 
-     inverse secant in degree: \f$(1/\pi) \arcsin(1/x)\f$.
+    @par Header <boost/simd/function/acscpi.hpp>
 
-    @par Semantic:
+    @see acsc,  acscd
 
-    For every parameter of floating type
+    @par Example:
 
-    @code
-    auto r = acscpi(x);
-    @endcode
+      @snippet acscpi.cpp acscpi
 
+    @par Possible output:
 
-    @see acsc, acscd, asinpi, sinpi
+      @snippet acscpi.txt acscpi
 
   **/
-  Value acscpi(Value const & v0);
+  IEEEValue acscpi(IEEEValue const & x);
 } }
 #endif
 

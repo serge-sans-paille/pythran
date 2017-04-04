@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,42 +15,36 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing dist
+    This function object computes the absolute value of the difference of its parameters.
 
-    Computes the absolute value of the difference of its parameters.
+    @par Header <boost/simd/function/dist.hpp>
 
-    @par semantic:
-    For any given value @c x,  @c y of type @c T:
+    @par Notes
 
-    @code
-    T r = dist(x, y);
-    @endcode
-
-    is similar to:
-
-    @code
-    T r = abs(x-y);
-    @endcode
-
-    @par Note
-
-    The result may be negative for signed integers as @ref abs(@ref Valmin) is @ref Valmin.
-    To avoid the problem you can apply to dist the saturated_ @ref decorator.
+    The result may be negative for signed integers as @ref abs(@ref Valmin) is undefined.
+    To avoid the problem you can apply to dist the saturated_ decorator (See
+    @ref group-decorator.)
 
     @par Decorators
 
-     - saturated_ decorator garanties that saturated_(dist)(x, y)) will never be strictly less than 0.
+     - saturated_ garanties that @c saturated_(dist)(x, y)) will
+       never be strictly less than 0.
 
     @see  ulpdist, abs
 
-  **/
-  Value dist(Option const& o, Value const & v0, Value const& v1);
+    @par Example:
 
-  //@overload
-  Value dist(Value const & v0, Value const& v1);
+      @snippet dist.cpp dist
+
+    @par Possible output:
+
+      @snippet dist.txt dist
+
+  **/
+  Value dist(Value const& x, Value const& y);
 } }
 #endif
 

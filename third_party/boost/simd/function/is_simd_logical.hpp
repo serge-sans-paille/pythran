@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,31 +15,20 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing is_simd_logical capabilities
 
     returns @ref True if each vector elements have all bits or no bit set.
 
-    @par Semantic:
 
-    For every parameter of type T
+    @par Header <boost/simd/function/is_simd_logical.hpp>
 
-    @code
-    auto r = is_simd_logical(x);
-    @endcode
+    @par Note
 
-    is similar to:
-
-    @code
-    auto r = all(x == Allbits || x == Zero);
-    @endcode
-
-    @see mask2logical
+     Using `is_simd_logical(x)` is similar to `all(logical_or(x == Allbits(as(x)), x == Zero(as(x))))`
 
   **/
-  lgoical<as_scalar_t<Value>> is_simd_logical(Value const& x);
+  bool is_simd_logical(Value const& x);
 } }
 #endif
 

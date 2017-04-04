@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,29 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-predicates
-    Function object implementing is_nltz capabilities
 
-    Returns @ref True if x is not less than @ref Zero else returns @ref False.
+    This function object returns @ref True if x is not less than @ref Zero else returns @ref False.
 
-    @par Semantic:
 
-    @code
-    auto r = is_nltz(x);
-    @endcode
+    @par Header <boost/simd/function/is_nltz.hpp>
 
-    is similar to:
+    @par Note
 
-    @code
-    auto r = !(x < 0);
-    @endcode
+     Using `is_nltz(x)` is similar to: `!(x < 0)`
 
-    @par Note:
+    @par Example:
 
-    Due to existence of nan, this is not equivalent to is_gez(x)
-    for floating types
+      @snippet is_nltz.cpp is_nltz
+
+    @par Possible output:
+
+      @snippet is_nltz.txt is_nltz
 
   **/
   as_logical_t<Value> is_nltz(Value const& x);

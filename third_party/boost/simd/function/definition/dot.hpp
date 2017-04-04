@@ -20,12 +20,12 @@ namespace boost { namespace simd
 {
   namespace tag
   {
-    BOOST_DISPATCH_MAKE_TAG(ext, dot_, boost::dispatch::elementwise_<dot_>);
+    BOOST_DISPATCH_MAKE_TAG(ext, dot_, boost::dispatch::abstract_<dot_>);
   }
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, dot_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, dot_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::dot_,dot);

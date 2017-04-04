@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Constant \f$\tan3\frac\pi{8} = \sqrt2 + 1\f$.
 
+
+    @par Header <boost/simd/constant/tan_3pio_8.hpp>
+
     @par Semantic:
 
     For type T:
@@ -56,8 +59,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/tan_3pio_8.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/tan_3pio_8.hpp>
+#include <boost/simd/constant/simd/tan_3pio_8.hpp>
 
 #endif

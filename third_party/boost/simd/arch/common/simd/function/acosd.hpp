@@ -11,7 +11,7 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_ACOSD_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_ACOSD_HPP_INCLUDED
 
-#include <boost/simd/function/accurate.hpp>
+#include <boost/simd/function/pedantic.hpp>
 #include <boost/simd/function/acos.hpp>
 #include <boost/simd/function/indeg.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
@@ -30,7 +30,7 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator() ( A0 const& a0) const BOOST_NOEXCEPT
     {
-      return indeg(acos(a0));
+      return indeg(bs::acos(a0));
     }
   };
 
@@ -38,13 +38,13 @@ namespace boost { namespace simd { namespace ext
                           , (typename A0, typename X)
                           , (detail::is_native<X>)
                           , bd::cpu_
-                          , bs::accurate_tag
+                          , bs::pedantic_tag
                           , bs::pack_< bd::floating_<A0>, X>
                           )
   {
-    BOOST_FORCEINLINE A0 operator() (const accurate_tag &,  A0 const& a0) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator() (const pedantic_tag &,  A0 const& a0) const BOOST_NOEXCEPT
     {
-      return indeg(bs::accurate_(acos)(a0));
+      return indeg(bs::pedantic_(bs::acos)(a0));
     }
   };
 } } }

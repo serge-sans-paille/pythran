@@ -30,7 +30,7 @@ namespace boost { namespace simd { namespace ext
 
     template<typename... N>
     BOOST_FORCEINLINE result do_( const A0& a0, const A0& a1
-                                , brigand::list<N...> const&
+                                , nsm::list<N...> const&
                                 ) const BOOST_NOEXCEPT
     {
       using type = typename result::value_type;

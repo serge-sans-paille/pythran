@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
    Modify the value of the nth element of a mutable data.
 
+
+    @par Header <boost/simd/function/insert.hpp>
+
     @par Semantic
 
     Depending on the type of its arguments, insert exhibits different semantics.
@@ -26,7 +29,7 @@ namespace boost { namespace simd
     type @c Offset:
 
     @code
-    insert(d, v, o);
+    insert(d, o, v);
     @endcode
 
     is equivalent to:
@@ -44,14 +47,13 @@ namespace boost { namespace simd
       @endcode
 
     @param v   Value to insert
+    @param o   Position where to insert
     @param d   Data to insert into
-    @param o  Position where to insert
 
     @return void
   **/
   template<typename Value, typename Offset>
-  void insert( Data & d, Value const& v, Offset const& o)
-  {}
+  void insert(Data& d, Offset const& o, Value const& v);
 } }
 #endif
 

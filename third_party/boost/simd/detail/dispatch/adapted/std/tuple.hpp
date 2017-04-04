@@ -17,9 +17,11 @@
 #include <boost/simd/detail/dispatch/detail/hierarchy_of.hpp>
 #include <boost/simd/detail/dispatch/adapted/hierarchy/tuple.hpp>
 #include <boost/simd/detail/dispatch/meta/is_homogeneous.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {
+  namespace tt = nsm::type_traits;
   namespace detail
   {
     template<typename T, typename Origin, bool IsHomo>
@@ -28,7 +30,7 @@ namespace boost { namespace dispatch
       using first = typename std::tuple_element<0,T>::type;
       using sz    = std::tuple_size<T>;
       using type = bag_ < boost::dispatch::property_of_t<first,Origin>
-                        , std::integral_constant<std::size_t, sz::value>
+                        , tt::integral_constant<std::size_t, sz::value>
                         >;
     };
 
@@ -36,7 +38,7 @@ namespace boost { namespace dispatch
     struct hierarchy_of_tuple<T,Origin, false>
     {
       using sz   = std::tuple_size<T>;
-      using type = tuple_<Origin, std::integral_constant<std::size_t, sz::value>>;
+      using type = tuple_<Origin, tt::integral_constant<std::size_t, sz::value>>;
     };
 
   }
@@ -52,7 +54,7 @@ namespace boost { namespace dispatch
     template<typename Origin>
     struct hierarchy_of<std::tuple<>,Origin>
     {
-      using type = tuple_<Origin, std::integral_constant<std::size_t,0u>>;
+      using type = tuple_<Origin, tt::integral_constant<std::size_t,0u>>;
     };
   }
 } }

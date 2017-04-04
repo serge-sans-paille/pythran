@@ -17,7 +17,7 @@
 #include <boost/config.hpp>
 #include <boost/simd/arch/x86/sse1/pack_traits.hpp>
 #include <boost/simd/detail/pack_traits.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 #if defined __GNUC__ && __GNUC__>=6
 #pragma GCC diagnostic push

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,31 +15,33 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing sqrt capabilities
+    This function object computes the square root of its parameter.
+    For integers it is the truncation of the real square root.
 
-    Computes the square root of its parameter. For integers it is the
-    truncation of the real square root.
-
-    @par semantic:
-    For any given value @c x of type @c T:
-
-    @code
-    T r = sqrt(x);
-    @endcode
-
-    If full accuracy is not needed a sometimes faster less accurate version of the function
-    can be reached using the fast_ decorator.
+    @par Header <boost/simd/function/sqrt.hpp>
 
     @par Decorators
 
-    std_ calls std::sqrt
-    fast_ for floating entries can gain some speed with less accuracy on some architectures.
+    - std_ calls std::sqrt
+
+    - raw_ for floating entries can gain some speed with less accuracy
+    on some architectures.
+
+    @see rsqrt, sqr_abs, sqr
+
+    @par Example:
+
+      @snippet sqrt.cpp sqrt
+
+    @par Possible output:
+
+      @snippet sqrt.txt sqrt
 
   **/
-  Value sqrt(Value const & v0);
+  Value sqrt(Value const& x);
 } }
 #endif
 

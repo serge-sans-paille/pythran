@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate \f$1/(2\epsilon)\f$
 
+
+    @par Header <boost/simd/constant/oneotwoeps.hpp>
+
     @par Semantic:
 
     @code
@@ -53,8 +56,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/oneotwoeps.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/oneotwoeps.hpp>
+#include <boost/simd/constant/simd/oneotwoeps.hpp>
 
 #endif

@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate the square root of the greatest finite representable value
 
+
+    @par Header <boost/simd/constant/sqrtvalmax.hpp>
+
     @par Semantic:
 
     @code
@@ -48,8 +51,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/sqrtvalmax.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/sqrtvalmax.hpp>
+#include <boost/simd/constant/simd/sqrtvalmax.hpp>
 
 #endif

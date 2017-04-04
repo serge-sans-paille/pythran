@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -20,6 +20,9 @@ namespace boost { namespace simd
     Random-access extraction of a value subcomponent
 
     Extract a sub-element of a given value @c v
+
+
+    @par Header <boost/simd/function/extract.hpp>
 
     @par Semantic
 
@@ -49,7 +52,7 @@ namespace boost { namespace simd
     @return The extracted value
   **/
   template<typename Value, typename Offset>
-  scalar_of_t<Value> extract( Value const& v, Offset const& o);
+  scalar_of_t<Value> extract(Value const& v, Offset const& o);
 } }
 #endif
 

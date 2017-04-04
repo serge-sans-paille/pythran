@@ -15,6 +15,8 @@
 #define BOOST_SIMD_PACK_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
+#include <boost/simd/detail/nsm.hpp>
+#include <boost/simd/detail/dispatch/detail/declval.hpp>
 #include <boost/simd/detail/pack_traits.hpp>
 #include <boost/simd/detail/storage_of.hpp>
 #include <boost/simd/meta/is_power_of_2.hpp>
@@ -26,30 +28,33 @@
 #include <boost/simd/function/load.hpp>
 #include <boost/simd/function/inc.hpp>
 #include <boost/simd/function/dec.hpp>
+#include <boost/simd/memory/aligned_object.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/simd/detail/is_aligned.hpp>
 #include <boost/config.hpp>
+#include <boost/predef/compiler.h>
 #include <array>
 #include <iterator>
 #include <iostream>
 #include <cstddef>
 
-// Remove noise due to line 205 return value
-#if defined(__GNUC__)
+#if BOOST_COMP_GNUC
 #pragma GCC diagnostic push
+// Remove noise due to line 205 return value
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-
 // Remove noise from attribute from as_simd
-#if __GNUC__ >= 6
+#if BOOST_COMP_GNUC >= BOOST_VERSION_NUMBER(6,0,0)
 #pragma GCC diagnostic ignored "-Wignored-attributes"
 #endif
-
 #endif
 
 
 namespace boost { namespace simd
 {
+  namespace bd = boost::dispatch;
+  namespace tt = nsm::type_traits;
+
   /*!
     @ingroup  group-api
     @brief    High-level interface for manipulating SIMD data
@@ -58,12 +63,16 @@ namespace boost { namespace simd
     data with the best storage possible depending on your hardware.
 
     @pre @c N must be a power of two.
+    @pre @c T models Vectorizable
 
     @tparam T   Type of the stored elements
     @tparam N   Number of element stored
     @tparam ABI Binary flag to prevent ABI issue
    **/
-  template<typename T, std::size_t N, typename ABI>
+  template< typename T
+          , std::size_t N
+          , typename ABI
+          >
   class pack {
 
     static_assert( boost::simd::is_power_of_2_<N>::value
@@ -181,7 +190,7 @@ namespace boost { namespace simd
                    , "pack<T,N>(T v...) must take exactly N arguments"
                    );
 
-      data_ = boost::simd::make<pack>(v0,v1,vn...).storage();
+      data_ = boost::simd::make(as_<pack>{},v0,v1,vn...).storage();
     }
 
     /*!
@@ -195,6 +204,16 @@ namespace boost { namespace simd
     BOOST_FORCEINLINE explicit pack(U const& value) BOOST_NOEXCEPT
                       : data_( boost::simd::splat<pack>(value).storage() )
     {}
+
+    /// @brief Scalar assignment operator
+    template < typename U
+             , typename = typename std::enable_if<std::is_convertible<U, value_type>::value>::type
+             >
+    BOOST_FORCEINLINE pack& operator=(U const& value) BOOST_NOEXCEPT
+    {
+      data_ = boost::simd::splat<pack>(value_type(value)).storage();
+      return *this;
+    }
 
     /// @brief Pack assignment operator
     BOOST_FORCEINLINE pack& operator=(pack const& rhs) BOOST_NOEXCEPT
@@ -222,7 +241,9 @@ namespace boost { namespace simd
     /// @brief Get reference to internal storage
     BOOST_FORCEINLINE storage_type& storage() BOOST_NOEXCEPT { return data_; }
 
-    /// @overload
+    /*!
+      @overload
+    */
     BOOST_FORCEINLINE storage_type const& storage() const BOOST_NOEXCEPT { return data_; }
 
     /*!
@@ -239,10 +260,30 @@ namespace boost { namespace simd
       return traits::at(*this, i);
     }
 
-    /// @overload
+    /*!
+      @overload
+    */
     BOOST_FORCEINLINE const_reference operator[](std::size_t i) const
     {
       return traits::at(*this, i);
+    }
+
+    /*!
+      @overload
+    */
+    template<std::uint64_t Index>
+    BOOST_FORCEINLINE value_type operator[](tt::integral_constant<std::uint64_t,Index> const&)
+    {
+      return ::boost::simd::extract<Index>(*this);
+    }
+
+    /*!
+      @overload
+    */
+    template<std::uint64_t Index>
+    BOOST_FORCEINLINE value_type operator[](tt::integral_constant<std::uint64_t,Index> const&) const
+    {
+      return ::boost::simd::extract<Index>(*this);
     }
 
     BOOST_FORCEINLINE value_type get(std::size_t i) const
@@ -263,7 +304,9 @@ namespace boost { namespace simd
       return iterator(this);
     }
 
-    /// @overload
+    /*!
+      @overload
+    */
     BOOST_FORCEINLINE const_iterator begin() const BOOST_NOEXCEPT
     {
       return const_iterator(this);
@@ -275,7 +318,9 @@ namespace boost { namespace simd
       return iterator(this, size());
     }
 
-    /// @overload
+    /*!
+       @overload
+    */
     BOOST_FORCEINLINE const_iterator end() const BOOST_NOEXCEPT
     {
       return const_iterator(this, size());
@@ -299,7 +344,9 @@ namespace boost { namespace simd
       return reverse_iterator(end());
     }
 
-    /// @overload
+    /*!
+      @overload
+    */
     BOOST_FORCEINLINE const_reverse_iterator rbegin() const BOOST_NOEXCEPT
     {
       return reverse_iterator(end());
@@ -311,7 +358,9 @@ namespace boost { namespace simd
       return reverse_iterator(begin());
     }
 
-    /// @overload
+    /*!
+      @overload
+    */
     BOOST_FORCEINLINE const_reverse_iterator rend() const BOOST_NOEXCEPT
     {
       return reverse_iterator(begin());
@@ -335,25 +384,28 @@ namespace boost { namespace simd
     reference       front()        { return traits::at(*this, 0); }
     const_reference front() const  { return traits::at(*this, 0); }
 
+    // Make operator new/delete  correct
+    BOOST_SIMD_ALIGNED_OBJECT(pack)
+
     public:
-    BOOST_FORCEINLINE pack& operator++() BOOST_NOEXCEPT_IF_EXPR(inc(std::declval<pack>()))
+    BOOST_FORCEINLINE pack& operator++() BOOST_NOEXCEPT_IF_EXPR(inc(bd::detail::declval<pack>()))
     {
       return (*this = inc(*this));
     }
 
-    BOOST_FORCEINLINE pack& operator--() BOOST_NOEXCEPT_IF_EXPR(dec(std::declval<pack>()))
+    BOOST_FORCEINLINE pack& operator--() BOOST_NOEXCEPT_IF_EXPR(dec(bd::detail::declval<pack>()))
     {
       return (*this = dec(*this));
     }
 
-    BOOST_FORCEINLINE pack operator++(int) BOOST_NOEXCEPT_IF_EXPR(++std::declval<pack>())
+    BOOST_FORCEINLINE pack operator++(int) BOOST_NOEXCEPT_IF_EXPR(++bd::detail::declval<pack>())
     {
       pack that = *this;
       ++(*this);
       return that;
     }
 
-    BOOST_FORCEINLINE pack operator--(int)  BOOST_NOEXCEPT_IF_EXPR(--std::declval<pack>())
+    BOOST_FORCEINLINE pack operator--(int)  BOOST_NOEXCEPT_IF_EXPR(--bd::detail::declval<pack>())
     {
       pack that = *this;
       --(*this);
@@ -457,7 +509,7 @@ namespace boost { namespace simd
   }
 } }
 
-#if defined(__GNUC__)
+#if BOOST_COMP_GNUC
 #pragma GCC diagnostic pop
 #endif
 

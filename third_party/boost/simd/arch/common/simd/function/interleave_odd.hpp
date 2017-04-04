@@ -17,7 +17,7 @@ namespace boost { namespace simd { namespace ext
 {
   namespace bd = boost::dispatch;
   namespace bs = boost::simd;
-  namespace br = brigand;
+
 
   BOOST_DISPATCH_OVERLOAD ( interleave_odd_
                           , (typename T, typename X)
@@ -32,26 +32,26 @@ namespace boost { namespace simd { namespace ext
 
     template<typename N, typename V>
     static BOOST_FORCEINLINE
-    typename V::value_type value(V const& x, V const&, std::true_type const&)
+    typename V::value_type value(V const& x, V const&, tt::true_type const&)
     {
       return bs::extract<2*(N::value/2)+1>(x);
     }
 
     template<typename N, typename V>
     static BOOST_FORCEINLINE
-    typename V::value_type value(V const&, V const& y, std::false_type const&)
+    typename V::value_type value(V const&, V const& y, tt::false_type const&)
     {
       return bs::extract<2*(N::value/2)+1>(y);
     }
 
     template<typename K, typename... N> static BOOST_FORCEINLINE
-    T do_( T const& x, T const& y, K const&, br::list<N...> const&) BOOST_NOEXCEPT
+    T do_( T const& x, T const& y, K const&, nsm::list<N...> const&) BOOST_NOEXCEPT
     {
-      return T( value<N>(x,y, brigand::bool_<N::value%2==0>{})... );
+      return T( value<N>(x,y, nsm::bool_<N::value%2==0>{})... );
     }
 
     template<typename... N> static BOOST_FORCEINLINE
-    T do_( T const& x, T const& y, aggregate_storage const&, br::list<N...> const&) BOOST_NOEXCEPT
+    T do_( T const& x, T const& y, aggregate_storage const&, nsm::list<N...> const&) BOOST_NOEXCEPT
     {
        auto const& x0 = x.storage()[0];
        auto const& x1 = x.storage()[1];
@@ -62,7 +62,7 @@ namespace boost { namespace simd { namespace ext
     }
 
     template<typename N0, typename N1> static BOOST_FORCEINLINE
-    T do_( T const& x, T const& y, aggregate_storage const&, br::list<N0,N1> const&) BOOST_NOEXCEPT
+    T do_( T const& x, T const& y, aggregate_storage const&, nsm::list<N0,N1> const&) BOOST_NOEXCEPT
     {
       return  T(x[1],y[1]);
     }
@@ -70,7 +70,7 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE T operator()(T const& x, T const& y) const BOOST_NOEXCEPT
     {
       return do_(x,y, typename T::traits::storage_kind{}
-                    , br::range<std::size_t, 0, T::static_size>{}
+                    , nsm::range<std::size_t, 0, T::static_size>{}
                 );
     }
   };

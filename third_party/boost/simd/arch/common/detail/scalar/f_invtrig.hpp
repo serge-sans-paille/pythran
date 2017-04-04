@@ -61,9 +61,9 @@ namespace boost { namespace simd
   {
     static BOOST_FORCEINLINE A0 asin(A0 a0) BOOST_NOEXCEPT
     {
-      A0 sign, x, z;
+      A0 sgn, x, z;
       x = bs::abs(a0);
-      sign = bitofsign(a0);
+      sgn = bitofsign(a0);
       if ((x < Constant<A0,0x38d1b717>())) return a0; //1.0e-4
       if ((x >  One<A0>())) return Nan<A0>();
       auto bx_larger_05    = (x > Half<A0>());
@@ -89,7 +89,7 @@ namespace boost { namespace simd
         z1 = z1+z1;
         z1 = Pio_2<A0>()-z1;
       }
-      return bitwise_xor(z1, sign);
+      return bitwise_xor(z1, sgn);
     }
 
     static BOOST_FORCEINLINE A0 acos(const  A0& a0) BOOST_NOEXCEPT

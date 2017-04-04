@@ -9,7 +9,7 @@
 #ifndef BOOST_SIMD_ARCH_X86_COMMON_REGISTER_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_X86_COMMON_REGISTER_HPP_INCLUDED
 
-#include <boost/predef/architecture.h>
+#include <boost/simd/detail/predef.hpp>
 
 #if BOOST_HW_SIMD_X86
 namespace boost { namespace simd

@@ -17,7 +17,7 @@
 #endif
 #include <boost/simd/constant/pi.hpp>
 #include <boost/simd/function/if_else_zero.hpp>
-#include <boost/simd/function/is_ltz.hpp>
+#include <boost/simd/function/pedantic.hpp>
 #include <boost/simd/function/is_negative.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/config.hpp>
@@ -30,15 +30,17 @@ namespace boost { namespace simd
      namespace bd = boost::dispatch;
      namespace bs = boost::simd;
      BOOST_DISPATCH_OVERLOAD_IF ( arg_
-                             , (typename A0, typename X)
-                             , (detail::is_native<X>)
-                             , bd::cpu_
-                             , bs::pack_< bd::floating_<A0>, X>
-                             )
+                                , (typename A0, typename X)
+                                , (detail::is_native<X>)
+                                , bd::cpu_
+                                , bs::pedantic_tag
+                                , bs::pack_< bd::floating_<A0>, X>
+                                )
      {
-       BOOST_FORCEINLINE A0 operator() ( A0 const& a0) const BOOST_NOEXCEPT
+       BOOST_FORCEINLINE A0 operator() (const pedantic_tag &,
+                                         A0 const& a0) const BOOST_NOEXCEPT
        {
-         A0 r = if_else_zero(is_ltz(a0),Pi<A0>());
+         A0 r = if_else_zero(is_negative(a0),Pi<A0>());
        #ifndef BOOST_SIMD_NO_NANS
          return if_allbits_else(is_nan(a0),r);
        #else
@@ -52,11 +54,9 @@ namespace boost { namespace simd
                              , (detail::is_native<X>)
                              , bd::cpu_
                              , bs::pack_< bd::floating_<A0>, X>
-                             , bs::use_signbit_tag
                              )
      {
-       BOOST_FORCEINLINE A0 operator() ( A0 const& a0
-                                       , use_signbit_tag const&) const BOOST_NOEXCEPT
+       BOOST_FORCEINLINE A0 operator() ( A0 const& a0 ) const BOOST_NOEXCEPT
        {
          return if_else_zero(is_negative(a0),Pi<A0>());
        }

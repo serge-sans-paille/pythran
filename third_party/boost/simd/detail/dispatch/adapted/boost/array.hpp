@@ -17,11 +17,14 @@
 #include <boost/simd/detail/dispatch/meta/model_of.hpp>
 #include <boost/simd/detail/dispatch/adapted/hierarchy/array.hpp>
 #include <boost/simd/detail/dispatch/hierarchy_of.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {
   namespace ext
   {
+    namespace tt = nsm::type_traits;
+
     template<typename T, std::size_t N> struct model_of<boost::array<T,N>>
     {
       template<typename X> struct apply { using type = boost::array<X,N>; };
@@ -36,7 +39,7 @@ namespace boost { namespace dispatch
     struct hierarchy_of<boost::array<T,N>,Origin>
     {
       using type = array_ < boost::dispatch::hierarchy_of_t<T,Origin>
-                          , std::integral_constant<std::size_t, N>
+                          , tt::integral_constant<std::size_t, N>
                           >;
     };
   }

@@ -109,12 +109,12 @@ static const boost::dispatch::functor<TAG> NAME = {}                            
 template<typename... Args> BOOST_FORCEINLINE                                                        \
 auto NAME(Args&&... args) BOOST_NOEXCEPT                                                            \
         -> decltype ( TAG::dispatch_to( boost::dispatch::default_site<TAG>()                        \
-                                      , boost::dispatch::hierarchy_of_t<Args>()...                  \
+                                      , typename boost::dispatch::hierarchy_of<Args>::type()...     \
                                       )( std::forward<Args>(args)...)                               \
                     )                                                                               \
 {                                                                                                   \
   return TAG::dispatch_to ( boost::dispatch::default_site<TAG>()                                    \
-                          , boost::dispatch::hierarchy_of_t<Args>()...                              \
+                          , typename boost::dispatch::hierarchy_of<Args>::type()...                 \
                           )( std::forward<Args>(args)...);                                          \
 }                                                                                                   \
 /**/

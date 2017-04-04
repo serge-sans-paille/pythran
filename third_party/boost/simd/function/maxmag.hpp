@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,29 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing maxmag capabilities
+    This function object returns the value with the greatest absolute value among
+    its arguments.
 
-    Returns the input value which have the greatest absolute value.
 
-    @par Semantic:
+    @par Header <boost/simd/function/maxmag.hpp>
 
-    @code
-    auto r = maxmag(x,y);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet maxmag.cpp maxmag
 
-    @code
-    auto r = abs(x) > abs(y) ? x : abs(y) > abs(x) ? y : max(x, y);
-    @endcode
+    @par Possible output:
 
-    @see max, maxnum, maxnummag
+      @snippet maxmag.txt maxmag
 
   **/
-  Value maxmag(Value const & x, Value const& y);
+  Value maxmag(Value const& x, Value const& y);
 } }
 #endif
 

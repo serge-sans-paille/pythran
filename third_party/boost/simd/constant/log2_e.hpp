@@ -22,6 +22,9 @@ namespace boost { namespace simd
     used in the float logarithms computations
     We have double(Log2_e<float>())+double(Log2_lo<float>()) == Log_2<double>()
 
+
+    @par Header <boost/simd/constant/log2_e.hpp>
+
     @par Semantic:
 
     @code
@@ -51,8 +54,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/log2_e.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/log2_e.hpp>
+#include <boost/simd/constant/simd/log2_e.hpp>
 
 #endif

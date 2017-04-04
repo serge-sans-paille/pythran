@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-hyperbolic
-    Function object implementing sinh capabilities
+    This function object returns the hyperbolic sine: \f$(e^{x}-e^{-x})/2\f$.
 
-    Returns the hyperbolic sine: \f$(e^{x}-e^{-x})/2\f$.
+    @par Header <boost/simd/function/sinh.hpp>
 
-    @par Semantic:
+    @see tanh, cosh, sech, csch, sinhcosh
 
-    For every parameter of floating type @c T
+    @par Example:
 
-    @code
-    T r = sinh(x);
-    @endcode
+      @snippet sinh.cpp sinh
 
-    @see exp, cosh, sinhcosh
+    @par Possible output:
 
+      @snippet sinh.txt sinh
   **/
-  Value sinh(Value const & v0);
+  IEEEValue sinh(IEEEValue const& x);
 } }
 #endif
 

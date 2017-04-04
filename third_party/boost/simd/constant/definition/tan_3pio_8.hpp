@@ -12,7 +12,7 @@
 #define BOOST_SIMD_CONSTANT_DEFINITION_TAN_3PIO_8_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
@@ -32,7 +32,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,tan_3pio_8_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, tan_3pio_8_)
   }
 
   namespace detail
@@ -44,6 +44,12 @@ namespace boost { namespace simd
   BOOST_NOEXCEPT_DECLTYPE(detail::tan_3pio_8( boost::dispatch::as_<T>{}))
   {
     return detail::tan_3pio_8( boost::dispatch::as_<T>{} );
+  }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto Tan_3pio_8(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(Tan_3pio_8<T>())
+  {
+    return Tan_3pio_8<T>();
   }
 } }
 

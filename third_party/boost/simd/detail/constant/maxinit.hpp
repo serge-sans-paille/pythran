@@ -12,7 +12,7 @@
 #define BOOST_SIMD_DETAIL_CONSTANT_MAXINIT_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/constant/definition/valmin.hpp>
@@ -47,17 +47,17 @@ namespace boost { namespace simd
         static auto value(X const& x) -> decltype(valmin_::value_map::value(x));
 
         template<typename X>
-        static brigand::single_<0xFF800000U> value(boost::dispatch::single_<X> const&);
+        static nsm::single_<0xFF800000U> value(boost::dispatch::single_<X> const&);
 
         template<typename X>
-        static brigand::double_<0xFFF0000000000000ULL> value(boost::dispatch::double_<X> const&);
+        static nsm::double_<0xFFF0000000000000ULL> value(boost::dispatch::double_<X> const&);
       };
     };
   }
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,maxinit_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, maxinit_)
   }
 
   namespace detail

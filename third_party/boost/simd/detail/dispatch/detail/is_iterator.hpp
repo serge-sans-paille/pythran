@@ -10,17 +10,19 @@
 #ifndef BOOST_SIMD_DETAIL_DISPATCH_DETAIL_IS_ITERATOR_HPP_INCLUDED
 #define BOOST_SIMD_DETAIL_DISPATCH_DETAIL_IS_ITERATOR_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch/detail/is_pointer.hpp>
 #include <boost/utility/enable_if.hpp>
 
 namespace boost { namespace dispatch { namespace detail
 {
-  template<typename T, typename EnableIf = void > struct is_iterator : std::false_type {};
+  namespace tt = nsm::type_traits;
+
+  template<typename T, typename EnableIf = void > struct is_iterator : tt::false_type {};
 
   template<typename T>
   struct is_iterator<T, typename boost::enable_if_has_type<typename T::iterator_category>::type>
-       : std::true_type
+       : tt::true_type
   {};
 } } }
 

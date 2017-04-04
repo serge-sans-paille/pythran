@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Generates constant  1/log10(2).
 
+
+    @par Header <boost/simd/constant/invlog10_2.hpp>
+
     @par Semantic:
 
     @code
@@ -53,8 +56,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/invlog10_2.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/invlog10_2.hpp>
+#include <boost/simd/constant/simd/invlog10_2.hpp>
 
 #endif

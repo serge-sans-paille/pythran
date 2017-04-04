@@ -31,7 +31,8 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_< bd::fundamental_<A0>, X >
                           )
   {
-    BOOST_FORCEINLINE bs::as_logical_t<A0> operator() ( A0 const& a0 , A0 const& a1 ) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE
+    bs::as_logical_t<A0> operator()(A0 const& a0 , A0 const& a1) const BOOST_NOEXCEPT
     {
       return  a0 != a1;
     }
@@ -45,7 +46,8 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_< bd::floating_<A0>, X >
                           )
   {
-    BOOST_FORCEINLINE  bs::as_logical_t<A0> operator() ( A0 a0, A0 a1) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE
+    bs::as_logical_t<A0> operator()(A0 const& a0 , A0 const& a1) const BOOST_NOEXCEPT
     {
       return logical_and(is_ord(a0,a1), (a0 != a1));
     }

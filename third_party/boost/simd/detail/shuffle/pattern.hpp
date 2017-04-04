@@ -11,7 +11,7 @@
 
 #include <boost/simd/config.hpp>
 #include <boost/simd/meta/cardinal_of.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch/hierarchy/unspecified.hpp>
 #include <boost/simd/detail/dispatch/hierarchy_of.hpp>
 
@@ -23,12 +23,14 @@ namespace boost { namespace simd
 
   namespace detail
   {
+    namespace tt = nsm::type_traits;
+
     // -----------------------------------------------------------------------------------------------
     // normalized permutation pattern holder - also acts as its own hierarchy
     template<int... Ps> struct pattern_ : boost::dispatch::unspecified_<pattern_<Ps...>>
     {
       static const std::size_t static_size = sizeof...(Ps);
-      using size_type = std::integral_constant<std::size_t,static_size>;
+      using size_type = tt::integral_constant<std::size_t,static_size>;
       using parent = boost::dispatch::unspecified_<pattern_<Ps...>>;
     };
 
@@ -37,10 +39,10 @@ namespace boost { namespace simd
     template<typename M, typename C, typename L> struct make_meta_pattern;
 
     template<typename M, typename C, typename P>
-    struct idx : brigand::apply<M, P, C>::type {};
+    struct idx : nsm::apply<M, P, C>::type {};
 
     template<typename M, typename C, typename... Ps>
-    struct make_meta_pattern<M, C, brigand::list<Ps...> >
+    struct make_meta_pattern<M, C, nsm::list<Ps...> >
     {
       using type = pattern_< idx<M,C,Ps>::value... >;
     };
@@ -49,7 +51,7 @@ namespace boost { namespace simd
     struct meta_pattern
     {
       using card = cardinal_of<T>;
-      using type = typename make_meta_pattern<M, card, brigand::range<int,0,card::value>>::type;
+      using type = typename make_meta_pattern<M, card, nsm::range<int,0,card::value>>::type;
     };
 
     // -----------------------------------------------------------------------------------------------
@@ -57,7 +59,7 @@ namespace boost { namespace simd
     template<int (*M)(int,int), typename C, typename L> struct make_const_pattern;
 
     template<int (*M)(int,int), typename C, typename... Ps>
-    struct make_const_pattern<M, C, brigand::list<Ps...> >
+    struct make_const_pattern<M, C, nsm::list<Ps...> >
     {
       using type = pattern_< M(Ps::value,C::value)... >;
     };
@@ -66,7 +68,7 @@ namespace boost { namespace simd
     struct meta_pattern<pattern<M>,T>
     {
       using card = cardinal_of<T>;
-      using type = typename make_const_pattern<M, card, brigand::range<int,0,card::value>>::type;
+      using type = typename make_const_pattern<M, card, nsm::range<int,0,card::value>>::type;
     };
   } }
 }

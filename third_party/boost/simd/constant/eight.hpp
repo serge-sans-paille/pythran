@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generates a value of the chosen type equals to eight.
 
+
+    @par Header <boost/simd/constant/eight.hpp>
+
     @par Semantic:
 
     @code
@@ -65,8 +68,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/eight.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/eight.hpp>
+#include <boost/simd/constant/simd/eight.hpp>
 
 #endif

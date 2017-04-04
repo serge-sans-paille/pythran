@@ -23,7 +23,7 @@ namespace boost { namespace simd { namespace ext
   namespace bs = boost::simd;
   BOOST_DISPATCH_OVERLOAD_IF(bitwise_notand_
                             , (typename A0,typename A1, typename X, typename Y)
-                            , (brigand::not_<std::is_same<A0,A1>>)
+                            , (nsm::not_<std::is_same<A0,A1>>)
                             , bs::simd_
                             , bs::pack_<bd::arithmetic_<A0>,X>
                             , bs::pack_<bd::arithmetic_<A1>,Y>

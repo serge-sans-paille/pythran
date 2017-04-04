@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,33 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-bitwise
-    Function object implementing bitwise_select capabilities
-
-    Returns the bitwise selection of bits from the second
+    This function object returns the bitwise selection of bits from the second
     or third operand according to the setting of the bits
     of the first operand
 
-    The operands must share the same bit size and number of elements.
+    @par Header <boost/simd/function/bitwise_select.hpp>
 
-    @par semantic:
-    For any given value @c sel of type @c SEL, @c x of type @c T0 and @c y of type @c T1
-    of same memory size:
+    @pre  The operands must share the same bit size and number of elements.
 
-    @code
-    T0 r = bitwise_select(sel, x, y);
-    @endcode
+    @par Example:
 
-    The code is equivalent to:
+      @snippet bitwise_select.cpp bitwise_select
 
-    @code
-    T1 r = (x&sel)|(y&~sel);
-    @endcode
+    @par Possible output:
+
+      @snippet bitwise_select.txt bitwise_select
 
   **/
-  T0 bitwise_select(SEL const& sel, T0 const &x, T1 const& y);
+  Value1 bitwise_select(Value0 const& sel, Value1 const& x, Value2 const& y);
 } }
 #endif
 

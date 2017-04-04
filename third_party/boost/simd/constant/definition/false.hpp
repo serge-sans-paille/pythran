@@ -12,7 +12,7 @@
 #define BOOST_SIMD_CONSTANT_DEFINITION_FALSE_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
 #include <boost/simd/detail/dispatch/hierarchy/functions.hpp>
@@ -27,7 +27,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,false_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, false_)
   }
 
   namespace detail
@@ -40,6 +40,12 @@ namespace boost { namespace simd
                     ->  decltype(detail::false_( boost::dispatch::as_<T>{}))
   {
     return detail::false_( boost::dispatch::as_<T>{} );
+  }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto False(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(False<T>())
+  {
+    return False<T>();
   }
 } }
 

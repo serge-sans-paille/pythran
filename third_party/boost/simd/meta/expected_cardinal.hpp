@@ -16,10 +16,12 @@
 
 #include <boost/simd/config.hpp>
 #include <boost/simd/arch/limits.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd
 {
+  namespace tt = nsm::type_traits;
+
   template<typename T> struct logical;
 
   /*!
@@ -34,12 +36,12 @@ namespace boost { namespace simd
   **/
   template<typename Type, typename Extension>
   struct  expected_cardinal
-        : std::integral_constant<std::size_t,limits<Extension>::bytes/sizeof(Type)>
+        : tt::integral_constant<std::size_t,limits<Extension>::bytes/sizeof(Type)>
   {};
 
   template<typename Type, typename Extension>
   struct  expected_cardinal<logical<Type>,Extension>
-        : std::integral_constant<std::size_t,limits<Extension>::bytes/sizeof(Type)>
+        : tt::integral_constant<std::size_t,limits<Extension>::bytes/sizeof(Type)>
   {};
 } }
 

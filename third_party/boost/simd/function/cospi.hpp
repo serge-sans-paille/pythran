@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,29 +15,37 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing cospi capabilities
+    This function object returns the cosine of angle in
+    \f$\pi\f$ multiples: \f$\cos(\pi x)\f$.
 
-    cosine of angle in \f$\pi\f$ multiples: \f$\cos(\pi x)\f$.
 
-    @par Semantic:
-
-   The semantics of the function are similar to @ref cos ones.
-    see @ref cos for further details
+    @par Header <boost/simd/function/cospi.hpp>
 
     @par Note
 
-    However as it conveys a peculiar meaning,  unlike the orher cosine, cospi is defined
-    for integral types and the result of cospi(n) coincides with \f$(-1)^n\f$.
+     -  The semantics of the function are similar to @ref cos ones.
+        See @ref cos for further details
 
-    Take care that large floating entries are always integral and even !
+     - As it conveys a peculiar meaning,  unlike the orher cosine, cospi is defined
+         for integral types and the result of cospi(n) coincides with \f$(-1)^n\f$.
+
+         Take care that large floating entries are always integral and even !
 
     @see sincospi, cos, cosd
 
+
+    @par Example:
+
+      @snippet cospi.cpp cospi
+
+    @par Possible output:
+
+      @snippet cospi.txt cospi
+
   **/
-  Value cospi(Value const & v0);
+  Value cospi(Value const& x);
 } }
 #endif
 

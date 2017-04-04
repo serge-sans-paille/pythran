@@ -12,7 +12,7 @@
 #define BOOST_SIMD_CONSTANT_DEFINITION_MINF_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/constant/definition/valmin.hpp>
@@ -34,17 +34,17 @@ namespace boost { namespace simd
         static auto value(X const& x) -> decltype(valmin_::value_map::value(x));
 
         template<typename X>
-        static brigand::single_<0xFF800000U> value(boost::dispatch::single_<X> const&);
+        static nsm::single_<0xFF800000U> value(boost::dispatch::single_<X> const&);
 
         template<typename X>
-        static brigand::double_<0xFFF0000000000000ULL> value(boost::dispatch::double_<X> const&);
+        static nsm::double_<0xFFF0000000000000ULL> value(boost::dispatch::double_<X> const&);
       };
     };
   }
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,minf_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, minf_)
   }
 
   namespace detail
@@ -56,6 +56,12 @@ namespace boost { namespace simd
   -> decltype(detail::minf(boost::dispatch::as_<T>{}))
   {
     return detail::minf( boost::dispatch::as_<T>{} );
+  }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto Minf(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(Minf<T>())
+  {
+    return Minf<T>();
   }
 } }
 

@@ -26,7 +26,7 @@ namespace boost { namespace simd
 
   namespace detail
   {
-    template<> struct support<::boost::simd::fma3_>
+    template<> struct support< ::boost::simd::fma3_>
     {
       support()
       {

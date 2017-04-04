@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,32 +14,25 @@
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing prod capabilities
+   This function object returns the product of the elements of the argument
 
-    Returns the product of the elements of the SIMD vector
+    @see sum
 
-    @par Semantic:
 
-    For every parameter of pack type T
+    @par Header <boost/simd/function/prod.hpp>
 
-    @code
-    scalar_of_t<T> r = prod(x);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet prod.cpp prod
 
-    @code
-    scalar_of_t<T> r = One;
-    for(result_type i = 0; i != T::static_size; ++i)
-      r *= x[i];
-    @endcode
+    @par Possible output:
+
+      @snippet prod.txt prod
 
   **/
-  scalar_of_t<Value> prod(Value const & v0);
+  scalar_of_t<Value> prod(Value const& x);
 } }
 #endif
 

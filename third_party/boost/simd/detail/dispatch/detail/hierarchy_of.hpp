@@ -16,7 +16,7 @@
 
 #include <boost/simd/detail/dispatch/hierarchy/scalar.hpp>
 #include <boost/simd/detail/dispatch/property_of.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch { namespace ext
 {

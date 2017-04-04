@@ -33,7 +33,7 @@
 #include <boost/simd/function/rem.hpp>
 #include <boost/simd/function/unary_plus.hpp>
 #include <boost/simd/function/unary_minus.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/meta/is_pack.hpp>
 #include <boost/simd/logical.hpp>
 
@@ -41,12 +41,14 @@ namespace boost { namespace simd
 {
 #define BOOST_SIMD_PACK_DEFINE_BINOP(type_, op, f)                                                 \
   template <typename T, std::size_t N, typename U> BOOST_FORCEINLINE                               \
-  typename std::enable_if<is_not_pack_t<U>::value, pack<type_, N>>::type                           \
+  typename std::enable_if<is_not_pack_t<U>::value && std::is_convertible<U, T>::value,             \
+                          pack<type_, N>>::type                                                    \
   op(pack<T, N> const& p0, U const& s1) BOOST_NOEXCEPT_IF_EXPR(f(p0, s1))                          \
   { return f(p0, s1); }                                                                            \
                                                                                                    \
   template <typename T, std::size_t N, typename U> BOOST_FORCEINLINE                               \
-  typename std::enable_if<is_not_pack_t<U>::value, pack<type_, N>>::type                           \
+  typename std::enable_if<is_not_pack_t<U>::value && std::is_convertible<U, T>::value,             \
+                          pack<type_, N>>::type                                                    \
   op(U const& s0, pack<T, N> const& p1) BOOST_NOEXCEPT_IF_EXPR(f(s0, p1))                          \
   { return f(s0, p1); }                                                                            \
                                                                                                    \
@@ -64,20 +66,41 @@ BOOST_SIMD_PACK_DEFINE_BINOP(T, operator*, multiplies)
 BOOST_SIMD_PACK_DEFINE_BINOP(T, operator&, bitwise_and)
 BOOST_SIMD_PACK_DEFINE_BINOP(T, operator|, bitwise_or)
 BOOST_SIMD_PACK_DEFINE_BINOP(T, operator^, bitwise_xor)
-BOOST_SIMD_PACK_DEFINE_BINOP(logical<T>, operator&&, logical_and)
-BOOST_SIMD_PACK_DEFINE_BINOP(logical<T>, operator||, logical_or)
 
 BOOST_SIMD_PACK_DEFINE_BINOP(T, operator << , shift_left)
 BOOST_SIMD_PACK_DEFINE_BINOP(T, operator >> , shift_right)
 
-BOOST_SIMD_PACK_DEFINE_BINOP(logical<T>, operator<,  is_less)
-BOOST_SIMD_PACK_DEFINE_BINOP(logical<T>, operator>,  is_greater)
-BOOST_SIMD_PACK_DEFINE_BINOP(logical<T>, operator==, is_equal)
-BOOST_SIMD_PACK_DEFINE_BINOP(logical<T>, operator<=, is_less_equal)
-BOOST_SIMD_PACK_DEFINE_BINOP(logical<T>, operator>=, is_greater_equal)
-BOOST_SIMD_PACK_DEFINE_BINOP(logical<T>, operator!=, is_not_equal)
+#define BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(op, f)                                                \
+  template <typename T, typename U, std::size_t N> BOOST_FORCEINLINE                               \
+  auto op(pack<T, N> const& p0, pack<U, N> const& p1)                                              \
+  BOOST_NOEXCEPT_DECLTYPE_BODY(f(p0, p1));                                                         \
+                                                                                                   \
+  template <typename T, std::size_t N, typename U> BOOST_FORCEINLINE                               \
+  typename std::enable_if < is_not_pack_t<U>::value && std::is_convertible<U, T>::value            \
+                          , pack<bs::as_logical_t<T>, N>                                           \
+                          >::type                                                                  \
+  op(pack<T, N> const& p0, U const& s1) BOOST_NOEXCEPT                                             \
+  { return f(p0, s1); }                                                                            \
+                                                                                                   \
+  template <typename T, std::size_t N, typename U> BOOST_FORCEINLINE                               \
+  typename std::enable_if < is_not_pack_t<U>::value && std::is_convertible<U, T>::value            \
+                          , pack<bs::as_logical_t<T>, N>                                           \
+                          >::type                                                                  \
+  op(U const& s0, pack<T, N> const& p1) BOOST_NOEXCEPT                                             \
+  { return f(s0, p1); }                                                                            \
+/**/
+
+BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(operator&&, logical_and)
+BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(operator||, logical_or)
+BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(operator<,  is_less)
+BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(operator>,  is_greater)
+BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(operator==, is_equal)
+BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(operator<=, is_less_equal)
+BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(operator>=, is_greater_equal)
+BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(operator!=, is_not_equal)
 
 #undef BOOST_SIMD_PACK_DEFINE_BINOP
+#undef BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP
 
   template <typename T, std::size_t N>
   BOOST_FORCEINLINE auto operator!(pack<T,N> const& a)

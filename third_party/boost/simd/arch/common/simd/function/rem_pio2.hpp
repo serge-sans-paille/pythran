@@ -30,19 +30,18 @@ namespace boost { namespace simd { namespace ext
                           )
    {
       using iA0 =  bd::as_integer_t<A0>;
-      using result = std::pair<iA0,A0>;
+      using result = std::pair<A0,A0>;
       inline result operator()(A0 const& a0) const
       {
         using stype =  bd::scalar_of_t<A0>;
-        using sitype =  bd::scalar_of_t<iA0>;
         static const uint32_t size = bs::cardinal_of<A0>::value;
-        alignas(iA0) std::array<sitype, size> tmp;
+        alignas(iA0) std::array<stype, size> tmp;
         alignas( A0) std::array<stype , size> txr;
         for(uint32_t i=0; i!=size; ++i)
         {
           std::tie(tmp[i],txr[i]) =  bs::rem_pio2(a0[i]);
         }
-        return result(aligned_load<iA0>(&tmp[0], 0), aligned_load<A0>(&txr[0], 0));
+        return result(aligned_load<A0>(&tmp[0], 0), aligned_load<A0>(&txr[0], 0));
       }
    };
 

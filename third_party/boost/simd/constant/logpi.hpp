@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate value \f$\log\pi\f$
 
+
+    @par Header <boost/simd/constant/logpi.hpp>
+
     @par Semantic:
 
     @code
@@ -48,8 +51,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/logpi.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/logpi.hpp>
+#include <boost/simd/constant/simd/logpi.hpp>
 
 #endif

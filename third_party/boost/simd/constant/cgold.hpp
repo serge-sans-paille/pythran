@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     The conjugate Golden Ratio (\f$\bar\phi\f$) is defined as \f$\frac{1-\sqrt5}{2}\f$.
 
+
+    @par Header <boost/simd/constant/cgold.hpp>
+
     @par Semantic:
 
     @code
@@ -68,8 +71,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/cgold.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/cgold.hpp>
+#include <boost/simd/constant/simd/cgold.hpp>
 
 #endif

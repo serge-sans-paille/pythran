@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,28 +15,32 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing acotpi capabilities
+    This function object returns the inverse cotangent in pi multiples.
 
-    inverse cotangent in pi multiples.
 
-    @par Semantic:
+    @par Header <boost/simd/function/acotpi.hpp>
 
-    For every parameter of floating type
+    @par Note
 
-    @code
-    auto r = acotpi(x);
-    @endcode
-
-    Returns the arc @c r in the interval
-    \f$[0, 1[\f$ such that <tt>cotpi(r) == x</tt>.
+      For every parameter of floating type `acotpi(x)`
+      returns the arc @c r in the interval  \f$[0, 1[\f$ such
+      that <tt>cotpi(r) == x</tt>.
 
     @see acot, acotd, cotpi
 
+
+    @par Example:
+
+      @snippet acotpi.cpp acotpi
+
+    @par Possible output:
+
+      @snippet acotpi.txt acotpi
+
   **/
-  Value acotpi(Value const & v0);
+  IEEEValue acotpi(IEEEValue const & x);
 } }
 #endif
 

@@ -3,7 +3,6 @@
   @file
 
   @copyright 2015 NumScale SAS
-  @copyright 2015 J.T. Lapreste
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -28,7 +27,7 @@
 #include <boost/simd/function/minus.hpp>
 #include <boost/simd/function/multiplies.hpp>
 #include <boost/simd/function/bitwise_and.hpp>
-#include <boost/simd/function/minus.hpp>
+#include <boost/simd/function/quadrant.hpp>
 #include <utility>
 
 namespace boost { namespace simd { namespace ext
@@ -42,8 +41,7 @@ namespace boost { namespace simd { namespace ext
                           , bd::scalar_ < bd::floating_<A0> >
                           )
   {
-    using int_t = bd::as_integer_t<A0>;
-    using result_t = std::pair<int_t, A0>;
+    using result_t = std::pair<A0, A0>;
     BOOST_FORCEINLINE result_t operator() ( A0 t) const
     {
       const A0 fn = nearbyint(t*Twoopi<A0>());
@@ -57,7 +55,7 @@ namespace boost { namespace simd { namespace ext
       w  = fn*Pio2_3<A0>();
       r  = t2-w;
       w  = fn*Pio2_3t<A0>()-((t2-r)-w);
-      return  {bitwise_and(toint(fn), Three<int_t>()), r-w};
+      return  {quadrant(fn), r-w};
     }
   };
 

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,32 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing ulp capabilities
-
-    Returns the ulp distance to the nearest (distinct) element of the same type.
-
-    @par Semantic:
-
-    @code
-    T r = ulp(x);
-    @endcode
-
-    is similar to:
-
-    @code
-    T r = min(x-prev(x), next(x)-x)/Eps<T>();
-    @endcode
-
-    @par Note
-    ulp stands for Unit in the Last Place.
+    This function object returns the ulp distance to the nearest (distinct) element of the same type.
 
     @see ulpdist, eps, Eps
 
+
+
+    @par Header <boost/simd/function/ulp.hpp>
+
+    @par Example:
+
+      @snippet ulp.cpp ulp
+
+    @par Possible output:
+
+      @snippet ulp.txt ulp
+
   **/
-  Value ulp(Value const & v0);
+  Value ulp(Value const& x);
 } }
 #endif
 

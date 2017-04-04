@@ -23,7 +23,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, repeat_upper_half_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, repeat_upper_half_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::repeat_upper_half_,repeat_upper_half);

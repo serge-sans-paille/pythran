@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, rsqrt_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, rsqrt_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::rsqrt_,rsqrt);

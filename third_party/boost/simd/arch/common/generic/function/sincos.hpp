@@ -48,6 +48,20 @@ namespace boost { namespace simd { namespace ext
       return detail::trig_base<A0, tag::radian_tag,is_not_scalar_t<A0>,tag::clipped_pio4_tag>::sincosa(a0);
     }
   };
+
+  BOOST_DISPATCH_OVERLOAD ( sincos_
+                          , (typename A0, typename A1)
+                          , bd::cpu_
+                          , bd::generic_< bd::floating_<A0> >
+                          , bd::scalar_ < bd::unspecified_<A1>>
+                          )
+  {
+    BOOST_FORCEINLINE std::pair<A0, A0> operator() (const A0 & a0,  A1 const &) const BOOST_NOEXCEPT
+    {
+      return detail::trig_base<A0, tag::radian_tag,is_not_scalar_t<A0>,A1>::sincosa(a0);
+    }
+  };
+
 } } }
 
 

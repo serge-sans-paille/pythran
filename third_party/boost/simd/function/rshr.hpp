@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,26 +15,28 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-bitwise
-    Function object implementing rshr capabilities
-
-    Returns the first entry shifted right or left
+    This function object returns the first entry shifted right or left
     by the absolute value of the second entry,
     according to its sign.
 
-    @par semantic:
-    For any given value @c x of type @c T,  @c n  of type @c I:
-
-    @code
-    T r = rshr(x, n);
-    @endcode
-
     @see  rshl, shr, shl
 
+
+
+    @par Header <boost/simd/function/rshr.hpp>
+
+    @par Example:
+
+      @snippet rshr.cpp rshr
+
+    @par Possible output:
+
+      @snippet rshr.txt rshr
+
   **/
-  Value rshr(Value const & x, IntegerValue const &n);
+  Value rshr(Value const& x, IntegerValue const& n);
 } }
 #endif
 

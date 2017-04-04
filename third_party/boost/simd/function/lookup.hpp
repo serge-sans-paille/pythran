@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,12 +15,15 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-swar
     Function object implementing lookup capabilities
 
     shuffles the elements of x using indices in n
+
+
+    @par Header <boost/simd/function/lookup.hpp>
 
     @par Semantic:
 
@@ -34,12 +37,20 @@ namespace boost { namespace simd
 
     @code
     T r;
-    for(size_t i=0; i < boost::simd::meta::cardinal_of<T0>::value; i++)
+    for(size_t i=0; i < boost::simd::meta::cardinal_of<T>::value; i++)
       r[i] = x[n[i]];
     @endcode
 
+    @par Example:
+
+      @snippet lookup.cpp lookup
+
+    @par Possible output:
+
+      @snippet lookup.txt lookup
+
   **/
-  Value lookup(Value const & v0, IntegerValue const& n);
+  Value lookup(Value const& x, IntegerValue const& n);
 } }
 #endif
 

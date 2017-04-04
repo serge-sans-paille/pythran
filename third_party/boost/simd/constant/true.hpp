@@ -25,7 +25,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/true.hpp>
-#include <boost/simd/arch/common/generic/constant/true.hpp>
+#include <boost/simd/constant/scalar/true.hpp>
+#include <boost/simd/constant/simd/true.hpp>
 
 #endif

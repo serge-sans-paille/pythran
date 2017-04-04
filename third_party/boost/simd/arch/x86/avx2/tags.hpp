@@ -33,7 +33,7 @@ namespace boost { namespace simd
 
   namespace detail
   {
-    template<> struct support<::boost::simd::avx2_>
+    template<> struct support< ::boost::simd::avx2_>
     {
       support()
       {

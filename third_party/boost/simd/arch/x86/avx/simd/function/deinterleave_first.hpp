@@ -29,12 +29,14 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()(const A0 & a0, const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      auto b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
+      using f_t = bd::as_floating_t<A0>;
+      auto b0 = bitwise_cast<f_t>(a0);
+      auto b1 = bitwise_cast<f_t>(a1);
 
-      return  bitwise_cast<A0>( _mm256_unpacklo_pd( _mm256_permute2f128_pd(b0,b1,0x20)
+      return  bitwise_cast<A0>(f_t( _mm256_unpacklo_pd( _mm256_permute2f128_pd(b0,b1,0x20)
                                                   , _mm256_permute2f128_pd(b0,b1,0x31)
                                                   )
+                                  )
                               );
     }
   };
@@ -48,15 +50,17 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()(const A0 & a0, const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      auto const b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto const b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
+      using f_t = bd::as_floating_t<A0>;
+      auto const b0 = bitwise_cast<f_t>(a0);
+      auto const b1 = bitwise_cast<f_t>(a1);
 
       auto const  x = _mm256_permute2f128_ps(b0,b1,0x20)
                 , y = _mm256_permute2f128_ps(b0,b1,0x31);
 
-      return  bitwise_cast<A0>( _mm256_unpacklo_ps( _mm256_unpacklo_ps(x,y)
+      return  bitwise_cast<A0>(f_t( _mm256_unpacklo_ps( _mm256_unpacklo_ps(x,y)
                                                   , _mm256_unpackhi_ps(x,y)
                                                   )
+                                  )
                               );
     }
   };

@@ -16,13 +16,6 @@
 
 #include <boost/simd/detail/predef.hpp>
 
-#if !defined(BOOST_SIMD_DEFAULT_FAMILY)
-  #if BOOST_HW_SIMD_X86_AMD_FMA4
-    #define BOOST_SIMD_DEFAULT_FAMILY ::boost::simd::avx_
-    #define BOOST_SIMD_DEFAULT_SITE   ::boost::simd::avx_
-  #endif
-#endif
-
 #if BOOST_HW_SIMD_X86_AMD_FMA4
   // FMA4 header not standardized
   #ifdef _MSC_VER

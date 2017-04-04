@@ -14,6 +14,7 @@
 #include <boost/simd/meta/as_logical.hpp>
 #include <boost/simd/function/genmask.hpp>
 #include <boost/simd/function/hmsb.hpp>
+#include <boost/simd/function/slice.hpp>
 #include <boost/simd/function/splatted.hpp>
 
 namespace boost { namespace simd { namespace ext
@@ -21,20 +22,28 @@ namespace boost { namespace simd { namespace ext
    namespace bd = boost::dispatch;
    namespace bs = boost::simd;
 
-  BOOST_DISPATCH_OVERLOAD_IF( all_
-                            , (typename A0, typename X)
-                            , (detail::is_native<X>)
-                            , bd::cpu_
-                            , bs::pack_<bd::fundamental_<A0>, X>
-                            )
+  BOOST_DISPATCH_OVERLOAD ( all_
+                          , (typename A0, typename X)
+                          , bd::cpu_
+                          , bs::pack_<bd::fundamental_<A0>, X>
+                          )
   {
-    // MSVC has some issue with >> in template declaration
-    static const std::size_t cnt = (std::size_t(-1) >> (64 - A0::static_size));
-    using count = std::integral_constant<std::size_t,cnt>;
+    BOOST_FORCEINLINE bool do_(const A0& a0, aggregate_storage const&) const BOOST_NOEXCEPT
+    {
+      auto const all0 = all(slice_high(a0));
+      auto const all1 = all(slice_low(a0) );
+      return  all0 && all1;
+    }
+
+    template<typename K>
+    BOOST_FORCEINLINE bool do_(const A0& a0, K const&) const BOOST_NOEXCEPT
+    {
+      return hmsb(genmask(a0)).all();
+    }
 
     BOOST_FORCEINLINE bool operator()(const A0& a0) const BOOST_NOEXCEPT
     {
-      return hmsb(genmask(a0)) == count::value;
+      return do_(a0, typename A0::storage_kind{});
     }
   };
 

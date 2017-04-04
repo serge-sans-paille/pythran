@@ -15,7 +15,7 @@
 #include <boost/simd/function/is_gtz.hpp>
 #include <boost/simd/function/shift_left.hpp>
 #include <boost/simd/function/shr.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 #ifndef NDEBUG
 #include <boost/simd/function/max.hpp>
@@ -29,7 +29,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF( rshl_
                             , (typename A0, typename A1, typename X)
-                            , (brigand::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>)
+                            , (nsm::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>)
                             , bd::cpu_
                             , bs::pack_<bd::arithmetic_<A0>, X>
                             , bd::generic_<bd::integer_<A1>>
@@ -47,7 +47,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF( rshl_
                             , (typename A0, typename A1, typename X)
-                            , (brigand::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>)
+                            , (nsm::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>)
                             , bd::cpu_
                             , bs::pack_<bd::arithmetic_<A0>, X>
                             , bd::generic_<bd::unsigned_<A1>>

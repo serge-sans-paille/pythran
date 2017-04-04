@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate \f$1/\sqrt\epsilon\f$
 
+
+    @par Header <boost/simd/constant/oneosqrteps.hpp>
+
     @par Semantic:
 
     @code
@@ -54,8 +57,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/oneosqrteps.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/oneosqrteps.hpp>
+#include <boost/simd/constant/simd/oneosqrteps.hpp>
 
 #endif

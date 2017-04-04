@@ -29,7 +29,7 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE result operator() ( const A0 & a0
                                         , const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      return bitwise_cast<result>(_mm_cmpneq_ps(a0,a1));
+      return  _mm_cmpneq_ps(a0,a1);
     }
   };
 } } }

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,34 +15,29 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-arithmetic
-    Function object implementing inc capabilities
+    This function object returns  its parameter incremented by 1.
 
-    Increments a value by 1.
-
-    @par semantic:
-    For any given value @c x of type @c T:
-
-    @code
-    T r = inc(x);
-    @endcode
-
-    is equivalent to:
-
-    @code
-    T r =  x+T(1);
-    @endcode
+    @par Header <boost/simd/function/inc.hpp>
 
     @par Decorators
 
-    saturated_ ensures that saturated_(inc)(x) will never be strictly smaller than x.
+     - saturated_ ensures that @c saturated_(inc)(x) will never be strictly
+     less than @c x, avoiding the wrap around from @ref Valmax to
+     @ref Valmin with integer types.
 
-    @see dec, oneminus, plus
+    @see plus, dec, minus
 
+    @par Example:
+
+      @snippet inc.cpp inc
+
+    @par Possible output:
+
+      @snippet inc.txt inc
   **/
-  Value inc(Value const & v0);
+  Value inc(Value const& x);
 } }
 #endif
 

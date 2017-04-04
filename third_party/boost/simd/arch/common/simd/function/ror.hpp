@@ -67,9 +67,9 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF ( ror_
                              , (typename A0, typename A1, typename X)
-                             , ( brigand::and_<
+                             , ( nsm::and_<
                                  detail::is_native<X>,
-                                 brigand::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
+                                 nsm::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
                                  >
                                )
                              , bd::cpu_
@@ -89,9 +89,9 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF ( ror_
                              , (typename A0, typename A1, typename X)
-                             , ( brigand::and_<
+                             , ( nsm::and_<
                                  detail::is_native<X>,
-                                 brigand::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
+                                 nsm::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
                                  >
                                )
                                , bd::cpu_

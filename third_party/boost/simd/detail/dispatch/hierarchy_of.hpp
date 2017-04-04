@@ -15,7 +15,7 @@
 #define BOOST_SIMD_DETAIL_DISPATCH_HIERARCHY_OF_HPP_INCLUDED
 
 #include <boost/simd/detail/dispatch/detail/hierarchy_of.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {
@@ -38,7 +38,7 @@ namespace boost { namespace dispatch
 #if !defined(DOXYGEN_ONLY)
         : detail::hierarchy_of<T, typename std::remove_reference<Origin>::type>
 #endif
-  {};
+  { };
 
   /*!
     @ingroup group-hierarchy

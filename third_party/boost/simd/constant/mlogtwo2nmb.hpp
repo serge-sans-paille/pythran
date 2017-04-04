@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Generates constant Mlogtwo2nmb.
 
+
+    @par Header <boost/simd/constant/mlogtwo2nmb.hpp>
+
     @par Semantic:
 
     @code
@@ -53,8 +56,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/mlogtwo2nmb.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/mlogtwo2nmb.hpp>
+#include <boost/simd/constant/simd/mlogtwo2nmb.hpp>
 
 #endif

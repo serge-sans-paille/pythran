@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -16,32 +16,23 @@ namespace boost { namespace simd
 {
   /*!
     @ingroup group-reduction
-    Function object implementing compare_not_equal capabilities
-
-    Returns a logical scalar that is the result of the lexicographic
-    test for != on elements of the entries,
-    i.e. return @ref True if and only if two corresponding entries
+    This function object returns @c true if and only if two corresponding entries
     elements are not equal.
 
     It is probably not what you wish. Have a look to @ref is_not_equal
 
-    @par Semantic:
+    @par Header <boost/simd/function/compare_not_equal.hpp>
 
-    For every parameters of type T0:
+    @par Example:
 
-    @code
-    bool r = compare_not_equal(x,y);
-    @endcode
+      @snippet compare_not_equal.cpp compare_not_equal
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    bool r = any(x != y);
-    @endcode
+      @snippet compare_not_equal.txt compare_not_equal
 
-    @see is_not_equal
   **/
-  bool compare_not_equal(Value const& v0, Value const& v1);
+  bool compare_not_equal(Value const& x, Value const& y);
 } }
 #endif
 

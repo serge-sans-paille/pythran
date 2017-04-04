@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -21,6 +21,9 @@ namespace boost { namespace simd
 
     provides an easy way to use the original  stdlibc++ function that is mimicked by one of our functors.
 
+
+    @par Header <boost/simd/function/std.hpp>
+
     @par Semantic
 
     For a function object @c func,
@@ -35,7 +38,7 @@ namespace boost { namespace simd
     T r = std::func(< func parameters >);
     @endcode
 
-    @par Notes:
+    @par Notes
 
     - for simd vector parameter a map of the standard function is done automagically
       for each vector element but of course there is no vectorization gain.

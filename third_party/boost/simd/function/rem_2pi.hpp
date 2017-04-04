@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,36 +15,31 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing rem_2pi capabilities
+    This function object returns the compute the remainder modulo \f$2\pi\f$.
 
-    compute the remainder modulo \f$2\pi\f$.
 
-    the result is in \f$[-\pi, \pi]\f$. If the input
-    is near \f$\pi\f$ the output can be \f$\pi\f$ or \f$-\pi\f$
-    depending
-    on register disponibility if extended arithmetic is used.
 
-    @par Semantic:
+    @par Header <boost/simd/function/rem_2pi.hpp>
 
-    For every parameter of floating type T
+    @par Note
 
-    @code
-    T r = rem_2pi(x);
-    @endcode
+     - The result is in \f$[-\pi, \pi]\f$.
 
-    is similar to:
+     - If the input is near \f$\pi\f$ the output can be \f$\pi\f$ or \f$-\pi\f$
+      depending  on register disponibility if extended arithmetic is used.
 
-    @code
-    T r = remainder(x, Twopi<T>());
-    @endcode
+    @par Example:
 
-    @see rem_pio2, rem_pio2_straight, rem_pio2_cephes,  rem_pio2_medium,
+      @snippet rem_2pi.cpp rem_2pi
+
+    @par Possible output:
+
+      @snippet rem_2pi.txt rem_2pi
 
   **/
-  Value rem_2pi(Value const & v0);
+  IEEEValue rem_2pi(IEEEValue const& x);
 } }
 #endif
 

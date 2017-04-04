@@ -40,7 +40,7 @@ namespace boost
       @defgroup group-config Configuration
       Configuration options
 
-      Behavior of Boost.SIMD functions behavior can be globally modified by this set of preprocessor
+      Behavior of Boost.SIMD functions can be globally modified by this set of preprocessor
       definitions.
     **/
 
@@ -49,7 +49,7 @@ namespace boost
       @defgroup group-types Types and helpers
 
       Boost.SIMD provides a set of types to handle SIMD operations in a portable way.
-      Those types include:
+      These types include:
 
       - boost::simd::pack which encapsulates SIMD registers
       - boost::simd::logical which encapsulates typed boolean values
@@ -88,20 +88,6 @@ namespace boost
 
       These limitations are due to the hardware implementation of these functions.
     **/
-
-    /*!
-      @defgroup group-hierarchy Hierarchies
-      Type hierarchies defined by the library
-    **/
-
-    /// Boost.SIMD Concepts namespace
-    namespace concept
-    {
-      /*!
-        @defgroup group-concept Concepts
-        Concepts defined by the library
-      **/
-    }
 } }
 
 #endif

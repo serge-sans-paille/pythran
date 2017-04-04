@@ -12,13 +12,12 @@
 #define BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_BITWISE_OR_HPP_INCLUDED
 
 #include <boost/simd/function/bitwise_cast.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/traits.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/hierarchy.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
 
 namespace boost { namespace simd { namespace ext
 {

@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, compare_greater_equal_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, compare_greater_equal_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::compare_greater_equal_,compare_greater_equal);

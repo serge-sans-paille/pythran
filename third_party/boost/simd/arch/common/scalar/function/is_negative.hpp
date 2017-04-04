@@ -63,7 +63,7 @@ namespace boost { namespace simd { namespace ext
                           , bd::scalar_< bd::floating_<A0> >
                           )
   {
-    BOOST_FORCEINLINE logical<A0> operator() (const std_tag &, A0 a0,  bs::std_tag const&) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE logical<A0> operator() (const std_tag &, A0 a0) const BOOST_NOEXCEPT
     {
       return std::signbit(a0);
     }

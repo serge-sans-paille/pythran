@@ -10,7 +10,7 @@
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_SHUFFLE_IDENTITY_HPP_INCLUDED
 
 #include <boost/simd/detail/overload.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/shuffle.hpp>
 
 namespace boost { namespace simd
@@ -21,9 +21,9 @@ namespace boost { namespace simd
     // Check if pattern is [0 1 ... C-1]
     template<int... Ps>
     struct  is_identity
-          : brigand::all< brigand::transform< brigand::range<int,0,sizeof...(Ps)>
-                                            , brigand::integral_list<int,Ps...>
-                                            , brigand::equal_to<brigand::_1,brigand::_2>
+          : nsm::all< nsm::transform< nsm::range<int,0,sizeof...(Ps)>
+                                            , nsm::integral_list<int,Ps...>
+                                            , nsm::equal_to<nsm::_1,nsm::_2>
                                             >
                       >
     {};

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,28 +15,32 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing csc capabilities
+    This function object returns the cosecante of the input in radian : \f$1/\sin(x)\f$.
 
-    cosecante of the input in radian : \f$\sin(1/x)\f$.
 
-    @par Semantic:
+    @par Header <boost/simd/function/csc.hpp>
 
-    For every parameter of floating type
+    @par Note
 
-    @code
-    auto r = csc(x);
-    @endcode
-
-    As most other trigonometric function csc can be called with a second optional parameter
-    which is a tag on speed and accuracy (see @ref cos for further details)
+      As most other trigonometric function csc can be called
+      with a second optional parameter  which is a tag on
+      speed and accuracy (see @ref cos for further details)
 
     @see cscd, cscpi,
 
+
+    @par Example:
+
+      @snippet csc.cpp csc
+
+    @par Possible output:
+
+      @snippet csc.txt csc
+
   **/
-  Value csc(Value const & v0);
+  IEEEValue csc(IEEEValue const& x);
 } }
 #endif
 

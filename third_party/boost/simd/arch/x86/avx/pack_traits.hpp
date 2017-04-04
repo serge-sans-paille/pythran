@@ -11,7 +11,7 @@
 
 #include <boost/config.hpp>
 #include <boost/simd/arch/x86/sse2/pack_traits.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/pack_traits.hpp>
 
 #if defined __GNUC__ && __GNUC__>=6

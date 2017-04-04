@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,51 +15,46 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing trunc capabilities
+    This function object computes the truncation toward @ref Zero
+    of its parameter.
 
-    Computes the truncation toward @ref Zero of its parameter.
 
-    @par semantic:
-    For any given value @c x of type @c T:
+    @par Header <boost/simd/function/trunc.hpp>
 
-    @code
-    T r = trunc(x);
-    @endcode
-
-    The code is similar to:
-
-    @code
-    T r = sign(x)*floor(abs(x));
-    @endcode
-
-    @par Note:
+    @par Notes
+      - the call to `trunc(x)` is similar to `sign(x)*floor(abs(x))`
 
       - For floating point number it is also one of the two ouputs of
         the @ref modf function.
         And we have:
         @code
-        trunc(x) + frac(x) == x;
+          trunc(x) + frac(x) == x;
         @endcode
         except for nans
 
-      - If large numbers correct behaviour is not needed the fast_ decorator can be used,
-        but 'fast_' means that no provisions are taken for floating values  too large to fit
-         in the same size integer type.
-
-    @par Alias:
-    fix
-
     @par Decorators
 
-    std_, fast_ for floating entries
+       - std_ for floating entries call std::trunc
 
-    @see abs, frac, floor, sign, modf
+    @par Alias:
+
+       fix
+
+    @see abs, frac, floor, sign, modf, itrunc
+
+    @par Example:
+
+      @snippet trunc.cpp trunc
+
+    @par Possible output:
+
+      @snippet trunc.txt trunc
 
   **/
-  Value trunc(Value const & v0);
+  Value trunc(Value const& x);
 } }
 #endif
 

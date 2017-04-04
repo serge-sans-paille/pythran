@@ -23,7 +23,6 @@
 #include <boost/simd/function/is_ltz.hpp>
 #include <boost/simd/function/logical_andnot.hpp>
 #include <boost/simd/function/nbtrue.hpp>
-#include <boost/simd/function/negif.hpp>
 #include <boost/simd/function/oneminus.hpp>
 #include <boost/simd/function/inc.hpp>
 #include <boost/simd/function/sign.hpp>

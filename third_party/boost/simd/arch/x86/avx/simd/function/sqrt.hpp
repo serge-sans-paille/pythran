@@ -39,31 +39,6 @@ namespace boost { namespace simd { namespace ext
     }
   };
 
-   BOOST_DISPATCH_OVERLOAD( sqrt_
-                          , (typename A0)
-                          , bs::avx_
-                          , boost::simd::fast_tag
-                          , bs::pack_<bd::double_<A0>, bs::avx_>
-                          )
-   {
-     BOOST_FORCEINLINE A0 operator()(const fast_tag &,  const A0& a0) const BOOST_NOEXCEPT
-     {
-       return _mm256_sqrt_pd(a0);
-     }
-   };
-
-  BOOST_DISPATCH_OVERLOAD( sqrt_
-                         , (typename A0)
-                         , bs::avx_
-                          , boost::simd::fast_tag
-                         , bs::pack_<bd::single_<A0>, bs::avx_>
-                         )
-  {
-    BOOST_FORCEINLINE A0 operator()(const fast_tag &,  const A0& a0) const BOOST_NOEXCEPT
-    {
-      return _mm256_sqrt_ps(a0);
-    }
-  };
 } } }
 
 #endif

@@ -18,11 +18,19 @@ namespace boost { namespace simd
       @ingroup group-functions
       @defgroup group-constant Constant Functions
 
-      These functions provides scalar and SIMD constant generators for the most usual
+      These functions provide scalar and SIMD constant generators for the most usual
       constant values such as zero, numeric limits, IEEE special values.
 
-      Constant generator functions take no arguments but require a template type parameter
-      so that the correct type of the required constant is returned.
+      Constant generator functions ced in two manners:
+
+        - taking no arguments but requiring a template type parameter
+        so that the correct type of the required constant is returned
+        (as @c One<float>() to generate 1.0f).
+
+        - taking one dummy arguments from which  the correct type of the
+        required constant is deduced and  returned (as @c One(42.0f) to generate 1.0f).
+
+
     **/
 
 } }

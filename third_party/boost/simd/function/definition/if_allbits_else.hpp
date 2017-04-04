@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, if_allbits_else_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, if_allbits_else_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::if_allbits_else_,if_allbits_else);

@@ -11,7 +11,6 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_CBRT_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_CBRT_HPP_INCLUDED
 #include <boost/simd/function/std.hpp>
-#include <boost/simd/function/fast.hpp>
 
 #ifndef BOOST_SIMD_NO_INFINITIES
 #include <boost/simd/constant/inf.hpp>
@@ -30,7 +29,7 @@
 #include <boost/simd/function/abs.hpp>
 #include <boost/simd/function/bitofsign.hpp>
 #include <boost/simd/function/bitwise_or.hpp>
-#include <boost/simd/function/frexp.hpp>
+#include <boost/simd/function/ifrexp.hpp>
 #include <boost/simd/function/is_gez.hpp>
 #include <boost/simd/function/ldexp.hpp>
 #include <boost/simd/function/negate.hpp>
@@ -77,7 +76,7 @@ namespace boost { namespace simd { namespace ext
       using i_t = bd::as_integer_t<A0, signed>;
       i_t e;
       A0 x;
-      std::tie(x, e) = fast_(frexp)(z);
+      std::tie(x, e) = ifrexp(z);
       x = horn<A0,
                0x3fd9c0c12122a4fell,
                0x3ff23d6ee505873all,
@@ -95,7 +94,7 @@ namespace boost { namespace simd { namespace ext
       const A0 cbrt4 = flag ? CBRT4 : CBRT4I;
       A0 fact = (rem == One<i_t>()) ? cbrt2: One<A0>();
       fact = (rem == Two<i_t>() ? cbrt4 : fact);
-      x = fast_(ldexp)(x*fact, e);
+      x = ldexp(x*fact, e);
       x -= (x-z/sqr(x))*Third<A0>();
       x -= (x-z/sqr(x))*Third<A0>(); //two newton passes
     #ifndef BOOST_SIMD_NO_DENORMALS
@@ -134,7 +133,7 @@ namespace boost { namespace simd { namespace ext
       using i_t = bd::as_integer_t<A0, signed>;
       i_t e;
       A0 x;
-      std::tie(x, e)= fast_(frexp)(z);
+      std::tie(x, e)= ifrexp(z);
       x = horn<A0,
                0x3ece0609,
                0x3f91eb77,
@@ -153,7 +152,7 @@ namespace boost { namespace simd { namespace ext
       const A0 cbrt4 = flag ? CBRT4 : CBRT4I;
       A0 fact = (rem ==  One<i_t>()) ? cbrt2 : One<A0>();
       fact = (rem == Two<i_t>()) ? cbrt4 : fact;
-      x = fast_(ldexp)(x*fact, e);
+      x = ldexp(x*fact, e);
       x -= (x-z/sqr(x))*Third<A0>();
     #ifndef BOOST_SIMD_NO_DENORMALS
       return bitwise_or(x, bitofsign(a0))*f;

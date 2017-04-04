@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -16,28 +16,22 @@ namespace boost { namespace simd
 {
   /*!
     @ingroup group-reduction
-    Function object implementing compare_equal capabilities
+    This function object returns `all(x == y)`,
+    i.e. return @c true if and only if all corresponding entries elements are equal.
 
-    Returns a boolean that is the result of the lexicographic test for equality of all elements of
-    the entries, i.e. return @ref true if and only if all corresponding entries elements are equal.
 
-    @par Semantic:
+    @par Header <boost/simd/function/compare_equal.hpp>
 
-    For every parameters of type T:
+    @par Example:
 
-    @code
-    auto r = compare_equal(x,y);
-    @endcode
+      @snippet compare_equal.cpp compare_equal
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    bool r = all(x == y);
-    @endcode
+      @snippet compare_equal.txt compare_equal
 
-    @see is_equal
   **/
-  bool compare_equal(Value const& v0, Value const& v1);
+  bool compare_equal(Value const& x, Value const& y);
 } }
 #endif
 

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,28 +15,30 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing sqr capabilities
+    This function computes the square of its parameter.
 
-    Computes the square of its parameter.
+    @par Header <boost/simd/function/sqr.hpp>
 
-    @par semantic:
-    For any given value @c x of type @c T:
+    @par Decorators
 
-    @code
-    T r = sqr(x);
-    @endcode
+    - saturated_ for integer entries ensure that sqr(x) is never strictly less than x
 
-    is equivalent to:
+    @see sqrt, sqr_abs
 
-    @code
-    T r = x*x;
-    @endcode
+    @par Example:
+
+      @snippet sqr.cpp sqr
+
+    @par Possible output:
+
+      @snippet sqr.txt sqr
+
 
   **/
-  Value sqr(Value const & v0);
+  Value sqr(Value const& x);
 } }
 #endif
 

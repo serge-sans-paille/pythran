@@ -35,6 +35,12 @@ namespace boost { namespace simd
                             , boost::simd::as_<Type>{}
                             );
   }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto Ratio(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(Ratio<T>())
+  {
+    return Ratio<T>();
+  }
 } }
 
 #endif

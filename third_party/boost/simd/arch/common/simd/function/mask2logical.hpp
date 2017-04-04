@@ -12,7 +12,9 @@
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/detail/assert_utils.hpp>
 #include <boost/simd/function/bitwise_cast.hpp>
+#include <boost/simd/function/is_nez.hpp>
 #include <boost/simd/meta/as_logical.hpp>
+#include <boost/simd/meta/is_bitwise_logical.hpp>
 #include <boost/assert.hpp>
 
 namespace boost { namespace simd { namespace ext
@@ -27,10 +29,21 @@ namespace boost { namespace simd { namespace ext
                              , bs::pack_<bd::arithmetic_<A0>,X>
                              )
   {
-    BOOST_FORCEINLINE bs::as_logical_t<A0> operator()(const A0& a0) const BOOST_NOEXCEPT
+    using result_t = bs::as_logical_t<A0>;
+    BOOST_FORCEINLINE result_t operator()(const A0& a0) const BOOST_NOEXCEPT
     {
       BOOST_ASSERT_MSG(assert_is_mask(a0), "Argument to mask2logical is not a valid logical mask");
-      return bitwise_cast<bs::as_logical_t<A0>>(a0);
+      return do_(a0, typename is_bitwise_logical<A0>::type{});
+    }
+
+    BOOST_FORCEINLINE result_t do_(const A0& a0, tt::true_type const&) const BOOST_NOEXCEPT
+    {
+      return bitwise_cast<result_t>(a0);
+    }
+
+    BOOST_FORCEINLINE result_t do_(const A0& a0, tt::false_type const&) const BOOST_NOEXCEPT
+    {
+      return a0 != 0;
     }
   };
 } } }

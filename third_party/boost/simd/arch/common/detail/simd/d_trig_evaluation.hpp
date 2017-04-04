@@ -74,16 +74,17 @@ namespace boost { namespace simd { namespace detail
       return fma(x, (zz*(num/den)), x);
     }
 
-    static BOOST_FORCEINLINE A0 tan_eval(const A0& z, const iA0& n )
+    template < typename A1>
+    static BOOST_FORCEINLINE A0 tan_eval(const A0& z,  const A1& test)
     {
       A0 y = base_tancot_eval(z);
-      return bs::if_else(bs::is_equal(n, One<iA0>()),y,-rec(y));
+      return bs::if_else(test,y,-bs::rec(y));
     }
-
-    static BOOST_FORCEINLINE A0 cot_eval(const A0&z, const iA0& n )
+    template < typename A1>
+    static BOOST_FORCEINLINE A0 cot_eval(const A0& z,  const A1& test)
     {
-      const A0 y = base_tancot_eval(z);
-      return bs::if_else(bs::is_equal(n, One<iA0>()),rec(y),-y);
+      A0 y = base_tancot_eval(z);
+      return bs::if_else(test,bs::rec(y),-y);
     }
   };
 } } }

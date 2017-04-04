@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,12 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-bitwise
-    Function object implementing twopower capabilities
+    This function object returns \f$2^n\f$ (or 0 if n is less than zero)
 
-    Returns \f$2^n\f$ (or 0 if n is less than zero)
 
-    @par semantic:
-    For any given value @c n  of integral type @c N:
-
-    @code
-    N r = twopower(n);
-    @endcode
-
-    code is similar to:
-
-    @code
-    N r = 1 << n;
-    @endcode
+    @par Header <boost/simd/function/twopower.hpp>
 
     @par Note:
 
@@ -41,8 +28,17 @@ namespace boost { namespace simd
 
     @see  ilog2
 
+
+    @par Example:
+
+      @snippet twopower.cpp twopower
+
+    @par Possible output:
+
+      @snippet twopower.txt twopower
+
   **/
-  Value twopower(Value const & v0);
+  IntegerValue twopower(IntegerValue const& x);
 } }
 #endif
 

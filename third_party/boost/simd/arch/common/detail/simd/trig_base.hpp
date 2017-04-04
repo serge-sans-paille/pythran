@@ -22,6 +22,7 @@
 #include <boost/simd/function/shr.hpp>
 #include <boost/simd/function/sqr.hpp>
 #include <boost/simd/function/if_nan_else.hpp>
+#include <boost/simd/function/if_allbits_else_zero.hpp>
 #include <boost/simd/function/bitwise_xor.hpp>
 #include <boost/simd/function/if_else.hpp>
 #include <boost/simd/function/bitofsign.hpp>
@@ -33,6 +34,8 @@
 #include <boost/simd/constant/nan.hpp>
 #include <boost/simd/constant/one.hpp>
 #include <boost/simd/constant/two.hpp>
+#include <boost/simd/constant/mtwo.hpp>
+#include <boost/simd/constant/signmask.hpp>
 #include <boost/simd/arch/common/detail/tags.hpp>
 #include <boost/simd/meta/as_logical.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
@@ -80,67 +83,71 @@ namespace boost { namespace simd
       {
         const A0 x = bs::abs(a0);
         A0 xr = Nan<A0>();
-        const int_type n =  redu_t::reduce(x, xr);
-        const int_type swap_bit = n&One<int_type>();
-        const int_type sign_bit = shift_left(bitwise_xor(swap_bit, shr(n&Two<int_type>(), 1)), Maxleftshift<sint_type>());
-        const A0 z = sqr(xr);
-        const A0 se = eval_t::sin_eval(z, xr);
-        const A0 ce = eval_t::cos_eval(z);
-        return  bitwise_xor(if_else(is_nez(swap_bit), se, ce), sign_bit);
+        A0 n =  redu_t::reduce(x, xr);
+        auto tmp = if_one_else_zero(n >= Two<A0>());
+        auto swap_bit = (fma(Mtwo<A0>(), tmp, n));
+        auto sign_bit = if_else_zero(bitwise_xor(swap_bit, tmp), Signmask<A0>());
+        A0 z = sqr(xr);
+        A0 se = eval_t::sin_eval(z, xr);
+        A0 ce = eval_t::cos_eval(z);
+        A0 z1 = if_else(is_nez(swap_bit), se, ce);
+        return bitwise_xor(z1, sign_bit);
       }
 
       static BOOST_FORCEINLINE A0 sina(const A0& a0_n, const tag::restricted&)
       {
-        const A0 x =   scale(a0_n);
-        const A0 se = eval_t::sin_eval(sqr(x), x);
+        A0 x =   scale(a0_n);
+        A0 se = eval_t::sin_eval(sqr(x), x);
         return se;
       }
 
-      static BOOST_FORCEINLINE A0 sina(const A0& a0_n, const tag::regular&)
+      static BOOST_FORCEINLINE A0 sina(const A0& a0, const tag::regular&)
       {
-        const A0 a0 = a0_n;
         const A0 x = bs::abs(a0);
         A0 xr = Nan<A0>();
-        const int_type n = redu_t::reduce(x, xr);
-        const int_type swap_bit = n&One<int_type>();
-        const A0 sign_bit = bitwise_xor(bitofsign(a0),
-                                        shift_left(n&Two<int_type>(),Maxleftshift<sint_type>()-1));
+        const A0 n = redu_t::reduce(x, xr);
+        auto tmp = if_one_else_zero(n >= Two<A0>());
+        auto swap_bit = (fma(Mtwo<A0>(), tmp, n));
+        auto sign_bit = bitwise_xor(bitofsign(a0), if_else_zero(tmp, Signmask<A0>()));
         const A0 z = sqr(xr);
         const A0 se = eval_t::sin_eval(z, xr);
         const A0 ce = eval_t::cos_eval(z);
-        return bitwise_xor(if_else(is_eqz(swap_bit),se, ce), sign_bit);
+        const A0 z1 = if_else(is_eqz(swap_bit), se, ce);
+        return bitwise_xor(z1, sign_bit);
       }
 
-      static BOOST_FORCEINLINE A0 tana(const A0& a0_n, const tag::restricted&)
+      static BOOST_FORCEINLINE A0 tana(const A0& a0, const tag::restricted&)
       {
-        const A0 bte = eval_t::base_tancot_eval(scale(a0_n));
-        return bte;
+        return eval_t::base_tancot_eval(scale(a0));
       }
 
-      static BOOST_FORCEINLINE A0 tana(const A0& a0_n, const tag::regular&)
+      static BOOST_FORCEINLINE A0 tana(const A0& a0, const tag::regular&)
       {
-        const A0 a0 = a0_n;
-        const A0 x =  bs::abs(a0);
+        A0 x =  bs::abs(a0);
         A0 xr = Nan<A0>();
-        const int_type n = redu_t::reduce(x, xr);
-        const A0 y = eval_t::tan_eval(xr, oneminus(shift_left((n&One<int_type>()), 1)));
-        // 1 -- n even  -1 -- n odd
-        const bA0 testnan = redu_t::tan_invalid(a0);
+        A0 n = redu_t::reduce(x, xr);
+        auto tmp = if_one_else_zero( n >= Two<A0>());
+        auto swap_bit = (fma(Mtwo<A0>(), tmp, n));
+        auto test = is_eqz(swap_bit);
+        const A0 y = eval_t::tan_eval(xr, test);
+        auto testnan = redu_t::tan_invalid(a0);
         return if_nan_else(testnan, bitwise_xor(y, bitofsign(a0)));
       }
 
-      static BOOST_FORCEINLINE A0 cota(const A0& a0_n, const tag::restricted&)
+      static BOOST_FORCEINLINE A0 cota(const A0& a0, const tag::restricted&)
       {
-        const A0 bte = eval_t::base_tancot_eval(scale(a0_n));
-        return rec(bte);
+        return eval_t::base_tancot_eval(scale(a0));
       }
+
       static BOOST_FORCEINLINE A0 cota(const A0& a0, const tag::regular&)
       {
         const A0 x = bs::abs(a0);
         A0 xr = Nan<A0>();
-        const int_type n = redu_t::reduce(x, xr);
-        const A0 y = eval_t::cot_eval(xr, oneminus(shift_left((n&One<int_type>()), 1)));
-        // 1 -- n even -1 -- n odd
+        const A0 n = redu_t::reduce(x, xr);
+        auto tmp = if_one_else_zero( n >= Two<A0>());
+        auto swap_bit = (fma(Mtwo<A0>(), tmp, n));
+        auto test = is_eqz(swap_bit);
+        const A0 y = eval_t::cot_eval(xr, test);
         const bA0 testnan = redu_t::cot_invalid(a0);
         // this if_else is normally not needed but with clang the zero value if erroneous
         // if not there !
@@ -158,20 +165,18 @@ namespace boost { namespace simd
 
       static BOOST_FORCEINLINE  std::pair<A0, A0> sincosa(const A0& a0, const tag::regular&)
       {
-        const A0 x =  bs::abs(a0);
+        A0 x =  bs::abs(a0);
         A0 xr = Nan<A0>();
-        const int_type n = redu_t::reduce(x, xr);
-        const int_type swap_bit = n&One<int_type>();
-        const A0 z = bs::sqr(xr);
-        const int_type cos_sign_bit = shift_left(bitwise_xor(swap_bit
-                                                            , shr(n&Two<int_type>(), 1))
-                                                ,  Maxleftshift<sint_type>());
-        const int_type sin_sign_bit = bitwise_xor(shift_left(n&Two<int_type>()
-                                                            , Maxleftshift<sint_type>()-1)
-                                                 , bitofsign(a0));
-        const A0 t1 = eval_t::sin_eval(z, xr);
-        const A0 t2 = eval_t::cos_eval(z);
-        const bint_type test = is_nez(swap_bit);
+        A0 n = redu_t::reduce(x, xr);
+        auto tmp = if_one_else_zero(n >= Two<A0>());
+        auto swap_bit = (fma(Mtwo<A0>(), tmp, n));
+        auto cos_sign_bit = if_else_zero(bitwise_xor(swap_bit, tmp), Signmask<A0>());
+        auto sin_sign_bit = bitwise_xor(bitofsign(a0),if_else_zero(tmp, Signmask<A0>()));
+
+        A0 z = bs::sqr(xr);
+        A0 t1 = eval_t::sin_eval(z, xr);
+        A0 t2 = eval_t::cos_eval(z);
+        auto test = is_nez(swap_bit);
         return { bitwise_xor(if_else(test, t2, t1),sin_sign_bit)
                , bitwise_xor(if_else(test, t1, t2),cos_sign_bit) };
       }

@@ -14,9 +14,9 @@ namespace boost { namespace simd
 #if defined(DOXYGEN_ONLY)
   /**
     @ingroup group-swar
-    Function object implementing interleave_odd capabilities
+    This function object computes a vector from a combination of the two inputs.
 
-    Computes a vector from a combination of the two inputs.
+    @par Header <boost/simd/function/interleave_odd.hpp>
 
     @par Semantic:
 
@@ -35,7 +35,7 @@ namespace boost { namespace simd
     with <tt> n = cardinal_of<T>::value </tt>
 
   **/
-  Value interleave_odd(Value const& v0, Value const& v1);
+  Value interleave_odd(Value const& x, Value const& y);
 #endif
 } }
 

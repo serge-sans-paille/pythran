@@ -15,6 +15,7 @@
 #include <boost/simd/function/inc.hpp>
 #include <boost/simd/function/rec.hpp>
 #include <boost/simd/function/sqr.hpp>
+#include <boost/simd/constant/mone.hpp>
 #include <boost/simd/detail/dispatch/meta/scalar_of.hpp>
 
 namespace boost { namespace simd { namespace detail
@@ -56,17 +57,17 @@ namespace boost { namespace simd { namespace detail
                 , 0x3b4c779c
                 , 0x3c19c53b>(zz), zz*z, z);
     }
-
-    static BOOST_FORCEINLINE A0 tan_eval(const A0& z,  const iA0& n)
+    template <class A1>
+    static BOOST_FORCEINLINE A0 tan_eval(const A0& z,  const A1& test)
     {
       A0 y = base_tancot_eval(z);
-      return bs::if_else(bs::is_equal(n, bs::One<iA0>()),y,-bs::rec(y));
+      return bs::if_else(test,y,-bs::rec(y));
     }
-
-    static BOOST_FORCEINLINE A0 cot_eval(const A0& z,  const iA0& n)
+    template <class A1>
+    static BOOST_FORCEINLINE A0 cot_eval(const A0& z,  const A1& test)
     {
       A0 y = base_tancot_eval(z);
-      return bs::if_else(bs::is_equal(n, One<iA0>()),bs::rec(y),-y);
+      return bs::if_else(test,bs::rec(y),-y);
     }
   };
 } } }

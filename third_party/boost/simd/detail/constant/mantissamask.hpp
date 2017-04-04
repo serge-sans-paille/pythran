@@ -12,7 +12,7 @@
 #define BOOST_SIMD_DETAIL_CONSTANT_MANTISSAMASK_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
@@ -54,7 +54,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,mantissamask_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, mantissamask_)
   }
 
   namespace detail

@@ -24,7 +24,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF( logical_and_
                             , (typename A0,typename A1,typename X)
-                            , (brigand::and_<detail::same_size<A0,A1>, detail::is_native<X>>)
+                            , (nsm::and_<detail::same_size<A0,A1>, detail::is_native<X>>)
                             , bd::cpu_
                             , bs::pack_<bd::fundamental_<A0>,X>
                             , bs::pack_<bd::fundamental_<A1>,X>

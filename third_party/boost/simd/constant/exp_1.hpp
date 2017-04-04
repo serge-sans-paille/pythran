@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Generates constant e.
 
+
+    @par Header <boost/simd/constant/exp_1.hpp>
+
     @par Semantic:
     The e constant is the real number such that \f$\log(e) = 1\f$
 
@@ -54,8 +57,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/exp_1.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/exp_1.hpp>
+#include <boost/simd/constant/simd/exp_1.hpp>
 
 #endif

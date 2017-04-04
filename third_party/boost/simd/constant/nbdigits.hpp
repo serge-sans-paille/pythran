@@ -20,6 +20,9 @@ namespace boost { namespace simd
     Generate the number of mantissa bits of a floating point number,
     and the total number of bits for integral types.
 
+
+    @par Header <boost/simd/constant/nbdigits.hpp>
+
     @par Semantic:
 
     @code
@@ -54,8 +57,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/nbdigits.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/nbdigits.hpp>
+#include <boost/simd/constant/simd/nbdigits.hpp>
 
 #endif

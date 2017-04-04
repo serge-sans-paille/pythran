@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,32 +15,30 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
     @ingroup group-operator
-    Function object implementing plus capabilities
-
-    Perform the sum of two parameters of the same type.
+    This function object computes the sum of two parameters of the same type.
 
     Infix notation can be used with operator '+',
 
-    @par Semantic
+    @par Header <boost/simd/function/plus.hpp>
 
-    For any value @c a and @c b of type @c T,
+    @par Decorators
 
-    @code
-    auto x = plus(a,b);
-    @endcode
+     - `saturated_` (See @ref group-decorator) computes the saturated sum.
 
-    or
+    @see minus, divides, multiplies
 
-    @code
-    auto r = a+b;
-    @endcode
+    @par Example:
 
-    returns the sum of @c a and @c b
+      @snippet plus.cpp plus
+
+    @par Possible output:
+
+      @snippet plus.txt plus
 
   **/
-  Value plus(Value const & x, Value const& y);
+  Value plus(Value const& x, Value const& y);
 } }
 #endif
 

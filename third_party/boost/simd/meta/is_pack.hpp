@@ -13,7 +13,7 @@
 #define BOOST_SIMD_META_IS_PACK_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd
 {
@@ -28,10 +28,10 @@ namespace boost { namespace simd
     @tparam Type      Type to check
   **/
   template <typename T>
-  struct is_pack : brigand::bool_<false> {};
+  struct is_pack : nsm::bool_<false> {};
 
   template <typename T, std::size_t N, typename ABI>
-  struct is_pack<pack<T, N, ABI>> : brigand::bool_<true> {};
+  struct is_pack<pack<T, N, ABI>> : nsm::bool_<true> {};
 
   /*!
     @ingroup group-api
@@ -49,7 +49,7 @@ namespace boost { namespace simd
     @tparam Type      Type to check
   **/
   template <typename T>
-  struct is_not_pack : brigand::not_<is_pack<T>> {};
+  struct is_not_pack : nsm::not_<is_pack<T>> {};
 
   /*!
     @ingroup group-api

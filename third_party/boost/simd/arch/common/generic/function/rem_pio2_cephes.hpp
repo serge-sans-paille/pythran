@@ -15,9 +15,7 @@
 #include <boost/config.hpp>
 #include <boost/simd/function/fnms.hpp>
 #include <boost/simd/function/nearbyint.hpp>
-#include <boost/simd/function/toint.hpp>
-#include <boost/simd/function/multiplies.hpp>
-#include <boost/simd/function/minus.hpp>
+#include <boost/simd/function/quadrant.hpp>
 #include <boost/simd/function/bitwise_and.hpp>
 #include <boost/simd/constant/three.hpp>
 #include <boost/simd/constant/twoopi.hpp>
@@ -38,8 +36,8 @@ namespace boost { namespace simd { namespace ext
                           , bd::generic_ < bd::floating_<A0> >
                           )
   {
-    using i_t = bd::as_integer_t<A0>;
-    using result_t = std::pair<i_t, A0>              ;
+//    using i_t = bd::as_integer_t<A0>;
+    using result_t = std::pair<A0, A0>              ;
 
     BOOST_FORCEINLINE result_t operator() ( A0 const& x) const
     {
@@ -47,7 +45,7 @@ namespace boost { namespace simd { namespace ext
       A0 xr  = fnms(xi, bs::Pio2_1<A0>(), x);
       xr -= xi*bs::Pio2_2<A0>();
       xr -= xi*bs::Pio2_3<A0>();
-      return {bitwise_and(bs::toint(xi), Three<i_t>()), xr};
+      return {quadrant(xi), xr};
     }
   };
 

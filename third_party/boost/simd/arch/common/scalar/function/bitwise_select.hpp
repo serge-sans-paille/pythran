@@ -20,7 +20,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF( bitwise_select_
                             , (typename A0, typename A1)
-                            , (brigand::bool_<sizeof(A0)==sizeof(A1)>)
+                            , (nsm::bool_<sizeof(A0)==sizeof(A1)>)
                             , bd::cpu_
                             , bd::scalar_<bd::arithmetic_<A0> >
                             , bd::scalar_<bd::arithmetic_<A1> >

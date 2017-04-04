@@ -15,7 +15,7 @@
 #define BOOST_SIMD_DETAIL_DISPATCH_META_SIGN_OF_HPP_INCLUDED
 
 #include <boost/simd/detail/dispatch/meta/primitive_of.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {

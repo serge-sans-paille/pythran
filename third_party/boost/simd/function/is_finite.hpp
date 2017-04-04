@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,28 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-predicates
-    Function object implementing is_finite capabilities
+    This function object returns @ref True if x is not inf, -inf or nan, else returns @ref False.
 
-    Returns @ref True if x is not inf, -inf or nan, else returns @ref False.
 
-    @par Semantic:
+    @par Header <boost/simd/function/is_finite.hpp>
 
-    @code
-    auto r = is_finite(x);
-    @endcode
+    @par Note
 
-    is similar to:
-
-    @code
-    auto r = x-x == Zero;
-    @endcode
+    Using `is_finite(x)` is similar to `x-x == Zero`
 
     @par Alias:
     is_not_invalid
+
+    @par Example:
+
+      @snippet is_finite.cpp is_finite
+
+    @par Possible output:
+
+      @snippet is_finite.txt is_finite
 
   **/
   as_logical_t<Value> is_finite(Value const& x);

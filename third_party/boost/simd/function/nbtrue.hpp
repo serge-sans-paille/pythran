@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,32 +15,28 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing nbtrue capabilities
+     This function object returns the number of non @ref Zero elements of the
+   argument.
 
-    Returns the number of non @ref Zero elements of the input SIMD vector.
 
-    @par Semantic:
-
-    For every parameter of type T
-
-    @code
-    std::size_t r = nbtrue(x);
-    @endcode
-
-    is similar to:
-
-    @code
-    std::size_t r = sum(if_one_else_zero(x));
-    @endcode
+    @par Header <boost/simd/function/nbtrue.hpp>
 
     @par Note
 
-    This function is peculiarly useful in horizontal branching idioms.
+     This function is peculiarly useful in horizontal branching idioms.
+
+    @par Example:
+
+      @snippet nbtrue.cpp nbtrue
+
+    @par Possible output:
+
+      @snippet nbtrue.txt nbtrue
+
   **/
-  std::size_t nbtrue(Value const & x);
+  std::size_t nbtrue(Value const& x);
 } }
 #endif
 

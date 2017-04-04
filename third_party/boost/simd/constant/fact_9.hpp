@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate 9! that is 362880,
 
+
+    @par Header <boost/simd/constant/fact_9.hpp>
+
     @par Semantic:
 
     @code
@@ -48,8 +51,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/fact_9.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/fact_9.hpp>
+#include <boost/simd/constant/simd/fact_9.hpp>
 
 #endif

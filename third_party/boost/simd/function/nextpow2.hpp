@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,28 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing nextpow2 capabilities
+    This function object returns the smallest integer n such that
+    `saturated_(abs)(x)` is less or equal to \f$2^n\f$
 
-    Returns the greatest integer n such that abs_s(x) is greater or equal to \f$2^n\f$
 
-    @par Semantic:
 
-    @code
-    auto n = nextpow2(x);
-    @endcode
+    @par Header <boost/simd/function/nextpow2.hpp>
 
-    is similar to:
+    @par Example:
 
-    @code
-    auto n = floor(log2(saturated_(abs)(x)));
-    @endcode
+      @snippet nextpow2.cpp nextpow2
 
-    @see floor, log2, abs, saturated
+    @par Possible output:
+
+      @snippet nextpow2.txt nextpow2
+
   **/
-  Value nextpow2(Value const & x);
+  as_integer_t<Value> nextpow2(Value const& x);
 } }
 #endif
 

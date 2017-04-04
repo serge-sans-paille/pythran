@@ -9,7 +9,7 @@
 #ifndef BOOST_SIMD_ARCH_X86_AVX2_SIMD_FUNCTION_BROADCAST_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_X86_AVX2_SIMD_FUNCTION_BROADCAST_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/meta/hierarchy/simd.hpp>
 #include <boost/simd/detail/dispatch/adapted/std/integral_constant.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
@@ -32,7 +32,7 @@ namespace boost { namespace simd { namespace ext
       return do_(a0,typename bc_helper<A0,A1>::select_t{});
     }
 
-    static BOOST_FORCEINLINE A0 do_(A0 const& a0, brigand::bool_<true> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE A0 do_(A0 const& a0, nsm::bool_<true> const&) BOOST_NOEXCEPT
     {
       using sel_t = typename bc_helper<A0,A1>::sel_t;
       using idx_t = typename bc_helper<A0,A1>::idx_t;
@@ -42,7 +42,7 @@ namespace boost { namespace simd { namespace ext
       return      _mm256_broadcastsi128_si256(broadcast<idx_t::value>(half));
     }
 
-    static BOOST_FORCEINLINE A0 do_(A0 const&, brigand::bool_<false> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE A0 do_(A0 const&, nsm::bool_<false> const&) BOOST_NOEXCEPT
     {
       return Zero<A0>();
     }

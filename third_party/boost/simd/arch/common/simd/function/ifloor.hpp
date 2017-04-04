@@ -28,7 +28,7 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::arithmetic_<A0>, X>
                           )
   {
-    BOOST_FORCEINLINE A0 operator() ( A0 a0) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator()(A0 const& a0) const BOOST_NOEXCEPT
     {
       return a0;
     }
@@ -41,12 +41,11 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::floating_<A0>, X>
                           )
   {
-    BOOST_FORCEINLINE bd::as_integer_t<A0> operator() ( A0 a0) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bd::as_integer_t<A0> operator()(A0 const& a0) const BOOST_NOEXCEPT
     {
       return bs::saturated_(toint)(bs::floor(a0));
     }
   };
 } } }
-
 
 #endif

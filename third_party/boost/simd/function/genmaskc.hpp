@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,26 +15,22 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-bitwise
-    Function object implementing genmaskc capabilities
+    This function object returns a mask of bits. This mask is full of ones if the
+    input element is @ref Zero else full of zeros.
 
-    Returns a mask of bits. All ones if the
-    input element is @ref Zero else all zeros.
+    @par Header <boost/simd/function/genmaskc.hpp>
 
-    @par semantic:
-    For any given value @c x of type @c T:
+    @see genmask
 
-    @code
-    T r = genmaskc(x);
-    @endcode
+    @par Example:
 
-    is similar to
+      @snippet genmaskc.cpp genmaskc
 
-    @code
-    T r = x ? Zero : Allbits;
-    @endcode
+    @par Possible output:
+
+      @snippet genmaskc.txt genmaskc
 
     @par Alias:
     @c if_zero_else_allbits
@@ -42,7 +38,7 @@ namespace boost { namespace simd
     @see if_else_allbits
 
   **/
-  Value genmaskc(Value const & v0);
+  Value genmaskc(Value const& x);
 } }
 #endif
 

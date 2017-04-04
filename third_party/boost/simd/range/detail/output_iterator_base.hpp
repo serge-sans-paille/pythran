@@ -6,8 +6,8 @@
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 **/
 //==================================================================================================
-#ifndef BOOST_SIMD_RANGE_DETAILS_OUTPUT_ITERATOR_BASE_HPP_INCLUDED
-#define BOOST_SIMD_RANGE_DETAILS_OUTPUT_ITERATOR_BASE_HPP_INCLUDED
+#ifndef BOOST_SIMD_RANGE_DETAIL_OUTPUT_ITERATOR_BASE_HPP_INCLUDED
+#define BOOST_SIMD_RANGE_DETAIL_OUTPUT_ITERATOR_BASE_HPP_INCLUDED
 
 #include <boost/simd/pack.hpp>
 #include <boost/simd/meta/cardinal_of.hpp>

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,29 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-predicates
-    Function object implementing is_not_less capabilities
 
-    TODO Put description here
+    This function object returns  @ref True or @ref False according x is not less than y or not.
 
-    @par Semantic:
 
-    @code
-    auto r = is_not_less(x,y);
-    @endcode
+    @par Header <boost/simd/function/is_not_less.hpp>
 
-    is similar to:
+    @par Note
 
-    @code
-    auto r = !(x < y);
-    @endcode
+     Using `is_not_less(x,y)` is similar to: `!(x < y)`
 
-    @par Note:
+    @par Example:
 
-    Due to existence of nan, this is not equivalent to a call to @ref is_greater_equal
-    for floating types
+      @snippet is_not_less.cpp is_not_less
+
+    @par Possible output:
+
+      @snippet is_not_less.txt is_not_less
+
   **/
   as_logical_t<Value> is_not_less(Value const& x, Value const& y);
 } }

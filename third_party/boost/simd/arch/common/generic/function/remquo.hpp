@@ -11,7 +11,7 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_GENERIC_FUNCTION_REMQUO_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_GENERIC_FUNCTION_REMQUO_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/function/divides.hpp>
 #include <boost/simd/function/if_allbits_else.hpp>
 #include <boost/simd/function/is_eqz.hpp>

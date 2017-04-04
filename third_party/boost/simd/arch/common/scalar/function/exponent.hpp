@@ -87,6 +87,21 @@ namespace boost { namespace simd { namespace ext
       return x-if_else_zero(a0, Maxexponent<A0>());
     }
   };
+
+  BOOST_DISPATCH_OVERLOAD ( exponent_
+                          , (typename A0)
+                          , bd::cpu_
+                          , bs::std_tag
+                          , bd::scalar_< bd::floating_<A0> >
+                          )
+  {
+    using result_t = bd::as_integer_t<A0, signed>;
+    BOOST_FORCEINLINE result_t operator() (std_tag const &, A0 a0) const BOOST_NOEXCEPT
+    {
+      return std::ilogb(a0);
+    }
+  };
+
 } } }
 
 

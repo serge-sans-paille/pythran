@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate  the number of exponent bits of a floating point number,
 
+
+    @par Header <boost/simd/constant/nbexponentbits.hpp>
+
     @par Semantic:
 
     @code
@@ -53,8 +56,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/nbexponentbits.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/nbexponentbits.hpp>
+#include <boost/simd/constant/simd/nbexponentbits.hpp>
 
 #endif

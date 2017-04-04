@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Constant used in modular computation involving \f$\pi\f$
 
+
+    @par Header <boost/simd/constant/pio2_3.hpp>
+
     @par Semantic:
 
     For type T:
@@ -50,8 +53,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/pio2_3.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/pio2_3.hpp>
+#include <boost/simd/constant/simd/pio2_3.hpp>
 
 #endif

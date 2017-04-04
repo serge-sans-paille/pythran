@@ -11,7 +11,7 @@
 
 #include <boost/simd/arch/x86/tags.hpp>
 #include <boost/simd/arch/common/limits.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd
 {
@@ -21,12 +21,12 @@ namespace boost { namespace simd
 
     struct largest_integer
     {
-      template<typename Sign> struct apply { using type = brigand::no_such_type_; };
+      template<typename Sign> struct apply { using type = nsm::no_such_type_; };
     };
 
     struct smallest_integer
     {
-      template<typename Sign> struct apply { using type = brigand::no_such_type_; };
+      template<typename Sign> struct apply { using type = nsm::no_such_type_; };
     };
 
     using largest_real   = float;

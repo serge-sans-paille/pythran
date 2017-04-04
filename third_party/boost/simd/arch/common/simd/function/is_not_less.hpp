@@ -17,6 +17,7 @@
 #include <boost/simd/function/is_less.hpp>
 #include <boost/simd/function/is_ord.hpp>
 #include <boost/simd/function/logical_not.hpp>
+#include <boost/simd/function/logical_and.hpp>
 
 namespace boost { namespace simd { namespace ext
 {

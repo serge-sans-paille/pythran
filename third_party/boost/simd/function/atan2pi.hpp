@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,41 +15,31 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing atan2pi capabilities
+    This function object returns the atan2pi function : atan2 in pi multiples.
 
-    atan2pi function : atan2 in pi multiples.
 
-    @par Semantic:
+    @par Header <boost/simd/function/atan2pi.hpp>
 
-    For every parameters of same floating type
+    @par Note
 
-    @code
-    auto r = atan2pi(y, x);
-    @endcode
+      For every parameters of same floating type `atan2pi(y, x)`
+      is similar  to: `atan2(y, x)/Pi`
 
-    is similar  to:
 
-    @code
-    auto r =  atan2(y, x)/Pi;
-    @endcode
+    @see atan2,  atan2pi
 
-    as it is quadrant aware.
+    @par Example:
 
-    For any real arguments @c x and @c y not both equal to zero, <tt>atan2pi(y, x)</tt>
-    is the angle in degrees between the positive x-axis of a plane and the point
-    given by the coordinates  <tt>(x, y)</tt>.
+      @snippet atan2pi.cpp atan2pi
 
-    It is also the angle in \f$[-1, 1[\f$ for which
-    \f$x/\sqrt{x^2+y^2}\f$ and \f$y/\sqrt{x^2+y^2}\f$
-    are respectively the sine and the cosine.
+    @par Possible output:
 
-    @see atand, atan2, atan2d, atan
+      @snippet atan2pi.txt atan2pi
 
   **/
-  Value atan2pi(Value const& x, const Value &y);
+  IEEEValue atan2pi(IEEEValue const& y, const IEEEValue& x);
 } }
 #endif
 

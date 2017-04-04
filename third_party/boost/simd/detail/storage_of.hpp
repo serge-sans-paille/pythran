@@ -14,8 +14,7 @@
 #include <boost/simd/forward.hpp>
 #include <boost/simd/detail/as_simd.hpp>
 #include <boost/simd/meta/expected_cardinal.hpp>
-#include <boost/simd/detail/brigand.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 #include <array>
 
 #if defined __GNUC__ && __GNUC__>=6
@@ -26,16 +25,16 @@
 namespace boost { namespace simd { namespace detail
 {
   // Status for emulated SIMD storage via array of scalar
-  using emulated_status   = brigand::int32_t<-1>;
+  using emulated_status   = nsm::int32_t<-1>;
 
   // Status for native SIMD storage
-  using native_status     = brigand::int32_t<+0>;
+  using native_status     = nsm::int32_t<+0>;
 
   // Status for emulated SIMD storage via array of pack
-  using aggregated_status = brigand::int32_t<+1>;
+  using aggregated_status = nsm::int32_t<+1>;
 
   // Status for SIMD storage to be determined
-  using unknown_status    = brigand::int32_t<42>;
+  using unknown_status    = nsm::int32_t<42>;
 
   //================================================================================================
   /*
@@ -43,7 +42,7 @@ namespace boost { namespace simd { namespace detail
   **/
   //================================================================================================
   template< typename T, std::size_t C, typename X>
-  struct storage_status : brigand::int32_t<   (expected_cardinal<T,X>::value != C)
+  struct storage_status : nsm::int32_t<   (expected_cardinal<T,X>::value != C)
                                           * ( (expected_cardinal<T,X>::value < C) ? +1 : -1)
                                           >
   {};
@@ -105,7 +104,7 @@ namespace boost { namespace simd { namespace detail
     using parent = storage_of<Type,Cardinal,typename limits<ABI>::parent>;
     using base   = boost::simd::detail::as_simd<Type,ABI>;
     using type   = typename std::conditional< std::is_same< typename base::type
-                                                          , brigand::no_such_type_
+                                                          , nsm::no_such_type_
                                                           >::value
                                             , parent
                                             , base

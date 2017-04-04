@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,28 +15,32 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing acotd capabilities
+    This function object returns the inverse cotangent in degree.
 
-    inverse cotangent in degree.
 
-    @par Semantic:
+    @par Header <boost/simd/function/acotd.hpp>
 
-    For every parameter of floating type
+    @par Note
 
-    @code
-    auto r = acotd(x);
-    @endcode
-
-    Returns the arc @c r in the interval
-    \f$[0, 180[\f$ such that <tt>cotd(r) == x</tt>.
+      For every parameter of floating type `acotd(x)`
+      returns the arc @c r in the interval  \f$[0, 180[\f$ such that
+      <tt>cotd(r) == x</tt>.
 
     @see acot, acotpi, cotd
 
+
+    @par Example:
+
+      @snippet acotd.cpp acotd
+
+    @par Possible output:
+
+      @snippet acotd.txt acotd
+
   **/
-  Value acotd(Value const & v0);
+  IEEEValue acotd(IEEEValue const & x);
 } }
 #endif
 

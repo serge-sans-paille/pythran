@@ -29,7 +29,7 @@
 #include <boost/simd/function/floor.hpp>
 #include <boost/simd/function/fma.hpp>
 #include <boost/simd/function/fms.hpp>
-#include <boost/simd/function/frexp.hpp>
+#include <boost/simd/function/ifrexp.hpp>
 #include <boost/simd/function/if_else.hpp>
 #include <boost/simd/function/is_eqz.hpp>
 #include <boost/simd/function/is_ltz.hpp>
@@ -74,7 +74,7 @@ namespace boost { namespace simd { namespace ext
       if(is_nan(a1)) return Nan<A0>();
     #endif
       i_t e;
-      std::tie(x, e) = bs::frexp(x);
+      std::tie(x, e) = pedantic_(bs::ifrexp)(x);
       i_t i  = detail::pow_kernel<A0>::select(x);
       A0 z = sqr(x);
       A0 w = detail::pow_kernel<A0>::pow1(x, z);
@@ -110,7 +110,7 @@ namespace boost { namespace simd { namespace ext
       e = fms(i, Sixteen, e);
       w =  detail::pow_kernel<A0>::twomio16(e);
       z = fma(w, z, w);
-      z = ldexp( z, i );
+      z = pedantic_(ldexp)( z, i );
       return z;
     }
   private :
@@ -124,12 +124,12 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( pow_abs_
                           , (typename A0, typename A1)
                           , bd::cpu_
-                          , bs::fast_tag
+                          , bs::raw_tag
                           , bd::scalar_< bd::floating_<A0> >
                           , bd::scalar_< bd::floating_<A1> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator()(const fast_tag &, A0 a0, A1 a1) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator()(const raw_tag &, A0 a0, A1 a1) const BOOST_NOEXCEPT
     {
       return bs::exp(a1*bs::log(bs::abs(a0)));
     }

@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, is_not_equal_with_equal_nans_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, is_not_equal_with_equal_nans_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::is_not_equal_with_equal_nans_,is_not_equal_with_equal_nans);

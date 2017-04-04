@@ -2,7 +2,6 @@
 /*!
   @file
   @copyright 2016 NumScale SAS
-  @copyright 2016 J.T. Lapreste
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -104,7 +103,7 @@ namespace boost { namespace simd { namespace ext
       A0 p = bs::floor(q);
       A0 z = q - p;
       auto test2 = is_less(z, bs::Half<A0>() );
-      z = bs::if_minus(test2, z, bs::One<A0>());
+      z = bs::if_dec(test2, z);
       z = q*bs::sinpi(z);
       z =  bs::abs(z);
       return -log(Invpi<A0>()*bs::abs(z))-w;
@@ -231,7 +230,7 @@ namespace boost { namespace simd { namespace ext
       A0 p = bs::floor(q);
       A0 z = q - p;
       auto test2 = is_less(z, bs::Half<A0>() );
-      z = bs::if_minus(test2, z, bs::One<A0>());
+      z = bs::if_dec(test2, z);
       z = q*bs::sinpi(z);
       z =  bs::abs(z);
       return Logpi<A0>()-log(z)-w;

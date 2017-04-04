@@ -15,10 +15,11 @@
 #include <boost/simd/config.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd
 {
+  namespace tt = nsm::type_traits;
   /*!
     @ingroup group-api
 
@@ -49,7 +50,7 @@ namespace boost { namespace simd
   template<typename T>
   struct  cardinal_of
 #if !defined(DOXYGEN_ONLY)
-        : std::integral_constant<std::size_t,1ULL>
+        : tt::integral_constant<std::size_t,1ULL>
 #endif
   {};
 

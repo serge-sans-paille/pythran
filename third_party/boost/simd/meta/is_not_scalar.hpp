@@ -12,7 +12,7 @@
 #ifndef BOOST_SIMD_META_IS_NOT_SCALAR_HPP_INCLUDED
 #define BOOST_SIMD_META_IS_NOT_SCALAR_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/meta/is_scalar.hpp>
 #include <boost/simd/detail/dispatch/hierarchy/unspecified.hpp>
 #include <boost/simd/detail/dispatch/hierarchy/scalar.hpp>
@@ -32,7 +32,7 @@ namespace boost { namespace simd
     @tparam Type      Type to check
   **/
   template<typename T>
-  struct is_not_scalar : brigand::not_ < is_scalar < T>>
+  struct is_not_scalar : nsm::not_ < is_scalar < T>>
   {};
   template<typename T>
   using is_not_scalar_t = typename is_not_scalar<T>::type;

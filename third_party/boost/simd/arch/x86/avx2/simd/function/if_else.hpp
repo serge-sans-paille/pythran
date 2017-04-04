@@ -26,7 +26,7 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::integer_<A1>, bs::avx_>
                           )
    {
-      A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
+      BOOST_FORCEINLINE A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
       {
         return _mm256_blendv_epi8(a2, a1, bitwise_cast<A1>(genmask(a0)));
       }
@@ -40,7 +40,7 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::ints32_<A1>, bs::avx_>
                           )
    {
-      A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
+      BOOST_FORCEINLINE A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
       {
         return _mm256_blendv_epi8(a2, a1, bitwise_cast<A1>(genmask(a0)));
       }
@@ -54,7 +54,7 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::ints64_<A1>, bs::avx_>
                           )
    {
-      A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
+      BOOST_FORCEINLINE A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
       {
         return _mm256_blendv_epi8(a2, a1, bitwise_cast<A1>(genmask(a0)));
       }

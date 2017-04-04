@@ -11,12 +11,11 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_SCALAR_CONSTANT_CONSTANT_VALUE_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SCALAR_CONSTANT_CONSTANT_VALUE_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/as.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
 
 #ifdef BOOST_MSVC
 #pragma warning(push)

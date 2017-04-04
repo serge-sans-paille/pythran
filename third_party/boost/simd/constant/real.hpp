@@ -28,9 +28,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/real.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_generator.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_generator.hpp>
+#include <boost/simd/constant/scalar/real.hpp>
+#include <boost/simd/constant/simd/real.hpp>
 
 #endif
-

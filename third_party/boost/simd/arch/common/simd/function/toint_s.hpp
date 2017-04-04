@@ -74,19 +74,19 @@ namespace boost { namespace simd { namespace ext
                                        ,  const A0& a0) const BOOST_NOEXCEPT
     {
       using sr_t = bd::scalar_of_t<result>;
-      const A0 Vax = splat<A0>(bs::Valmax<sr_t>());
-      const A0 Vix = splat<A0>(bs::Valmin<sr_t>());
+      const A0 Vax = A0(bs::Valmax<sr_t>());
+      const A0 Vix = A0(bs::Valmin<sr_t>());
     #ifndef BOOST_SIMD_NO_NANS
       A0 aa0 = if_zero_else(is_nan(a0), a0);
       return if_else(bs::is_less_equal(aa0, Vix), Valmin<result>(),
                      if_else(bs::is_greater_equal(aa0, Vax), Valmax<result>(),
-                             toint(aa0)
+                             pedantic_(toint)(aa0)
                             )
                     );
     #else
       return if_else(bs::is_less_equal(a0, Vix), Valmin<result>(),
                      if_else(bs::is_greater_equal(a0, Vax), Valmax<result>(),
-                             toint(a0)
+                              pedantic_(toint)(a0)
                             )
                     );
     #endif

@@ -12,6 +12,7 @@
 #define BOOST_SIMD_FUNCTION_DEFINITION_ALIGNED_LOAD_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/as.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
 #include <boost/simd/detail/dispatch/hierarchy/functions.hpp>
@@ -19,6 +20,8 @@
 
 namespace boost { namespace simd
 {
+  namespace tt = nsm::type_traits;
+
   namespace tag
   {
     BOOST_DISPATCH_MAKE_TAG(ext, aligned_load_, boost::dispatch::abstract_<aligned_load_>);
@@ -26,7 +29,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, aligned_load_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, aligned_load_)
   }
 
   namespace detail
@@ -44,7 +47,7 @@ namespace boost { namespace simd
   BOOST_FORCEINLINE T aligned_load(Pointer const& p, Opts&&... o)
   {
     return detail::aligned_load ( p, std::forward<Opts>(o)...
-                                , std::integral_constant<std::ptrdiff_t,Misalignment>()
+                                , tt::integral_constant<std::ptrdiff_t,Misalignment>()
                                 , boost::simd::as_<T>()
                                 );
   }

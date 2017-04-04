@@ -54,7 +54,10 @@ namespace boost { namespace simd { namespace detail
       typename details::unchecker<Iterator>::type lp = details::unchecker<Iterator>::call(p);
       boost::ignore_unused(lp);
 
+      #if !defined(NDEBUG)
       using target_pack = pack<typename std::iterator_traits<Iterator>::value_type, C>;
+      #endif
+
       BOOST_ASSERT_MSG
       ( boost::simd::detail::is_aligned(&(*lp) , target_pack::alignment )
       , "The constructor of aligned_input_iterator has been called on a pointer "

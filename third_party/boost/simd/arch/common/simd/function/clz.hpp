@@ -35,7 +35,7 @@ namespace boost { namespace simd { namespace ext
       BOOST_FORCEINLINE result operator()( const A0& a0) const BOOST_NOEXCEPT
       {
         result t =  bitwise_cast<result>(a0);
-        BOOST_ASSERT_MSG( assert_all(a0), "clz not defined for 0" );
+        BOOST_ASSERT_MSG( assert_all(t), "clz not defined for 0" );
         return bitwise_cast<result>(dec(bs::ffs(bs::reversebits(t))));
       }
    };

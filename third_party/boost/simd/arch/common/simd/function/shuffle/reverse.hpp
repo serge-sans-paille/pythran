@@ -11,7 +11,7 @@
 
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/function/reverse.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/shuffle.hpp>
 
 namespace boost { namespace simd
@@ -22,14 +22,14 @@ namespace boost { namespace simd
     // Check if pattern is [B B+1 ... B+C]
     template<int... Ps> struct is_reverse
     {
-      using type = brigand::all < brigand::transform< brigand::range<int,0,sizeof...(Ps)>
-                                                    , brigand::reverse<brigand::integral_list<int,Ps...>>
-                                                    , brigand::equal_to<brigand::_1,brigand::_2>
+      using type = nsm::all < nsm::transform< nsm::range<int,0,sizeof...(Ps)>
+                                                    , nsm::reverse<nsm::integral_list<int,Ps...>>
+                                                    , nsm::equal_to<nsm::_1,nsm::_2>
                                                     >
                                 >;
     };
 
-    template<int P0> struct is_reverse<P0> : std::false_type {};
+    template<int P0> struct is_reverse<P0> : tt::false_type {};
   }
 
   // -----------------------------------------------------------------------------------------------

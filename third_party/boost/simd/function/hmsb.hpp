@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,33 +14,27 @@
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing hmsb capabilities
 
-    Returns a std::size_t value composed by the highiest bits.
-    of each vector element
+    Returns a bs::bitset build from the most significant bit of each value its
+    argument.
 
-    @par Semantic:
+    @par Header <boost/simd/function/hmsb.hpp>
 
-    @code
-    std::size_t r = hmsb(x);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet hmsb.cpp hmsb
 
-    @code
-      std::size_t r = 0;
-      for(result_type i = 0; i != cardinal_of<T>; ++i)
-      {
-        r |= (bits(x[i]) >> (sizeof(stype)*8 - 1)) << i;
-      }
-    @endcode
+    @par Possible output:
 
+      @snippet hmsb.txt hmsb
+
+    @param  v Value to process
+    @return A bitset-like structure of the size of cardinal(v) containing the most significant
+            bits of each elements of v.
   **/
-  std::size_t hmsb(Value const & v0);
+  bitset<cardinal_of<Value>::value> hmsb(Value const &v);
 } }
 #endif
 

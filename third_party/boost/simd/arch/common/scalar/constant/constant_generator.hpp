@@ -15,7 +15,7 @@
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/as.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 #ifdef BOOST_MSVC
 #pragma warning(push)
@@ -26,6 +26,7 @@
 namespace boost { namespace simd { namespace ext
 {
   namespace bd = boost::dispatch;
+  namespace tt = nsm::type_traits;
 
   BOOST_DISPATCH_OVERLOAD_FALLBACK( (typename X, typename V)
                                   , boost::dispatch::constant_value_<tag::constant_>
@@ -35,15 +36,15 @@ namespace boost { namespace simd { namespace ext
                                   )
   {
     template<typename T, T N>
-    static BOOST_FORCEINLINE T impl(std::integral_constant<T,N> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE T impl(tt::integral_constant<T,N> const&) BOOST_NOEXCEPT
     {
-      return std::integral_constant<T,N>{};
+      return tt::integral_constant<T,N>{};
     }
 
     template<typename R, typename T, T N>
-    static BOOST_FORCEINLINE R impl(brigand::real_<R,T,N> const& ) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE R impl(nsm::real_<R,T,N> const& ) BOOST_NOEXCEPT
     {
-      return static_cast<R>(brigand::real_<R,T,N>{});
+      return static_cast<R>(nsm::real_<R,T,N>{});
     }
 
     template<typename T, std::intmax_t N, std::intmax_t D>

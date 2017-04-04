@@ -27,7 +27,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, cummin_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, cummin_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::cummin_,cummin);

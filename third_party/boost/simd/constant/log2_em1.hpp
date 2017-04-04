@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Generates constant Log2_em1 : \f$\log2(e)-1\f$
 
+
+    @par Header <boost/simd/constant/log2_em1.hpp>
+
     @par Semantic:
 
     @code
@@ -47,8 +50,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/log2_em1.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/log2_em1.hpp>
+#include <boost/simd/constant/simd/log2_em1.hpp>
 
 #endif

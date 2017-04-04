@@ -22,7 +22,7 @@
 #include <boost/simd/function/two_prod.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
-#include <boost/simd/function/conformant.hpp>
+#include <boost/simd/function/pedantic.hpp>
 #include <boost/config.hpp>
 #include <cmath>
 #include <tuple>
@@ -35,13 +35,13 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( fma_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::conformant_tag
+                          , bs::pedantic_tag
                           , bd::scalar_< bd::single_<A0> >
                           , bd::scalar_< bd::single_<A0> >
                           , bd::scalar_< bd::single_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() ( const conformant_tag &
+    BOOST_FORCEINLINE A0 operator() ( const pedantic_tag &
                                      , A0 a0, A0 a1, A0 a2) const BOOST_NOEXCEPT
     {
       return static_cast<A0>( static_cast<double>(a0)*static_cast<double>(a1)
@@ -52,13 +52,13 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( fma_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::conformant_tag
+                          , bs::pedantic_tag
                           , bd::scalar_< bd::floating_<A0> >
                           , bd::scalar_< bd::floating_<A0> >
                           , bd::scalar_< bd::floating_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() ( const conformant_tag &
+    BOOST_FORCEINLINE A0 operator() ( const pedantic_tag &
                                      , A0 a0, A0 a1, A0 a2) const BOOST_NOEXCEPT
     {
       A0 p, rp, s, rs;
@@ -84,13 +84,13 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( fma_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::conformant_tag
+                          , bs::pedantic_tag
                           , bd::scalar_< bd::int_<A0> >
                           , bd::scalar_< bd::int_<A0> >
                           , bd::scalar_< bd::int_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() ( const conformant_tag &
+    BOOST_FORCEINLINE A0 operator() ( const pedantic_tag &
                                      , A0 a0, A0 a1, A0 a2) const BOOST_NOEXCEPT
     {
       // correct fma has to ensure "no intermediate overflow".
@@ -104,13 +104,13 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( fma_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::conformant_tag
+                          , bs::pedantic_tag
                           , bd::scalar_< bd::uint_<A0> >
                           , bd::scalar_< bd::uint_<A0> >
                           , bd::scalar_< bd::uint_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() ( const conformant_tag &
+    BOOST_FORCEINLINE A0 operator() ( const pedantic_tag &
                                      , A0 a0, A0 a1, A0 a2) const BOOST_NOEXCEPT
     {
       return multiplies(a0, a1)+a2;

@@ -16,7 +16,7 @@
 #include <boost/simd/detail/dispatch/property_of.hpp>
 #include <boost/simd/detail/dispatch/hierarchy.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 #ifdef BOOST_MSVC
 #pragma warning(push)
@@ -31,16 +31,18 @@
 struct value_map                                                                                    \
 {                                                                                                   \
   template<typename X>                                                                              \
-  static std::integral_constant<X,X(INT)> value(boost::dispatch::integer_<X> const&);               \
+  static nsm::type_traits::integral_constant<X,X(INT)> value(boost::dispatch::integer_<X> const&); \
   template<typename X>                                                                              \
-  static brigand::single_<FLOAT> value(boost::dispatch::single_<X> const&);                         \
+  static nsm::single_<FLOAT> value(boost::dispatch::single_<X> const&);                         \
   template<typename X>                                                                              \
-  static brigand::double_<DOUBLE> value(boost::dispatch::double_<X> const&);                        \
+  static nsm::double_<DOUBLE> value(boost::dispatch::double_<X> const&);                        \
 }                                                                                                   \
 /**/
 
 namespace boost { namespace simd { namespace detail
 {
+  namespace tt = nsm::type_traits;
+
   template<typename Tag, typename T>
   struct constant_traits
   {
@@ -61,27 +63,27 @@ namespace boost { namespace simd { namespace detail
   template<typename T, bits_t<T> N, bits_t<T> M = 0>
   struct  constantify
   {
-    using type = std::integral_constant<T,T(N)>;
+    using type = tt::integral_constant<T,T(N)>;
   };
 
   template<bits_t<double> V> struct constantify<double,V>
   {
-    using type = brigand::double_<V>;
+    using type = nsm::double_<V>;
   };
 
   template<bits_t<double> V, bits_t<float> W> struct constantify<double,V,W>
   {
-    using type = brigand::double_<V>;
+    using type = nsm::double_<V>;
   };
 
   template<bits_t<double> V> struct constantify<float,V>
   {
-    using type = brigand::single_<V>;
+    using type = nsm::single_<V>;
   };
 
   template<bits_t<double> V, bits_t<float> W> struct constantify<float,V,W>
   {
-    using type = brigand::single_<W>;
+    using type = nsm::single_<W>;
   };
 } } }
 

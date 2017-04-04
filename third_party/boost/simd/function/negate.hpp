@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,24 +15,13 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing negate capabilities
+    This function object returns  the first element multiplied by 1,  0 or -1 depending
+    on the fact its second argument is greater,  equal or lesser than zero.
 
-    Retuns the first element multiplied by the @ref sign of the second.
 
-    @par Semantic:
-
-    @code
-    auto r = negate(x,y);
-    @endcode
-
-    is similar to:
-
-    @code
-    auto r =  x*sign(y);
-    @endcode
+    @par Header <boost/simd/function/negate.hpp>
 
     @par Note
     If y is @ref Zero the result is zero. This can be avoided using
@@ -40,8 +29,17 @@ namespace boost { namespace simd
 
     @see sign, negatenz, copysign,  Mzero,  is_positive, is_negative
 
+
+    @par Example:
+
+      @snippet negate.cpp negate
+
+    @par Possible output:
+
+      @snippet negate.txt negate
+
   **/
-  Value negate(Value const & x, Value const& y);
+  Value negate(Value const& x, Value const& y);
 } }
 #endif
 

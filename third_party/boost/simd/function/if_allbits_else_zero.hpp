@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,17 +15,30 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-boolean
-    Function object implementing if_allbits_else_zero capabilities
+    This function object returns a mask of bits. All ones if the
+    argument is non @ref Zero else all zeros.
+    This is an alias of @ref genmask
 
-    Returns a mask of bits. All ones if the
-    input element is non @ref Zero else all zeros.
 
-    This is a convenience alias of @ref genmask
+
+    @par Header <boost/simd/function/if_allbits_else_zero.hpp>
+
+    @par Example:
+
+      @snippet if_allbits_else_zero.cpp if_allbits_else_zero
+
+    @par Possible output:
+
+      @snippet if_allbits_else_zero.txt if_allbits_else_zero
+
   **/
-  Value if_allbits_else_zero(Value const & v0);
+
+  ///@{
+  Value if_allbits_else_zero(Value const& x);
+  as_arithmetic_t<LogicalValue> if_allbits_else_zero(LogicalValue const& x);
+  ///@}
 } }
 #endif
 

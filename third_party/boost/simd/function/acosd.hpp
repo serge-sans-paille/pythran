@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,29 +15,30 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing acosd capabilities
+    This function object returns the inverse cosine in degree.
 
-    inverse cosine in degree.
 
-    @par Semantic:
+    @par Header <boost/simd/function/acosd.hpp>
 
-    For every parameter of floating type
+    @par Decorators
 
-    @code
-    auto r = acosd(x);
-    @endcode
+       - pedantic_     is similar to indeg(pedantic_)(acos(x));
 
-    Returns the arc @c r in the interval
-    \f$[0, 180[\f$ such that <tt>cosd(r) == x</tt>.
-    If @c x is outside \f$[-1, 1[\f$ the result is @ref Nan.
+    @see acos, acospi, cosd, indeg
 
-    @see acos, acospi, cosd
+
+    @par Example:
+
+      @snippet acosd.cpp acosd
+
+    @par Possible output:
+
+      @snippet acosd.txt acosd
 
   **/
-  Value acosd(Value const & v0);
+  IEEEValue acosd(IEEEValue const & x);
 } }
 #endif
 

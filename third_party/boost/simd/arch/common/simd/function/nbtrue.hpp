@@ -45,14 +45,14 @@ namespace boost { namespace simd { namespace ext
 
     // Aggregate case: add the nbtrue of both sides
     template<typename... N> static BOOST_FORCEINLINE
-    std::size_t do_(A0 const& a0, aggregate_storage const&, brigand::list<N...> const&) BOOST_NOEXCEPT
+    std::size_t do_(A0 const& a0, aggregate_storage const&, nsm::list<N...> const&) BOOST_NOEXCEPT
     {
       return nbtrue(slice_low(a0)) + nbtrue(slice_high(a0));
     }
 
     // Other case: Compute nbtrue piecewise
     template<typename K, typename... N> static BOOST_FORCEINLINE
-    std::size_t do_(A0 const& a0, K const&, brigand::list<N...> const&) BOOST_NOEXCEPT
+    std::size_t do_(A0 const& a0, K const&, nsm::list<N...> const&) BOOST_NOEXCEPT
     {
       std::size_t that = 0;
 

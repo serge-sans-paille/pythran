@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -16,30 +16,24 @@ namespace boost { namespace simd
 {
   /*!
     @ingroup group-reduction
-    Function object implementing compare_greater_equal capabilities
+  This function object returns a @c bool that is the result of the
+  lexicographic test for >= on all elements of the entries
 
-    Returns a logical scalar that is the result of the lexicographic
-    test for >= on all elements of the entries
+  It is probably not what you wish. Have a look to @ref is_greater_equal.
 
-    It is probably not what you wish. Have a look to @ref is_greater_equal.
 
-    @par Semantic:
+    @par Header <boost/simd/function/compare_greater_equal.hpp>
 
-    For every parameters of type T0:
+    @par Example:
 
-    @code
-    bool r = compare_greater_equal(x,y);
-    @endcode
+      @snippet compare_greater_equal.cpp compare_greater_equal
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    bool r = !compare_less(y, x)
-    @endcode
+      @snippet compare_greater_equal.txt compare_greater_equal
 
-    @see is_greater_equal
   **/
-  bool compare_greater_equal(Value const& , Value const& y);
+  bool compare_greater_equal(Value const& x, Value const& y);
 } }
 #endif
 

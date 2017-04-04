@@ -28,7 +28,7 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::single_<A1>, bs::avx_>
                           )
    {
-     A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
+     BOOST_FORCEINLINE A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
      {
        return _mm256_blendv_ps(a2, a1, bitwise_cast<A1>(genmask(a0)));
      }
@@ -42,7 +42,7 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::double_<A1>, bs::avx_>
                           )
    {
-     A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
+     BOOST_FORCEINLINE A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
      {
        return _mm256_blendv_pd(a2, a1, bitwise_cast<A1>(genmask(a0)));
      }
@@ -50,14 +50,14 @@ namespace boost { namespace simd { namespace ext
 
    BOOST_DISPATCH_OVERLOAD_IF ( if_else_
                               , (typename A0, typename A1)
-                              , (brigand::bool_<bs::cardinal_of<A0>::value <= 8>)
+                              , (nsm::bool_<bs::cardinal_of<A0>::value <= 8>)
                               , bs::avx_
                               , bs::pack_<logical_<A0>, bs::avx_>
                               , bs::pack_<bd::integer_<A1>, bs::avx_>
                               , bs::pack_<bd::integer_<A1>, bs::avx_>
                               )
    {
-     A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
+     BOOST_FORCEINLINE A1 operator()(A0 const& a0,A1 const& a1,A1 const& a2) const
      {
         using f_t= bd::as_floating_t<A1>;
         return bitwise_cast<A1>(if_else(a0, bitwise_cast<f_t>(a1), bitwise_cast<f_t>(a2)));

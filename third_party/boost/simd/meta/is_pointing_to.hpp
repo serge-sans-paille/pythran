@@ -10,7 +10,7 @@
 #define BOOST_SIMD_META_IS_POINTING_TO_HPP_INCLUDED
 
 #include <boost/pointee.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 #include <iterator>
 
 namespace boost { namespace simd

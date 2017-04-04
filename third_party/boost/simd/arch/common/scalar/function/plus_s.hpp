@@ -13,7 +13,7 @@
 
 #include <boost/simd/constant/valmax.hpp>
 #include <boost/simd/constant/zero.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/function/min.hpp>
 #include <boost/simd/function/saturate.hpp>
 #include <boost/simd/function/saturated.hpp>
@@ -23,7 +23,6 @@
 #include <boost/simd/detail/dispatch/meta/as_unsigned.hpp>
 #include <boost/simd/detail/dispatch/meta/upgrade.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -53,19 +52,19 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE A0 operator() (const saturated_tag &,  A0 a0, A0 a1
                                    ) const BOOST_NOEXCEPT
     {
-      using sz_t = typename brigand::bool_<sizeof(A0) == 4 || sizeof(A0) == 8>::type;
+      using sz_t = typename nsm::bool_<sizeof(A0) == 4 || sizeof(A0) == 8>::type;
       return impl(a0, a1, sz_t());
     }
 
     static BOOST_FORCEINLINE A0 impl( A0 a0, A0 a1
-                                    , const std::false_type &) BOOST_NOEXCEPT
+                                    , const tt::false_type &) BOOST_NOEXCEPT
     {
       using utype = bd::upgrade_t<A0>;
       return static_cast<A0>(saturate<A0>(utype(a0)+utype(a1)));
     }
 
     static BOOST_FORCEINLINE A0 impl( A0  a0, A0  a1
-                                    , const std::true_type &) BOOST_NOEXCEPT
+                                    , const tt::true_type &) BOOST_NOEXCEPT
     {
       using utype = bd::as_unsigned_t<A0>;
 
@@ -88,18 +87,18 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE A0 operator() (const saturated_tag &,  A0 a0, A0 a1
                                     ) const BOOST_NOEXCEPT
     {
-      using sz_t = typename brigand::bool_<sizeof(A0) == 4 || sizeof(A0) == 8>::type;
+      using sz_t = typename nsm::bool_<sizeof(A0) == 4 || sizeof(A0) == 8>::type;
       return impl(a0, a1, sz_t());
     }
 
     static BOOST_FORCEINLINE A0 impl( A0 a0, A0 a1
-                                      , const std::false_type &) BOOST_NOEXCEPT
+                                      , const tt::false_type &) BOOST_NOEXCEPT
     {
       typedef typename bd::upgrade<A0>::type utype;
       return static_cast<A0>(boost::simd::min(utype(boost::simd::Valmax<A0>()), utype(a0+a1)));
     }
     static BOOST_FORCEINLINE A0 impl( A0 a0, A0 a1
-                                      , const std::true_type &) BOOST_NOEXCEPT
+                                      , const tt::true_type &) BOOST_NOEXCEPT
     {
       A0 res = a0 + a1;
       res |= -(res < a0);

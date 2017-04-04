@@ -29,6 +29,7 @@
 #include <boost/simd/function/fma.hpp>
 #include <boost/simd/function/fms.hpp>
 #include <boost/simd/function/if_nan_else.hpp>
+#include <boost/simd/function/if_zero_else.hpp>
 #include <boost/simd/function/is_eqz.hpp>
 #include <boost/simd/function/is_inf.hpp>
 #include <boost/simd/function/dec.hpp>
@@ -36,7 +37,6 @@
 #include <boost/simd/function/rec.hpp>
 #include <boost/simd/function/sqr.hpp>
 #include <boost/simd/function/sqrt.hpp>
-//#include <boost/simd/detail/dispatch/meta/simd_of.hpp>
 
 namespace boost { namespace simd
 {

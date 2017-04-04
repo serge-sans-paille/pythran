@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,31 +15,23 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing cummin capabilities
+    This function object computes the cumulate minimum of the argument elements
 
-    Computes the cumulate minimum of the vector elements
 
-    @par Semantic:
+    @par Header <boost/simd/function/cummin.hpp>
 
-    For every pack parameter of type @c T
+    @par Example:
 
-    @code
-    auto r = cummin(x);
-    @endcode
+      @snippet cummin.cpp cummin
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    auto  r = x;
-    for(int i=1;i < T::static_size; ++i)
-      r[i] = min(r[i-1], r[i]);
-    @endcode
+      @snippet cummin.txt cummin
 
   **/
-  Value cummin(Value const & v0);
+  Value cummin(Value const& x);
 } }
 #endif
 

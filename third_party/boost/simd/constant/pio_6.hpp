@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Constant \f$\frac\pi{6}\f$.
 
+
+    @par Header <boost/simd/constant/pio_6.hpp>
+
     @par Semantic:
 
     For type T:
@@ -56,8 +59,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/pio_6.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/pio_6.hpp>
+#include <boost/simd/constant/simd/pio_6.hpp>
 
 #endif

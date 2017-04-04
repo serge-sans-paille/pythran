@@ -17,8 +17,7 @@
 #include <boost/fusion/include/is_sequence.hpp>
 #include <boost/fusion/include/as_vector.hpp>
 #include <boost/fusion/include/size.hpp>
-#include <boost/simd/detail/brigand.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 #include <tuple>
 
 namespace boost { namespace dispatch
@@ -40,7 +39,7 @@ namespace boost { namespace dispatch
       template<typename T, bool Status> struct impl
       {
         // Empty sequence are not homogeneous
-        using type = std::false_type;
+        using type = tt::false_type;
       };
 
       template<typename T>
@@ -50,8 +49,8 @@ namespace boost { namespace dispatch
         using first = typename boost::fusion::result_of::value_at<fixed, boost::mpl::int_<0>>::type;
 
         // Are all types similar to first ?
-        using same = std::is_same<brigand::_1,first>;
-        using type = brigand::all<brigand::as_list<fixed>,same>;
+        using same = std::is_same<nsm::_1,first>;
+        using type = nsm::all<nsm::as_list<fixed>,same>;
       };
 
       using type = typename impl<fixed,sz::value != 0>::type;
@@ -60,21 +59,21 @@ namespace boost { namespace dispatch
     // Special case for std::tuple<>
     template<> struct is_homogeneous_<std::tuple<>>
     {
-      using type = std::false_type;
+      using type = tt::false_type;
     };
 
     // Special case for std::tuple<T>
     template<typename T> struct is_homogeneous_<std::tuple<T>>
     {
-      using type = std::true_type;
+      using type = tt::true_type;
     };
 
     // Special case for std::tuple
     template<typename T, typename U, typename... Ts> struct is_homogeneous_<std::tuple<T,U,Ts...>>
     {
       // Are all yes similar to first ?
-      using same = std::is_same<T,brigand::_1>;
-      using type = brigand::all<std::tuple<U,Ts...>,same>;
+      using same = std::is_same<T,nsm::_1>;
+      using type = nsm::all<std::tuple<U,Ts...>,same>;
     };
   }
 

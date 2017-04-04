@@ -12,6 +12,7 @@
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/meta/as_logical.hpp>
 #include <boost/simd/function/bitwise_cast.hpp>
+#include <boost/simd/function/genmask.hpp>
 #include <boost/simd/function/is_less.hpp>
 #include <boost/simd/function/minus.hpp>
 #include <boost/simd/constant/signmask.hpp>
@@ -45,10 +46,11 @@ namespace boost { namespace simd { namespace ext
     {
       using s_t = bd::as_integer_t<A0, signed>;
       s_t const sm = Signmask<s_t>();
-      return  bitwise_cast<result>(is_less( bitwise_cast<s_t>(a0) - sm
-                                          , bitwise_cast<s_t>(a1) - sm
-                                          )
-                                  );
+      return bitwise_cast<result>(
+        is_less( bitwise_cast<s_t>(a0) - sm
+               , bitwise_cast<s_t>(a1) - sm
+               )
+      );
     }
   };
 

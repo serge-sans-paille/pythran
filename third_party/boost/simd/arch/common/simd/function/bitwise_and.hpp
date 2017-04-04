@@ -14,7 +14,7 @@
 #include <boost/simd/function/bitwise_cast.hpp>
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/detail/traits.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -23,8 +23,8 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF( bitwise_and_
                             , (typename A0, typename A1, typename X, typename Y)
-                            , (brigand::and_< brigand::not_ < std::is_same<A0,A1> >
-                                            , brigand::and_ < detail::is_native<X>
+                            , (nsm::and_< nsm::not_ < std::is_same<A0,A1> >
+                                            , nsm::and_ < detail::is_native<X>
                                                             , detail::is_native<Y>
                                                             >
                                             >

@@ -10,14 +10,14 @@
 #define BOOST_SIMD_ARCH_X86_AVX_SIMD_FUNCTION_SHUFFLE_BLEND_HPP_INCLUDED
 
 #include <boost/simd/detail/shuffle.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/function/bitwise_cast.hpp>
 #include <boost/simd/detail/dispatch/meta/as_floating.hpp>
-#include <type_traits>
 
 namespace boost { namespace simd
 {
   namespace bd = boost::dispatch;
+  namespace tt = nsm::type_traits;
 
   // -----------------------------------------------------------------------------------------------
   // Shuffle using blend patterns hierarchy
@@ -72,17 +72,17 @@ namespace boost { namespace simd
 
     // ---------------------------------------------------------------------------------------------
     // Prevent ambiguity with other hierarchy
-    template<> struct is_blend<-1,-1,-1,-1> : std::false_type {};
-    template<> struct is_blend< 0, 1, 2, 3> : std::false_type {};
-    template<> struct is_blend< 4, 5, 6, 7> : std::false_type {};
-    template<> struct is_blend< 0,-1, 2,-1> : std::false_type {};
-    template<> struct is_blend<-1, 1,-1, 3> : std::false_type {};
+    template<> struct is_blend<-1,-1,-1,-1> : tt::false_type {};
+    template<> struct is_blend< 0, 1, 2, 3> : tt::false_type {};
+    template<> struct is_blend< 4, 5, 6, 7> : tt::false_type {};
+    template<> struct is_blend< 0,-1, 2,-1> : tt::false_type {};
+    template<> struct is_blend<-1, 1,-1, 3> : tt::false_type {};
 
-    template<> struct is_blend<-1,-1,-1,-1,-1,-1,-1,-1> : std::false_type {};
-    template<> struct is_blend< 0, 1, 2, 3, 4, 5, 6, 7> : std::false_type {};
-    template<> struct is_blend< 8, 9,10,11,12,13,14,15> : std::false_type {};
-    template<> struct is_blend< 0,-1, 2,-1, 4,-1, 6,-1> : std::false_type {};
-    template<> struct is_blend<-1, 1,-1, 3,-1, 5,-1, 7> : std::false_type {};
+    template<> struct is_blend<-1,-1,-1,-1,-1,-1,-1,-1> : tt::false_type {};
+    template<> struct is_blend< 0, 1, 2, 3, 4, 5, 6, 7> : tt::false_type {};
+    template<> struct is_blend< 8, 9,10,11,12,13,14,15> : tt::false_type {};
+    template<> struct is_blend< 0,-1, 2,-1, 4,-1, 6,-1> : tt::false_type {};
+    template<> struct is_blend<-1, 1,-1, 3,-1, 5,-1, 7> : tt::false_type {};
 
     // ---------------------------------------------------------------------------------------------
     // Compute the blend mask to use
@@ -90,7 +90,7 @@ namespace boost { namespace simd
 
     template<int P0, int P1, int P2, int P3>
     struct  blend_mask<pattern_<P0,P1,P2,P3>>
-          : std::integral_constant< int
+          : tt::integral_constant< int
                                   , (P0==4 || P0==-1)    | (P1==5 || P1==-1)<<1
                                   | (P2==6 || P2==-1)<<2 | (P3==7 || P3==-1)<<3
                                   >
@@ -98,7 +98,7 @@ namespace boost { namespace simd
 
     template<int P0, int P1, int P2, int P3, int P4, int P5, int P6, int P7>
     struct  blend_mask<pattern_<P0,P1,P2,P3,P4,P5,P6,P7>>
-          : std::integral_constant< int
+          : tt::integral_constant< int
                                   , (P0==8  || P0==-1)    | (P1==9  || P1==-1)<<1
                                   | (P2==10 || P2==-1)<<2 | (P3==11 || P3==-1)<<3
                                   | (P4==12 || P4==-1)<<4 | (P5==13 || P5==-1)<<5
@@ -133,7 +133,7 @@ namespace boost { namespace simd
 
       template<typename T, typename P>
       static BOOST_FORCEINLINE T blend_ ( T const& a0, T const& a1, P const&
-                                        , std::integral_constant<std::size_t,4> const&
+                                        , tt::integral_constant<std::size_t,4> const&
                                         )
       {
         return _mm256_blend_pd(a0, a1, blend_mask<P>::value);
@@ -141,7 +141,7 @@ namespace boost { namespace simd
 
       template<typename T, typename P>
       static BOOST_FORCEINLINE T blend_ ( T const& a0, T const& a1, P const&
-                                        , std::integral_constant<std::size_t,8> const&
+                                        , tt::integral_constant<std::size_t,8> const&
                                         )
       {
         return _mm256_blend_ps(a0, a1, blend_mask<P>::value);

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,32 +15,33 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-operator
-    Function object implementing is_equal capabilities
-
-    Returns @ref True or @ref False
+    This function object returns @ref True or @ref False
     according x and y are equal or not.
 
     Infix notation can be used with operator '=='
 
-    @par Semantic:
 
-    @code
-    auto r = is_equal(x,y);
-    @endcode
+    @par Header <boost/simd/function/is_equal.hpp>
 
-    or
+    @par Note
 
-    @code
-    auto r = x == y;
-    @endcode
+      Using `is_equal(x,y)` is equivalent to `x == y`
 
     @see  is_not_equal, is_eqz, is_equal_with_equal_nans
 
+    @par Example:
+
+      @snippet is_equal.cpp is_equal
+
+    @par Possible output:
+
+      @snippet is_equal.txt is_equal
+
   **/
-  as_logical_t<T0> is_equal(T0 const& x, T1 const& y);
+  as_logical_t<Value> is_equal(Value const& x, Value const& y);
 } }
 #endif
 

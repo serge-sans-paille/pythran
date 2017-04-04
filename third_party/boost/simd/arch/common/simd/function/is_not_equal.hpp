@@ -12,6 +12,7 @@
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/detail/traits.hpp>
 #include <boost/simd/function/bitwise_cast.hpp>
+#include <boost/simd/function/bitwise_xor.hpp>
 #include <boost/simd/meta/is_bitwise_logical.hpp>
 #include <boost/simd/meta/hierarchy/simd.hpp>
 #include <boost/simd/meta/as_arithmetic.hpp>
@@ -39,7 +40,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF( is_not_equal_
                             , (typename A0,typename X)
-                            , ( brigand::and_ < bs::is_bitwise_logical_t<A0>
+                            , ( nsm::and_ < bs::is_bitwise_logical_t<A0>
                                               , detail::is_native<X>
                                               >
                               )
@@ -50,11 +51,8 @@ namespace boost { namespace simd { namespace ext
    {
     BOOST_FORCEINLINE A0 operator()(const A0& a0, const A0& a1) const BOOST_NOEXCEPT
     {
-      using cast_t = bd::as_integer_t<bs::as_arithmetic_t<A0>>;
-      return bitwise_cast<A0>(is_not_equal( bitwise_cast<cast_t>(a0)
-                                          , bitwise_cast<cast_t>(a1)
-                                          )
-                             );
+      using cast_t = bs::as_arithmetic_t<A0>;
+      return bitwise_cast<A0>(bitwise_xor(bitwise_cast<cast_t>(a0),bitwise_cast<cast_t>(a1)));
     }
   };
 } } }

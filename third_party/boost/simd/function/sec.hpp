@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing sec capabilities
+    This function object returns the secant of the angle in radian: \f$1/\cos(x)\f$.
 
-    secant of the angle in radian: \f$1/\cos(x)\f$.
+    @see cos, secd, secpi
 
-    @par Semantic:
 
-    For every parameter of floating type
 
-    @code
-    auto r = sec(x);
-    @endcode
+    @par Header <boost/simd/function/sec.hpp>
 
-    @see cos, secd, secpi, rec
+    @par Example:
+
+      @snippet sec.cpp sec
+
+    @par Possible output:
+
+      @snippet sec.txt sec
 
   **/
-  Value sec(Value const & v0);
+  IEEEValue sec(IEEEValue const& x);
 } }
 #endif
 

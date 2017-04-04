@@ -21,6 +21,9 @@ namespace boost { namespace simd
     in floating point routines (such @ref two_add and
     @ref two_prod) to get extra precision.
 
+
+    @par Header <boost/simd/constant/splitfactor.hpp>
+
     @par Semantic:
 
     @code
@@ -55,8 +58,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/splitfactor.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/splitfactor.hpp>
+#include <boost/simd/constant/simd/splitfactor.hpp>
 
 #endif

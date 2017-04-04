@@ -6,8 +6,8 @@
 //                 See accompanying file LICENSE.txt or copy at
 //                     http://www.boost.org/LICENSE_1_0.txt
 //==============================================================================
-#ifndef BOOST_ARCH_COMMON_FUNCTIONS_SCALAR_FUNCTION_STREAM_HPP_INCLUDED
-#define BOOST_ARCH_COMMON_FUNCTIONS_SCALAR_FUNCTION_STREAM_HPP_INCLUDED
+#ifndef BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_STREAM_HPP_INCLUDED
+#define BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_STREAM_HPP_INCLUDED
 
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/adapted/common/pointer.hpp>

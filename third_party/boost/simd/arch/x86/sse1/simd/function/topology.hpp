@@ -15,14 +15,15 @@
 #include <boost/simd/arch/common/simd/function/shuffle/repeat.hpp>
 #include <boost/simd/arch/common/simd/function/shuffle/slide.hpp>
 #include <boost/simd/detail/dispatch/meta/as_floating.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd { namespace detail
 {
+  namespace tt = nsm::type_traits;
   // -----------------------------------------------------------------------------------------------
   // Local masking utility
   template<int P0,int P1, int P2, int P3>
-  struct mask_ps : std::integral_constant<int, _MM_SHUFFLE(P3&3,P2&3,P1&3,P0&3)>
+  struct mask_ps : tt::integral_constant<int, _MM_SHUFFLE(P3&3,P2&3,P1&3,P0&3)>
   {};
 
   // -----------------------------------------------------------------------------------------------
@@ -67,28 +68,32 @@ namespace boost { namespace simd { namespace detail
     static BOOST_FORCEINLINE T process(T const& a0, T const& a1, pattern_<0,1,4,5> const&)
     {
       using f_t = boost::dispatch::as_floating_t<T>;
-      return bitwise_cast<T>(_mm_movelh_ps(bitwise_cast<f_t>(a0),bitwise_cast<f_t>(a1)));
+      f_t tmp = _mm_movelh_ps(bitwise_cast<f_t>(a0),bitwise_cast<f_t>(a1));
+      return bitwise_cast<T>(tmp);
     }
 
     template<typename T>
     static BOOST_FORCEINLINE T process(T const& a0, T const& a1, pattern_<4,5,0,1> const&)
     {
       using f_t = boost::dispatch::as_floating_t<T>;
-      return bitwise_cast<T>(_mm_movelh_ps(bitwise_cast<f_t>(a1),bitwise_cast<f_t>(a0)));
+      f_t tmp = _mm_movelh_ps(bitwise_cast<f_t>(a1),bitwise_cast<f_t>(a0));
+      return bitwise_cast<T>(tmp);
     }
 
     template<typename T>
     static BOOST_FORCEINLINE T process(T const& a0, T const& a1, pattern_<2,3,6,7> const&)
     {
       using f_t = boost::dispatch::as_floating_t<T>;
-      return bitwise_cast<T>(_mm_movehl_ps(bitwise_cast<f_t>(a1),bitwise_cast<f_t>(a0)));
+      f_t tmp = _mm_movehl_ps(bitwise_cast<f_t>(a1),bitwise_cast<f_t>(a0));
+      return bitwise_cast<T>(tmp);
     }
 
     template<typename T>
     static BOOST_FORCEINLINE T process(T const& a0, T const& a1, pattern_<6,7,2,3> const&)
     {
       using f_t = boost::dispatch::as_floating_t<T>;
-      return bitwise_cast<T>(_mm_movehl_ps(bitwise_cast<f_t>(a0),bitwise_cast<f_t>(a1)));
+      f_t tmp = _mm_movehl_ps(bitwise_cast<f_t>(a0),bitwise_cast<f_t>(a1));
+      return bitwise_cast<T>(tmp);
     }
 
     // Specialized Unary permutation handler
@@ -96,28 +101,32 @@ namespace boost { namespace simd { namespace detail
     static BOOST_FORCEINLINE T process(T const& a0, pattern_<0,1,-1,-1> const&)
     {
       using f_t = boost::dispatch::as_floating_t<T>;
-      return bitwise_cast<T>(_mm_movelh_ps(bitwise_cast<f_t>(a0),Zero<f_t>()));
+      f_t tmp = _mm_movelh_ps(bitwise_cast<f_t>(a0),Zero<f_t>());
+      return bitwise_cast<T>(tmp);
     }
 
     template<typename T>
     static BOOST_FORCEINLINE T process(T const& a0, pattern_<-1,-1,0,1> const&)
     {
       using f_t = boost::dispatch::as_floating_t<T>;
-      return bitwise_cast<T>(_mm_movelh_ps(Zero<f_t>(),bitwise_cast<f_t>(a0)));
+      f_t tmp = _mm_movelh_ps(Zero<f_t>(),bitwise_cast<f_t>(a0));
+      return bitwise_cast<T>(tmp);
     }
 
     template<typename T>
     static BOOST_FORCEINLINE T process(T const& a0, pattern_<-1,-1,2,3> const&)
     {
       using f_t = boost::dispatch::as_floating_t<T>;
-      return bitwise_cast<T>(_mm_movehl_ps(bitwise_cast<f_t>(a0),Zero<f_t>()));
+      f_t tmp = _mm_movehl_ps(bitwise_cast<f_t>(a0),Zero<f_t>());
+      return bitwise_cast<T>(tmp);
     }
 
     template<typename T>
     static BOOST_FORCEINLINE T process(T const& a0, pattern_<2,3,-1,-1> const&)
     {
       using f_t = boost::dispatch::as_floating_t<T>;
-      return bitwise_cast<T>(_mm_movehl_ps(Zero<f_t>(),bitwise_cast<f_t>(a0)));
+      f_t tmp = _mm_movehl_ps(Zero<f_t>(),bitwise_cast<f_t>(a0));
+      return bitwise_cast<T>(tmp);
     }
   };
 
@@ -147,17 +156,17 @@ namespace boost { namespace simd { namespace detail
 
     // Regular unary shuffling
     template<typename T,int... Ps> static BOOST_FORCEINLINE
-    T do_(const T& a0, pattern_<Ps...> const&, std::false_type const&)
+    T do_(const T& a0, pattern_<Ps...> const&, tt::false_type const&)
     {
       return _mm_shuffle_ps(a0,a0, mask_ps<Ps...>::value);
     }
 
     // Masked unary shuffling
     template<typename T,int... Ps> static BOOST_FORCEINLINE
-    T do_(const T & a0, pattern_<Ps...> const& p, std::true_type const&)
+    T do_(const T & a0, pattern_<Ps...> const& p, tt::true_type const&)
     {
       using s_t = typename T::value_type;
-      return  do_(a0,p,std::false_type{})
+      return  do_(a0,p,tt::false_type{})
             & T( bitwise_cast<s_t>(zeroing_mask<std::uint32_t,Ps>::value)...);
     }
 
@@ -170,16 +179,16 @@ namespace boost { namespace simd { namespace detail
 
     // Masked binary shuffling
     template<typename T, int... Ps> static BOOST_FORCEINLINE
-    T do_(const T& a0, const T & a1, pattern_<Ps...> const& p, std::true_type const&)
+    T do_(const T& a0, const T & a1, pattern_<Ps...> const& p, tt::true_type const&)
     {
       using s_t = typename T::value_type;
-      return  do_(a0,a1,p,std::false_type{})
+      return  do_(a0,a1,p,tt::false_type{})
             & T( bitwise_cast<s_t>(zeroing_mask<std::uint32_t,Ps>::value)...);
     }
 
     // Regular binary shuffling
     template<typename T, int... Ps> static BOOST_FORCEINLINE
-    T do_(const T& a0, const T & a1, pattern_<Ps...> const&, std::false_type const&)
+    T do_(const T& a0, const T & a1, pattern_<Ps...> const&, tt::false_type const&)
     {
       return do_(a0, a1, typename sse_topology<4,Ps...>::type{});
     }

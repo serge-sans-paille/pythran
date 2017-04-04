@@ -23,7 +23,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, split_multiplies_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, split_multiplies_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::split_multiplies_,split_multiplies);

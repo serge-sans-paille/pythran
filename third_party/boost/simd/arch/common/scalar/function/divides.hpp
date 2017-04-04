@@ -47,34 +47,6 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD ( divides_
                           , (typename T)
-                          , bd::cpu_
-                          , boost::simd::fast_tag
-                          , bd::scalar_<bd::unspecified_<T>>
-                          , bd::scalar_<bd::unspecified_<T>>
-                          )
-  {
-     BOOST_FORCEINLINE T operator()(const fast_tag &, T  a, T  b
-                                  ) const BOOST_NOEXCEPT
-    {
-      return divides(a, b);
-    }
-  };
-  BOOST_DISPATCH_OVERLOAD ( divides_
-                          , (typename T)
-                          , bd::cpu_
-                          , boost::simd::fast_tag
-                          , bd::scalar_<bd::floating_<T>>
-                          , bd::scalar_<bd::floating_<T>>
-                          )
-  {
-    BOOST_FORCEINLINE T operator()(const fast_tag &, T  a, T  b
-                                  ) const BOOST_NOEXCEPT
-    {
-      return a*fast_(rec)(b);
-    }
-  };
-   BOOST_DISPATCH_OVERLOAD ( divides_
-                          , (typename T)
                           ,  bd::cpu_
                           ,  bs::saturated_tag
                           ,  bd::scalar_<bd::fundamental_<T>>

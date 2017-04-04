@@ -9,14 +9,17 @@
 #ifndef BOOST_SIMD_FUNCTION_REVERSE_HPP_INCLUDED
 #define BOOST_SIMD_FUNCTION_REVERSE_HPP_INCLUDED
 
+#if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-#if defined(DOXYGEN_ONLY)
   /*!
     @ingroup group-swar
     Function object implementing reverse
 
     Returns a vector containing the value of its argument in reverse order.
+
+
+    @par Header <boost/simd/function/reverse.hpp>
 
     @par Semantic:
 
@@ -34,9 +37,9 @@ namespace boost { namespace simd
       r[i] = x[cardinal_of<T>-i-1];
     @endcode
   **/
-  Value reverse(Value const & v0);
-#endif
+  Value reverse(Value const& x);
 } }
+#endif
 
 #include <boost/simd/function/scalar/reverse.hpp>
 #include <boost/simd/function/simd/reverse.hpp>

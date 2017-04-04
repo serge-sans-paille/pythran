@@ -18,7 +18,7 @@
 #include <boost/preprocessor/tuple/rem.hpp>
 #include <boost/preprocessor/punctuation/remove_parens.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 /*!
   @ingroup group-function

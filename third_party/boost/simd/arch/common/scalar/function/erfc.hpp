@@ -98,7 +98,7 @@ namespace boost { namespace simd { namespace ext
         if (is_ltz(x)) res = Two<A0>()-res;
         return res;
       }
-      else return Zero<A0>();
+      else return (is_ltz(x)) ? Two<A0>() : Zero<A0>();
     }
   };
   BOOST_DISPATCH_OVERLOAD ( erfc_

@@ -47,6 +47,7 @@
 #include <boost/simd/constant/minf.hpp>
 #include <boost/simd/constant/smallestposval.hpp>
 #include <boost/simd/constant/sqrt_2o_2.hpp>
+#include <boost/simd/constant/two.hpp>
 
 #include <boost/simd/detail/constant/invlog_2hi.hpp>
 #include <boost/simd/detail/constant/invlog_2lo.hpp>

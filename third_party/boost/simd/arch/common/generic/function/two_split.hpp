@@ -29,7 +29,7 @@ namespace boost { namespace simd { namespace ext
                           , bd::generic_< bd::floating_<A0> >
                           )
   {
-    using result_t = std::pair<A0,A0>;                                 ;
+    using result_t = std::pair<A0,A0>;
     BOOST_FORCEINLINE result_t operator() ( A0 const& a) const BOOST_NOEXCEPT
     {
       detail::enforce_precision<A0> enforcer;

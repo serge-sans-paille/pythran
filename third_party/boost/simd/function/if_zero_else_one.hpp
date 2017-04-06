@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,37 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-boolean
-    Function object implementing if_zero_else_one capabilities
+    This function object conditionally returns  @c 0 (respectively @c 1)
+    if @c c is @ref True (respectively  @ref False)
 
-    If cond is @ref True returns @ref Zero else returns one
 
-    @par Semantic:
+    @par Header <boost/simd/function/if_zero_else_one.hpp>
 
-    For every parameters of type @c C:
+    @par Example:
 
-    @code
-    T r = if_zero_else_one(cond);
-    @endcode
+      @snippet if_zero_else_one.cpp if_zero_else_one
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    T r =  cond ? Zero : One;
-    @endcode
-
-    @par Note:
-
-    The return type is generally C except in the case where C is as_logical_t<T>. in which case
-    the return type is T.
+      @snippet if_zero_else_one.txt if_zero_else_one
 
   **/
   Value if_zero_else_one(Value const& c);
-
-  //@overload
-  Value if_zero_else_one(LogicalValue const& c);
 } }
 #endif
 

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,15 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing toint capabilities
+    This function object converts its parameter to integer by truncation.
 
-    Convert to integer by truncation.
 
-    @par semantic:
-    For any given value @c x of type @c T:
+    @par Header <boost/simd/function/toint.hpp>
 
-    @code
-    as_integer_t<T> r = toint(x);
-    @endcode
-
-    The code is similar to:
-
-    @code
-    as_integer_t<T> r = static_cast<as_integer_t<T> >(x)
-    @endcode
-
-    @par Notes:
+    @par Notes
 
     @c toint cast a floating value to the signed integer value of the same bit size.
 
@@ -44,28 +32,28 @@ namespace boost { namespace simd
     Peculiarly,  that implies that the behaviour of this function on invalid entries is
     not defined and quite unpredictable.
 
-    (For instance it is quite frequent that the test:
+    (For instance it is quite frequent that the test: `toint(Inf<double>()) ==  toint(1.0/0.0)`
+    will return @ref False whilst the test: `Inf<double>() == 1.0/0.0` returns @ref True !)
 
-    @code
-    toint(Inf<double>()) ==  toint(1.0/0.0)
-    @endcode
+    If you intend to use @ref Nan and @ref Inf entries,  consider using
+    saturated_(toint) instead or its alias @ref ifix.
 
-    will return @ref False whilst the test:
+    @par Decorators
 
-    @code
-    Inf<double>() == 1.0/0.0
-    @endcode
+    - saturated_ (See @ref group-decorator) as stated above ensures good behaviour on
+      limiting values.
 
-    returns @ref True !)
+    @see touint, tofloat
 
-    If you intend to use @ref Nan and @ref Inf entries,  consider using @ref saturated_(toint) instead
-    or its alias @ref ifix.
-    Nethertheless, on integral typed values, @c toint acts as identity.
+    @par Example:
 
-    @see touint
+      @snippet toint.cpp toint
 
+    @par Possible output:
+
+      @snippet toint.txt toint
   **/
-  IntegerValue toint(Value const & x);
+  as_integer_t<Value> toint(Value const& x);
 } }
 #endif
 

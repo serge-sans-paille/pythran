@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -17,30 +17,24 @@ namespace boost { namespace simd
 
   /*!
     @ingroup group-reduction
-    Function object implementing compare_less_equal capabilities
-
-    Returns a logical scalar that is the result of the lexicographic
-    test for <= on all elements of the entries
+    This function object returns a @c bool that is the result of the
+    lexicographic test for <= on all elements of the entries
 
     It is probably not what you wish. Have a look to @ref is_less_equal
 
-    @par Semantic:
 
-    For every parameters of type T0:
+    @par Header <boost/simd/function/compare_less_equal.hpp>
 
-    @code
-    bool r = compare_less_equal(x,y);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet compare_less_equal.cpp compare_less_equal
 
-    @code
-    bool r = !compare_greater(y, x)
-    @endcode
+    @par Possible output:
 
-    @see is_less_equal
+      @snippet compare_less_equal.txt compare_less_equal
+
   **/
-  bool compare_less_equal(Value const& v0, Value const& v1);
+  bool compare_less_equal(Value const& x, Value const& y);
 } }
 #endif
 

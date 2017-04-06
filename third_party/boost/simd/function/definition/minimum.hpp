@@ -27,7 +27,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, minimum_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, minimum_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::minimum_,minimum);

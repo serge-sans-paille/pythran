@@ -1,6 +1,6 @@
 //==================================================================================================
 /**
-  Copyright 2016 NumScale SAS
+  Copyright 2017 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -12,7 +12,6 @@
 
 #if !defined(BOOST_SIMD_NO_SIMD)
   #include <boost/simd/arch/x86/spec.hpp>
-  #include <boost/simd/arch/ppc/spec.hpp>
 #endif
 
 #include <boost/simd/arch/common/spec.hpp>

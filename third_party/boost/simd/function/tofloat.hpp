@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,28 +15,27 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing tofloat capabilities
+    This function object converts its parameter to floating point value occupying the same bit size.
+    This implies that this functor is only defined for (smd vectors of) 32 or 64 bit integer
+    entries to provide (smd vectors of) float and or double.
 
-    Convert to floating point value.
+    @see toint, touint, cast
 
-    @par semantic:
-    For any given value @c x of type @c T:
 
-    @code
-    as_floating_t<T> r = tofloat(x);
-    @endcode
+    @par Header <boost/simd/function/tofloat.hpp>
 
-    The code is similar to:
+    @par Example:
 
-    @code
-    as_floating_t<T> r = static_cast < as_floating_t<T> >(x)
-    @endcode
+      @snippet tofloat.cpp tofloat
 
+    @par Possible output:
+
+      @snippet tofloat.txt tofloat
   **/
-  as_floating_t<Value> tofloat(Value const& v);
+  as_floating_t<Value> tofloat(Value const& x);
 } }
 #endif
 

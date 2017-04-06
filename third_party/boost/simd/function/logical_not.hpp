@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,33 +15,23 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-boolean
-    Function object implementing logical_not capabilities
-
-    return the logical negation of the parameter,
-    i.e. True or False of the logical type associated entry type according that
-    the input is @ref Zero or non @ref Zero (False or True).
+    This function object returns the return the logical negation of the argument.
 
     Infix notation can be used with operator '!'
 
-    @par Semantic:
+    @par Header <boost/simd/function/logical_not.hpp>
 
-    For every parameter of type @c T
+    @see logical_notor,  logical_xor, logical_andnot,  logical_notand,  logical_ornot, logical_and,  logical_or
 
-    @code
-    auto r = logical_not(x);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet logical_not.cpp logical_not
 
-    @code
-    auto r =!x;
-    @endcode
+    @par Possible output:
 
-    @see  logical_or, logical_xor, logical_notand,
-    logical_andnot, logical_notor, logical_ornot
+      @snippet logical_not.txt logical_not
 
   **/
   as_logical_t<Value0> logical_not(Value0 const& x, Value1 const& y);

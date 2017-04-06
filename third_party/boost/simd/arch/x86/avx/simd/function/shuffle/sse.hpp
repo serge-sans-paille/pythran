@@ -11,7 +11,7 @@
 
 #include <boost/simd/detail/shuffle.hpp>
 #include <boost/simd/detail/dispatch/meta/as_floating.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd { namespace detail
 {
@@ -28,10 +28,10 @@ namespace boost { namespace simd { namespace detail
     // -------------------------------------------------------------------------------------------
     // Check if permutaton its into mm_permute_p*
     template<int I0, int I1>
-    struct permute2 : brigand::bool_<(I0!=-1) && (I1!=-1)> {};
+    struct permute2 : nsm::bool_<(I0!=-1) && (I1!=-1)> {};
 
     template<int I0, int I1, int I2, int I3>
-    struct permute4 : brigand::bool_<(I0!=-1) && (I1!=-1) && (I2!=-1) && (I3!=-1)> {};
+    struct permute4 : nsm::bool_<(I0!=-1) && (I1!=-1) && (I2!=-1) && (I3!=-1)> {};
 
     // -------------------------------------------------------------------------------------------
     // Unary process for 2x64 registers
@@ -43,13 +43,13 @@ namespace boost { namespace simd { namespace detail
 
     template<typename T,int P0, int P1>
     static BOOST_FORCEINLINE T do_( T const& a0, pattern_<P0,P1> const&
-                                  , std::true_type const&, std::false_type const&
+                                  , tt::true_type const&, tt::false_type const&
                                   )
     {
-      return bitwise_cast<T>( _mm_permute_pd( bitwise_cast<bd::as_floating_t<T>>(a0)
-                                            , (P0&1)|((P1&1)<<1)
-                                            )
-                            );
+      bd::as_floating_t<T> tmp =  _mm_permute_pd( bitwise_cast<bd::as_floating_t<T>>(a0)
+                                                , (P0&1)|((P1&1)<<1)
+                                                );
+      return bitwise_cast<T>( tmp );
     }
 
     // -------------------------------------------------------------------------------------------
@@ -65,13 +65,13 @@ namespace boost { namespace simd { namespace detail
 
     template<typename T, int P0, int P1, int P2, int P3>
     static BOOST_FORCEINLINE T do_( T const& a0, pattern_<P0,P1,P2,P3> const&
-                                  , std::true_type const&, std::false_type const&
+                                  , tt::true_type const&, tt::false_type const&
                                   )
     {
-      return bitwise_cast<T>( _mm_permute_ps( bitwise_cast<bd::as_floating_t<T>>(a0)
-                                            , (P0&3)|((P1&3)<<2)|((P2&3)<<4)|((P3&3)<<6)
-                                            )
-                            );
+      bd::as_floating_t<T> tmp = _mm_permute_ps( bitwise_cast<bd::as_floating_t<T>>(a0)
+                                               , (P0&3)|((P1&3)<<2)|((P2&3)<<4)|((P3&3)<<6)
+                                               );
+      return bitwise_cast<T>( tmp );
     }
 
     // -------------------------------------------------------------------------------------------

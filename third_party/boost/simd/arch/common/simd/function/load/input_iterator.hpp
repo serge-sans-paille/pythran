@@ -38,7 +38,7 @@ namespace boost { namespace simd { namespace ext
 
     // Aggregate case: fill in the storage by calling load twice
     template<typename... N> static BOOST_FORCEINLINE
-    target_t do_(Begin const& b, aggregate_storage const&, brigand::list<N...> const&)
+    target_t do_(Begin const& b, aggregate_storage const&, nsm::list<N...> const&)
     {
       // calling advance with an enum doesn't compile on MSVC
       std::ptrdiff_t off = target_t::traits::element_size;
@@ -59,7 +59,7 @@ namespace boost { namespace simd { namespace ext
 
     // Other case: Fill a pack piecewise
     template<typename K, typename... N> static BOOST_FORCEINLINE
-    target_t do_(Begin b, K const&, brigand::list<N...> const&) BOOST_NOEXCEPT
+    target_t do_(Begin b, K const&, nsm::list<N...> const&) BOOST_NOEXCEPT
     {
       typename target_t::value_type p[sizeof...(N)] = { value<N>(b)... };
       return target_t( p[N::value]... );

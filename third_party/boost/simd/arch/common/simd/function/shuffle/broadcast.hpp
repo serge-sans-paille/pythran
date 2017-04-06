@@ -10,7 +10,7 @@
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_SHUFFLE_BROADCAST_HPP_INCLUDED
 
 #include <boost/simd/detail/overload.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/shuffle.hpp>
 #include <boost/simd/function/broadcast.hpp>
 
@@ -18,15 +18,17 @@ namespace boost { namespace simd
 {
   namespace detail
   {
+    namespace tt = nsm::type_traits;
+
     // ---------------------------------------------------------------------------------------------
     // Check if pattern is [N ... N]
     template<int P, int... Ps>
-    struct is_broadcast : brigand::all< brigand::integral_list<int,Ps...>
-                                      , brigand::equal_to<brigand::_1,std::integral_constant<int,P>>
+    struct is_broadcast : nsm::all< nsm::integral_list<int,Ps...>
+                                      , nsm::equal_to<nsm::_1,tt::integral_constant<int,P>>
                                       >
     {};
 
-    template<int P0> struct is_broadcast<P0> : std::false_type {};
+    template<int P0> struct is_broadcast<P0> : tt::false_type {};
   }
 
   // -----------------------------------------------------------------------------------------------

@@ -16,9 +16,20 @@ namespace boost { namespace simd
 {
   /*!
     @ingroup group-functions
-    @defgroup group-exponential Exponential Functions
+    @defgroup group-exponential Exponential functions
 
-    These functions provide algorithms for computing exponentials and logarithms.
+    Those functions provide algorithms for computing exponentials
+    and logarithms.
+
+      <center>
+        |                      |                  |                  |                 |
+        |:--------------------:|:----------------:|:----------------:|:---------------:|
+        | @ref cbrt            | @ref exp10       | @ref exp2        | @ref exp        |
+        | @ref expm1           | @ref exprecneg   | @ref exprecnegc  | @ref expx2      |
+        | @ref log10           | @ref log2        | @ref log         | @ref log1p      |
+        | @ref nthroot         | @ref pow2        | @ref pow_abs     | @ref pow        |
+        | @ref significants    |                  |                  |                 |
+       </center>
   **/
 
 } }
@@ -34,6 +45,7 @@ namespace boost { namespace simd
 #include <boost/simd/function/log10.hpp>
 #include <boost/simd/function/log2.hpp>
 #include <boost/simd/function/log.hpp>
+#include <boost/simd/function/log1p.hpp>
 #include <boost/simd/function/nthroot.hpp>
 #include <boost/simd/function/pow2.hpp>
 #include <boost/simd/function/pow_abs.hpp>

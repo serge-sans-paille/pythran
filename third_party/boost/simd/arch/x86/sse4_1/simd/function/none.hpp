@@ -10,8 +10,9 @@
 #define BOOST_SIMD_ARCH_X86_SSE4_1_SIMD_FUNCTION_NONE_HPP_INCLUDED
 
 #include <boost/simd/detail/overload.hpp>
-#include <boost/simd/function/genmask.hpp>
 #include <boost/simd/constant/allbits.hpp>
+#include <boost/simd/detail/constant/butsign.hpp>
+#include <boost/simd/function/bitwise_cast.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 
 namespace boost { namespace simd { namespace ext
@@ -38,9 +39,11 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE bool operator() ( const A0 & a0) const BOOST_NOEXCEPT
     {
-      return none(bitwise_cast<bd::as_integer_t<A0>>(a0));
+      using iA0 = bd::as_integer_t<A0>;
+      return bool(_mm_testz_si128(bitwise_cast<iA0>(a0), Butsign<iA0>()));
     }
   };
+
 } } }
 
 #endif

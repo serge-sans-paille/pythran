@@ -17,7 +17,7 @@
 #include <boost/simd/detail/dispatch/meta/value_of.hpp>
 #include <boost/simd/detail/dispatch/hierarchy_of.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 #include <iostream>
 
 namespace boost { namespace simd { namespace detail

@@ -11,10 +11,12 @@
 
 #include <boost/simd/config.hpp>
 #include <boost/simd/constant/zero.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd { namespace detail
 {
+  namespace tt = nsm::type_traits;
+
   template<typename T,int N, int Card, bool isFwd> struct slider;
 
   // We add a small trampoline so MSVC is happy with the cardinal_of call
@@ -26,10 +28,10 @@ namespace boost { namespace simd { namespace detail
   template<typename T,int N, int Card, bool isFwd> struct slider
   {
     static BOOST_FORCEINLINE auto call(T const& a0, T const& a1)
-    BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a0,a1,std::integral_constant<int, N>{}));
+    BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a0,a1,tt::integral_constant<int, N>{}));
 
     static BOOST_FORCEINLINE auto call(T const& a0)
-    BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a0,std::integral_constant<int, N>{}));
+    BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a0,tt::integral_constant<int, N>{}));
   };
 
   // Backward slide slides the swapped inputs by the complement of the offset except for
@@ -37,25 +39,25 @@ namespace boost { namespace simd { namespace detail
   template<typename T,int N, int Card> struct slider<T,N,Card,false>
   {
     //static BOOST_FORCEINLINE auto call(T const& a0, T const& a1)
-    //BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a1,a0,std::integral_constant<int, Card+N>{}));
+    //BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a1,a0,tt::integral_constant<int, Card+N>{}));
 
-    static BOOST_FORCEINLINE auto call(T const& a0, std::false_type const&)
-    BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a0,std::integral_constant<int, N>{}));
+    static BOOST_FORCEINLINE auto call(T const& a0, tt::false_type const&)
+    BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a0,tt::integral_constant<int, N>{}));
 
-    static BOOST_FORCEINLINE T call(T const&, std::true_type const&)
+    static BOOST_FORCEINLINE T call(T const&, tt::true_type const&)
     { return Zero<T>(); }
 
     static BOOST_FORCEINLINE auto call(T const& a0)
-    BOOST_NOEXCEPT_DECLTYPE_BODY( call(a0, brigand::bool_<(N==-Card)>{}) );
+    BOOST_NOEXCEPT_DECLTYPE_BODY( call(a0, nsm::bool_<(N==-Card)>{}) );
 
-    static BOOST_FORCEINLINE auto call(T const& a0, T const& a1, std::false_type const&)
-    BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a1, a0, std::integral_constant<int, Card+N>{}));
+    static BOOST_FORCEINLINE auto call(T const& a0, T const& a1, tt::false_type const&)
+    BOOST_NOEXCEPT_DECLTYPE_BODY(detail::slide(a1, a0, tt::integral_constant<int, Card+N>{}));
 
-    static BOOST_FORCEINLINE T call(T const&, T const& a1, std::true_type const&)
+    static BOOST_FORCEINLINE T call(T const&, T const& a1, tt::true_type const&)
     { return a1; }
 
     static BOOST_FORCEINLINE auto call(T const& a0, T const& a1)
-    BOOST_NOEXCEPT_DECLTYPE_BODY(call(a0, a1, brigand::bool_<(N == -Card)>{}));
+    BOOST_NOEXCEPT_DECLTYPE_BODY(call(a0, a1, nsm::bool_<(N == -Card)>{}));
   };
 
   // Scalar-like value returns a0 in backward mode

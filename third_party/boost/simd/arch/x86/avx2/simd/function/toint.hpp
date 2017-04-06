@@ -10,7 +10,6 @@
 #define BOOST_SIMD_ARCH_X86_AVX2_SIMD_FUNCTION_TOINT_HPP_INCLUDED
 
 #include <boost/simd/detail/overload.hpp>
-#include <boost/simd/function/fast.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 
 namespace boost { namespace simd { namespace ext

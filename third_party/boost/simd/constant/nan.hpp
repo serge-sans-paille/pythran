@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate the Not a Number (Nan) constant.
 
+
+    @par Header <boost/simd/constant/nan.hpp>
+
     @par Semantic
 
     For any type @c T,
@@ -58,8 +61,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/nan.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/nan.hpp>
+#include <boost/simd/constant/simd/nan.hpp>
 
 #endif

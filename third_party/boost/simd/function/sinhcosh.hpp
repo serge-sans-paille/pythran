@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,33 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-hyperbolic
-    Function object implementing sinhcosh capabilities
+    This function object computes simultaneously  and at lower cost
+    the @c sinh and @c cosh of the input
 
-    Computes simultaneously the sinh and cosh of the input
-
-    @par Semantic:
-
-    @code
-    T ch, sh
-    std::tie(sh, ch) = sinhcoshs(x);
-    @endcode
-
-    is similar to:
-
-    @code
-    T sh = sinh(x);
-    T ch = cosh(x);
-    @endcode
-
-    but speedier
+    @par Header <boost/simd/function/sinhcosh.hpp>
 
     @see  sinh, cosh
 
+    @par Example:
+
+      @snippet sinhcosh.cpp sinhcosh
+
+    @par Possible output:
+
+      @snippet sinhcosh.txt sinhcosh
+
   **/
-  std::pair<Value, Value> sinhcosh(Value const & v0);
+  std::pair<IEEEValue, IEEEValue> sinhcosh(IEEEValue const& x);
 } }
 #endif
 

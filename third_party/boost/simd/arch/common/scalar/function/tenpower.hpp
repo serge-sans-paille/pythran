@@ -33,17 +33,17 @@ namespace boost { namespace simd { namespace ext
                           )
   {
     using result_t = bd::as_floating_t<A0>;
-    BOOST_FORCEINLINE result_t operator() ( A0 exp) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE result_t operator() ( A0 expo) const BOOST_NOEXCEPT
     {
 
       result_t result = One<result_t>();
       result_t base = Ten<result_t>();
-      auto neg = is_ltz(exp);
-      exp =  boost::simd::abs(exp);
-      while(exp)
+      auto neg = is_ltz(expo);
+      expo =  boost::simd::abs(expo);
+      while(expo)
       {
-        if (is_odd(exp)) result *= base;
-        exp >>= 1;
+        if (is_odd(expo)) result *= base;
+        expo >>= 1;
         base = sqr(base);
       }
       return neg ? rec(result) : result;
@@ -57,14 +57,14 @@ namespace boost { namespace simd { namespace ext
                           )
   {
     using result_t = bd::as_floating_t<A0>;
-    BOOST_FORCEINLINE result_t operator() ( A0 exp) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE result_t operator() ( A0 expo) const BOOST_NOEXCEPT
     {
       result_t result = One<result_t>();
       result_t base = Ten<result_t>();
-      while(exp)
+      while(expo)
       {
-        if (is_odd(exp)) result *= base;
-        exp >>= 1;
+        if (is_odd(expo)) result *= base;
+        expo >>= 1;
         base = sqr(base);
       }
       return result;

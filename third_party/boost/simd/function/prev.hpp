@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,20 +15,10 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing prev capabilities
-
-    Returns if it exists the greatest representable value  strictly less than the parameter
-
-    @par Semantic:
-
-    @code
-    auto r = prev(x);
-    @endcode
-
-   @par Note
+    This function object returns the greatest representable
+    value  strictly less than the parameter except:
 
     - for entries of floating types
 
@@ -44,10 +34,20 @@ namespace boost { namespace simd
 
       - prev(Valmin) is Valmax
 
+    @par Header <boost/simd/function/prev.hpp>
+
     @see prev, nextafter, successor, predecessor
 
+    @par Example:
+
+      @snippet prev.cpp prev
+
+    @par Possible output:
+
+      @snippet prev.txt prev
+
   **/
-  Value prev(Value const & v0);
+  Value prev(Value const& x);
 } }
 #endif
 

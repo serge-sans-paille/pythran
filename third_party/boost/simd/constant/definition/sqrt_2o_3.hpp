@@ -12,7 +12,7 @@
 #define BOOST_SIMD_CONSTANT_DEFINITION_SQRT_2O_3_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
@@ -32,7 +32,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,sqrt_2o_3_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, sqrt_2o_3_)
   }
 
   namespace detail
@@ -44,6 +44,12 @@ namespace boost { namespace simd
   BOOST_NOEXCEPT_DECLTYPE(detail::sqrt_2o_3( boost::dispatch::as_<T>{}))
   {
     return detail::sqrt_2o_3( boost::dispatch::as_<T>{} );
+  }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto Sqrt_2o_3(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(Sqrt_2o_3<T>())
+  {
+    return Sqrt_2o_3<T>();
   }
 } }
 

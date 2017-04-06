@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,31 +15,23 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing cummax capabilities
+    This function object computes the cumulate maximum of the argument elements
 
-    Computes the cumulate maximum of the vector elements
 
-    @par Semantic:
+    @par Header <boost/simd/function/cummax.hpp>
 
-    For every pack parameter of type @c T
+    @par Example:
 
-    @code
-    T r = cummax(x);
-    @endcode
+      @snippet cummax.cpp cummax
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    T r =x;
-    for(int i=0;i < T::static_size; ++i)
-      r[i] = max(r[i-1], r[i]);
-    @endcode
+      @snippet cummax.txt cummax
 
   **/
-  Value cummax(Value const & v0);
+  Value cummax(Value const& x);
 } }
 #endif
 

@@ -36,8 +36,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/mhalf.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/mhalf.hpp>
+#include <boost/simd/constant/simd/mhalf.hpp>
 
 #endif

@@ -10,8 +10,8 @@
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_NONE_HPP_INCLUDED
 
 #include <boost/simd/detail/overload.hpp>
-#include <boost/simd/function/any.hpp>
 #include <boost/simd/function/splatted.hpp>
+#include <boost/simd/function/hmsb.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -24,9 +24,22 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::fundamental_<A0>, X>
                           )
   {
-    BOOST_FORCEINLINE bool operator()( const A0& a0) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool do_(const A0& a0, aggregate_storage const&) const BOOST_NOEXCEPT
     {
-      return !bs::any(a0);
+      auto const all0 = none(slice_high(a0));
+      auto const all1 = none(slice_low(a0) );
+      return  all0 && all1;
+    }
+
+    template<typename K>
+    BOOST_FORCEINLINE bool do_(const A0& a0, K const&) const BOOST_NOEXCEPT
+    {
+      return hmsb(genmask(a0)).none();
+    }
+
+    BOOST_FORCEINLINE bool operator()(const A0& a0) const BOOST_NOEXCEPT
+    {
+      return do_(a0, typename A0::storage_kind{});
     }
   };
 

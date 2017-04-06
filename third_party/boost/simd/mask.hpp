@@ -59,7 +59,9 @@ namespace boost { namespace simd
     return detail::masked_pointer<T,Mask>{ptr,T(def),status};
   }
 
-  /// @overload
+  /*!
+    @overload
+  */
   template<typename T, typename Mask>
   BOOST_FORCEINLINE detail::masked_pointer<T,Mask, true> mask(T* ptr, Mask const& status)
   {
@@ -71,6 +73,13 @@ namespace boost { namespace simd
 // Hierarchy and dispatch helpers for masked_pointer
 namespace boost { namespace dispatch
 {
+#if defined(DOXYGEN_ONLY)
+  template<typename T, typename Zero>
+  struct masked_pointer_
+  {
+    using parent = masked_pointer_<typename T::parent, Zero>;
+  };
+#else
   template<typename T, typename Zero>
   struct masked_pointer_ : masked_pointer_<typename T::parent, Zero>
   {
@@ -82,6 +91,7 @@ namespace boost { namespace dispatch
   {
     using parent = unspecified_<T>;
   };
+#endif
 
   namespace ext
   {
@@ -90,7 +100,7 @@ namespace boost { namespace dispatch
     {
       using base = typename boost::simd::detail::masked_pointer<T,Mask,Zero>::element_type;
       using type = masked_pointer_< boost::dispatch::hierarchy_of_t<base,Origin>
-                                  , brigand::bool_<Zero>
+                                  , nsm::bool_<Zero>
                                   >;
     };
   }

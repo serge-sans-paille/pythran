@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,27 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing asecpi capabilities
-
-     inverse secant in \$f\pi\$f multiples: \f$(1/\pi) \arccos(1/x)\f$.
-
-    @par Semantic:
-
-    For every parameter of floating type
-
-    @code
-    auto r = asecpi(x);
-    @endcode
+    This function object returns the inverse secant in \f$\pi\f$ multiples:
+    \f$(1/\pi) \arccos(1/x)\f$.
 
     @see asec, asecd, cospi, acospi
 
+
+
+    @par Header <boost/simd/function/asecpi.hpp>
+
+    @par Example:
+
+      @snippet asecpi.cpp asecpi
+
+    @par Possible output:
+
+      @snippet asecpi.txt asecpi
+
   **/
-  Value asecpi(Value const & v0);
+  IEEEValue asecpi(IEEEValue const & x);
 } }
 #endif
 

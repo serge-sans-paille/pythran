@@ -23,7 +23,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, interleave_even_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, interleave_even_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::interleave_even_,interleave_even);

@@ -29,14 +29,13 @@ namespace boost { namespace simd
 #include <boost/simd/function/deinterleave_second.hpp>
 #include <boost/simd/function/enumerate.hpp>
 #include <boost/simd/function/group.hpp>
-#include <boost/simd/function/groups.hpp>
 #include <boost/simd/function/lookup.hpp>
 #include <boost/simd/function/reverse.hpp>
 #include <boost/simd/function/sort.hpp>
-#include <boost/simd/function/splatted_maximum.hpp>
-#include <boost/simd/function/splatted_minimum.hpp>
-#include <boost/simd/function/splatted_prod.hpp>
-#include <boost/simd/function/splatted_sum.hpp>
+#include <boost/simd/function/maximum.hpp>
+#include <boost/simd/function/minimum.hpp>
+#include <boost/simd/function/prod.hpp>
+#include <boost/simd/function/sum.hpp>
 #include <boost/simd/function/split.hpp>
 
 #endif

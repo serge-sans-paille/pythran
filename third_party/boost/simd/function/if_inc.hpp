@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,31 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-boolean
-    Function object implementing if_inc capabilities
+    This function object conditionally returns @c x+1 (respectively @c x)
+    if @c c is @ref True (respectively  @ref False)
 
-    Increments a value by @ref One if a predicate is @ref True.
 
-    @par Semantic:
 
-    For every parameters @c c of type @c C and @c t of type @c T:
+    @par Header <boost/simd/function/if_inc.hpp>
 
-    @code
-    T r = if_inc(cond,y);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet if_inc.cpp if_inc
 
-    @code
-    T r = cond ? t+One<T>() : t;
-    @endcode
+    @par Possible output:
+
+      @snippet if_inc.txt if_inc
+
   **/
-  Value if_inc(Value const& c, Value const& v0);
-
-  //@overload
-  Value if_inc(LogicalValue const& c, Value const& v0);
+  Value1 if_inc(Value0 const& c, Value1 const& x);
 } }
 #endif
 

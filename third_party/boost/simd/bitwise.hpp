@@ -23,41 +23,42 @@ namespace boost { namespace simd
       bit set, get and toggling and mapping for compiler-specific first bit set or population count
       operations.
 
-      Note that bitwise functions operators may accept IEEE types as arguments. The implied semantic
-      is then that the operations are applied to the IEEE bit patterns.
+      All these functions can be included individually or all of them just by including <boost/simd/bitwise.hpp>
+
+      Note that bitwise functions operators may accept floating types as arguments. The implied semantic
+      is then that the operations are applied to the underlying bit patterns.
 
       - Bitwise operators
 
        <center>
-         | name               | name                 | name                 | name                |  name            |
-         |:------------------:|:--------------------:|:--------------------:|:-------------------:|:----------------:|
-         | @ref bitwise_and   | @ref bitwise_cast    | @ref bitwise_notor   | @ref bitwise_ornot  | @ref bitwise_xor |
-         | @ref bitwise_andnot| @ref bitwise_notand  | @ref bitwise_or      | @ref bitwise_select | @ref complement  |
+         |                    |                      |                      |                     |                     |
+         |:------------------:|:--------------------:|:--------------------:|:-------------------:|:-------------------:|
+         |@ref bitwise_and    | @ref bitwise_andnot  | @ref bitwise_cast    | @ref bitwise_notand | @ref bitwise_notor  |
+         |@ref bitwise_or     | @ref bitwise_ornot   | @ref bitwise_select  | @ref bitwise_xor    | @ref complement     |
        </center>
+
 
        Be aware that all binary bitwise functions return a result of the type of the first argument
        and that the second argument is only required to be of the same bit size as the first.
-       This behaviour is intended to help bit masking in SIMD mode
+       This behaviour is intended to help bit masking in SIMD mode.
 
       - Bit manipulation, counts and locations
 
        <center>
-         | name         | name                 | name              | name             |
-         |:------------:|:--------------------:|:-----------------:|:----------------:|
-         | @ref bits    | @ref ffs             | @ref hi           | @ref swapbytes   |
-         | @ref bitget  | @ref firstbitset     | @ref ilog2        | @ref twopower    |
-         | @ref bitset  | @ref firstbitunset   | @ref lo           |                  |
-         | @ref clz     | @ref genmask         | @ref popcnt       |                  |
-         | @ref ctz     | @ref genmaskc        | @ref reversebits  |                  |
+         |                  |                  |                 |                  |                  |                     |
+         |:----------------:|:----------------:|:---------------:|:----------------:|:----------------:|:-------------------:|
+         | @ref bits        |  @ref clz        |   @ref ctz      |   @ref ffs       | @ref firstbitset |  @ref firstbitunset |
+         | @ref genmask     |  @ref genmaskc   |   @ref hi       |   @ref ilog2     | @ref lo          |  @ref popcnt        |
+         | @ref reversebits |  @ref swapbytes  | @ref twopower   |                  |                  |                     |
        </center>
 
       - Shifts and rotations
 
        <center>
-         | name     | name      | name       | name             |  name    |
-         |:--------:|:---------:|:----------:|:----------------:|:--------:|
-         | @ref rol | @ref rrol | @ref rshl  | @ref shift_left  | @ref shl |
-         | @ref ror | @ref rror | @ref rshr  | @ref shift_right | @ref shr |
+         |           |                 |                  |                  |           |
+         |:---------:|:---------------:|:----------------:|:----------------:|:---------:|
+         | @ref rol  | @ref ror        | @ref rrol        | @ref rror        | @ref rshl |
+         | @ref rshr | @ref shift_left | @ref shift_right | @ref shl         | @ref shr  |
        </center>
 
        shift_left and shift_right are logical shift, shl and shr arithmetic ones
@@ -71,8 +72,6 @@ namespace boost { namespace simd
   **/
 } }
 
-#include <boost/simd/function/bitget.hpp>
-#include <boost/simd/function/bitset.hpp>
 #include <boost/simd/function/bits.hpp>
 #include <boost/simd/function/bitwise_and.hpp>
 #include <boost/simd/function/bitwise_andnot.hpp>

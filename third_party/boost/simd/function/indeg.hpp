@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,31 +15,23 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing indeg capabilities
+    This function object converts radian to degree.
 
-    convert radian to degree.
 
-    @par Semantic:
+    @par Header <boost/simd/function/indeg.hpp>
 
-    For every parameter of floating type
+    @par Example:
 
-    @code
-    auto r = indeg(x);
-    @endcode
+      @snippet indeg.cpp indeg
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    auto r = Radindeg*x;
-    @endcode
-
-    @see  inrad, Radindeg, Radindegr, Deginrad
+      @snippet indeg.txt indeg
 
   **/
-  Value indeg(Value const & v0);
+  IEEEValue indeg(IEEEValue const& x);
 } }
 #endif
 

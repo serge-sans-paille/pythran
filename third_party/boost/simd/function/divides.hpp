@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,38 +15,40 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
     @ingroup group-operator
+
     Function object implementing divides capabilities
 
     Perform the quotient of two parameters of the same type.
+    Infix notation can be used with operator '/'.
 
-    @par Semantic
+    @par Header <boost/simd/function/divides.hpp>
 
-    For any value @c a and @c b of type @c T,
+    @par Note
 
-    @code
-    auto r = divides(a,b);
-    @endcode
+    As usual the simd division is often more expansive than the other
+    arithmetic operators and using the @ref rec function or @ref shift_right function
+    can be sometimes handy to gain some cycles.
 
-    or
+    @par Decorators
 
-    @code
-    auto r = a/b;
-    @endcode
+     - `saturated_` (See @ref group-decorator) computes the saturated division. The only
+     difference is to allow for integer types to divide @ref Valmin by -1 returning @ref Valmax.
+     In the regular case (no decorator) the result is undefined.
 
-    returns the quotient of @c a by @c b
+    @see div, rem, rec, shift_right
 
-    @Note
+    @par Example:
 
-    As usual the simd division is often more expansive that the other
-    arithmetic operators and using the @rec function can be sometimes handy
-    to gain some cycles.
+      @snippet divides.cpp divides
 
-    @see div, rem, rec
+    @par Possible output:
+
+      @snippet divides.txt divides
 
   **/
-  Value divides(Value const & x, Value const &y);
+  Value divides(Value const& x, Value const& y);
 } }
 #endif
 

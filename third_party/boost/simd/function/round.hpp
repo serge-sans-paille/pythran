@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,48 +15,41 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing round capabilities
+    This function object computes the rounding away from zero of its parameter.
 
-    round(x,n) rounds aways from 0 to n digits:
 
-    @par semantic:
-    For any given value @c x of type @c T and integer n :
+    @par Header <boost/simd/function/round.hpp>
 
-    @code
-    T r = round(x{, n});
-    @endcode
+    @par Notes:
 
-    is equivalent to
+    - With a second integral parameter  `round(x,n)` rounds aways from 0 to n digits:
+    this is similar to  `round(x*exp10(n))*exp10(-n)`
 
-    @code
-    T r = round(x*exp10(n))*exp10(-n);
-    @endcode
+      - n default to 0,
+      - n > 0: round to n digits to the right of the decimal point.
+      - n = 0: round to the nearest integer.
+      - n < 0: round to n digits to the left of the decimal point.
 
-    @par Note:
-
-    n default to 0,
-
-    - n > 0: round to n digits to the right of the decimal point.
-
-    - n = 0: round to the nearest integer.
-
-    - n < 0: round to n digits to the left of the decimal point.
-
-    aways from 0 means that half integer values are rounded to the nearest
+    - aways from 0 means that half integer values are rounded to the nearest
     integer of greatest absolute value
 
     The current rounding mode has no effect.
 
     - If x is \f$\pm\infty\f$ or \f$\pm0\f$, it is returned, unmodified
-    - If arg is a NaN, a NaN is returned
-  **/
-  Value round(Value const & v0);
+    - If x is a NaN, a NaN is returned
 
-  //@overload
-  Value round(Value const & x, IntegerValue const &n);
+    @par Example:
+
+      @snippet round.cpp round
+
+    @par Possible output:
+
+      @snippet round.txt round
+  **/
+  IEEEValue round(IEEEValue const& x, IntegerValue const& n = 0);
 } }
 #endif
 

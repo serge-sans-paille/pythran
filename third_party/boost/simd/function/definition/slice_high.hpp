@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, slice_high_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, slice_high_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::slice_high_,slice_high);

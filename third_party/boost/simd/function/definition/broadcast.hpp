@@ -15,7 +15,7 @@
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
 #include <boost/simd/detail/dispatch/hierarchy/functions.hpp>
 #include <boost/simd/detail/dispatch.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd
 {
@@ -26,7 +26,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, broadcast_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, broadcast_)
   }
 
   namespace detail
@@ -36,7 +36,7 @@ namespace boost { namespace simd
 
   template < int N, typename T> BOOST_FORCEINLINE T broadcast(const T& a) BOOST_NOEXCEPT
   {
-    return detail::broadcast(a, brigand::int32_t<N>());
+    return detail::broadcast(a, nsm::int32_t<N>());
   }
 } }
 

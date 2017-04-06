@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing asinpi capabilities
+    This function object returns the inverse sine in \f$\pi\f$ multiples.
 
-    inverse sine in \f$\pi\f$ multiples.
-    @par Semantic:
-
-    For every parameter of floating type
-
-    @code
-    auto r = asinpi(x);
-    @endcode
-
-    Returns the arc @c r in the interval
-    \f$[-0.5, 0.5[\f$ such that <tt>cos(r) == x</tt>.
-    If @c x is outside \f$[-1, 1[\f$ the result is Nan.
+    @par Header <boost/simd/function/asinpi.hpp>
 
     @see asin, asind, sinpi
+
+    @par Example:
+
+      @snippet asinpi.cpp asinpi
+
+    @par Possible output:
+
+      @snippet asinpi.txt asinpi
+
   **/
-  Value asinpi(Value const & v0);
+  IEEEValue asinpi(IEEEValue const & x);
 } }
 #endif
 

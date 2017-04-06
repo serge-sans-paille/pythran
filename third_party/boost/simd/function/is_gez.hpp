@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,24 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-predicates
-    Function object implementing is_gez capabilities
+    This function object returns @ref True or @ref False according x
+    is greater or equal to @ref Zero or not.
 
-    Returns @ref True or @ref False according x is greater or equal to @ref Zero or not.
 
-    @par Semantic:
+    @par Header <boost/simd/function/is_gez.hpp>
 
-    @code
-    auto r = is_gez(x);
-    @endcode
+    @par Note
 
-    is similar to:
+      Using `is_gez(x)` is equivalent to `x >= 0`
 
-    @code
-    auto r = x >= Zero;
-    @endcode
+    @par Example:
+
+      @snippet is_gez.cpp is_gez
+
+    @par Possible output:
+
+      @snippet is_gez.txt is_gez
 
   **/
   as_logical_t<Value> is_gez(Value const& x);

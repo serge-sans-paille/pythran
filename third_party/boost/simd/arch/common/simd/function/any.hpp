@@ -27,9 +27,20 @@ namespace boost { namespace simd { namespace ext
                             , bs::pack_<bd::fundamental_<A0>, X>
                             )
   {
-    BOOST_FORCEINLINE bool operator()( const A0& a0) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE bool do_(const A0& a0, aggregate_storage const&) const BOOST_NOEXCEPT
     {
-      return hmsb(genmask(a0)) != 0;
+      return any(slice_high(a0)) || any(slice_low(a0));
+    }
+
+    template<typename K>
+    BOOST_FORCEINLINE bool do_(const A0& a0, K const&) const BOOST_NOEXCEPT
+    {
+      return hmsb(genmask(a0)).any();
+    }
+
+    BOOST_FORCEINLINE bool operator()(const A0& a0) const BOOST_NOEXCEPT
+    {
+      return do_(a0, typename A0::storage_kind{});
     }
   };
 

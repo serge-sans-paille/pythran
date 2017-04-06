@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,32 +15,33 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing meanof capabilities
+   This function object computes the arithmetic mean of its parameters.
 
-    Computes the mean of its parameter avoiding overflow.
+    @par Header <boost/simd/abs.hpp>
 
-    @par semantic:
-    For any given value @c x and @c y of type @c T:
+    @par Notes
 
-    @code
-    T r = meanof(x, y);
-    @endcode
+    Using `meanof(x, y)` for floating entries is similar to  `(x+y)/2`
 
-    is similar to:
-
-    @code
-    T r = (x+y)/2;
-    @endcode
+    for integer types, it returns a rounded value at a distance guaranteed
+    to be less than or equal to 0.5 of the average floating value, but may differ
+    by unity from the truncation given by `(x+y)/2`.
 
     @par Note:
-    Take care that for integers the value returned can differ by one unit
-    from \c ceil((a+b)/2.0) or \c floor((a+b)/2.0), but is always one of
-    the two values.
+      This function does not overflow.
 
     @see average
+
+    @par Example:
+
+      @snippet average.cpp average
+
+    @par Possible output:
+
+      @snippet average.txt average
 
   **/
   Value meanof(Value const& x, Value const& y);

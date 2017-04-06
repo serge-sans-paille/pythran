@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,31 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing cumsum capabilities
+    This function object returns the cumulate sum of the argument elements
 
-    compute the cumulate sum of the vector elements
+    @par Header <boost/simd/function/cumsum.hpp>
 
-    @par Semantic:
+    @see cumprod, cummin, cummax
 
-    For every parameter of type T0
+    @par Example:
 
-    @code
-    T0 r = cumsum(x);
-    @endcode
+      @snippet cumsum.cpp cumsum
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    T r =x;
-    for(int i=0;i < T::static_size; ++i)
-      r[i] += r[i-1];
-    @endcode
+      @snippet cumsum.txt cumsum
 
   **/
-  Value cumsum(Value const & v0);
+  Value cumsum(Value const& x);
 } }
 #endif
 

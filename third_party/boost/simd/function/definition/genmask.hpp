@@ -26,7 +26,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, genmask_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, genmask_)
   }
 
   namespace detail
@@ -35,7 +35,7 @@ namespace boost { namespace simd
   }
 
   template<typename A>  BOOST_FORCEINLINE
-  auto genmask(const A& a) BOOST_NOEXCEPT_DECLTYPE_BODY(detail::genmask(a));
+  auto genmask(const A& a) BOOST_NOEXCEPT_DECLTYPE_BODY(detail::genmask(a))
 
   template<typename T, typename A> BOOST_FORCEINLINE T genmask(const A& a) BOOST_NOEXCEPT
   {

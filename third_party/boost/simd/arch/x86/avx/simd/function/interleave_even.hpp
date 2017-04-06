@@ -26,9 +26,11 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()(const A0 & a0, const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      return  bitwise_cast<A0>( _mm256_unpacklo_pd( bitwise_cast<bd::as_floating_t<A0>>(a0)
-                                                  , bitwise_cast<bd::as_floating_t<A0>>(a1)
+      using f_t = bd::as_floating_t<A0>;
+      return  bitwise_cast<A0>(f_t( _mm256_unpacklo_pd( bitwise_cast<f_t>(a0)
+                                                  , bitwise_cast<f_t>(a1)
                                                   )
+                                  )
                               );
     }
   };
@@ -42,11 +44,13 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()(const A0 & a0, const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      auto b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
-      return  bitwise_cast<A0>( _mm256_unpacklo_ps( _mm256_shuffle_ps(b0, b0, _MM_SHUFFLE(3,1,2,0))
+      using f_t = bd::as_floating_t<A0>;
+      auto b0 = bitwise_cast<f_t>(a0);
+      auto b1 = bitwise_cast<f_t>(a1);
+      return  bitwise_cast<A0>(f_t( _mm256_unpacklo_ps( _mm256_shuffle_ps(b0, b0, _MM_SHUFFLE(3,1,2,0))
                                                   , _mm256_shuffle_ps(b1, b1, _MM_SHUFFLE(3,1,2,0))
                                                   )
+                                  )
                               );
     }
   };

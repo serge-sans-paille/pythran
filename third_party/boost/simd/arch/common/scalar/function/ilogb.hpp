@@ -11,15 +11,16 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_ILOGB_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_ILOGB_HPP_INCLUDED
 
-#include <boost/simd/constant/zero.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/constant/valmax.hpp>
 #include <boost/simd/function/exponent.hpp>
-#include <boost/simd/function/is_gtz.hpp>
-#include <boost/simd/detail/math.hpp>
+#include <boost/simd/function/is_inf.hpp>
+#include <boost/simd/function/pedantic.hpp>
+#include <boost/simd/function/std.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/meta/as_floating.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 #include <boost/config.hpp>
+#include <cmath>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -37,35 +38,34 @@ namespace boost { namespace simd { namespace ext
     }
   };
 
-#ifdef BOOST_SIMD_HAS_ILOGB
-  BOOST_DISPATCH_OVERLOAD ( ilogb_
-                          , (typename A0)
-                          , bd::cpu_
-                          , bd::scalar_< bd::double_<A0> >
-                          )
-  {
-    using result_t = bd::as_integer_t<A0, signed>;
-    BOOST_FORCEINLINE result_t operator() ( A0 a0 ) const BOOST_NOEXCEPT
-    {
-      return is_gtz(a0) ? ::ilogb(a0) : Zero<result_t>();
-    }
-  };
-#endif
 
-#ifdef BOOST_SIMD_HAS_ILOGBF
   BOOST_DISPATCH_OVERLOAD ( ilogb_
                           , (typename A0)
                           , bd::cpu_
-                          , bd::scalar_< bd::single_<A0> >
+                          , bs::std_tag
+                          , bd::scalar_< bd::floating_<A0> >
                           )
   {
     using result_t = bd::as_integer_t<A0, signed>;
-    BOOST_FORCEINLINE result_t operator() ( A0 a0 ) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE result_t operator() (const std_tag &, A0 a0 ) const BOOST_NOEXCEPT
     {
-      return is_gtz(a0) ? ::ilogbf(a0) : Zero<result_t>();
+      return std::ilogb(a0);
     }
   };
-#endif
+
+  BOOST_DISPATCH_OVERLOAD ( ilogb_
+                          , (typename A0)
+                          , bd::cpu_
+                          , bs::pedantic_tag
+                          , bd::scalar_< bd::floating_<A0> >
+                          )
+  {
+    using result_t = bd::as_integer_t<A0, signed>;
+    BOOST_FORCEINLINE result_t operator() (const pedantic_tag &, A0 a0 ) const BOOST_NOEXCEPT
+    {
+      return std::ilogb(a0);
+    }
+  };
 
   BOOST_DISPATCH_OVERLOAD ( ilogb_
                           , (typename A0)
@@ -74,11 +74,12 @@ namespace boost { namespace simd { namespace ext
                           )
   {
     using result_t = bd::as_integer_t<A0, signed>;
-    BOOST_FORCEINLINE result_t operator() ( A0 a0 ) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE result_t operator() (A0 a0 ) const BOOST_NOEXCEPT
     {
-      return is_gtz(a0) ? bs::exponent(a0) : Zero<result_t>();
+      return is_inf(a0) ? Valmax<result_t>() : exponent(a0);
     }
   };
+
 } } }
 
 

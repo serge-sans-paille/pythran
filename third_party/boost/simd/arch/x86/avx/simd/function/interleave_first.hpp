@@ -29,15 +29,17 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()(const A0 & a0, const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      auto b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
+      using f_t = bd::as_floating_t<A0>;
+      auto b0 = bitwise_cast<f_t>(a0);
+      auto b1 = bitwise_cast<f_t>(a1);
 
       // 0x20 is SCR1[0:127]|SRC2[0:127] according to Intel AVX manual
       // The result of unpack_*_pd puts parts in the proper pairs beforehand
-      return  bitwise_cast<A0>( _mm256_permute2f128_pd( _mm256_unpacklo_pd(b0,b1)
+      return  bitwise_cast<A0>(f_t( _mm256_permute2f128_pd( _mm256_unpacklo_pd(b0,b1)
                                                       , _mm256_unpackhi_pd(b0,b1)
                                                       , 0x20
                                                       )
+                                  )
                               );
     }
   };
@@ -51,15 +53,17 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()(const A0 & a0, const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      auto b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
+      using f_t = bd::as_floating_t<A0>;
+      auto b0 = bitwise_cast<f_t>(a0);
+      auto b1 = bitwise_cast<f_t>(a1);
 
       // 0x20 is SCR1[0:127]|SRC2[0:127] according to Intel AVX manual
       // The result of unpack_*_pd puts parts in the proper pairs beforehand
-      return  bitwise_cast<A0>( _mm256_permute2f128_ps( _mm256_unpacklo_ps(b0,b1)
+      return  bitwise_cast<A0>(f_t( _mm256_permute2f128_ps( _mm256_unpacklo_ps(b0,b1)
                                                       , _mm256_unpackhi_ps(b0,b1)
                                                       , 0x20
                                                       )
+                                  )
                               );
     }
   };

@@ -14,7 +14,7 @@
 #ifndef BOOST_SIMD_DETAIL_DISPATCH_META_MAKE_INTEGER_HPP_INCLUDED
 #define BOOST_SIMD_DETAIL_DISPATCH_META_MAKE_INTEGER_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <cstdint>
 #include <cstddef>
 
@@ -29,55 +29,55 @@ namespace boost { namespace dispatch
                     , "boost::dispatch::make_integer: can't generate type of given Size"
                     );
 
-      using type = brigand::no_such_type_;
+      using type = nsm::no_such_type_;
     };
 
     template<typename Transform>
     struct make_integer<1u, unsigned, Transform>
     {
-      using type = brigand::apply<Transform,std::uint8_t>;
+      using type = nsm::apply<Transform,std::uint8_t>;
     };
 
     template<typename Transform>
     struct make_integer<2u, unsigned, Transform>
     {
-      using type = brigand::apply<Transform,std::uint16_t>;
+      using type = nsm::apply<Transform,std::uint16_t>;
     };
 
     template<typename Transform>
     struct make_integer<4u, unsigned, Transform>
     {
-      using type = brigand::apply<Transform,std::uint32_t>;
+      using type = nsm::apply<Transform,std::uint32_t>;
     };
 
     template<typename Transform>
     struct make_integer<8u, unsigned, Transform>
     {
-      using type = brigand::apply<Transform,std::uint64_t>;
+      using type = nsm::apply<Transform,std::uint64_t>;
     };
 
     template<typename Transform>
     struct make_integer<1u, signed, Transform>
     {
-      using type = brigand::apply<Transform,std::int8_t>;
+      using type = nsm::apply<Transform,std::int8_t>;
     };
 
     template<typename Transform>
     struct make_integer<2u, signed, Transform>
     {
-      using type = brigand::apply<Transform,std::int16_t>;
+      using type = nsm::apply<Transform,std::int16_t>;
     };
 
     template<typename Transform>
     struct make_integer<4u, signed, Transform>
     {
-      using type = brigand::apply<Transform,std::int32_t>;
+      using type = nsm::apply<Transform,std::int32_t>;
     };
 
     template<typename Transform>
     struct make_integer<8u, signed, Transform>
     {
-      using type = brigand::apply<Transform,std::int64_t>;
+      using type = nsm::apply<Transform,std::int64_t>;
     };
   }
 
@@ -94,14 +94,14 @@ namespace boost { namespace dispatch
   **/
   template< std::size_t Size
           , typename Sign       = unsigned
-          , typename Transform  = brigand::identity<brigand::_1>
+          , typename Transform  = nsm::identity<nsm::_1>
           >
   struct make_integer : detail::make_integer<Size,Sign,Transform>
   {};
 
   template< std::size_t Size
           , typename Sign       = unsigned
-          , typename Transform  = brigand::identity<brigand::_1>
+          , typename Transform  = nsm::identity<nsm::_1>
           >
   using make_integer_t = typename make_integer<Size,Sign,Transform>::type;
 } }

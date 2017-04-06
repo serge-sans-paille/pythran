@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,33 +15,44 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing ilogb capabilities
+    This function object Extracts the value of the unbiased exponent from
+    the floating-point argument x, and returns it as a signed integer value.
 
-    This function returns the integer truncation
-    of the base 2 logarithm of x.
+    @par Note:
 
-    It coincides with the @ref exponent function
-    on all platforms supported.
+      - Formally, the unbiased exponent is the integral part of \f$\log_r|x|\f$
+      as a signed integral value, for non-zero x, where r is
+      std::numeric_limits<T>::radix and T is the floating-point type of arg.
 
-    @par Semantic:
+      - In practice r = 2 for all supported platforms
 
-    @code
-    auto r = ilogb(x);
-    @endcode
+      - boost::simd::ilogb differ from std::ilogb in the return type that is always the
+        integer type associated to the input type and the limiting values (zero return zero
+        and the result is always greater than zero)
 
-    is similar to:
+      - for floating inputs nan and zero returns zero and +-inf return Valmax
 
-    @code
-    auto r = saturated_(toint)(log2(x));
-    @endcode
+     @par Decorators
 
-    @see exponent, log2, toint, saturated
+       - std_ provides access to std::ilogb
+
+       - pedantic_ return FP_ILOGB0 and FP_ILOGBNAN for 0 and nan respectively,
+         but the return type is as in the regular call.
+
+    @par Header <boost/simd/function/ilogb.hpp>
+
+    @par Example:
+
+      @snippet ilogb.cpp ilogb
+
+    @par Possible output:
+
+      @snippet ilogb.txt ilogb
 
   **/
-  Value ilogb(Value const& x);
+  as_integer_t<Value> ilogb(Value const& x);
 } }
 #endif
 

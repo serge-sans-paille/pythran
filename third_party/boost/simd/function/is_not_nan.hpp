@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,24 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-predicates
-    Function object implementing is_not_nan capabilities
 
-    Returns @ref False or @ref True according x is @ref Nan or not.
+    This function object returns @ref False or @ref True according x is @ref Nan or not.
 
-    @par Semantic:
 
-    @code
-    auto r = is_not_nan(x);
-    @endcode
+    @par Header <boost/simd/function/is_not_nan.hpp>
 
-    is similar to:
+    @par Note
 
-    @code
-    auto r = x == x;
-    @endcode
+     Using `is_not_nan(x)` is similar to: `x == x`
+
+    @par Example:
+
+      @snippet is_not_nan.cpp is_not_nan
+
+    @par Possible output:
+
+      @snippet is_not_nan.txt is_not_nan
 
   **/
   as_logical_t<Value> is_not_nan(Value const& x);

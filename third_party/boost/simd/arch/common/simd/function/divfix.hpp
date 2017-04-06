@@ -18,7 +18,7 @@
 #include <boost/simd/function/touint.hpp>
 #include <boost/simd/function/fix.hpp>
 #include <boost/simd/detail/dispatch/meta/upgrade.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <utility>
 
 namespace boost { namespace simd { namespace ext
@@ -28,7 +28,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF(div_
                             , (typename A0, typename X)
-                            , (brigand::and_<bd::is_upgradable<A0>, detail::is_native<X>>)
+                            , (nsm::and_<bd::is_upgradable<A0>, detail::is_native<X>>)
                             , bd::cpu_
                             , bs::pack_<bd::int_<A0>, X>
                             , bs::pack_<bd::int_<A0>, X>
@@ -46,7 +46,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF(div_
                             , (typename A0, typename X)
-                            , (brigand::and_<bd::is_upgradable<A0>, detail::is_native<X>>)
+                            , (nsm::and_<bd::is_upgradable<A0>, detail::is_native<X>>)
                             , bd::cpu_
                             , bs::pack_<bd::uint_<A0>, X>
                             , bs::pack_<bd::uint_<A0>, X>

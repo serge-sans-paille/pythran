@@ -12,7 +12,7 @@
 #define BOOST_SIMD_DETAIL_CONSTANT_LDEXPMASK_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
@@ -39,6 +39,8 @@ namespace boost { namespace simd
 {
   namespace tag
   {
+    namespace tt = nsm::type_traits;
+    
     struct ldexpmask_ : boost::dispatch::constant_value_<ldexpmask_>
     {
       BOOST_DISPATCH_MAKE_CALLABLE(ext,ldexpmask_,boost::dispatch::constant_value_<ldexpmask_>);
@@ -46,20 +48,20 @@ namespace boost { namespace simd
       struct value_map
       {
         template<typename X>
-        static std::integral_constant<X,0> value(boost::dispatch::integer_<X> const&);
+        static tt::integral_constant<X,0> value(boost::dispatch::integer_<X> const&);
 
         template<typename X>
-        static std::integral_constant<std::int32_t,0x7F800000L> value(boost::dispatch::single_<X> const&);
+        static tt::integral_constant<std::int32_t,0x7F800000L> value(boost::dispatch::single_<X> const&);
 
         template<typename X>
-        static std::integral_constant<std::int64_t,0x7FF0000000000000LL> value(boost::dispatch::double_<X> const&);
+        static tt::integral_constant<std::int64_t,0x7FF0000000000000LL> value(boost::dispatch::double_<X> const&);
       };
     };
   }
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,ldexpmask_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, ldexpmask_)
   }
 
   namespace detail

@@ -20,7 +20,7 @@
 #include <boost/simd/detail/dispatch/hierarchy/ieee_types.hpp>
 #include <boost/simd/detail/dispatch/hierarchy/void.hpp>
 #include <boost/simd/detail/dispatch/hierarchy/bool.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 #include <climits>
 
 namespace boost { namespace dispatch { namespace ext

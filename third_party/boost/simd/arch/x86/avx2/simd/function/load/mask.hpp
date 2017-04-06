@@ -151,7 +151,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer const& p, Target const&) const
     {
-      return _mm256_mask_i64gather_epi64( target(p.value()), (std::int64_t const*)(p.get())
+      return _mm256_mask_i64gather_epi64( target(p.value())
+                                        , (long long int const*)(p.get())
                                         , enumerate<target>() // load contiguously
                                         , bs::as_logical_t<target>(p.mask())
                                         , sizeof(std::int64_t)
@@ -171,7 +172,7 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer const& p, Target const&) const
     {
-      return _mm_mask_i64gather_epi64 ( target(p.value()), (std::int64_t const*)(p.get())
+      return _mm_mask_i64gather_epi64 ( target(p.value()), (long long int const*)(p.get())
                                       , enumerate<target>() // load contiguously
                                       , bs::as_logical_t<target>(p.mask())
                                       , sizeof(std::int64_t)

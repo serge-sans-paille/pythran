@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,32 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-boolean
-    Function object implementing ifnot_dec capabilities
+    This function object conditionally returns  @c x (respectively @c x-1)
+    if @c c is @ref True (respectively  @ref False)
 
-    Decrements a value by @ref One if a predicate is @ref False.
 
-    @par Semantic:
+    @par Header <boost/simd/function/ifnot_dec.hpp>
 
-    For every parameters @c c of type @c C and @c x of type @c T:
+    @par Example:
 
-    @code
-    T r = ifnot_dec(cond,x);
-    @endcode
+      @snippet ifnot_dec.cpp ifnot_dec
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    T r = cond : x : x-One<T>();
-    @endcode
+      @snippet ifnot_dec.txt ifnot_dec
 
   **/
-  Value ifnot_dec(Value const& x, Value const& x);
-
-  //@overload
-  Value ifnot_dec(LogicalValue const& x, Value const& y);
+  Value1 ifnot_dec(Value0 const& c, Value1 const& x);
 } }
 #endif
 

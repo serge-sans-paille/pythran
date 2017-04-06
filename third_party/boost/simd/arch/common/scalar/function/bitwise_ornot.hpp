@@ -18,7 +18,7 @@
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd { namespace ext
 {

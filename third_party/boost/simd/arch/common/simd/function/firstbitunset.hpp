@@ -28,7 +28,7 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::arithmetic_<A0>, X>
                           )
    {
-     using result = bd::as_integer_t<A0>;
+     using result = bd::as_integer_t<A0, unsigned>;
       BOOST_FORCEINLINE result operator()( const A0& a0) const BOOST_NOEXCEPT
       {
         return bitwise_andnot(inc(simd::bitwise_cast<result>(a0)), a0);

@@ -12,7 +12,7 @@
 #define BOOST_SIMD_DETAIL_CONSTANT_MAXLEFTSHIFT_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
@@ -45,20 +45,22 @@ namespace boost { namespace simd
 {
   namespace tag
   {
+    namespace tt = nsm::type_traits;
+
     struct maxleftshift_ : boost::dispatch::constant_value_<maxleftshift_>
     {
       BOOST_DISPATCH_MAKE_CALLABLE(ext,maxleftshift_,boost::dispatch::constant_value_<maxleftshift_>);
       struct value_map
       {
         template<typename X>
-        static std::integral_constant<typename boost::dispatch::as_integer_t<X>,sizeof(X)*CHAR_BIT-1> value(boost::dispatch::arithmetic_<X> const&);
+        static tt::integral_constant<typename boost::dispatch::as_integer_t<X>,sizeof(X)*CHAR_BIT-1> value(boost::dispatch::arithmetic_<X> const&);
       };
     };
   }
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,maxleftshift_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, maxleftshift_)
   }
 
   namespace detail

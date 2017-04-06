@@ -38,8 +38,7 @@ namespace boost { namespace simd { namespace ext
                           , bd::scalar_ < bd::floating_<A0> >
                           )
   {
-    using int_t = bd::as_integer_t<A0>;
-    using result_t = std::pair<int_t, A0>;
+    using result_t = std::pair<A0, A0>;
     BOOST_FORCEINLINE result_t operator() ( A0 const& x) const BOOST_NOEXCEPT
     {
       if (x < Pio_4<A0>())
@@ -47,7 +46,7 @@ namespace boost { namespace simd { namespace ext
       A0 xr = x-Pio2_1<A0>();
       xr -= Pio2_2<A0>();
       xr -= Pio2_3<A0>();
-      return { One<int_t>(), xr};
+      return { One<A0>(), xr};
     }
   };
 

@@ -12,10 +12,7 @@
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/detail/traits.hpp>
 #include <boost/simd/function/if_one_else_zero.hpp>
-#include <boost/simd/function/divides.hpp>
-#include <boost/simd/function/refine_rec.hpp>
 #include <boost/simd/function/abs.hpp>
-#include <boost/simd/function/fast.hpp>
 #include <boost/simd/function/raw.hpp>
 #include <boost/simd/constant/valmax.hpp>
 #include <boost/simd/constant/one.hpp>
@@ -25,6 +22,10 @@ namespace boost { namespace simd { namespace ext
   namespace bd = boost::dispatch;
   namespace bs = boost::simd;
 
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  /// rec for integral types
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
   BOOST_DISPATCH_OVERLOAD_IF( rec_
                             , (typename A0, typename X)
                             , (detail::is_native<X>)
@@ -51,12 +52,14 @@ namespace boost { namespace simd { namespace ext
     }
   };
 
-  BOOST_DISPATCH_OVERLOAD_IF( rec_
-                            , (typename A0, typename X)
-                            , (detail::is_native<X>)
-                            , bd::cpu_
-                            , bs::pack_<bd::floating_<A0>, X>
-                            )
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  /// rec for floating types: take all version when no better exists reverting to division
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  BOOST_DISPATCH_OVERLOAD( rec_
+                         , (typename A0, typename X)
+                         , bd::cpu_
+                         , bs::pack_<bd::floating_<A0>, X>
+                         )
   {
     BOOST_FORCEINLINE A0 operator()( const A0& a0) const BOOST_NOEXCEPT
     {
@@ -64,49 +67,7 @@ namespace boost { namespace simd { namespace ext
     }
   };
 
-  // -----------------------------------------------------------------------------------------------
-  // Single precision fast_rec is computable from the raw_rec + 1 NR step
-  BOOST_DISPATCH_OVERLOAD_IF( rec_
-                            , (typename A0, typename X)
-                            , (detail::is_native<X>)
-                            , bd::cpu_
-                            , bs::fast_tag
-                            , bs::pack_<bd::single_<A0>, X>
-                            )
-  {
-    BOOST_FORCEINLINE A0 operator()(bs::fast_tag const&, A0 const& a0) const BOOST_NOEXCEPT
-    {
-      return refine_rec(a0, raw_(rec)(a0) );
-    }
-  };
 
-  BOOST_DISPATCH_OVERLOAD_IF ( rec_
-                             , (typename T, typename X)
-                             , (detail::is_native<X>)
-                             , bd::cpu_
-                             , bs::fast_tag
-                             , bs::pack_<bd::unspecified_<T>, X>
-                             )
-  {
-    BOOST_FORCEINLINE T operator()(const fast_tag &, T const& a) const BOOST_NOEXCEPT
-    {
-      return rec(a);
-    }
-  };
-
-  BOOST_DISPATCH_OVERLOAD_IF ( rec_
-                             , (typename T, typename X)
-                             , (detail::is_native<X>)
-                             , bd::cpu_
-                             , bs::raw_tag
-                             , bs::pack_<bd::unspecified_<T>, X>
-                             )
-  {
-    BOOST_FORCEINLINE T operator()(const raw_tag &, T const& a) const BOOST_NOEXCEPT
-    {
-      return rec(a);
-    }
-  };
 } } }
 
 #endif

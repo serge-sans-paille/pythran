@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,36 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-operator
-    Function object implementing shr capabilities
+    This function object returns the first parameter *logically* shifted right
+    by value of the second one.
 
-    Returns the first entry logically shifted right
-    by value of the second entry which must be of integtral type.
-    If the second entry is negative
-    the result is not defined.
+    @par Header <boost/simd/function/shr.hpp>
 
-    @par semantic:
-    For any given value @c x of type @c T,  @c n  of type @c I:
+    @par Notes:
+      - On many architectures a scalar second parameter results in a much faster call.
+      - If the second entry is negative the result is not defined.
 
-    @code
-    auto r = shr(x, n);
-    @endcode
+      @pre the second parameter must be of integer type, scalar or associated to
+      the first parameter
+
+    @par Note:
+      - on many architectures a scalar second parameter results in a much faster call
 
     @see  shift_right, shift_left, rshl, rshr, rol, ror
 
+    @par Example:
+
+      @snippet shr.cpp shr
+
+    @par Possible output:
+
+      @snippet shr.txt shr
+
   **/
-  Value shr(Value const & x, IntegerValue const& n);
+  Value shr(Value const& x, IntegerValue const& n);
 } }
 #endif
 

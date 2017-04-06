@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-hyperbolic
-    Function object implementing csch capabilities
+    This function object returns the hyperbolic cosecant: \f$1/\sinh(1/x)\f$.
 
-    hyperbolic cosecant: \f$1/\sinh(x)\f$.
+    @par Header <boost/simd/function/csch.hpp>
 
-    @par Semantic:
+    @see sinh, tanh, sech, csch, sinhcosh
 
-    For every parameter of floating type @c T
+    @par Example:
 
-    @code
-    T r = csch(x);
-    @endcode
+      @snippet csch.cpp csch
 
-    @see rec, sinh
+    @par Possible output:
 
+      @snippet csch.txt csch
   **/
-  Value csch(Value const & v0);
+  IEEEValue csch(IEEEValue const& x);
 } }
 #endif
 

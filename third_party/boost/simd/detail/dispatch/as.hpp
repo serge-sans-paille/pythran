@@ -49,13 +49,16 @@ namespace boost { namespace dispatch
   {
     boost::ignore_unused(v);
     return {};
-  };
+  }
 
 #if !defined(DOXYGEN_ONLY)
   namespace detail
   {
     template<typename T> struct target_value            { using type = T; };
     template<typename T> struct target_value< as_<T> >  { using type = T; };
+
+    template<typename T> struct is_target            { static const bool value = false; };
+    template<typename T> struct is_target< as_<T> >  { static const bool value = true;  };
   }
 #endif
 

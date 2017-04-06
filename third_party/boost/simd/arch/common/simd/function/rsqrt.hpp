@@ -9,6 +9,7 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_RSQRT_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_RSQRT_HPP_INCLUDED
 
+#include <boost/simd/function/raw.hpp>
 #include <boost/simd/function/rec.hpp>
 #include <boost/simd/function/sqrt.hpp>
 #include <boost/simd/detail/overload.hpp>
@@ -36,13 +37,13 @@ namespace boost { namespace simd { namespace ext
                             , (typename A0, typename X)
                             , (detail::is_native<X>)
                             , bd::cpu_
-                            , boost::simd::fast_tag
+                            , boost::simd::raw_tag
                             , bs::pack_< bd::floating_<A0>, X >
                             )
   {
-    BOOST_FORCEINLINE A0 operator() (const fast_tag &,  A0 const& a0) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator() (const raw_tag &,  A0 const& a0) const BOOST_NOEXCEPT
     {
-      return bs::fast_(bs::rec)(bs::fast_(bs::sqrt)(a0));
+      return bs::rec(bs::raw_(bs::sqrt)(a0));
     }
   };
 } } }

@@ -11,6 +11,7 @@
 
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/adapted/common/pointer.hpp>
+#include <boost/simd/mask.hpp>
 #include <boost/config.hpp>
 
 namespace boost { namespace simd { namespace ext
@@ -26,7 +27,7 @@ namespace boost { namespace simd { namespace ext
                           , bd::scalar_<bd::integer_<A2>>
                           )
   {
-    BOOST_FORCEINLINE void operator()(A0 const& a0, A1 a1, A2 const & a2) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void operator()(A0 const& a0, A1 a1, A2 a2) const BOOST_NOEXCEPT
     {
       *(a1+a2) = a0;
     }
@@ -42,6 +43,33 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE void operator()(A0 a0, A1 a1) const BOOST_NOEXCEPT
     {
       *a1 = a0;
+    }
+  };
+
+  BOOST_DISPATCH_OVERLOAD ( store_
+                          , (typename Src, typename Pointer, typename Zero)
+                          , bd::cpu_
+                          , bd::scalar_<bd::unspecified_<Src>>
+                          , bd::masked_pointer_<bd::scalar_<bd::unspecified_<Pointer>>,Zero>
+                          )
+  {
+    BOOST_FORCEINLINE void operator()(const Src& s, Pointer const& p) const
+    {
+      if(p.mask()) *p.get() = s;
+    }
+  };
+
+  BOOST_DISPATCH_OVERLOAD ( store_
+                          , (typename Src, typename Pointer, typename Zero, typename A2)
+                          , bd::cpu_
+                          , bd::scalar_<bd::unspecified_<Src>>
+                          , bd::masked_pointer_<bd::scalar_<bd::unspecified_<Pointer>>,Zero>
+                          , bd::scalar_<bd::integer_<A2>>
+                          )
+  {
+    BOOST_FORCEINLINE void operator()(const Src& s, Pointer const& p, A2 idx) const
+    {
+      if(p.mask()) *(p.get()+idx) = s;
     }
   };
 } } }

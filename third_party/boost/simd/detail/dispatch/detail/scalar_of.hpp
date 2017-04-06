@@ -15,7 +15,7 @@
 #define BOOST_SIMD_DETAIL_DISPATCH_DETAIL_SCALAR_OF_HPP_INCLUDED
 
 #include <boost/simd/detail/dispatch/meta/value_of.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {

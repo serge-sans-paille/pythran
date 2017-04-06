@@ -22,40 +22,55 @@ namespace boost { namespace simd
       Tests such as checks for validity, infinity, sign and others are provided. As for @ref
       group-boolean, these functions handle and return typed logical types.
 
+    All these functions can be included individually or all of them just by including <boost/simd/predicates.hpp>
+
       - These predicates can be used through an operator
       <center>
-        | name                  |  op  | name               |  op   |
+        |  name              |  operator  |  name        |   operator  |
         |:---------------------:|:----:|:------------------:|:-----:|
         | @ref is_equal         | ==   | @ref is_less_equal |  <=   |
         | @ref is_greater_equal | >=   | @ref is_less       |  <    |
         | @ref is_greater       | >    | @ref is_not_equal  |  !=   |
       </center>
 
+         for floating entries negation as predicates as  is_not_greater(a, b) are not equivalent to
+         !is_greater(a, b) due to possible @ref Nan values;
+
+           @par Example:
+
+              @snippet operators.cpp operators
+
+           @par Possible output:
+
+              @snippet operators.txt operators
+
       - The following ones have to be called directly.
 
         Many of these are restriction to special values of some of the preceding ones.
         Their use often provides speed gain in SIMD mode.
 
-      <center>
-        | name                            | name                              | name                  |
-        |:-------------------------------:|:---------------------------------:|:---------------------:|
-        | @ref is_denormal                | @ref is_lez                       | @ref is_not_imag      |
-        | @ref is_equal_with_equal_nans   | @ref is_ltz                       | @ref is_not_infinite  |
-        | @ref is_eqz                     | @ref is_nan                       | @ref is_not_less_equal|
-        | @ref is_even                    | @ref is_negative                  | @ref is_not_less      |
-        | @ref is_finite                  | @ref is_nez                       | @ref is_not_nan       |
-        | @ref is_flint                   | @ref is_ngez                      | @ref is_not_real      |
-        | @ref is_gez                     | @ref is_ngtz                      | @ref is_odd           |
-        | @ref is_gtz                     | @ref is_nlez                      | @ref is_ord           |
-        | @ref is_imag                    | @ref is_nltz                      | @ref is_positive      |
-        | @ref is_included_c              | @ref is_normal                    | @ref is_real          |
-        | @ref is_included                | @ref is_not_denormal              | @ref is_simd_logical  |
-        | @ref is_inf                     | @ref is_not_equal_with_equal_nans | @ref is_unord         |
-        | @ref is_invalid                 | @ref is_not_greater               |                       |
-        | @ref is_lessgreater             | @ref is_not_greater_equal         |                       |
-      </center>
+       <center>
+        |                         |                                   |                       |                           |
+        |:-----------------------:|:---------------------------------:|:---------------------:|:-------------------------:|
+        | @ref is_denormal        | @ref is_equal_with_equal_nans     | @ref is_eqz           | @ref is_even              |
+        | @ref is_finite          | @ref is_flint                     | @ref is_gez           | @ref is_gtz               |
+        | @ref is_imag            | @ref isincluded_c                 | @ref isincluded       | @ref is_inf               |
+        | @ref is_invalid         | @ref is_lessgreater               | @ref is_lez           | @ref is_ltz               |
+        | @ref is_nan             | @ref is_negative                  | @ref is_nez           | @ref is_ngez              |
+        | @ref is_ngtz            | @ref is_nlez                      | @ref is_nltz          | @ref is_normal            |
+        | @ref is_not_denormal    | @ref is_not_equal_with_equal_nans | @ref is_not_greater   | @ref is_not_greater_equal |
+        | @ref is_not_imag        | @ref is_not_infinite              | @ref is_not_less_equal| @ref is_not_less          |
+        | @ref is_not_nan         | @ref is_not_real                  | @ref is_odd           | @ref is_ord               |
+        | @ref is_positive        | @ref is_real                      | @ref is_simd_logical  | @ref is_unord             |
+       </center>
 
+         @par Example:
 
+            @snippet predicates.cpp predicates
+
+         @par Possible output:
+
+            @snippet predicates.txt predicates
   **/
 
 } }

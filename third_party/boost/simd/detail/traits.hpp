@@ -13,23 +13,23 @@
 
 #include <boost/simd/arch/common/tags.hpp>
 #include <boost/config.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd { namespace detail
 {
   template<typename A0, typename A1>
   struct same_size
-        : brigand::bool_<std::decay<A1>::type::static_size == std::decay<A0>::type::static_size>
+        : nsm::bool_<std::decay<A1>::type::static_size == std::decay<A0>::type::static_size>
   {};
 
   template<typename A0, typename A1>
   struct same_sizeof
-        : brigand::bool_<sizeof(A0) == sizeof(A1)>
+        : nsm::bool_<sizeof(A0) == sizeof(A1)>
   {};
 
   template<typename X>
   struct is_native
-        : brigand::bool_<!std::is_same<X,boost::simd::simd_emulation_>::value>
+        : nsm::bool_<!std::is_same<X,boost::simd::simd_emulation_>::value>
   {};
 } } }
 

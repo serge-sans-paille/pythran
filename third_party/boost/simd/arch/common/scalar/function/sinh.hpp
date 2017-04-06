@@ -83,6 +83,7 @@ namespace boost { namespace simd { namespace ext
       return std::sinh(a0);
     }
   };
+
 } } }
 
 

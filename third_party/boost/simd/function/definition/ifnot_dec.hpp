@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, ifnot_dec_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, ifnot_dec_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::ifnot_dec_,ifnot_dec);

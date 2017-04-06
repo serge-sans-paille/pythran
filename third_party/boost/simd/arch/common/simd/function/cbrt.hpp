@@ -22,10 +22,9 @@
 #include <boost/simd/function/bitofsign.hpp>
 #include <boost/simd/function/bitwise_or.hpp>
 #include <boost/simd/function/divides.hpp>
-#include <boost/simd/function/frexp.hpp>
+#include <boost/simd/function/ifrexp.hpp>
 #include <boost/simd/function/ldexp.hpp>
 #include <boost/simd/function/horn.hpp>
-#include <boost/simd/function/fast.hpp>
 #include <boost/simd/function/if_else.hpp>
 #include <boost/simd/function/is_equal.hpp>
 #include <boost/simd/function/is_eqz.hpp>
@@ -74,7 +73,7 @@ namespace boost { namespace simd { namespace ext
         const A0 CBRT2I = Constant< A0, 0x3f4b2ff5> ();
         const A0 CBRT4I = Constant< A0, 0x3f214518> ();
         int_type e;
-        A0 x; std::tie(x, e) = fast_(frexp)(z);
+        A0 x; std::tie(x, e) = ifrexp(z);
         x = horn <A0,
           0x3ece0609,
           0x3f91eb77,
@@ -92,7 +91,7 @@ namespace boost { namespace simd { namespace ext
         const A0 cbrt4 = if_else(flag, CBRT4, CBRT4I);
         A0 fact = if_else(is_equal(rem, One<int_type>()), cbrt2, One<A0>());
         fact = if_else(is_equal(rem, Two<int_type>()), cbrt4, fact);
-        x = fast_(ldexp)(x*fact, e);
+        x = ldexp(x*fact, e);
         x -= (x-z/sqr(x))*Third<A0>();
   #ifndef BOOST_SIMD_NO_DENORMALS
         x = bitwise_or(x, bitofsign(a0))*f;
@@ -130,7 +129,7 @@ namespace boost { namespace simd { namespace ext
         const A0 CBRT4I = Constant< A0, 0x3fe428a2f98d728bll> ();
         int_type e;
         A0 x;
-        std::tie(x, e) = fast_(frexp)(z);
+        std::tie(x, e) = ifrexp(z);
         x = horn <A0,
           0x3fd9c0c12122a4fell,
           0x3ff23d6ee505873all,
@@ -147,7 +146,7 @@ namespace boost { namespace simd { namespace ext
         const A0 cbrt4 = if_else(flag, CBRT4, CBRT4I);
         A0 fact = if_else(is_equal(rem, One<int_type>()), cbrt2, One<A0>());
         fact = if_else(is_equal(rem, Two<int_type>()), cbrt4, fact);
-        x = fast_(ldexp)(x*fact, e);
+        x = ldexp(x*fact, e);
         x -= (x-z/sqr(x))*Third<A0>();
         x -= (x-z/sqr(x))*Third<A0>(); //two newton passes
       #ifndef BOOST_SIMD_NO_DENORMALS

@@ -45,7 +45,7 @@ namespace boost { namespace simd { namespace ext
    {
       BOOST_FORCEINLINE A0 operator()( const A0& a0, const A0& a1) const BOOST_NOEXCEPT
       {
-        return  bs::conformant_(bs::max)(if_else(is_nan(a0),a1,a0), a1);
+        return  bs::pedantic_(bs::max)(if_else(is_nan(a0),a1,a0), a1);
       }
    };
 

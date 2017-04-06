@@ -14,6 +14,9 @@
 // Get version number
 #include <boost/simd/version.hpp>
 
+// Get the config already done for dispatch
+#include <boost/simd/detail/dispatch/config.hpp>
+
 // Setup the dispatch default architecture
 #if !defined(BOOST_DISPATCH_DEFAULT_SITE)
 #  include <boost/simd/arch/spec.hpp>

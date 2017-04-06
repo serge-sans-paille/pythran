@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,26 +15,28 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-predicates
-    Function object implementing is_denormal capabilities
+    This function object returns @ref True or @ref False according x is denormal or not.
 
-    Returns @ref True or @ref False according x is denormal or not.
 
-    @par Semantic:
+    @par Header <boost/simd/function/is_denormal.hpp>
 
-    @code
-    auto r = is_denormal(x);
-    @endcode
+    @par Note
 
-    is similar to:
-
-    @code
-    auto r = (x != 0) && (abs(x) < Smallestposval<T>());
-    @endcode
+    Using `is_denormal(x)` is similar to `(x != 0) && (abs(x) < Smallestposval<T>())`
 
     @see Smallestposval
+
+    @par Example:
+
+      @snippet is_denormal.cpp is_denormal
+
+    @par Possible output:
+
+      @snippet is_denormal.txt is_denormal
+
 
   **/
   as_logical_t<Value> is_denormal(Value const& x);

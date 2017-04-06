@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, rem_pio2_medium_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, rem_pio2_medium_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::rem_pio2_medium_,rem_pio2_medium);

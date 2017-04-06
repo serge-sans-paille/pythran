@@ -20,6 +20,7 @@
 #include <boost/simd/function/dec.hpp>
 #include <boost/simd/function/splat.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
+#include <boost/simd/detail/assert_utils.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -35,6 +36,8 @@ namespace boost { namespace simd { namespace ext
       using result = bd::as_integer_t<A0>;
       BOOST_FORCEINLINE result operator()( const A0& a0) const BOOST_NOEXCEPT
       {
+        BOOST_ASSERT_MSG( assert_all(a0 > 0)
+                        , "Logarithm is not defined for zero or negative values." );
         return bs::exponent(a0);
       }
    };
@@ -49,6 +52,8 @@ namespace boost { namespace simd { namespace ext
       using result = bd::as_integer_t<A0>;
       BOOST_FORCEINLINE result operator()( const A0& a0) const BOOST_NOEXCEPT
       {
+        BOOST_ASSERT_MSG( assert_all(a0 > 0)
+                        , "Logarithm is not defined for zero or negative values." );
         return saturated_(dec)(sizeof(bd::scalar_of_t<A0>)*8-bs::clz(bitwise_cast<result>(a0)));
       }
    };

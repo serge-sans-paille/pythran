@@ -22,16 +22,16 @@
 
 namespace boost { namespace simd { namespace ext
 {
-   namespace bd = boost::dispatch;
+  namespace bd = boost::dispatch;
 
-   BOOST_DISPATCH_OVERLOAD_IF ( if_else_
-                              , (typename A0,typename A1,typename X)
-                              , (detail::is_native<X>)
-                              , bd::cpu_
-                              , bs::pack_<bs::logical_<A0>,X>
-                              , bs::pack_<bd::fundamental_<A1>,X>
-                              , bs::pack_<bd::fundamental_<A1>,X>
-                              )
+  BOOST_DISPATCH_OVERLOAD_IF( if_else_
+                            , (typename A0,typename A1,typename X)
+                            , (detail::is_native<X>)
+                            , bd::cpu_
+                            , bs::pack_<bs::logical_<A0>,X>
+                            , bs::pack_<bd::fundamental_<A1>,X>
+                            , bs::pack_<bd::fundamental_<A1>,X>
+                            )
 
   {
     BOOST_FORCEINLINE A1 operator()(const A0& a0, const A1& a1, const A1& a2) const BOOST_NOEXCEPT
@@ -41,14 +41,14 @@ namespace boost { namespace simd { namespace ext
     }
   };
 
-   BOOST_DISPATCH_OVERLOAD_IF ( if_else_
-                              , (typename A0,typename A1,typename X)
-                              , (detail::is_native<X>)
-                              , bd::cpu_
-                              , bs::pack_<bd::arithmetic_<A0>,X>
-                              , bs::pack_<bd::fundamental_<A1>,X>
-                              , bs::pack_<bd::fundamental_<A1>,X>
-                              )
+  BOOST_DISPATCH_OVERLOAD_IF( if_else_
+                            , (typename A0,typename A1,typename X)
+                            , (detail::is_native<X>)
+                            , bd::cpu_
+                            , bs::pack_<bd::arithmetic_<A0>,X>
+                            , bs::pack_<bd::fundamental_<A1>,X>
+                            , bs::pack_<bd::fundamental_<A1>,X>
+                            )
   {
     BOOST_FORCEINLINE A1 operator()(const A0& a0, const A1& a1, const A1&a2) const BOOST_NOEXCEPT
     {

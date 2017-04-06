@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,32 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-boolean
-    Function object implementing if_else_zero capabilities
+    This function object conditionally returns @c x (respectively @ref Zero)
+    if @c c is @ref True (respectively  @ref False)
 
-    If x is @ref True returns t else returns zero
 
-    @par Semantic:
+    @par Header <boost/simd/function/if_else_zero.hpp>
 
-    For every parameters @c c of type @c C and @c t of type @c T:
+    @par Example:
 
-    @code
-    T r = if_else_zero(cond,t);
-    @endcode
+      @snippet if_else_zero.cpp if_else_zero
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    T r = cond ? t : Zero<T>();
-    @endcode
+      @snippet if_else_zero.txt if_else_zero
 
   **/
-  Value if_else_zero(Value const& cond, Value const& t);
-
-  //@overload
-  Value if_else_zero(LogicalValue const& cond, Value const& t);
+  Value1 if_else_zero(Value0 const& c, Value1 const& t);
 } }
 #endif
 

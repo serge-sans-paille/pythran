@@ -12,7 +12,7 @@
 #define BOOST_SIMD_CONSTANT_DEFINITION_TWOTOMNMBO_3_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
@@ -32,7 +32,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,twotomnmbo_3_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, twotomnmbo_3_)
   }
 
   namespace detail
@@ -44,6 +44,12 @@ namespace boost { namespace simd
   BOOST_NOEXCEPT_DECLTYPE(detail::twotomnmbo_3( boost::dispatch::as_<T>{}))
   {
     return detail::twotomnmbo_3( boost::dispatch::as_<T>{} );
+  }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto Twotomnmbo_3(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(Twotomnmbo_3<T>())
+  {
+    return Twotomnmbo_3<T>();
   }
 } }
 

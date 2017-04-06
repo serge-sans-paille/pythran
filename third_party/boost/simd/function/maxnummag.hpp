@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,28 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing maxnummag capabilities
+    This function object returns between two floating point arguments,
+    the one  having the greatest absolute value, treating NaNs
+    as missing data (between a NaN and a numeric value, the numeric value is chosen).
 
-    Returns the input value which have the greatest absolute value, ignoring nan.
 
-    @par Semantic:
+    @par Header <boost/simd/function/maxnummag.hpp>
 
-    @code
-    auto r = maxnummag(x,y);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet maxnummag.cpp maxnummag
 
-    @code
-    auto r = is_nan(x) ? y : (is_nan(y) ? x : maxmag(x, y));
-    @endcode
+    @par Possible output:
 
-    @see maxmag, is_nan
+      @snippet maxnummag.txt maxnummag
+
   **/
-  Value maxnummag(Value const & x, Value const& y);
+  Value maxnummag(Value const& x, Value const& y);
 } }
 #endif
 

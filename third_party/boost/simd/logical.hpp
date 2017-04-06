@@ -27,6 +27,8 @@ namespace boost { namespace simd
     manner (contrary to bool). Its semantic is equivalent to bool in all aspects,
     however, a compiler dependent, optimized bool-to-type conversion may be performed.
 
+    @pre T models Vectorizable
+
     @tparam T Type the boolean value is generated from.
   **/
   template<typename T> struct logical

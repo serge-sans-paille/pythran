@@ -1,12 +1,10 @@
 //==================================================================================================
-/*!
-  @file
-  @copyright 2016 NumScale SAS
-  @copyright 2016 J.T. Lapreste
+/**
+  Copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
-*/
+**/
 //==================================================================================================
 #ifndef BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_GAMMA_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_GAMMA_HPP_INCLUDED
@@ -25,8 +23,6 @@
 #include <boost/simd/constant/two.hpp>
 #include <boost/simd/constant/three.hpp>
 #include <boost/simd/constant/zero.hpp>
-
-
 #include <boost/simd/constant/pi.hpp>
 #include <boost/simd/constant/two.hpp>
 
@@ -35,14 +31,11 @@
 #include <boost/simd/function/bitwise_or.hpp>
 #include <boost/simd/function/floor.hpp>
 #include <boost/simd/function/is_even.hpp>
-
 #include <boost/simd/function/fma.hpp>
 #include <boost/simd/function/if_dec.hpp>
 #include <boost/simd/function/if_else.hpp>
 #include <boost/simd/function/if_inc.hpp>
-#include <boost/simd/function/if_minus.hpp>
 #include <boost/simd/function/if_nan_else.hpp>
-#include <boost/simd/function/if_plus.hpp>
 #include <boost/simd/function/is_equal.hpp>
 #include <boost/simd/function/is_eqz.hpp>
 #include <boost/simd/function/is_flint.hpp>
@@ -53,10 +46,9 @@
 #include <boost/simd/function/logical_andnot.hpp>
 #include <boost/simd/function/logical_or.hpp>
 #include <boost/simd/function/nbtrue.hpp>
-#include <boost/simd/function/negif.hpp>
+#include <boost/simd/function/if_neg.hpp>
 #include <boost/simd/function/sinpi.hpp>
 #include <boost/simd/function/sqr.hpp>
-
 
 #include <boost/simd/meta/as_logical.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
@@ -101,10 +93,10 @@ namespace boost { namespace simd { namespace ext
     {
       A0 st =  bs::stirling(q);
       A0 p = bs::floor(q);
-      A0 sgngam = bs::negif(bs::is_even(p), One<A0>());
+      A0 sgngam = bs::if_neg(bs::is_even(p), One<A0>());
       A0 z = q - p;
       auto test2 = is_less(z, bs::Half<A0>() );
-      z = bs::if_minus(test2, z, bs::One<A0>());
+      z = bs::if_dec(test2, z);
       z = q*bs::sinpi(z);
       z =  bs::abs(z);
       return sgngam*bs::Pi<A0>()/(z*st);
@@ -122,7 +114,7 @@ namespace boost { namespace simd { namespace ext
       auto test1 = is_greater_equal(x,Three<A0>());
       while( bs::any(test1) )
       {
-        x = bs::if_plus(test1, x, bs::Mone<A0>());
+        x = bs::if_dec(test1, x);
         z = bs::if_else(   test1, z*x, z);
         test1 = is_greater_equal(x,Three<A0>());
       }
@@ -131,7 +123,7 @@ namespace boost { namespace simd { namespace ext
       while( bs::any(test1) )
       {
         z = bs::if_else(test1, z/x, z);
-        x = bs::if_plus(test1, x, bs::One<A0>());
+        x = bs::if_inc(test1, x);
         test1 = bs::is_ltz(x);
       }
       //all x are greater than 0 and less than 3
@@ -139,7 +131,7 @@ namespace boost { namespace simd { namespace ext
       while( bs::any(test2))
       {
         z = bs::if_else(test2, z/x, z);
-        x = bs::if_plus(test2, x, bs::One<A0>());
+        x = bs::if_inc(test2, x);
         test2 = is_less(x,bs::Two<A0>());
       }
       //all x are greater equal 2 and less than 3

@@ -13,7 +13,7 @@
 #define BOOST_SIMD_META_AS_ARITHMETIC_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch/meta/factory_of.hpp>
 #include <boost/simd/detail/dispatch/meta/scalar_of.hpp>
 
@@ -26,13 +26,13 @@ namespace boost { namespace simd
     template<typename T, typename F>
     struct as_arithmetic_impl
     {
-      using type = brigand::apply<F, T>;
+      using type = nsm::apply<F, T>;
     };
 
     template<typename T, typename F>
     struct as_arithmetic_impl< logical<T>, F >
     {
-      using type = brigand::apply<F, T>;
+      using type = nsm::apply<F, T>;
     };
   }
 

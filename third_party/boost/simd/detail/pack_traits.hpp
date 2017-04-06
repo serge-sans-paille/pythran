@@ -18,6 +18,7 @@
 #include <boost/simd/detail/pack_iterator.hpp>
 #include <boost/simd/detail/pack_proxy.hpp>
 #include <boost/simd/detail/aliasing.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <iterator>
 #include <cstddef>
 #include <cstring>
@@ -42,7 +43,7 @@ namespace boost { namespace simd { namespace detail
   };
 
   template <typename T,typename P>
-  struct pack_references<T, P, typename enable_if_has_type<typename T::reference>::type>
+  struct pack_references<T, P, typename boost::enable_if_has_type<typename T::reference>::type>
   {
     using reference       = typename T::reference;
     using const_reference = typename T::const_reference;
@@ -71,8 +72,8 @@ namespace boost { namespace simd { namespace detail
       alignment = sizeof(VTYPE)                                                                    \
     };                                                                                             \
                                                                                                    \
-    using static_range            = brigand::range<std::size_t, 0, N>;                             \
-    using element_range           = brigand::range<std::size_t, 0, N>;                             \
+    using static_range            = nsm::range<std::size_t, 0, N>;                             \
+    using element_range           = nsm::range<std::size_t, 0, N>;                             \
                                                                                                    \
     using storage_kind            = ::boost::simd::native_storage;                                 \
                                                                                                    \
@@ -87,7 +88,7 @@ namespace boost { namespace simd { namespace detail
     {                                                                                              \
       return {&d,i};                                                                               \
     }                                                                                              \
-  };                                                                                               \
+  }                                                                                                \
 /**/
 
 #define BOOST_SIMD_DEFINE_PACK_TRAITS(TYPE, N, VTYPE)                                              \

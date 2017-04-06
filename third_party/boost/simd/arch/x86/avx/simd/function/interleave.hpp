@@ -26,46 +26,6 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( interleave_
                           , (typename A0)
                           , bs::avx_
-                          , bs::pack_<bd::type64_<A0>, bs::avx_>
-                          , bs::pack_<bd::type64_<A0>, bs::avx_>
-                         )
-  {
-    BOOST_FORCEINLINE std::array<A0,2> operator()(A0 const& a0, A0 const& a1 ) const BOOST_NOEXCEPT
-    {
-      auto b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
-      auto lo = _mm256_unpacklo_pd(b0,b1);
-      auto hi = _mm256_unpackhi_pd(b0,b1);
-      auto f  =  bitwise_cast<A0>( _mm256_permute2f128_pd( lo, hi, 0x20 ) );
-      auto s  =  bitwise_cast<A0>( _mm256_permute2f128_pd( lo, hi, 0x31 ) );
-
-      return {f,s};
-    }
-  };
-
-  BOOST_DISPATCH_OVERLOAD ( interleave_
-                          , (typename A0)
-                          , bs::avx_
-                          , bs::pack_<bd::type32_<A0>, bs::avx_>
-                          , bs::pack_<bd::type32_<A0>, bs::avx_>
-                         )
-  {
-    BOOST_FORCEINLINE std::array<A0,2> operator()(A0 const& a0, A0 const& a1 ) const BOOST_NOEXCEPT
-    {
-      auto b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      auto b1 = bitwise_cast<bd::as_floating_t<A0>>(a1);
-      auto lo = _mm256_unpacklo_ps(b0,b1);
-      auto hi = _mm256_unpackhi_ps(b0,b1);
-      auto f  =  bitwise_cast<A0>( _mm256_permute2f128_ps( lo, hi, 0x20 ) );
-      auto s  =  bitwise_cast<A0>( _mm256_permute2f128_ps( lo, hi, 0x31 ) );
-
-      return {f,s};
-    }
-  };
-
-  BOOST_DISPATCH_OVERLOAD ( interleave_
-                          , (typename A0)
-                          , bs::avx_
                           , bs::pack_<bd::integer_<A0>, bs::avx_>
                           , bs::pack_<bd::integer_<A0>, bs::avx_>
                          )

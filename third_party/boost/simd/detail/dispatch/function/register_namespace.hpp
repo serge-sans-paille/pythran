@@ -20,6 +20,7 @@
 #include <boost/simd/detail/dispatch/hierarchy/base.hpp>
 #include <boost/simd/detail/dispatch/hierarchy_of.hpp>
 #include <boost/simd/detail/dispatch/detail/auto_decltype.hpp>
+#include <boost/simd/detail/dispatch/detail/declval.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/config.hpp>
 #include <utility>
@@ -66,16 +67,21 @@ namespace boost { namespace dispatch
   {
     template<typename Discriminant,typename Tag> struct generic_dispatcher
     {
+      // ICC also have to deal with underlying g++ libraries on linux, which can be quite old
+      // on CentOS (often used on HPC clusters). g++ implementation of result_of rely on the
+      // presence of nested 'result<T> type' (at least on 4.4.x) and boost's functional is no
+      // better. As a result we need to avoid using it.
       template<typename Sig> struct result;
+
       template<typename This, typename... Args>
       struct result<This(Args...)>
-           : std::result_of
-                    < decltype( dispatching ( Discriminant{}, Tag{}, default_site<Tag>{}
-                                            , ::boost::dispatch::hierarchy_of_t<Args&&>()...
-                                            )
-                              )(Args...)
-                    >
-      {};
+      {
+        static auto invoke(Args&&... args)
+          -> decltype( dispatching ( Discriminant{}, Tag{}, default_site<Tag>{},
+                                     typename ::boost::dispatch::hierarchy_of<Args&&>::type ()...
+                                     )(std::forward<Args>(args)...));
+        using type = decltype(invoke(detail::declval<Args>()...));
+      };
 
       template<typename... Args>
       BOOST_FORCEINLINE typename result<generic_dispatcher(Args&&...)>::type
@@ -87,7 +93,7 @@ namespace boost { namespace dispatch
                         ) )
       {
         return dispatching( Discriminant{}, Tag{}, default_site<Tag>{}
-                          , ::boost::dispatch::hierarchy_of_t<Args&&>()...
+                          , typename ::boost::dispatch::hierarchy_of<Args&&>::type()...
                           )
                           ( std::forward<Args>(args)... );
       }

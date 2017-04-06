@@ -27,8 +27,9 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()( const A0 & a0 ) const BOOST_NOEXCEPT
     {
-      auto const b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
-      return bitwise_cast<A0>(_mm256_permute_pd( _mm256_permute2f128_pd(b0,b0,1), 5 ));
+      using f_t = bd::as_floating_t<A0>;
+      auto const b0 = bitwise_cast<f_t>(a0);
+      return bitwise_cast<A0>(f_t(_mm256_permute_pd( _mm256_permute2f128_pd(b0,b0,1), 5 )));
     }
   };
 
@@ -40,9 +41,10 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()( const A0 & a0 ) const BOOST_NOEXCEPT
     {
-      auto const b0 = bitwise_cast<bd::as_floating_t<A0>>(a0);
+      using f_t = bd::as_floating_t<A0>;
+      auto const b0 = bitwise_cast<f_t>(a0);
       auto const tmp = _mm256_permute_ps(b0, _MM_SHUFFLE(0,1,2,3) );
-      return bitwise_cast<A0>(_mm256_permute2f128_ps(tmp,tmp,1));
+      return bitwise_cast<A0>(f_t(_mm256_permute2f128_ps(tmp,tmp,1)));
     }
   };
 

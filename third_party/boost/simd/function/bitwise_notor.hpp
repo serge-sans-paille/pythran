@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,36 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-bitwise
-    Function object implementing bitwise_notor capabilities
-
-    Computes the bitwise not or of its parameters.
-
-    The operands must share the same bit size.
+    This function object computes the bitwise not or of its parameters.
 
     The result type is the one of the first operand.
 
-    @par semantic:
-    For any given value @c x, of type @c T1, @c y of type @c T2
-    of same memory size:
+    @par Header <boost/simd/function/bitwise_notor.hpp>
 
-    @code
-    T1 r = bitwise_notor(x, y);
-    @endcode
+    @pre  The operands must share the same bit size.
 
-    The code is equivalent to:
+    @par Example:
 
-    @code
-    T1 r = ~x | y;
-    @endcode
+      @snippet bitwise_notor.cpp bitwise_notor
 
-    @see  bitwise_and, bitwise_or, bitwise_xor, bitwise_notand,
-    bitwise_and, bitwise_ornot, complement
+    @par Possible output:
+
+      @snippet bitwise_notor.txt bitwise_notor
 
   **/
-  T0 bitwise_notor(T0 const &x, T1 const& y);
+  Value0 bitwise_notor(Value0 const& x, Value1 const& y);
 } }
 #endif
 

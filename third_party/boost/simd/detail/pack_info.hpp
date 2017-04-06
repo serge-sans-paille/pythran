@@ -12,13 +12,15 @@
 #include <boost/simd/meta/cardinal_of.hpp>
 #include <boost/simd/detail/dispatch/meta/downgrade.hpp>
 #include <boost/simd/detail/dispatch/meta/upgrade.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd
 {
+  namespace tt = nsm::type_traits;
+
   // Overload for cardinal_of
   template<typename T, std::size_t N, typename ABI>
-  struct cardinal_of<pack<T,N,ABI>> : std::integral_constant<std::size_t,N>
+  struct cardinal_of<pack<T,N,ABI>> : tt::integral_constant<std::size_t,N>
   {};
 } }
 

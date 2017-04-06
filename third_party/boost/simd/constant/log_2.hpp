@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Generates constant Log_2 : \f$\log(2)\f$.
 
+
+    @par Header <boost/simd/constant/log_2.hpp>
+
     @par Semantic:
 
     @code
@@ -53,8 +56,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/log_2.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/log_2.hpp>
+#include <boost/simd/constant/simd/log_2.hpp>
 
 #endif

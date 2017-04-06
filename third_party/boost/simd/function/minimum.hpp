@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,33 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing minimum capabilities
+   This function object returns the smallest element of the argument
 
-    Returns the least element of the SIMD vector
+    @par Header <boost/simd/function/minimum.hpp>
 
-    @par Semantic:
+    @see maximum
 
-    For every parameter of type T
+    @par Example:
 
-    @code
-    scalar_of_t<T> r = minimum(x);
-    @endcode
+      @snippet minimum.cpp minimum
 
-    is similar to:
+    @par Possible output:
 
-    @code
-      scalar_of_t<T> r = Inf;
-      for(std::size_t i=0;i<cardinal_of<T>;++i)
-        r =  r > x[i] ? x[i] : r;
-    @endcode
-
-    @see min, minnummag, minmag
+      @snippet minimum.txt minimum
 
   **/
-  scalar_of_t<Value> minimum(Value const & x);
+  scalar_of_t<Value> minimum(Value const& x);
 } }
 #endif
 

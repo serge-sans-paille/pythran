@@ -15,7 +15,7 @@
 #define BOOST_SIMD_DETAIL_DISPATCH_META_UPGRADE_HPP_INCLUDED
 
 #include <boost/simd/detail/dispatch/detail/updowngrade.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <cstdint>
 
 namespace boost { namespace dispatch
@@ -23,12 +23,12 @@ namespace boost { namespace dispatch
   namespace detail
   {
     // Use this map to transform to upgraded type
-    using upgrade_map = brigand::map< brigand::pair<std::uint8_t  , std::uint16_t >
-                                    , brigand::pair<std::uint16_t , std::uint32_t >
-                                    , brigand::pair<std::uint32_t , std::uint64_t >
-                                    , brigand::pair<std::uint64_t , std::uint64_t >
-                                    , brigand::pair<float         , double        >
-                                    , brigand::pair<double        , double        >
+    using upgrade_map = nsm::map< nsm::pair<std::uint8_t  , std::uint16_t >
+                                    , nsm::pair<std::uint16_t , std::uint32_t >
+                                    , nsm::pair<std::uint32_t , std::uint64_t >
+                                    , nsm::pair<std::uint64_t , std::uint64_t >
+                                    , nsm::pair<float         , double        >
+                                    , nsm::pair<double        , double        >
                                     >;
 
     template<typename T,typename Sign>
@@ -53,7 +53,7 @@ namespace boost { namespace dispatch
   using upgrade_t = typename upgrade<T,Sign>::type;
 
   template<typename T>
-  struct is_upgradable : brigand::bool_<!std::is_same<T, typename upgrade<T>::type>::value>
+  struct is_upgradable : nsm::bool_<!std::is_same<T, typename upgrade<T>::type>::value>
   {};
 } }
 

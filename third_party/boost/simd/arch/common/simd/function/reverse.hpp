@@ -45,13 +45,13 @@ namespace boost { namespace simd { namespace ext
     }
 
     template<typename K, typename... N>
-    BOOST_FORCEINLINE A0 do_(const A0& a0, K const&, brigand::list<N...> const&) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 do_(const A0& a0, K const&, nsm::list<N...> const&) const BOOST_NOEXCEPT
     {
       return A0( extract<A0::static_size-N::value-1>(a0)... );
     }
 
     template<typename... N> BOOST_FORCEINLINE
-    A0 do_(const A0& a0, aggregate_storage const&, brigand::list<N...> const&) const BOOST_NOEXCEPT
+    A0 do_(const A0& a0, aggregate_storage const&, nsm::list<N...> const&) const BOOST_NOEXCEPT
     {
       // reverse each half and permute them
       return {{ {reverse(a0.storage()[1]), reverse(a0.storage()[0])} }};

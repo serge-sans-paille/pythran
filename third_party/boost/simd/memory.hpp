@@ -10,5 +10,6 @@
 #define BOOST_SIMD_MEMORY_HPP_INCLUDED
 
 #include <boost/simd/memory/allocator.hpp>
+#include <boost/simd/memory/allocate.hpp>
 
 #endif

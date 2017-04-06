@@ -19,14 +19,13 @@
 #include <boost/simd/detail/dispatch/meta/sign_of.hpp>
 #include <boost/simd/detail/dispatch/meta/make_integer.hpp>
 #include <boost/simd/detail/dispatch/meta/apply_sign.hpp>
-#include <boost/simd/detail/brigand.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch { namespace detail
 {
   template<typename T, typename Map, typename Sign, bool Direction, bool IsReal> struct fetch
   {
-    using type = brigand::at<Map,T>;
+    using type = nsm::at<Map,T>;
   };
 
   template<typename T, typename Map, typename Sign, bool Direction>
@@ -34,13 +33,13 @@ namespace boost { namespace dispatch { namespace detail
   {
     // Normalize T
     using base = dispatch::make_integer_t<sizeof(T),unsigned>;
-    using found = brigand::at<Map,base>;
+    using found = nsm::at<Map,base>;
     using type  = boost::dispatch::apply_sign_t<found,Sign>;
   };
 
   template<typename Map, typename Sign> struct fetch<bool,Map,Sign,false,false>
   {
-    using type = brigand::at<Map,bool>;
+    using type = nsm::at<Map,bool>;
   };
 
   template<typename T,typename Sign,typename Map, bool Direction> struct updowngrade

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,36 +15,36 @@
 namespace boost { namespace simd
                   {
 
- /*!
+  /*!
     @ingroup group-arithmetic
-    Function object implementing average
+    This function object computes the arithmetic mean of its parameters.
 
-    Computes the arithmetic mean of its parameters.
+    @par Header <boost/simd/abs.hpp>
 
-    @par semantic:
-    For any given value @c x,  @c y of type @c T:
+    @par Notes
 
-    @code
-    T r = average(x, y);
-    @endcode
-
-    For floating point values the code is equivalent to:
-
-    @code
-    T r = (x+y)/T(2);
-    @endcode
+    Using `average(x, y)` for floating entries is similar to  `(x+y)/2`
 
     for integer types, it returns a rounded value at a distance guaranteed
     to be less than or equal to 0.5 of the average floating value, but may differ
-    by unity from the truncation given by (x1+x2)/T(2).
+    by unity from the truncation given by `(x+y)/2`.
 
     @par Note:
       This function does not overflow.
 
     @see meanof
 
+    @par Example:
+
+      @snippet average.cpp average
+
+    @par Possible output:
+
+      @snippet average.txt average
+
+
   **/
-  Value average(Value const & v0);
+  Value average(Value const& x, Value const& y);
 } }
 #endif
 

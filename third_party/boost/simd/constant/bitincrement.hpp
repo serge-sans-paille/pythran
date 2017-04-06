@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generates a value of the chosen type which represents the minimal increment value for @c T.
 
+
+    @par Header <boost/simd/constant/bitincrement.hpp>
+
     @par Semantic:
 
     For any type @c T,
@@ -69,8 +72,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/bitincrement.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/bitincrement.hpp>
+#include <boost/simd/constant/simd/bitincrement.hpp>
 
 #endif

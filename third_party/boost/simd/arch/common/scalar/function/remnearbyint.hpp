@@ -1,24 +1,21 @@
 //==================================================================================================
-/*!
-  @file
-
-  @copyright 2016 NumScale SAS
+/**
+  Copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
-*/
+**/
 //==================================================================================================
 #ifndef BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_REMNEARBYINT_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_REMNEARBYINT_HPP_INCLUDED
 
+#include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/function/div.hpp>
 #include <boost/simd/function/is_nez.hpp>
-#include <boost/simd/function/minus.hpp>
-#include <boost/simd/function/multiplies.hpp>
+#include <boost/simd/function/is_eqz.hpp>
 #include <boost/simd/function/nearbyint.hpp>
-#include <boost/simd/function/if_minus.hpp>
-#include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/config.hpp>
+
 /////////////////////////////////////////////////////////////////////////////
 // The remnearbyint() function computes the remnearbyint of dividing x by y.  The
 // return value is x-n*y, where n is the value x / y, rounded to the nearest
@@ -32,12 +29,14 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( rem_
                           , (typename A0)
                           , bd::cpu_
+                          , bs::pedantic_tag
                           , bs::tag::nearbyint_
                           , bd::scalar_< bd::int_<A0> >
                           , bd::scalar_< bd::int_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() (bd::functor<bs::tag::nearbyint_> const&
+    BOOST_FORCEINLINE A0 operator() (pedantic_tag const &
+                                    ,bd::functor<bs::tag::nearbyint_> const&
                                     , A0 a0, A0 a1) const BOOST_NOEXCEPT
     {
       if (is_nez(a1))
@@ -50,12 +49,14 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( rem_
                           , (typename A0)
                           , bd::cpu_
+                          , bs::pedantic_tag
                           , bs::tag::nearbyint_
                           , bd::scalar_< bd::floating_<A0> >
                           , bd::scalar_< bd::floating_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() (bd::functor<bs::tag::nearbyint_> const&
+    BOOST_FORCEINLINE A0 operator() (pedantic_tag const &
+                                    ,bd::functor<bs::tag::nearbyint_> const&
                                     , A0 a0, A0 a1) const BOOST_NOEXCEPT
     {
       if (is_nez(a1)&&is_eqz(a0)) return a0;
@@ -66,14 +67,12 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( rem_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::fast_tag
                           , bs::tag::nearbyint_
                           , bd::scalar_< bd::int_<A0> >
                           , bd::scalar_< bd::int_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() (const fast_tag &
-                                    , bd::functor<bs::tag::nearbyint_> const&
+    BOOST_FORCEINLINE A0 operator() ( bd::functor<bs::tag::nearbyint_> const&
                                     , A0 a0, A0 a1) const BOOST_NOEXCEPT
     {
       return fnms(div(nearbyint, a0, a1), a1, a0);
@@ -83,14 +82,12 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( rem_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::fast_tag
                           , bs::tag::nearbyint_
                           , bd::scalar_< bd::floating_<A0> >
                           , bd::scalar_< bd::floating_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() (const fast_tag &
-                                    , bd::functor<bs::tag::nearbyint_> const&
+    BOOST_FORCEINLINE A0 operator() ( bd::functor<bs::tag::nearbyint_> const&
                                     , A0 a0, A0 a1) const BOOST_NOEXCEPT
     {
       return fnms(div(nearbyint, a0, a1), a1, a0);
@@ -114,6 +111,5 @@ namespace boost { namespace simd { namespace ext
     }
   };
 } } }
-
 
 #endif

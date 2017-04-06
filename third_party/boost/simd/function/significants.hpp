@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,22 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-exponential
-    Function object implementing significants capabilities
+    This function object returns the rounding to n significants digits of its argument.
 
-    Compute the rounding to n significants digits
+    @par Header <boost/simd/function/signiicants.hpp>
 
-    @par Semantic:
+    @par Example:
 
-    For every parameter of floating type T and strictly positive integer n
+      @snippet significants.cpp significants
 
-    @code
-    T r = significants(x, n);
-    @endcode
+    @par Possible output:
 
-    is similar to round(x, m) where m is n-iceil(log10(abs(x)))
-
-    @see round,  iceil, log10
+      @snippet significants.txt significants
 
   **/
-  Value significants(Value const & v0, IntegerValue const& n);
+  IEEEValue significants(IEEEValue const& x, IntegerValue const& n);
 } }
 #endif
 

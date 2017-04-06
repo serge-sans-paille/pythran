@@ -36,7 +36,7 @@ namespace boost { namespace simd { namespace ext
     }
 
     template<typename... N> static BOOST_FORCEINLINE
-    target_t do_(Pointer const& p, brigand::list<N...> const&)
+    target_t do_(Pointer const& p, nsm::list<N...> const&)
     {
       using v_t = typename target_t::value_type;
       auto const& m = p.mask();

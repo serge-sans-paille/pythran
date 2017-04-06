@@ -22,7 +22,7 @@
 #include <boost/simd/function/is_less.hpp>
 #include <boost/simd/function/is_ltz.hpp>
 #include <boost/simd/function/logical_andnot.hpp>
-#include <boost/simd/function/negif.hpp>
+#include <boost/simd/function/if_neg.hpp>
 #include <boost/simd/function/oneminus.hpp>
 #include <boost/simd/function/inc.hpp>
 #include <boost/simd/function/nbtrue.hpp>
@@ -73,12 +73,12 @@ namespace boost { namespace simd { namespace ext
       if(nb1 > 0)
       {
         A0 z = oneminus(ex*detail::erf_kernel<A0>::erfc2(x));
-        A0 r2 = bs::negif(is_ltz(a0), z);
+        A0 r2 = bs::if_neg(is_ltz(a0), z);
         r1 = bs::if_else(test1, r1, r2);
         nb += nb1;
         if(nb >= A0::static_size) return r1;
       }
-      A0 z = bs::negif( bs::is_ltz(a0)
+      A0 z = bs::if_neg( bs::is_ltz(a0)
                        , bs::oneminus(ex*detail::erf_kernel<A0>::erfc3(x))
                        );
       #ifndef BOOST_SIMD_NO_INFINITIES
@@ -127,7 +127,7 @@ namespace boost { namespace simd { namespace ext
       A0 z = x/inc(x);
       z-= A0(0.4);
       A0 r2 =   oneminus(exp(-sqr(x))*detail::erf_kernel<A0>::erfc2(z));
-      r2 = bs::negif(is_ltz(a0), r2);
+      r2 = bs::if_neg(is_ltz(a0), r2);
       r1 = if_else(test1, r1, r2);
       #ifndef BOOST_SIMD_NO_INFINITIES
       r1 = bs::if_else(bs::is_inf(a0), bs::sign(a0), r1);

@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate value \f$\frac12\f$
 
+
+    @par Header <boost/simd/constant/half.hpp>
+
     @par Semantic:
 
     @code
@@ -50,8 +53,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/half.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/half.hpp>
+#include <boost/simd/constant/simd/half.hpp>
 
 #endif

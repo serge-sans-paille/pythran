@@ -39,7 +39,7 @@
 #include <boost/simd/function/if_plus.hpp>
 #include <boost/simd/function/tofloat.hpp>
 #include <boost/simd/function/unary_minus.hpp>
-#include <boost/simd/function/fast.hpp>
+#include <boost/simd/function/raw.hpp>
 #include <boost/simd/function/log.hpp>
 #include <boost/simd/function/exp.hpp>
 
@@ -55,16 +55,16 @@ namespace boost { namespace simd { namespace ext
                           , bs::pack_<bd::integer_<A1>, X>
                           )
    {
-      BOOST_FORCEINLINE A0 operator()( const A0& a0, const  A1&  a1) const BOOST_NOEXCEPT
+      A0 operator()( const A0& a0, const  A1&  a1) const BOOST_NOEXCEPT
       {
       using bA0 = bs::as_logical_t<A0>;
       A0 x =  bs::abs(a0);
       A0 aa1 = bs::tofloat(a1);
-      A0 y = bs::fast_(bs::pow_abs)(x,rec(aa1));
-      bA0 nul_a1 =  bitwise_cast<bA0>(bs::is_eqz(a1));
+      A0 y = bs::raw_(bs::pow_abs)(x,rec(aa1));
+      bA0 nul_a1 =  bs::is_eqz(bitwise_cast<A0>(a1));
       bA0 is_ltza0 = is_ltz(a0);
-      bA0 is_odda1 = bitwise_cast<bA0>(is_odd(a1));
-      A0 p = fast_(bs::pow_abs)(y, aa1);
+      auto is_odda1 = is_odd(a1);
+      A0 p = raw_(bs::pow_abs)(y, aa1);
       y = bs::if_plus( bs::logical_or(bs::is_nez(y), nul_a1)
                      , y
                      , -(p - x)/(aa1*p/y)
@@ -103,12 +103,12 @@ namespace boost { namespace simd { namespace ext
    BOOST_DISPATCH_OVERLOAD( nthroot_
                           , (typename A0, typename A1, typename X)
                           , bd::cpu_
-                          , bs::fast_tag
+                          , bs::raw_tag
                           , bs::pack_<bd::floating_<A0>, X>
                           , bs::pack_<bd::integer_<A1>, X>
                           )
    {
-     BOOST_FORCEINLINE A0 operator()(const fast_tag &, const A0& a0, const  A1&  a1) const BOOST_NOEXCEPT
+     BOOST_FORCEINLINE A0 operator()(const raw_tag &, const A0& a0, const  A1&  a1) const BOOST_NOEXCEPT
      {
        auto aa1 =  abs(a1);
        A0 aa0 = abs(a0);

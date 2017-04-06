@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,24 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing acsc capabilities
+    This function object returns the inverse cosecant in radian: \f$\arcsin(1/x)\f$.
 
-    inverse cosecant in radian: \f$\arcsin(1/x)\f$.
-
-    @par Semantic:
-
-    For every parameter of floating type
-
-    @code
-    auto r = acsc(x);
-    @endcode
+    @par Header <boost/simd/function/acsc.hpp>
 
     @see acscd, acscpi, asin, asin, sin, rec
 
+    @par Example:
+
+      @snippet acsc.cpp acsc
+
+    @par Possible output:
+
+      @snippet acsc.txt acsc
+
   **/
-  Value acsc(Value const & v0);
+  IEEEValue acsc(IEEEValue const & x);
 } }
 #endif
 

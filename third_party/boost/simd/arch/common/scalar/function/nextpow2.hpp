@@ -15,7 +15,7 @@
 #include <boost/simd/function/saturated.hpp>
 #include <boost/simd/function/abs.hpp>
 #include <boost/simd/function/ffs.hpp>
-#include <boost/simd/function/frexp.hpp>
+#include <boost/simd/function/ifrexp.hpp>
 #include <boost/simd/function/dec.hpp>
 #include <boost/simd/function/reversebits.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
@@ -66,7 +66,7 @@ namespace boost { namespace simd { namespace ext
     {
       A0 m;
       result_t p;
-      std::tie(m, p) = simd::frexp(bs::abs(a0));
+      std::tie(m, p) = pedantic_(ifrexp)(bs::abs(a0));
       return (m == Half<A0>()) ? saturated_(dec)(p) :  p;
     }
   };

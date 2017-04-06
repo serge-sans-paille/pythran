@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,33 +15,31 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing modf capabilities
+    This function object returns the integral and fractional parts of the input.
 
-    Computes the integer and  fractional parts of the input
 
-    @par Semantic:
+    @par Header <boost/simd/function/modf.hpp>
 
-    @code
-    std::pair<T,T> p = modf(x);
-    @endcode
+    @par Decorators
 
-     is similar to:
+     - std_ calls std::modf to compute the pair of outputs.
 
-    @code
-    T t = trunc(x);
-    T f = frac(x);
-    @endcode
+    @par Example:
 
-    @see frac,  trunc
+      @snippet modf.cpp modf
+
+    @par Possible output:
+
+      @snippet modf.txt modf
 
   **/
-  Value modf(Value const & x, Value & y);
 
-  //@overload
+  ///@{
+  Value modf(Value const& x, Value const& y);
   std::pair<Value, Value> modf(Value const & x);
+  ///@}
 } }
 #endif
 

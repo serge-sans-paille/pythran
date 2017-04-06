@@ -22,7 +22,7 @@
 #include <boost/simd/function/logical_and.hpp>
 #include <boost/simd/function/logical_andnot.hpp>
 #include <boost/simd/function/multiplies.hpp>
-#include <boost/simd/function/negif.hpp>
+#include <boost/simd/function/if_neg.hpp>
 #include <boost/simd/function/pow_abs.hpp>
 #include <boost/simd/function/shift_right.hpp>
 #include <boost/simd/function/sqr.hpp>
@@ -41,11 +41,12 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator()( const A0& a0, const A0& a1) BOOST_NOEXCEPT
     {
-      auto ltza0 = is_ltz(a0);
+      auto nega0 = is_negative(a0);
       A0 z = pow_abs(a0, a1);
-      z =  negif(logical_and(is_odd(a1), ltza0), z);
-      auto invalid =  logical_andnot(ltza0, is_flint(a1));
-      return if_else(invalid, Nan<A0>(), z);
+      z =  if_neg(logical_and(is_odd(a1), nega0), z);
+      auto invalid =  logical_andnot(nega0, logical_or(is_flint(a1), is_inf(a1)));
+      z = if_else(invalid, Nan<A0>(), z);
+      return z;
     }
   };
 
@@ -65,7 +66,7 @@ namespace boost { namespace simd { namespace ext
         while(bs::any(exp))
         {
           result *= if_else(is_odd(exp), base, One<A0>());
-          exp >>= 1;
+          exp =  exp >> 1;
           base = sqr(base);
         }
         return result;
@@ -176,11 +177,31 @@ namespace boost { namespace simd { namespace ext
     {
       using u_t =  bd::as_integer_t<A1, unsigned>;
       auto ltza1 = is_ltz(a1);
-      A0 p = pow(a0, bitwise_cast<u_t>(negif(ltza1, a1)));
+      A0 p = pow(a0, bitwise_cast<u_t>(if_neg(ltza1, a1)));
       return if_else(ltza1, rec(p), p);
     }
   };
 
+  BOOST_DISPATCH_OVERLOAD_IF( pow_
+                            , (typename A0,typename X)
+                            , (detail::is_native<X>)
+                            , bs::raw_tag
+                            , bd::cpu_
+                            , bs::pack_<bd::floating_<A0>,X>
+                            , bs::pack_<bd::floating_<A0>,X>
+                           )
+  {
+    BOOST_FORCEINLINE A0 operator()(const raw_tag &,
+                                    const A0& a0, const A0& a1) BOOST_NOEXCEPT
+    {
+      auto nega0 = is_negative(a0);
+      A0 z = raw_(pow_abs(a0, a1));
+      z =  if_neg(logical_and(is_odd(a1), nega0), z);
+      auto invalid =  logical_andnot(nega0, logical_or(is_flint(a1), is_inf(a1)));
+      z = if_else(invalid, Nan<A0>(), z);
+      return z;
+    }
+  };
 } } }
 
 #endif

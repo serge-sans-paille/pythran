@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,28 +15,32 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing acot capabilities
+    This function object returns the inverse cotangent.
 
-    inverse cotangent.
 
-    @par Semantic:
+    @par Header <boost/simd/function/acot.hpp>
 
-    For every parameter of floating type
+    @par Note
 
-    @code
-    T r = acot(x);
-    @endcode
-
-    Returns the arc @c r in the interval
-    \f$[0, \pi[\f$ such that <tt>cot(r) == x</tt>.
+      For every parameter of floating type `r = acot(x)`
+      returns the arc @c r in the interval  \f$[0, \pi[\f$ such that
+      <tt>cot(r) == x</tt>.
 
     @see acotd, acotpi, cot
 
+
+    @par Example:
+
+      @snippet acot.cpp acot
+
+    @par Possible output:
+
+      @snippet acot.txt acot
+
   **/
-  Value acot(Value const & v0);
+  IEEEValue acot(IEEEValue const & x);
 } }
 #endif
 

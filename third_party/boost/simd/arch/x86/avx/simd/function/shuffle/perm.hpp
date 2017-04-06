@@ -10,12 +10,12 @@
 #define BOOST_SIMD_ARCH_X86_AVX_SIMD_FUNCTION_SHUFFLE_PERM_HPP_INCLUDED
 
 #include <boost/simd/detail/shuffle.hpp>
-#include <boost/simd/detail/brigand.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd
 {
   namespace bd = boost::dispatch;
+  namespace tt = nsm::type_traits;
 
   // -----------------------------------------------------------------------------------------------
   // Shuffle using blend patterns hierarchy
@@ -30,25 +30,25 @@ namespace boost { namespace simd
     // Check if a permutation can use blend_p*
     template<int... Ps> struct is_permute
     {
-      using sz = std::integral_constant<int,sizeof...(Ps)/2>;
-      using l0 = brigand::range<int,0           ,   sz::value>;
-      using h0 = brigand::range<int,sz::value   , 2*sz::value>;
-      using l1 = brigand::range<int,2*sz::value , 3*sz::value>;
-      using h1 = brigand::range<int,3*sz::value , 4*sz::value>;
+      using sz = tt::integral_constant<int,sizeof...(Ps)/2>;
+      using l0 = nsm::range<int,0           ,   sz::value>;
+      using h0 = nsm::range<int,sz::value   , 2*sz::value>;
+      using l1 = nsm::range<int,2*sz::value , 3*sz::value>;
+      using h1 = nsm::range<int,3*sz::value , 4*sz::value>;
 
       template<typename F, typename S, int Mask>
-      using i_t = brigand::pair< brigand::append<F,S>, std::integral_constant<int,Mask> >;
+      using i_t = nsm::pair< nsm::append<F,S>, tt::integral_constant<int,Mask> >;
 
-      using lst = brigand::map< i_t<h0,l0,0x01>, i_t<l1,l0,0x02>, i_t<h1,l0,0x03>, i_t<h1,h0,0x13>
+      using lst = nsm::map< i_t<h0,l0,0x01>, i_t<l1,l0,0x02>, i_t<h1,l0,0x03>, i_t<h1,h0,0x13>
                               , i_t<l0,l1,0x20>, i_t<h0,l1,0x21>, i_t<h1,l1,0x23>, i_t<h0,h1,0x31>
                               >;
 
-      using mode = brigand::at<lst, brigand::integral_list<int,Ps...>>;
-      using type = brigand::bool_<!std::is_same<mode, brigand::no_such_type_>::value>;
+      using mode = nsm::at<lst, nsm::integral_list<int,Ps...>>;
+      using type = nsm::bool_<!std::is_same<mode, nsm::no_such_type_>::value>;
     };
 
-    template<int P0>         struct is_permute<P0>    : std::false_type {};
-    template<int P0, int P1> struct is_permute<P0,P1> : std::false_type {};
+    template<int P0>         struct is_permute<P0>    : tt::false_type {};
+    template<int P0, int P1> struct is_permute<P0,P1> : tt::false_type {};
 
     // ---------------------------------------------------------------------------------------------
     // AVX permute patterns

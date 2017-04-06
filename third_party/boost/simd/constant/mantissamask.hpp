@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate a mask used to compute the mantissa of a floating point value
 
+
+    @par Header <boost/simd/constant/mantissamask.hpp>
+
     @par Semantic:
 
     @code
@@ -49,8 +52,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/mantissamask.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/mantissamask.hpp>
+#include <boost/simd/constant/simd/mantissamask.hpp>
 
 #endif

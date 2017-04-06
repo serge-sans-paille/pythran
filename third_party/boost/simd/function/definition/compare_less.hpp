@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, compare_less_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, compare_less_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::compare_less_,compare_less);

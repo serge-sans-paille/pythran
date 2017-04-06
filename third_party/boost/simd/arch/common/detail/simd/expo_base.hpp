@@ -16,9 +16,9 @@
 
 #include <boost/simd/function/if_else.hpp>
 #include <boost/simd/function/if_zero_else.hpp>
+#include <boost/simd/function/ldexp.hpp>
 #include <boost/simd/constant/inf.hpp>
 #include <boost/simd/arch/common/detail/scalar/expo_reduction.hpp>
-#include <boost/simd/arch/common/detail/scalar/expo_scale.hpp>
 #include <boost/config.hpp>
 
 namespace boost { namespace simd { namespace detail
@@ -34,7 +34,7 @@ namespace boost { namespace simd { namespace detail
       A0 k = reduc_t::reduce(a0, hi, lo, x);
       A0 c = reduc_t::approx(x);
       c = reduc_t::finalize(x, c, hi, lo);
-      c = if_zero_else(reduc_t::isleminlog(a0), scale(c, k));
+      c = if_zero_else(reduc_t::isleminlog(a0), ldexp(c, k));
       c = if_else(reduc_t::isgemaxlog(a0), bs::Inf<A0>(), c);
 #ifdef BOOST_SIMD_NO_INVALIDS
       return c;
@@ -54,7 +54,7 @@ namespace boost { namespace simd { namespace detail
       A0 x;
       A0 k = reduc_t::reduce(a0, x);
       x = reduc_t::approx(x);
-      x = if_zero_else(reduc_t::isleminlog(a0), scale(x, k));
+      x = if_zero_else(reduc_t::isleminlog(a0), ldexp(x, k));
       x = if_else(reduc_t::isgemaxlog(a0), bs::Inf<A0>(), x);
 #ifdef BOOST_SIMD_NO_INVALIDS
       return x;

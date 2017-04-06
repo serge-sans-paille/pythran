@@ -34,6 +34,7 @@
 #include <boost/simd/constant/inf.hpp>
 #include <boost/simd/constant/nan.hpp>
 #include <boost/simd/constant/two.hpp>
+#include <boost/simd/constant/mtwo.hpp>
 #include <boost/simd/constant/ratio.hpp>
 #include <boost/config.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
@@ -129,13 +130,12 @@ namespace boost { namespace simd
 
        static BOOST_FORCEINLINE A0 cosa(A0 a0, const tag::regular&)
        {
-         static const i_t de = static_cast<i_t>(sizeof(i_t)*8-1);   // size in bits of the scalar types minus one
          if (is_invalid(a0)) return Nan<A0>(); //Nan or Inf input
          const A0 x =  abs(a0);
          A0 xr = Nan<A0>();
-         const i_t n = redu_t::reduce(x, xr);
+         const i_t n = toint(redu_t::reduce(x, xr));
          const i_t swap_bit = n&One<i_t>();
-         const i_t sign_bit = shift_left(bitwise_xor(swap_bit, (n&2)>>1), de);
+         const i_t sign_bit = shift_left(bitwise_xor(swap_bit, (n&Two<i_t>())>>1), sizeof(i_t)*8-1);
          A0 z = sqr(xr);
          if (swap_bit)
            z = eval_t::sin_eval(z, xr);
@@ -146,13 +146,12 @@ namespace boost { namespace simd
 
        static BOOST_FORCEINLINE A0 sina(A0 a0, const tag::regular&) BOOST_NOEXCEPT
        {
-         static const i_t de = static_cast<i_t>(sizeof(i_t)*8-1);
          if (is_invalid(a0)) return Nan<A0>();
          const A0 x =  abs(a0);
          A0 xr = Nan<A0>();
-         const i_t n = redu_t::reduce(x, xr);
+         const i_t n = toint(redu_t::reduce(x, xr));
          const i_t swap_bit = n&One<i_t>();
-         const A0 sign_bit = bitwise_xor(bitofsign(a0), shift_left(n&Two<i_t>(), de-1));
+         const A0 sign_bit = bitwise_xor(bitofsign(a0), shift_left(n&Two<i_t>(), sizeof(i_t)*8-2));
          A0 z = sqr(xr);
          if (swap_bit)
            z = eval_t::cos_eval(z);
@@ -167,7 +166,7 @@ namespace boost { namespace simd
          if (is_eqz(a0)) return a0;
          const A0 x =  abs(a0);
          A0 xr = Nan<A0>(), y;
-         const i_t n = redu_t::reduce(x, xr);
+         const i_t n = toint(redu_t::reduce(x, xr));
          y = eval_t::tan_eval(xr, 1-((n&1)<<1));
          // 1 -- n even
          //-1 -- n odd
@@ -181,7 +180,7 @@ namespace boost { namespace simd
          const A0 bos =  bitofsign(a0);
          if (!a0) return bitwise_or(Inf<A0>(), bos);
          A0 xr = Nan<A0>();
-         const i_t n = redu_t::reduce(x, xr);
+         const i_t n = toint(redu_t::reduce(x, xr));
          const A0 y = eval_t::cot_eval(xr, 1-((n&1)<<1));
          return bitwise_xor(y, bos);
        }
@@ -191,9 +190,9 @@ namespace boost { namespace simd
          A0 s, c;
          if (is_invalid(a0)) return {Nan<A0>(), Nan<A0>()};
          const A0 x =  abs(a0);
-         static const i_t de = static_cast<i_t>(sizeof(i_t)*8-1);
+         constexpr i_t de = static_cast<i_t>(sizeof(i_t)*8-1);
          A0 xr;
-         const i_t n = redu_t::reduce(x, xr);
+         const i_t n = toint(redu_t::reduce(x, xr));
          const i_t swap_bit = n&One<i_t>();
          const A0 z = sqr(xr);
          const i_t cos_sign_bit = shift_left(bitwise_xor(swap_bit, (n&Two<i_t>())>>1), de);

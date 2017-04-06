@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,33 +15,30 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing cumprod capabilities
+    This function object computes the cumulated product of the argument elements.
 
-    Computes the cumulated product of the vector elements
+    @par Header <boost/simd/function/cumprod.hpp>
 
-    Take care that overflow is very easy to get here especially for integral types.
-    cumprod of char and unsigned char almost always overflow in SIMD !
+    @par Note
 
-    @par semantic:
-    For any given vector @c x of type @c T:
+    Take care that overflow is very easy to get here especially for integral
+    types.
 
-    @code
-    T r = cumprod(x);
-    @endcode
+    @see cumsum, cummin, cummax
 
-    is similar to:
 
-    @code
-    auto r = x;
-    for(int i=1;i < T::static_size; ++i)
-      r[i] *= r[i-1];
-    @endcode
+    @par Example:
+
+      @snippet cumprod.cpp cumprod
+
+    @par Possible output:
+
+      @snippet cumprod.txt cumprod
 
   **/
-  Value cumprod(Value const & v0);
+  Value cumprod(Value const& x);
 } }
 #endif
 

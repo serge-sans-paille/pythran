@@ -103,15 +103,15 @@ namespace boost { namespace simd { namespace ext
 
     BOOST_FORCEINLINE target operator() ( Pointer p, Misalignment const&, Target const& ) const
     {
-      return do_(p, brigand::bool_<unalignment != 0>());
+      return do_(p, nsm::bool_<unalignment != 0>());
     }
 
-    BOOST_FORCEINLINE target do_( Pointer p, std::true_type const& ) const
+    BOOST_FORCEINLINE target do_( Pointer p, tt::true_type const& ) const
     {
       return load<target>(p);
     }
 
-    BOOST_FORCEINLINE target do_( Pointer p, std::false_type const& ) const
+    BOOST_FORCEINLINE target do_( Pointer p, tt::false_type const& ) const
     {
       return aligned_load<target>(p);
     }
@@ -122,7 +122,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( aligned_load_
                           , (typename Target, typename Pointer)
                           , bs::avx_
-                          , bd::masked_pointer_<bd::scalar_<bd::single_<Pointer>>,std::true_type>
+                          , bd::masked_pointer_<bd::scalar_<bd::single_<Pointer>>,tt::true_type>
                           , bd::target_<bs::pack_<bd::single_<Target>,bs::avx_>>
                           )
   {
@@ -141,7 +141,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( aligned_load_
                           , (typename Target, typename Pointer)
                           , bs::avx_
-                          , bd::masked_pointer_<bd::scalar_<bd::single_<Pointer>>,std::false_type>
+                          , bd::masked_pointer_<bd::scalar_<bd::single_<Pointer>>,tt::false_type>
                           , bd::target_<bs::pack_<bd::single_<Target>,bs::avx_>>
                           )
   {
@@ -165,7 +165,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( aligned_load_
                           , (typename Target, typename Pointer)
                           , bs::avx_
-                          , bd::masked_pointer_<bd::scalar_<bd::double_<Pointer>>,std::true_type>
+                          , bd::masked_pointer_<bd::scalar_<bd::double_<Pointer>>,tt::true_type>
                           , bd::target_<bs::pack_<bd::double_<Target>,bs::avx_>>
                           )
   {
@@ -184,7 +184,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( aligned_load_
                           , (typename Target, typename Pointer)
                           , bs::avx_
-                          , bd::masked_pointer_<bd::scalar_<bd::double_<Pointer>>,std::false_type>
+                          , bd::masked_pointer_<bd::scalar_<bd::double_<Pointer>>,tt::false_type>
                           , bd::target_<bs::pack_<bd::double_<Target>,bs::avx_>>
                           )
   {

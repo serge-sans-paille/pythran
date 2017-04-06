@@ -14,7 +14,7 @@
 #include <boost/simd/function/interleave_first.hpp>
 #include <boost/simd/function/interleave_even.hpp>
 #include <boost/simd/function/interleave_odd.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/shuffle.hpp>
 
 namespace boost { namespace simd
@@ -29,6 +29,8 @@ namespace boost { namespace simd
 
   namespace detail
   {
+    namespace tt = nsm::type_traits;
+
     // ---------------------------------------------------------------------------------------------
     // Generate various interleave_* based pattern for later comparison
     template<int C, int Base, bool Direct, bool HasZero, typename R>
@@ -38,13 +40,13 @@ namespace boost { namespace simd
     struct make_fspattern;
 
     template<int C, int Base, bool Direct, bool HasZero, typename... N>
-    struct make_oepattern<C, Base, Direct, HasZero, brigand::list<N...>>
+    struct make_oepattern<C, Base, Direct, HasZero, nsm::list<N...>>
     {
       template<int I>
-      using a_value = std::integral_constant<int, Direct ? Base+I : (HasZero ? -1 : Base+I+C)>;
+      using a_value = tt::integral_constant<int, Direct ? Base+I : (HasZero ? -1 : Base+I+C)>;
 
       template<int I>
-      using b_value = std::integral_constant<int, Direct ? (HasZero ? -1 : Base+I+C-1) : Base+I-1>;
+      using b_value = tt::integral_constant<int, Direct ? (HasZero ? -1 : Base+I+C-1) : Base+I-1>;
 
       using type = boost::simd::detail::pattern_< ( N::value%2  ? b_value<N::value>::value
                                                                 : a_value<N::value>::value
@@ -53,10 +55,10 @@ namespace boost { namespace simd
     };
 
     template<int C, int Base, bool Direct, bool HasZero, typename... N>
-    struct make_fspattern<C, Base, Direct, HasZero, brigand::list<N...>>
+    struct make_fspattern<C, Base, Direct, HasZero, nsm::list<N...>>
     {
       template<int I>
-      using f_value = std::integral_constant
+      using f_value = tt::integral_constant
                                           < int
                                           , Direct  ? ( (I%2) ? (HasZero ? -1 : (I%2)*C+I/2)
                                                               : (I%2)*C+I/2
@@ -67,7 +69,7 @@ namespace boost { namespace simd
                                           >;
 
       template<int I>
-      using s_value = std::integral_constant
+      using s_value = tt::integral_constant
                                       < int
                                       , Direct  ? ( (I%2) ? (HasZero ? -1 : ((I%2)*C+I/2)+C/2)
                                                           : ((I%2)*C+I/2)+C/2
@@ -89,20 +91,20 @@ namespace boost { namespace simd
     struct which_interleave
     {
       template<int OE, bool D, bool HZ>
-      using p_ = brigand::pair< typename make_oepattern<C,OE,D,HZ,brigand::range<int,0,C>>::type
+      using p_ = nsm::pair< typename make_oepattern<C,OE,D,HZ,nsm::range<int,0,C>>::type
                               , interleave_pattern<OE,D,HZ,EntryPattern>
                               >;
       template<int OE, bool D, bool HZ>
-      using r_ = brigand::pair< typename make_oepattern<0,OE,D,HZ,brigand::range<int,0,C>>::type
+      using r_ = nsm::pair< typename make_oepattern<0,OE,D,HZ,nsm::range<int,0,C>>::type
                               , interleave_pattern<OE,D,HZ,EntryPattern>
                               >;
 
       template<int OE, bool D, bool HZ>
-      using q_ = brigand::pair< typename make_fspattern<C,OE,D,HZ,brigand::range<int,0,C>>::type
+      using q_ = nsm::pair< typename make_fspattern<C,OE,D,HZ,nsm::range<int,0,C>>::type
                               , interleave_pattern<2+OE,D,HZ,EntryPattern>
                               >;
 
-      using omap = brigand::map < // Odd/Even patterns
+      using omap = nsm::map < // Odd/Even patterns
                                   p_<0,true ,false>, p_<0,true ,true >
                                 , p_<0,false,false>, p_<0,false,true >
                                 , p_<1,true ,false>, p_<1,true ,true >
@@ -110,16 +112,16 @@ namespace boost { namespace simd
                                 , r_<0,true ,false>, r_<1,true ,false>
                                 >;
 
-      using fmap = brigand::map < // First/Second patterns
+      using fmap = nsm::map < // First/Second patterns
                                   q_<0,true ,false>, q_<0,true ,true >
                                 , q_<0,false,false>, q_<0,false,true >
                                 , q_<1,true ,false>, q_<1,true ,true >
                                 , q_<1,false,false>, q_<1,false,true >
                                 >;
 
-      using otype = brigand::at<omap,EntryPattern>;
-      using ftype = brigand::at<fmap,EntryPattern>;
-      using type  = typename std::conditional < std::is_same<brigand::no_such_type_,otype>::value
+      using otype = nsm::at<omap,EntryPattern>;
+      using ftype = nsm::at<fmap,EntryPattern>;
+      using type  = typename std::conditional < std::is_same<nsm::no_such_type_,otype>::value
                                               , ftype
                                               , otype
                                               >::type;
@@ -129,8 +131,8 @@ namespace boost { namespace simd
     // Check if pattern performs some interleaving operations
     template<int... Ps>
     struct  is_interleave
-          : brigand::bool_< !std::is_same
-                                  < brigand::no_such_type_
+          : nsm::bool_< !tt::is_same
+                                  < nsm::no_such_type_
                                   , typename which_interleave < sizeof...(Ps)
                                                               , boost::simd::detail::pattern_<Ps...>
                                                               >::type
@@ -143,8 +145,8 @@ namespace boost { namespace simd
     };
 
     // Do not step on other hierarchies
-    template<int P0>          struct is_interleave<P0>    : std::false_type {};
-    template<int P0, int P1>  struct is_interleave<P0,P1> : std::false_type {};
+    template<int P0>          struct is_interleave<P0>    : tt::false_type {};
+    template<int P0, int P1>  struct is_interleave<P0,P1> : tt::false_type {};
   }
 
   // -----------------------------------------------------------------------------------------------

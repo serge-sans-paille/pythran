@@ -14,7 +14,7 @@
 #ifndef BOOST_SIMD_DETAIL_DISPATCH_META_MAKE_FLOATING_HPP_INCLUDED
 #define BOOST_SIMD_DETAIL_DISPATCH_META_MAKE_FLOATING_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <cstddef>
 
 namespace boost { namespace dispatch
@@ -27,13 +27,13 @@ namespace boost { namespace dispatch
       static_assert ( Size <= sizeof(double)
                     , "boost::dispatch::make_floating: can't generate type of given Size"
                     );
-      using type = brigand::apply<Transform,float>;
+      using type = nsm::apply<Transform,float>;
     };
 
     template<typename Transform>
     struct make_floating<sizeof(double),Transform>
     {
-      using type = brigand::apply<Transform,double>;
+      using type = nsm::apply<Transform,double>;
     };
   }
 
@@ -47,11 +47,11 @@ namespace boost { namespace dispatch
     @tparam Size      Size in bytes of the requested type
     @tparam Transform Optional unary meta-function to apply to the generated type
   **/
-  template<std::size_t Size, typename Transform = brigand::identity<brigand::_1>>
+  template<std::size_t Size, typename Transform = nsm::identity<nsm::_1>>
   struct make_floating : detail::make_floating<Size,Transform>
   {};
 
-  template<std::size_t Size, typename Transform = brigand::identity<brigand::_1>>
+  template<std::size_t Size, typename Transform = nsm::identity<nsm::_1>>
   using make_floating_t = typename make_floating<Size,Transform>::type;
 } }
 

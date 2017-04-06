@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,27 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-bitwise
-    Function object implementing firstbitset capabilities
-
-    Returns the bit pattern in which the only bit set is
+    This function object returns the bit pattern in which the only bit set is
     the first bit set (beginning with the least significant bit) in the parameter.
-
-    @par semantic:
-    For any given value @c x of type @c T:
-
-    @code
-    as_integer_t<T,unsigned> r = firstbitset(x);
-    @endcode
 
     @see  ffs,  firstbitunset
 
+
+
+    @par Header <boost/simd/function/firstbitset.hpp>
+
+    @par Example:
+
+      @snippet firstbitset.cpp firstbitset
+
+    @par Possible output:
+
+      @snippet firstbitset.txt firstbitset
+
   **/
-  as_integer_t<Value> firstbitset(Value const & v0);
+  as_integer_t<Value> firstbitset(Value const& x);
 } }
 #endif
 

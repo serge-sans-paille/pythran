@@ -17,7 +17,7 @@
 #include <boost/simd/detail/dispatch/meta/factory_of.hpp>
 #include <boost/simd/detail/dispatch/meta/primitive_of.hpp>
 #include <boost/simd/detail/dispatch/meta/is_natural.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {

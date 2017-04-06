@@ -23,10 +23,8 @@
 #include <boost/simd/function/is_less.hpp>
 #include <boost/simd/function/log.hpp>
 #include <boost/simd/function/log1p.hpp>
-#include <boost/simd/function/multiplies.hpp>
 #include <boost/simd/function/oneminus.hpp>
-#include <boost/simd/function/plus.hpp>
-#include <boost/simd/function/fast.hpp>
+#include <boost/simd/function/raw.hpp>
 #include <boost/simd/function/inc.hpp>
 #include <boost/simd/function/oneminus.hpp>
 
@@ -56,11 +54,11 @@ namespace boost { namespace simd { namespace ext
                           , (typename A0, typename X)
                           , (detail::is_native<X>)
                           , bd::cpu_
-                          , boost::simd::fast_tag
+                          , boost::simd::raw_tag
                           , bs::pack_<bd::floating_<A0>, X>
                           )
    {
-      BOOST_FORCEINLINE A0 operator()(const fast_tag &,
+      BOOST_FORCEINLINE A0 operator()(const raw_tag &,
                                       const A0& a0) const BOOST_NOEXCEPT
       {
         return  Half<A0>()*log(inc(a0)/oneminus(a0));

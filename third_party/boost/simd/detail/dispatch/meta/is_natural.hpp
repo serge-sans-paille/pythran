@@ -14,8 +14,7 @@
 #ifndef BOOST_SIMD_DETAIL_DISPATCH_META_IS_NATURAL_HPP_INCLUDED
 #define BOOST_SIMD_DETAIL_DISPATCH_META_IS_NATURAL_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {
@@ -29,8 +28,8 @@ namespace boost { namespace dispatch
     @tparam T Type to check
   **/
   template<typename T>
-  using is_natural = brigand::and_< std::is_integral<T>
-                                  , brigand::not_<std::is_same<T,bool>>
+  using is_natural = nsm::and_< std::is_integral<T>
+                                  , nsm::not_<std::is_same<T,bool>>
                                   >;
 
   /// Eager short-cut for is_native

@@ -22,7 +22,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF( shift_left_
                             , (typename A0, typename A1)
-                            , (brigand::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>)
+                            , (nsm::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>)
                             , bs::avx_
                             , bs::pack_< bd::integer_<A0>, bs::sse_>
                             , bs::pack_< bd::integer_<A1>, bs::sse_>

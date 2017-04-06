@@ -37,8 +37,8 @@ namespace boost { namespace simd { namespace detail
     using reference                 = value_type&;
     using const_reference           = value_type const&;
 
-    using static_range              = brigand::range<std::size_t, 0, N>;
-    using element_range             = brigand::range<std::size_t, 0, N>;
+    using static_range              = nsm::range<std::size_t, 0, N>;
+    using element_range             = nsm::range<std::size_t, 0, N>;
 
     using storage_kind              = ::boost::simd::scalar_storage;
 
@@ -85,8 +85,8 @@ namespace boost { namespace simd { namespace detail
     using reference                 = typename SIMD::reference;
     using const_reference           = typename SIMD::const_reference;
 
-    using static_range              = brigand::range<std::size_t, 0, NumberOfVectors>;
-    using element_range             = brigand::range<std::size_t, 0, N>;
+    using static_range              = nsm::range<std::size_t, 0, NumberOfVectors>;
+    using element_range             = nsm::range<std::size_t, 0, N>;
 
     using storage_kind              = ::boost::simd::aggregate_storage;
 

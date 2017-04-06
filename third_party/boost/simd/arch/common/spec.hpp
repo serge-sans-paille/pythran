@@ -17,11 +17,9 @@
 #include <boost/simd/detail/predef.hpp>
 
 #if !defined(BOOST_SIMD_DEFAULT_FAMILY)
-  #if !defined(BOOST_HW_SIMD_AVAILABLE)
-    #define BOOST_SIMD_DEFAULT_FAMILY ::boost::simd::simd_emulation_
-    #define BOOST_SIMD_DEFAULT_SITE   ::boost::dispatch::cpu_
-    #define BOOST_SIMD_STRICT_EMULATION
-  #endif
+  #define BOOST_SIMD_DEFAULT_FAMILY ::boost::simd::simd_emulation_
+  #define BOOST_SIMD_DEFAULT_SITE   ::boost::dispatch::cpu_
+  #define BOOST_SIMD_STRICT_EMULATION
 #endif
 
 // Used as fallbacks for generic cases

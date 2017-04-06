@@ -13,7 +13,7 @@
 #include <boost/simd/function/plus.hpp>
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/function/multiplies.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -27,13 +27,13 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE typename T::type operator()(T const& ) const BOOST_NOEXCEPT
     {
-      return do_( brigand::range<std::size_t,0,T::type::static_size>{} );
+      return do_( nsm::range<std::size_t,0,T::type::static_size>{} );
     }
 
     template<typename... N>
-    static BOOST_FORCEINLINE typename T::type do_( brigand::list<N...> const& ) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE typename T::type do_( nsm::list<N...> const& ) BOOST_NOEXCEPT
     {
-      return make<typename T::type>(N::value...);
+      return make(as_<typename T::type>{}, N::value...);
     }
   };
 

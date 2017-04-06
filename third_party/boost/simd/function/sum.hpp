@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,31 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing sum capabilities
+     This function object returns the sum of the elements of the SIMD argument
 
-    Returns the sum of the elements of the SIMD vector
+    @see sum
 
-    @par Semantic:
 
-    For every parameter of pack type T
+    @par Header <boost/simd/function/sum.hpp>
 
-    @code
-    scalar_of_t<T> r = sum(x);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet sum.cpp sum
 
-    @code
-    scalar_of_t<T> r = Zero;
-    for(result_type i = 0; i != T::static_size; ++i)
-      r += x[i];
-    @endcode
+    @par Possible output:
+
+      @snippet sum.txt sum
 
   **/
-  scalar_of_t<Value> sum(Value const & v0);
+  scalar_of_t<Value> sum(Value const& x);
 } }
 #endif
 

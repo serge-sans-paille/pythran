@@ -3,7 +3,6 @@
   @file
 
   @copyright 2015 NumScale SAS
-  @copyright 2015 J.T. Lapreste
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -16,7 +15,7 @@
 #include <boost/simd/constant/valmax.hpp>
 #include <boost/simd/constant/valmin.hpp>
 #include <boost/simd/constant/zero.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/function/if_else.hpp>
 #include <boost/simd/function/is_inf.hpp>
 #include <boost/simd/function/max.hpp>
@@ -39,13 +38,13 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE A0 operator() ( A0 a0, T ) const BOOST_NOEXCEPT
     {
       return impl( a0
-                   , brigand::bool_< (sizeof(bd::scalar_of_t<typename T::type>)
+                   , nsm::bool_< (sizeof(bd::scalar_of_t<typename T::type>)
                                              <sizeof(bd::scalar_of_t<A0>))>()
                    );
     }
 
     BOOST_FORCEINLINE A0 impl( A0 a0
-                                        , const std::true_type &) const BOOST_NOEXCEPT
+                                        , const tt::true_type &) const BOOST_NOEXCEPT
     {
       using starget_t = bd::scalar_of_t<typename T::type>;
       const A0 vma = splat<A0>(Valmax<starget_t>());
@@ -53,7 +52,7 @@ namespace boost { namespace simd { namespace ext
       return (is_inf(a0)? a0: min(vma, max(vmi, a0)));
     }
     BOOST_FORCEINLINE A0 impl( A0 a0
-                                             , const std::false_type &) const BOOST_NOEXCEPT
+                                             , const tt::false_type &) const BOOST_NOEXCEPT
     {
       return a0;
     }
@@ -83,22 +82,22 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE A0 operator() ( A0 a0, T ) const BOOST_NOEXCEPT
     {
       return impl( a0
-                   , typename brigand::or_< typename std::is_same< bd::scalar_of_t<typename T::type>
+                   , typename nsm::or_< typename std::is_same< bd::scalar_of_t<typename T::type>
                                                          , bd::scalar_of_t<A0>
                                                         >::type
-                                           , brigand::bool_< (sizeof(bd::scalar_of_t<typename T::type>)
+                                           , nsm::bool_< (sizeof(bd::scalar_of_t<typename T::type>)
                                                              > sizeof(bd::scalar_of_t<A0>))
                                                            >
                                           >::type()
                    );
     }
     static BOOST_FORCEINLINE A0 impl( A0 a0
-                                        , const std::true_type &) BOOST_NOEXCEPT
+                                        , const tt::true_type &) BOOST_NOEXCEPT
     {
       return a0;
     }
     static BOOST_FORCEINLINE A0 impl( A0 a0
-                                        , const std::false_type &) BOOST_NOEXCEPT
+                                        , const tt::false_type &) BOOST_NOEXCEPT
     {
       using starget_t = bd::scalar_of_t<typename T::type>;
       const A0 vma = splat<A0>(Valmax<starget_t>());
@@ -118,18 +117,18 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE A0 operator() ( A0 a0, T ) const BOOST_NOEXCEPT
     {
       return impl( a0
-                   , brigand::bool_< (sizeof(bd::scalar_of_t<typename T::type>)
+                   , nsm::bool_< (sizeof(bd::scalar_of_t<typename T::type>)
                                       >= sizeof(bd::scalar_of_t<A0>))
                                    >()
                    );
     }
     static BOOST_FORCEINLINE A0 impl( A0 a0
-                                        , const std::true_type &) BOOST_NOEXCEPT
+                                        , const tt::true_type &) BOOST_NOEXCEPT
     {
       return max(Zero<A0>(), a0);
     }
     static BOOST_FORCEINLINE A0 impl( A0 a0
-                                        , const std::false_type &) BOOST_NOEXCEPT
+                                        , const tt::false_type &) BOOST_NOEXCEPT
     {
       using starget_t = bd::scalar_of_t<typename T::type>;
       const A0 vma = splat<A0>(Valmax<starget_t>());
@@ -164,18 +163,18 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE A0 operator() ( A0 a0, T ) const BOOST_NOEXCEPT
     {
       return impl( a0
-                   , brigand::bool_< (sizeof(bd::scalar_of_t<typename T::type>)
+                   , nsm::bool_< (sizeof(bd::scalar_of_t<typename T::type>)
                                       >= sizeof(bd::scalar_of_t<A0>))
                                    >()
                    );
     }
     static BOOST_FORCEINLINE A0 impl( A0 a0
-                                        , const std::true_type &) BOOST_NOEXCEPT
+                                        , const tt::true_type &) BOOST_NOEXCEPT
     {
       return a0;
     }
     static BOOST_FORCEINLINE A0 impl( A0 a0
-                                        , const std::false_type &) BOOST_NOEXCEPT
+                                        , const tt::false_type &) BOOST_NOEXCEPT
     {
       using starget_t = bd::scalar_of_t<typename T::type>;
       const A0 vma = splat<A0>(Valmax<starget_t>());

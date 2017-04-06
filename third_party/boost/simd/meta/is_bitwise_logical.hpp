@@ -12,14 +12,15 @@
 #ifndef BOOST_SIMD_META_IS_BITWISE_LOGICAL_HPP_INCLUDED
 #define BOOST_SIMD_META_IS_BITWISE_LOGICAL_HPP_INCLUDED
 
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/meta/as_logical.hpp>
 #include <boost/simd/meta/as_arithmetic.hpp>
 #include <boost/simd/config.hpp>
-#include <type_traits>
 
 namespace boost { namespace simd
 {
   namespace bd = boost::dispatch;
+  namespace tt = nsm::type_traits;
 
   /*!
     @ingroup  group-api
@@ -31,9 +32,9 @@ namespace boost { namespace simd
   **/
   template<typename T>
   struct  is_bitwise_logical
-        : std::integral_constant< bool
-                                , sizeof(as_arithmetic_t<T>) == sizeof(as_logical_t<T>)
-                                >
+        : tt::integral_constant< bool
+                               , sizeof(as_arithmetic_t<T>) == sizeof(as_logical_t<T>)
+                               >
   {};
 
   /*!

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,36 +15,46 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing fms capabilities
+    This function object computes the (fused) multiply substract of these three parameters.
 
-    Computes the fused  substract-multiply of three values.
 
-    @par semantic:
-    For any given value @c x,  @c y,  @c z of type @c T:
+    @par Header <boost/simd/function/fms.hpp>
 
-    @code
-    T r = fms(x, y, z);
-    @endcode
+    @par Notes
+    The call `fms(x, y, z)` is similar to `x*y-z`
 
-    The code is similar to:
+    But really conformant fused multiply/substract also implies
 
-    @code
-    T r = x*y-z;
-    @endcode
+    - only one rounding
 
-    @par Note:
+    - no "intermediate" overflow
 
-    fms can be called with the same modalities as @ref fma
-    and can use the decorator conformant_ to ensure the correct
-    one rounding, no intermediate overflow  behaviour
+    fms provides this for all integral types and also each time it is reasonable
+    in terms of performance for floating ones (i.e. if the system has the hard
+    wired capability).
+
+    If you need pedantic fms capabilities in all circumstances in your own
+    code you can use the pedantic_ decorator (can be very expensive).
+
+    @par Decorators
+
+    - pedantic_ ensures the fms properties and allows SIMD acceleration if available.
 
     @see fma, fnma, fnms
 
+    @par Example:
+
+      @snippet fms.cpp fms
+
+    @par Possible output:
+
+      @snippet fms.txt fms
+
   **/
-  Value fms(Value const& v0, Value const& v1, Value const& v2);
+  Value fms(Value const& x, Value const& y, Value const& z);
 } }
 #endif
 

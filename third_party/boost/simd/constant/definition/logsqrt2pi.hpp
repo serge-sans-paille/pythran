@@ -12,7 +12,7 @@
 #define BOOST_SIMD_CONSTANT_DEFINITION_LOGSQRT2PI_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
@@ -32,7 +32,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,logsqrt2pi_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, logsqrt2pi_)
   }
 
   namespace detail
@@ -44,6 +44,12 @@ namespace boost { namespace simd
   BOOST_NOEXCEPT_DECLTYPE(detail::logsqrt2pi( boost::dispatch::as_<T>{}))
   {
     return detail::logsqrt2pi( boost::dispatch::as_<T>{} );
+  }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto Logsqrt2pi(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(Logsqrt2pi<T>())
+  {
+    return Logsqrt2pi<T>();
   }
 } }
 

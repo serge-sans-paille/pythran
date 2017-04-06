@@ -15,33 +15,42 @@
 #include <boost/simd/function/all.hpp>
 #include <boost/simd/function/is_eqz.hpp>
 #include <boost/simd/function/logical_or.hpp>
-#include <boost/simd/constant/mone.hpp>
+#include <boost/simd/constant/allbits.hpp>
 #include <boost/simd/meta/as_logical.hpp>
-#include <boost/simd/detail/dispatch/meta/scalar_of.hpp>
+#include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
   namespace bd = boost::dispatch;
   namespace bs = boost::simd;
 
-  BOOST_DISPATCH_OVERLOAD_IF(is_simd_logical_
+  BOOST_DISPATCH_OVERLOAD(is_simd_logical_
                          , (typename A0,typename X)
-                         , (detail::is_native<X>)
                          , bd::cpu_
-                         , bs::pack_<bd::arithmetic_<A0>,X>
+                         , bs::pack_<bd::integer_<A0>,X>
                          )
   {
     BOOST_FORCEINLINE bool operator()(const A0& a0) const BOOST_NOEXCEPT
     {
-      using iA0 = bd::as_integer_t<A0, signed>;
-      iA0 tmp = bitwise_cast<iA0>(a0);
-      return bs::all(logical_or(is_equal(tmp, Mone<iA0>()), is_eqz(tmp)));
+      return bs::all(logical_or(is_equal(a0, Allbits<A0>()), is_eqz(a0)));
     }
   };
 
-  BOOST_DISPATCH_OVERLOAD_IF(is_simd_logical_
+  BOOST_DISPATCH_OVERLOAD(is_simd_logical_
                          , (typename A0,typename X)
-                         , (detail::is_native<X>)
+                         , bd::cpu_
+                         , bs::pack_<bd::floating_<A0>,X>
+                         )
+  {
+    BOOST_FORCEINLINE bool operator()(const A0& a0) const BOOST_NOEXCEPT
+    {
+      using iA0 = bd::as_integer_t<A0, unsigned>;
+      return is_simd_logical(bitwise_cast<iA0>(a0));
+    }
+  };
+
+  BOOST_DISPATCH_OVERLOAD(is_simd_logical_
+                         , (typename A0,typename X)
                          , bd::cpu_
                          , bs::pack_<bs::logical_<A0>,X>
                          )

@@ -39,18 +39,40 @@ namespace boost { namespace simd { namespace ext
   //------------------------------------------------------------------------------------------------
   // aligned_store is generally check + calling store
   BOOST_DISPATCH_OVERLOAD( aligned_store_
-                          , (typename A0, typename A1, typename X)
+                          , (typename Src, typename Pointer, typename X)
                           , bd::cpu_
-                          , bs::pack_<bd::unspecified_<A0>,X>
-                          , bd::pointer_<bd::scalar_<bd::unspecified_<A1>>,1u>
+                          , bs::pack_<bd::unspecified_<Src>,X>
+                          , bd::pointer_<bd::scalar_<bd::unspecified_<Pointer>>,1u>
                           )
   {
-    BOOST_FORCEINLINE void operator()(const A0& a0, A1  a1) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE void operator()(const Src& s, Pointer p) const
     {
-      BOOST_ASSERT_MSG( boost::simd::detail::is_aligned(a1,A0::alignment)
+      BOOST_ASSERT_MSG( boost::simd::detail::is_aligned(p,Src::alignment)
                       , "boost::simd::aligned_store was performed on an unaligned pointer of integer"
                       );
-      bs::store(a0, a1);
+
+      do_(s, p, typename Src::storage_kind{}, typename Src::traits::element_range{} );
+    }
+
+    // aggregate pack are calling store twice
+    template<typename... N> static BOOST_FORCEINLINE
+    void do_( Src const & s, Pointer p, aggregate_storage const&, nsm::list<N...> const&)
+    {
+      aligned_store(slice_low(s) , p);
+      aligned_store(slice_high(s), p+Src::traits::element_size);
+    }
+
+    // other pack are calling store N times
+    template<typename I> static BOOST_FORCEINLINE void sto_(const Src& s, Pointer  p)
+    {
+      using s_t = typename boost::pointee<Pointer>::type;
+      p[I::value] = static_cast<s_t>(extract<I::value>(s));
+    }
+
+    template<typename K, typename... N>
+    static BOOST_FORCEINLINE void do_(Src const & s, Pointer p, K const&, nsm::list<N...> const&)
+    {
+      (void)(std::initializer_list<bool>{(sto_<N>(s,p),true)...});
     }
   };
 } } }

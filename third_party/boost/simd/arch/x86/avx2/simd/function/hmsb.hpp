@@ -10,23 +10,24 @@
 #define BOOST_SIMD_ARCH_X86_AVX2_SIMD_FUNCTION_HMSB_HPP_INCLUDED
 
 #include <boost/simd/detail/overload.hpp>
+#include <boost/simd/detail/bitset.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
-   namespace bd = boost::dispatch;
-   namespace bs = boost::simd;
+  namespace bd = boost::dispatch;
+  namespace bs = boost::simd;
 
-   BOOST_DISPATCH_OVERLOAD( hmsb_
+  BOOST_DISPATCH_OVERLOAD ( hmsb_
                           , (typename A0)
                           , bs::avx2_
                           , bs::pack_<bd::ints8_<A0>, bs::avx_>
                           )
-   {
-     BOOST_FORCEINLINE std::size_t operator()(A0 const& a0) const
-      {
-        return _mm256_movemask_epi8(a0);
-      }
-   };
+  {
+    BOOST_FORCEINLINE bs::bitset<32> operator()(A0 const& a0) const
+    {
+      return _mm256_movemask_epi8(a0);
+    }
+  };
 } } }
 
 #endif

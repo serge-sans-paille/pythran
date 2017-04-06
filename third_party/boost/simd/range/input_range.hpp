@@ -21,21 +21,23 @@
 namespace boost { namespace simd
 {
   /*!
-    @ingroup group-api
-    @brief Adapt a range to be used as a SIMD input range
+    @ingroup group-std
+    Builds an Input ContiguousRange that iterates over the original <tt>[begin, end[</tt>
+    ContiguousRange by returning boost::simd::pack at every iteration step.
 
-    Builds an Input Range that iterates over the original <tt>[begin, end[</tt> Range but
-    returns pack values.
+    @par Example
+    @snippet input_range.cpp input_range
+    Possible output:
+    @code
+    Sum of [1 ... 16] is 136
+    @endcode
 
     @pre @c std::distance(begin,end) is an exact multiple of @c N
-
-    @tparam N Cardinal of the pack to be iterated. By default, @c N is equal to
-              the native cardinal of current architecture.
-
-    @param begin Starting iterator of the Range to adapt
-    @param end   End iterator of the Range to adapt
-
-    @return An Input Range returning SIMD pack o cardinal @c N
+    @tparam C Cardinal of the pack to be iterated. By default, @c N is equal to the native cardinal
+            on current architecture.
+    @param begin Starting iterator of the ContiguousRange to adapt
+    @param end   End iterator of the ContiguousRange to adapt
+    @return An Output ContiguousRange returning boost::simd::pack
   **/
   template<std::size_t N, class Iterator> inline
   boost::iterator_range<detail::input_iterator<Iterator, N> >
@@ -49,7 +51,9 @@ namespace boost { namespace simd
     return boost::make_iterator_range(detail::input_begin<N>(begin),detail::input_end<N>(end));
   }
 
-  /// @overload
+  /*!
+    @overload
+  */
   template<class Iterator> inline
   boost::iterator_range< detail::input_iterator<Iterator> >
   input_range( Iterator begin, Iterator end )
@@ -63,19 +67,15 @@ namespace boost { namespace simd
   }
 
   /*!
-    @ingroup group-api
-    @brief Adapt a range to be used as a SIMD input range
-
-    Builds an Input Range that iterates over the original Range but returns pack values.
+    @ingroup group-std
+    Builds an Output ContiguousRange that iterates over the original ContiguousRange by
+    returning boost::simd::pack at every iteration step.
 
     @pre @c std::distance(begin,end) is an exact multiple of @c N
-
     @tparam N Cardinal of the pack to be iterated. By default, @c N is equal to
               the native cardinal of current architecture.
-
-    @param r Range to adapt
-
-    @return An Input Range returning SIMD pack o cardinal @c N
+    @param r Input ContiguousRange to adapt
+    @return An Output ContiguousRange returning boost::simd::pack of cardinal @c N
   **/
   template<std::size_t N, class Range> inline
   boost::iterator_range<detail::input_iterator<typename range_iterator<Range const>::type,N> >
@@ -84,7 +84,9 @@ namespace boost { namespace simd
     return input_range<N>( boost::begin(r), boost::end(r) );
   }
 
-  /// @overload
+  /*!
+    @overload
+  */
   template<class Range> inline
   boost::iterator_range<detail::input_iterator<typename range_iterator<Range const>::type> >
   input_range( Range const& r )

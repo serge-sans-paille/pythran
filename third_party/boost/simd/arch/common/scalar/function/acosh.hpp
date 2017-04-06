@@ -20,6 +20,7 @@
 #include <boost/simd/function/sqrt.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/config.hpp>
+#include <cmath>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -40,6 +41,21 @@ namespace boost { namespace simd { namespace ext
         return log(t)+Log_2<A0>();
     }
   };
+
+  BOOST_DISPATCH_OVERLOAD ( acosh_
+                          , (typename A0)
+                          , bd::cpu_
+                          , bs::std_tag
+                          , bd::scalar_< bd::floating_<A0> >
+                          )
+  {
+    BOOST_FORCEINLINE A0 operator() (const std_tag&, A0 a0) const BOOST_NOEXCEPT
+    {
+      return std::acosh(a0);
+    }
+  };
+
+
 } } }
 
 

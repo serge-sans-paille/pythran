@@ -14,6 +14,7 @@
 #include <boost/simd/function/split_low.hpp>
 #include <array>
 
+
 namespace boost { namespace simd { namespace ext
 {
    namespace bd = boost::dispatch;
@@ -30,7 +31,7 @@ namespace boost { namespace simd { namespace ext
 
     BOOST_FORCEINLINE result_t operator()(A0 const& a) const BOOST_NOEXCEPT
     {
-      return { split_low(a), split_high(a) };
+      return {{ split_low(a), split_high(a)}};
     }
   };
 } } }

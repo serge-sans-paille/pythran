@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -17,9 +17,9 @@ namespace boost { namespace simd
   /*!
 
     @ingroup group-swar
-    Function object implementing interleave_second capabilities
+    This function object computes a vector from a combination of the two inputs.
 
-    Computes a vector from a combination of the two inputs.
+    @par Header <boost/simd/function/interleave_second.hpp>
 
     @par Semantic:
 
@@ -38,7 +38,7 @@ namespace boost { namespace simd
     with <tt> n = cardinal_of<T>::value </tt>
 
   **/
-  Value interleave_second(Value const& v0, Value const& v1);
+  Value interleave_second(Value const& x, Value const& y);
 #endif
 } }
 

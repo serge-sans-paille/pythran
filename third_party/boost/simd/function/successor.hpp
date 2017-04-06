@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,35 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing successor capabilities
+    This function object returns the `n`-th least element strictly greater than the parameter
 
-    Returns the n-th least element strictly greater than the parameter
 
-    @par Semantic:
+    @par Header <boost/simd/function/successor.hpp>
 
-    @code
-    auto r = successor(x,n);
-    @endcode
+    @par Note
 
-    If n is null returns x else computes the @c n-th least representable value strictly greater than x in its type.
-    n must be positive or null.
+     If @c n is null returns @c x else computes the `n`-th least representable value strictly greater
+     than x in its type. @c n must be positive or null.
 
-    For integer it saturate at @ref Valmax. For floating point numbers, all @ref Inf
-    strict successors are @ref Nan.
+      - For integer it saturate at @ref Valmax.
+      - For floating point numbers, all @ref Inf  strict successors are @ref Nan.
+
+
+    @par Example:
+
+      @snippet successor.cpp successor
+
+    @par Possible output:
+
+      @snippet successor.txt successor
 
   **/
+  ///@{
+  Value successor(Value const& x);
   Value successor(Value const& x, IntegerValue const& n);
+  ///@}
 } }
 #endif
 

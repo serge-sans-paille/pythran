@@ -1,6 +1,6 @@
 //==================================================================================================
 /**
-  Copyright 2016 NumScale SAS
+  Copyright 2017 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -31,12 +31,6 @@
 #  endif
 #  if BOOST_HW_SIMD_X86_OR_AMD >= BOOST_HW_SIMD_X86_AVX2_VERSION
 #    include <boost/simd/arch/x86/avx2/simd/function/is_greater_equal.hpp>
-#  endif
-#endif
-
-#if defined(BOOST_HW_SIMD_PPC_AVAILABLE)
-#  if BOOST_HW_SIMD_PPC >= BOOST_HW_SIMD_PPC_VMX_VERSION
-#    include <boost/simd/arch/ppc/vmx/simd/function/is_greater_equal.hpp>
 #  endif
 #endif
 

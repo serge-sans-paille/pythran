@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,11 +14,12 @@
 #include <boost/simd/config.hpp>
 #include <boost/simd/detail/decorator.hpp>
 #include <boost/simd/detail/dispatch.hpp>
+
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
   /*!
-  @ingroup group-decorator
+    @ingroup group-decorator
 
    provides a saturated version of some functors which produce integral typed values on return.
 
@@ -26,7 +27,10 @@ namespace boost { namespace simd
    integers are not promoted  during current arithmetic operations and this increases the
    overflow risks.
 
-   @par Semantic
+
+    @par Header <boost/simd/function/saturated.hpp>
+
+    @par Semantic
 
     @code
     T r = saturated_(func)(< func parameters >);

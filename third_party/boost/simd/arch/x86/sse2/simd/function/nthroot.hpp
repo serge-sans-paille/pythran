@@ -31,16 +31,16 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( nthroot_
                           , (typename A0, typename A1)
                           , bs::sse2_
-                          , bs::fast_tag
+                          , bs::raw_tag
                           , bs::pack_<bd::double_<A0>, bs::sse_>
                           , bs::pack_<bd::ints64_<A1>, bs::sse_>
                          )
   {
-    BOOST_FORCEINLINE A0 operator() ( fast_tag const&,
+    BOOST_FORCEINLINE A0 operator() ( raw_tag const&,
                                       const A0 & a0
                                     , const A1 & a1 ) const BOOST_NOEXCEPT
     {
-      return {bs::fast_(nthroot)(a0[0], a1[0]), bs::fast_(nthroot)(a0[1], a1[1])};
+      return {bs::raw_(nthroot)(a0[0], a1[0]), bs::raw_(nthroot)(a0[1], a1[1])};
 
     }
   };

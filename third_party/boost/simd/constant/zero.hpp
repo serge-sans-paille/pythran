@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate  value 0
 
+
+    @par Header <boost/simd/constant/zero.hpp>
+
     @par Semantic:
 
     @code
@@ -48,9 +51,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/zero.hpp>
-#include <boost/simd/arch/common/scalar/constant/zero.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/zero.hpp>
+#include <boost/simd/constant/scalar/zero.hpp>
+#include <boost/simd/constant/simd/zero.hpp>
+
 #endif

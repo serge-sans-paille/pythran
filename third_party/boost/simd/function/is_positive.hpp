@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,42 +15,31 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-predicates
-    Function object implementing is_positive capabilities
 
-    Returns @ref True if x is positive else @ref False.
+    This function object returns @ref True if x is positive else @ref False.
 
     This function differs from @ref is_gtz for floating point arguments,
     because @ref Zero is positive but not greater than 0, and @ref Mzero is
     not positive and not greater than 0, It's probably @ref is_gtz that
     you want.
 
-    @par Semantic:
 
-    @code
-    auto r = is_positive(x);
-    @endcode
+    @par Header <boost/simd/function/is_positive.hpp>
 
-    is similar to:
+    @par Note
 
-    @code
-    if x is of signed type
-      auto r = bitofsign(x) == 0;
-    else
-      auto r = True ;
-    @endcode
+     Using `is_positive(x)` is similar to `bitofsign(x) == 0`
+     for signed types and is always true for unsigned ones.
 
-    @par Note:
+    @par Example:
 
-    Mzero is the floating point 'minus zero',
-    i.e. all bits are @ref Zero but the sign bit.
-    Such a value is treated as @ref Zero by ieee standards.
+      @snippet is_positive.cpp is_positive
 
-    behaviour of is_positive on @ref Nan is undefined.
+    @par Possible output:
 
-    @see is_negative,  Mzero, bitofsign
+      @snippet is_positive.txt is_positive
 
   **/
   as_logical_t<Value> is_positive(Value const& x);

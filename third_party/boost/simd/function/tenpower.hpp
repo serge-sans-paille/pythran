@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,13 +15,16 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
     Function object implementing tenpower capabilities
 
     Returns \f$10^n\f$ in the floating type associated to
     the integral type of parameter n
+
+
+    @par Header <boost/simd/function/tenpower.hpp>
 
     @par semantic:
     For any given value n  of integral type @c I
@@ -43,6 +46,13 @@ namespace boost { namespace simd
 
     @see exp10
 
+    @par Example:
+
+      @snippet tenpower.cpp tenpower
+
+    @par Possible output:
+
+      @snippet tenpower.txt tenpower
   **/
   Value tenpower(IntegerValue const& n);
 } }

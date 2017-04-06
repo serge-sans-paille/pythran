@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,64 +14,63 @@
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-
- /*!
-
+  /*!
     @ingroup group-oerator
-    Function object implementing rem capabilities
 
-    Computes the remainder of division.
-    The return value is x-n*y, where n is the value x/y,
-    rounded toward zero.
+    This function object computes the remainder of the two parameters of the
+    same type with or without option.
 
-    @par semantic:
-    For any given value @c x, @c y of type @c T:
+    @par Header <boost/simd/function/rem.hpp>
 
-    @code
-    T r = rem({option, }x, y);
-    @endcode
+    @par Notes
 
-    if there is no option the call is similar to:
-    @code
-    T r = x-div(fix, x, y)*y;
-    @endcode
+    For any value @c a and @c b of same type `rem({option, }a, b)`
+    returns the quotient of @c a by @c b respective to the option specified.
 
-    else option can be ceil, floor, fix, round, nearbyint (in the namespace booost::simd)
-    and the code is similar to :
+    - Options
 
-    @code
-    T r = x-div(option, x, y)*y;
-    @endcode
+      With no option this function is equivalent to `x-div(fix, x, y)*y`
 
-    @Notes
+      `option` may be @ref ceil, @ref floor, @ref fix, @ref round, @ref nearbyint (in the
+      namespace booost::simd).
+      Each option provides the same result as `x-div(option, x, y)*y`.
 
-    -Supported types
-     unsigned types are not supported but for the option @c fix, as in other cases result can be negative
+    - Supported types
 
-    -Limiting values for floating entries:
+      unsigned types are not supported but for the option @c fix, as in other cases results
+      can be negative
 
-       -  if x is +/-inf , Nan is returned
-       -  if x is +/-0 and y is not 0 x is returned
-       -  If y is +/-0, Nan is returned
-       -  If either argument is NaN, Nan is returned
+    - Limiting values for floating entries:
 
-       If insurance of correct 0 sign in the second case does not matter for you, using the fast_ decorator
-    can gain some cycles.
-
+       - if x is +/-inf , Nan is returned
+       - if x is +/-0 and y is not 0, 0 is returned (if the sign of x matters the pedantic_
+         decorated version returns x)
+       - if y is +/-0, Nan is returned
+       - if either argument is NaN, Nan is returned
 
     @par Decorators
 
-    with floating entries decorator std_ calls the stdlibc++ corresponding function (caution : no simd acceleration)
+      - pedantic_ insure better limiting cases (see above note)
 
-      -option fix        calls std::fmod
-      -option nearbyint calls std::remainder
-      The other options have no standard correspondant
+      - std_ allow direct calls to some libc++ function:
 
-    fast_ for floating entries,  but if x is +/-0 and y is not 0  +/-0 is returned with a non garanteed sign.
+        - option fix        calls std::fmod
+        - option nearbyint  calls std::remainder
+        - The other options have no standard equivalent
+
+    @see div
+
+    @par Example:
+
+      @snippet rem.cpp rem
+
+    @par Possible output:
+
+      @snippet rem.txt rem
 
 
   **/
-  Value rem(Value const & v0, value const& y);
+  Value rem(Value const& x, Value const& y);
 } }
 #endif
 

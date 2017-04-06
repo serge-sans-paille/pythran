@@ -38,19 +38,31 @@ namespace boost { namespace simd { namespace ext
                             , (typename A0, typename X)
                             , (detail::is_native<X>)
                             , bd::cpu_
-                            , bs::conformant_tag
-                            , bs::pack_<bd::arithmetic_<A0>, X>
-                            , bs::pack_<bd::arithmetic_<A0>, X>
+                            , bs::pedantic_tag
+                            , bs::pack_<bd::integer_<A0>, X>
+                            , bs::pack_<bd::integer_<A0>, X>
                             )
   {
-    BOOST_FORCEINLINE A0 operator()( conformant_tag const&
+    BOOST_FORCEINLINE A0 operator()( pedantic_tag const&
                                    , const A0& a0, const A0& a1) const BOOST_NOEXCEPT
     {
-    #if BOOST_COMP_CLANG || (BOOST_COMP_GNUC <  BOOST_VERSION_NUMBER(5,0,0))
       return bs::min(a0, a1);
-    #else
+    }
+  };
+
+  BOOST_DISPATCH_OVERLOAD_IF( min_
+                            , (typename A0, typename X)
+                            , (detail::is_native<X>)
+                            , bd::cpu_
+                            , bs::pedantic_tag
+                            , bs::pack_<bd::floating_<A0>, X>
+                            , bs::pack_<bd::floating_<A0>, X>
+                            )
+  {
+    BOOST_FORCEINLINE A0 operator()( pedantic_tag const&
+                                   , const A0& a0, const A0& a1) const BOOST_NOEXCEPT
+    {
       return if_else(is_nan(a1), a0, bs::min(a0, a1));
-    #endif
     }
   };
 } } }

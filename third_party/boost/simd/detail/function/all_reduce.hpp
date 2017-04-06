@@ -23,7 +23,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, all_reduce_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, all_reduce_)
   }
 
   namespace detail

@@ -32,7 +32,7 @@ namespace boost { namespace simd { namespace ext
 
     BOOST_FORCEINLINE std::array<T,2> operator()(T const& x, T const& y) const BOOST_NOEXCEPT
     {
-      return { deinterleave_first(x,y), deinterleave_second(x,y) };
+      return {{ deinterleave_first(x,y), deinterleave_second(x,y) }};
     }
   };
 } } }

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,41 +15,45 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing touint capabilities
+    This function object converts its parameter to unsigned integer by truncation.
 
-    Convert to unsigned integer by truncation.
 
-    @par semantic:
-    For any given value @c x of type @c T:
+    @par Header <boost/simd/function/touint.hpp>
 
-    @code
-    as_integer_t<T, unsigned> r = touint(x);
-    @endcode
+    @par Notes
 
-    The code is similar to:
-
-    @code
-    as_integer_t<T, unsigned> r = static_cast<as_integer_t<T, unsigned> >(x)
-    @endcode
-
-    @par Notes:
-
-    @c toint cast a floating value to the unsigned signed integer value of the same bit size.
+    @c touint cast a floating value to the unsigned signed integer value of the same bit size.
 
     This is done by C casting for scalars and corresponding intrinsic in simd (if available).
 
     Peculiarly,  that implies that the behaviour of this function on invalid or negative
     entries is not defined and possibly unpredictable.
 
-    If you intend to use @ref Nan, @ref Inf or negative entries, consider using @ref saturated_(touint) instead.
+    If you intend to use @ref Nan, @ref Inf or negative entries, consider using
+    saturated_(touint) instead.
 
-    @see toint
+
+    @par Decorators
+
+    - saturated_ (See @ref group-decorator) as stated above ensures good behaviour on
+      limiting values.
+
+    @see toint, tofloat
+
+    @par Example:
+
+      @snippet touint.cpp touint
+
+    @par Possible output:
+
+      @snippet touint.txt touint
+
 
   **/
-  UIntegerValue toint(Value const & x);
+  as_integer_t<Value, unsigned> touint(Value const& x);
 } }
 #endif
 

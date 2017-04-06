@@ -27,9 +27,9 @@ namespace boost { namespace simd { namespace ext
   {
     using result = bs::as_logical_t<A0>;
     BOOST_FORCEINLINE result operator() ( const A0 & a0
-                                                  , const A0 & a1 ) const BOOST_NOEXCEPT
+                                        , const A0 & a1 ) const BOOST_NOEXCEPT
     {
-      return bitwise_cast<result>(_mm_cmplt_ps(a0,a1));
+      return _mm_cmplt_ps(a0,a1);
     }
   };
 } } }

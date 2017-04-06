@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, pow_abs_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, pow_abs_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::pow_abs_,pow_abs);

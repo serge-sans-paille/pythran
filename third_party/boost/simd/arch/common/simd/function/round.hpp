@@ -81,9 +81,8 @@ namespace boost { namespace simd { namespace ext
       }
    };
 
-   BOOST_DISPATCH_OVERLOAD_IF(round_
+   BOOST_DISPATCH_OVERLOAD(round_
                           , (typename A0, typename A1, typename X)
-                          , (detail::is_native<X>)
                           , bd::cpu_
                           , bs::pack_<bd::floating_<A0>, X>
                           , bd::scalar_<bd::unsigned_<A1>>
@@ -96,9 +95,8 @@ namespace boost { namespace simd { namespace ext
       }
    };
 
-   BOOST_DISPATCH_OVERLOAD_IF(round_
+   BOOST_DISPATCH_OVERLOAD(round_
                           , (typename A0, typename X, typename A1)
-                          , (detail::is_native<X>)
                           , bd::cpu_
                           , bs::pack_<bd::floating_<A0>, X>
                           , bd::scalar_<bd::integer_<A1>>
@@ -106,7 +104,7 @@ namespace boost { namespace simd { namespace ext
    {
      BOOST_FORCEINLINE A0 operator()(A0 const & a0,  A1 const & a1) const
       {
-        using itype_t = bd::as_integer_t<A0, unsigned>;
+        using itype_t = bd::as_integer_t<A0>;
         return round(a0, splat<itype_t>(a1));
       }
    };

@@ -9,7 +9,7 @@
 #ifndef BOOST_SIMD_ARCH_X86_AVX_SIMD_FUNCTION_BROADCAST_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_X86_AVX_SIMD_FUNCTION_BROADCAST_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/function/combine.hpp>
 #include <boost/simd/detail/dispatch/adapted/std/integral_constant.hpp>
@@ -18,13 +18,14 @@ namespace boost { namespace simd { namespace ext
 {
   namespace bd = ::boost::dispatch;
   namespace bs = ::boost::simd;
+  namespace tt = nsm::type_traits;
 
   template<typename A0, typename A1>
   struct bc_helper
   {
-    using select_t  = brigand::bool_<(A1::value >= 0 && A1::value < A0::static_size)>;
-    using sel_t     = std::integral_constant<int, (A1::value >= A0::static_size/2) ? 1 : 0>;
-    using idx_t     = std::integral_constant<int, A1::value - sel_t::value*(A0::static_size/2)>;
+    using select_t  = nsm::bool_<(A1::value >= 0 && A1::value < A0::static_size)>;
+    using sel_t     = tt::integral_constant<int, (A1::value >= A0::static_size/2) ? 1 : 0>;
+    using idx_t     = tt::integral_constant<int, A1::value - sel_t::value*(A0::static_size/2)>;
     using type      = typename A0::template resize<A0::static_size/2>;
   };
 
@@ -40,7 +41,7 @@ namespace boost { namespace simd { namespace ext
       return do_(a0,typename bc_helper<A0,A1>::select_t{});
     }
 
-    static BOOST_FORCEINLINE A0 do_(A0 const& a0, brigand::bool_<true> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE A0 do_(A0 const& a0, nsm::bool_<true> const&) BOOST_NOEXCEPT
     {
       using sel_t = typename bc_helper<A0,A1>::sel_t;
       using idx_t = typename bc_helper<A0,A1>::idx_t;
@@ -50,7 +51,7 @@ namespace boost { namespace simd { namespace ext
       return      _mm256_broadcast_ps(&broadcast<idx_t::value>(half).storage());
     }
 
-    static BOOST_FORCEINLINE A0 do_(A0 const&, brigand::bool_<false> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE A0 do_(A0 const&, nsm::bool_<false> const&) BOOST_NOEXCEPT
     {
       return Zero<A0>();
     }
@@ -68,7 +69,7 @@ namespace boost { namespace simd { namespace ext
       return do_(a0,typename bc_helper<A0,A1>::select_t{});
     }
 
-    static BOOST_FORCEINLINE A0 do_(A0 const& a0, brigand::bool_<true> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE A0 do_(A0 const& a0, nsm::bool_<true> const&) BOOST_NOEXCEPT
     {
       using sel_t = typename bc_helper<A0,A1>::sel_t;
       using idx_t = typename bc_helper<A0,A1>::idx_t;
@@ -78,7 +79,7 @@ namespace boost { namespace simd { namespace ext
       return      _mm256_broadcast_pd(&broadcast<idx_t::value>(half).storage());
     }
 
-    static BOOST_FORCEINLINE A0 do_(A0 const&, brigand::bool_<false> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE A0 do_(A0 const&, nsm::bool_<false> const&) BOOST_NOEXCEPT
     {
       return Zero<A0>();
     }
@@ -96,7 +97,7 @@ namespace boost { namespace simd { namespace ext
       return do_(a0,typename bc_helper<A0,A1>::select_t{});
     }
 
-    static BOOST_FORCEINLINE A0 do_(A0 const& a0, brigand::bool_<true> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE A0 do_(A0 const& a0, nsm::bool_<true> const&) BOOST_NOEXCEPT
     {
       using sel_t = typename bc_helper<A0,A1>::sel_t;
       using idx_t = typename bc_helper<A0,A1>::idx_t;
@@ -107,7 +108,7 @@ namespace boost { namespace simd { namespace ext
       return combine(bc,bc);
     }
 
-    static BOOST_FORCEINLINE A0 do_(A0 const&, brigand::bool_<false> const&) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE A0 do_(A0 const&, nsm::bool_<false> const&) BOOST_NOEXCEPT
     {
       return Zero<A0>();
     }

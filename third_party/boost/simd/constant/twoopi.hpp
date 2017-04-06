@@ -20,6 +20,9 @@ namespace boost { namespace simd
 
     Constant \f$\frac2\pi\f$.
 
+
+    @par Header <boost/simd/constant/twoopi.hpp>
+
     @par Semantic:
 
     For type T:
@@ -56,8 +59,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/twoopi.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/twoopi.hpp>
+#include <boost/simd/constant/simd/twoopi.hpp>
 
 #endif

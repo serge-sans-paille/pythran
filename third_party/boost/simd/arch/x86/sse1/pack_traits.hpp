@@ -15,7 +15,7 @@
 #define BOOST_SIMD_ARCH_X86_SSE1_PACK_TRAITS_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/pack_traits.hpp>
 #include <boost/simd/arch/common/simd/abi_of.hpp>
 

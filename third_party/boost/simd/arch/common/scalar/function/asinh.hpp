@@ -109,6 +109,21 @@ namespace boost { namespace simd { namespace ext
       return bitwise_xor(z, bitofsign(a0));
     }
   };
+
+  BOOST_DISPATCH_OVERLOAD ( asinh_
+                          , (typename A0)
+                          , bd::cpu_
+                          , bs::std_tag
+                          , bd::scalar_< bd::floating_<A0> >
+                          )
+  {
+    BOOST_FORCEINLINE A0 operator()(const std_tag&, A0 a0) const BOOST_NOEXCEPT
+    {
+      return std::asinh(a0);
+    }
+  };
+
+
 } } }
 
 

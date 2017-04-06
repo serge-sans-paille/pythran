@@ -14,6 +14,7 @@
 #include <boost/simd/function/splatted.hpp>
 #include <boost/simd/detail/function/all_reduce.hpp>
 #include <boost/simd/as.hpp>
+#include <boost/simd/detail/dispatch/detail/declval.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -28,7 +29,7 @@ namespace boost { namespace simd { namespace ext
                                   , bs::pack_<bd::unspecified_<Arg>, Ext>
                                   )
   {
-    using result_t  = decltype( bd::functor<F>()( std::declval<typename Arg::value_type>() ) );
+    using result_t  = decltype( bd::functor<F>()( bd::detail::declval<typename Arg::value_type>() ) );
     using pr_t      = typename Arg::template rebind<result_t>;
 
     BOOST_FORCEINLINE result_t do_(Arg const& a0, aggregate_storage const&) const
@@ -64,7 +65,7 @@ namespace boost { namespace simd { namespace ext
                                   , bs::pack_<bd::unspecified_<Arg>, Ext>
                                   )
   {
-    using result_t  = decltype( bd::functor<F>()( std::declval<typename Arg::value_type>() ) );
+    using result_t  = decltype( bd::functor<F>()( bd::detail::declval<typename Arg::value_type>() ) );
     using pr_t      = typename Arg::template rebind<result_t>;
 
 

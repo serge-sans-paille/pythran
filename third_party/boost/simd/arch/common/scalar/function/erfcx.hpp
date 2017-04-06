@@ -21,7 +21,6 @@
 #include <boost/simd/function/exp.hpp>
 #include <boost/simd/function/expx2.hpp>
 #include <boost/simd/function/is_ltz.hpp>
-#include <boost/simd/function/negif.hpp>
 #include <boost/simd/function/oneminus.hpp>
 #include <boost/simd/function/inc.hpp>
 #include <boost/simd/function/sqr.hpp>

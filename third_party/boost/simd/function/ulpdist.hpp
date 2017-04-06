@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,26 +15,9 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing ulpdist capabilities
-
-    Returns ulp distance of the two values.
-
-    @par Semantic:
-
-    For any pairs of values of common type T
-
-    @code
-    T r = ulpdist(x,y);
-    @endcode
-
-    is similar to:
-
-    @code
-    T r = abs(x-y)/Eps<T>();
-    @endcode
+    This function object returns ulp distance between its arguments.
 
     It is often difficult to answer to the following question: "are
     these two floating computations results similar enough?". The
@@ -42,7 +25,10 @@ namespace boost { namespace simd
     estimations and peculiarly adapted to cope with the limited bits
     accuracy of floating point representations.
 
-    @par Notes:
+
+    @par Header <boost/simd/function/ulpdist.hpp>
+
+    @par Notes
 
     - If the common type is integral  @c ulpdist is the same as @c dist
 
@@ -61,7 +47,7 @@ namespace boost { namespace simd
      - Return the absolute difference of these normalized numbers
       divided by the rounding error Eps
 
-    The roundind error is the ulp (unit in the last place) value, i.e. the
+    The rounding error is the ulp (unit in the last place) value, i.e. the
     floating number, the exponent of which is 0 and the mantissa is all zeros
     but a 1 in the last digit (it is not hard coded that way however).
     This means \f$2^{-23}\f$ for float and \f$2^{-52}\f$ for double.
@@ -73,14 +59,9 @@ namespace boost { namespace simd
     \arg Generally equality up to 0.5 ulp is the best that one can wish beyond
     strict equality.
 
-    @par Examples:
-
     \arg Typically if a double is compared to the float representation of
     its floating conversion (they are exceptions as for fully representable
     reals) the ulpdist will be around \f$2^{26.5}\f$ (~\f$10^8\f$)
-
-    \arg The integer truncation of ulpdist is also roughly equivalent to the number of representable
-    floating points values between the two given floating points values.
 
     \arg  @c ulpdist(1.0,1+Eps\<double\>())==0.5
     \arg  @c ulpdist(1.0,1+Eps\<double\>()/2)==0.0
@@ -90,8 +71,16 @@ namespace boost { namespace simd
 
     @see ulp, Eps, eps
 
+    @par Example:
+
+      @snippet ulpdist.cpp ulpdist
+
+    @par Possible output:
+
+      @snippet ulpdist.txt ulpdist
+
   **/
-  Value ulpdist(Value const& x, Value const& y);
+  IEEEValue ulpdist(IEEEValue const& x, IEEEValue const& y);
 } }
 #endif
 

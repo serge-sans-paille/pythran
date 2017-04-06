@@ -1,6 +1,5 @@
 /*
-Copyright Charly Chevalier 2015
-Copyright Joel Falcou 2015
+Copyright 2016 NumScale SAS
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at
 http://www.boost.org/LICENSE_1_0.txt)
@@ -10,6 +9,7 @@ http://www.boost.org/LICENSE_1_0.txt)
 #include <boost/simd/detail/predef/hardware/simd/x86_amd.h>
 #include <boost/simd/detail/predef/hardware/simd/arm.h>
 #include <boost/simd/detail/predef/hardware/simd/ppc.h>
+#include <boost/simd/detail/predef/hardware/simd/mic.h>
 
 #ifndef BOOST_PREDEF_HARDWARE_SIMD_H
 #define BOOST_PREDEF_HARDWARE_SIMD_H
@@ -35,12 +35,14 @@ http://www.boost.org/LICENSE_1_0.txt)
 
      [[`BOOST_HW_SIMD_X86_AVAILABLE`] [__predef_detection__]]
      [[`BOOST_HW_SIMD_X86_AMD_AVAILABLE`] [__predef_detection__]]
+     [[`BOOST_HW_SIMD_MIC_AVAILABLE`] [__predef_detection__]]
      [[`BOOST_HW_SIMD_ARM_AVAILABLE`] [__predef_detection__]]
      [[`BOOST_HW_SIMD_PPC_AVAILABLE`] [__predef_detection__]]
      ]
 
  [include ../include/boost/predef/hardware/simd/x86.h]
  [include ../include/boost/predef/hardware/simd/x86_amd.h]
+ [include ../include/boost/predef/hardware/simd/mic.h]
  [include ../include/boost/predef/hardware/simd/arm.h]
  [include ../include/boost/predef/hardware/simd/ppc.h]
 
@@ -54,6 +56,10 @@ http://www.boost.org/LICENSE_1_0.txt)
 
  [section `BOOST_HW_SIMD_X86_AMD_*_VERSION`]
  [include ../include/boost/predef/hardware/simd/x86_amd/versions.h]
+ [endsect]
+
+ [section `BOOST_HW_SIMD_MIC_*_VERSION`]
+ [include ../include/boost/predef/hardware/simd/mic/versions.h]
  [endsect]
 
  [section `BOOST_HW_SIMD_ARM_*_VERSION`]
@@ -95,6 +101,10 @@ http://www.boost.org/LICENSE_1_0.txt)
 #   if defined(BOOST_HW_SIMD_X86_AMD_AVAILABLE)
 #      define BOOST_HW_SIMD BOOST_HW_SIMD_X86_AMD
 #   endif
+#endif
+
+#if defined(BOOST_HW_SIMD_MIC_AVAILABLE)
+#   define BOOST_HW_SIMD BOOST_HW_SIMD_MIC
 #endif
 
 #if defined(BOOST_HW_SIMD_ARM_AVAILABLE)

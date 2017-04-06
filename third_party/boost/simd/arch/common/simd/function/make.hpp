@@ -71,8 +71,9 @@ namespace boost { namespace simd { namespace ext
                             , K const&
                             ) BOOST_NOEXCEPT
     {
-      using   value_t = typename as_arithmetic_t<Target>::value_type;
-      return  bitwise_cast<Target>( make<as_arithmetic_t<Target>>( genmask<value_t>(vs)...));
+      using   target_t = as_arithmetic_t<Target>;
+      using   value_t  = typename target_t::value_type;
+      return  bitwise_cast<Target>( make( as_<target_t>{}, genmask<value_t>(vs)...));
     }
   };
 

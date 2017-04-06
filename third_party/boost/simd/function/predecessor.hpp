@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,29 +15,38 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing predecessor capabilities
+    This function object returns the `n-`th greatest element strictly less than the parameter
 
-    Returns the n-th greatest element strictly less than the parameter
 
-    @par Semantic:
+    @par Header <boost/simd/function/predecessor.hpp>
 
-    @code
-    auto r = predecessor(x,n);
-    @endcode
+    @par Note
 
-    If n is null returns x else computes the n-th greatest representable value strictly less than x in its type.
-    n must be positive or null.
+     If @c n is null returns @c x else computes the `n`-th greatest representable value strictly less
+     than @c x in its type.  @c n must be positive or null.
 
-    For integer it saturate at @ref Valmin. For floating point numbers, all @ref Minf
-    strict predecessors are @ref Nan.
+      - For integer types it saturates at @ref Valmin.
+
+      - For floating point numbers, all @ref Minf  strict predecessors are @ref Nan.
 
     @see next, prev, successor, nextafter, Minf, Valmin, Nan
 
+
+    @par Example:
+
+      @snippet predecessor.cpp predecessor
+
+    @par Possible output:
+
+      @snippet predecessor.txt predecessor
+
   **/
-  Value predecessor(Value const & v0, IntegerValue const& n);
+  ///@{
+  Value predecessor(Value const& x);
+  Value predecessor(Value const& x, IntegerValue const& n);
+  ///@}
 } }
 #endif
 

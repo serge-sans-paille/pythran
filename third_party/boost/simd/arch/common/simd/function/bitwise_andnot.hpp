@@ -16,9 +16,8 @@
 #include <boost/simd/function/bitwise_and.hpp>
 #include <boost/simd/function/bitwise_cast.hpp>
 #include <boost/simd/function/complement.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
-#include <type_traits>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -26,7 +25,7 @@ namespace boost { namespace simd { namespace ext
    namespace bs = boost::simd;
   BOOST_DISPATCH_OVERLOAD_IF(bitwise_andnot_
                             , (typename A0,typename A1, typename X, typename Y)
-                            , (brigand::not_<std::is_same<A0,A1>>)
+                            , (nsm::not_<std::is_same<A0,A1>>)
                             , bs::simd_
                             , bs::pack_<bd::arithmetic_<A0>,X>
                             , bs::pack_<bd::arithmetic_<A1>,Y>

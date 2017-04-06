@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,35 +15,29 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-exponential
-    Function object implementing exp10 capabilities
+    This function object returns the base ten exponential of its argument: \f$10^{x}\f$
 
-    Computes the base ten exponential function: \f$10^{x}\f$
-
-    @par Semantic:
-
-    For every parameter of floating type T
-
-    @code
-    T r = exp10(x);
-    @endcode
-
-    is similar to:
-
-    @code
-    T r = exp(x*log_10<T>());
-    @endcode
+    @par Header <boost/simd/function/exp10.hpp>
 
     @par Note:
 
-    provisions are made for obtaining a flint result from a flint input
+    provisions are made for obtaining a flint result from a flint argument.
 
     @see exp2, exp, pow
 
+
+    @par Example:
+
+      @snippet exp10.cpp exp10
+
+    @par Possible output:
+
+      @snippet exp10.txt exp10
+
   **/
-  Value exp10(Value const & v0);
+  IEEEValue exp10(IEEEValue const& x);
 } }
 #endif
 

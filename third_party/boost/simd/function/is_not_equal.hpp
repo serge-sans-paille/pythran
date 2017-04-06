@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-predicates
-    Function object implementing is_not_equal capabilities
 
-    Returns @ref True if x and y are not equal else @ref False.
+    This function object returns @ref True if x and y are not equal else @ref False.
     Infix notation can be used with operator '!='.
 
-    @par Semantic:
 
-    @code
-    auto r = is_not_equal(x,y);
-    @endcode
+    @par Header <boost/simd/function/is_not_equal.hpp>
 
-    or
+    @par Note
 
-    @code
-    auto r = x != y;
-    @endcode
+     Using `is_not_equal(x,y)` is equivalent to `x != y`
 
-    @see  is_equal, is_nez, is_not_equal_with_equal_nans
+    @par Example:
+
+      @snippet is_not_equal.cpp is_not_equal
+
+    @par Possible output:
+
+      @snippet is_not_equal.txt is_not_equal
 
   **/
   as_logical_t<Value> is_not_equal(Value const& x);

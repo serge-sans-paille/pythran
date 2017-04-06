@@ -32,7 +32,7 @@ namespace boost { namespace simd
 
   namespace detail
   {
-    template<> struct support<::boost::simd::xop_>
+    template<> struct support< ::boost::simd::xop_>
     {
       support()
       {

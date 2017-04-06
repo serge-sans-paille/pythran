@@ -19,7 +19,7 @@
 #include <boost/simd/detail/dispatch/hierarchy/signed_types.hpp>
 #include <boost/simd/detail/dispatch/meta/sign_of.hpp>
 #include <boost/simd/detail/dispatch/meta/behave_as.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 #include <climits>
 #include <cstddef>
 
@@ -35,7 +35,7 @@ namespace boost { namespace dispatch
     @tparam BitSize Type size in bits
   **/
   template<typename T, std::size_t BitSize>
-  struct sized_type_ : std::conditional < behave_as<T, std::is_floating_point<brigand::_1>>::value
+  struct sized_type_ : std::conditional < behave_as<T, std::is_floating_point<nsm::_1>>::value
                                         , floating_<T>
                                         , signed_integral_<T,sign_of_t<T>>
                                         >::type
@@ -43,7 +43,7 @@ namespace boost { namespace dispatch
     static const std::size_t bits = BitSize;
     static const std::size_t byte = bits/CHAR_BIT;
 
-    using parent = typename std::conditional< behave_as<T, std::is_floating_point<brigand::_1>>::value
+    using parent = typename std::conditional< behave_as<T, std::is_floating_point<nsm::_1>>::value
                                             , floating_<T>
                                             , signed_integral_<T,sign_of_t<T>>
                                             >::type;

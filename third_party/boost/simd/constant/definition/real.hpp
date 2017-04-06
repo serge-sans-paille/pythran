@@ -29,6 +29,12 @@ namespace boost { namespace simd
                             , boost::simd::as_<Type>{}
                             );
   }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto Real(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(Real<T>())
+  {
+    return Real<T>();
+  }
 } }
 
 #endif

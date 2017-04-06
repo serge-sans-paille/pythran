@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,26 +14,23 @@
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
- /*!
+  /*!
     @ingroup group-reduction
-    Function object implementing none capabilities
+     This function object returns @c true if all elements of the argument are zero.
 
-    Returns True if all elements of the input vector are zero.
 
-    @par Semantic:
+    @par Header <boost/simd/function/none.hpp>
 
-    @code
-    auto r = none(x);
-    @endcode
+    @par Example:
 
-    is similar to:
+      @snippet none.cpp none
 
-    @code
-    auto r = !any(x);
-    @endcode
+    @par Possible output:
+
+      @snippet none.txt none
 
   **/
-  bool none(Value const & v0);
+  bool none(Value const& x);
 } }
 #endif
 

@@ -31,6 +31,9 @@ namespace boost { namespace simd { namespace ext
         return _mm_movelh_ps(_mm_cvtpd_ps(a0), _mm_cvtpd_ps(a1));
       }
    };
+
 } } }
+
+#include <boost/simd/arch/x86/sse2/simd/function/groups.hpp>
 
 #endif

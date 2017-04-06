@@ -16,13 +16,6 @@
 
 #include <boost/simd/detail/predef.hpp>
 
-#if !defined(BOOST_SIMD_DEFAULT_FAMILY)
-  #if BOOST_HW_SIMD_X86_AMD_SSE4A
-    #define BOOST_SIMD_DEFAULT_FAMILY ::boost::simd::sse_
-    #define BOOST_SIMD_DEFAULT_SITE   ::boost::simd::ssse3_
-  #endif
-#endif
-
 #if BOOST_HW_SIMD_X86_AMD_SSE4A
   #include <ammintrin.h>
   #include <boost/simd/arch/x86/sse4a/as_simd.hpp>

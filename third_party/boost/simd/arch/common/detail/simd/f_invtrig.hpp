@@ -12,6 +12,7 @@
 #define BOOST_SIMD_ARCH_COMMON_DETAIL_SIMD_F_INVTRIG_HPP_INCLUDED
 
 #include <boost/simd/function/horn.hpp>
+#include <boost/simd/function/logical_and.hpp>
 #include <boost/simd/constant/constant.hpp>
 #include <boost/simd/constant/half.hpp>
 #include <boost/simd/constant/mhalf.hpp>
@@ -55,9 +56,9 @@ namespace boost { namespace simd
   {
     static BOOST_FORCEINLINE A0 asin(A0 const& a0)
     {
-      A0 sign, x;
+      A0 sgn, x;
       x = bs::abs(a0);
-      sign = bs::bitofsign(a0);
+      sgn = bs::bitofsign(a0);
       const auto x_larger_05 = x > bs::Half<A0>();
       A0 z = if_else(x_larger_05, bs::Half<A0>()*bs::oneminus(x), bs::sqr(x));
       x = if_else(x_larger_05, sqrt(z), x);
@@ -74,7 +75,7 @@ namespace boost { namespace simd
         > (z);
       z1 = bs::fma(z1, z*x, x);
       z = if_else(x_larger_05, bs::Pio_2<A0>()-(z1+z1), z1);
-      return bs::bitwise_xor(z, sign);
+      return bs::bitwise_xor(z, sgn);
     }
 
     static BOOST_FORCEINLINE A0 acos(const A0& a0)

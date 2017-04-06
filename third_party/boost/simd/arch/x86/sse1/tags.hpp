@@ -39,7 +39,7 @@ namespace boost { namespace simd
 
   namespace detail
   {
-    template<> struct support<::boost::simd::sse1_>
+    template<> struct support< ::boost::simd::sse1_>
     {
       support()
       {

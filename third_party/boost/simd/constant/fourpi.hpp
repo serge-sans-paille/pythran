@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
    Constant \f$4\pi\f$.
 
+
+    @par Header <boost/simd/constant/fourpi.hpp>
+
     @par Semantic:
 
     For type T:
@@ -50,8 +53,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/fourpi.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/fourpi.hpp>
+#include <boost/simd/constant/simd/fourpi.hpp>
 
 #endif

@@ -13,7 +13,7 @@
 
 #include <boost/simd/function/bitwise_and.hpp>
 #include <boost/simd/function/complement.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/traits.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>

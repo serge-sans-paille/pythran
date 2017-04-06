@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,34 +15,34 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
     @ingroup group-operator
-    Function object implementing multiplies capabilities
-
-    Perform the product of two parameters of the same type.
+    This function object computes the product of two parameters of the same type.
 
     Infix notation can be used with operator '*',
 
-    @par Semantic
+    @par Header <boost/simd/function/multiplies.hpp>
 
-    For any value @c a and @c b of type @c T,
+    @par Decorators
 
-    @code
-    auto x = multiplies(a,b);
-    @endcode
+     - `saturated_` (See @ref group-decorator) computes the saturated product.
 
-    or
+    @see minus, divides, plus
 
-    @code
-    auto r = a*b;
-    @endcode
+    @par Example:
+
+      @snippet multiplies.cpp multiplies
+
+    @par Possible output:
+
+      @snippet multiplies.txt multiplies
 
     returns the product of @c a and @c b
 
     @see fma, fms, fnma, fnms
 
   **/
-  Value multiplies(Value const & x, Value const& y);
+  Value multiplies(Value const& x, Value const& y);
 } }
 #endif
 

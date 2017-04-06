@@ -11,7 +11,7 @@
 
 #include <boost/simd/arch/x86/tags.hpp>
 #include <boost/simd/arch/common/limits.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace simd
 {

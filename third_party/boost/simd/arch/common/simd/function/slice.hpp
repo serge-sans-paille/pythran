@@ -20,7 +20,7 @@ namespace boost { namespace simd { namespace ext
 {
   namespace bd = boost::dispatch;
   namespace bs = boost::simd;
-  namespace br = brigand;
+
 
   BOOST_DISPATCH_OVERLOAD( slice_
                           , (typename T, typename X)

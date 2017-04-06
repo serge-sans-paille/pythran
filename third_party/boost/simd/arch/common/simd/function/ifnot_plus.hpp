@@ -18,28 +18,23 @@
 
 namespace boost { namespace simd { namespace ext
 {
-   namespace bd = boost::dispatch;
-   namespace bs = boost::simd;
-   BOOST_DISPATCH_OVERLOAD_IF(ifnot_plus_
-                             , (typename A0, typename A1, typename X)
-                             , (detail::is_native<X>)
-                             , bd::cpu_
-                             , bs::pack_<bd::fundamental_<A0>, X>
-                             , bs::pack_<bd::fundamental_<A1>, X>
-                             , bs::pack_<bd::fundamental_<A1>, X>
-                             )
-   {
-      BOOST_FORCEINLINE A1
-      operator()(A0 const& a0, A1 const& a1, A1 const& a2
-               , typename std::enable_if<
-                A0::static_size == A1::static_size
-                >::type* = 0
-       ) const BOOST_NOEXCEPT
-       {
-         return a1+if_zero_else(a0, a2);
-       }
-   };
+  namespace bd = boost::dispatch;
+  namespace bs = boost::simd;
 
+  BOOST_DISPATCH_OVERLOAD_IF( ifnot_plus_
+                            , (typename A0, typename A1, typename X)
+                            , (detail::is_native<X>)
+                            , bd::cpu_
+                            , bs::pack_<bd::fundamental_<A0>, X>
+                            , bs::pack_<bd::unspecified_<A1>, X>
+                            , bs::pack_<bd::unspecified_<A1>, X>
+                            )
+  {
+    BOOST_FORCEINLINE A1 operator()(A0 const& a0, A1 const& a1, A1 const& a2) const BOOST_NOEXCEPT
+    {
+      return a1+if_zero_else(a0, a2);
+    }
+  };
 } } }
 
 #endif

@@ -10,7 +10,7 @@
 //==================================================================================================
 #ifndef BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_ATAN2_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_ATAN2_HPP_INCLUDED
-#include <boost/simd/function/fast.hpp>
+#include <boost/simd/function/raw.hpp>
 #include <boost/simd/function/std.hpp>
 
 #include <boost/simd/constant/nan.hpp>
@@ -41,11 +41,13 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( atan2_
                           , (typename A0)
                           , bd::cpu_
+                          , bs::pedantic_tag
                           , bd::scalar_< bd::floating_<A0> >
                           , bd::scalar_< bd::floating_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() ( A0 a0, A0 a1) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator() (const pedantic_tag &,
+                                     A0 a0, A0 a1) const BOOST_NOEXCEPT
     {
       #ifndef BOOST_SIMD_NO_NANS
       if (is_nan(a0) || is_nan(a1)) return Nan<A0>();
@@ -65,6 +67,7 @@ namespace boost { namespace simd { namespace ext
     return is_eqz(a0) ? if_else_zero(is_negative(a1), Pi<A0>()*sgn) : z;
     }
   };
+
   BOOST_DISPATCH_OVERLOAD ( atan2_
                           , (typename A0)
                           , bd::cpu_
@@ -81,12 +84,11 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( atan2_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::fast_tag
                           , bd::scalar_< bd::floating_<A0> >
                           , bd::scalar_< bd::floating_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator() (const fast_tag &,  A0 a0, A0 a1) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator() ( A0 a0, A0 a1) const BOOST_NOEXCEPT
     {
       A0 q = bs::abs(a0/a1);
       A0 z = detail::invtrig_base<A0,tag::radian_tag, tag::not_simd_type>::kernel_atan(q, bs::rec(q));

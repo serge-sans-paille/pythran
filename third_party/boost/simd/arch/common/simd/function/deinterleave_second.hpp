@@ -1,3 +1,4 @@
+\
 //==================================================================================================
 /**
   Copyright 2016 NumScale SAS
@@ -17,7 +18,7 @@ namespace boost { namespace simd { namespace ext
 {
   namespace bd = boost::dispatch;
   namespace bs = boost::simd;
-  namespace br = brigand;
+
 
   BOOST_DISPATCH_OVERLOAD ( deinterleave_second_
                           , (typename T, typename X)
@@ -31,14 +32,14 @@ namespace boost { namespace simd { namespace ext
                   );
 
     template<typename K, typename... N> static BOOST_FORCEINLINE
-    T do_( T const& x, T const& y, K const&, br::list<N...> const&) BOOST_NOEXCEPT
+    T do_( T const& x, T const& y, K const&, nsm::list<N...> const&) BOOST_NOEXCEPT
     {
-      return make<T>( bs::extract<N::value*2+1>(x)..., bs::extract<N::value*2+1>(y)... );
+      return make(as_<T>{}, bs::extract<N::value*2+1>(x)..., bs::extract<N::value*2+1>(y)... );
     }
 
     template<typename N0, typename N1, typename... Ns> static BOOST_FORCEINLINE
     typename T::storage_type
-    do_( T const& x, T const& y, aggregate_storage const&, br::list<N0,N1,Ns...> const&) BOOST_NOEXCEPT
+    do_( T const& x, T const& y, aggregate_storage const&, nsm::list<N0,N1,Ns...> const&) BOOST_NOEXCEPT
     {
       return  { { deinterleave_second(x.storage()[0],x.storage()[1])
                 , deinterleave_second(y.storage()[0],y.storage()[1])
@@ -48,7 +49,7 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE T operator()(T const& x, T const& y) const BOOST_NOEXCEPT
     {
       return do_(x,y, typename T::traits::storage_kind{}
-                    , br::range<std::size_t, 0, T::static_size/2>{}
+                    , nsm::range<std::size_t, 0, T::static_size/2>{}
                 );
     }
   };

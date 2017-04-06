@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, mask2logical_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, mask2logical_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::mask2logical_,mask2logical);

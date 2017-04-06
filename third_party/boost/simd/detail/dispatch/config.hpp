@@ -15,6 +15,7 @@
 #define BOOST_SIMD_DETAIL_DISPATCH_CONFIG_HPP_INCLUDED
 
 #include <boost/config.hpp>
+#include <boost/simd/detail/nsm.hpp>
 
 // TODO : PR to Boost.config
 #if defined(__GNUC__)
@@ -28,6 +29,10 @@
 
 #if defined(BOOST_NO_RESTRICT) || defined(_MSC_VER)
 #define BOOST_NO_RESTRICT_REFERENCES
+#endif
+
+#if defined(NSM_ASSUME_INCOMPLETE_STD)
+#define BOOST_DISPATCH_USE_INCOMPLETE_STD
 #endif
 
 #endif

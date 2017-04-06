@@ -13,6 +13,7 @@
 
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/function/slide.hpp>
+#include <boost/simd/meta/is_pointing_to.hpp>
 #include <boost/simd/detail/dispatch/adapted/common/pointer.hpp>
 #include <boost/simd/detail/is_aligned.hpp>
 #include <boost/assert.hpp>
@@ -65,17 +66,17 @@ namespace boost { namespace simd { namespace ext
 
     BOOST_FORCEINLINE target operator() ( Pointer p, Misalignment const&, Target const& ) const
     {
-      return do_(p, brigand::bool_<unalignment != 0>());
+      return do_(p, nsm::bool_<unalignment != 0>());
     }
 
-    BOOST_FORCEINLINE target do_( Pointer p, std::true_type const& ) const
+    BOOST_FORCEINLINE target do_( Pointer p, tt::true_type const& ) const
     {
       return slide<unalignment> ( aligned_load<target>( p-unalignment )
                                 , aligned_load<target>( p-unalignment+card )
                                 );
     }
 
-    BOOST_FORCEINLINE target do_( Pointer p, std::false_type const& ) const
+    BOOST_FORCEINLINE target do_( Pointer p, tt::false_type const& ) const
     {
       return aligned_load<target>(p);
     }

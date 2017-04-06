@@ -48,12 +48,12 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE A0 operator() (const saturated_tag &,  A0 a0, A0 a1
                                     ) const BOOST_NOEXCEPT
     {
-      using sz_t = typename brigand::bool_<sizeof(A0) == 4 || sizeof(A0) == 8>::type;
+      using sz_t = typename nsm::bool_<sizeof(A0) == 4 || sizeof(A0) == 8>::type;
       return impl(a0, a1, sz_t());
     }
 
     static BOOST_FORCEINLINE A0 impl( A0 a0, A0 a1
-                                    , const std::false_type &) BOOST_NOEXCEPT
+                                    , const tt::false_type &) BOOST_NOEXCEPT
     {
       using u_t = bd::upgrade_t<A0>;
       using s_t = bd::as_signed_t<u_t>;
@@ -62,7 +62,7 @@ namespace boost { namespace simd { namespace ext
 
 
     static BOOST_FORCEINLINE A0 impl( A0 a0, A0 a1
-                                    , const std::true_type &) BOOST_NOEXCEPT
+                                    , const tt::true_type &) BOOST_NOEXCEPT
     {
       using un_t = bd::as_unsigned_t<A0>;
 

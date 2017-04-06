@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate the  logarithm of the Eps constant.
 
+
+    @par Header <boost/simd/constant/logeps.hpp>
+
     @par Semantic:
 
     @code
@@ -48,8 +51,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/logeps.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/logeps.hpp>
+#include <boost/simd/constant/simd/logeps.hpp>
 
 #endif

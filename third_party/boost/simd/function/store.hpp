@@ -14,7 +14,7 @@
 namespace boost { namespace simd
 {
   /*!
-  @ingroup group-memory
+    @ingroup group-memory
 
     @brief Store a value at an arbitrary memory location
 
@@ -22,6 +22,9 @@ namespace boost { namespace simd
     a pointer or a pointer and an offset. To support SIMD idioms like data
     scattering or non-POD values, both pointer and offset arguments can
     themselves be SIMD register or Fusion Sequences.
+
+
+    @par Header <boost/simd/function/store.hpp>
 
     @par Semantic:
 
@@ -35,13 +38,17 @@ namespace boost { namespace simd
     @param mask   Optional logical mask. Only stores values for which the mask is true.
 
   **/
-  template<typename Value, typename Pointer, typename Offset> void store( Value const& val, Pointer const& ptr, Offset const& offset) {}
-
-  /// @overload
-  template<typename Value, typename Pointer> void store( Value const& val, Pointer ptr) {}
-  /// @overload
   template<typename Value, typename Pointer, typename Offset> void store( Value const& val, Pointer const& ptr
                                                                         , Offset const& offset, Mask const& mask) {}
+
+  /*!
+    @overload
+  **/
+  template<typename Value, typename Pointer> void store( Value const& val, Pointer ptr) {}
+  /*!
+    @overload
+  **/
+  template<typename Value, typename Pointer, typename Offset> void store( Value const& val, Pointer const& ptr, Offset const& offset) {}
 
 } }
 #endif

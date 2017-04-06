@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,41 +15,42 @@
 namespace boost { namespace simd
 {
 
- /*!
-  @ingroup group-arithmetic
-    Function object implementing arg capabilities
+  /*!
+    @ingroup group-arithmetic
+    This function computes the angular orientation of its floating parameter
+    (the result is undifined for Nan entries if the @c pedantic_ decorator is not
+    used)
 
-    Computes the angular orientation of its parameter.
 
-    @par semantic:
-    For any given value @c x of floating type @c T:
+    @par Header <boost/simd/function/arg.hpp>
 
-    @code
-    T r = arg(x);
-    @endcode
+    Using  `arg(x)` is equivalent to  `(is_negative(x)) ? Pi(as(x)) : Zero(as(x))`
 
-    is equivalent to:
+    @par Notes
 
-    @code
-    T r = (is_nan(x)) ? x : (is_negative(x)) ? Pi<T>() : Zero<T>();
-    @endcode
+    - always returns \f$+0\f$ or \f$\pi\f$ taking into account the bit of sign
+       even in the Nan case.
 
-    @par Notes:
+    - This function implement the restriction to real numbers of the
+       complex arg(ument) function.
 
-    - Returns \f$+0\f$ or \f$\pi\f$  (or @ref Nan if and only if the input is @ref Nan)
-    according to the input @ref sign bit,
+    @par Decorators
 
-    - arg(x, use_signbit_) always returns \f$+0\f$ or \f$\pi\f$ taking into account the bit of sign
-    even in the Nan case and is quicker.
+    - `pedantic_`  returns `Nan(as(x))` for a  nan input,
 
-    - This function implement the restriction to real numbers of the complex arg(ument) function.
 
-    - This function is not defined for integral types.
+    @see is_negative, Pi, Nan
 
-    @see is_negative,  is_ltz,  Pi
+    @par Example:
+
+      @snippet arg.cpp arg
+
+    @par Possible output:
+
+      @snippet arg.txt arg
 
   **/
-  Value arg(Value const & v0);
+  IEEEValue arg(IEEEValue const & x);
 } }
 #endif
 

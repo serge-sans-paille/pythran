@@ -136,7 +136,7 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE bd::as_integer_t<T> operator()( bd::functor<bs::tag::inearbyint_> const&
                                                     ,T const& a, T const& b) const BOOST_NOEXCEPT
     {
-      return inearbyint(a/b);
+      return pedantic_(inearbyint)(a/b);
     }
   };
 

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,32 +14,25 @@
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-
- /*!
-
+  /*!
     @ingroup group-reduction
-    Function object implementing any capabilities
+   This function object returns @c true if at least one element of the
+   argument is non zero.
 
-    Returns @ref True if at least one element of the input vector is non zero.
+    @par Header <boost/simd/function/any.hpp>
 
-    @par Semantic:
+    @see all, none, nbtrue
 
-    For every parameter of type T
+    @par Example:
 
-    @code
-    logical<scalar_of_t<T>> r = any(x);
-    @endcode
+      @snippet any.cpp any
 
-    is similar to:
+    @par Possible output:
 
-    @code
-    logical<scalar_of_t<T>> r = False;
-    for(result_type i = 0; i != cardinal_of<T>; ++i)
-      if (x[i]) {r =  True; break; }
-    @endcode
+      @snippet any.txt any
 
   **/
-  logical<scalar_of_t<value>> any(Value const & v0);
+  bool any(Value const &x);
 } }
 #endif
 

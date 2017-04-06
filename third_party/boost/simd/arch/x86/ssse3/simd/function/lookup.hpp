@@ -60,7 +60,8 @@ namespace boost { namespace simd { namespace ext
       const type8 inc = {0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3};
       const type8 dup = {0, 0, 0, 0, 4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12};
       const type8 i1 = _mm_shuffle_epi8(a1<<2, dup);
-      return simd::bitwise_cast<A0>(_mm_shuffle_epi8(simd::bitwise_cast<type8>(a0), i1+inc));
+      const type8 tmp = _mm_shuffle_epi8(simd::bitwise_cast<type8>(a0), i1+inc);
+      return simd::bitwise_cast<A0>(tmp);
     }
   };
    BOOST_DISPATCH_OVERLOAD ( lookup_
@@ -76,7 +77,8 @@ namespace boost { namespace simd { namespace ext
      const type8 inc = {0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 6, 7};
      const type8 dup = {0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 8, 8, 8 };
      const type8 i1 = _mm_shuffle_epi8(a1<<3, dup);
-     return simd::bitwise_cast<A0>(_mm_shuffle_epi8(simd::bitwise_cast<type8>(a0), i1+inc));
+     const type8 tmp = _mm_shuffle_epi8(simd::bitwise_cast<type8>(a0), i1+inc);
+     return simd::bitwise_cast<A0>(tmp);
     }
   };
 

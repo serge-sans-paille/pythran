@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, is_not_nan_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, is_not_nan_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::is_not_nan_,is_not_nan);

@@ -9,9 +9,9 @@
 #ifndef BOOST_SIMD_FUNCTION_SPLIT_HPP_INCLUDED
 #define BOOST_SIMD_FUNCTION_SPLIT_HPP_INCLUDED
 
+#if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-#if defined(DOXYGEN_ONLY)
   /*!
     @ingroup group-swar
     Function object implementing split capabilities
@@ -20,12 +20,15 @@ namespace boost { namespace simd
     cardinal of @c x containing the same value than @c x but converted to
     their associated upgraded type.
 
-    @param v0 Value to split
+
+    @par Header <boost/simd/function/split.hpp>
+
+    @param x Value to split
     @return An array containing the two upgraded part of its argument.
   **/
-  std::array<upgrade_t<Value>,2> split(Value const & v0);
-#endif
+  std::array<upgrade_t<Value>, 2> split(Value const& x);
 } }
+#endif
 
 #include <boost/simd/function/simd/split.hpp>
 

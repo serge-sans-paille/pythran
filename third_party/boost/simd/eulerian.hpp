@@ -22,6 +22,13 @@ namespace boost { namespace simd
     some Eulerian functions. Mainly those that are present in
     stdlibc++ 11.
 
+      <center>
+        |                |                |               |                |
+        |:--------------:|:--------------:|:-------------:|:--------------:|
+        | @ref erf       |  @ref erfc     | @ref erfcx    |   @ref gamma   |
+        | @ref gammaln   |  @ref signgam  | @ref stirling |                |
+      </center>
+
   **/
 
 } }

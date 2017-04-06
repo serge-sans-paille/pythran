@@ -11,6 +11,7 @@
 
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/function/slice.hpp>
+#include <boost/simd/function/extract.hpp>
 #include <boost/simd/detail/dispatch/meta/upgrade.hpp>
 
 namespace boost { namespace simd { namespace ext
@@ -40,7 +41,7 @@ namespace boost { namespace simd { namespace ext
     {
       A0  acc = _mm256_add_epi32(a0, _mm256_srli_si256(a0, 8));
           acc = _mm256_add_epi32(acc, _mm256_srli_si256(acc, 4));
-      return _mm256_extract_epi32(acc, 0) +  _mm256_extract_epi32(acc, 4);
+      return extract<0>(acc) +  extract<4>(acc);
     }
   };
 
@@ -52,10 +53,10 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE typename A0::value_type operator()(const A0 & a0) const BOOST_NOEXCEPT
     {
-      __m256i s = _mm256_hadd_epi16(a0, a0);
-              s = _mm256_hadd_epi16(s, s);
-              s = _mm256_hadd_epi16(s, s);
-      return _mm256_extract_epi16(s, 0) + _mm256_extract_epi16(s, 15);
+      A0  s = _mm256_hadd_epi16(a0, a0);
+          s = _mm256_hadd_epi16(s, s);
+          s = _mm256_hadd_epi16(s, s);
+      return extract<0>(s) + extract<15>(s);
     }
   };
 
@@ -71,7 +72,7 @@ namespace boost { namespace simd { namespace ext
       bd::upgrade_t<A0> s = _mm256_add_epi16( _mm256_unpacklo_epi8(a0, z)
                                             , _mm256_unpackhi_epi8(a0, z)
                                             );
-      return sum(s);
+      return static_cast<typename A0::value_type>(sum(s));
     }
   };
 } } }

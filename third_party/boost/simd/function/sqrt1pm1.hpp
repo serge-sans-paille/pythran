@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,32 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
+  /*!
 
     @ingroup group-arithmetic
-    Function object implementing sqrt1pm1 capabilities
-
-    Returns \f$\sqrt{1+x}-1\f$ and the
+    This function object returns \f$\sqrt{1+x}-1\f$ and the
     result is accurate even for x  with small modulus
 
-    @par Semantic:
+    @see log1p, expm1.
 
-    For every parameter of floating type T
 
-    @code
-    T r = sqrt1pm1(x);
-    @endcode
+    @par Header <boost/simd/function/sqrt1pm1.hpp>
 
-    is similar to:
+    @par Example:
 
-    @code
-    T r = dec(sqrt(Oneplus(x));
-    @endcode
+      @snippet sqrt1pm1.cpp sqrt1pm1
 
-    @see lol1p, expm1.
+    @par Possible output:
 
+      @snippet sqrt1pm1.txt sqrt1pm1
   **/
-  Value sqrt1pm1(Value const& x);
+  IEEEValue sqrt1pm1(IEEEValue const& x);
 } }
 #endif
 

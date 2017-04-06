@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, shift_right_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, shift_right_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::shift_right_,shift_right);

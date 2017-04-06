@@ -34,7 +34,7 @@ namespace boost { namespace simd { namespace ext
                           )
   {
     BOOST_FORCEINLINE A0 operator() (const saturated_tag &
-                                    , A0 a0, A0 a1
+                                    , A0 const& a0, A0 const& a1
                                     ) const BOOST_NOEXCEPT
     {
       A0 tmp = dist(a0, a1);
@@ -51,7 +51,7 @@ namespace boost { namespace simd { namespace ext
                           )
   {
     BOOST_FORCEINLINE A0 operator() (const saturated_tag &
-                                    , A0 a0, A0 a1
+                                    , A0 const& a0, A0 const& a1
                                     ) const BOOST_NOEXCEPT
     {
       return dist(a0, a1);
@@ -67,7 +67,7 @@ namespace boost { namespace simd { namespace ext
                           )
   {
     BOOST_FORCEINLINE A0 operator() (const saturated_tag &
-                                    , A0 a0, A0 a1
+                                    , A0 const& a0, A0 const& a1
                                     ) const BOOST_NOEXCEPT
     {
       return dist(a0, a1);

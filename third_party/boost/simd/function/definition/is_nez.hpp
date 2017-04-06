@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, is_nez_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, is_nez_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::is_nez_,is_nez);

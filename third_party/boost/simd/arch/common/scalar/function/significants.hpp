@@ -48,8 +48,8 @@ namespace boost { namespace simd { namespace ext
                       );
       using i_t = bd::as_integer_t<A0>;
       if (is_eqz(a0)) return a0;
-      i_t exp = a1 - iceil(log10(abs(a0)));
-      A0 fac = tenpower(exp);
+      i_t exponant = a1 - iceil(log10(abs(a0)));
+      A0 fac = tenpower(exponant);
       A0 scaled = bs::nearbyint(a0*fac);
     #ifndef BOOST_SIMD_NO_INVALIDS
       return is_invalid(a0) ? a0 : scaled/fac;

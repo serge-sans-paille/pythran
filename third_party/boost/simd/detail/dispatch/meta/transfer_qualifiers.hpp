@@ -14,7 +14,7 @@
 #ifndef BOOST_SIMD_DETAIL_DISPATCH_META_TRANSFER_QUALIFIERS_HPP_INCLUDED
 #define BOOST_SIMD_DETAIL_DISPATCH_META_TRANSFER_QUALIFIERS_HPP_INCLUDED
 
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {

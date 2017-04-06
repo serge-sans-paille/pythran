@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,27 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing secpi capabilities
-
-    secant of the angle in pi multiples: \f$1/\cos(\pi x)\f$.
-
-    @par Semantic:
-
-    For every parameter of floating type
-
-    @code
-    auto r = secpi(x);
-    @endcode
+    This function object returns the secant of the angle in pi multiples:
+    \f$1/\cos(\pi x)\f$.
 
     @see secd, sec, cospi, cos
 
+
+
+    @par Header <boost/simd/function/secpi.hpp>
+
+    @par Example:
+
+      @snippet secpi.cpp secpi
+
+    @par Possible output:
+
+      @snippet secpi.txt secpi
+
   **/
-  Value secpi(Value const & v0);
+  IEEEValue secpi(IEEEValue const& x);
 } }
 #endif
 

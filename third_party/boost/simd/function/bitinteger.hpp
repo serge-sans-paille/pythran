@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,33 +15,35 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-ieee
-    Function object implementing bitinteger capabilities
-
-    Transforms a floating point value in a pattern of bits
-    stored in an integer with different formulas according to
-    the floating point @ref bitofsign.
-
+    This function object transforms a floating point value
+    in an integer with a preserving order formula.
     This function is the converse of @ref bitfloating.
 
-    @par Semantic:
 
-    for any parameter @c x of floating type @c T
 
-    @code
-     as_integer_t<T> r = bitinteger(x);
-    @endcode
+    @par Header <boost/simd/function/bitinteger.hpp>
 
     @par Note:
-    This is an internally used utility function related to the computation of floating
-    successors or predecessors
+    This function is related to the computation of
+    floating successors or predecessors as the ordering of the integers obtained
+    by @c bifloating is the same as the original order on the floating elements,
+    an increment can be used to find the successor.
 
     @see next, prev, successor,  predecessor,  nextafter, bitfloating
 
+
+    @par Example:
+
+      @snippet bitinteger.cpp bitinteger
+
+    @par Possible output:
+
+      @snippet bitinteger.txt bitinteger
+
   **/
-  as_integer_t<T> bitinteger(Value const & v0);
+  as_integer_t<Value> bitinteger(Value const& x);
 } }
 #endif
 

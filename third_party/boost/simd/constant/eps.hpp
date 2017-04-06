@@ -19,6 +19,9 @@ namespace boost { namespace simd
     Generates a value of the chosen type equals to the difference between 1 and the next
     representable value of the chosen type.
 
+
+    @par Header <boost/simd/constant/eps.hpp>
+
     @par Semantic:
 
     @code
@@ -74,8 +77,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/eps.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/eps.hpp>
+#include <boost/simd/constant/simd/eps.hpp>
 
 #endif

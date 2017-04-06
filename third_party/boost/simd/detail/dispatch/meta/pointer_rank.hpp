@@ -14,21 +14,23 @@
 #ifndef BOOST_SIMD_DETAIL_DISPATCH_META_POINTER_RANK_HPP_INCLUDED
 #define BOOST_SIMD_DETAIL_DISPATCH_META_POINTER_RANK_HPP_INCLUDED
 
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {
-  template<typename T> struct pointer_rank : std::integral_constant<std::size_t,0> {};
+  namespace tt = nsm::type_traits;
+
+  template<typename T> struct pointer_rank : tt::integral_constant<std::size_t,0> {};
 
   template<typename T>
-  struct pointer_rank<T*>  : std::integral_constant<std::size_t,1+pointer_rank<T>::value>
+  struct pointer_rank<T*>  : tt::integral_constant<std::size_t,1+pointer_rank<T>::value>
   {};
 
   template<typename T>
-  struct pointer_rank<T* const>  : std::integral_constant<std::size_t,1+pointer_rank<T>::value>
+  struct pointer_rank<T* const>  : tt::integral_constant<std::size_t,1+pointer_rank<T>::value>
   {};
   template<typename T>
-  struct pointer_rank<T* volatile>  : std::integral_constant<std::size_t,1+pointer_rank<T>::value>
+  struct pointer_rank<T* volatile>  : tt::integral_constant<std::size_t,1+pointer_rank<T>::value>
   {};
 } }
 

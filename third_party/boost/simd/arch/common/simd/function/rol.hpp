@@ -11,7 +11,7 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_ROL_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_ROL_HPP_INCLUDED
 
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/meta/cardinal_of.hpp>
 #include <boost/simd/detail/assert_utils.hpp>
 #include <boost/simd/function/bitwise_cast.hpp>
@@ -70,9 +70,9 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF ( rol_
                              , (typename A0, typename A1, typename X)
-                             , ( brigand::and_<
+                             , ( nsm::and_<
                                  detail::is_native<X>,
-                                 brigand::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
+                                 nsm::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
                                  >
                                )
                              , bd::cpu_
@@ -92,9 +92,9 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_IF ( rol_
                           , (typename A0, typename A1, typename X)
-                          , ( brigand::and_<
+                          , ( nsm::and_<
                               detail::is_native<X>,
-                              brigand::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
+                              nsm::bool_<bs::cardinal_of<A0>::value == bs::cardinal_of<A1>::value>
                               >
                              )
                           , bd::cpu_

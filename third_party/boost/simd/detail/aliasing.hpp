@@ -12,7 +12,7 @@
 #define BOOST_SIMD_DETAIL_ALIASING_HPP_INCLUDED
 
 #include <boost/config.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 #ifndef BOOST_SIMD_NO_STRICT_ALIASING
 

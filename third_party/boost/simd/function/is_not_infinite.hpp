@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,26 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-predicates
-    Function object implementing is_not_infinite capabilities
 
-    Returns @ref True if x is finite or @ref Nan
+    This function object returns @ref True if x is finite or @ref Nan
 
-    @par Semantic:
 
-    @code
-    auto r = is_not_infinite(x);
-    @endcode
+    @par Header <boost/simd/function/is_not_infinite.hpp>
 
-    is similar to:
+    @par Note
 
-    @code
-    if x is of floating type
-      auto r = (x !=  Inf) && (x != -Inf);
-    else
-      auto r = True ;
-    @endcode
+     Using `is_not_infinite(x)` is similar to `(x !=  Inf) && (x != -Inf)` for floating types
+     and is always True for integral types
+
+    @par Example:
+
+      @snippet is_not_infinite.cpp is_not_infinite
+
+    @par Possible output:
+
+      @snippet is_not_infinite.txt is_not_infinite
 
   **/
   as_logical_t<Value> is_not_infinite(Value const& x);

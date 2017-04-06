@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,27 +15,21 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-operator
-    Function object implementing complement capabilities
-
-    return the bitwise complement of the entry
+    This function object returns the return the bitwise complement of the entry
     Infix notation can be used with operator '~'
 
-    @par Semantic:
 
-    For every parameter of type T
+    @par Header <boost/simd/function/complement.hpp>
 
-    @code
-    auto r = complement(x);
-    @endcode
+    @par Example:
 
-    or
+      @snippet complement.cpp complement
 
-    @code
-    auto r = ~x;
-    @endcode
+    @par Possible output:
+
+      @snippet complement.txt complement
 
     @par Alias
     bitwise_not
@@ -44,7 +38,7 @@ namespace boost { namespace simd
     bitwise_andnot, bitwise_notor, bitwise_ornot
 
   **/
-  Value complement(Value const & v0);
+  Value complement(Value const& x);
 } }
 #endif
 

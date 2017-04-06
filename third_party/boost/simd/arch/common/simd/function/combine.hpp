@@ -20,7 +20,7 @@ namespace boost { namespace simd { namespace ext
 {
   namespace bd = boost::dispatch;
   namespace bs = boost::simd;
-  namespace br = brigand;
+
 
   // -----------------------------------------------------------------------------------------------
   // combine(scalar,scalar)
@@ -33,7 +33,7 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE pack<T,2> operator()(T const& a, T const& b) const BOOST_NOEXCEPT
     {
-      return make< pack<T,2> >(a,b);
+      return make(as_<pack<T,2>>{}, a,b);
     }
   };
 
@@ -50,7 +50,7 @@ namespace boost { namespace simd { namespace ext
 
     template<typename... N>
     static BOOST_FORCEINLINE result_t do_ ( T const& a, T const& b, aggregate_storage const&
-                                          , br::list<N...> const&
+                                          , nsm::list<N...> const&
                                           ) BOOST_NOEXCEPT
     {
       return typename result_t::storage_type{{a,b}};
@@ -58,19 +58,20 @@ namespace boost { namespace simd { namespace ext
 
     template<typename K, typename... N>
     static BOOST_FORCEINLINE result_t do_ ( T const& a, T const& b, K const&
-                                          , br::list<N...> const&
+                                          , nsm::list<N...> const&
                                           ) BOOST_NOEXCEPT
     {
-      return make<result_t> ( bs::extract<N::value>(a)...
-                            , bs::extract<N::value>(b)...
-                            );
+      return make(as_<result_t>{}
+                 , bs::extract<N::value>(a)...
+                 , bs::extract<N::value>(b)...
+                 );
     }
 
     BOOST_FORCEINLINE result_t operator()(T const& a, T const& b) const BOOST_NOEXCEPT
     {
       return do_( a, b
                 , typename result_t::traits::storage_kind{}
-                , brigand::range<std::size_t, 0, T::static_size>{}
+                , nsm::range<std::size_t, 0, T::static_size>{}
                 );
     }
   };

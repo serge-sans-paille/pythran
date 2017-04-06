@@ -16,8 +16,7 @@
 
 #include <boost/simd/detail/dispatch/hierarchy/integer.hpp>
 #include <boost/simd/detail/dispatch/meta/behave_as.hpp>
-#include <boost/simd/detail/brigand.hpp>
-#include <type_traits>
+#include <boost/simd/detail/nsm.hpp>
 
 namespace boost { namespace dispatch
 {
@@ -34,12 +33,12 @@ namespace boost { namespace dispatch
 
   /// @internal
   template<typename T>
-  struct signed_type_<T,signed> : std::conditional< behave_as<T,std::is_integral<brigand::_1>>::value
+  struct signed_type_<T,signed> : std::conditional< behave_as<T,std::is_integral<nsm::_1>>::value
                                                   , integer_<T>
                                                   , arithmetic_<T>
                                                   >::type
   {
-    using parent = typename std::conditional< behave_as<T,std::is_integral<brigand::_1>>::value
+    using parent = typename std::conditional< behave_as<T,std::is_integral<nsm::_1>>::value
                                             , integer_<T>
                                             , arithmetic_<T>
                                             >::type;

@@ -1,6 +1,5 @@
 /*
-Copyright Charly Chevalier 2015
-Copyright Joel Falcou 2015
+Copyright 2016 NumScale SAS
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE_1_0.txt or copy at
 http://www.boost.org/LICENSE_1_0.txt)
@@ -107,13 +106,13 @@ http://www.boost.org/LICENSE_1_0.txt)
 #define BOOST_HW_SIMD_X86_AVX2_VERSION BOOST_VERSION_NUMBER(5, 3, 0)
 
 /*`
- [heading `BOOST_HW_SIMD_X86_MIC_VERSION`]
+ [heading `BOOST_HW_SIMD_X86_AVX512_VERSION`]
 
- The [@https://en.wikipedia.org/wiki/Xeon_Phi MIC] (Xeon Phi) x86 extension
+ The [@https://en.wikipedia.org/wiki/AVX-512 AVX-512] x86 extension
  version number.
 
- Version number is: *9.0.0*.
+ Version number is: *6.0.0*.
  */
-#define BOOST_HW_SIMD_X86_MIC_VERSION BOOST_VERSION_NUMBER(9, 0, 0)
+#define BOOST_HW_SIMD_X86_AVX512_VERSION BOOST_VERSION_NUMBER(6, 0, 0)
 
 #endif

@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -14,36 +14,32 @@
 #if defined(DOXYGEN_ONLY)
 namespace boost { namespace simd
 {
-
- /*!
+  /*!
 
     @ingroup group-ieee
-    Function object implementing negatenz capabilities
+    This function object returns @c x multiplied by the @ref signnz of @c y.
+    The result is unspecified if @c y is @ref Nan
 
-    Returns x multiplied by the @ref signnz of y.
 
-    The result is unspecified if y is @ref Nan
-
-    @par Semantic:
-
-    @code
-    auto r = negatenz(x,y);
-    @endcode
-
-    is similar to:
-
-    @code
-    auto r = x*signnz(y);
-    @endcode
+    @par Header <boost/simd/function/negatenz.hpp>
 
     @par Note
-    If x is  null the result is @ref \f$\pm0\f$. Take care that negatenz distinguish
-    between the signs of T(0) and -T(0) when T is a floating type.
+    If @c x is  null the result is \f$\pm0\f$. Take care that @c negatenz distinguish
+    between the signs of `T(0)` and `-T(0)` when `T` is a floating type.
 
     @see negatenz, Mzero, is_positive, is_negative
 
+
+    @par Example:
+
+      @snippet negatenz.cpp negatenz
+
+    @par Possible output:
+
+      @snippet negatenz.txt negatenz
+
   **/
-  Value negatenz(Value const & x, value const& y);
+  Value negatenz(Value const& x, Value const& y);
 } }
 #endif
 

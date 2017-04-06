@@ -12,7 +12,7 @@
 #define BOOST_SIMD_CONSTANT_DEFINITION_MZERO_HPP_INCLUDED
 
 #include <boost/simd/config.hpp>
-#include <boost/simd/detail/brigand.hpp>
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch.hpp>
 #include <boost/simd/detail/constant_traits.hpp>
 #include <boost/simd/detail/dispatch/function/make_callable.hpp>
@@ -32,7 +32,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag,mzero_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, mzero_)
   }
 
   namespace detail
@@ -44,6 +44,12 @@ namespace boost { namespace simd
   BOOST_NOEXCEPT_DECLTYPE(detail::mzero( boost::dispatch::as_<T>{}))
   {
     return detail::mzero( boost::dispatch::as_<T>{} );
+  }
+
+  template<typename T> BOOST_FORCEINLINE
+  auto Mzero(boost::dispatch::as_<T> const&) BOOST_NOEXCEPT_DECLTYPE(Mzero<T>())
+  {
+    return Mzero<T>();
   }
 } }
 

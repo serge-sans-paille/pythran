@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,29 +15,33 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing cotd capabilities
+    This function object returns the cotangent of input in degree:
+    \f$\cos(\pi x/180)/\sin(\pi x/180)\f$.
 
-    cotangent of input in degree: \f$\cos(\pi x/180)/\sin(\pi x/180) \f$.
 
+    @par Header <boost/simd/function/cotd.hpp>
 
-    @par Semantic:
+    @par Note
 
-    For every parameter of floating type
-
-    @code
-    auto r = cotd(x);
-    @endcode
-
-    As most other trigonometric function cotd can be called with a second optional parameter
-    which is a tag on speed and accuracy (see @ref cos for further details)
+      As most other trigonometric function cotd can be called
+      with a second optional parameter  which is a tag on speed
+      and accuracy (see @ref cos for further details)
 
     @see cos, sin, tan, cot, cotpi
 
+
+    @par Example:
+
+      @snippet cotd.cpp cotd
+
+    @par Possible output:
+
+      @snippet cotd.txt cotd
+
   **/
-  Value cotd(Value const & v0);
+  IEEEValue cotd(IEEEValue const& x);
 } }
 #endif
 

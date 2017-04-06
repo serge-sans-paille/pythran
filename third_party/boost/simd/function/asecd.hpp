@@ -2,7 +2,7 @@
 /*!
   @file
 
-  @copyright 2016 NumScale SAS
+    @copyright 2016 NumScale SAS
 
   Distributed under the Boost Software License, Version 1.0.
   (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
@@ -15,25 +15,25 @@
 namespace boost { namespace simd
 {
 
- /*!
-
+  /*!
     @ingroup group-trigonometric
-    Function object implementing asecd capabilities
+    This function object returns the inverse secant
+    in degree: \f$(180/\pi) \arccos(1/x)\f$.
 
-     inverse secant in degree: \f$(180/\pi) \arccos(1/x)\f$.
+    @par Header <boost/simd/function/asecd.hpp>
 
-    @par Semantic:
+    @see asec,  asecpi
 
-    For every parameter of floating type
+    @par Example:
 
-    @code
-    auto r = asecd(x);
-    @endcode
+      @snippet asecd.cpp asecd
 
-    @see asec, ascpi, secd, acosd
+    @par Possible output:
+
+      @snippet asecd.txt asecd
 
   **/
-  Value asecd(Value const & v0);
+  IEEEValue asecd(IEEEValue const & x);
 } }
 #endif
 

@@ -19,6 +19,9 @@ namespace boost { namespace simd
 
     Generate  a value equal to 3 times @ref Eps of the chosen type
 
+
+    @par Header <boost/simd/constant/threeeps.hpp>
+
     @par Semantic:
 
     @code
@@ -51,8 +54,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/threeeps.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/threeeps.hpp>
+#include <boost/simd/constant/simd/threeeps.hpp>
 
 #endif

@@ -20,6 +20,9 @@ namespace boost { namespace simd
     Generate a mask with the lone most significand bit set to one
     (even if the type is unsigned).
 
+
+    @par Header <boost/simd/constant/signmask.hpp>
+
     @par Semantic:
 
     @code
@@ -49,8 +52,7 @@ namespace boost { namespace simd
 } }
 #endif
 
-#include <boost/simd/constant/definition/signmask.hpp>
-#include <boost/simd/arch/common/scalar/constant/constant_value.hpp>
-#include <boost/simd/arch/common/simd/constant/constant_value.hpp>
+#include <boost/simd/constant/scalar/signmask.hpp>
+#include <boost/simd/constant/simd/signmask.hpp>
 
 #endif

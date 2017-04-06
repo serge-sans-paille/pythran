@@ -34,35 +34,6 @@ namespace boost { namespace simd { namespace ext
     }
   };
 
-  BOOST_DISPATCH_OVERLOAD ( rec_
-                          , (typename T)
-                          , bs::sse_
-                          , bs::fast_tag
-                          , bd::scalar_<bd::single_<T>>
-                          )
-  {
-    BOOST_FORCEINLINE T operator()(bs::fast_tag const&, T a0) const BOOST_NOEXCEPT
-    {
-      return refine_rec(a0, raw_(rec)(a0));
-    }
-  };
-
-  BOOST_DISPATCH_OVERLOAD ( rec_
-                          , (typename T)
-                          , bs::sse_
-                          , bs::fast_tag
-                          , bd::scalar_<bd::double_<T>>
-                          )
-  {
-    BOOST_FORCEINLINE T operator()(bs::fast_tag const&, T a0) const BOOST_NOEXCEPT
-    {
-      float x  = a0;
-      double e = static_cast<float>( raw_(rec)(x) );
-             e = refine_rec(a0, e);
-
-      return refine_rec(a0, e);
-    }
-  };
 } } }
 
 #endif

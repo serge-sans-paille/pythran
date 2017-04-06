@@ -136,21 +136,21 @@ namespace boost { namespace simd { namespace ext
                                     ) const BOOST_NOEXCEPT
     {
       if (a1 == 0 || a0 == 0) return Zero<A0>();
-      A0 sign =  bitwise_xor(bitofsign(a0), bitofsign(a1));
+      A0 sgn =  bitwise_xor(bitofsign(a0), bitofsign(a1));
       un_t aa0 = simd::abs(a0);
       un_t aa1 = simd::abs(a1);
       if (aa1 >= aa0)
-        return aux(a0, a1, sign, aa0, aa1);
+        return aux(a0, a1, sgn, aa0, aa1);
       else
-        return aux(a1, a0, sign, aa1, aa0);
+        return aux(a1, a0, sgn, aa1, aa0);
     }
     static BOOST_FORCEINLINE A0 aux(const A0& mini,  const A0& maxi,
-                                    const A0& sign,
+                                    const A0& sgn,
                                     const un_t& amini, const un_t& amaxi)
     {
       un_t z = Valmax<A0>()/amaxi;
       return (z < amini)
-        ? ( sign ? Valmin<A0>():Valmax<A0>())
+        ? ( sgn ? Valmin<A0>():Valmax<A0>())
         : mini*maxi;
     }
   };

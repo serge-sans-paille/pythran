@@ -25,7 +25,7 @@ namespace boost { namespace simd
 
   namespace ext
   {
-    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, safe_min_);
+    BOOST_DISPATCH_FUNCTION_DECLARATION(tag, safe_min_)
   }
 
   BOOST_DISPATCH_CALLABLE_DEFINITION(tag::safe_min_,safe_min);

@@ -18,6 +18,8 @@
 
 namespace boost { namespace simd
 {
+  using detail::eps;
+
 } }
 
 #endif

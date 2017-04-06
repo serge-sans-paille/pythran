@@ -14,6 +14,7 @@
 #include <boost/simd/function/bitwise_cast.hpp>
 #include <boost/simd/function/shift_left.hpp>
 #include <boost/simd/function/shr.hpp>
+#include <boost/simd/function/shift_left.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 #include <boost/config.hpp>
@@ -43,7 +44,7 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator() ( A0 a0, A1 a1) const BOOST_NOEXCEPT
     {
-      return shl(a0, a1);
+      return shift_left(a0, a1);
     }
   };
 

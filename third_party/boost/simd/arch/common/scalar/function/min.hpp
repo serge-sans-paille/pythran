@@ -13,7 +13,7 @@
 
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/config.hpp>
-#include <boost/simd/function/conformant.hpp>
+#include <boost/simd/function/pedantic.hpp>
 #include <boost/simd/function/std.hpp>
 #include <algorithm>
 
@@ -37,12 +37,12 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( min_
                           , (typename A0)
                           , bd::cpu_
-                          , bs::conformant_tag
+                          , bs::pedantic_tag
                           , bd::scalar_< bd::arithmetic_<A0> >
                           , bd::scalar_< bd::arithmetic_<A0> >
                           )
   {
-    BOOST_FORCEINLINE A0 operator()( conformant_tag const&, A0 a0, A0 a1) const BOOST_NOEXCEPT
+    BOOST_FORCEINLINE A0 operator()( pedantic_tag const&, A0 a0, A0 a1) const BOOST_NOEXCEPT
     {
       return  (a1 < a0) ? a1 : a0;
     }

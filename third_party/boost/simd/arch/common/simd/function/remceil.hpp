@@ -28,15 +28,17 @@ namespace boost { namespace simd { namespace ext
    namespace bd = boost::dispatch;
    namespace bs = boost::simd;
    BOOST_DISPATCH_OVERLOAD_IF(rem_
-                          , (typename A0, typename X)
-                          , (detail::is_native<X>)
-                          , bd::cpu_
-                          , bs::tag::ceil_
-                          , bs::pack_<bd::int_<A0>, X>
-                          , bs::pack_<bd::int_<A0>, X>
-                          )
+                             , (typename A0, typename X)
+                             , (detail::is_native<X>)
+                             , bd::cpu_
+                             , bs::pedantic_tag
+                             , bs::tag::ceil_
+                             , bs::pack_<bd::int_<A0>, X>
+                             , bs::pack_<bd::int_<A0>, X>
+                             )
    {
-      BOOST_FORCEINLINE A0 operator()(bd::functor<bs::tag::ceil_> const&
+      BOOST_FORCEINLINE A0 operator()(pedantic_tag const &
+                                     , bd::functor<bs::tag::ceil_> const&
                                      , const A0& a0, const A0& a1) const BOOST_NOEXCEPT
       {
         return if_minus(is_nez(a1), a0, div(ceil,a0,a1)*a1);
@@ -46,29 +48,29 @@ namespace boost { namespace simd { namespace ext
                           , (typename A0, typename X)
                           , (detail::is_native<X>)
                           , bd::cpu_
-                          , bs::fast_tag
                           , bs::tag::ceil_
                           , bs::pack_<bd::signed_<A0>, X>
                           , bs::pack_<bd::signed_<A0>, X>
                           )
    {
-      BOOST_FORCEINLINE A0 operator()(const fast_tag &
-                                     , bd::functor<bs::tag::ceil_> const&
+     BOOST_FORCEINLINE A0 operator()( bd::functor<bs::tag::ceil_> const&
                                      , const A0& a0, const A0& a1) const BOOST_NOEXCEPT
       {
         return fnms(div(ceil, a0,a1), a1, a0);
       }
    };
   BOOST_DISPATCH_OVERLOAD_IF(rem_
-                          , (typename A0, typename X)
-                          , (detail::is_native<X>)
-                          , bd::cpu_
-                          , bs::tag::ceil_
-                          , bs::pack_<bd::floating_<A0>, X>
-                          , bs::pack_<bd::floating_<A0>, X>
-                          )
+                            , (typename A0, typename X)
+                            , (detail::is_native<X>)
+                            , bd::cpu_
+                            , bs::pedantic_tag
+                            , bs::tag::ceil_
+                            , bs::pack_<bd::floating_<A0>, X>
+                            , bs::pack_<bd::floating_<A0>, X>
+                            )
    {
-      BOOST_FORCEINLINE A0 operator()(bd::functor<bs::tag::ceil_> const&
+      BOOST_FORCEINLINE A0 operator()(pedantic_tag const &
+                                     , bd::functor<bs::tag::ceil_> const&
                                      , const A0& a0, const A0& a1) const BOOST_NOEXCEPT
       {
         return if_nan_else(logical_or(is_invalid(a1),is_invalid(a0)) ,

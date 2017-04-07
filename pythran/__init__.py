@@ -40,5 +40,6 @@ from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
                                test_compile)
 from pythran.spec import spec_parser
+from pythran.spec import load_specfile
 from pythran.dist import PythranExtension
 from pythran.version import __version__

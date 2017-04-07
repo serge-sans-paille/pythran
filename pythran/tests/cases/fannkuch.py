@@ -1,6 +1,6 @@
 #imported from https://bitbucket.org/pypy/benchmarks/src/846fa56a282b0e8716309f891553e0af542d8800/own/fannkuch.py?at=default
 # the export line is in fannkuch.pythran
-#runas fannkuch(9)
+#runas fannkuch(9);fannkuch2(9)
 #bench fannkuch(9)
 
 def fannkuch(n):
@@ -42,3 +42,5 @@ def fannkuch(n):
         else:
             return max_flips
 
+def fannkuch2(n):
+    fannkuch(n)

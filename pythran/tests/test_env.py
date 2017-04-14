@@ -16,7 +16,7 @@ import unittest
 
 import pytest
 
-from pythran import compile_pythrancode, spec_parser, frontend
+from pythran import compile_pythrancode, spec_parser, load_specfile, frontend
 from pythran.config import have_gmp_support
 from pythran.backend import Python
 from pythran.middlend import refine
@@ -230,7 +230,7 @@ class TestEnv(unittest.TestCase):
 
             # Compile the code using pythran
             cxx_compiled = compile_pythrancode(
-                modname, code, None, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
+                modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
 
             if not runas:
                 continue
@@ -375,7 +375,13 @@ class TestFromDir(TestEnv):
     def interface(name=None, file_=None):
         """ Return Pythran specs."""
         default_value = {name: []}
-        return spec_parser(open(file_).read()) if file_ else default_value
+
+        # Look for an extra spec file
+        spec_file = os.path.splitext(file_)[0] + '.pythran'
+        if os.path.isfile(spec_file):
+            return load_specfile(open(spec_file).read())
+        else:
+            return spec_parser(open(file_).read()) if file_ else default_value
 
     def __init__(self, *args, **kwargs):
         """ Dynamically add methods for unittests, second stage. """

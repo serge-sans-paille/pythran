@@ -69,8 +69,8 @@ class SpecParser(object):
     # regexp to extract pythran specs from comments
     # the first part matches lines with a comment and the pythran keyword
     # the second part matches lines with comments following the pythran ones
-    FILTER = re.compile(r'^\s*#\s*pythran[^\n\r]*[\n\r]+'
-                        r'^(?:\s*#[^\n\r]*[\n\r]+)*', re.MULTILINE)
+    FILTER = re.compile(r'^\s*#\s*pythran[^\n\r]*[\n\r]*'
+                        r'^(?:\s*#[^\n\r]*[\n\r]*)*', re.MULTILINE)
 
     def t_IDENTIFER(self, t):
         r'\#?[a-zA-Z_][a-zA-Z_0-9]*'

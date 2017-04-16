@@ -5,31 +5,13 @@ TODO
 Plenty of ideas for the brave!  If you want to work on one of these, please
 tell ``pythran@freelists.org`` before, as it is good to discuss before coding!
 
-Detect positive array indexing
-------------------------------
+Support ``numpy.random`` module
+-------------------------------
 
-*long-term job for serge-sans-paille*
-
-When indexing a list / array::
-
-    a[i]
-
-there is a sign test involved over ``i``. However in may cases, such as::
-
-    for i in range(len(a)):
-        a[i] += 1
-
-it is possible to statically ensure that ``i >=0``. Beware, this requires array
-preconditions analysis.
-
-
-Support ``random`` module
--------------------------
-
-The ``random`` module should be completely supported. Take into account parallelism!
+The ``numpy.random`` module should be completely supported. Take into account parallelism!
 
 Support ``str`` module
--------------------------
+----------------------
 
 Because current implementation sucks. Not that important for the kind of code
 we target, but still...
@@ -42,40 +24,6 @@ Because when you see::
     [x*x for x in l]
 
 you **must** think: what a good vectorization opportunity!
-
-Support ``import a_user_module``
---------------------------------
-
-So that Pythran user can split their code base into several files. This should
-not require that much work, but a good understanding (and a slight rework) of
-the module management in Pythran.
-
-Distutils integration
----------------------
-
-There is an extension mechanism in ``distutils`` to compile native modules when
-running ``setup.py``. Pythran should provide a compatibility layer. There is a
-first draft in the europar2013 branch, this is an easy go for newcomers.
-
-Pythran tutorial
-----------------
-
-Building a tutorial that makes it easier to understand Pythran usage would be
-nice. As Pythran is sooooooo easy to use, that should not be hard, so to make
-the task more interesting, the tutorial should be automatically tested when
-running ``setup.py test``.
-
-Named arguments
----------------
-
-Named arguments are not supported in Pythran... Yet! Alias aliasing to the rescue!
-
-Performance issues detection
-----------------------------
-
-There is a big benchmark / test cases codebase in Pythran. We should monitor it
-and detect performance bottleneck, as well as track speedup changes upon new
-commits.
 
 Try Except around import module statements
 ------------------------------------------
@@ -93,3 +41,64 @@ Sometime we can have a code which compute a constant but it is really long and
 we want to compile it to have the result faster. For now, pythran will compute
 it through CPython which makes it slower. A time out can avoid this issue.
 It might be possible to save current computation at the end of the timeout.
+
+Support for ``numpy.linalg`` module
+-----------------------------------
+
+Linear algebra is a keystone of scientific computing. Corresponding module
+should be integrated in Pythran to feet scientists needs.
+
+Improve Typing
+--------------
+
+Currently, Typing is totally forwarded to the C++ compiler. It is really costly
+at compile time and we should handle part of it. Also, it would permit to
+detect typing issues in Pythran to generate more user-friendly error messages.
+An example can be found here : http://dev.stephendiehl.com/numpile/
+
+Improve Aliasing
+----------------
+
+Aliasing is a really hard part of the Pythran compiler. For now, we have an
+Aliasing implementation but it is not complete nor customizable. We should
+have many aliasing available (must, may, flow-(in)dependant,
+context-(in)dependant) and they should be clearly defined especially
+with containers.
+
+Exploring Python 3 support
+--------------------------
+
+Python 3 is more and more often use and Python 2.7 will be deprecated in few
+years. We should first try to use Pythran on Python 2.7 code using a Python 3
+interpreter then we should look to translate Python 3 codes with Pythran.
+
+Improve performances of Pythran codes
+-------------------------------------
+
+Pythran implements many Python function in the Pythonic runtime. Most of them
+are optimized but do not use SIMD instructions or OpenMP parallelism. This
+should be fix to bring performances on all kernels.
+
+Support for ``numpy.matrix`` type
+---------------------------------
+
+Basically, we support ``numpy.ndarray`` type for numpy but we do not support 
+numpy matrix type. It should be only an alias on ndarray with 2 dimensions but
+many algorithm could also be improve with this known dimension.
+
+Port application to use Pythran
+-------------------------------
+
+We do our best to improve Pythran performances but we need some feedback from
+real application to know which modules are missing in the Pythran runtime and
+what kind of compiler optimisation should be added to improve generated module
+performances. Also, if it appears that we can improve performances of some
+well known Python modules without doing nothing. It will be a great ads for
+Pythran.
+
+Support for ``isinstance`` keyword
+----------------------------------
+
+Even if Python programs should be implicitly typed, genericity using isinstance
+should be possible generating multiple function definition depending on input
+types.

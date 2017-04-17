@@ -201,7 +201,7 @@ class PassManager(object):
         assert issubclass(backend, Backend)
         b = backend()
         b.passmanager = self
-        return b.run(node, None)
+        return = b.run(node, None)
 
     def apply(self, transformation, node, ctx=None):
         '''

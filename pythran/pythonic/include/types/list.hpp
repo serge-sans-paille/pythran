@@ -250,8 +250,10 @@ namespace pythonic
       operator()(contiguous_slice const &s) const;
 
       // modifiers
-      void push_back(T const &x);
-      void insert(long i, T const &x);
+      template <class Tp>
+      void push_back(Tp &&x);
+      template <class Tp>
+      void insert(long i, Tp &&x);
 
       void reserve(size_t n);
       void resize(size_t n);

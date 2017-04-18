@@ -450,17 +450,19 @@ namespace pythonic
 
     // modifiers
     template <class T>
-    void list<T>::push_back(T const &x)
+    template <class Tp>
+    void list<T>::push_back(Tp &&x)
     {
-      data->push_back(x);
+      data->emplace_back(std::forward<Tp>(x));
     }
     template <class T>
-    void list<T>::insert(long i, T const &x)
+    template <class Tp>
+    void list<T>::insert(long i, Tp &&x)
     {
       if (i == size())
-        data->push_back(x);
+        data->emplace_back(std::forward<Tp>(x));
       else
-        data->insert(data->begin() + i, x);
+        data->insert(data->begin() + i, std::forward<Tp>(x));
     }
     template <class T>
     void list<T>::reserve(size_t n)

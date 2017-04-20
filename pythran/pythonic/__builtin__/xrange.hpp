@@ -64,59 +64,6 @@ namespace pythonic
       return (value - other.value) / step;
     }
 
-    xrange_riterator::xrange_riterator()
-    {
-    }
-
-    xrange_riterator::xrange_riterator(long v, long s)
-        : value(v), step(s), sign(s < 0 ? 1 : -1)
-    {
-    }
-
-    long xrange_riterator::operator*()
-    {
-      return value;
-    }
-
-    xrange_riterator &xrange_riterator::operator++()
-    {
-      value += step;
-      return *this;
-    }
-
-    xrange_riterator xrange_riterator::operator++(int)
-    {
-      xrange_riterator self(*this);
-      value += step;
-      return self;
-    }
-
-    xrange_riterator &xrange_riterator::operator+=(long n)
-    {
-      value += step * n;
-      return *this;
-    }
-
-    bool xrange_riterator::operator!=(xrange_riterator const &other) const
-    {
-      return value != other.value;
-    }
-
-    bool xrange_riterator::operator==(xrange_riterator const &other) const
-    {
-      return value == other.value;
-    }
-
-    bool xrange_riterator::operator<(xrange_riterator const &other) const
-    {
-      return sign * value > sign * other.value;
-    }
-
-    long xrange_riterator::operator-(xrange_riterator const &other) const
-    {
-      return (value - other.value) / step;
-    }
-
     void xrange::_init_last()
     {
       if (_step > 0)

@@ -14,16 +14,16 @@ namespace pythonic
     {
 
       template <class K, class V, class W, class X>
-      V setdefault(types::dict<K, V> &d, W const &k, X const &default_);
+      V &setdefault(types::dict<K, V> &d, W const &k, X const &default_);
 
       template <class K, class V, class W>
-      V setdefault(types::dict<K, V> &d, W const &k);
+      types::none<V> setdefault(types::dict<K, V> &d, W const &k);
 
       template <class K, class V, class W, class X>
       V setdefault(types::dict<K, V> &&d, W const &k, X const &default_);
 
       template <class K, class V, class W>
-      V setdefault(types::dict<K, V> &&d, W const &k);
+      types::none<V> setdefault(types::dict<K, V> &&d, W const &k);
 
       DECLARE_FUNCTOR(pythonic::__builtin__::dict, setdefault);
     }

@@ -1261,7 +1261,8 @@ namespace pythonic
   };
 
   template <class T, size_t N>
-  PyObject *to_python<types::ndarray<T, N>>::convert(types::ndarray<T, N> n)
+  PyObject *to_python<types::ndarray<T, N>>::convert(types::ndarray<T, N> n,
+                                                     bool transpose)
   {
     if (n.mem.get_foreign()) {
       PyObject *p = n.mem.get_foreign();
@@ -1269,13 +1270,26 @@ namespace pythonic
       PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(p);
       auto const *pshape = PyArray_DIMS(arr);
       Py_INCREF(p);
-      if (std::equal(n.shape().begin(), n.shape().end(), pshape))
-        return p;
-      else {
+      if (std::equal(n.shape().begin(), n.shape().end(), pshape)) {
+        if (transpose && !(PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS))
+          return PyArray_Transpose(arr, nullptr);
+        else
+          return p;
+      } else if (std::equal(n.shape().rbegin(), n.shape().rend(), pshape)) {
+        if (transpose)
+          return p;
+        else
+          return PyArray_Transpose(arr, nullptr);
+      } else {
         Py_INCREF(PyArray_DESCR(arr));
-        return pyarray_new<long, N>{}.from_descr(
+        auto *res = pyarray_new<long, N>{}.from_descr(
             Py_TYPE(arr), PyArray_DESCR(arr), n._shape.data(),
             PyArray_DATA(arr), PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
+        if (transpose && (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS))
+          return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(arr),
+                                   nullptr);
+        else
+          return res;
       }
     } else {
       PyObject *result = pyarray_new<long, N>{}.from_data(
@@ -1285,7 +1299,11 @@ namespace pythonic
         return nullptr;
       PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject *>(result),
                           NPY_ARRAY_OWNDATA);
-      return result;
+      if (transpose)
+        return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(result),
+                                 nullptr);
+      else
+        return result;
     }
   }
 
@@ -1304,6 +1322,15 @@ namespace pythonic
     return ::to_python(
         types::ndarray<typename types::numpy_gexpr<Arg, S...>::dtype,
                        types::numpy_gexpr<Arg, S...>::value>{v});
+  }
+
+  template <class T>
+  PyObject *to_python<types::numpy_texpr<types::ndarray<T, 2>>>::convert(
+      types::numpy_texpr<types::ndarray<T, 2>> const &t)
+  {
+    auto const &n = t.arg;
+    PyObject *result = to_python<types::ndarray<T, 2>>::convert(n, true);
+    return result;
   }
 
   namespace impl

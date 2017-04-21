@@ -16,13 +16,13 @@ namespace pythonic
     {
 
       template <class K, class V, class W, class X>
-      V setdefault(types::dict<K, V> &d, W const &k, X const &default_)
+      V &setdefault(types::dict<K, V> &d, W const &k, X const &default_)
       {
         return d.setdefault(k, default_);
       }
 
       template <class K, class V, class W>
-      V setdefault(types::dict<K, V> &d, W const &k)
+      types::none<V> setdefault(types::dict<K, V> &d, W const &k)
       {
         return d.get(k);
       }
@@ -34,7 +34,7 @@ namespace pythonic
       }
 
       template <class K, class V, class W>
-      V setdefault(types::dict<K, V> &&d, W const &k)
+      types::none<V> setdefault(types::dict<K, V> &&d, W const &k)
       {
         return d.get(k);
       }

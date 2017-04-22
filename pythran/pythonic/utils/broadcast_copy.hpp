@@ -69,19 +69,16 @@ namespace pythonic
 #endif
             std::copy(other.begin(), other.end(), self.begin());
 
-          // eventually repeat the pattern
-          size_t n = self_size / other_size;
+// eventually repeat the pattern
 #ifdef _OPENMP
-          if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+          if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
 #pragma omp parallel for
-            for (size_t i = 1; i < n; ++i)
-              std::copy_n(self.begin(), other_size,
-                          self.begin() + i * other_size);
+            for (size_t i = other_size; i < self_size; i += other_size)
+              std::copy_n(self.begin(), other_size, self.begin() + i);
           else
 #endif
-            for (size_t i = 1; i < n; ++i)
-              std::copy_n(self.begin(), other_size,
-                          self.begin() + i * other_size);
+            for (size_t i = other_size; i < self_size; i += other_size)
+              std::copy_n(self.begin(), other_size, self.begin() + i);
         }
       }
     };
@@ -142,18 +139,15 @@ namespace pythonic
             *(siter + i) = *(oiter + i);
         }
 
-        size_t n = self_size / other_size;
 #ifdef _OPENMP
-        if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+        if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
 #pragma omp parallel for
-          for (size_t i = 1; i < n; ++i)
-            std::copy_n(self.begin(), other_size,
-                        self.begin() + i * other_size);
+          for (size_t i = other_size; i < self_size; i += other_size)
+            std::copy_n(self.begin(), other_size, self.begin() + i);
         else
 #endif
-          for (size_t i = 1; i < n; ++i)
-            std::copy_n(self.begin(), other_size,
-                        self.begin() + i * other_size);
+          for (size_t i = other_size; i < self_size; i += other_size)
+            std::copy_n(self.begin(), other_size, self.begin() + i);
       }
     }
 

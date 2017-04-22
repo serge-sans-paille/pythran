@@ -113,6 +113,24 @@ def dict_of_complex64_and_complex_128(l):
     def test_transposed_arg2(self):
         self.run_test("def np_transposed_arg2(a): return a", np.arange(12, dtype=complex).reshape(3,4).T, np_transposed_arg2=[NDArray[complex, :, :]])
 
+    def test_transposed_targ0(self):
+        self.run_test("def np_transposed_targ0(a): return a.T", np.arange(9).reshape(3,3).T, np_transposed_targ0=[NDArray[int, :, :]])
+
+    def test_transposed_targ1(self):
+        self.run_test("def np_transposed_targ1(a): return a.T", np.arange(12).reshape(3,4).T, np_transposed_targ1=[NDArray[int, :, :]])
+
+    def test_transposed_targ2(self):
+        self.run_test("def np_transposed_targ2(a): return a.T", np.arange(12, dtype=complex).reshape(3,4).T, np_transposed_targ2=[NDArray[complex, :, :]])
+
+    def test_transposed_argt0(self):
+        self.run_test("def np_transposed_argt0(a): return a.T", np.arange(9).reshape(3,3), np_transposed_argt0=[NDArray[int, :, :]])
+
+    def test_transposed_argt1(self):
+        self.run_test("def np_transposed_argt1(a): return a.T", np.arange(12).reshape(3,4), np_transposed_argt1=[NDArray[int, :, :]])
+
+    def test_transposed_argt2(self):
+        self.run_test("def np_transposed_argt2(a): return a.T", np.arange(12, dtype=complex).reshape(3,4), np_transposed_argt2=[NDArray[complex, :, :]])
+
     def test_broadcasted_int8(self):
         self.run_test('def broadcasted_int8(l): return l + 4', np.ones(10,dtype=np.int8).reshape(5,2), broadcasted_int8=[NDArray[np.int8, :, :]])
 

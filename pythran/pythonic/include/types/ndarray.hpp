@@ -748,7 +748,7 @@ namespace pythonic
 
   template <class T, size_t N>
   struct to_python<types::ndarray<T, N>> {
-    static PyObject *convert(types::ndarray<T, N> n);
+    static PyObject *convert(types::ndarray<T, N> n, bool transpose = false);
   };
 
   template <class Arg>
@@ -759,6 +759,11 @@ namespace pythonic
   template <class Arg, class... S>
   struct to_python<types::numpy_gexpr<Arg, S...>> {
     static PyObject *convert(types::numpy_gexpr<Arg, S...> const &v);
+  };
+
+  template <class T>
+  struct to_python<types::numpy_texpr<types::ndarray<T, 2>>> {
+    static PyObject *convert(types::numpy_texpr<types::ndarray<T, 2>> const &v);
   };
 
   template <typename T, size_t N>

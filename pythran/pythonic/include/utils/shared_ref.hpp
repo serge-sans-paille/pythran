@@ -90,7 +90,8 @@ namespace pythonic
       // use it anymore
       void external(extern_type obj_ptr);
 
-      inline extern_type get_foreign();
+      extern_type get_foreign();
+      bool is_foreign() const;
 
     private:
       void dispose();

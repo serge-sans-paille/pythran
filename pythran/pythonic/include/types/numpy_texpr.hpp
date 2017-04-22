@@ -176,6 +176,11 @@ namespace pythonic
     using type = types::ndarray<typename Arg::dtype, Arg::value>;
   };
 
+  template <class T>
+  struct returnable<types::numpy_texpr<types::ndarray<T, 2>>> {
+    using type = types::numpy_texpr<types::ndarray<T, 2>>;
+  };
+
   template <class Arg>
   struct lazy<types::numpy_texpr<Arg>> {
     using type = types::numpy_texpr<typename lazy<Arg>::type>;

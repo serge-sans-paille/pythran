@@ -27,6 +27,9 @@ if sys.version_info.major == 3:
     sys.modules['__builtin__'].long = long
     import functools
     sys.modules['__builtin__'].reduce = functools.reduce
+    getargspec = inspect.getfullargspec
+else:
+    getargspec = inspect.getargspec
 
 logger = logging.getLogger("pythran")
 
@@ -4405,7 +4408,7 @@ def save_arguments(module_name, elements):
             try:
                 themodule = __import__(".".join(module_name))
                 obj = getattr(themodule, elem)
-                spec = inspect.getargspec(obj)
+                spec = getargspec(obj)
                 assert not signature.args.args
 
                 signature.args.args

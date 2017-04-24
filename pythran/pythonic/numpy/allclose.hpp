@@ -13,31 +13,34 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class I0, class I1>
-    bool _allclose(I0 begin, I0 end, I1 ibegin, double rtol, double atol,
-                   utils::int_<1>)
+    namespace
     {
-      for (; begin != end; ++begin, ++ibegin) {
-        auto u = *begin;
-        auto v = *ibegin;
-        if (((!functor::isfinite()(u) || !functor::isfinite()(v)) &&
-             u != v) || // Infinite and NaN cases
-            functor::abs()(u - v) > (atol + rtol * functor::abs()(v))) {
-          return false;
+      template <class I0, class I1>
+      bool _allclose(I0 begin, I0 end, I1 ibegin, double rtol, double atol,
+                     utils::int_<1>)
+      {
+        for (; begin != end; ++begin, ++ibegin) {
+          auto u = *begin;
+          auto v = *ibegin;
+          if (((!functor::isfinite()(u) || !functor::isfinite()(v)) &&
+               u != v) || // Infinite and NaN cases
+              functor::abs()(u - v) > (atol + rtol * functor::abs()(v))) {
+            return false;
+          }
         }
+        return true;
       }
-      return true;
-    }
 
-    template <class I0, class I1, size_t N>
-    bool _allclose(I0 begin, I0 end, I1 ibegin, double rtol, double atol,
-                   utils::int_<N>)
-    {
-      for (; begin != end; ++begin, ++ibegin)
-        if (not _allclose((*begin).begin(), (*begin).end(), (*ibegin).begin(),
-                          rtol, atol, utils::int_<N - 1>()))
-          return false;
-      return true;
+      template <class I0, class I1, size_t N>
+      bool _allclose(I0 begin, I0 end, I1 ibegin, double rtol, double atol,
+                     utils::int_<N>)
+      {
+        for (; begin != end; ++begin, ++ibegin)
+          if (not _allclose((*begin).begin(), (*begin).end(), (*ibegin).begin(),
+                            rtol, atol, utils::int_<N - 1>()))
+            return false;
+        return true;
+      }
     }
 
     template <class U, class V>

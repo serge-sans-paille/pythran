@@ -7,10 +7,6 @@
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/types/attr.hpp"
-#include "pythonic/include/__builtin__/IOError.hpp"
-#include "pythonic/include/__builtin__/ValueError.hpp"
-#include "pythonic/include/__builtin__/RuntimeError.hpp"
-#include "pythonic/include/__builtin__/StopIteration.hpp"
 
 #include <fstream>
 #include <iterator>

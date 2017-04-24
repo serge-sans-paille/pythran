@@ -5,10 +5,6 @@
 #include "pythonic/include/operator_/iadd.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/function/sum.hpp>
-#endif
-
 namespace pythonic
 {
 

@@ -22,21 +22,24 @@ namespace pythonic
       return std::make_tuple(significand, exp);
     }
 
-    template <class E, class F, class G>
-    void _frexp(E begin, E end, F significands_iter, G exps_iter,
-                utils::int_<1>)
+    namespace
     {
-      for (; begin != end; ++begin, ++significands_iter, ++exps_iter)
-        *significands_iter = std::frexp(*begin, exps_iter);
-    }
+      template <class E, class F, class G>
+      void _frexp(E begin, E end, F significands_iter, G exps_iter,
+                  utils::int_<1>)
+      {
+        for (; begin != end; ++begin, ++significands_iter, ++exps_iter)
+          *significands_iter = std::frexp(*begin, exps_iter);
+      }
 
-    template <class E, class F, class G, size_t N>
-    void _frexp(E begin, E end, F significands_iter, G exps_iter,
-                utils::int_<N>)
-    {
-      for (; begin != end; ++begin, ++significands_iter, ++exps_iter)
-        _frexp((*begin).begin(), (*begin).end(), (*significands_iter).begin(),
-               (*exps_iter).begin(), utils::int_<N - 1>());
+      template <class E, class F, class G, size_t N>
+      void _frexp(E begin, E end, F significands_iter, G exps_iter,
+                  utils::int_<N>)
+      {
+        for (; begin != end; ++begin, ++significands_iter, ++exps_iter)
+          _frexp((*begin).begin(), (*begin).end(), (*significands_iter).begin(),
+                 (*exps_iter).begin(), utils::int_<N - 1>());
+      }
     }
 
     template <class E>

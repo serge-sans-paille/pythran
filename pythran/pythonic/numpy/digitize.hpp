@@ -13,22 +13,25 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class I, class O, class B, class Op>
-    void _digitize(I begin, I end, O &out, B &bins, Op const &op,
-                   utils::int_<1>)
+    namespace
     {
-      for (; begin != end; ++begin, ++out)
-        *out = std::lower_bound(bins.begin(), bins.end(), *begin, op) -
-               bins.begin();
-    }
+      template <class I, class O, class B, class Op>
+      void _digitize(I begin, I end, O &out, B &bins, Op const &op,
+                     utils::int_<1>)
+      {
+        for (; begin != end; ++begin, ++out)
+          *out = std::lower_bound(bins.begin(), bins.end(), *begin, op) -
+                 bins.begin();
+      }
 
-    template <class I, class O, class B, class Op, size_t N>
-    void _digitize(I begin, I end, O &out, B &bins, Op const &op,
-                   utils::int_<N>)
-    {
-      for (; begin != end; ++begin)
-        _digitize((*begin).begin(), (*begin).end(), out, bins, op,
-                  utils::int_<N - 1>());
+      template <class I, class O, class B, class Op, size_t N>
+      void _digitize(I begin, I end, O &out, B &bins, Op const &op,
+                     utils::int_<N>)
+      {
+        for (; begin != end; ++begin)
+          _digitize((*begin).begin(), (*begin).end(), out, bins, op,
+                    utils::int_<N - 1>());
+      }
     }
 
     template <class E, class F>

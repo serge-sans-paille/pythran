@@ -13,18 +13,21 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class I, class O>
-    void _union1d(I begin, I end, O &out, utils::int_<1>)
+    namespace
     {
-      for (; begin != end; ++begin)
-        out.insert(*begin);
-    }
+      template <class I, class O>
+      void _union1d(I begin, I end, O &out, utils::int_<1>)
+      {
+        for (; begin != end; ++begin)
+          out.insert(*begin);
+      }
 
-    template <class I, class O, size_t N>
-    void _union1d(I begin, I end, O &out, utils::int_<N>)
-    {
-      for (; begin != end; ++begin)
-        _union1d((*begin).begin(), (*begin).end(), out, utils::int_<N - 1>());
+      template <class I, class O, size_t N>
+      void _union1d(I begin, I end, O &out, utils::int_<N>)
+      {
+        for (; begin != end; ++begin)
+          _union1d((*begin).begin(), (*begin).end(), out, utils::int_<N - 1>());
+      }
     }
 
     template <class E, class F>

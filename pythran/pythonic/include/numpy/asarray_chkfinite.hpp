@@ -1,7 +1,6 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ASARRAYCHKFINITE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ASARRAYCHKFINITE_HPP
 
-#include "pythonic/include/__builtin__/ValueError.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/numpy/isfinite.hpp"

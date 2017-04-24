@@ -6,8 +6,6 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/__builtin__/range.hpp"
 
-#include <iterator>
-#include <vector>
 #include <algorithm>
 
 namespace pythonic

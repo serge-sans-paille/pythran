@@ -6,9 +6,6 @@
 #include "pythonic/itertools/common.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <iterator>
-#include <type_traits>
-
 namespace pythonic
 {
 

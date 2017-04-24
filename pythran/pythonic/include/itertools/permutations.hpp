@@ -3,11 +3,9 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/list.hpp"
-#include "pythonic/include/__builtin__/range.hpp"
 
 #include <iterator>
 #include <vector>
-#include <algorithm>
 
 namespace pythonic
 {
@@ -24,7 +22,7 @@ namespace pythonic
      *
      *  permutations_iterator([0, 1, 2])
      *
-     *  yelds the following suite:
+     *  yields the following suite:
      *
      *  [(0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0)]
      *

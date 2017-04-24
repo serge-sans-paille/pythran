@@ -4,7 +4,6 @@
 #include "pythonic/include/numpy/uint64.hpp"
 
 #include "pythonic/utils/functor.hpp"
-#include "pythonic/utils/meta.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 

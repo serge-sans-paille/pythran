@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_NUMPY_UINT32_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include "pythonic/include/utils/meta.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 

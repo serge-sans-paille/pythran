@@ -24,32 +24,35 @@ namespace pythonic
       return out;
     }
 
-    template <class To, class From, size_t N>
-    To _roll(To to, From from, long, long, types::array<long, N> const &,
-             utils::int_<0>)
+    namespace
     {
-      *to = *from;
-      return to + 1;
-    }
+      template <class To, class From, size_t N>
+      To _roll(To to, From from, long, long, types::array<long, N> const &,
+               utils::int_<0>)
+      {
+        *to = *from;
+        return to + 1;
+      }
 
-    template <class To, class From, size_t N, size_t M>
-    To _roll(To to, From from, long shift, long axis,
-             types::array<long, N> const &shape, utils::int_<M>)
-    {
-      long n = shape[N - M];
-      long offset = std::accumulate(shape.begin() + N - M + 1, shape.end(), 1L,
-                                    std::multiplies<long>());
-      if (axis == N - M) {
-        for (long i = 0; i < shift; ++i)
-          to = _roll(to, from + (n - shift + i) * offset, shift, axis, shape,
-                     utils::int_<M - 1>());
-        for (long i = shift; i < n; ++i)
-          to = _roll(to, from + (i - shift) * offset, shift, axis, shape,
-                     utils::int_<M - 1>());
-      } else
-        for (From end = from + n * offset; from != end; from += offset)
-          to = _roll(to, from, shift, axis, shape, utils::int_<M - 1>());
-      return to;
+      template <class To, class From, size_t N, size_t M>
+      To _roll(To to, From from, long shift, long axis,
+               types::array<long, N> const &shape, utils::int_<M>)
+      {
+        long n = shape[N - M];
+        long offset = std::accumulate(shape.begin() + N - M + 1, shape.end(),
+                                      1L, std::multiplies<long>());
+        if (axis == N - M) {
+          for (long i = 0; i < shift; ++i)
+            to = _roll(to, from + (n - shift + i) * offset, shift, axis, shape,
+                       utils::int_<M - 1>());
+          for (long i = shift; i < n; ++i)
+            to = _roll(to, from + (i - shift) * offset, shift, axis, shape,
+                       utils::int_<M - 1>());
+        } else
+          for (From end = from + n * offset; from != end; from += offset)
+            to = _roll(to, from, shift, axis, shape, utils::int_<M - 1>());
+        return to;
+      }
     }
 
     template <class T, size_t N>

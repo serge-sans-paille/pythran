@@ -3,7 +3,6 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/numpy/asarray.hpp"
 
 namespace pythonic
 {

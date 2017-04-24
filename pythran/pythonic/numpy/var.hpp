@@ -30,25 +30,28 @@ namespace pythonic
       return sum(t * t) / var_type<E>(expr.flat_size() - ddof);
     }
 
-    // this is a workaround for the lack of efficient support for broadcasting
-    // in pythonic
-    template <class T, class E, class M>
-    void _enlarge_copy_minus(T &&t, E const &e, M const &m, long axis,
-                             utils::int_<1>)
+    namespace
     {
-      for (long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n;)
-        for (long j = 0; j < p; ++j, ++i)
-          t.fast(i) = e.fast(i) - m.fast(j);
-    }
+      // this is a workaround for the lack of efficient support for broadcasting
+      // in pythonic
+      template <class T, class E, class M>
+      void _enlarge_copy_minus(T &&t, E const &e, M const &m, long axis,
+                               utils::int_<1>)
+      {
+        for (long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n;)
+          for (long j = 0; j < p; ++j, ++i)
+            t.fast(i) = e.fast(i) - m.fast(j);
+      }
 
-    template <class T, class E, class M, size_t N>
-    void _enlarge_copy_minus(T &&t, E const &e, M const &m, long axis,
-                             utils::int_<N>)
-    {
-      for (long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n;)
-        for (long j = 0; j < p; ++j, ++i)
-          _enlarge_copy_minus(t.fast(i), e.fast(i), m.fast(j), axis,
-                              utils::int_<N - 1>());
+      template <class T, class E, class M, size_t N>
+      void _enlarge_copy_minus(T &&t, E const &e, M const &m, long axis,
+                               utils::int_<N>)
+      {
+        for (long i = 0, n = e.shape()[0], p = m.shape()[0]; i < n;)
+          for (long j = 0; j < p; ++j, ++i)
+            _enlarge_copy_minus(t.fast(i), e.fast(i), m.fast(j), axis,
+                                utils::int_<N - 1>());
+      }
     }
 
     template <class E>

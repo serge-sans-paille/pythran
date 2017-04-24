@@ -21,38 +21,41 @@ namespace pythonic
     {
       return {arr};
     }
-
-    template <class T, unsigned long N, class... C>
-    types::ndarray<T, N> _transpose(types::ndarray<T, N> const &a,
-                                    long const l[N])
+    namespace
     {
-      auto shape = a.shape();
-      types::array<long, N> shp;
-      for (unsigned long i = 0; i < N; ++i)
-        shp[i] = shape[l[i]];
+      template <class T, unsigned long N, class... C>
+      types::ndarray<T, N> _transpose(types::ndarray<T, N> const &a,
+                                      long const l[N])
+      {
+        auto shape = a.shape();
+        types::array<long, N> shp;
+        for (unsigned long i = 0; i < N; ++i)
+          shp[i] = shape[l[i]];
 
-      types::ndarray<T, N> new_array(shp, __builtin__::None);
+        types::ndarray<T, N> new_array(shp, __builtin__::None);
 
-      types::array<long, N> new_strides;
-      new_strides[N - 1] = 1;
-      std::transform(new_strides.rbegin(), new_strides.rend() - 1, shp.rbegin(),
-                     new_strides.rbegin() + 1, std::multiplies<long>());
+        types::array<long, N> new_strides;
+        new_strides[N - 1] = 1;
+        std::transform(new_strides.rbegin(), new_strides.rend() - 1,
+                       shp.rbegin(), new_strides.rbegin() + 1,
+                       std::multiplies<long>());
 
-      types::array<long, N> old_strides;
-      old_strides[N - 1] = 1;
-      std::transform(old_strides.rbegin(), old_strides.rend() - 1,
-                     shape.rbegin(), old_strides.rbegin() + 1,
-                     std::multiplies<long>());
+        types::array<long, N> old_strides;
+        old_strides[N - 1] = 1;
+        std::transform(old_strides.rbegin(), old_strides.rend() - 1,
+                       shape.rbegin(), old_strides.rbegin() + 1,
+                       std::multiplies<long>());
 
-      auto iter = a.buffer, iter_end = a.buffer + a.flat_size();
-      for (long i = 0; iter != iter_end; ++iter, ++i) {
-        long offset = 0;
-        for (unsigned long s = 0; s < N; s++)
-          offset += ((i / old_strides[l[s]]) % shape[l[s]]) * new_strides[s];
-        new_array.buffer[offset] = *iter;
+        auto iter = a.buffer, iter_end = a.buffer + a.flat_size();
+        for (long i = 0; iter != iter_end; ++iter, ++i) {
+          long offset = 0;
+          for (unsigned long s = 0; s < N; s++)
+            offset += ((i / old_strides[l[s]]) % shape[l[s]]) * new_strides[s];
+          new_array.buffer[offset] = *iter;
+        }
+
+        return new_array;
       }
-
-      return new_array;
     }
 
     template <class T, size_t N>

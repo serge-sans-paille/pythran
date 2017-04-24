@@ -16,26 +16,31 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class I0, class I1>
-    void _unwrap(I0 ibegin, I0 iend, I1 obegin, double discont, utils::int_<1>)
+    namespace
     {
-      *obegin = *ibegin;
-      ++ibegin;
-      for (; ibegin != iend; ++ibegin, ++obegin) {
-        if (boost::simd::abs(*obegin - *ibegin) > discont)
-          *(obegin + 1) =
-              *ibegin + 2 * pi * int((*obegin - *ibegin) / (discont));
-        else
-          *(obegin + 1) = *ibegin;
+      template <class I0, class I1>
+      void _unwrap(I0 ibegin, I0 iend, I1 obegin, double discont,
+                   utils::int_<1>)
+      {
+        *obegin = *ibegin;
+        ++ibegin;
+        for (; ibegin != iend; ++ibegin, ++obegin) {
+          if (boost::simd::abs(*obegin - *ibegin) > discont)
+            *(obegin + 1) =
+                *ibegin + 2 * pi * int((*obegin - *ibegin) / (discont));
+          else
+            *(obegin + 1) = *ibegin;
+        }
       }
-    }
 
-    template <class I0, class I1, size_t N>
-    void _unwrap(I0 ibegin, I0 iend, I1 obegin, double discont, utils::int_<N>)
-    {
-      for (; ibegin != iend; ++ibegin, ++obegin)
-        _unwrap((*ibegin).begin(), (*ibegin).end(), (*obegin).begin(), discont,
-                utils::int_<N - 1>());
+      template <class I0, class I1, size_t N>
+      void _unwrap(I0 ibegin, I0 iend, I1 obegin, double discont,
+                   utils::int_<N>)
+      {
+        for (; ibegin != iend; ++ibegin, ++obegin)
+          _unwrap((*ibegin).begin(), (*ibegin).end(), (*obegin).begin(),
+                  discont, utils::int_<N - 1>());
+      }
     }
 
     template <class E>

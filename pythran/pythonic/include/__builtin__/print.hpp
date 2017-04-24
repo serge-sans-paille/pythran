@@ -10,12 +10,6 @@ namespace pythonic
   namespace __builtin__
   {
 
-    namespace details
-    {
-      template <class T>
-      std::ostream &print(std::ostream &os, T const &t);
-    }
-
     void print_nonl();
 
     template <typename T, typename... Types>

@@ -17,36 +17,38 @@ namespace pythonic
   {
     namespace path
     {
-
-      template <class T>
-      size_t sizeof_string(T const &s)
+      namespace
       {
-        return s.size();
-      }
-
-      template <class T, class... Types>
-      size_t sizeof_string(T const &s, Types &&... tail)
-      {
-        return s.size() + sizeof_string(std::forward<Types>(tail)...);
-      }
-
-      void _join(types::str &buffer)
-      {
-      }
-
-      template <class T, class... Types>
-      void _join(types::str &buffer, T &&head, Types &&... tail)
-      {
-        if (head[0] == '/')
-          buffer = std::forward<T>(head);
-        else if (not buffer or *buffer.rbegin() == OS_SEP or
-                 *buffer.rbegin() == '/')
-          buffer += std::forward<T>(head);
-        else {
-          buffer += OS_SEP;
-          buffer += std::forward<T>(head);
+        template <class T>
+        size_t sizeof_string(T const &s)
+        {
+          return s.size();
         }
-        _join(buffer, std::forward<Types>(tail)...);
+
+        template <class T, class... Types>
+        size_t sizeof_string(T const &s, Types &&... tail)
+        {
+          return s.size() + sizeof_string(std::forward<Types>(tail)...);
+        }
+
+        void _join(types::str &buffer)
+        {
+        }
+
+        template <class T, class... Types>
+        void _join(types::str &buffer, T &&head, Types &&... tail)
+        {
+          if (head[0] == '/')
+            buffer = std::forward<T>(head);
+          else if (not buffer or *buffer.rbegin() == OS_SEP or
+                   *buffer.rbegin() == '/')
+            buffer += std::forward<T>(head);
+          else {
+            buffer += OS_SEP;
+            buffer += std::forward<T>(head);
+          }
+          _join(buffer, std::forward<Types>(tail)...);
+        }
       }
 
       template <class T>

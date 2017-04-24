@@ -3,7 +3,6 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/__builtin__/ValueError.hpp"
 #include "pythonic/include/numpy/multiply.hpp"
 
 namespace pythonic

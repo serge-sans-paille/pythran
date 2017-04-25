@@ -5,12 +5,12 @@ This module contains all pythran backends.
 '''
 from __future__ import print_function
 
-from pythran.analyses import ArgumentEffects, BoundExpressions, Dependencies
+from pythran.analyses import ArgumentEffects, Dependencies
 from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
-from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef
+from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
@@ -22,7 +22,7 @@ from pythran.syntax import PythranSyntaxError
 from pythran.tables import operator_to_lambda, pythran_ward, make_lazy
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
-from pythran.utils import attr_to_path
+from pythran.utils import attr_to_path, pushpop
 from pythran import metadata, unparse
 
 from math import isnan, isinf
@@ -69,14 +69,7 @@ def templatize(node, types, default_types=None):
         return node
 
 
-def strip_exp(s):
-    if s.startswith('(') and s.endswith(')'):
-        return s[1:-1]
-    else:
-        return s
-
-
-def cxx_loop(fun):
+def cxx_loop(visit):
     """
     Decorator for loop node (For and While) to handle "else" branching.
 
@@ -105,23 +98,19 @@ def cxx_loop(fun):
 
         It push the breaking flag, run the visitor and add "else" statements.
         """
-        if node.orelse:
-            break_handler = "__no_breaking{0}".format(len(self.break_handlers))
-        else:
-            break_handler = None
-        self.break_handlers.append(break_handler)
+        if not node.orelse:
+            with pushpop(self.break_handlers, None):
+                res = visit(self, node)
+            return res
 
-        res = fun(self, node)
-
-        self.break_handlers.pop()
+        break_handler = "__no_breaking{0}".format(len(self.break_handlers))
+        with pushpop(self.break_handlers, break_handler):
+            res = visit(self, node)
 
         # handle the body of the for loop
-        if break_handler:
-            orelse = [self.visit(stmt) for stmt in node.orelse]
-            orelse_label = Statement("{0}:".format(break_handler))
-            return Block([res] + orelse + [orelse_label])
-        else:
-            return res
+        orelse = [self.visit(stmt) for stmt in node.orelse]
+        orelse_label = Label(break_handler)
+        return Block([res] + orelse + [orelse_label])
     return loop_visitor
 
 
@@ -185,7 +174,7 @@ pythonic::types::none_type>::type result_type;
         self.result = None
         self.ldecls = set()
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
-                                  BoundExpressions, Types, ArgumentEffects,
+                                  Types, ArgumentEffects,
                                   Scope, RangeValues, PureExpressions)
 
     # mod
@@ -1043,25 +1032,27 @@ pythonic::types::none_type>::type result_type;
     def visit_Try(self, node):
         body = [self.visit(n) for n in node.body]
         except_ = list()
-        [except_.extend(self.visit(n)) for n in node.handlers]
+        for n in node.handlers:
+            except_.extend(self.visit(n))
         return TryExcept(Block(body), except_)
 
     def visit_ExceptHandler(self, node):
         name = self.visit(node.name) if node.name else None
         body = [self.visit(m) for m in node.body]
-        if not isinstance(node.type, ast.Tuple):
+        if isinstance(node.type, ast.Tuple):
+            return [ExceptHandler(p.attr, Block(body), name)
+                    for p in node.type.elts]
+        else:
             return [ExceptHandler(
                 node.type and node.type.attr,
                 Block(body),
                 name)]
-        else:
-            elts = [p.attr for p in node.type.elts]
-            return [ExceptHandler(o, Block(body), name) for o in elts]
 
     def visit_If(self, node):
         test = self.visit(node.test)
         body = [self.visit(n) for n in node.body]
         orelse = [self.visit(n) for n in node.orelse]
+        # compound statement required for some OpenMP Directives
         if isinstance(node.test, ast.Num) and node.test.n == 1:
             stmt = Block(body)
         else:
@@ -1075,7 +1066,7 @@ pythonic::types::none_type>::type result_type;
 
     def visit_Assert(self, node):
         params = [self.visit(node.test), node.msg and self.visit(node.msg)]
-        sparams = ", ".join(strip_exp(_f) for _f in params if _f)
+        sparams = ", ".join(_f for _f in params if _f)
         return Statement("pythonic::pythran_assert({0})".format(sparams))
 
     def visit_Import(self, _):
@@ -1099,7 +1090,7 @@ pythonic::types::none_type>::type result_type;
 
         See Also : cxx_loop
         """
-        if self.break_handlers[-1]:
+        if self.break_handlers and self.break_handlers[-1]:
             return Statement("goto {0}".format(self.break_handlers[-1]))
         else:
             return Statement("break")
@@ -1110,14 +1101,7 @@ pythonic::types::none_type>::type result_type;
     # expr
     def visit_BoolOp(self, node):
         values = [self.visit(value) for value in node.values]
-        if node in self.bound_expressions:
-            op = operator_to_lambda[type(node.op)]
-        elif isinstance(node.op, ast.And):
-            def op(l, r):
-                return '({0} and {1})'.format(l, r)
-        elif isinstance(node.op, ast.Or):
-            def op(l, r):
-                return '({0} or {1})'.format(l, r)
+        op = operator_to_lambda[type(node.op)]
         return reduce(op, values)
 
     def visit_BinOp(self, node):
@@ -1149,17 +1133,14 @@ pythonic::types::none_type>::type result_type;
         else:
             elts = [self.visit(n) for n in node.elts]
             elts_type = [DeclType(elt) for elt in elts]
-            if len(elts_type) == 1:
-                elts_type = elts_type[0]
-            else:
-                elts_type = CombinedTypes(*elts_type)
-            node_type = ListType(elts_type)
+            elts_type = CombinedTypes(*elts_type)
 
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
                 elts.append('pythonic::types::single_value()')
 
-            return "{0}({{ {1} }})".format(
+            node_type = ListType(elts_type)
+            return "{0}({{{1}}})".format(
                 Assignable(node_type),
                 ", ".join(elts))
 
@@ -1168,7 +1149,7 @@ pythonic::types::none_type>::type result_type;
             return "pythonic::__builtin__::functor::set{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            return "{0}({{ {1} }})".format(
+            return "{0}{{{{{1}}}}}".format(
                 Assignable(self.types[node]),
                 ", ".join(elts))
 
@@ -1178,7 +1159,7 @@ pythonic::types::none_type>::type result_type;
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
-            return "{0}({{ {1} }})".format(
+            return "{0}{{{{{1}}}}}".format(
                 Assignable(self.types[node]),
                 ", ".join("{{ {0}, {1} }}".format(k, v)
                           for k, v in zip(keys, values)))
@@ -1191,14 +1172,8 @@ pythonic::types::none_type>::type result_type;
         left = self.visit(node.left)
         ops = [operator_to_lambda[type(n)] for n in node.ops]
         comparators = [self.visit(n) for n in node.comparators]
-        all_compare = list(zip(ops, comparators))
-        op, right = all_compare[0]
-        output = [op(left, right)]
-        left = right
-        for op, right in all_compare[1:]:
-            output.append(op(left, right))
-            left = right
-        return " and ".join(output)
+        all_cmps = zip([left] + comparators[:-1], ops, comparators)
+        return " and ".join(op(x, y) for x, op, y in all_cmps)
 
     def visit_Call(self, node):
         args = [self.visit(n) for n in node.args]
@@ -1215,14 +1190,14 @@ pythonic::types::none_type>::type result_type;
         if isinstance(node.n, complex):
             return "{0}({1}, {2})".format(
                 PYTYPE_TO_CTYPE_TABLE[complex],
-                repr(node.n.real),
-                repr(node.n.imag))
+                node.n.real,
+                node.n.imag)
         elif isinstance(node.n, long):
             return 'pythran_long({0})'.format(node.n)
         elif isnan(node.n):
             return 'pythonic::numpy::nan'
         elif isinf(node.n):
-            return ('+' if node.n > 0 else '-') + 'pythonic::numpy::inf'
+            return ('+' if node.n >= 0 else '-') + 'pythonic::numpy::inf'
         else:
             return repr(node.n) + TYPE_TO_SUFFIX.get(type(node.n), "")
 
@@ -1249,12 +1224,6 @@ pythonic::types::none_type>::type result_type;
             any(isinstance(node.slice.value.n, t)
                 for t in (int, long))):
             return "std::get<{0}>({1})".format(node.slice.value.n, value)
-        # slice optimization case
-        elif (isinstance(node.slice, ast.Slice) and
-              (isinstance(node.ctx, ast.Store) or
-               node not in self.bound_expressions)):
-            slice_ = self.visit(node.slice)
-            return "{1}({0})".format(slice_, value)
         # extended slice case
         elif isinstance(node.slice, ast.ExtSlice):
             slice_ = self.visit(node.slice)

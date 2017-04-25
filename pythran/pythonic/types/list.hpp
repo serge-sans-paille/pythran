@@ -33,8 +33,15 @@ namespace pythonic
     {
     }
     template <class T, class S>
-    sliced_list<T, S>::sliced_list(list<T> &other, S const &s)
+    sliced_list<T, S>::sliced_list(list<T> const &other, S const &s)
         : data(other.data), slicing(s.normalize(other.size()))
+    {
+    }
+    template <class T, class S>
+    template <class Sn>
+    sliced_list<T, S>::sliced_list(
+        utils::shared_ref<container_type> const &other, Sn const &s)
+        : data(other), slicing(s)
     {
     }
 
@@ -42,26 +49,22 @@ namespace pythonic
     template <class T, class S>
     typename sliced_list<T, S>::iterator sliced_list<T, S>::begin()
     {
-      assert(slicing.step == 1);
-      return data->begin() + slicing.lower;
+      return {*this, 0};
     }
     template <class T, class S>
     typename sliced_list<T, S>::const_iterator sliced_list<T, S>::begin() const
     {
-      assert(slicing.step == 1);
-      return data->begin() + slicing.lower;
+      return {*this, 0};
     }
     template <class T, class S>
     typename sliced_list<T, S>::iterator sliced_list<T, S>::end()
     {
-      assert(slicing.step == 1);
-      return data->begin() + slicing.upper;
+      return {*this, size()};
     }
     template <class T, class S>
     typename sliced_list<T, S>::const_iterator sliced_list<T, S>::end() const
     {
-      assert(slicing.step == 1);
-      return data->begin() + slicing.upper;
+      return {*this, size()};
     }
 
     // size
@@ -70,8 +73,18 @@ namespace pythonic
     {
       return slicing.size();
     }
+    template <class T, class S>
+    sliced_list<T, S>::operator bool() const
+    {
+      return slicing.size();
+    }
 
     // accessor
+    template <class T, class S>
+    T const &sliced_list<T, S>::fast(long i) const
+    {
+      return (*data)[slicing.get(i)];
+    }
     template <class T, class S>
     T const &sliced_list<T, S>::operator[](long i) const
     {
@@ -81,6 +94,17 @@ namespace pythonic
     T &sliced_list<T, S>::operator[](long i)
     {
       return (*data)[slicing.get(i)];
+    }
+    template <class T, class S>
+    sliced_list<T, S> sliced_list<T, S>::operator[](contiguous_slice s) const
+    {
+      return {data, slicing * s.normalize(this->size())};
+    }
+    template <class T, class S>
+    sliced_list<T, decltype(std::declval<S>() * std::declval<slice>())>
+        sliced_list<T, S>::operator[](slice s) const
+    {
+      return {data, slicing * s.normalize(this->size())};
     }
 
     // comparison
@@ -110,8 +134,9 @@ namespace pythonic
     sliced_list<T, S> &sliced_list<T, S>::operator=(list<T> const &seq)
     {
       if (slicing.step == 1) {
-        data->erase(begin(), end());
-        data->insert(begin(), seq.begin(), seq.end());
+        data->erase(data->begin() + slicing.lower,
+                    data->begin() + slicing.upper);
+        data->insert(data->begin() + slicing.lower, seq.begin(), seq.end());
       } else
         assert(!"not implemented yet");
       return *this;
@@ -237,7 +262,7 @@ namespace pythonic
         auto it = std::copy(other.begin(), other.end(), data->begin());
         data->resize(it - data->begin());
       } else
-        data = utils::shared_ref<T>(other.begin(), other.end());
+        data = utils::shared_ref<container_type>(other.begin(), other.end());
       return *this;
     }
 
@@ -417,35 +442,15 @@ namespace pythonic
     }
 
     template <class T>
-    list<T> list<T>::operator[](slice const &s) const
+    sliced_list<T, slice> list<T>::operator[](slice const &s) const
     {
-      normalized_slice norm = s.normalize(size());
-      list<T> out(norm.size());
-      for (long i = 0; i < out.size(); i++)
-        out[i] = (*data)[norm.get(i)];
-      return out;
-    }
-    template <class T>
-    list<T> list<T>::operator[](contiguous_slice const &s) const
-    {
-      contiguous_normalized_slice norm = s.normalize(size());
-      list<T> out(norm.size());
-      for (long i = 0; i < out.size(); i++)
-        out[i] = (*data)[norm.get(i)];
-      return out;
-    }
-    template <class T>
-    sliced_list<T, slice> list<T>::operator()(slice const &s) const
-    {
-      return sliced_list<T, slice>(*const_cast<list<T> *>(this),
-                                   s); // SG: ugly !
+      return sliced_list<T, slice>(*this, s);
     }
     template <class T>
     sliced_list<T, contiguous_slice> list<T>::
-    operator()(contiguous_slice const &s) const
+    operator[](contiguous_slice const &s) const
     {
-      return sliced_list<T, contiguous_slice>(*const_cast<list<T> *>(this),
-                                              s); // SG: ugly !
+      return sliced_list<T, contiguous_slice>(*this, s);
     }
 
     // modifiers
@@ -695,23 +700,23 @@ namespace std
     return std::move(t)[I];
   }
 
-  template <size_t I, class T>
-  typename pythonic::types::sliced_list<T>::reference
-  get(pythonic::types::sliced_list<T> &t)
+  template <size_t I, class T, class S>
+  typename pythonic::types::sliced_list<T, S>::reference
+  get(pythonic::types::sliced_list<T, S> &t)
   {
     return t[I];
   }
 
-  template <size_t I, class T>
-  typename pythonic::types::sliced_list<T>::const_reference
-  get(pythonic::types::sliced_list<T> const &t)
+  template <size_t I, class T, class S>
+  typename pythonic::types::sliced_list<T, S>::const_reference
+  get(pythonic::types::sliced_list<T, S> const &t)
   {
     return t[I];
   }
 
-  template <size_t I, class T>
-  typename pythonic::types::sliced_list<T>::value_type
-  get(pythonic::types::sliced_list<T> &&t)
+  template <size_t I, class T, class S>
+  typename pythonic::types::sliced_list<T, S>::value_type
+  get(pythonic::types::sliced_list<T, S> &&t)
   {
     return std::move(t)[I];
   }
@@ -730,6 +735,17 @@ namespace pythonic
       PyList_SET_ITEM(ret, i, ::to_python(v[i]));
     return ret;
   }
+  template <class T, class S>
+  PyObject *to_python<types::sliced_list<T, S>>::convert(
+      types::sliced_list<T, S> const &v)
+  {
+    Py_ssize_t n = v.size();
+    PyObject *ret = PyList_New(n);
+    for (Py_ssize_t i = 0; i < n; i++)
+      PyList_SET_ITEM(ret, i, ::to_python(v[i]));
+    return ret;
+  }
+
   PyObject *to_python<types::empty_list>::convert(types::empty_list const &)
   {
     return PyList_New(0);

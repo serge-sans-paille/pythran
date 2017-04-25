@@ -4,6 +4,7 @@ import gast as ast
 from pythran.tables import MODULES
 from pythran.conversion import mangle, demangle
 from functools import reduce
+from contextlib import contextmanager
 
 
 def attr_to_path(node):
@@ -79,3 +80,10 @@ def get_variable(assignable):
     while isinstance(assignable, ast.Subscript):
         assignable = assignable.value
     return assignable
+
+
+@contextmanager
+def pushpop(l, v):
+    l.append(v)
+    yield
+    l.pop()

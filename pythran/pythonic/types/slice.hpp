@@ -211,7 +211,7 @@ namespace pythonic
     operator*(contiguous_normalized_slice const &other) const
     {
       return contiguous_normalized_slice(lower + other.lower,
-                                         upper + other.upper);
+                                         lower + other.upper);
     }
 
     normalized_slice contiguous_normalized_slice::

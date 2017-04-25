@@ -85,6 +85,7 @@ namespace pythonic
       T *operator->() const noexcept;
 
       bool operator!=(shared_ref<T> const &other) const noexcept;
+      bool operator==(shared_ref<T> const &other) const noexcept;
 
       // Save pointer to the external object to decref once we doesn't
       // use it anymore

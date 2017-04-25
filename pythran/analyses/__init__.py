@@ -14,7 +14,6 @@ from .ancestors import Ancestors
 from .argument_effects import ArgumentEffects
 from .argument_read_once import ArgumentReadOnce
 from .ast_matcher import ASTMatcher, AST_any, AST_or, Placeholder, Check
-from .bound_expressions import BoundExpressions
 from .cfg import CFG
 from .constant_expressions import ConstantExpressions
 from .extended_syntax_check import ExtendedSyntaxCheck

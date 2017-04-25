@@ -342,6 +342,14 @@ class Include(Generable):
             yield "#include \"%s\"" % self.filename
 
 
+class Label(Generable):
+    def __init__(self, label):
+        self.label = label
+
+    def generate(self):
+        yield self.label + ':;'
+
+
 class Statement(Generable):
     def __init__(self, text):
         self.text = text

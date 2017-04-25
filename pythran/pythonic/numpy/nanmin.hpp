@@ -13,21 +13,24 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class E, class F>
-    void _nanmin(E begin, E end, F &min, utils::int_<1>)
+    namespace
     {
-      for (; begin != end; ++begin) {
-        auto curr = *begin;
-        if (not functor::isnan()(curr) and curr < min)
-          min = curr;
+      template <class E, class F>
+      void _nanmin(E begin, E end, F &min, utils::int_<1>)
+      {
+        for (; begin != end; ++begin) {
+          auto curr = *begin;
+          if (not functor::isnan()(curr) and curr < min)
+            min = curr;
+        }
       }
-    }
 
-    template <class E, class F, size_t N>
-    void _nanmin(E begin, E end, F &min, utils::int_<N>)
-    {
-      for (; begin != end; ++begin)
-        _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
+      template <class E, class F, size_t N>
+      void _nanmin(E begin, E end, F &min, utils::int_<N>)
+      {
+        for (; begin != end; ++begin)
+          _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
+      }
     }
 
     template <class E>

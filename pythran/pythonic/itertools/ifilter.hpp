@@ -3,13 +3,8 @@
 
 #include "pythonic/include/itertools/ifilter.hpp"
 #include "pythonic/utils/iterator.hpp"
-#include "pythonic/types/NoneType.hpp"
-#include "pythonic/types/list.hpp"
 #include "pythonic/itertools/common.hpp"
 #include "pythonic/utils/functor.hpp"
-
-#include <iterator>
-#include <type_traits>
 
 namespace pythonic
 {

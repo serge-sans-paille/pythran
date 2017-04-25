@@ -13,26 +13,29 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class E, class F>
-    void _nanargmax(E begin, E end, F &max, long &index, long &where,
-                    utils::int_<1>)
+    namespace
     {
-      for (; begin != end; ++begin, ++index) {
-        auto curr = *begin;
-        if (not functor::isnan()(curr) and curr > max) {
-          max = curr;
-          where = index;
+      template <class E, class F>
+      void _nanargmax(E begin, E end, F &max, long &index, long &where,
+                      utils::int_<1>)
+      {
+        for (; begin != end; ++begin, ++index) {
+          auto curr = *begin;
+          if (not functor::isnan()(curr) and curr > max) {
+            max = curr;
+            where = index;
+          }
         }
       }
-    }
 
-    template <class E, class F, size_t N>
-    void _nanargmax(E begin, E end, F &max, long &index, long &where,
-                    utils::int_<N>)
-    {
-      for (; begin != end; ++begin)
-        _nanargmax((*begin).begin(), (*begin).end(), max, index, where,
-                   utils::int_<N - 1>());
+      template <class E, class F, size_t N>
+      void _nanargmax(E begin, E end, F &max, long &index, long &where,
+                      utils::int_<N>)
+      {
+        for (; begin != end; ++begin)
+          _nanargmax((*begin).begin(), (*begin).end(), max, index, where,
+                     utils::int_<N - 1>());
+      }
     }
 
     template <class E>

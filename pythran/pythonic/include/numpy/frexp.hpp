@@ -15,14 +15,6 @@ namespace pythonic
     typename std::enable_if<std::is_scalar<T>::value, std::tuple<T, int>>::type
     frexp(T val);
 
-    template <class E, class F, class G>
-    void _frexp(E begin, E end, F significands_iter, G exps_iter,
-                utils::int_<1>);
-
-    template <class E, class F, class G, size_t N>
-    void _frexp(E begin, E end, F significands_iter, G exps_iter,
-                utils::int_<N>);
-
     template <class E>
     typename std::enable_if<
         not types::is_dtype<E>::value,

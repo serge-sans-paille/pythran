@@ -6,6 +6,10 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
+#ifdef USE_GMP
+#include "pythonic/include/types/long.hpp"
+#endif
+
 #include <boost/simd/function/div.hpp>
 
 namespace pythonic
@@ -15,7 +19,6 @@ namespace pythonic
   {
     namespace wrapper
     {
-
       template <class Arg0, class Arg1>
       auto divfloor(Arg0 const &arg0, Arg1 const &arg1) ->
           typename std::enable_if<(std::is_integral<Arg0>::value &&

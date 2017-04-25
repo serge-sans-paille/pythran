@@ -21,53 +21,56 @@ namespace pythonic
      * In [11]: numpy.mod.accumulate(a, dtype=numpy.uint8)
      * Out[11]: array([1, 0], dtype=uint8)
      */
-
-    template <class Op, class A>
-    template <class E, class F>
-    A _partial_sum<Op, 1, A>::operator()(E e, F &o, A acc)
+    namespace
     {
-      for (auto const &value : e) {
-        acc = Op{}(acc, (A)value);
-        *o = acc;
-        ++o;
-      }
-      return acc;
-    }
 
-    template <class Op, class A>
-    template <class E, class F>
-    A _partial_sum<Op, 1, A>::operator()(E e, F &o)
-    {
-      auto it_begin = e.begin();
-      A acc = *it_begin;
-      *o = acc;
-      ++it_begin, ++o;
-      for (; it_begin < e.end(); ++it_begin, ++o) {
-        acc = Op{}(acc, (A)*it_begin);
-        *o = acc;
-      }
-      return acc;
-    }
+      template <class Op, size_t N, class A>
+      struct _partial_sum {
+        template <class E, class F>
+        A operator()(E e, F &o)
+        {
+          auto it_begin = e.begin();
+          A acc = _partial_sum<Op, N - 1, A>{}((*it_begin), o);
+          ++it_begin;
+          for (; it_begin < e.end(); ++it_begin)
+            acc = _partial_sum<Op, N - 1, A>{}(*it_begin, o, acc);
+          return acc;
+        }
+        template <class E, class F>
+        A operator()(E e, F &o, A acc)
+        {
+          for (auto const &value : e)
+            acc = _partial_sum<Op, N - 1, A>{}(value, o, acc);
+          return acc;
+        }
+      };
 
-    template <class Op, size_t N, class A>
-    template <class E, class F>
-    A _partial_sum<Op, N, A>::operator()(E e, F &o, A acc)
-    {
-      for (auto const &value : e)
-        acc = _partial_sum<Op, N - 1, A>{}(value, o, acc);
-      return acc;
-    }
-
-    template <class Op, size_t N, class A>
-    template <class E, class F>
-    A _partial_sum<Op, N, A>::operator()(E e, F &o)
-    {
-      auto it_begin = e.begin();
-      A acc = _partial_sum<Op, N - 1, A>{}((*it_begin), o);
-      ++it_begin;
-      for (; it_begin < e.end(); ++it_begin)
-        acc = _partial_sum<Op, N - 1, A>{}(*it_begin, o, acc);
-      return acc;
+      template <class Op, class A>
+      struct _partial_sum<Op, 1, A> {
+        template <class E, class F>
+        A operator()(E e, F &o)
+        {
+          auto it_begin = e.begin();
+          A acc = *it_begin;
+          *o = acc;
+          ++it_begin, ++o;
+          for (; it_begin < e.end(); ++it_begin, ++o) {
+            acc = Op{}(acc, (A)*it_begin);
+            *o = acc;
+          }
+          return acc;
+        }
+        template <class E, class F>
+        A operator()(E e, F &o, A acc)
+        {
+          for (auto const &value : e) {
+            acc = Op{}(acc, (A)value);
+            *o = acc;
+            ++o;
+          }
+          return acc;
+        }
+      };
     }
 
     template <class Op, class E, class dtype>

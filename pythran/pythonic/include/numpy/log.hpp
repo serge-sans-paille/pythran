@@ -4,6 +4,7 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
+
 #include <boost/simd/function/log.hpp>
 
 namespace pythonic

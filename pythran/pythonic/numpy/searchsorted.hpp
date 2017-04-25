@@ -33,21 +33,24 @@ namespace pythonic
                                 "' is an invalid value for keyword 'side'");
     }
 
-    template <class E, class I0, class I1>
-    void _search_sorted(E const &a, I0 ibegin, I0 iend, I1 obegin,
-                        types::str const &side, utils::int_<1>)
+    namespace
     {
-      for (; ibegin != iend; ++ibegin, ++obegin)
-        *obegin = searchsorted(a, *ibegin, side);
-    }
+      template <class E, class I0, class I1>
+      void _search_sorted(E const &a, I0 ibegin, I0 iend, I1 obegin,
+                          types::str const &side, utils::int_<1>)
+      {
+        for (; ibegin != iend; ++ibegin, ++obegin)
+          *obegin = searchsorted(a, *ibegin, side);
+      }
 
-    template <class E, class I0, class I1, size_t N>
-    void _search_sorted(E const &a, I0 ibegin, I0 iend, I1 obegin,
-                        types::str const &side, utils::int_<N>)
-    {
-      for (; ibegin != iend; ++ibegin, ++obegin)
-        _search_sorted(a, (*ibegin).begin(), (*ibegin).end(), (*obegin).begin(),
-                       side, utils::int_<N - 1>());
+      template <class E, class I0, class I1, size_t N>
+      void _search_sorted(E const &a, I0 ibegin, I0 iend, I1 obegin,
+                          types::str const &side, utils::int_<N>)
+      {
+        for (; ibegin != iend; ++ibegin, ++obegin)
+          _search_sorted(a, (*ibegin).begin(), (*ibegin).end(),
+                         (*obegin).begin(), side, utils::int_<N - 1>());
+      }
     }
 
     template <class E, class T>

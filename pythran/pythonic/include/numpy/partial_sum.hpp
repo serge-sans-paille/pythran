@@ -9,22 +9,6 @@ namespace pythonic
   namespace numpy
   {
 
-    template <class Op, size_t N, class A>
-    struct _partial_sum {
-      template <class E, class F>
-      A operator()(E e, F &o);
-      template <class E, class F>
-      A operator()(E e, F &o, A acc);
-    };
-
-    template <class Op, class A>
-    struct _partial_sum<Op, 1, A> {
-      template <class E, class F>
-      A operator()(E e, F &o);
-      template <class E, class F>
-      A operator()(E e, F &o, A acc);
-    };
-
     template <class Op, class E>
     using result_dtype = types::dtype_t<decltype(std::declval<Op>()(
         std::declval<typename std::remove_reference<E>::type::dtype>(),

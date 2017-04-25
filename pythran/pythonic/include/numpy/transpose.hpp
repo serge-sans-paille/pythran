@@ -5,7 +5,6 @@
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/__builtin__/ValueError.hpp"
 
 namespace pythonic
 {
@@ -16,10 +15,6 @@ namespace pythonic
     template <class T>
     types::numpy_texpr<types::ndarray<T, 2>>
         transpose(types::ndarray<T, 2> const &arr);
-
-    template <class T, unsigned long N, class... C>
-    types::ndarray<T, N> _transpose(types::ndarray<T, N> const &a,
-                                    long const l[N]);
 
     template <class T, size_t N>
     types::ndarray<T, N> transpose(types::ndarray<T, N> const &a);

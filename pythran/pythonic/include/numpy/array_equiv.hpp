@@ -9,8 +9,6 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class I0, class U>
-    bool _array_equiv(I0 vbegin, I0 vend, U const &uu);
 
     template <class U, class V>
     typename std::enable_if<U::value == V::value, bool>::type
@@ -23,9 +21,6 @@ namespace pythonic
     template <class U, class V>
     typename std::enable_if<(U::value > V::value), bool>::type
     array_equiv(U const &u, V const &v);
-
-    template <class I0, class U>
-    bool _array_equiv(I0 vbegin, I0 vend, U const &uu);
 
     DECLARE_FUNCTOR(pythonic::numpy, array_equiv);
   }

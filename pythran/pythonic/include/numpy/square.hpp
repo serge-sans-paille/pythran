@@ -2,12 +2,11 @@
 #define PYTHONIC_INCLUDE_NUMPY_SQUARE_HPP
 
 #include "pythonic/include/types/numpy_op_helper.hpp"
-#include "pythonic/include/utils/meta.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <boost/simd/function/sqr.hpp>
 #include <complex>
+#include <boost/simd/function/sqr.hpp>
 
 #ifdef USE_GMP
 #include "pythonic/include/types/long.hpp"

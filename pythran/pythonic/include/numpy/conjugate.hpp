@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_NUMPY_CONJUGATE_HPP
 
 #include "pythonic/include/types/numpy_op_helper.hpp"
-#include "pythonic/include/utils/meta.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/utils/functor.hpp"
 

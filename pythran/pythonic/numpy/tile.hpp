@@ -11,17 +11,20 @@ namespace pythonic
 
   namespace numpy
   {
-    template <class I, class O>
-    void _tile(I begin, I end, O &out, utils::int_<1>)
+    namespace
     {
-      out = std::copy(begin, end, out);
-    }
+      template <class I, class O>
+      void _tile(I begin, I end, O &out, utils::int_<1>)
+      {
+        out = std::copy(begin, end, out);
+      }
 
-    template <class I, class O, size_t N>
-    void _tile(I begin, I end, O &out, utils::int_<N>)
-    {
-      for (; begin != end; ++begin)
-        _tile((*begin).begin(), (*begin).end(), out, utils::int_<N - 1>());
+      template <class I, class O, size_t N>
+      void _tile(I begin, I end, O &out, utils::int_<N>)
+      {
+        for (; begin != end; ++begin)
+          _tile((*begin).begin(), (*begin).end(), out, utils::int_<N - 1>());
+      }
     }
 
     template <class E>

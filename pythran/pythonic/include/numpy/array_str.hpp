@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_NUMPY_ARRAYSTR_HPP
 
 #include "pythonic/include/numpy/array2string.hpp"
-#include "pythonic/include/utils/functor.hpp"
 
 namespace pythonic
 {

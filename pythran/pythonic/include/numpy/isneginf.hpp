@@ -4,6 +4,7 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
+
 #include <boost/simd/function/is_inf.hpp>
 #include <boost/simd/function/is_negative.hpp>
 

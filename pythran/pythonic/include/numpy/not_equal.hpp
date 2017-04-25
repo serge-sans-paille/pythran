@@ -3,7 +3,6 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/operator_/ne.hpp"
 

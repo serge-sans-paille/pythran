@@ -10,6 +10,7 @@
 #include "pythonic/include/utils/reserve.hpp"
 #include "pythonic/include/types/slice.hpp"
 #include "pythonic/include/types/vectorizable_type.hpp"
+#include "pythonic/include/types/nditerator.hpp"
 
 #include <ostream>
 #include <vector>
@@ -79,8 +80,8 @@ namespace pythonic
       //  types
       typedef typename container_type::reference reference;
       typedef typename container_type::const_reference const_reference;
-      typedef typename container_type::iterator iterator;
-      typedef typename container_type::const_iterator const_iterator;
+      typedef nditerator<sliced_list> iterator;
+      typedef const_nditerator<sliced_list> const_iterator;
       typedef typename container_type::size_type size_type;
       typedef typename container_type::difference_type difference_type;
       typedef typename container_type::value_type value_type;
@@ -101,7 +102,9 @@ namespace pythonic
       // constructor
       sliced_list();
       sliced_list(sliced_list<T, S> const &s);
-      sliced_list(list<T> &other, S const &s);
+      sliced_list(list<T> const &other, S const &s);
+      template <class Sn>
+      sliced_list(utils::shared_ref<container_type> const &other, Sn const &s);
 
       // assignment
       sliced_list &operator=(list<T> const &);
@@ -117,10 +120,15 @@ namespace pythonic
 
       // size
       long size() const;
+      operator bool() const;
 
       // accessor
+      T const &fast(long i) const;
       T const &operator[](long i) const;
       T &operator[](long i);
+      sliced_list<T, S> operator[](contiguous_slice s) const;
+      sliced_list<T, decltype(std::declval<S>() * std::declval<slice>())>
+      operator[](slice s) const;
 
       // comparison
       template <class K>
@@ -242,12 +250,9 @@ namespace pythonic
       const_reference fast(long n) const;
       const_reference operator[](long n) const;
 
-      list<T> operator[](slice const &s) const;
-      list<T> operator[](contiguous_slice const &s) const;
-
-      sliced_list<T, slice> operator()(slice const &s) const;
+      sliced_list<T, slice> operator[](slice const &s) const;
       sliced_list<T, contiguous_slice>
-      operator()(contiguous_slice const &s) const;
+      operator[](contiguous_slice const &s) const;
 
       // modifiers
       template <class Tp>
@@ -359,25 +364,25 @@ namespace std
   typename pythonic::types::list<T>::value_type
   get(pythonic::types::list<T> &&t);
 
-  template <size_t I, class T>
-  typename pythonic::types::sliced_list<T>::reference
-  get(pythonic::types::sliced_list<T> &t);
+  template <size_t I, class T, class S>
+  typename pythonic::types::sliced_list<T, S>::reference
+  get(pythonic::types::sliced_list<T, S> &t);
 
-  template <size_t I, class T>
-  typename pythonic::types::sliced_list<T>::const_reference
-  get(pythonic::types::sliced_list<T> const &t);
+  template <size_t I, class T, class S>
+  typename pythonic::types::sliced_list<T, S>::const_reference
+  get(pythonic::types::sliced_list<T, S> const &t);
 
-  template <size_t I, class T>
-  typename pythonic::types::sliced_list<T>::value_type
-  get(pythonic::types::sliced_list<T> &&t);
+  template <size_t I, class T, class S>
+  typename pythonic::types::sliced_list<T, S>::value_type
+  get(pythonic::types::sliced_list<T, S> &&t);
 
   template <size_t I, class T>
   struct tuple_element<I, pythonic::types::list<T>> {
     typedef typename pythonic::types::list<T>::value_type type;
   };
-  template <size_t I, class T>
-  struct tuple_element<I, pythonic::types::sliced_list<T>> {
-    typedef typename pythonic::types::sliced_list<T>::value_type type;
+  template <size_t I, class T, class S>
+  struct tuple_element<I, pythonic::types::sliced_list<T, S>> {
+    typedef typename pythonic::types::sliced_list<T, S>::value_type type;
   };
 }
 
@@ -439,6 +444,17 @@ struct __combined<pythonic::types::list<T0>, pythonic::types::list<T1>> {
   typedef pythonic::types::list<typename __combined<T0, T1>::type> type;
 };
 
+template <class T, class S>
+struct __combined<pythonic::types::sliced_list<T, S>,
+                  pythonic::types::empty_list> {
+  typedef pythonic::types::list<T> type;
+};
+template <class T, class S>
+struct __combined<pythonic::types::empty_list,
+                  pythonic::types::sliced_list<T, S>> {
+  typedef pythonic::types::list<T> type;
+};
+
 /* } */
 
 #ifdef ENABLE_PYTHON_MODULE
@@ -448,6 +464,10 @@ namespace pythonic
   template <typename T>
   struct to_python<types::list<T>> {
     static PyObject *convert(types::list<T> const &v);
+  };
+  template <typename T, typename S>
+  struct to_python<types::sliced_list<T, S>> {
+    static PyObject *convert(types::sliced_list<T, S> const &v);
   };
   template <>
   struct to_python<types::empty_list> {

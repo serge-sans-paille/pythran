@@ -103,6 +103,12 @@ namespace pythonic
     }
 
     template <class T>
+    bool shared_ref<T>::operator==(shared_ref<T> const &other) const noexcept
+    {
+      return mem == other.mem;
+    }
+
+    template <class T>
     void shared_ref<T>::external(extern_type obj_ptr)
     {
       mem->foreign = obj_ptr;

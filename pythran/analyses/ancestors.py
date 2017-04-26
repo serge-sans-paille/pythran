@@ -3,6 +3,7 @@ Ancestors computes the ancestors of each node
 """
 
 from pythran.passmanager import ModuleAnalysis
+from pythran.utils import pushpop
 
 
 class Ancestors(ModuleAnalysis):
@@ -21,6 +22,5 @@ class Ancestors(ModuleAnalysis):
 
     def generic_visit(self, node):
         self.result[node] = list(self.current)
-        self.current.append(node)
-        super(Ancestors, self).generic_visit(node)
-        self.current.pop()
+        with pushpop(self.current, node):
+            super(Ancestors, self).generic_visit(node)

@@ -1,7 +1,7 @@
 """ This module contains all classes used to model intrinsics behavior.  """
 
 from pythran.conversion import to_ast
-from pythran.range import UNKNOWN_RANGE, bool_values
+from pythran.interval import UNKNOWN_RANGE, bool_values
 from pythran.types.signature import extract_combiner
 from pythran.typing import Any, Union, Fun, Generator
 

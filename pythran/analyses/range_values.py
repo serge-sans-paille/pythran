@@ -7,7 +7,15 @@ import copy
 from pythran.analyses import Globals, Aliases
 from pythran.intrinsic import Intrinsic
 from pythran.passmanager import FunctionAnalysis
-from pythran.range import Range, UNKNOWN_RANGE, combine
+from pythran.interval import Interval, UNKNOWN_RANGE
+
+
+def combine(op, node0, node1):
+    key = '__{}__'.format(op.__class__.__name__.lower())
+    try:
+        return getattr(Interval, key)(node0, node1)
+    except AttributeError:
+        return UNKNOWN_RANGE
 
 
 class RangeValues(FunctionAnalysis):
@@ -15,7 +23,7 @@ class RangeValues(FunctionAnalysis):
     """
     This analyse extract positive subscripts from code.
 
-    It is flow insensitif and aliasing is not taken into account as integer
+    It is flow insensitive and aliasing is not taken into account as integer
     doesn't create aliasing in Python.
 
     >>> import gast as ast
@@ -27,7 +35,7 @@ class RangeValues(FunctionAnalysis):
     >>> pm = passmanager.PassManager("test")
     >>> res = pm.gather(RangeValues, node)
     >>> res['c'], res['i']
-    (Range(low=0, high=5), Range(low=1, high=10))
+    (Interval(low=0, high=5), Interval(low=1, high=10))
     """
 
     def __init__(self):
@@ -39,16 +47,16 @@ class RangeValues(FunctionAnalysis):
         """
         Add a new low and high bound for a variable.
 
-        As it is flow insensitif, it compares it with olds values and update it
+        As it is flow insensitive, it compares it with old values and update it
         if needed.
         """
         if variable not in self.result:
             self.result[variable] = range_
         else:
-            self.result[variable].update(range_)
+            self.result[variable].union_update(range_)
 
     def visit_FunctionDef(self, node):
-        """ Set default range value for globals and attributs.
+        """ Set default range value for globals and attributes.
 
         >>> import gast as ast
         >>> from pythran import passmanager, backend
@@ -56,7 +64,7 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
-        Range(low=-inf, high=inf)
+        Interval(low=-inf, high=inf)
         """
         for global_name in self.globals:
             self.result[global_name] = UNKNOWN_RANGE
@@ -78,14 +86,14 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
-        Range(low=2, high=2)
+        Interval(low=2, high=2)
         >>> res['b']
-        Range(low=2, high=2)
+        Interval(low=2, high=2)
         """
         assigned_range = self.visit(node.value)
         for target in node.targets:
             if isinstance(target, ast.Name):
-                # Make sure all Range doesn't alias for multiple variables.
+                # Make sure all Interval doesn't alias for multiple variables.
                 self.add(target.id, copy.deepcopy(assigned_range))
 
     def visit_AugAssign(self, node):
@@ -97,13 +105,13 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
-        Range(low=1, high=2)
+        Interval(low=1, high=2)
         """
         if isinstance(node.target, ast.Name):
-            self.result[node.target.id].update(
-                combine(self.result[node.target.id],
-                        self.visit(node.value),
-                        node.op))
+            res = combine(node.op,
+                          self.result[node.target.id],
+                          self.visit(node.value))
+            self.result[node.target.id].union_update(res)
 
     def visit_For(self, node):
         """ Handle iterate variable in for loops.
@@ -119,11 +127,11 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
-        Range(low=-inf, high=2)
+        Interval(low=-inf, high=2)
         >>> res['b']
-        Range(low=2, high=inf)
+        Interval(low=2, high=inf)
         >>> res['c']
-        Range(low=2, high=2)
+        Interval(low=2, high=2)
         """
         assert isinstance(node.target, ast.Name), "For apply on variables."
         if isinstance(node.iter, ast.Call):
@@ -153,11 +161,11 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
-        Range(low=-inf, high=2)
+        Interval(low=-inf, high=2)
         >>> res['b']
-        Range(low=2, high=inf)
+        Interval(low=2, high=inf)
         >>> res['c']
-        Range(low=2, high=2)
+        Interval(low=2, high=2)
         """
         old_range = copy.deepcopy(self.result)
         for stmt in node.body:
@@ -184,10 +192,10 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['d']
-        Range(low=2, high=3)
+        Interval(low=2, high=3)
         """
-        res = list(zip(*[self.visit(elt) for elt in node.values]))
-        return Range(min(res[0]), max(res[1]))
+        res = list(zip(*[self.visit(elt).bounds() for elt in node.values]))
+        return Interval(min(res[0]), max(res[1]))
 
     def visit_BinOp(self, node):
         """ Combine operands ranges for given operator.
@@ -202,9 +210,9 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['d']
-        Range(low=-1, high=-1)
+        Interval(low=-1, high=-1)
         """
-        return combine(self.visit(node.left), self.visit(node.right), node.op)
+        return combine(node.op, self.visit(node.left), self.visit(node.right))
 
     def visit_UnaryOp(self, node):
         """ Update range with given unary operation.
@@ -221,25 +229,25 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['f']
-        Range(low=2, high=2)
+        Interval(low=2, high=2)
         >>> res['c']
-        Range(low=-2, high=-2)
+        Interval(low=-2, high=-2)
         >>> res['d']
-        Range(low=-3, high=-3)
+        Interval(low=-3, high=-3)
         >>> res['e']
-        Range(low=0, high=1)
+        Interval(low=0, high=1)
         """
         res = self.visit(node.operand)
         if isinstance(node.op, ast.Not):
-            return Range(0, 1)
+            return Interval(0, 1)
         elif(isinstance(node.op, ast.Invert) and
              isinstance(res.high, int) and
              isinstance(res.low, int)):
-            return Range(~res.high, ~res.low)
+            return Interval(~res.high, ~res.low)
         elif isinstance(node.op, ast.UAdd):
             return res
         elif isinstance(node.op, ast.USub):
-            return Range(-res.high, -res.low)
+            return Interval(-res.high, -res.low)
         else:
             return UNKNOWN_RANGE
 
@@ -256,13 +264,12 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['c']
-        Range(low=2, high=5)
+        Interval(low=2, high=5)
         """
         self.visit(node.test)
         body_res = self.visit(node.body)
         orelse_res = self.visit(node.orelse)
-        return Range(min(orelse_res.low, body_res.low),
-                     max(orelse_res.high, body_res.high))
+        return orelse_res.union(body_res)
 
     @staticmethod
     def visit_Compare(_):
@@ -278,9 +285,9 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['c']
-        Range(low=0, high=1)
+        Interval(low=0, high=1)
         """
-        return Range(0, 1)
+        return Interval(0, 1)
 
     def visit_Call(self, node):
         """ Function calls are not handled for now.
@@ -293,23 +300,26 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
-        Range(low=-inf, high=inf)
+        Interval(low=-inf, high=inf)
         """
-        result = None
+        result = UNKNOWN_RANGE
         for alias in self.aliases[node.func]:
             if isinstance(alias, Intrinsic):
                 alias_range = alias.return_range(
                     [self.visit(n) for n in node.args])
-                result = result.update(alias_range) if result else alias_range
+                if result is None:
+                    result = alias_range
+                else:
+                    result.union_update(alias_range)
             else:
                 return UNKNOWN_RANGE
-        return result or UNKNOWN_RANGE
+        return result
 
     @staticmethod
     def visit_Num(node):
         """ Handle literals integers values. """
         if isinstance(node.n, int):
-            return Range(node.n, node.n)
+            return Interval(node.n, node.n)
         else:
             return UNKNOWN_RANGE
 
@@ -331,7 +341,7 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['e']
-        Range(low=-inf, high=inf)
+        Interval(low=-inf, high=inf)
         """
         if node.name:
             self.result[node.name.id] = UNKNOWN_RANGE

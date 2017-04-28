@@ -16,7 +16,7 @@ from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr, UFunc
 from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
-from pythran import range as prange
+from pythran import interval
 
 if sys.version_info.major == 3:
     sys.modules['__builtin__'] = sys.modules['builtins']
@@ -719,13 +719,13 @@ CLASSES = {
             ]
         ),
         "itemsize": AttributeIntr(signature=Fun[[NDArray[T0, :]], int],
-                                  return_range=prange.positive_values),
+                                  return_range=interval.positive_values),
         "nbytes": AttributeIntr(
             signature=Fun[[NDArray[T0, :]], int],
-            return_range=prange.positive_values
+            return_range=interval.positive_values
         ),
         "ndim": AttributeIntr(signature=Fun[[NDArray[T0, :]], int],
-                              return_range=prange.positive_values),
+                              return_range=interval.positive_values),
         "shape": AttributeIntr(
             signature=Union[
                 # bool
@@ -751,7 +751,7 @@ CLASSES = {
             ]
         ),
         "size": AttributeIntr(signature=Fun[[NDArray[T0, :]], int],
-                              return_range=prange.positive_values),
+                              return_range=interval.positive_values),
         "strides": AttributeIntr(
             signature=Union[
                 # bool
@@ -2603,7 +2603,7 @@ MODULES = {
         "chr": ConstFunctionIntr(signature=Fun[[int], str]),
         "cmp": ConstFunctionIntr(
             signature=Fun[[T0, T0], int],
-            return_range=prange.cmp_values
+            return_range=interval.cmp_values
         ),
         "complex": ClassWithConstConstructor(
             CLASSES['complex'],
@@ -2656,7 +2656,7 @@ MODULES = {
             signature=Fun[[Iterable[T0]], Generator[T0]]),  # not const
         "len": ConstFunctionIntr(
             signature=Fun[[Sized], int],
-            return_range=prange.positive_values
+            return_range=interval.positive_values
         ),
         "list": ClassWithReadOnceConstructor(
             CLASSES['list'],
@@ -2697,7 +2697,7 @@ MODULES = {
                 Fun[[T0, T0, T0, T0], T0],
                 Fun[[Iterable[T0]], T0],
             ],
-            return_range=prange.max_values
+            return_range=interval.max_values
         ),
         "min": ReadOnceFunctionIntr(
             signature=Union[
@@ -2705,7 +2705,7 @@ MODULES = {
                 Fun[[float, float], float],
                 Fun[[Iterable[T0]], T0],
             ],
-            return_range=prange.min_values
+            return_range=interval.min_values
         ),
         "next": FunctionIntr(  # not const
             signature=Union[
@@ -2716,7 +2716,7 @@ MODULES = {
         "oct": ConstFunctionIntr(signature=Fun[[int], str]),
         "ord": ConstFunctionIntr(
             signature=Fun[[str], int],
-            return_range=prange.ord_values
+            return_range=interval.ord_values
         ),
         "open": ConstFunctionIntr(
             signature=Union[
@@ -2741,7 +2741,7 @@ MODULES = {
                 Fun[[int, int], List[int]],
                 Fun[[int, int, int], List[int]],
             ],
-            return_range_content=prange.range_values
+            return_range_content=interval.range_values
         ),
         "reduce": ReadOnceFunctionIntr(signature=_functools_reduce_signature),
         "reversed": ReadOnceFunctionIntr(
@@ -2789,7 +2789,7 @@ MODULES = {
                 Fun[[int, int], Generator[int]],
                 Fun[[int, int, int], Generator[int]],
             ],
-            return_range_content=prange.range_values
+            return_range_content=interval.range_values
         ),
         "zip": ReadOnceFunctionIntr(
             signature=Union[
@@ -2804,12 +2804,12 @@ MODULES = {
         ),
         "False": ConstantIntr(
             signature=bool,
-            return_range=lambda _: prange.Range(0, 0)
+            return_range=lambda _: interval.Range(0, 0)
         ),
         "None": ConstantIntr(signature=None),
         "True": ConstantIntr(
             signature=bool,
-            return_range=lambda _: prange.Range(1, 1)
+            return_range=lambda _: interval.Range(1, 1)
         ),
     },
     "numpy": {
@@ -2829,26 +2829,26 @@ MODULES = {
                 # Sized
                 Fun[[Sized], int],
             ],
-            return_range=prange.positive_values
+            return_range=interval.positive_values
         ),
         "all": ConstMethodIntr(
             signature=_numpy_unary_op_bool_axis_signature,
-            return_range=prange.bool_values
+            return_range=interval.bool_values
         ),
         "allclose": ConstFunctionIntr(
             signature=_numpy_allclose_signature,
-            return_range=prange.bool_values
+            return_range=interval.bool_values
         ),
         "alltrue": ConstFunctionIntr(
             signature=_numpy_unary_op_bool_axis_signature,
-            return_range=prange.bool_values
+            return_range=interval.bool_values
         ),
         "amax": ConstFunctionIntr(signature=_numpy_unary_op_axis_signature),
         "amin": ConstFunctionIntr(signature=_numpy_unary_op_axis_signature),
         "angle": ConstFunctionIntr(signature=_numpy_unary_op_angle_signature),
         "any": ConstMethodIntr(
             signature=_numpy_unary_op_bool_axis_signature,
-            return_range=prange.bool_values
+            return_range=interval.bool_values
         ),
         "append": ConstFunctionIntr(
             signature=Union[
@@ -3065,7 +3065,7 @@ MODULES = {
                 Fun[[float, float, float, _complex_signature],
                     NDArray[complex, :]],
             ],
-            return_range_content=prange.range_values,
+            return_range_content=interval.range_values,
             args=('start', 'stop', 'step', 'dtype'),
             defaults=(1, None)
         ),
@@ -3727,7 +3727,7 @@ MODULES = {
         "ndenumerate": ConstFunctionIntr(),
         "ndarray": ClassWithConstConstructor(CLASSES["ndarray"]),
         "ndindex": ConstFunctionIntr(),
-        "ndim": ConstFunctionIntr(return_range=prange.positive_values),
+        "ndim": ConstFunctionIntr(return_range=interval.positive_values),
         "negative": ConstFunctionIntr(signature=_numpy_unary_op_signature),
         "newaxis": ConstantIntr(),
         "nextafter": UFunc(BINARY_UFUNC),
@@ -3826,7 +3826,7 @@ MODULES = {
         "signbit": ConstFunctionIntr(),
         "sin": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
         "sinh": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
-        "size": ConstFunctionIntr(return_range=prange.positive_values),
+        "size": ConstFunctionIntr(return_range=interval.positive_values),
         "sometrue": ConstFunctionIntr(),
         "sort": ConstFunctionIntr(),
         "sort_complex": ConstFunctionIntr(),
@@ -3985,7 +3985,7 @@ MODULES = {
                 Fun[[List[T0], T0, int], int],
                 Fun[[List[T0], T0, int, int], int],
             ],
-            return_range=prange.positive_values
+            return_range=interval.positive_values
         ),
         "bisect_right": ConstFunctionIntr(
             signature=Union[
@@ -3993,7 +3993,7 @@ MODULES = {
                 Fun[[List[T0], T0, int], int],
                 Fun[[List[T0], T0, int, int], int],
             ],
-            return_range=prange.positive_values
+            return_range=interval.positive_values
         ),
         "bisect": ConstFunctionIntr(
             signature=Union[
@@ -4001,7 +4001,7 @@ MODULES = {
                 Fun[[List[T0], T0, int], int],
                 Fun[[List[T0], T0, int, int], int],
             ],
-            return_range=prange.positive_values
+            return_range=interval.positive_values
         ),
     },
     "cmath": {
@@ -4344,7 +4344,7 @@ MODULES = {
                 Fun[[Iterable[T0], T0, int], int],
                 Fun[[Iterable[T0], T0, int, int], int],
             ],
-            return_range=prange.positive_values
+            return_range=interval.positive_values
         ),
         "next": MethodIntr(global_effects=True),  # because of file.next
         "pop": MethodIntr(),

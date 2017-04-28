@@ -713,8 +713,7 @@ pythonic::types::none_type>::type result_type;
         if node.target.id in self.scope[node] and not self.yields:
             self.ldecls = {d for d in self.ldecls
                            if d.id != node.target.id}
-            local_type = "auto&& ".format(
-                local_target)
+            local_type = "auto&&"
         else:
             local_type = ""
 
@@ -737,8 +736,7 @@ pythonic::types::none_type>::type result_type;
         """
         Handle comparison for real loops.
 
-        Add the correct comparison operator if possible or set a runtime __cmp
-        comparison.
+        Add the correct comparison operator if possible.
         """
         # order is 1 for increasing loop, -1 for decreasing loop and 0 if it is
         # not known at compile time
@@ -751,27 +749,9 @@ pythonic::types::none_type>::type result_type;
         else:
             order = 0
 
-        if order:
-            comparison = "{} < {}" if order == 1 else "{} > {}"
-            comparison = comparison.format(target, upper_bound)
-            for_pos = 0
-        else:
-            cmp_type = "std::function<bool(long, long)> "
-            cmp_op = "__cmp{}".format(len(self.break_handlers))
-
-            # For yield function, all variables are globals.
-            if self.yields:
-                self.extra_declarations.append((cmp_op, cmp_type))
-                cmp_type = ""
-
-            stmts.insert(0, Statement("{} {} = std::less<long>()".format(
-                cmp_type, cmp_op)))
-            stmts.insert(1, If("{} < 0L".format(step),
-                               Statement("{} = std::greater<long>()".format(
-                                   cmp_op))))
-            for_pos = 2
-            comparison = "{0}({1}, {2})".format(cmp_op, target, upper_bound)
-        return comparison, for_pos
+        comparison = "{} < {}" if order == 1 else "{} > {}"
+        comparison = comparison.format(target, upper_bound)
+        return comparison
 
     def gen_c_for(self, node, local_iter, loop_body):
         """
@@ -797,18 +777,6 @@ pythonic::types::none_type>::type result_type;
         >> for(long i = 10, __targetX = 0; i > __targetX; i += -1)
         >>     ... do things ...
 
-        Or
-
-        >> for i in xrange(a, b, c):
-        >>     ... do things ...
-
-        Becomes
-
-        >> std::function<bool(int, int)> __cmpX = std::less<long>();
-        >> if(c < 0)
-        >>     __cmpX = std::greater<long>();
-        >> for(long i = a, __targetX = b; __cmpX(i, __targetX); i += c)
-        >>     ... do things ...
 
         It the case of not local variable, typing for `i` disappear
         """
@@ -839,10 +807,8 @@ pythonic::types::none_type>::type result_type;
             loop = [If("{} == {}".format(local_iter, upper_bound),
                     Statement("{} -= {}".format(local_iter, step)))]
 
-        comparison, for_pos = self.handle_real_loop_comparison(args, loop,
-                                                               local_iter,
-                                                               upper_bound,
-                                                               step)
+        comparison = self.handle_real_loop_comparison(args, loop, local_iter,
+                                                      upper_bound, step)
 
         forloop = For("{0} {1} = {2}".format(iter_type, local_iter,
                                              lower_bound),
@@ -850,7 +816,7 @@ pythonic::types::none_type>::type result_type;
                       "{0} += {1}".format(local_iter, step),
                       loop_body)
 
-        loop.insert(for_pos, self.process_omp_attachements(node, forloop))
+        loop.insert(0, self.process_omp_attachements(node, forloop))
 
         # Store upper bound value
         header = [Statement("{0} {1} = {2}".format(upper_type, upper_bound,
@@ -912,9 +878,7 @@ pythonic::types::none_type>::type result_type;
         To use C syntax:
             - target should not be assign in the loop
             - xrange should be use as iterator
-            - order have to be known at compile time or OpenMP should not be
-              use
-
+            - order have to be known at compile time
         """
         assert isinstance(node.target, ast.Name)
         pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
@@ -931,12 +895,11 @@ pythonic::types::none_type>::type result_type;
             return False
 
         args = node.iter.args
-        if (len(args) > 2 and (not isinstance(args[2], ast.Num) and
-                               not (isinstance(args[1], ast.Num) and
-                                    isinstance(args[0], ast.Num))) and
-                metadata.get(node, OMPDirective)):
-            return False
-        return True
+        if len(args) < 3:
+            return True
+        if isinstance(args[2], ast.Num):
+            return True
+        return False
 
     @cxx_loop
     def visit_For(self, node):

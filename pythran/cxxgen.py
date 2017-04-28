@@ -123,25 +123,9 @@ class DeclSpecifier(NestedDeclarator):
         return add_spec(sub_tp), sub_decl
 
 
-class NamespaceQualifier(DeclSpecifier):
-    def __init__(self, namespace, subdecl):
-        DeclSpecifier.__init__(self, subdecl, namespace, '::')
-
-
 class Typedef(DeclSpecifier):
     def __init__(self, subdecl):
         DeclSpecifier.__init__(self, subdecl, "typedef")
-
-
-class Static(DeclSpecifier):
-    def __init__(self, subdecl):
-        DeclSpecifier.__init__(self, subdecl, "static")
-
-
-class Const(NestedDeclarator):
-    def get_decl_pair(self):
-        sub_tp, sub_decl = self.subdecl.get_decl_pair()
-        return sub_tp, ("const %s" % sub_decl)
 
 
 class FunctionDeclaration(NestedDeclarator):
@@ -279,9 +263,7 @@ class Loop(Generable):
         self.body = body
 
     def generate(self):
-        if self.intro_line() is not None:
-            yield self.intro_line()
-
+        yield self.intro_line()
         for line in self.body.generate():
             yield line
 
@@ -289,8 +271,6 @@ class Loop(Generable):
 class While(Loop):
     def __init__(self, condition, body):
         super(While, self).__init__(body)
-        if condition[0] == '(' and condition[-1] == ')':
-            condition = condition[1:-1]
         self.condition = condition
 
     def intro_line(self):
@@ -315,9 +295,7 @@ class AutoFor(Loop):
         self.iter = iter_
 
     def intro_line(self):
-        return ("for (auto&& "
-                "{0}: {1})".format(self.target,
-                                   self.iter))
+        return "for (auto&& {0}: {1})".format(self.target, self.iter)
 
 
 # simple statements -----------------------------------------------------------

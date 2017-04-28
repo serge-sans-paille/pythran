@@ -3,6 +3,8 @@
 
 #include "pythonic/include/__builtin__/xrange.hpp"
 
+#include "pythonic/utils/functor.hpp"
+
 #include <iterator>
 
 namespace pythonic
@@ -11,111 +13,98 @@ namespace pythonic
   namespace __builtin__
   {
 
-    xrange_iterator::xrange_iterator()
+    namespace
+    {
+
+      long _init_last(long _begin, long _end, long _step)
+      {
+        if (_step > 0)
+          return _begin +
+                 std::max(0L, _step * ((_end - _begin + _step - 1) / _step));
+        else
+          return _begin +
+                 std::min(0L, _step * ((_end - _begin + _step + 1) / _step));
+      }
+    }
+
+    xrange_iterator::xrange_iterator(long v, long s) : value_(v), step_(s)
     {
     }
 
-    xrange_iterator::xrange_iterator(long v, long s)
-        : value(v), step(s), sign(s < 0 ? -1 : 1)
+    long xrange_iterator::operator*() const
     {
-    }
-
-    typename xrange_iterator::reference xrange_iterator::operator*() const
-    {
-      return value;
+      return value_;
     }
 
     xrange_iterator &xrange_iterator::operator++()
     {
-      value += step;
+      value_ += step_;
       return *this;
     }
 
     xrange_iterator xrange_iterator::operator++(int)
     {
       xrange_iterator self(*this);
-      value += step;
+      value_ += step_;
       return self;
     }
 
     xrange_iterator &xrange_iterator::operator+=(long n)
     {
-      value += step * n;
+      value_ += step_ * n;
       return *this;
     }
 
     bool xrange_iterator::operator!=(xrange_iterator const &other) const
     {
-      return value != other.value;
+      return value_ != other.value_;
     }
 
     bool xrange_iterator::operator==(xrange_iterator const &other) const
     {
-      return value == other.value;
+      return value_ == other.value_;
     }
 
     bool xrange_iterator::operator<(xrange_iterator const &other) const
     {
-      return sign * value < sign * other.value;
+      return step_ * value_ < step_ * other.value_;
     }
 
     long xrange_iterator::operator-(xrange_iterator const &other) const
     {
-      return (value - other.value) / step;
+      return (value_ - other.value_) / step_;
     }
 
-    void xrange::_init_last()
-    {
-      if (_step > 0)
-        _last = _begin +
-                std::max(0L, _step * ((_end - _begin + _step - 1) / _step));
-      else
-        _last = _begin +
-                std::min(0L, _step * ((_end - _begin + _step + 1) / _step));
-    }
-
-    xrange::xrange()
+    xrange::xrange(long b, long e, long s)
+        : begin_(b), end_(_init_last(b, e, s)), step_(s)
     {
     }
 
-    xrange::xrange(long b, long e, long s) : _begin(b), _end(e), _step(s)
-    {
-      _init_last();
-    }
-
-    xrange::xrange(long e) : _begin(0), _end(e), _step(1), _last(e)
+    xrange::xrange(long e) : begin_(0), end_(e), step_(1)
     {
     }
 
     xrange_iterator xrange::begin() const
     {
-      return xrange_iterator(_begin, _step);
+      return xrange_iterator(begin_, step_);
     }
 
     xrange_iterator xrange::end() const
     {
-      return xrange_iterator(_last, _step);
+      return xrange_iterator(end_, step_);
     }
 
     typename xrange::reverse_iterator xrange::rbegin() const
     {
-      return {_last - _step, -_step};
+      return {end_ - step_, -step_};
     }
 
     typename xrange::reverse_iterator xrange::rend() const
     {
-      return {_begin - _step, -_step};
+      return {begin_ - step_, -step_};
     }
 
-    // clang++ is not happy with PROXY
-    namespace functor
-    {
-      template <class... Types>
-      pythonic::__builtin__::xrange xrange::operator()(Types &&... args)
-      {
-        return pythonic::__builtin__::xrange(std::forward<Types>(args)...);
-      }
-    }
+    DEFINE_FUNCTOR(pythonic::__builtin__, xrange);
   }
 }
 

@@ -37,7 +37,6 @@ class IterTransformation(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(IterTransformation, node)
     >>> print pm.dump(backend.Python, node)
-    import itertools as __pythran_import_itertools
     def foo(l):
         return __builtin__.sum(l)
     def bar(n):
@@ -47,6 +46,7 @@ class IterTransformation(Transformation):
     def __init__(self):
         """Gather required information."""
         Transformation.__init__(self, PotentialIterator, Aliases)
+        self.use_itertools = False
 
     def find_matching_builtin(self, node):
         """
@@ -63,8 +63,10 @@ class IterTransformation(Transformation):
         """Add itertools import for imap, izip or ifilter iterator."""
         self.generic_visit(node)
         import_alias = ast.alias(name='itertools', asname=mangle('itertools'))
-        importIt = ast.Import(names=[import_alias])
-        return ast.Module(body=([importIt] + node.body))
+        if self.use_itertools:
+            importIt = ast.Import(names=[import_alias])
+            node.body.insert(0, importIt)
+        return node
 
     def visit_Call(self, node):
         """Replace function call by its correct iterator if it is possible."""
@@ -78,6 +80,8 @@ class IterTransformation(Transformation):
                     self.aliases[node.args[0]]):
                 return self.generic_visit(node)
             if match_keyword:
-                node.func = path_to_attr(EQUIVALENT_ITERATORS[match_keyword])
+                path = EQUIVALENT_ITERATORS[match_keyword]
+                node.func = path_to_attr(path)
+                self.use_itertools |= path[0] == 'itertools'
                 self.update = True
         return self.generic_visit(node)

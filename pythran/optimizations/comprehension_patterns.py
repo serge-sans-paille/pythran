@@ -1,4 +1,5 @@
-""" GenExpToImap transforms generator expressions into iterators. """
+
+""" Comprehension patterns transforms list comprehension into intrinsics.  """
 
 from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
@@ -19,15 +20,20 @@ else:
 ASMODULE = mangle(MODULE)
 
 
-class GenExpToImap(Transformation):
+class ComprehensionPatterns(Transformation):
     '''
-    Transforms generator expressions into iterators.
-
+    Transforms list comprehension into intrinsics.
     >>> import gast as ast
     >>> from pythran import passmanager, backend
+    >>> node = ast.parse("[x*x for x in range(10)]")
+    >>> pm = passmanager.PassManager("test")
+    >>> _, node = pm.apply(ComprehensionPatterns, node)
+    >>> print pm.dump(backend.Python, node)
+    __builtin__.map((lambda x: (x * x)), range(10))
+
     >>> node = ast.parse("(x*x for x in range(10))")
     >>> pm = passmanager.PassManager("test")
-    >>> _, node = pm.apply(GenExpToImap, node)
+    >>> _, node = pm.apply(ComprehensionPatterns, node)
     >>> print pm.dump(backend.Python, node)
     import itertools as __pythran_import_itertools
     __pythran_import_itertools.imap((lambda x: (x * x)), range(10))
@@ -37,9 +43,13 @@ class GenExpToImap(Transformation):
         Transformation.__init__(self, OptimizableComprehension)
 
     def visit_Module(self, node):
+        self.use_itertools = False
         self.generic_visit(node)
-        importIt = ast.Import(names=[ast.alias(name=MODULE, asname=ASMODULE)])
-        node.body.insert(0, importIt)
+        if self.use_itertools:
+            import_alias = ast.alias(name='itertools',
+                                     asname=mangle('itertools'))
+            importIt = ast.Import(names=[import_alias])
+            node.body.insert(0, importIt)
         return node
 
     def make_Iterator(self, gen):
@@ -49,6 +59,7 @@ class GenExpToImap(Transformation):
                               None, [], [], None, []),
                 ast.BoolOp(ast.And(), gen.ifs)
                 if len(gen.ifs) > 1 else gen.ifs[0])
+            self.use_itertools |= MODULE == 'itertools'
             ifilterName = ast.Attribute(
                 value=ast.Name(id=ASMODULE,
                                ctx=ast.Load(),
@@ -58,7 +69,7 @@ class GenExpToImap(Transformation):
         else:
             return gen.iter
 
-    def visit_GeneratorExp(self, node):
+    def visitComp(self, node, make_attr):
 
         if node in self.optimizable_comprehension:
             self.update = True
@@ -73,6 +84,7 @@ class GenExpToImap(Transformation):
                 iterAST = iters[0]
                 varAST = ast.arguments([variables[0]], None, [], [], None, [])
             else:
+                self.use_itertools = True
                 prodName = ast.Attribute(
                     value=ast.Name(id=mangle('itertools'),
                                    ctx=ast.Load(),
@@ -86,16 +98,30 @@ class GenExpToImap(Transformation):
                 varAST = ast.arguments([ast.Name(varid, ast.Param(), None)],
                                        None, [], [], None, [])
 
-            imapName = ast.Attribute(
+            mapName = make_attr()
+            ldBodymap = node.elt
+            ldmap = ast.Lambda(varAST, ldBodymap)
+
+            return ast.Call(mapName, [ldmap, iterAST], [])
+
+        else:
+            return self.generic_visit(node)
+
+    def visit_ListComp(self, node):
+        def makeattr():
+            return ast.Attribute(
+                value=ast.Name(id='__builtin__',
+                               ctx=ast.Load(),
+                               annotation=None),
+                attr='map', ctx=ast.Load())
+        return self.visitComp(node, makeattr)
+
+    def visit_GeneratorExp(self, node):
+        def makeattr():
+            self.use_itertools |= MODULE == 'itertools'
+            return ast.Attribute(
                 value=ast.Name(id=ASMODULE,
                                ctx=ast.Load(),
                                annotation=None),
                 attr=IMAP, ctx=ast.Load())
-
-            ldBodyimap = node.elt
-            ldimap = ast.Lambda(varAST, ldBodyimap)
-
-            return ast.Call(imapName, [ldimap, iterAST], [])
-
-        else:
-            return self.generic_visit(node)
+        return self.visitComp(node, makeattr)

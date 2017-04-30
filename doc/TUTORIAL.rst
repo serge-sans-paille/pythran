@@ -156,7 +156,7 @@ One can also detect some common generator expression patterns to call the iterto
 
   >>> norm = 'def norm(l): return sum(n*n for n in l)'
   >>> tree = ast.parse(norm)
-  >>> _ = pm.apply(optim.GenExpToImap, tree)
+  >>> _ = pm.apply(optim.ComprehensionPatterns, tree)
   >>> print(pm.dump(backend.Python, tree))
   import itertools as __pythran_import_itertools
   def norm(l):

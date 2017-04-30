@@ -237,8 +237,6 @@ def foo():
     if 1:
         print(a)
     return __builtin__.None"""
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding2(self):
@@ -255,8 +253,6 @@ def foo():
         pass
         print(2)
     return __builtin__.None"""
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding3(self):
@@ -273,8 +269,6 @@ def foo():
         a = 2
     print(a)
     return __builtin__.None"""
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_full_unroll0(self):
@@ -299,8 +293,6 @@ def full_unroll0():
     i = __tuple0[0]
     __builtin__.list.append(k, (i, j))
     return k'''
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding", "pythran.optimizations.LoopFullUnrolling"])
 
 
@@ -325,8 +317,7 @@ def foo(a):
     if 1 < bar(a):
         b = 2
     return b"""
-        ref = """import itertools as __pythran_import_itertools
-def bar(a):
+        ref = """def bar(a):
     print(a)
     return 10
 def foo(a):
@@ -343,8 +334,6 @@ def foo(a):
         ref = """def foo(a):
     pass
     return 2"""
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])
 
     def test_deadcodeelimination3(self):
@@ -361,15 +350,11 @@ def foo(a):
     'omp flush'
     pass
     return 2"""
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.DeadCodeElimination"])
 
     def test_deadcodeelimination4(self):
         init = 'def noeffect(i): a=[];b=[a]; __builtin__.list.append(b[0],i); return None'
         ref = 'def noeffect(i):\n    pass\n    pass\n    pass\n    return __builtin__.None'
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution",
                                    "pythran.optimizations.ConstantFolding",
                                    "pythran.optimizations.DeadCodeElimination"])
@@ -380,8 +365,6 @@ def foo(a):
     return len(set(range(len(set(a)))))"""
         ref = """def foo(a):
     return __builtin__.pythran.len_set(__builtin__.range(__builtin__.pythran.len_set(a)))"""
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
     def test_patternmatching2(self):
@@ -390,8 +373,6 @@ def foo(a):
     return reversed(xrange(len(set(a))))"""
         ref = """def foo(a):
     return __builtin__.xrange((__builtin__.pythran.len_set(a) - 1), (-1), (-1))"""
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
     def test_patternmatching3(self):
@@ -400,8 +381,6 @@ def foo(a):
     return a * a"""
         ref = """def foo(a):
     return (a ** 2)"""
-        if sys.version_info.major == 2:
-            ref = "import itertools as __pythran_import_itertools\n" + ref
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
 

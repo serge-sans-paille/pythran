@@ -13,10 +13,9 @@ import optimisations.xxxxx
 from .constant_folding import ConstantFolding
 from .dead_code_elimination import DeadCodeElimination
 from .forward_substitution import ForwardSubstitution
-from .gen_exp_to_imap import GenExpToImap
 from .iter_transformation import IterTransformation
+from .comprehension_patterns import ComprehensionPatterns
 from .list_comp_to_genexp import ListCompToGenexp
-from .list_comp_to_map import ListCompToMap
 from .loop_full_unrolling import LoopFullUnrolling
 from .pattern_transform import PatternTransform
 from .range_loop_unfolding import RangeLoopUnfolding

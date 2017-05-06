@@ -767,9 +767,8 @@ namespace pythonic
     }
 
     template <class Arg, class... S>
-        template <size_t M>
-        auto numpy_gexpr<Arg, S...>::
-        operator[](array<long, M> const &indices) &&
+    template <size_t M>
+    auto numpy_gexpr<Arg, S...>::operator[](array<long, M> const &indices) &&
         -> decltype(nget<M - 1>()(std::move(*this), indices))
     {
       return nget<M - 1>()(std::move(*this), indices);
@@ -851,8 +850,8 @@ namespace pythonic
       auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E const &e,
                                                                 F &&f)
           -> decltype(finalize_numpy_gexpr_helper<
-              N + 1, numpy_iexpr<Arg const &>,
-              S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
+                      N + 1, numpy_iexpr<Arg const &>,
+                      S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
       {
         return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
                                            S...>::get(e,
@@ -865,8 +864,8 @@ namespace pythonic
       template <class E, class F>
       auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E &e, F &&f)
           -> decltype(finalize_numpy_gexpr_helper<
-              N + 1, numpy_iexpr<Arg const &>,
-              S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
+                      N + 1, numpy_iexpr<Arg const &>,
+                      S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
       {
         numpy_iexpr<Arg const &> iexpr(std::forward<F>(f), e.indices[N]);
         return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
@@ -898,8 +897,8 @@ namespace pythonic
     auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
         numpy_gexpr<Arg, S0, long, S...> const &e, long i)
         -> decltype(finalize_numpy_gexpr_helper<
-            0, numpy_iexpr<Arg const &>, long,
-            S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
+                    0, numpy_iexpr<Arg const &>, long,
+                    S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
     {
       return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
                                          S...>::get(e,
@@ -911,8 +910,8 @@ namespace pythonic
     auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
         numpy_gexpr<Arg, S0, long, S...> &e, long i)
         -> decltype(finalize_numpy_gexpr_helper<
-            0, numpy_iexpr<Arg const &>, long,
-            S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
+                    0, numpy_iexpr<Arg const &>, long,
+                    S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
     {
       return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
                                          S...>::get(e,

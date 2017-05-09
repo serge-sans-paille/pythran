@@ -329,7 +329,7 @@ def test_copy0(x):
         self.run_test("def np_array_equal0(a): from numpy import array_equal ;  b = [1,2] ; return array_equal(a,b)", [1, 2], np_array_equal0=[List[int]])
 
     def test_array_equal1(self):
-        self.run_test("def np_array_equal1(a): from numpy import array, array_equal ;  b = array([1,2]) ; return array_equal(a,b)", numpy.array([1,2]), np_array_equal1=[NDArray[int,:]])
+        self.run_test("def np_array_equal1(a): from numpy import array, array_equal ;  b = array([1,2], dtype=int) ; return array_equal(a,b)", numpy.array([1,2]), np_array_equal1=[NDArray[int,:]])
 
     def test_array_equal2(self):
         self.run_test("def np_array_equal2(a): from numpy import array, array_equal ;  b = array([[1,2],[3,5]]) ; return array_equal(a,b)", numpy.array([[1,2],[3,5]]), np_array_equal2=[NDArray[int,:,:]])

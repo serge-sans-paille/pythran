@@ -3090,7 +3090,8 @@ MODULES = {
             signature=_numpy_unary_op_int_axis_signature),
         "argwhere": ConstFunctionIntr(signature=_numpy_unary_op_int_signature),
         "around": ConstFunctionIntr(signature=_numpy_around_signature),
-        "array": ConstFunctionIntr(signature=_numpy_array_signature),
+        "array": ConstFunctionIntr(signature=_numpy_array_signature,
+                                   args=('object', 'dtype'), defaults=(None,)),
         "array2string": ConstFunctionIntr(
             signature=_numpy_array_str_signature),
         "array_equal": ConstFunctionIntr(signature=Fun[[T0, T1], bool]),

@@ -623,3 +623,27 @@ def assign_ndarray(t):
         self.run_test("def ndarray_str_dtype1(a): return str(a.dtype)",
                       numpy.arange(16.),
                       ndarray_str_dtype1=[NDArray[float, :]])
+
+    def test_ndarray_fancy_indexing0(self):
+        self.run_test("def ndarray_fancy_indexing0(a,b): return a[b]",
+                numpy.arange(8.),
+                numpy.arange(8),
+                ndarray_fancy_indexing0=[NDArray[float, :], NDArray[int, :]])
+
+    def test_ndarray_fancy_indexing1(self):
+        self.run_test("def ndarray_fancy_indexing1(a,b): return a[b]",
+                numpy.arange(8.).reshape(4,2),
+                numpy.array([0,1], dtype=int),
+                ndarray_fancy_indexing1=[NDArray[float, :, :], NDArray[int, :]])
+
+    def test_ndarray_fancy_indexing2(self):
+        self.run_test("def ndarray_fancy_indexing2(a,b): return a[b]",
+                numpy.arange(8.).reshape(4,2),
+                numpy.array([3,2,1,0, 0], dtype=int),
+                ndarray_fancy_indexing2=[NDArray[float, :, :], NDArray[int, :]])
+
+    def test_ndarray_fancy_indexing3(self):
+        self.run_test("def ndarray_fancy_indexing3(a,b): return a[b]",
+                numpy.arange(8.).reshape(4,2),
+                numpy.array([3,2,1,0], dtype=int),
+                ndarray_fancy_indexing3=[NDArray[float, :, :], NDArray[int, :]])

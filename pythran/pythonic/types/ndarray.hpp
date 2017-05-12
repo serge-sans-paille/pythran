@@ -656,6 +656,8 @@ namespace pythonic
         ndarray<T, N>>::type ndarray<T, N>::
     operator[](F const &filter) const
     {
+      static_assert(F::value == 1,
+                    "advanced indexing only supporint with 1D index");
       array<long, N> shape = this->shape();
       shape[0] = filter.flat_size();
       ndarray<T, N> out(shape, none_type());
@@ -673,6 +675,8 @@ namespace pythonic
         ndarray<T, N>>::type
     ndarray<T, N>::fast(F const &filter) const
     {
+      static_assert(F::value == 1,
+                    "advanced indexing only supporint with 1D index");
       array<long, N> shape = this->shape();
       shape[0] = filter.flat_size();
       ndarray<T, N> out(shape, none_type());

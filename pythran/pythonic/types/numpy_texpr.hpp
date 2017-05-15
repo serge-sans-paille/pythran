@@ -244,6 +244,9 @@ namespace pythonic
         ndarray<typename numpy_texpr_2<E>::dtype, 2>>::type numpy_texpr_2<E>::
     operator[](F const &filter) const
     {
+      static_assert(F::value == 1,
+                    "advanced indexing only supporint with 1D index");
+
       ndarray<typename numpy_texpr_2<E>::dtype, 2> out(
           array<long, 2>{{filter.flat_size(), shape()[1]}}, none_type());
       std::transform(
@@ -260,6 +263,8 @@ namespace pythonic
         ndarray<typename numpy_texpr_2<E>::dtype, 2>>::type
     numpy_texpr_2<E>::fast(F const &filter) const
     {
+      static_assert(F::value == 1,
+                    "advanced indexing only supporint with 1D index");
       ndarray<typename numpy_texpr_2<E>::dtype, 2> out(
           array<long, 2>{{filter.flat_size(), shape()[1]}}, none_type());
       std::transform(filter.begin(), filter.end(), out.begin(),

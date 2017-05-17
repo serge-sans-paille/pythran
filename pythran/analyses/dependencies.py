@@ -97,11 +97,11 @@ class Dependencies(ModuleAnalysis):
         self.generic_visit(node)
 
     def visit_Attribute(self, node):
-        def rec(w, n):
+        def rec(n):
             if isinstance(n, ast.Name):
                 return demangle(n.id),
             elif isinstance(n, ast.Attribute):
-                return rec(w, n.value) + (n.attr,)
-        attr = rec(MODULES, node)
+                return rec(n.value) + (n.attr,)
+        attr = rec(node)
 
         attr and self.result.add(attr)

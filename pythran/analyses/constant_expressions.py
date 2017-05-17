@@ -8,6 +8,7 @@ from pythran.intrinsic import FunctionIntr
 from pythran.passmanager import NodeAnalysis
 from pythran.tables import MODULES
 from pythran.conversion import demangle
+from pythran.utils import path_to_node
 
 import gast as ast
 
@@ -83,12 +84,7 @@ class ConstantExpressions(NodeAnalysis):
             return False
 
     def visit_Attribute(self, node):
-        def rec(w, n):
-            if isinstance(n, ast.Name):
-                return w[demangle(n.id)]
-            elif isinstance(n, ast.Attribute):
-                return rec(w, n.value)[n.attr]
-        return rec(MODULES, node).isconst() and self.add(node)
+        return Aliases.access_path(node).isconst() and self.add(node)
 
     def visit_Dict(self, node):
         rec = all([self.visit(x) for x in (node.keys + node.values)])

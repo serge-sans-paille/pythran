@@ -398,3 +398,11 @@ def recursive_interprocedural_typing1():
         with self.assertRaises(pythran.types.tog.PythranTypeError):
             pythran.compile_pythrancode("dumbo", dedent(code))
 
+
+    def test_type_inference10(self):
+        code = '''
+            def valid_augassign(l):
+                l *= 0
+                return l[1,2]'''
+        pythran.compile_pythrancode("dumbo", dedent(code))
+

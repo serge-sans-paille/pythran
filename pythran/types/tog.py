@@ -961,13 +961,11 @@ def analyse(node, env, non_generic=None):
         fake_target.ctx = gast.Load()
         fake_op = gast.BinOp(fake_target, node.op, node.value)
         gast.copy_location(fake_op, node)
-        analyse(fake_op, env, non_generic)
-
-        value_type = analyse(node.value, env, non_generic)
+        res_type = analyse(fake_op, env, non_generic)
         target_type = analyse(node.target, env, non_generic)
 
         try:
-            unify(target_type, value_type)
+            unify(target_type, res_type)
         except InferenceError:
             raise PythranTypeError(
                 "Invalid update operand for `{}`: `{}` and `{}`".format(

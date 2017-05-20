@@ -50,13 +50,10 @@ def path_to_node(path):
     >>> path_to_node(path) #doctest: +ELLIPSIS
     <pythran.intrinsic.ConstantIntr object at 0x...>
     """
-    def rec(modules, path):
-        if len(path) == 1:
-            return modules[path[0]]
-
-        return rec(modules[path[0]], path[1:])
-
-    return rec(MODULES, path)
+    if len(path) == 1:
+        return MODULES[path[0]]
+    else:
+        return path_to_node(path[:-1])[path[-1]]
 
 
 def get_variable(assignable):

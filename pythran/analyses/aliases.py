@@ -104,16 +104,14 @@ class Aliases(ModuleAnalysis):
     @staticmethod
     def access_path(node):
 
-        def rec(w, n):
-            if isinstance(n, ast.Name):
-                return w.get(demangle(n.id), n.id)
-            elif isinstance(n, ast.Attribute):
-                return rec(w, n.value)[demangle(n.attr)]
-            elif isinstance(n, ast.FunctionDef):
-                return node.name
-            else:
-                return node
-        return rec(MODULES, node)
+        if isinstance(node, ast.Name):
+            return MODULES.get(demangle(node.id), node.id)
+        elif isinstance(node, ast.Attribute):
+            return Aliases.access_path(node.value)[demangle(node.attr)]
+        elif isinstance(node, ast.FunctionDef):
+            return node.name
+        else:
+            return node
 
     # aliasing created by expressions
     def add(self, node, values=None):

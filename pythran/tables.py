@@ -2187,6 +2187,8 @@ _operator_getitem_signature = Union[
     Fun[[str, slice], str],
     # arrays
     Fun[[NDArray[T0, :], T1], T2],
+    # large tuple
+    Fun[[Iterable[T0], int], T0],
 ]
 
 

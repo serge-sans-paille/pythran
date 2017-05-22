@@ -10,8 +10,9 @@ from pythran.config import cfg
 from pythran.cxxtypes import NamedType, ContainerType, PType, Assignable, Lazy
 from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
 from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
-from pythran.cxxtypes import Weak, ListType, SetType, DictType, TupleType
+from pythran.cxxtypes import ListType, SetType, DictType, TupleType
 from pythran.cxxtypes import ArgumentType, Returnable, CombinedTypes
+from pythran.cxxtypes import UnknownType
 from pythran.intrinsic import UserFunction, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
@@ -146,6 +147,11 @@ class Types(ModuleAnalysis):
         aliasing_type : bool
             All node aliasing to `node` have to be updated too.
         """
+        if self.result[othernode] is UnknownType:
+            if node not in self.result:
+                self.result[node] = UnknownType
+            return
+
         if aliasing_type:
             self.combine_(node, othernode, op or operator.add,
                           unary_op or (lambda x: x), register)
@@ -171,13 +177,11 @@ class Types(ModuleAnalysis):
                                       range(depth), former_unary_op(x))
 
                     # patch the op, as we no longer apply op, but infer content
-                    # but it's dangerous to combine with a weakling
                     def op(*types):
-                        nonweaks = [t for t in types if not t.isweak()]
-                        if len(nonweaks) == 1:
-                            return nonweaks[0]
+                        if len(types) == 1:
+                            return types[0]
                         else:
-                            return CombinedTypes(*nonweaks)
+                            return CombinedTypes(*types)
 
                 self.name_to_nodes.setdefault(node_id, set()).add(node)
 
@@ -229,7 +233,7 @@ class Types(ModuleAnalysis):
                     current_function.add_combiner(translator)
             else:
                 new_type = unary_op(self.result[othernode])
-                if node not in self.result:
+                if node not in self.result or self.result[node] is UnknownType:
                     self.result[node] = new_type
                 else:
                     self.result[node] = op(self.result[node], new_type)
@@ -347,22 +351,12 @@ class Types(ModuleAnalysis):
     def visit_BinOp(self, node):
         self.generic_visit(node)
 
-        wl, wr = [self.result[x].isweak() for x in (node.left, node.right)]
-        if(isinstance(node.op, ast.Add) and any([wl, wr]) and
-           not all([wl, wr])):
-            # assumes the + operator always has the same operand type
-            # on left and right side
-            F = operator.add
-        else:
-            def F(x, y):
-                return ExpressionType(operator_to_lambda[type(node.op)],
-                                      [x, y])
+        def F(x, y):
+            return ExpressionType(operator_to_lambda[type(node.op)],
+                                  [x, y])
 
-        fake_node = ast.Name("#", ast.Param(), None)
-        self.combine(fake_node, node.left, F)
-        self.combine(fake_node, node.right, F)
-        self.combine(node, fake_node)
-        del self.result[fake_node]
+        self.combine(node, node.left, F)
+        self.combine(node, node.right, F)
 
     def visit_UnaryOp(self, node):
         self.generic_visit(node)
@@ -373,7 +367,8 @@ class Types(ModuleAnalysis):
 
     def visit_IfExp(self, node):
         self.generic_visit(node)
-        [self.combine(node, n) for n in (node.body, node.orelse)]
+        for n in (node.body, node.orelse):
+            self.combine(node, n)
 
     def visit_Compare(self, node):
         self.generic_visit(node)
@@ -389,6 +384,7 @@ class Types(ModuleAnalysis):
 
     def visit_Call(self, node):
         self.generic_visit(node)
+
         func = node.func
 
         for alias in self.strict_aliases[func]:
@@ -413,8 +409,7 @@ class Types(ModuleAnalysis):
                 self.combiners[alias].combiner(self, node)
 
         # recurring nightmare
-        isweak = any(self.result[n].isweak() for n in node.args + [func])
-        if self.stage == 0 and isweak:
+        def last_chance():
             # maybe we can get saved if we have a hint about
             # the called function return type
             for alias in self.strict_aliases[func]:
@@ -422,6 +417,13 @@ class Types(ModuleAnalysis):
                     # great we have a (partial) type information
                     self.result[node] = self.result[alias]
                     return
+            self.result[node] = UnknownType
+
+        if self.result[node.func] is UnknownType:
+            return last_chance()
+
+        if any(self.result[arg] is UnknownType for arg in node.args):
+            return last_chance()
 
         # special handler for getattr: use the attr name as an enum member
         if (isinstance(func, ast.Attribute) and func.attr == 'getattr'):
@@ -517,7 +519,7 @@ class Types(ModuleAnalysis):
             if node not in self.result:
                 self.result[node] = newtype
         else:
-            self.result[node] = NamedType(node.id, {Weak})
+            self.result[node] = UnknownType
 
     def visit_List(self, node):
         """ Define list type from all elements type (or empty_list type). """

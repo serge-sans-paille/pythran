@@ -5,20 +5,9 @@ This module defines classes needed to manipulate c++ types from pythran.
 from pythran.config import cfg
 
 
-class Weak:
-    """
-    Type Qualifier used to represent a weak type
-
-    When a weak type is combined with another type, the weak type is suppressed
-    """
-
-
 class Type(object):
     """
     A generic type object to be sub-classed
-
-    It maintains a set of qualifiers and
-    a tuple of fields used for type comparison.
 
     The keyword arguments are used to built the internal representation:
     one attribute per key with the associated value
@@ -27,14 +16,8 @@ class Type(object):
         for k, v in kwargs.items():
             if isinstance(v, list):
                 v = tuple(v)
-            elif isinstance(v, set):
-                v = frozenset(v)
             setattr(self, k, v)
-        self.fields = tuple(sorted(kwargs.keys()))
         self.iscore = False
-
-    def isweak(self):
-        return Weak in self.qualifiers
 
     def iscombined(self):
         return False
@@ -43,10 +26,6 @@ class Type(object):
         return {self}
 
     def __add__(self, other):
-        if self.isweak() and not other.isweak():
-            return other
-        if other.isweak() and not self.isweak():
-            return self
         if self == other:
             return self
         if isinstance(other, CombinedTypes) and self in other.types:
@@ -56,6 +35,8 @@ class Type(object):
     def __repr__(self):
         return self.generate(lambda x: x)
 
+UnknownType = Type()
+
 
 class NamedType(Type):
     """
@@ -64,10 +45,8 @@ class NamedType(Type):
     >>> NamedType('long long')
     long long
     """
-    def __init__(self, srepr, qualifiers=None):
-        if qualifiers is None:
-            qualifiers = frozenset()
-        super(NamedType, self).__init__(srepr=srepr, qualifiers=qualifiers)
+    def __init__(self, srepr):
+        super(NamedType, self).__init__(srepr=srepr)
 
     def generate(self, _):
         return self.srepr
@@ -84,7 +63,6 @@ class PType(Type):
     def __init__(self, fun, ptype):
         super(PType, self).__init__(fun=fun,
                                     type=ptype,
-                                    qualifiers=ptype.qualifiers,
                                     name=PType.prefix.format(PType.count))
         PType.count += 1
 
@@ -92,24 +70,20 @@ class PType(Type):
         return ctx(self.type).generate(ctx)
 
     def instanciate(self, caller, arguments):
-        return InstanciatedType(self.fun,
-                                self.name,
-                                arguments,
-                                caller,
-                                self.qualifiers)
+        if self.fun is caller:
+            return UnknownType
+        else:
+            return InstanciatedType(self.fun, self.name, arguments)
 
 
 class InstanciatedType(Type):
     """
     A type instanciated from a parametric type
     """
-    def __init__(self, fun, name, arguments, caller, qualifiers):
+    def __init__(self, fun, name, arguments):
         super(InstanciatedType, self).__init__(fun=fun,
                                                name=name,
-                                               arguments=arguments,
-                                               qualifiers=qualifiers)
-        if fun == caller:
-            self.qualifiers = self.qualifiers.union([Weak])
+                                               arguments=arguments)
 
     def generate(self, ctx):
         if self.arguments:
@@ -134,10 +108,7 @@ class CombinedTypes(Type):
     """
 
     def __init__(self, *types):
-        super(CombinedTypes, self).__init__(
-            types=types,
-            qualifiers=frozenset.union(*[t.qualifiers for t in types])
-            )
+        super(CombinedTypes, self).__init__(types=types)
         self._all_types = None  # cached, much faster
 
     def iscombined(self):
@@ -148,8 +119,6 @@ class CombinedTypes(Type):
             return CombinedTypes(self, other)
         if other in self.types:
             return self
-        if other.isweak() and not self.isweak():
-            return self
         if self == other:
             return self
         return CombinedTypes(self, other)
@@ -158,6 +127,8 @@ class CombinedTypes(Type):
         if self._all_types is None:
             self._all_types = set()
             self._all_types.update(*[t.all_types() for t in self.types])
+            if UnknownType in self._all_types and len(self._all_types) > 1:
+                self._all_types.pop(UnknownType)
         return self._all_types
 
     def generate(self, ctx):
@@ -197,11 +168,8 @@ class ArgumentType(Type):
     typename std::remove_cv<\
 typename std::remove_reference<argument_type4>::type>::type
     """
-    def __init__(self, num, qualifiers=None):
-        if qualifiers is None:
-            qualifiers = frozenset()
-        super(ArgumentType, self).__init__(num=num,
-                                           qualifiers=qualifiers)
+    def __init__(self, num):
+        super(ArgumentType, self).__init__(num=num)
 
     def generate(self, _):
         argtype = "argument_type{0}".format(self.num)
@@ -214,8 +182,8 @@ class DependentType(Type):
     A class to be sub-classed by any type that depends on another type
     """
     def __init__(self, of):
-        super(DependentType, self).__init__(of=of,
-                                            qualifiers=of.qualifiers)
+        assert of is not None
+        super(DependentType, self).__init__(of=of)
 
     def iscombined(self):
         return self.of.iscombined()
@@ -313,10 +281,7 @@ class GetAttr(Type):
 (std::declval<complex>()))
     '''
     def __init__(self, param, attr):
-        super(GetAttr, self).__init__(
-            qualifiers=param.qualifiers,
-            param=param,
-            attr=attr)
+        super(GetAttr, self).__init__(param=param, attr=attr)
 
     def generate(self, ctx):
         return ('decltype(pythonic::__builtin__::getattr<{}>({}))'
@@ -332,11 +297,7 @@ class ReturnType(Type):
     decltype(std::declval<math::cos>()(std::declval<float>()))
     '''
     def __init__(self, ftype, args):
-        args_qualifiers = [arg.qualifiers for arg in args]
-        super(ReturnType, self).__init__(
-            qualifiers=ftype.qualifiers.union(*args_qualifiers),
-            ftype=ftype,
-            args=args)
+        super(ReturnType, self).__init__(ftype=ftype, args=args)
 
     def generate(self, ctx):
         # the return type of a constructor is obvious
@@ -359,9 +320,7 @@ std::declval<str>()))>::type>::type
     '''
 
     def __init__(self, index, of):
-        super(ElementType, self).__init__(qualifiers=of.qualifiers,
-                                          of=of,
-                                          index=index)
+        super(ElementType, self).__init__(of=of, index=index)
 
     def iscombined(self):
         return self.of.iscombined()
@@ -408,12 +367,7 @@ class TupleType(Type):
 std::declval<bool>()))
     '''
     def __init__(self, ofs):
-        if ofs:
-            qualifiers = frozenset.union(*[of.qualifiers for of in ofs])
-        else:
-            qualifiers = frozenset()
-
-        super(TupleType, self).__init__(ofs=ofs, qualifiers=qualifiers)
+        super(TupleType, self).__init__(ofs=ofs)
 
     def iscombined(self):
         return any(of.iscombined() for of in self.ofs)
@@ -434,11 +388,7 @@ class DictType(Type):
     '''
 
     def __init__(self, of_key, of_value):
-        super(DictType, self).__init__(
-            qualifiers=of_key.qualifiers.union(of_value.qualifiers),
-            of_key=of_key,
-            of_value=of_value
-            )
+        super(DictType, self).__init__(of_key=of_key, of_value=of_value)
 
     def iscombined(self):
         return any(of.iscombined() for of in (self.of_key, self.of_value))
@@ -485,10 +435,7 @@ class ExpressionType(Type):
     """
 
     def __init__(self, op, exprs):
-        super(ExpressionType, self).__init__(
-            qualifiers=frozenset.union(*[expr.qualifiers for expr in exprs]),
-            op=op,
-            exprs=exprs)
+        super(ExpressionType, self).__init__(op=op, exprs=exprs)
 
     def iscombined(self):
         return any(expr.iscombined() for expr in self.exprs)

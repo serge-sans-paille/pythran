@@ -36,7 +36,8 @@ def may_convert_2_to_3(code):
 
         lib2to3.main('lib2to3.fixes', [tmp_py.name, '-w', '-n'])
 
-        code = open(tmp_py.name).read()
+        with open(tmp_py.name) as fd:
+            code = fd.read()
         os.remove(tmp_py.name)
     return code
 
@@ -455,10 +456,11 @@ class TestFromDir(TestEnv):
             # Module name is file name and external interface is default value
             name, _ = os.path.splitext(os.path.basename(filepath))
             specs = target.interface(name, filepath)
-            runas_list = [line for line in open(filepath).readlines()
-                          if any(line.startswith(marker) for
-                                 marker in TestFromDir.runas_markers)]
-            runas_list = runas_list or [None]
+            with open(filepath) as runas_fd:
+                runas_list = [line for line in runas_fd.readlines()
+                              if any(line.startswith(marker) for
+                                     marker in TestFromDir.runas_markers)]
+                runas_list = runas_list or [None]
             for n, runas in enumerate(runas_list):
                 if runas:
                     # Remove the runas marker
@@ -474,8 +476,9 @@ class TestFromDir(TestEnv):
                         return
                 else:
                     # Second stage, we change dummy function by real one.
-                    func = TestFromDir.TestFunctor(
-                        target, name + suffix + str(n), open(filepath).read(),
-                        runas=runas, **specs)
+                    with open(filepath) as fd:
+                        func = TestFromDir.TestFunctor(
+                            target, name + suffix + str(n), fd.read(),
+                            runas=runas, **specs)
 
                 setattr(target, "test_" + name + suffix + str(n), func)

@@ -450,7 +450,7 @@ pythonic::types::none_type>::type result_type;
                                     Cxx.generator_state_value))])
 
             extern_typedefs = [Typedef(Value(t.generate(ctx), t.name))
-                               for t in self.types[node][1] if not t.isweak()]
+                               for t in self.types[node][1]]
             iterator_typedef = [
                 Typedef(
                     Value("pythonic::types::generator_iterator<{0}>".format(
@@ -553,7 +553,7 @@ pythonic::types::none_type>::type result_type;
             ctx = CachedTypeVisitor()
             extra_typedefs = (
                 [Typedef(Value(t.generate(ctx), t.name))
-                 for t in self.types[node][1] if not t.isweak()] +
+                 for t in self.types[node][1]] +
                 [Typedef(Value(
                     result_type.generate(ctx),
                     "result_type"))]

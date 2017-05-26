@@ -406,3 +406,9 @@ def recursive_interprocedural_typing1():
                 return l[1,2]'''
         pythran.compile_pythrancode("dumbo", dedent(code))
 
+    def test_type_inference11(self):
+        code = '''
+            def valid_tuple_index(l):
+                return (1, 2, 3, 4)[l]'''
+        pythran.compile_pythrancode("dumbo", dedent(code))
+

@@ -165,15 +165,6 @@ namespace pythonic
     }
 
     template <class Op, class... Args>
-    auto numpy_expr<Op, Args...>::operator()(long i) const
-        -> decltype(this->fast(i))
-    {
-      if (i < 0)
-        i += _shape[0];
-      return fast(i);
-    }
-
-    template <class Op, class... Args>
     array<long, numpy_expr<Op, Args...>::value> const &
     numpy_expr<Op, Args...>::shape() const
     {

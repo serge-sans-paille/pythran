@@ -521,8 +521,6 @@ namespace pythonic
 
       auto operator[](long i) const -> decltype(this->fast(i));
       auto operator[](long i) -> decltype(this->fast(i));
-      auto operator()(long i) const -> decltype((*this)[i]);
-      auto operator()(long i) -> decltype((*this)[i]);
 
       template <class... Sp>
       auto operator()(contiguous_slice const &s0, Sp const &... s) const

@@ -282,41 +282,8 @@ namespace pythonic
     }
 
     template <class Arg>
-    auto numpy_iexpr<Arg>::operator()(long i) const & -> decltype((*this)[i])
-    {
-      return (*this)[i];
-    }
-
-    template <class Arg>
-        auto numpy_iexpr<Arg>::operator()(long i) & -> decltype((*this)[i])
-    {
-      return (*this)[i];
-    }
-
-    template <class Arg>
-        auto numpy_iexpr<Arg>::operator()(long i) &&
-        -> decltype(std::move (*this)[i])
-    {
-      return std::move(*this)[i];
-    }
-
-    template <class Arg>
-    numpy_gexpr<numpy_iexpr<Arg>, slice> numpy_iexpr<Arg>::
-    operator()(slice const &s0) const
-    {
-      return make_gexpr(*this, s0);
-    }
-
-    template <class Arg>
     numpy_gexpr<numpy_iexpr<Arg>, slice> numpy_iexpr<Arg>::
     operator[](slice const &s0) const
-    {
-      return make_gexpr(*this, s0);
-    }
-
-    template <class Arg>
-    numpy_gexpr<numpy_iexpr<Arg>, contiguous_slice> numpy_iexpr<Arg>::
-    operator()(contiguous_slice const &s0) const
     {
       return make_gexpr(*this, s0);
     }

@@ -647,3 +647,8 @@ def assign_ndarray(t):
                 numpy.arange(8.).reshape(4,2),
                 numpy.array([3,2,1,0], dtype=int),
                 ndarray_fancy_indexing3=[NDArray[float, :, :], NDArray[int, :]])
+
+    def test_ndarray_ubyte(self):
+        self.run_test("def ndarray_ubyte(n): import numpy; return numpy.arange(0, n, 1, dtype=numpy.ubyte)",
+                4,
+                ndarray_ubyte=[int])

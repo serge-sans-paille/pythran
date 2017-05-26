@@ -3857,6 +3857,7 @@ MODULES = {
         "triu": ConstMethodIntr(),
         "true_divide": UFunc(BINARY_UFUNC),
         "trunc": ConstFunctionIntr(),
+        "ubyte": ConstFunctionIntr(signature=_int_signature),
         "uint16": ConstFunctionIntr(signature=_int_signature),
         "uint32": ConstFunctionIntr(signature=_int_signature),
         "uint64": ConstFunctionIntr(signature=_int_signature),

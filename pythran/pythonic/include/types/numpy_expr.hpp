@@ -464,7 +464,6 @@ namespace pythonic
     public:
       // FIXME: this does not take into account bounds and broadcasting
       auto operator[](long i) const -> decltype(this->fast(i));
-      auto operator()(long i) const -> decltype(this->fast(i));
 
       array<long, value> const &shape() const;
       template <int... I>

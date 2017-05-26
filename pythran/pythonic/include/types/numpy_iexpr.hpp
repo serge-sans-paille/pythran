@@ -162,15 +162,7 @@ namespace pythonic
       auto operator[](long i) const & -> decltype(this->fast(i));
       auto operator[](long i) & -> decltype(this->fast(i));
       auto operator[](long i) && -> decltype(std::move(*this).fast(i));
-      auto operator()(long i) const & -> decltype((*this)[i]);
-      auto operator()(long i) & -> decltype((*this)[i]);
-      auto operator()(long i) && -> decltype(std::move (*this)[i]);
-      numpy_gexpr<numpy_iexpr, slice> operator()(slice const &s0) const;
       numpy_gexpr<numpy_iexpr, slice> operator[](slice const &s0) const;
-
-      numpy_gexpr<numpy_iexpr, contiguous_slice>
-      operator()(contiguous_slice const &s0) const;
-
       numpy_gexpr<numpy_iexpr, contiguous_slice>
       operator[](contiguous_slice const &s0) const;
 

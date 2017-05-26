@@ -706,19 +706,6 @@ namespace pythonic
     }
 
     template <class Arg, class... S>
-    auto numpy_gexpr<Arg, S...>::operator()(long i) const
-        -> decltype((*this)[i])
-    {
-      return (*this)[i];
-    }
-
-    template <class Arg, class... S>
-    auto numpy_gexpr<Arg, S...>::operator()(long i) -> decltype((*this)[i])
-    {
-      return (*this)[i];
-    }
-
-    template <class Arg, class... S>
     template <class... Sp>
     auto numpy_gexpr<Arg, S...>::operator()(contiguous_slice const &s0,
                                             Sp const &... s) const

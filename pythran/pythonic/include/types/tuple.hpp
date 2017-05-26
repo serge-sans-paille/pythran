@@ -314,6 +314,18 @@ namespace pythonic
         -> decltype(_make_tuple<alike<Types...>::value, Types...>()(
             std::forward<Types>(types)...));
 
+    template <class T, class Tuple, int... S>
+    types::array<T, sizeof...(S)> _to_array(Tuple const &t, utils::seq<S...>)
+    {
+      return {{T{std::get<S>(t)}...}};
+    }
+
+    template <class T, class... Tys>
+    types::array<T, sizeof...(Tys)> to_array(std::tuple<Tys...> const &t)
+    {
+      return _to_array<T>(t, typename utils::gens<sizeof...(Tys)>::type());
+    }
+
     // Tuple concatenation for array and tuple
     template <class T, size_t N, class... Types>
     auto operator+(std::tuple<Types...> const &t, types::array<T, N> const &lt)

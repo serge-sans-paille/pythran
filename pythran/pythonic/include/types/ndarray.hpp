@@ -336,10 +336,6 @@ namespace pythonic
 
       auto operator[](long i) && -> decltype(std::move(*this).fast(i));
 
-      auto operator()(long i) const & -> decltype((*this)[i]);
-
-      auto operator()(long i) && -> decltype(std::move (*this)[i]);
-
       T const &operator[](array<long, N> const &indices) const;
 
       T &operator[](array<long, N> const &indices);
@@ -351,6 +347,10 @@ namespace pythonic
       template <size_t M>
           auto operator[](array<long, M> const &indices) &&
           -> decltype(nget<M - 1>()(std::move(*this), indices));
+
+      template <class... Tys>
+      auto operator[](std::tuple<Tys...> const &indices) const
+          -> decltype((*this)[to_array<long>(indices)]);
 
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_simd_nditerator<ndarray>;
@@ -369,17 +369,10 @@ namespace pythonic
       /* slice indexing */
       ndarray<T, N + 1> operator[](none_type) const;
 
-      auto operator()(none_type const &n) const -> decltype((*this)[n]);
-
       numpy_gexpr<ndarray const &, slice> operator[](slice const &s) const;
 
       numpy_gexpr<ndarray const &, contiguous_slice>
       operator[](contiguous_slice const &s) const;
-
-      numpy_gexpr<ndarray const &, slice> operator()(slice const &s) const;
-
-      numpy_gexpr<ndarray const &, contiguous_slice>
-      operator()(contiguous_slice const &s) const;
 
       long size() const;
 

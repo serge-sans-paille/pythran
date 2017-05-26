@@ -482,19 +482,6 @@ namespace pythonic
     }
 
     template <class T, size_t N>
-    auto ndarray<T, N>::operator()(long i) const & -> decltype((*this)[i])
-    {
-      return (*this)[i];
-    }
-
-    template <class T, size_t N>
-        auto ndarray<T, N>::operator()(long i) &&
-        -> decltype(std::move (*this)[i])
-    {
-      return std::move(*this)[i];
-    }
-
-    template <class T, size_t N>
     T const &ndarray<T, N>::operator[](array<long, N> const &indices) const
     {
       return *(buffer + noffset<N - 1>{}(_shape, indices));
@@ -520,6 +507,14 @@ namespace pythonic
         -> decltype(nget<M - 1>()(std::move(*this), indices))
     {
       return nget<M - 1>()(std::move(*this), indices);
+    }
+
+    template <class T, size_t N>
+    template <class... Tys>
+    auto ndarray<T, N>::operator[](std::tuple<Tys...> const &indices) const
+        -> decltype((*this)[to_array<long>(indices)])
+    {
+      return (*this)[to_array<long>(indices)];
     }
 
 #ifdef USE_BOOST_SIMD
@@ -566,13 +561,6 @@ namespace pythonic
     }
 
     template <class T, size_t N>
-    auto ndarray<T, N>::operator()(none_type const &n) const
-        -> decltype((*this)[n])
-    {
-      return (*this)[n];
-    }
-
-    template <class T, size_t N>
     numpy_gexpr<ndarray<T, N> const &, slice> ndarray<T, N>::
     operator[](slice const &s) const
     {
@@ -582,20 +570,6 @@ namespace pythonic
     template <class T, size_t N>
     numpy_gexpr<ndarray<T, N> const &, contiguous_slice> ndarray<T, N>::
     operator[](contiguous_slice const &s) const
-    {
-      return make_gexpr(*this, s);
-    }
-
-    template <class T, size_t N>
-    numpy_gexpr<ndarray<T, N> const &, slice> ndarray<T, N>::
-    operator()(slice const &s) const
-    {
-      return make_gexpr(*this, s);
-    }
-
-    template <class T, size_t N>
-    numpy_gexpr<ndarray<T, N> const &, contiguous_slice> ndarray<T, N>::
-    operator()(contiguous_slice const &s) const
     {
       return make_gexpr(*this, s);
     }

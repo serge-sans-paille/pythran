@@ -6,6 +6,13 @@
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/tuple.hpp"
 
+#include "pythonic/operator_/iadd.hpp"
+#include "pythonic/operator_/iand.hpp"
+#include "pythonic/operator_/idiv.hpp"
+#include "pythonic/operator_/imul.hpp"
+#include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/isub.hpp"
+
 #include <numeric>
 
 namespace pythonic
@@ -71,80 +78,99 @@ namespace pythonic
     }
 
     template <class Arg>
+    template <class Op, class Expr>
+    numpy_iexpr<Arg> &numpy_iexpr<Arg>::update_(Expr const &expr)
+    {
+      using BExpr =
+          typename std::conditional<std::is_scalar<Expr>::value,
+                                    broadcast<Expr, dtype>, Expr const &>::type;
+      BExpr bexpr = expr;
+      utils::broadcast_update<
+          Op, numpy_iexpr &, BExpr, value,
+          value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
+          is_vectorizable and
+              std::remove_reference<BExpr>::type::is_vectorizable and
+              std::is_same<dtype,
+                           typename std::decay<BExpr>::type::dtype>::value>(
+          *this, bexpr);
+      return *this;
+    }
+
+    template <class Arg>
     template <class E>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator+=(E const &expr)
     {
-      return (*this) = (*this) + expr;
+      return update_<pythonic::operator_::functor::iadd>(expr);
     }
 
     template <class Arg>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator+=(numpy_iexpr<Arg> const &expr)
     {
-      return (*this) = (*this) + expr;
+      return update_<pythonic::operator_::functor::iadd>(expr);
     }
 
     template <class Arg>
     template <class E>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator-=(E const &expr)
     {
-      return (*this) = (*this) - expr;
+      return update_<pythonic::operator_::functor::isub>(expr);
     }
 
     template <class Arg>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator-=(numpy_iexpr<Arg> const &expr)
     {
-      return (*this) = (*this) - expr;
+      return update_<pythonic::operator_::functor::isub>(expr);
     }
 
     template <class Arg>
     template <class E>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator*=(E const &expr)
     {
-      return (*this) = (*this) * expr;
+      return update_<pythonic::operator_::functor::imul>(expr);
     }
 
     template <class Arg>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator*=(numpy_iexpr<Arg> const &expr)
     {
-      return (*this) = (*this) * expr;
+      return update_<pythonic::operator_::functor::imul>(expr);
     }
 
     template <class Arg>
     template <class E>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator/=(E const &expr)
     {
-      return (*this) = (*this) / expr;
+      return update_<pythonic::operator_::functor::idiv>(expr);
     }
 
     template <class Arg>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator/=(numpy_iexpr<Arg> const &expr)
     {
-      return (*this) = (*this) / expr;
+      return update_<pythonic::operator_::functor::idiv>(expr);
     }
 
     template <class Arg>
     template <class E>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator&=(E const &expr)
     {
-      return (*this) = (*this) & expr;
+      return update_<pythonic::operator_::functor::iand>(expr);
     }
 
     template <class Arg>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator&=(numpy_iexpr<Arg> const &expr)
     {
-      return (*this) = (*this) & expr;
+      return update_<pythonic::operator_::functor::iand>(expr);
     }
     template <class Arg>
     template <class E>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator|=(E const &expr)
     {
-      return (*this) = (*this) | expr;
+      return update_<pythonic::operator_::functor::ior>(expr);
     }
 
     template <class Arg>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator|=(numpy_iexpr<Arg> const &expr)
     {
-      return (*this) = (*this) | expr;
+      return update_<pythonic::operator_::functor::ior>(expr);
     }
 
     template <class Arg>

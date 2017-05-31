@@ -218,6 +218,10 @@ namespace pythonic
       static constexpr size_t value = 0;
 
       broadcast_base<dtype, is_vectorizable> _base;
+      operator dtype() const
+      {
+        return _base._value;
+      }
 
       broadcast() = default;
       template <class V>

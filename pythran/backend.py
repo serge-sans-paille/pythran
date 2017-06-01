@@ -881,11 +881,12 @@ pythonic::types::none_type>::type result_type;
             - order have to be known at compile time
         """
         assert isinstance(node.target, ast.Name)
-        pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
-                                                             ctx=ast.Load(),
-                                                             annotation=None),
-                                              attr='xrange', ctx=ast.Load()),
-                           args=AST_any(), keywords=[])
+        pattern = ast.Call(func=ast.Attribute(
+            value=ast.Name(id='__builtin__',
+                           ctx=ast.Load(),
+                           annotation=None),
+            attr=xrange.__name__, ctx=ast.Load()),
+            args=AST_any(), keywords=[])
         is_assigned = {node.target.id: False}
         [is_assigned.update(self.passmanager.gather(IsAssigned, stmt))
          for stmt in node.body]

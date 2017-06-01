@@ -22,7 +22,7 @@ addons:
             - libatlas-dev
 
 before_install:
-    - pip install --upgrade pip setuptools wheel
+    - pip install --upgrade pip setuptools wheel six
     - pip install --only-binary=numpy -U ply networkx colorlog numpy pytest-pep8 pytest-xdist gast
     - python setup.py install 1> /dev/null
 

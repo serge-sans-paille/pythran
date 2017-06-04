@@ -46,6 +46,15 @@ class Generable(object):
         raise NotImplementedError
 
 
+class Nop(Generable):
+
+    def __str__(self):
+        return ''
+
+    def generate(self, with_semicolon=True):
+        yield ''
+
+
 class Declarator(Generable):
     def generate(self, with_semicolon=True):
         tp_lines, tp_decl = self.get_decl_pair()
@@ -191,8 +200,7 @@ class Template(NestedDeclarator):
         yield "template <%s>" % ", ".join(self.template_spec)
         for i in self.subdecl.generate(with_semicolon):
             yield i
-        if(not isinstance(self.subdecl, FunctionDeclaration) and
-           not isinstance(self.subdecl, Template)):
+        if not isinstance(self.subdecl, (Template, FunctionDeclaration)):
             yield ";"
 
 

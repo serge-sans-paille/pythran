@@ -330,7 +330,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     else:
         # Compile to binary
         output_file = compile_cxxcode(module_name,
-                                      str(module.generate()),
+                                      str(module),
                                       output_binary=output_file,
                                       **kwargs)
 

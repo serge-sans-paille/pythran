@@ -262,7 +262,7 @@ namespace pythonic
 
       /* from a foreign pointer */
       template <class S>
-      ndarray(T *data, S const *pshape);
+      ndarray(T *data, S const *pshape, ownership o);
 
 #ifdef ENABLE_PYTHON_MODULE
       template <class S>

@@ -296,8 +296,8 @@ namespace pythonic
     /* from a foreign pointer */
     template <class T, size_t N>
     template <class S>
-    ndarray<T, N>::ndarray(T *data, S const *pshape)
-        : mem(data), buffer(mem->data), _shape()
+    ndarray<T, N>::ndarray(T *data, S const *pshape, ownership o)
+        : mem(data, o), buffer(mem->data), _shape()
     {
       std::copy(pshape, pshape + N, _shape.begin());
     }
@@ -306,7 +306,7 @@ namespace pythonic
     template <class T, size_t N>
     template <class S>
     ndarray<T, N>::ndarray(T *data, S const *pshape, PyObject *obj_ptr)
-        : ndarray(data, pshape)
+        : ndarray(data, pshape, ownership::external)
     {
       mem.external(obj_ptr); // mark memory as external to decref at the end of
                              // its lifetime
@@ -1002,7 +1002,7 @@ namespace pythonic
         // cannot use numpy.zero: forward declaration issue
         return E((typename E::dtype *)calloc(a.flat_size(),
                                              sizeof(typename E::dtype)),
-                 a.shape().data());
+                 a.shape().data(), types::ownership::owned);
       }
 
       template <class E>

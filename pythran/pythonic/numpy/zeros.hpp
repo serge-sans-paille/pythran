@@ -21,7 +21,8 @@ namespace pythonic
       auto *buffer = (T *)calloc(std::accumulate(shape.begin(), shape.end(), 1L,
                                                  std::multiplies<long>()),
                                  sizeof(T));
-      return types::ndarray<T, N>{buffer, shape.data()};
+      return types::ndarray<T, N>{buffer, shape.data(),
+                                  types::ownership::owned};
     }
 
     template <class dtype>

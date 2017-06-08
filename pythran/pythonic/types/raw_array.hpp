@@ -25,8 +25,8 @@ namespace pythonic
     }
 
     template <class T>
-    raw_array<T>::raw_array(T *d)
-        : data(d), external(true)
+    raw_array<T>::raw_array(T *d, ownership o)
+        : data(d), external(o == ownership::external)
     {
     }
 

@@ -335,7 +335,7 @@ def np_rosen_der(x):
         self.run_test("def np_insert1(a): from numpy import insert ; return insert(a, [1,2], [5,6])", numpy.array([[1, 1], [2, 2], [3, 3]]), np_insert1=[NDArray[int,:,:]])
 
     def test_insert2(self):
-        self.run_test("def np_insert2(a): from numpy import insert ; return insert(a, [1,1], [5.2,6,7])", numpy.array([[1, 1], [2, 2], [3, 3]]), np_insert2=[NDArray[int,:,:]])
+        self.run_test("def np_insert2(a): from numpy import insert ; return insert(a, [1,1], [5.2,6])", numpy.array([[1, 1], [2, 2], [3, 3]]), np_insert2=[NDArray[int,:,:]])
 
     def test_inner0(self):
         self.run_test("def np_inner0(x): from numpy import inner ; y = 3 ; return inner(x,y)", 2, np_inner0=[int])

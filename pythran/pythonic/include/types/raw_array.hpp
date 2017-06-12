@@ -6,6 +6,10 @@ namespace pythonic
 
   namespace types
   {
+    enum class ownership {
+      external,
+      owned,
+    };
     /* Wrapper class to store an array pointer
      *
      * for internal use only, meant to be stored in a shared_ptr
@@ -22,7 +26,7 @@ namespace pythonic
       bool external;
       raw_array();
       raw_array(size_t n);
-      raw_array(T *d);
+      raw_array(T *d, ownership o);
       raw_array(raw_array<T> &&d);
 
       ~raw_array();

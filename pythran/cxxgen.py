@@ -35,26 +35,19 @@ from pythran.tables import pythran_ward
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
 
-class Generable(object):
-    def __str__(self):
-        """Return a single string (possibly containing newlines) representing
-        this code construct."""
-        return "\n".join(l.rstrip() for l in self.generate())
+class Nop(object):
 
     def generate(self, with_semicolon=True):
-        """Generate (i.e. yield) the lines making up this code construct."""
-        raise NotImplementedError
+        yield ''
 
 
-class Declarator(Generable):
+class Declarator(object):
     def generate(self, with_semicolon=True):
         tp_lines, tp_decl = self.get_decl_pair()
         tp_lines = list(tp_lines)
         for line in tp_lines[:-1]:
             yield line
-        sc = ";"
-        if not with_semicolon:
-            sc = ""
+        sc = ";" if with_semicolon else ""
         if tp_decl is None:
             yield "%s%s" % (tp_lines[-1], sc)
         else:
@@ -191,16 +184,14 @@ class Template(NestedDeclarator):
         yield "template <%s>" % ", ".join(self.template_spec)
         for i in self.subdecl.generate(with_semicolon):
             yield i
-        if(not isinstance(self.subdecl, FunctionDeclaration) and
-           not isinstance(self.subdecl, Template)):
+        if not isinstance(self.subdecl, (Template, FunctionDeclaration)):
             yield ";"
 
 
 # control flow/statement stuff ------------------------------------------------
-class ExceptHandler(Generable):
+class ExceptHandler(object):
     def __init__(self, name, body, alias=None):
         self.name = name
-        assert isinstance(body, Generable)
         self.body = body
         self.alias = alias
 
@@ -214,10 +205,9 @@ class ExceptHandler(Generable):
             yield line
 
 
-class TryExcept(Generable):
+class TryExcept(object):
     def __init__(self, try_, except_):
         self.try_ = try_
-        assert isinstance(try_, Generable)
         self.except_ = except_
 
     def generate(self):
@@ -231,17 +221,9 @@ class TryExcept(Generable):
                 yield "  " + line
 
 
-class If(Generable):
+class If(object):
     def __init__(self, condition, then_, else_=None):
-        if condition[0] == '(' and condition[-1] == ')':
-            condition = condition[1:-1]
-
         self.condition = condition
-
-        assert isinstance(then_, Generable)
-        if else_ is not None:
-            assert isinstance(else_, Generable)
-
         self.then_ = then_
         self.else_ = else_
 
@@ -257,9 +239,8 @@ class If(Generable):
                 yield line
 
 
-class Loop(Generable):
+class Loop(object):
     def __init__(self, body):
-        assert isinstance(body, Generable)
         self.body = body
 
     def generate(self):
@@ -299,7 +280,7 @@ class AutoFor(Loop):
 
 
 # simple statements -----------------------------------------------------------
-class Define(Generable):
+class Define(object):
     def __init__(self, symbol, value):
         self.symbol = symbol
         self.value = value
@@ -308,7 +289,7 @@ class Define(Generable):
         yield "#define %s %s" % (self.symbol, self.value)
 
 
-class Include(Generable):
+class Include(object):
     def __init__(self, filename, system=True):
         self.filename = filename
         self.system = system
@@ -320,7 +301,7 @@ class Include(Generable):
             yield "#include \"%s\"" % self.filename
 
 
-class Label(Generable):
+class Label(object):
     def __init__(self, label):
         self.label = label
 
@@ -328,7 +309,7 @@ class Label(Generable):
         yield self.label + ':;'
 
 
-class Statement(Generable):
+class Statement(object):
     def __init__(self, text):
         self.text = text
 
@@ -336,7 +317,7 @@ class Statement(Generable):
         yield self.text + ";"
 
 
-class AnnotatedStatement(Generable):
+class AnnotatedStatement(object):
     def __init__(self, stmt, annotations):
         self.stmt = stmt
         self.annotations = annotations
@@ -359,7 +340,7 @@ class EmptyStatement(Statement):
         Statement.__init__(self, "")
 
 
-class Assign(Generable):
+class Assign(object):
     def __init__(self, lvalue, rvalue):
         self.lvalue = lvalue
         self.rvalue = rvalue
@@ -368,7 +349,7 @@ class Assign(Generable):
         yield "%s = %s;" % (self.lvalue, self.rvalue)
 
 
-class Line(Generable):
+class Line(object):
     def __init__(self, text=""):
         self.text = text
 
@@ -377,7 +358,7 @@ class Line(Generable):
 
 
 # initializers ----------------------------------------------------------------
-class FunctionBody(Generable):
+class FunctionBody(object):
     def __init__(self, fdecl, body):
         """Initialize a function definition. *fdecl* is expected to be
         a :class:`FunctionDeclaration` instance, while *body* is a
@@ -394,14 +375,11 @@ class FunctionBody(Generable):
 
 
 # block -----------------------------------------------------------------------
-class Block(Generable):
+class Block(object):
     def __init__(self, contents=None):
         if contents is None:
-            self.contents = []
-        else:
-            self.contents = contents[:]
-        for item in self.contents:
-            assert isinstance(item, Generable), item
+            contents = []
+        self.contents = contents
 
     def generate(self):
         yield "{"
@@ -420,8 +398,6 @@ class Module(Block):
 
 class Namespace(Block):
     def __init__(self, name, contents=None):
-        if contents is None:
-            contents = []
         Block.__init__(self, contents)
         self.name = name
 
@@ -492,9 +468,6 @@ class PythonModule(object):
     def add_to_includes(self, *incl):
         self.includes.extend(incl)
 
-    def add_meta(self, infos):
-        self.infos = infos
-
     def add_function(self, func, name, types):
         """
         Add a function to be exposed. *func* is expected to be a
@@ -556,7 +529,7 @@ class PythonModule(object):
         self.implems.append(Assign('static PyObject* ' + name,
                                    'to_python({})'.format(init)))
 
-    def generate(self):
+    def __str__(self):
         """Generate (i.e. yield) the source code of the
         module line-by-line.
         """
@@ -682,10 +655,7 @@ class PythonModule(object):
                 [Line(code) for code in self.wrappers + theoverloads] +
                 [Line(methods), Line(module)])
 
-        return Module(body)
-
-    def __str__(self):
-        return str(self.generate())
+        return "\n".join(Module(body).generate())
 
 
 class CompilationUnit(object):

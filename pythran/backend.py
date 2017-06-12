@@ -11,7 +11,7 @@ from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
-from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement
+from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Nop
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
 from pythran.cxxtypes import (Assignable, DeclType, NamedType,
@@ -30,6 +30,7 @@ import gast as ast
 import os
 import sys
 from functools import reduce
+
 if sys.version_info.major == 2:
     import StringIO as io
 else:
@@ -114,83 +115,103 @@ def cxx_loop(visit):
     return loop_visitor
 
 
-class Cxx(Backend):
+class CachedTypeVisitor:
+    class CachedType:
+        def __init__(self, s):
+            self.s = s
 
-    """
-    Produces a C++ representation of the AST.
+        def generate(self, _):
+            return self.s
 
+    def __init__(self, other=None):
+        if other:
+            self.cache = other.cache.copy()
+            self.rcache = other.rcache.copy()
+            self.mapping = other.mapping.copy()
+        else:
+            self.cache = dict()
+            self.rcache = dict()
+            self.mapping = dict()
+
+    def __call__(self, node):
+        if node not in self.mapping:
+            t = node.generate(self)
+            if t in self.rcache:
+                self.mapping[node] = self.mapping[self.rcache[t]]
+                self.cache[node] = self.cache[self.rcache[t]]
+            else:
+                self.rcache[t] = node
+                self.mapping[node] = len(self.mapping)
+                self.cache[node] = t
+        return CachedTypeVisitor.CachedType(
+            "__type{0}".format(self.mapping[node]))
+
+    def typedefs(self):
+        l = sorted(self.mapping.items(), key=lambda x: x[1])
+        L = list()
+        visited = set()  # the same value must not be typedefed twice
+        for k, v in l:
+            if v not in visited:
+                typename = "__type" + str(v)
+                L.append(Typedef(Value(self.cache[k], typename)))
+                visited.add(v)
+        return L
+
+
+def make_default(d):
+    return "= {0}".format(d) if d else ""
+
+
+def make_function_declaration(self, node, rtype, name, ftypes, fargs,
+                              defaults=None, attributes=None):
+    if defaults is None:
+        defaults = [None] * len(ftypes)
+    if attributes is None:
+        attributes = []
+
+    arguments = list()
+    for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
+        if isinstance(self, CxxGenerator):
+            rvalue_ref = ""
+        elif self.argument_effects[node][i]:
+            rvalue_ref = "&&"
+        else:
+            rvalue_ref = " const &"
+        argument = Value(t + rvalue_ref, "{0}{1}".format(a, make_default(d)))
+        arguments.append(argument)
+    return FunctionDeclaration(Value(rtype, name), arguments, *attributes)
+
+
+def make_const_function_declaration(self, node, rtype, name, ftypes, fargs,
+                                    defaults=None):
+    return make_function_declaration(self, node, rtype, name, ftypes, fargs,
+                                     defaults, ["const"])
+
+
+class CxxFunction(Backend):
+    '''
     Attributes
     ----------
-    ldecls : {ast.Name}
+    ldecls : {str}
         set of local declarations.
     break_handler : [str]
         It contains flags for goto statements to jump on break in case of
         orelse statement in loop. None means there are no orelse statement so
         no jump are requiered.
         (else in loop means : don't execute if loop is terminated with a break)
+    '''
 
-    >>> import gast as ast, passmanager, os
-    >>> node = ast.parse("def foo(): print('hello world')")
-    >>> pm = passmanager.PassManager('test')
-    >>> r = pm.dump(Cxx, node)
-    >>> print(str(r).replace(os.sep, '/'))
-    #include <pythonic/include/__builtin__/print.hpp>
-    #include <pythonic/include/__builtin__/str.hpp>
-    #include <pythonic/__builtin__/print.hpp>
-    #include <pythonic/__builtin__/str.hpp>
-    namespace __pythran_test
-    {
-      ;
-      struct foo
-      {
-        typedef void callable;
-        ;
-        struct type
-        {
-          typedef typename pythonic::returnable<\
-pythonic::types::none_type>::type result_type;
-        }  ;
-        typename type::result_type operator()() const;
-        ;
-      }  ;
-      typename foo::type::result_type foo::operator()() const
-      {
-        pythonic::__builtin__::print("hello world");
-      }
-    }
-    """
-
-    # recover previous generator state
-    generator_state_holder = "__generator_state"
-    generator_state_value = "__generator_value"
-    # flags the last statement of a generator
-    final_statement = "that_is_all_folks"
-
-    def __init__(self):
+    def __init__(self, parent):
         """ Basic initialiser gathering analysis informations. """
-        self.declarations = list()
-        self.definitions = list()
-        self.break_handlers = list()
-        self.result = None
-        self.ldecls = set()
-        super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
-                                  Types, ArgumentEffects,
-                                  Scope, RangeValues, PureExpressions)
-
-    # mod
-    def visit_Module(self, node):
-        """ Build a compilation unit. """
-        # build all types
-        headers = [Include(os.path.join("pythonic", "include",  *t) + ".hpp")
-                   for t in self.dependencies]
-        headers += [Include(os.path.join("pythonic", *t) + ".hpp")
-                    for t in self.dependencies]
-
-        body = [self.visit(stmt) for stmt in node.body]
-
-        nsbody = body + self.declarations + self.definitions
-        ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
-        self.result = CompilationUnit(headers + [ns])
+        self.ctx = parent.ctx
+        self.break_handlers = []
+        self.ldecls = None
+        self.deps = parent.deps
+        self.passmanager = parent.passmanager
+        self.types = parent.types
+        self.pure_expressions = parent.pure_expressions
+        self.argument_effects = parent.argument_effects
+        self.global_declarations = parent.global_declarations
 
     # local declaration processing
     def process_locals(self, node, node_visited, *skipped):
@@ -200,7 +221,7 @@ pythonic::types::none_type>::type result_type;
         Not possible for function yielding values.
         """
         local_vars = self.scope[node].difference(skipped)
-        if not local_vars or self.yields:
+        if not local_vars:
             return node_visited  # no processing
 
         locals_visited = []
@@ -208,7 +229,7 @@ pythonic::types::none_type>::type result_type;
             vartype = self.typeof(varname)
             decl = Statement("{} {}".format(vartype, varname))
             locals_visited.append(decl)
-        self.ldecls = {ld for ld in self.ldecls if ld.id not in local_vars}
+        self.ldecls.difference_update(local_vars)
         return Block(locals_visited + [node_visited])
 
     def process_omp_attachements(self, node, stmt, index=None):
@@ -236,81 +257,29 @@ pythonic::types::none_type>::type result_type;
         else:
             return self.types[node].generate(self.lctx)
 
-    # stmt
-    def visit_FunctionDef(self, node):
-        class CachedTypeVisitor:
-            class CachedType:
-                def __init__(self, s):
-                    self.s = s
-
-                def generate(self, _):
-                    return self.s
-
-            def __init__(self, other=None):
-                if other:
-                    self.cache = other.cache.copy()
-                    self.rcache = other.rcache.copy()
-                    self.mapping = other.mapping.copy()
-                else:
-                    self.cache = dict()
-                    self.rcache = dict()
-                    self.mapping = dict()
-
-            def __call__(self, node):
-                if node not in self.mapping:
-                    t = node.generate(self)
-                    if t in self.rcache:
-                        self.mapping[node] = self.mapping[self.rcache[t]]
-                        self.cache[node] = self.cache[self.rcache[t]]
-                    else:
-                        self.rcache[t] = node
-                        self.mapping[node] = len(self.mapping)
-                        self.cache[node] = t
-                return CachedTypeVisitor.CachedType(
-                    "__type{0}".format(self.mapping[node]))
-
-            def typedefs(self):
-                l = sorted(self.mapping.items(), key=lambda x: x[1])
-                L = list()
-                visited = set()  # the same value must not be typedefed twice
-                for k, v in l:
-                    if v not in visited:
-                        typename = "__type" + str(v)
-                        L.append(Typedef(Value(self.cache[k], typename)))
-                        visited.add(v)
-                return L
-
-        self.fname = node.name
-
+    def prepare_functiondef_context(self, node):
         # prepare context and visit function body
         fargs = node.args.args
 
         formal_args = [arg.id for arg in fargs]
         formal_types = ["argument_type" + str(i) for i in range(len(fargs))]
 
-        self.ldecls = set(self.passmanager.gather(LocalNodeDeclarations, node))
-
-        self.local_names = {sym.id: sym for sym in self.ldecls}
+        local_decls = set(self.passmanager.gather(LocalNodeDeclarations, node))
+        self.local_names = {sym.id: sym for sym in local_decls}
         self.local_names.update({arg.id: arg for arg in fargs})
-        self.extra_declarations = []
 
         self.lctx = CachedTypeVisitor()
 
-        # choose one node among all the ones with the same name for each name
-        self.ldecls = set({n.id: n for n in self.ldecls}.values())
+        self.ldecls = {n.id for n in local_decls}
+        body = [self.visit(stmt) for stmt in node.body]
+        return body, formal_types, formal_args
 
-        # 0 is used as initial_state, thus the +1
-        self.yields = {k: (1 + v, "yield_point{0}".format(1 + v)) for (v, k) in
-                       enumerate(self.passmanager.gather(YieldPoints, node))}
-
-        # gather body dump
-        operator_body = [self.visit(stmt) for stmt in node.body]
-
+    def prepare_types(self, node):
         # compute arg dump
-        default_arg_values = (
+        dflt_argv = (
             [None] * (len(node.args.args) - len(node.args.defaults)) +
             [self.visit(n) for n in node.args.defaults])
-        default_arg_types = (
+        dflt_argt = (
             [None] * (len(node.args.args) - len(node.args.defaults)) +
             [self.types[n] for n in node.args.defaults])
 
@@ -321,296 +290,95 @@ pythonic::types::none_type>::type result_type;
         pure_type = (Typedef(Value("void", "pure"))
                      if node in self.pure_expressions else EmptyStatement())
 
-        def make_function_declaration(rtype, name, ftypes, fargs,
-                                      defaults=None, attributes=None):
-            if defaults is None:
-                defaults = [None] * len(ftypes)
-            if attributes is None:
-                attributes = []
-            arguments = list()
-            for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
-                if self.yields:
-                    rvalue_ref = ""
-                elif self.argument_effects[node][i]:
-                    rvalue_ref = "&&"
-                else:
-                    rvalue_ref = " const &"
-                argument = Value(
-                    t + rvalue_ref,
-                    "{0}{1}".format(a, "= {0}".format(d) if d else ""))
-                arguments.append(argument)
-            return FunctionDeclaration(Value(rtype, name), arguments,
-                                       *attributes)
+        return dflt_argv, dflt_argt, result_type, callable_type, pure_type
 
-        def make_const_function_declaration(rtype, name, ftypes, fargs,
-                                            defaults=None):
-            return make_function_declaration(rtype, name, ftypes, fargs,
-                                             defaults, ["const"])
+    # stmt
+    def visit_FunctionDef(self, node):
 
-        if self.yields:  # generator case
-            # a generator has a call operator that returns the iterator
+        self.fname = node.name
+        tmp = self.prepare_functiondef_context(node)
+        operator_body, formal_types, formal_args = tmp
 
-            next_name = "__generator__{0}".format(node.name)
-            instanciated_next_name = "{0}{1}".format(
-                next_name,
-                "<{0}>".format(
-                    ", ".join(formal_types)) if formal_types else "")
+        tmp = self.prepare_types(node)
+        dflt_argv, dflt_argt, result_type, callable_type, pure_type = tmp
 
-            operator_body.append(
-                Statement("{0}: return result_type();".format(
-                    Cxx.final_statement)))
+        # a function has a call operator to be called
+        # and a default constructor to create instances
+        fscope = "type{0}::".format("<{0}>".format(", ".join(formal_types))
+                                    if formal_types
+                                    else "")
+        ffscope = "{0}::{1}".format(node.name, fscope)
 
-            next_declaration = [
-                FunctionDeclaration(Value("result_type", "next"), []),
-                EmptyStatement()]  # empty statement to force a comma ...
-
-            # the constructors
-            next_constructors = [
-                FunctionBody(
-                    FunctionDeclaration(Value("", next_name), []),
-                    Line(': pythonic::yielder() {}')
-                    )]
-            if formal_types:
-                # If all parameters have a default value, we don't need default
-                # constructor
-                if default_arg_values and all(default_arg_values):
-                    next_constructors = list()
-                next_constructors.append(FunctionBody(
-                    make_function_declaration("", next_name, formal_types,
-                                              formal_args, default_arg_values),
-                    Line(": {0} {{ }}".format(
-                        ", ".join(["pythonic::yielder()"] +
-                                  ["{0}({0})".format(arg)
-                                   for arg in formal_args])))
-                    ))
-
-            next_iterator = [
-                FunctionBody(
-                    FunctionDeclaration(Value("void", "operator++"), []),
-                    Block([Statement("next()")])),
-                FunctionBody(
-                    FunctionDeclaration(
-                        Value("typename {0}::result_type".format(
-                            instanciated_next_name),
-                            "operator*"),
-                        [], "const"),
-                    Block([
-                        ReturnStatement(
-                            Cxx.generator_state_value)])),
-                FunctionBody(
-                    FunctionDeclaration(
-                        Value("pythonic::types::generator_iterator<{0}>"
-                              .format(next_name),
-                              "begin"),
-                        []),
-                    Block([Statement("next()"),
-                           ReturnStatement(
-                               "pythonic::types::generator_iterator<{0}>"
-                               "(*this)".format(next_name))])),
-                FunctionBody(
-                    FunctionDeclaration(
-                        Value("pythonic::types::generator_iterator<{0}>"
-                              .format(next_name),
-                              "end"),
-                        []),
-                    Block([ReturnStatement(
-                        "pythonic::types::generator_iterator<{0}>()"
-                        .format(next_name))]))
-                ]
-            next_signature = templatize(
-                FunctionDeclaration(
-                    Value(
-                        "typename {0}::result_type".format(
-                            instanciated_next_name),
-                        "{0}::next".format(instanciated_next_name)),
-                    []),
-                formal_types)
-
-            next_body = operator_body
-            # the dispatch table at the entry point
-            next_body.insert(0, Statement("switch({0}) {{ {1} }}".format(
-                Cxx.generator_state_holder,
-                " ".join("case {0}: goto {1};".format(num, where)
-                         for (num, where) in sorted(
-                             self.yields.values(),
-                             key=lambda x: x[0])))))
-
-            ctx = CachedTypeVisitor(self.lctx)
-            next_members = ([Statement("{0} {1}".format(ft, fa))
-                             for (ft, fa) in zip(formal_types, formal_args)] +
-                            [Statement(
-                                "{0} {1}".format(self.types[k].generate(ctx),
-                                                 k.id))
-                                for k in self.ldecls] +
-                            [Statement("{0} {1}".format(v, k))
-                             for k, v in self.extra_declarations] +
-                            [Statement(
-                                "typename {0}::result_type {1}".format(
-                                    instanciated_next_name,
-                                    Cxx.generator_state_value))])
-
-            extern_typedefs = [Typedef(Value(t.generate(ctx), t.name))
-                               for t in self.types[node][1]]
-            iterator_typedef = [
-                Typedef(
-                    Value("pythonic::types::generator_iterator<{0}>".format(
-                        "{0}<{1}>".format(next_name, ", ".join(formal_types))
-                        if formal_types else next_name),
-                        "iterator")),
-                Typedef(Value(result_type.generate(ctx),
-                              "value_type"))]
-            result_typedef = [
-                Typedef(Value(result_type.generate(ctx), "result_type"))]
-            extra_typedefs = (ctx.typedefs() +
-                              extern_typedefs +
-                              iterator_typedef +
-                              result_typedef)
-
-            next_struct = templatize(
-                Struct(next_name,
-                       extra_typedefs +
-                       next_members +
-                       next_constructors +
-                       next_iterator +
-                       next_declaration, "pythonic::yielder"),
-                formal_types)
-            next_definition = FunctionBody(next_signature, Block(next_body))
-
-            operator_declaration = [
-                templatize(
-                    make_const_function_declaration(
-                        instanciated_next_name,
-                        "operator()",
-                        formal_types,
-                        formal_args,
-                        default_arg_values),
-                    formal_types,
-                    default_arg_types),
-                EmptyStatement()]
-            operator_signature = make_const_function_declaration(
-                instanciated_next_name,
-                "{0}::operator()".format(node.name),
+        operator_declaration = [
+            templatize(
+                make_const_function_declaration(
+                    self, node,
+                    "typename {0}result_type".format(fscope),
+                    "operator()",
+                    formal_types, formal_args, dflt_argv),
                 formal_types,
-                formal_args)
-            operator_definition = FunctionBody(
-                templatize(operator_signature, formal_types),
-                Block([ReturnStatement("{0}({1})".format(
-                    instanciated_next_name,
-                    ", ".join(formal_args)))])
-                )
+                dflt_argt),
+            EmptyStatement()
+            ]
+        operator_signature = make_const_function_declaration(
+            self, node,
+            "typename {0}result_type".format(ffscope),
+            "{0}::operator()".format(node.name),
+            formal_types, formal_args)
+        ctx = CachedTypeVisitor(self.lctx)
+        operator_local_declarations = (
+            [Statement("{0} {1}".format(
+                self.types[self.local_names[k]].generate(ctx), k))
+             for k in self.ldecls]
+        )
+        dependent_typedefs = ctx.typedefs()
+        operator_definition = FunctionBody(
+            templatize(operator_signature, formal_types),
+            Block(dependent_typedefs +
+                  operator_local_declarations +
+                  operator_body)
+            )
 
-            topstruct_type = templatize(
+        ctx = CachedTypeVisitor()
+        extra_typedefs = (
+            [Typedef(Value(t.generate(ctx), t.name))
+             for t in self.types[node][1]] +
+            [Typedef(Value(
+                result_type.generate(ctx),
+                "result_type"))]
+        )
+        extra_typedefs = ctx.typedefs() + extra_typedefs
+        return_declaration = [
+            templatize(
                 Struct("type", extra_typedefs),
-                formal_types)
-            topstruct = Struct(
-                node.name,
-                [topstruct_type, callable_type, pure_type] +
-                operator_declaration)
-
-            self.declarations.append(next_struct)
-            self.definitions.append(next_definition)
-
-        else:  # regular function case
-            # a function has a call operator to be called
-            # and a default constructor to create instances
-            fscope = "type{0}::".format("<{0}>".format(", ".join(formal_types))
-                                        if formal_types
-                                        else "")
-            ffscope = "{0}::{1}".format(node.name, fscope)
-
-            operator_declaration = [
-                templatize(
-                    make_const_function_declaration(
-                        "typename {0}result_type".format(fscope),
-                        "operator()",
-                        formal_types,
-                        formal_args,
-                        default_arg_values),
-                    formal_types,
-                    default_arg_types),
-                EmptyStatement()
-                ]
-            operator_signature = make_const_function_declaration(
-                "typename {0}result_type".format(ffscope),
-                "{0}::operator()".format(node.name),
                 formal_types,
-                formal_args)
-            ctx = CachedTypeVisitor(self.lctx)
-            operator_local_declarations = (
-                [Statement("{0} {1}".format(
-                    self.types[k].generate(ctx), k.id)) for k in self.ldecls] +
-                [Statement("{0} {1}".format(v, k))
-                 for k, v in self.extra_declarations]
-            )
-            dependent_typedefs = ctx.typedefs()
-            operator_definition = FunctionBody(
-                templatize(operator_signature, formal_types),
-                Block(dependent_typedefs +
-                      operator_local_declarations +
-                      operator_body)
+                dflt_argt
                 )
+            ]
+        topstruct = Struct(node.name,
+                           [callable_type, pure_type] +
+                           return_declaration +
+                           operator_declaration)
 
-            ctx = CachedTypeVisitor()
-            extra_typedefs = (
-                [Typedef(Value(t.generate(ctx), t.name))
-                 for t in self.types[node][1]] +
-                [Typedef(Value(
-                    result_type.generate(ctx),
-                    "result_type"))]
-            )
-            extra_typedefs = ctx.typedefs() + extra_typedefs
-            return_declaration = [
-                templatize(
-                    Struct("type", extra_typedefs),
-                    formal_types,
-                    default_arg_types
-                    )
-                ]
-            topstruct = Struct(node.name,
-                               [callable_type, pure_type] +
-                               return_declaration +
-                               operator_declaration)
-
-        self.declarations.append(topstruct)
-        self.definitions.append(operator_definition)
-
-        return EmptyStatement()
+        return [topstruct], [operator_definition]
 
     def visit_Return(self, node):
-        if self.yields:
-            return Block([
-                Statement("{0} = -1".format(
-                    Cxx.generator_state_holder)),
-                Statement("goto {0}".format(
-                    Cxx.final_statement))
-                ])
+        value = self.visit(node.value)
+        if metadata.get(node, metadata.StaticReturn):
+            # don't rely on auto because we want to make sure there's no
+            # conversion each time we return
+            # this happens for variant because the variant param
+            # order may differ from the init order (because of the way we
+            # do type inference
+            rtype = "typename {}::type::result_type".format(self.fname)
+            stmt = Block([Assign("static %s tmp_global" % rtype, value),
+                          ReturnStatement("tmp_global")])
         else:
-            value = self.visit(node.value)
-            if metadata.get(node, metadata.StaticReturn):
-                # don't rely on auto because we want to make sure there's no
-                # conversion each time we return
-                # this happens for variant because the variant param
-                # order may differ from the init order (because of the way we
-                # do type inference
-                rtype = "typename {}::type::result_type".format(self.fname)
-                stmt = Block([Assign("static %s tmp_global" % rtype, value),
-                              ReturnStatement("tmp_global")])
-            else:
-                stmt = ReturnStatement(value)
-            return self.process_omp_attachements(node, stmt)
+            stmt = ReturnStatement(value)
+        return self.process_omp_attachements(node, stmt)
 
     def visit_Delete(self, _):
-        return EmptyStatement()
-
-    def visit_Yield(self, node):
-        num, label = self.yields[node]
-        return "".join(n for n in Block([
-            Assign(Cxx.generator_state_holder, num),
-            ReturnStatement("{0} = {1}".format(
-                Cxx.generator_state_value,
-                self.visit(node.value))),
-            Statement("{0}:".format(label))
-            ]).generate())
+        return Nop()  # nothing to do in there
 
     def visit_Assign(self, node):
         """
@@ -639,10 +407,9 @@ pythonic::types::none_type>::type result_type;
         islocal = (len(targets) == 1 and
                    isinstance(node.targets[0], ast.Name) and
                    node.targets[0].id in self.scope[node])
-        if islocal and not self.yields:
-            # remove this decl from local decls
-            tdecls = {t.id for t in node.targets}
-            self.ldecls = {d for d in self.ldecls if d.id not in tdecls}
+        if islocal:
+            # remove this decls from local decls
+            self.ldecls.difference_update(t.id for t in node.targets)
             # add a local declaration
             if self.types[node.targets[0]].iscombined():
                 alltargets = '{} {}'.format(self.typeof(node.targets[0]),
@@ -703,16 +470,10 @@ pythonic::types::none_type>::type result_type;
         local_target_decl = NamedType("typename decltype({0})::iterator".
                                       format(local_iter))
 
-        # For yield function, all variables are globals.
-        if self.yields:
-            self.extra_declarations.append((local_target, local_target_decl,))
-            local_target_decl = ""
-
         # If variable is local to the for body it's a ref to the iterator value
         # type
-        if node.target.id in self.scope[node] and not self.yields:
-            self.ldecls = {d for d in self.ldecls
-                           if d.id != node.target.id}
+        if node.target.id in self.scope[node] and not hasattr(self, 'yields'):
+            self.ldecls.remove(node.target.id)
             local_type = "auto&&"
         else:
             local_type = ""
@@ -723,9 +484,8 @@ pythonic::types::none_type>::type result_type;
                                                           local_target))
 
         # Create the loop
-        loop = For("{0} {1} = {2}.begin()".format(local_target_decl,
-                                                  local_target,
-                                                  local_iter),
+        assign = self.make_assign(local_target_decl, local_target, local_iter)
+        loop = For("{}.begin()".format(assign),
                    "{0} < {1}.end()".format(local_target, local_iter),
                    "++{0}".format(local_target),
                    Block([loop_body_prelude, loop_body]))
@@ -794,14 +554,11 @@ pythonic::types::none_type>::type result_type;
         upper_type = iter_type = "long "
 
         # If variable is local to the for body keep it local...
-        if node.target.id in self.scope[node] and not self.yields:
-            self.ldecls = {d for d in self.ldecls if d.id != node.target.id}
+        if node.target.id in self.scope[node] and not hasattr(self, 'yields'):
+            self.ldecls.remove(node.target.id)
             loop = list()
         else:
             # For yield function, upper_bound is globals.
-            if self.yields:
-                self.extra_declarations.append((upper_bound, upper_type))
-                upper_type = ""
             iter_type = ""
             # Back one step to keep Python behavior (except for break)
             loop = [If("{} == {}".format(local_iter, upper_bound),
@@ -810,8 +567,7 @@ pythonic::types::none_type>::type result_type;
         comparison = self.handle_real_loop_comparison(args, loop, local_iter,
                                                       upper_bound, step)
 
-        forloop = For("{0} {1} = {2}".format(iter_type, local_iter,
-                                             lower_bound),
+        forloop = For("{0} {1}={2}".format(iter_type, local_iter, lower_bound),
                       comparison,
                       "{0} += {1}".format(local_iter, step),
                       loop_body)
@@ -819,8 +575,8 @@ pythonic::types::none_type>::type result_type;
         loop.insert(0, self.process_omp_attachements(node, forloop))
 
         # Store upper bound value
-        header = [Statement("{0} {1} = {2}".format(upper_type, upper_bound,
-                                                   upper_value))]
+        assgnt = self.make_assign(upper_type, upper_bound, upper_value)
+        header = [Statement(assgnt)]
         return header, loop
 
     def handle_omp_for(self, node, local_iter):
@@ -867,7 +623,6 @@ pythonic::types::none_type>::type result_type;
         """
         auto_for = (isinstance(node.target, ast.Name) and
                     node.target.id in self.scope[node])
-        auto_for &= not self.yields
         auto_for &= not metadata.get(node, OMPDirective)
         return auto_for
 
@@ -901,6 +656,9 @@ pythonic::types::none_type>::type result_type;
         if isinstance(args[2], ast.Num):
             return True
         return False
+
+    def make_assign(self, local_iter_decl, local_iter, iterable):
+        return "{0} {1} = {2}".format(local_iter_decl, local_iter, iterable)
 
     @cxx_loop
     def visit_For(self, node):
@@ -947,8 +705,7 @@ pythonic::types::none_type>::type result_type;
 
             if self.can_use_autofor(node):
                 header = []
-                self.ldecls = {d for d in self.ldecls
-                               if d.id != node.target.id}
+                self.ldecls.remove(node.target.id)
                 autofor = AutoFor(target, iterable, loop_body)
                 loop = [self.process_omp_attachements(node, autofor)]
             else:
@@ -958,18 +715,11 @@ pythonic::types::none_type>::type result_type;
 
                 self.handle_omp_for(node, local_iter)
 
-                # For yield function, iterable is globals.
-                if self.yields:
-                    self.extra_declarations.append(
-                        (local_iter, local_iter_decl,))
-                    local_iter_decl = ""
-
                 # Assign iterable
                 # For C loop, it avoids issues
                 # if the upper bound is assigned in the loop
-                header = [Statement("{0} {1} = {2}".format(local_iter_decl,
-                                                           local_iter,
-                                                           iterable))]
+                asgnt = self.make_assign(local_iter_decl, local_iter, iterable)
+                header = [Statement(asgnt)]
                 loop = self.gen_for(node, target, local_iter, loop_body)
 
         # For xxxComprehension, it is replaced by a for loop. In this case,
@@ -1034,7 +784,7 @@ pythonic::types::none_type>::type result_type;
         return Statement("pythonic::pythran_assert({0})".format(sparams))
 
     def visit_Import(self, _):
-        return EmptyStatement()  # everything is already #included
+        return Nop()  # everything is already #included
 
     def visit_ImportFrom(self, _):
         assert False, "should be filtered out by the expand_import pass"
@@ -1231,3 +981,285 @@ pythonic::types::none_type>::type result_type;
 
     def visit_Index(self, node):
         return self.visit(node.value)
+
+
+class CxxGenerator(CxxFunction):
+
+    # recover previous generator state
+    StateHolder = "__generator_state"
+    StateValue = "__generator_value"
+    # flags the last statement of a generator
+    FinalStatement = "that_is_all_folks"
+    # local declaration processing
+
+    def process_locals(self, node, node_visited, *skipped):
+        return node_visited  # no processing
+
+    def prepare_functiondef_context(self, node):
+        self.extra_declarations = []
+
+        # 0 is used as initial_state, thus the +1
+        self.yields = {k: (1 + v, "yield_point{0}".format(1 + v)) for (v, k) in
+                       enumerate(self.passmanager.gather(YieldPoints, node))}
+        return super(CxxGenerator, self).prepare_functiondef_context(node)
+
+    # stmt
+    def visit_FunctionDef(self, node):
+        tmp = self.prepare_functiondef_context(node)
+        operator_body, formal_types, formal_args = tmp
+
+        tmp = self.prepare_types(node)
+        dflt_argv, dflt_argt, result_type, callable_type, pure_type = tmp
+
+        # a generator has a call operator that returns the iterator
+        next_name = "__generator__{0}".format(node.name)
+        instanciated_next_name = "{0}{1}".format(
+            next_name,
+            "<{0}>".format(", ".join(formal_types)) if formal_types else "")
+
+        operator_body.append(Statement("{}: return result_type()".format(
+            CxxGenerator.FinalStatement)))
+
+        next_declaration = [
+            FunctionDeclaration(Value("result_type", "next"), []),
+            EmptyStatement()]  # empty statement to force a comma ...
+
+        # the constructors
+        next_constructors = [
+            FunctionBody(
+                FunctionDeclaration(Value("", next_name), []),
+                Line(': pythonic::yielder() {}')
+                )]
+        if formal_types:
+            # If all parameters have a default value, we don't need default
+            # constructor
+            if dflt_argv and all(dflt_argv):
+                next_constructors = list()
+            next_constructors.append(FunctionBody(
+                make_function_declaration(self, node, "", next_name,
+                                          formal_types, formal_args,
+                                          dflt_argv),
+                Line(": {0} {{ }}".format(
+                    ", ".join(["pythonic::yielder()"] +
+                              ["{0}({0})".format(arg)
+                               for arg in formal_args])))
+                ))
+
+        next_iterator = [
+            FunctionBody(
+                FunctionDeclaration(Value("void", "operator++"), []),
+                Block([Statement("next()")])),
+            FunctionBody(
+                FunctionDeclaration(
+                    Value("typename {0}::result_type".format(
+                        instanciated_next_name),
+                        "operator*"),
+                    [], "const"),
+                Block([
+                    ReturnStatement(
+                        CxxGenerator.StateValue)])),
+            FunctionBody(
+                FunctionDeclaration(
+                    Value("pythonic::types::generator_iterator<{0}>"
+                          .format(next_name),
+                          "begin"),
+                    []),
+                Block([Statement("next()"),
+                       ReturnStatement(
+                           "pythonic::types::generator_iterator<{0}>"
+                           "(*this)".format(next_name))])),
+            FunctionBody(
+                FunctionDeclaration(
+                    Value("pythonic::types::generator_iterator<{0}>"
+                          .format(next_name),
+                          "end"),
+                    []),
+                Block([ReturnStatement(
+                    "pythonic::types::generator_iterator<{0}>()"
+                    .format(next_name))]))
+            ]
+        next_signature = templatize(
+            FunctionDeclaration(
+                Value(
+                    "typename {0}::result_type".format(
+                        instanciated_next_name),
+                    "{0}::next".format(instanciated_next_name)),
+                []),
+            formal_types)
+
+        next_body = operator_body
+        # the dispatch table at the entry point
+        next_body.insert(0, Statement("switch({0}) {{ {1} }}".format(
+            CxxGenerator.StateHolder,
+            " ".join("case {0}: goto {1};".format(num, where)
+                     for (num, where) in sorted(
+                         self.yields.values(),
+                         key=lambda x: x[0])))))
+
+        ctx = CachedTypeVisitor(self.lctx)
+        next_members = ([Statement("{0} {1}".format(ft, fa))
+                         for (ft, fa) in zip(formal_types, formal_args)] +
+                        [Statement("{0} {1}".format(
+                            self.types[self.local_names[k]].generate(ctx),
+                            k))
+                         for k in self.ldecls] +
+                        [Statement("{0} {1}".format(v, k))
+                         for k, v in self.extra_declarations] +
+                        [Statement(
+                            "typename {0}::result_type {1}".format(
+                                instanciated_next_name,
+                                CxxGenerator.StateValue))])
+
+        extern_typedefs = [Typedef(Value(t.generate(ctx), t.name))
+                           for t in self.types[node][1]]
+        iterator_typedef = [
+            Typedef(
+                Value("pythonic::types::generator_iterator<{0}>".format(
+                    "{0}<{1}>".format(next_name, ", ".join(formal_types))
+                    if formal_types else next_name),
+                    "iterator")),
+            Typedef(Value(result_type.generate(ctx),
+                          "value_type"))]
+        result_typedef = [
+            Typedef(Value(result_type.generate(ctx), "result_type"))]
+        extra_typedefs = (ctx.typedefs() +
+                          extern_typedefs +
+                          iterator_typedef +
+                          result_typedef)
+
+        next_struct = templatize(
+            Struct(next_name,
+                   extra_typedefs +
+                   next_members +
+                   next_constructors +
+                   next_iterator +
+                   next_declaration, "pythonic::yielder"),
+            formal_types)
+        next_definition = FunctionBody(next_signature, Block(next_body))
+
+        operator_declaration = [
+            templatize(
+                make_const_function_declaration(
+                    self, node, instanciated_next_name,
+                    "operator()",
+                    formal_types, formal_args, dflt_argv),
+                formal_types,
+                dflt_argt),
+            EmptyStatement()]
+        operator_signature = make_const_function_declaration(
+            self, node, instanciated_next_name,
+            "{0}::operator()".format(node.name),
+            formal_types, formal_args)
+        operator_definition = FunctionBody(
+            templatize(operator_signature, formal_types),
+            Block([ReturnStatement("{0}({1})".format(
+                instanciated_next_name,
+                ", ".join(formal_args)))])
+            )
+
+        topstruct_type = templatize(
+            Struct("type", extra_typedefs),
+            formal_types)
+        topstruct = Struct(
+            node.name,
+            [topstruct_type, callable_type, pure_type] +
+            operator_declaration)
+
+        return [next_struct, topstruct], [next_definition, operator_definition]
+
+    def visit_Return(self, node):
+        return Block([Statement("{0} = -1".format(CxxGenerator.StateHolder)),
+                      Statement("goto {0}".format(CxxGenerator.FinalStatement))
+                      ])
+
+    def visit_Yield(self, node):
+        num, label = self.yields[node]
+        return "".join(n for n in Block([
+            Assign(CxxGenerator.StateHolder, num),
+            ReturnStatement("{0} = {1}".format(CxxGenerator.StateValue,
+                                               self.visit(node.value))),
+            Statement("{0}:".format(label))
+            ]).generate())
+
+    def visit_Assign(self, node):
+        value = self.visit(node.value)
+        targets = [self.visit(t) for t in node.targets]
+        alltargets = "= ".join(targets)
+        stmt = Assign(alltargets, value)
+        return self.process_omp_attachements(node, stmt)
+
+    def can_use_autofor(self, node):
+        """
+        TODO : Yield should block only if it is use in the for loop, not in the
+               whole function.
+        """
+        return False
+
+    def make_assign(self, local_iter_decl, local_iter, iterable):
+        # For yield function, iterable is globals.
+        self.extra_declarations.append((local_iter, local_iter_decl,))
+        return super(CxxGenerator, self).make_assign("", local_iter, iterable)
+
+
+class Cxx(Backend):
+
+    """
+    Produces a C++ representation of the AST.
+
+    >>> import gast as ast, passmanager, os
+    >>> node = ast.parse("def foo(): print('hello world')")
+    >>> pm = passmanager.PassManager('test')
+    >>> r = pm.dump(Cxx, node)
+    >>> print(str(r).replace(os.sep, '/'))
+    #include <pythonic/include/__builtin__/print.hpp>
+    #include <pythonic/include/__builtin__/str.hpp>
+    #include <pythonic/__builtin__/print.hpp>
+    #include <pythonic/__builtin__/str.hpp>
+    namespace __pythran_test
+    {
+      struct foo
+      {
+        typedef void callable;
+        ;
+        struct type
+        {
+          typedef typename pythonic::returnable<pythonic::types::none_type>\
+::type result_type;
+        }  ;
+        typename type::result_type operator()() const;
+        ;
+      }  ;
+      typename foo::type::result_type foo::operator()() const
+      {
+        pythonic::__builtin__::print("hello world");
+      }
+    }
+    """
+
+    def __init__(self):
+        """ Basic initialiser gathering analysis informations. """
+        self.result = None
+        super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
+                                  Types, ArgumentEffects,
+                                  Scope, RangeValues, PureExpressions)
+
+    # mod
+    def visit_Module(self, node):
+        """ Build a compilation unit. """
+        # build all types
+        headers = [Include(os.path.join("pythonic", "include",  *t) + ".hpp")
+                   for t in self.dependencies]
+        headers += [Include(os.path.join("pythonic", *t) + ".hpp")
+                    for t in self.dependencies]
+
+        decls_n_defns = [self.visit(stmt) for stmt in node.body]
+        decls, defns = zip(*[s for s in decls_n_defns if s])
+
+        nsbody = [s for ls in decls + defns for s in ls]
+        ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
+        self.result = CompilationUnit(headers + [ns])
+
+    def visit_FunctionDef(self, node):
+        yields = self.passmanager.gather(YieldPoints, node)
+        visitor = (CxxGenerator if yields else CxxFunction)(self)
+        return visitor.visit(node)

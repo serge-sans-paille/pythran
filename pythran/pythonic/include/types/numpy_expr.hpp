@@ -16,6 +16,16 @@ namespace pythonic
     template <class Expr, class... Slice>
     struct numpy_gexpr;
 
+    template <class Op>
+    struct Dereferencer {
+      template <class Ts, int... I>
+      auto operator()(Ts const &iters, utils::seq<I...>)
+          -> decltype(Op{}(*std::get<I>(iters)...))
+      {
+        return Op{}(*std::get<I>(iters)...);
+      }
+    };
+
     template <class E, class Op, class... Iters>
     struct numpy_expr_iterator
         : std::iterator<std::random_access_iterator_tag,
@@ -44,10 +54,10 @@ namespace pythonic
       }
 
       template <int... I>
-      auto _dereference(utils::seq<I...>) const
-          -> decltype(Op{}(*std::get<I>(iters_)...))
+      auto _dereference(utils::seq<I...> s) const
+          -> decltype(Dereferencer<Op>{}(iters_, s))
       {
-        return Op{}(*std::get<I>(iters_)...);
+        return Dereferencer<Op>{}(iters_, s);
       }
 
       auto operator*() const -> decltype(

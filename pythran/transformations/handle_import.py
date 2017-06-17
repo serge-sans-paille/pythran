@@ -201,6 +201,9 @@ class ImportedModule(object):
                     asname = alias.asname or alias.name
                     self.imported_modules[asname] = alias.name
             elif isinstance(decl, ast.ImportFrom):  # Function import
+                if decl.level:
+                    raise PythranSyntaxError("Specifying a level in an import",
+                                             decl)
                 module_name = decl.module
                 for alias in decl.names:
                     func_name = alias.name

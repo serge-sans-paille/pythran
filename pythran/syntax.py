@@ -136,7 +136,7 @@ class SyntaxChecker(ast.NodeVisitor):
                 - module/submodule exists in MODULES
                 - imported function exists in the given module/submodule
         """
-        if node.level != 0:
+        if node.level:
             raise PythranSyntaxError("Specifying a level in an import", node)
         if not node.module:
             raise PythranSyntaxError("import from without module", node)

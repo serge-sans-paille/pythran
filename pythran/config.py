@@ -29,7 +29,7 @@ def init_cfg(sys_file, platform_file, user_file):
     for key in ('CC', 'CXX'):
         value = cfgp.get('compiler', key)
         if value:
-            os.environ[key] = value
+            os.environ[key] = str(value)
 
     for obsolete_section in ('user', 'sys'):
         if cfgp.has_section(obsolete_section):

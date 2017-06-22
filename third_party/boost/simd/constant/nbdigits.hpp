@@ -11,51 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_NBDIGITS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_NBDIGITS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Nbdigits Nbdigits (function template)
 
-    Generate the number of mantissa bits of a floating point number,
-    and the total number of bits for integral types.
+  Generates the number of mantissa bits of a floating point number,
+  and the total number of bits for integral types.
 
+  @headerref{<boost/simd/constant/nbdigits.hpp>}
 
-    @par Header <boost/simd/constant/nbdigits.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Nbdigits();
+      @endcode
 
-    @code
-    T r = Nbdigits<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Nbdigits( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T containing the Nbdigits constant.
 
-    @code
-    if T is integral
-      r = sizeof(T)*8
-    else if T is double
-      r =  53;
-    else if T is float
-      r =  24;
-    @endcode
+  @par Parameters
 
-    @return The Nbdigits constant for the proper type
-  **/
-  template<typename T> T Nbdigits();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant nbdigits.
+  @par Return Value
+  A value of type @c as_integer_t<T> that evaluates to
 
-      @return The Nbdigits constant for the proper type
-    **/
-    Value Nbdigits();
-  }
-} }
-#endif
+  | Type                | double                        | float         | Integral        |
+  |--------------------:|:------------------------------|---------------|-----------------|
+  | value               |   53                          |      24       | sizeof(T)*8     |
+
+   @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/nbdigits.hpp>
 #include <boost/simd/constant/simd/nbdigits.hpp>

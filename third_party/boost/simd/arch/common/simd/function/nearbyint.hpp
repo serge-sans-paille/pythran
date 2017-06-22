@@ -14,9 +14,7 @@
 #include <boost/simd/function/bitofsign.hpp>
 #include <boost/simd/function/bitwise_xor.hpp>
 #include <boost/simd/function/if_else.hpp>
-#include <boost/simd/function/is_less.hpp>
-#include <boost/simd/function/minus.hpp>
-#include <boost/simd/function/plus.hpp>
+#include <boost/simd/function/raw.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -49,6 +47,20 @@ namespace boost { namespace simd { namespace ext
       const A0 t2n = bs::Twotonmb<A0>();
       const A0 d0  = v+t2n;
       return bitwise_xor(if_else(is_less(v,t2n),d0-t2n,v), s);
+    }
+  };
+
+  BOOST_DISPATCH_OVERLOAD_IF( nearbyint_
+                            , (typename A0, typename X)
+                            , (detail::is_native<X>)
+                            , bd::cpu_
+                            , bs::raw_tag
+                            , bs::pack_<bd::arithmetic_<A0>, X>
+                            )
+  {
+    BOOST_FORCEINLINE A0 operator()(raw_tag const&, const A0& a0) const BOOST_NOEXCEPT
+    {
+      return nearbyint(a0);
     }
   };
 } } }

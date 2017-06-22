@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_TWOOPI_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TWOOPI_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Twoopi Twoopi (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{2}{\pi}\f$
 
-    Constant \f$\frac2\pi\f$.
+  @headerref{<boost/simd/constant/twoopi.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/twoopi.hpp>
+  1.  @code
+      template<typename T> T Twoopi();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Twoopi( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac{2}{\pi}\f$.
 
-    @code
-    T r = Twoopi<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = Two<T>()/Pi<T>();
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.63661977236758134307553505349006)`.
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Twoopi();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant \f$\frac2\pi\f$.
-
-      Generate the  constant twoopi.
-
-      @return The Twoopi constant for the proper type
-    **/
-    Value Twoopi();
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/twoopi.hpp>
 #include <boost/simd/constant/simd/twoopi.hpp>

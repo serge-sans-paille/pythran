@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_MHALF_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MHALF_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Mhalf Mhalf (function template)
 
-    Generate the constant mhalf.
+  Generates the constant @c -0.5.
 
-    @return The Mhalf constant for the proper type
-  **/
-  template<typename T> T Mhalf();
+  @headerref{<boost/simd/constant/mhalf.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant mhalf.
+  @par Description
 
-      @return The Mhalf constant for the proper type
-    **/
-    Value Mhalf();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Mhalf();
+      @endcode
+
+  2.  @code
+      template<typename T> T Mhalf( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T  that evaluates to -0.5.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c that evaluates to `T(-0.5)`.
+
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/mhalf.hpp>
 #include <boost/simd/constant/simd/mhalf.hpp>

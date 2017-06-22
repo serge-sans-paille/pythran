@@ -21,7 +21,7 @@
 namespace boost { namespace simd { namespace detail
 {
   namespace bd = boost::dispatch;
-  
+
 // Use template so that we don't need static instantiation in a .cpp, this prevents
 // linkage from failing..
 template <typename Stream = std::ostream>

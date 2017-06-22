@@ -11,45 +11,39 @@
 #ifndef BOOST_SIMD_CONSTANT_GOLD_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_GOLD_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Gold Gold (function template)
 
-    Generate the golden ratio that is \f$\phi = \frac{1+\sqrt5}{2}\f$
+  Generates the Golden Ratio \f$\phi
 
+  @headerref{<boost/simd/constant/gold.hpp>}
 
-    @par Header <boost/simd/constant/gold.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Gold();
+      @endcode
 
-    @code
-    T r = Gold<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Gold( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar for floating types to:
+  Generates a constant that evaluate to the [Golden Ratio](http://mathworld.wolfram.com/GoldenRatio.html)
+  defined as \f$\frac{1}{2}(1 + \sqrt{5})\f$.
 
-    @code
-    T r = (1+sqrt(T(5)))/2;
-    @endcode
+  @par Parameters
 
-    @return The Gold constant for the proper type
-  **/
-  template<typename T> T Gold();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant gold.
+  @par Return Value
+  A value of type @c T that evaluates to `T(1.61803398874989484820458683436563811772)`.
 
-      @return The Gold constant for the proper type
-    **/
-    Value Gold();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/gold.hpp>
 #include <boost/simd/constant/simd/gold.hpp>

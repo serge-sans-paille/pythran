@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_SIX_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SIX_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Six Six (function template)
 
-    Generate the constant six.
+  Generates the constant @c 6
 
-    @return The Six constant for the proper type
-  **/
-  template<typename T> T Six();
+  @headerref{<boost/simd/constant/six.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant six.
+  @par Description
 
-      @return The Six constant for the proper type
-    **/
-    Value Six();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Six();
+      @endcode
+
+  2.  @code
+      template<typename T> T Six( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T that evaluates to 6.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(6)`
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/six.hpp>
 #include <boost/simd/constant/simd/six.hpp>

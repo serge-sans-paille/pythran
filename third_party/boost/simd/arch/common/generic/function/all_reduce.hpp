@@ -70,7 +70,7 @@ namespace boost { namespace simd { namespace ext
                                       , typename Arg, typename Ext
                                       )
                                     , tag::all_reduce_
-                                    , bs::simd_
+                                    , bd::cpu_
                                     , bd::elementwise_<BinOp>
                                     , bs::pack_<bd::unspecified_<Neutral>, Ext>
                                     , bs::pack_<bd::unspecified_<Arg>, Ext>

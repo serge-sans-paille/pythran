@@ -28,7 +28,7 @@ namespace boost { namespace simd { namespace ext
                             , typename Offset, typename X
                             , typename Target, typename TX
                             )
-                          , bs::simd_
+                          , bd::cpu_
                           , bd::pointer_<bd::scalar_<bd::unspecified_<Pointer>>,1u>
                           , bs::pack_<bd::integer_<Offset>,X>
                           , bd::target_<bs::pack_<bd::unspecified_<Target>,TX>>

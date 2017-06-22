@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_THREEPIO_4_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_THREEPIO_4_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Threepio_4 Threepio_4 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{3\pi}{4}\f$
 
-    Constant threepio_4 : \f$3\pi/4\f$.
+  @headerref{<boost/simd/constant/threepio_4.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/threepio_4.hpp>
+  1.  @code
+      template<typename T> T Threepio_4();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Threepio_4( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac{3\pi}{4}\f$.
 
-    @code
-    T r = threepio_4<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = Three<T>()*Pi<T>()/Four<T>();
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(2.3561944901923449288469825374596)`
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Threepio_4();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant threepio_4 : \f$3\pi/4\f$.
-
-      Generate the  constant threepio_4.
-
-      @return The Threepio_4 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::threepio_4_> threepio_4 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/threepio_4.hpp>
 #include <boost/simd/constant/simd/threepio_4.hpp>

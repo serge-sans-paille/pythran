@@ -16,7 +16,7 @@
 #include <boost/simd/constant/one.hpp>
 #include <boost/simd/detail/constant/pio2_1.hpp>
 #include <boost/simd/detail/constant/pio2_2.hpp>
-#include <boost/simd/constant/pio2_3.hpp>
+#include <boost/simd/detail/constant/pio2_3.hpp>
 #include <boost/simd/constant/pio_4.hpp>
 #include <boost/simd/function/if_else.hpp>
 #include <boost/simd/function/if_one_else_zero.hpp>

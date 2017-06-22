@@ -28,6 +28,7 @@ namespace boost { namespace simd
 #include <boost/simd/function/deinterleave_first.hpp>
 #include <boost/simd/function/deinterleave_second.hpp>
 #include <boost/simd/function/enumerate.hpp>
+#include <boost/simd/function/fmasubadd.hpp>
 #include <boost/simd/function/group.hpp>
 #include <boost/simd/function/lookup.hpp>
 #include <boost/simd/function/reverse.hpp>
@@ -37,5 +38,6 @@ namespace boost { namespace simd
 #include <boost/simd/function/prod.hpp>
 #include <boost/simd/function/sum.hpp>
 #include <boost/simd/function/split.hpp>
+#include <boost/simd/function/subadd.hpp>
 
 #endif

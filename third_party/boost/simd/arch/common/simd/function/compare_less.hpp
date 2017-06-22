@@ -11,6 +11,7 @@
 
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/function/slice.hpp>
+#include <boost/simd/function/compare_equal.hpp>
 #include <algorithm>
 
 namespace boost { namespace simd { namespace ext
@@ -35,7 +36,7 @@ namespace boost { namespace simd { namespace ext
     {
       auto s0 = slice(a0);
       auto s1 = slice(a1);
-      return compare_less(s0[0], s1[0] ) || compare_less(s0[1], s1[1]);
+      return compare_less(s0[0], s1[0] ) || (compare_equal(s0[0], s1[0] ) && compare_less(s0[1], s1[1]));
     }
 
     template<typename K>

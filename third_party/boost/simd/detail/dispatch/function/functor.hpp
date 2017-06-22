@@ -33,7 +33,7 @@ namespace boost { namespace dispatch
 {
   /*!
     @ingroup group-function
-    @brief Adaptable dispactch-enabled function object
+    @brief Adaptable dispatch-enabled function object
 
     @tparam Tag
     @tparam Site

@@ -32,7 +32,7 @@ namespace boost { namespace simd { namespace ext
                                               , detail::is_native<X>
                                               >
                               )
-                            , bs::simd_
+                            , bd::cpu_
                             , bs::pack_<bs::logical_<A0>,X>
                             , bs::pack_<bs::logical_<A0>,X>
                             )

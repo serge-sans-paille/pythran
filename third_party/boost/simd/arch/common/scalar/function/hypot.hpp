@@ -27,6 +27,7 @@
 #include <boost/simd/function/min.hpp>
 #include <boost/simd/function/sqr.hpp>
 #include <boost/simd/function/sqrt.hpp>
+#include <boost/simd/function/fma.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/simd/detail/dispatch/meta/as_integer.hpp>
 #include <boost/simd/function/std.hpp>

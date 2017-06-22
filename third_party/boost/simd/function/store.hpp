@@ -31,8 +31,8 @@ namespace boost { namespace simd
     store semantic is similar to aligned_store semantic except for the fact
     that memory location doesn't need to be aligned.
 
-    @param val    Value to stream
-    @param ptr    Memory location to stream @c val to
+    @param val    Value to store
+    @param ptr    Memory location to store @c val to
     @param offset Optional memory offset. Can be either a scalar or a SIMD type
                   of same cardinal than the value to write (scatter).
     @param mask   Optional logical mask. Only stores values for which the mask is true.

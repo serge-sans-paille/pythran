@@ -20,7 +20,7 @@ namespace boost { namespace simd
 {
   namespace tag
   {
-    BOOST_DISPATCH_MAKE_TAG(ext, extract_, boost::dispatch::elementwise_<extract_>);
+    BOOST_DISPATCH_MAKE_TAG(ext, extract_, boost::dispatch::abstract_<extract_>);
   }
 
   namespace ext

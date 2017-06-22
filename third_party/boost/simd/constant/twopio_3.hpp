@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_TWOPIO_3_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TWOPIO_3_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Twopio_3 Twopio_3 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{2\pi}{3}\f$
 
-    Constant \f$2\frac\pi{3}\f$.
+  @headerref{<boost/simd/constant/twopio_3.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/twopio_3.hpp>
+  1.  @code
+      template<typename T> T Twopio_3();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Twopio_3( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac{2\pi}{3}\f$.
 
-    @code
-    T r = Twopio_3<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = Two<T>()*Pi<T>()/Three<T>();
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(2.0943951023931954923084289221863)`.
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Twopio_3();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant \f$2\frac\pi{3}\f$.
-
-      Generate the  constant twopio_3.
-
-      @return The Twopio_3 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::twopio_3_> twopio_3 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/twopio_3.hpp>
 #include <boost/simd/constant/simd/twopio_3.hpp>

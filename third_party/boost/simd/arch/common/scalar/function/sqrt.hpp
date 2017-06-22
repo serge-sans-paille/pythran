@@ -19,7 +19,6 @@
 #include <boost/simd/function/rsqrt.hpp>
 #include <boost/simd/constant/nan.hpp>
 #include <boost/simd/constant/zero.hpp>
-#include <boost/simd/detail/math.hpp>
 #include <boost/simd/function/std.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/assert.hpp>
@@ -49,11 +48,7 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator() ( A0 a0) const BOOST_NOEXCEPT
     {
-      #ifdef BOOST_SIMD_HAS_SQRTF
-      return ::sqrtf(a0);
-      #else
       return std::sqrt(a0);
-      #endif
     }
   };
   BOOST_DISPATCH_OVERLOAD ( sqrt_
@@ -112,8 +107,6 @@ namespace boost { namespace simd { namespace ext
       return sqrt(a0);
     }
   };
-
 } } }
-
 
 #endif

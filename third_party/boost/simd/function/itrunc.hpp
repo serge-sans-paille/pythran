@@ -33,6 +33,6 @@ namespace boost { namespace simd
 #endif
 
 #include <boost/simd/function/scalar/itrunc.hpp>
-#include <boost/simd/function/simd/ifix.hpp>
+#include <boost/simd/function/simd/itrunc.hpp>
 
 #endif

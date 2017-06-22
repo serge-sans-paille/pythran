@@ -26,7 +26,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD_FALLBACK( (typename Constant, typename T, typename X)
                                   , boost::dispatch::constant_value_<Constant>
-                                  , bs::simd_
+                                  , bd::cpu_
                                   , bd::target_< bs::pack_<bd::unspecified_<T>,X> >
                                   )
   {

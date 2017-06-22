@@ -29,7 +29,7 @@ namespace boost { namespace simd { namespace ext
                                                             >
                                             >
                               )
-                            , bs::simd_
+                            , bd::cpu_
                             , bs::pack_<bd::arithmetic_<A0>,X>
                             , bs::pack_<bd::arithmetic_<A1>,Y>
                             )

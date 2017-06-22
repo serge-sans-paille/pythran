@@ -11,48 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_LOG2_E_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_LOG2_E_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Log2_e Log2_e (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\log_2(e)\f$
 
-    Generates constant Log2_e.This constant is coupled with Log2_lo and is
-    used in the float logarithms computations
-    We have double(Log2_e<float>())+double(Log2_lo<float>()) == Log_2<double>()
+  @headerref{<boost/simd/constant/log2_e.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/log2_e.hpp>
+  1.  @code
+      template<typename T> T Log2_e();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Log2_e( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = log2_e<T>();
-    @endcode
+  Generates a value of type @c T that evaluates to \f$\log_2(e)\f$.
 
+  @par Parameters
 
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(1.4426950408889634073599246810019)`
+
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Log2_e();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Generates constant Log2_e.This constant is coupled with Log2_lo and is
-      used in the float logarithms computations
-      We have double(Log2_e<float>())+double(Log2_lo<float>()) == Log_2<double>()
-
-      Generate the  constant log2_e.
-
-      @return The Log2_e constant for the proper type
-    **/
-    Value log2_e<Value>();
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/log2_e.hpp>
 #include <boost/simd/constant/simd/log2_e.hpp>

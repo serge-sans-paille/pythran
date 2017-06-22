@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_INV2PI_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_INV2PI_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Inv2pi Inv2pi (function template)
 
-    @ingroup group-constant
+   Generates the constant \f$\frac{1}{2\pi}\f$.
 
-    Constant \f$\frac1{2\pi}\f$.
+  @headerref{<boost/simd/constant/inv2pi.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/inv2pi.hpp>
+  1.  @code
+      template<typename T> T Inv2pi();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Inv2pi( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac{1}{2\pi}\f$.
 
-    @code
-    T r = Inv2pi<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = rec(Two<T>()*Pi<T>());
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.15915494309189533576888376337251)`.
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Inv2pi();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant \f$\frac1\pi\f$.
-
-      Generate the  constant inv2pi.
-
-      @return The Inv2pi constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::inv2pi_> inv2pi = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/inv2pi.hpp>
 #include <boost/simd/constant/simd/inv2pi.hpp>

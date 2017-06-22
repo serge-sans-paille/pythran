@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FACT_10_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FACT_10_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Fact_10 Fact_10 (function template)
 
-    Generate 10! that is 3628800
+  Generates the @c 10! constant
 
+  @headerref{<boost/simd/constant/fact_10.hpp>}
 
-    @par Header <boost/simd/constant/fact_10.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Fact_10();
+      @endcode
 
-    @code
-    T r = Fact_10<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Fact_10( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to 10!.
 
-    @code
-    T r = T(3628800);
-    @endcode
+  @par Parameters
 
-    @return The Fact_10 constant for the proper type
-  **/
-  template<typename T> T Fact_10();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant fact_10.
+  @par Return Value
+  A value of type @c T that evaluates to @c T(3628800).
 
-      @return The Fact_10 constant for the proper type
-    **/
-    Value Fact_10(Value const& x);
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/fact_10.hpp>
 #include <boost/simd/constant/simd/fact_10.hpp>

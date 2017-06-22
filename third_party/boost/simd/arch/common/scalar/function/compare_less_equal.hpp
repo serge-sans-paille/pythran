@@ -25,7 +25,7 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE bool operator()(A0 const& a0, A0 const& a1) const  BOOST_NOEXCEPT
     {
-      return a0 <= a1;
+      return !(a1 < a0);
     }
   };
 } } }

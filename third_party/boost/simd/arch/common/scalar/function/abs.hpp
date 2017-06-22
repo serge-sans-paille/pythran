@@ -11,9 +11,10 @@
 
 #include <boost/simd/function/std.hpp>
 #include <boost/simd/function/saturated.hpp>
-#include <boost/simd/detail/math.hpp>
 #include <boost/simd/constant/valmax.hpp>
 #include <boost/simd/constant/valmin.hpp>
+#include <boost/simd/constant/mzero.hpp>
+#include <boost/simd/function/bitwise_notand.hpp>
 #include <boost/simd/function/is_equal.hpp>
 #include <boost/simd/detail/dispatch/meta/as_unsigned.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
@@ -44,28 +45,12 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( abs_
                           , (typename T)
                           , bd::cpu_
-                          , bd::scalar_<bd::single_<T>>
+                          , bd::scalar_<bd::floating_<T>>
                           )
   {
     BOOST_FORCEINLINE T operator()(T a) const BOOST_NOEXCEPT
     {
-      #ifdef BOOST_SIMD_HAS_FABSF
-       return ::fabsf(a);
-      #else
-       return (a > 0) ? a : -a;
-      #endif
-    }
-  };
-
-  BOOST_DISPATCH_OVERLOAD ( abs_
-                          , (typename T)
-                          , bd::cpu_
-                          , bd::scalar_<bd::double_<T>>
-                          )
-  {
-    BOOST_FORCEINLINE T operator()(T a) const BOOST_NOEXCEPT
-    {
-      return ::fabs(a);
+      return bitwise_notand(Mzero<T>(),a);
     }
   };
 

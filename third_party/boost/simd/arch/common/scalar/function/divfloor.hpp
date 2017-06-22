@@ -106,6 +106,11 @@ namespace boost { namespace simd { namespace ext
       return boost::simd::floor(a0/a1);
     }
   };
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
+
 } } }
 
 

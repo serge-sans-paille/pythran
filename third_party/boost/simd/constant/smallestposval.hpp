@@ -11,50 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_SMALLESTPOSVAL_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SMALLESTPOSVAL_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Smallestposval Smallestposval (function template)
 
-    Generate the least non zero, non denormal, positive value.
+  Generates the least non zero, non denormal, positive value.
 
+  @headerref{<boost/simd/constant/smallestposval.hpp>}
 
-    @par Header <boost/simd/constant/smallestposval.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Smallestposval();
+      @endcode
 
-    @code
-    T r = Smallestposval<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Smallestposval( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to the smallest positive, non-denormal value of
+  type @c T.
 
-    @code
-    if T is integral
-      r = 1
-    else if T is double
-      r =  2.225073858507201e-308;
-    else if T is float
-      r =  1.1754944e-38;
-    @endcode
+  @par Parameters
 
-    @return The Smallestposval constant for the proper type
-  **/
-  template<typename T> T Smallestposval();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant smallestposval.
+  @par Return Value
+  A value of type @c as_integer_t<T> that evaluates to
 
-      @return The Smallestposval constant for the proper type
-    **/
-    Value Smallestposval();
-  }
-} }
-#endif
+  | Type            | double                        | float         | Integral        |
+  |:----------------|:------------------------------|---------------|-----------------|
+  | **Values**      |   2.225073858507201e-308      | 1.1754944e-38 |  1              |
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/smallestposval.hpp>
 #include <boost/simd/constant/simd/smallestposval.hpp>

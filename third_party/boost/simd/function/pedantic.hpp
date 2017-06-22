@@ -21,7 +21,7 @@ namespace boost { namespace simd
     @ingroup group-decorator
 
     calls a version of the functor
-      that can do some agressive optimization at the cost of certain
+      that can do some aggressive optimization at the cost of certain
       properties or corner cases of the original functor.
 
       These losses are of the `pedantic_math` kind.

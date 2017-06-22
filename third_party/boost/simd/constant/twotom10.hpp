@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_TWOTOM10_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TWOTOM10_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Twotom10 Twotom10 (function template)
 
-    Generate 2 to the power -10 (\f$2^{-10}\f$)
+  Generates the constant \f$2^{-10}\f$
 
+  @headerref{<boost/simd/constant/twotom10.hpp>}
 
-    @par Header <boost/simd/constant/twotom10.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Twotom10();
+      @endcode
 
-    @code
-    T r = Twotom10<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Twotom10( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$2^{-10}\f$.
 
-    @code
-    T r = pow(2, -10);
-    @endcode
+  @par Parameters
 
-    @return The Twotom10 constant for the proper type
-  **/
-  template<typename T> T Twotom10();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant twotom10.
+  @par Return Value
+  A value of type @c T that evaluates to <tt>T(0.0009765625)</tt>.
 
-      @return The Twotom10 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::twotom10_> twotom10 = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/twotom10.hpp>
 #include <boost/simd/constant/simd/twotom10.hpp>

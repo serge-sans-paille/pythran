@@ -19,7 +19,7 @@ namespace boost { namespace simd
 {
   namespace tag
   {
-    BOOST_DISPATCH_MAKE_TAG(ext, insert_, boost::dispatch::elementwise_<insert_>);
+    BOOST_DISPATCH_MAKE_TAG(ext, insert_, boost::dispatch::abstract_<insert_>);
   }
 
   namespace ext

@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_INVPI_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_INVPI_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Invpi Invpi (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac1\pi\f$.
 
-    Constant\f$\frac1\pi\f$.
+  @headerref{<boost/simd/constant/invpi.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/invpi.hpp>
+  1.  @code
+      template<typename T> T Invpi();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Invpi( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac1\pi\f$.
 
-    @code
-    T r = Invpi<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = rec(Pi<T>());
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.31830988618379067153776752674503)`.
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Invpi();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant\f$\frac1\pi\f$.
-
-      Generate the  constant invpi.
-
-      @return The Invpi constant for the proper type
-    **/
-    Value Invpi();
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/invpi.hpp>
 #include <boost/simd/constant/simd/invpi.hpp>

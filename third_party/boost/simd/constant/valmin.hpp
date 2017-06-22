@@ -11,54 +11,41 @@
 #ifndef BOOST_SIMD_CONSTANT_VALMIN_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_VALMIN_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Valmin Valmin (function template)
 
-    Generate the minimum finite representable value of a given type as a constant.
+  Generates the minimum signed finite representable value of a given type.
 
+  @headerref{<boost/simd/constant/valmin.hpp>}
 
-    @par Header <boost/simd/constant/valmin.hpp>
+  @par Description
 
-    @par Semantic
-
-    For any type @c T,
-
-    @code
-    T x = Valmin<T>();
-    @endcode
-
-    return the minimum finite representable value for this type.
-
-    @return The minimum finite representable value of the input type
-  **/
-  template<typename T> T Valmin();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-      Generate the minimum representable value of a given type as a constant.
-
-      @par Semantic
-
-      For any type @c T,
-
-      @code
-      T x = valmin(as(T{}));
+  1.  @code
+      template<typename T> T Valmin();
       @endcode
 
-      return the minimum representable value for this type.
+  2.  @code
+      template<typename T> T Valmin( boost::simd::as_<T> const& target );
+      @endcode
 
-      @return The minimum representable value of the input type
-    **/
-    Value Valmin();
-  }
-} }
-#endif
+  Generates the minimum signed finite representable value of a given type.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to:
+
+  - `T(std::numeric_limits<scalar_of_t<T>>::min())` if @c T models IntegerValue
+  - `T(-std::numeric_limits<scalar_of_t<T>>::max())` if @c T models IEEEValue
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/valmin.hpp>
 #include <boost/simd/constant/simd/valmin.hpp>

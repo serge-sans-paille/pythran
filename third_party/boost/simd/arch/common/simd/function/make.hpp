@@ -34,17 +34,17 @@ namespace boost { namespace simd { namespace ext
   {
     using storage_t = typename Target::storage_type;
 
-    static inline storage_t do_ ( Values const&... vs
-                                , ::boost::simd::scalar_storage const&
-                                ) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE storage_t do_ ( Values const&... vs
+                                           , ::boost::simd::scalar_storage const&
+                                           ) BOOST_NOEXCEPT
     {
       storage_t that{{ static_cast<typename Target::substorage_type>(vs)... }};
       return that;
     }
 
-    static inline Target do_( Values const&... vs
-                            , ::boost::simd::aggregate_storage const&
-                            ) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE Target do_( Values const&... vs
+                                       , ::boost::simd::aggregate_storage const&
+                                       ) BOOST_NOEXCEPT
     {
       using value_type = typename Target::value_type;
       std::initializer_list<value_type> lst{ static_cast<value_type>(vs)... };
@@ -57,9 +57,9 @@ namespace boost { namespace simd { namespace ext
   {
     using storage_t = typename Target::storage_type;
 
-    static inline Target do_( Values const&... vs
-                            , ::boost::simd::aggregate_storage const&
-                            ) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE Target do_( Values const&... vs
+                                       , ::boost::simd::aggregate_storage const&
+                                       ) BOOST_NOEXCEPT
     {
       using value_type = typename Target::value_type;
       std::initializer_list<value_type> lst{ static_cast<value_type>(vs)... };
@@ -67,9 +67,9 @@ namespace boost { namespace simd { namespace ext
     }
 
     template<typename K>
-    static inline Target do_( Values const&... vs
-                            , K const&
-                            ) BOOST_NOEXCEPT
+    static BOOST_FORCEINLINE Target do_( Values const&... vs
+                                       , K const&
+                                       ) BOOST_NOEXCEPT
     {
       using   target_t = as_arithmetic_t<Target>;
       using   value_t  = typename target_t::value_type;

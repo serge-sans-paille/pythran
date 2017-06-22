@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_INVSQRTEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_INVSQRTEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Invsqrteps Invsqrteps (function template)
 
-    Generate  value \f$\1/sqrt(Eps<T>()\f$
+  Generates the constant \f$\frac{1}{\sqrt\epsilon}\f$
 
-    @return The Invsqrteps constant for the proper type
-  **/
-  template<typename T> T invsqrteps();
+  @headerref{<boost/simd/constant/invsqrteps.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant Invsqrteps.
+  @par Description
 
-      @return The invsqrteps constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::invsqrteps_> invsqrteps = {};
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Invsqrteps();
+      @endcode
+
+  2.  @code
+      template<typename T> T Invsqrteps( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T that evaluates to \f$\frac{1}{\sqrt\epsilon}\f$.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `rec(sqrt(Eps<T>())`.
+
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/invsqrteps.hpp>
 #include <boost/simd/constant/simd/invsqrteps.hpp>

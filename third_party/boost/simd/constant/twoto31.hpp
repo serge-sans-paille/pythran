@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_TWOTO31_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TWOTO31_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Twoto31 Twoto31 (function template)
 
-    Generate  2 to the power 31 (\f$2^{31}\f$)
+  Generates the constant \f$2^{31}\f$
 
+  @headerref{<boost/simd/constant/twoto31.hpp>}
 
-    @par Header <boost/simd/constant/twoto31.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Twoto31();
+      @endcode
 
-    @code
-    T r = Twoto31<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Twoto31( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to (\f$2^{31}\f$).
 
-    @code
-    T r = pow(2, 31);
-    @endcode
+  @par Parameters
 
-    @return The Twoto31 constant for the proper type
-  **/
-  template<typename T> T Twoto31();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant twoto31.
+  @par Return Value
+  A value of type @c T that evaluates to <tt>T(2147483648)</tt>.
 
-      @return The Twoto31 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::twoto31_> twoto31 = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/twoto31.hpp>
 #include <boost/simd/constant/simd/twoto31.hpp>

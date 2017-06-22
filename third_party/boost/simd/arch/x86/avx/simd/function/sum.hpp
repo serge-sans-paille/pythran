@@ -21,7 +21,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD ( sum_
                           , (typename A0)
                           , bs::avx_
-                          , bs::pack_<bd::floating_<A0>, bs::avx_>
+                          , bs::pack_<bd::arithmetic_<A0>, bs::avx_>
                          )
   {
     BOOST_FORCEINLINE typename A0::value_type operator()(const A0& a0) const BOOST_NOEXCEPT

@@ -11,44 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FACT_11_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FACT_11_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Fact_11 Fact_11 (function template)
 
-    Generate 11! that is 39916800,
+  Generates the @c 11! constant
 
+  @headerref{<boost/simd/constant/fact_11.hpp>}
 
-    @par Header <boost/simd/constant/fact_11.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Fact_11();
+      @endcode
 
-    @code
-    T r = Fact_11<T>();
-    @endcode
-    is similar to:
+  2.  @code
+      template<typename T> T Fact_11( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = T(39916800);
-    @endcode
+  Generates a value of type @c T that evaluates to 11!.
 
-    @return The Fact_11 constant for the proper type
-  **/
-  template<typename T> T Fact_11();
+  @par Parameters
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant fact_11.
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-      @return The Fact_11 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::fact_11_> fact_11 = {};
-  }
-} }
-#endif
+  @par Return Value
+  A value of type @c T that evaluates to @c T(39916800).
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/fact_11.hpp>
 #include <boost/simd/constant/simd/fact_11.hpp>

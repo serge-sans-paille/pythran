@@ -11,20 +11,36 @@
 #ifndef BOOST_SIMD_CONSTANT_RATIO_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_RATIO_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
-    @brief Generate a constant from a static rational number representation.
+/*!
+  @ingroup group-constant
+  @defgroup constant-Ratio Ratio (function template)
 
-    @tparam Type        Type of the generated constant
-    @tparam Numerator   Numerator of the generated constant
-    @tparam Denominator Denominator of the generated constant
-  **/
-  template<typename Type, std::uintmax_t Numerator, std::uintmax_t Denumerator> auto Ratio();
-} }
-#endif
+  Generates a constant defined by compile-time rational number representation.
+
+  @headerref{<boost/simd/constant/ratio.hpp>}
+
+  @par Description
+
+  @code
+  template<typename T,std::uintmax_t Num, std::uintmax_t Denum> T Ratio();
+  @endcode
+
+  Generates a value of type @c T that evaluates to `Num/Denum`.
+
+  @par Template Parameters
+
+  | Name           | Description              |
+  |---------------:|:-------------------------|
+  | **T**          | the constant type        |
+  | **Num**        | the constant numerator   |
+  | **Denum**      | the constant denumerator |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(Num)/T(Denum)`.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/ratio.hpp>
 #include <boost/simd/constant/simd/ratio.hpp>

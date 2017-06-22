@@ -114,7 +114,7 @@ namespace boost { namespace simd
     {};
   }
 
-  // Optimize small bitset if N <= 64bits - els euse std::bitset
+  // Optimize small bitset if N <= 64bits - else use std::bitset
   template<std::size_t N> using bitset = typename detail::select_bitset<N>::type;
 } }
 

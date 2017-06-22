@@ -51,7 +51,7 @@ namespace boost { namespace dispatch
       collapse into an lvalue reference.
 
     @tparam T Type to modify
-    @tparam U Type which modifier needs to be transfered
+    @tparam U Type which modifier needs to be transferred
   **/
   template<typename T, typename U>
   struct transfer_qualifiers : detail::transfer_qualifiers<T,U>

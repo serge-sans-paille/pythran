@@ -25,7 +25,7 @@ namespace boost { namespace simd { namespace ext
                                     , typename Arg, typename Ext
                                     )
                                   , bd::reduction_<F,BinOp,NeutralElement>
-                                  , bs::simd_
+                                  , bd::cpu_
                                   , bs::pack_<bd::unspecified_<Arg>, Ext>
                                   )
   {
@@ -60,7 +60,7 @@ namespace boost { namespace simd { namespace ext
                                     , typename Arg, typename Ext
                                     )
                                   , bd::reduction_<F,BinOp,NeutralElement>
-                                  , bs::simd_
+                                  , bd::cpu_
                                   , bs::splatted_tag
                                   , bs::pack_<bd::unspecified_<Arg>, Ext>
                                   )

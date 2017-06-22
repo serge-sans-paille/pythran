@@ -16,6 +16,7 @@
 #include <boost/simd/function/bitwise_xor.hpp>
 #include <boost/simd/function/shift_right.hpp>
 #include <boost/simd/function/plus.hpp>
+#include <boost/simd/function/saturated.hpp>
 #include <boost/simd/detail/constant/maxleftshift.hpp>
 #include <boost/simd/constant/mzero.hpp>
 
@@ -66,6 +67,34 @@ namespace boost { namespace simd { namespace ext
     BOOST_FORCEINLINE A0 operator()( const A0& a0) const BOOST_NOEXCEPT
     {
       return bitwise_notand(Mzero<A0>(),a0);
+    }
+  };
+
+  BOOST_DISPATCH_OVERLOAD_IF ( abs_
+                          , (typename T, typename X)
+                          , (detail::is_native<X>)
+                          , bd::cpu_
+                          , bs::saturated_tag
+                          , bs::pack_<bd::unsigned_<T>, X>
+                          )
+  {
+    BOOST_FORCEINLINE T operator()(const saturated_tag &, T const& a) const BOOST_NOEXCEPT
+    {
+      return a;
+    }
+  };
+
+  BOOST_DISPATCH_OVERLOAD_IF ( abs_
+                          , (typename T, typename X)
+                          , (detail::is_native<X>)
+                          , bd::cpu_
+                          , bs::saturated_tag
+                          , bs::pack_<bd::floating_<T>, X>
+                          )
+  {
+    BOOST_FORCEINLINE T operator()(const saturated_tag &, T const& a) const BOOST_NOEXCEPT
+    {
+      return bs::abs(a);
     }
   };
 } } }

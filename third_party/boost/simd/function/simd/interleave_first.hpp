@@ -24,6 +24,9 @@
 #  if BOOST_HW_SIMD_X86_OR_AMD >= BOOST_HW_SIMD_X86_AVX_VERSION
 #    include <boost/simd/arch/x86/avx/simd/function/interleave_first.hpp>
 #  endif
+#  if BOOST_HW_SIMD_X86_OR_AMD >= BOOST_HW_SIMD_X86_AVX2_VERSION
+#    include <boost/simd/arch/x86/avx2/simd/function/interleave_first.hpp>
+#  endif
 #endif
 
 #endif

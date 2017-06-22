@@ -29,8 +29,8 @@ namespace boost { namespace simd
       struct big{ void *p[2];};
       static_assert(sizeof(big) != sizeof(void*), 
                     "This machine is too weird for us.");
-      
-      static big test(...); 
+
+      static big test(...);
       template<class It> static typename It::iterator_category* test(It); // Iterator
       template<class It> static void * test(It *); // Pointer
 

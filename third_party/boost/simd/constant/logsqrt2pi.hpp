@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_LOGSQRT2PI_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_LOGSQRT2PI_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Logsqrt2pi Logsqrt2pi (function template)
 
-    Generate value \f$\log\sqrt{2\pi}\f$
+  Generates the constant \f$\log\sqrt{2\pi}\f$
 
+  @headerref{<boost/simd/constant/logsqrt2pi.hpp>}
 
-    @par Header <boost/simd/constant/logsqrt2pi.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Logsqrt2pi();
+      @endcode
 
-    @code
-    T r = Logsqrt2pi<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Logsqrt2pi( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$\log\sqrt{2\pi}\f$.
 
-    @code
-    T r = log(sqrt(2*Pi<T>());
-    @endcode
+  @par Parameters
 
-    @return The Logsqrt2pi constant for the proper type
-  **/
-  template<typename T> T Logsqrt2pi();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant logsqrt2pi.
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.91893853320467274178032973640562)`
 
-      @return The Logsqrt2pi constant for the proper type
-    **/
-    Value Logsqrt2pi<Value>();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/logsqrt2pi.hpp>
 #include <boost/simd/constant/simd/logsqrt2pi.hpp>

@@ -11,37 +11,39 @@
 #ifndef BOOST_SIMD_CONSTANT_INVEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_INVEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Inveps Inveps (function template)
 
-    Generate  value \f$\1/Eps<T>()\f$
+  Generates the constant \f$\frac{1}{\epsilon}\f$
 
+  @headerref{<boost/simd/constant/inveps.hpp>}
 
-    @par Header <boost/simd/constant/inveps.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Inveps();
+      @endcode
 
-    @see Eps
+  2.  @code
+      template<typename T> T Inveps( boost::simd::as_<T> const& target );
+      @endcode
 
-    @return The inveps constant for the proper type
-  **/
-  template<typename T> T inveps();
+  Generates a value of type @c T that evaluates to the reciprocal of
+  [machine epsilon](https://en.wikipedia.org/wiki/Machine_epsilon).
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant inveps.
+  @par Parameters
 
-      @return The Inveps constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::inveps_> inveps = {};
-  }
-} }
-#endif
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `1/Eps<T>()`.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/inveps.hpp>
 #include <boost/simd/constant/simd/inveps.hpp>

@@ -11,50 +11,42 @@
 #ifndef BOOST_SIMD_CONSTANT_THIRDROOTEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_THIRDROOTEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Thirdrooteps Thirdrooteps (function template)
 
-    Generate the cubic root of @ref Eps
+  Generates the constant \f$\sqrt[3]{\epsilon}\f$
 
+  @headerref{<boost/simd/constant/thirdrooteps.hpp>}
 
-    @par Header <boost/simd/constant/thirdrooteps.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Thirdrooteps();
+      @endcode
 
-    @code
-    T r = Thirdrooteps<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Thirdrooteps( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$\sqrt[3]{\epsilon}\f$.
 
-    @code
-    if T is integral
-      r = 1
-    else if T is double
-      r =  6.055454452393343e-06;
-    else if T is float
-      r =  4.9215667e-03 ;
-    @endcode
+  @par Parameters
 
-    @return The Thirdrooteps constant for the proper type
-  **/
-  template<typename T> T Thirdrooteps();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant thirdrooteps.
+  @par Return Value
+  A value of type @c T that evaluates to:
 
-      @return The Thirdrooteps constant for the proper type
-    **/
-    Value Thirdrooteps();
-  }
-} }
-#endif
+  | Type       | double                     | float             |    Integral     |
+  |:-----------|:---------------------------|-------------------|-----------------|
+  | **Values** |   6.055454452393343e-06    |  4.9215667e-03f   |   1             |
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/thirdrooteps.hpp>
 #include <boost/simd/constant/simd/thirdrooteps.hpp>

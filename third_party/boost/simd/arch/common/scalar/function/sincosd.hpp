@@ -11,13 +11,11 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_SINCOSD_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SCALAR_FUNCTION_SINCOSD_HPP_INCLUDED
 
-
 #include <boost/simd/arch/common/detail/scalar/trigo.hpp>
 #include <boost/simd/function/restricted.hpp>
 #include <boost/simd/arch/common/detail/tags.hpp>
 #include <boost/simd/detail/dispatch/function/overload.hpp>
 #include <boost/config.hpp>
-#include <boost/fusion/include/std_pair.hpp>
 
 namespace boost { namespace simd { namespace ext
 {
@@ -50,6 +48,5 @@ namespace boost { namespace simd { namespace ext
     }
   };
 } } }
-
 
 #endif

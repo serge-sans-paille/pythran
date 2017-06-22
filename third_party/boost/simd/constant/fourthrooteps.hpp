@@ -11,50 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FOURTHROOTEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FOURTHROOTEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Fourthrooteps Fourthrooteps (function template)
 
-    Generate the 4th root of constant @ref Eps : \f$\sqrt[4]\epsilon\f$.
+  Generates the constant \f$\sqrt[4]\epsilon\f$.
 
+  @headerref{<boost/simd/constant/fourthrooteps.hpp>}
 
-    @par Header <boost/simd/constant/fourthrooteps.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Fourthrooteps();
+      @endcode
 
-    @code
-    T r = Fourthrooteps<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Fourthrooteps( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to the fourth root of the machine epsilon.
 
-    @code
-    if T is integral
-      r = T(1)
-    else if T is double
-      r =  pow(2.0, -13);
-    else if T is float
-      r =  pow(2.0f, -5.75f);
-    @endcode
+  @par Parameters
 
-    @return The Fourthrooteps constant for the proper type
-  **/
-  template<typename T> T Fourthrooteps();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant fourthrooteps.
+  @par Return Value
+  A value of type @c T that evaluates to `sqrt(sqrt(Eps<T>()))`.
 
-      @return The Fourthrooteps constant for the proper type
-    **/
-    Value Fourthrooteps();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/fourthrooteps.hpp>
 #include <boost/simd/constant/simd/fourthrooteps.hpp>

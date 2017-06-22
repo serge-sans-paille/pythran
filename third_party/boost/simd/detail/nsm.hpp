@@ -21,12 +21,12 @@
 
 #if defined(NSM_ASSUME_INCOMPLETE_STD)
 #include <boost/type_traits.hpp>
-namespace nsm { 
+namespace nsm {
   namespace type_traits = boost;
 }
 #else
 #include <type_traits>
-namespace nsm { 
+namespace nsm {
   namespace type_traits = std;
 }
 #endif
@@ -561,6 +561,26 @@ namespace nsm
   template <typename Sequence, typename Predicate = nsm::detail::non_null>
   using find = typename lazy::find<Sequence, Predicate>::type;
 
+  namespace detail
+  {
+    template <typename Sequence, typename Predicate>
+    using find_size = size<nsm::find<Sequence, Predicate>>;
+
+    template <typename Sequence, typename Predicate>
+    using empty_find = bool_<find_size<Sequence, Predicate>::value == 0>;
+
+    template <typename Sequence, typename Predicate>
+    using non_empty_find = bool_<find_size<Sequence, Predicate>::value != 0>;
+}
+
+  // Utility meta-function to check if nothing was found
+  template <typename Sequence, typename Predicate = detail::non_null>
+  using not_found = typename detail::empty_find<Sequence, Predicate>;
+
+  // Utility meta-function to check if something was found
+  template <typename Sequence, typename Predicate = detail::non_null>
+  using found = typename detail::non_empty_find<Sequence, Predicate>;
+
   template<typename Sequence, typename Predicate = detail::non_null>
   using all = typename detail::all_impl<Sequence,Predicate>::type;
 
@@ -884,6 +904,8 @@ namespace nsm
     return detail::for_each_impl( List{}, f );
   }
 
+  template<typename T, T V>
+  using constant = type_traits::integral_constant<T, V>;
   template <std::int8_t V>
   using int8_t = type_traits::integral_constant<std::int8_t, V>;
   template <std::uint8_t V>

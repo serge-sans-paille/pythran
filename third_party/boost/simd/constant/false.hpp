@@ -11,37 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FALSE_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FALSE_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-False False (function template)
 
-    Generates a value of the chosen type equals to @c false.
+  Generates a constant that evaluates to the boolean @c false
 
+  @headerref{<boost/simd/constant/false.hpp>}
 
-    @par Header <boost/simd/constant/false.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> as_logical_t<T> False();
+      @endcode
 
-    For type @c T modeling Logical
-    @code
-    T r = False<T>();
-    @endcode
+  2.  @code
+      template<typename T> as_logical_t<T> False( boost::simd::as_<T> const& target );
+      @endcode
 
-    is equivalent to:
+  Generates a value of type @c T that evaluates to the boolean @c false
 
-    @code
-    T r = false;
-    @endcode
+  @par Parameters
 
-    @return A value of type @c T equals to @c false.
+  | Name                | Description                                                    |
+  |--------------------:|:---------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref as) value encapsulating the constant type |
 
-    @see functional::false
-  **/
-  template<typename T> T False();
-} }
-#endif
+  @par Return Value
+  A value of type @c as_logical_t<T> that evaluates to @c as_logical_t<T>(false).
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/false.hpp>
 #include <boost/simd/constant/simd/false.hpp>

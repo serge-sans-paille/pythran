@@ -11,22 +11,37 @@
 #ifndef BOOST_SIMD_CONSTANT_REAL_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_REAL_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
-    @brief Generate a constant from a static real number representation.
+/*!
+  @ingroup group-constant
+  @defgroup constant-Real Real (function template)
 
-    @tparam Type    Type of the generated constant
-    @tparam Double  Bits of the double representation as an uint64_t
-    @tparam Single  Bits of the float  representation as an uint32_t
+  Generates a constant from a compile-time IEEE754 bits pattern.
 
-    The return value is selected by the type Type amaong the two representations.
-  **/
-  template<typename Type, std::uintmax_t Double, std::uintmax_t Single> auto Real();
-} }
-#endif
+  @headerref{<boost/simd/constant/real.hpp>}
+
+  @par Description
+
+  @code
+  template<typename T, std::uintmax_t Double, std::uintmax_t Single> T Real();
+  @endcode
+
+  Generates a value of type @c T that evaluates to a IEEE754 value which bits correspond to
+  either `Double` or `Single` depending on the type of `scalar_of_t<T>`.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to:
+  - `T(bitwise_cast<scalar_of_t<T>>(Double))` if `scalar_of_t<T>` is `double`.
+  - `T(bitwise_cast<scalar_of_t<T>>(Single))` if `scalar_of_t<T>` is `float`.
+
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/real.hpp>
 #include <boost/simd/constant/simd/real.hpp>

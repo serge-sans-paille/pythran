@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FACT_9_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FACT_9_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Fact_9 Fact_9 (function template)
 
-    Generate 9! that is 362880,
+  Generates the @c 9! constant
 
+  @headerref{<boost/simd/constant/fact_9.hpp>}
 
-    @par Header <boost/simd/constant/fact_9.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Fact_9();
+      @endcode
 
-    @code
-    T r = Fact_9<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Fact_9( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to 9!.
 
-    @code
-    T r = T(362880);
-    @endcode
+  @par Parameters
 
-    @return The Fact_9 constant for the proper type
-  **/
-  template<typename T> T Fact_9();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant fact_9.
+  @par Return Value
+  A value of type @c T that evaluates to @c T(362880).
 
-      @return The Fact_9 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::fact_9_> fact_9 = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/fact_9.hpp>
 #include <boost/simd/constant/simd/fact_9.hpp>

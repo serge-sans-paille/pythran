@@ -22,7 +22,7 @@
   /*
     @ingroup group-constant
 
-    Generate value with all bits set to one except the most sinificant
+    Generate value with all bits set to one except the most significant
     set to zero (the sign bit)
 
      @return The Butsign constant for the proper type

@@ -11,50 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_MINDENORMAL_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MINDENORMAL_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Mindenormal Mindenormal (function template)
 
-    Generate the the least of all non zero positive value including denormals.
+  Generates the smallest denormal value.
 
+  @headerref{<boost/simd/constant/mindenormal.hpp>}
 
-    @par Header <boost/simd/constant/mindenormal.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Mindenormal();
+      @endcode
 
-    @code
-    T r = Mindenormal<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Mindenormal( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluate to the smallest of all non zero positive
+  value including denormals.
 
-    @code
-    if T is integral
-      r = T(1)
-    else if T is double
-      r =  4.940656458412465e-324;
-    else if T is float
-      r = 1.4012985e-45;
-    @endcode
+  @par Parameters
 
-    @return The Mindenormal constant for the proper type
-  **/
-  template<typename T> T Mindenormal();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant mindenormal.
+  @par Return Value
+  A value of type @c T that evaluates to
 
-      @return The Mindenormal constant for the proper type
-    **/
-    Value Mindenormal();
-  }
-} }
-#endif
+  | Type           | double                        | float                      | Integral |
+  |:---------------|:------------------------------|----------------------------|----------|
+  | **Values**     |   4.940656458412465e-324      |      1.4012985e-45         |    1     |
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/mindenormal.hpp>
 #include <boost/simd/constant/simd/mindenormal.hpp>

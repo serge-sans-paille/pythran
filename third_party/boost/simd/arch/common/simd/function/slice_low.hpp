@@ -9,7 +9,6 @@
 #ifndef BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_SLICE_LOW_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_COMMON_SIMD_FUNCTION_SLICE_LOW_HPP_INCLUDED
 
-#include <boost/simd/function/make.hpp>
 #include <boost/simd/function/extract.hpp>
 #include <boost/simd/meta/hierarchy/simd.hpp>
 #include <boost/simd/detail/dispatch/hierarchy.hpp>
@@ -42,7 +41,7 @@ namespace boost { namespace simd { namespace ext
     static BOOST_FORCEINLINE
     result_t do_( T const& a, K const&, nsm::list<N...> const&) BOOST_NOEXCEPT
     {
-      return  make(as_<result_t>{}, bs::extract<N::value>(a)... );
+      return  result_t(bs::extract<N::value>(a)... );
     }
 
     BOOST_FORCEINLINE result_t operator()(T const& a) const BOOST_NOEXCEPT

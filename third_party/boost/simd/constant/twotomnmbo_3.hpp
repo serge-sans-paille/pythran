@@ -11,54 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_TWOTOMNMBO_3_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TWOTOMNMBO_3_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Twotomnmbo_3 Twotomnmbo_3 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$2^{-Nbmantissabits<T>()/3}\f$.
 
-    Generates constant e.
+  @headerref{<boost/simd/constant/twotomnmbo_3.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/twotomnmbo_3.hpp>
+  1.  @code
+      template<typename T> T Twotomnmbo_3();
+      @endcode
 
-    @par Semantic:
-    \f$2^(-nmb/3)\f$
+  2.  @code
+      template<typename T> T Twotomnmbo_3( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = twotomnmbo_3<T>();
-    @endcode
-
-    is similar to:
-
-    @code
-    if T is float
-      r = 4.921566601151848e-03f
-    else
-      r = 4.806217383937348e-06
-    @endcode
+  Generates a value of type @c T that evaluates to \f$2^{-Nbmantissabits<T>()/3}\f$.
 
 
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to
+
+  | Type           | double                        | float                  |
+  |:---------------|:------------------------------|------------------------|
+  | **Values**     |   4.806217383937348e-06       | 4.921566601151848e-03f |
+
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Twotomnmbo_3();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Generates constant e.
-
-      Generate the  constant twotomnmbo_3.
-
-      @return The Twotomnmbo_3 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::twotomnmbo_3_> twotomnmbo_3 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/twotomnmbo_3.hpp>
 #include <boost/simd/constant/simd/twotomnmbo_3.hpp>

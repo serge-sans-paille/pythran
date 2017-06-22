@@ -28,7 +28,7 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE void operator() (const Vec& a0, Pointer a1) const BOOST_NOEXCEPT
     {
-      _mm_storeu_ps(a1,a0);
+      _mm_storeu_ps((float*)(a1),a0);
     }
   };
 

@@ -72,7 +72,7 @@ namespace boost { namespace simd
      - (2)  arithmetic types are defined as std::int8_t, std::int16_t, std::int32_t, std::int64_t,
            std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t, float, double and packs of these.
 
-           The use of implementation dependent types as char, int, long, long long and their unsigned conterpart
+           The use of implementation dependent types as char, int, long, long long and their unsigned counterpart
            is discouraged and even may lead to inconsistent behaviour.
 
            Also it must be noted that "arithmetic" operators cannot mix types. This is to ensure correct SIMD

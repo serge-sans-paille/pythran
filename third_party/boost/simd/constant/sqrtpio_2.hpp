@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_SQRTPIO_2_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SQRTPIO_2_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Sqrtpio_2 Sqrtpio_2 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{\sqrt\pi}{2}\f$
 
-    Constant Sqrtpio_2 : \f$\frac{\sqrt\pi}{2}\f$.
+  @headerref{<boost/simd/constant/sqrtpio_2.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/sqrtpio_2.hpp>
+  1.  @code
+      template<typename T> T Sqrtpio_2();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Sqrtpio_2( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac{\sqrt\pi}{2}\f$
 
-    @code
-    T r = sqrtpio_2<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = sqrt(Two<T>())/Pi<T>();
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.88622692545275801364908374167057)`
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Sqrtpio_2();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant Sqrtpio_2 : \f$\frac{\sqrt\pi}{2}\f$.
-
-      Generate the  constant sqrtpio_2.
-
-      @return The Sqrtpio_2 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::sqrtpio_2_> sqrtpio_2 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/sqrtpio_2.hpp>
 #include <boost/simd/constant/simd/sqrtpio_2.hpp>

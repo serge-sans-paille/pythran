@@ -11,54 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_RADINDEG_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_RADINDEG_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Radindeg Radindeg (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{180}\pi\f$.
 
-    Constant Radindeg : Degree in Radian multiplier, \f$\frac\pi{180}\f$.
+  @headerref{<boost/simd/constant/radindeg.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/radindeg.hpp>
+  1.  @code
+      template<typename T> T Radindeg();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Radindeg( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates the constant \f$\frac{180}\pi\f$ usable to convert radians to degrees.
 
-    @code
-    T r = Radindeg<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = Pi<T>()/Ratio<T>(180);
-    @endcode
+  @par Return Value
+  A value of type @c T  that evaluates to `T(180/Pi<T>())`.
 
-    @see  inrad, indeg, Radindegr, Deginrad
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Radindeg();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant Radindeg : Degree in Radian multiplier, \f$\frac{180}\pi\f$.
-
-      Generate the  constant radindeg.
-
-      @return The Radindeg constant for the proper type
-    **/
-    Value Radindeg();
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/radindeg.hpp>
 #include <boost/simd/constant/simd/radindeg.hpp>

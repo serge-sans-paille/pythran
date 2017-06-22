@@ -11,19 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_TRUE_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TRUE_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-True True (function template)
 
-    Generate the constant true.
+  Generates a constant that evaluates to the boolean @c true
 
-    @return The True constant for the proper type
-  **/
-  template<typename T> T True();
-} }
-#endif
+  @headerref{<boost/simd/constant/true.hpp>}
+
+  @par Description
+
+  1.  @code
+      template<typename T> as_logical_t<T> True();
+      @endcode
+
+  2.  @code
+      template<typename T> as_logical_t<T> True( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c as_logical_t<T> that evaluates to the boolean @c true
+
+  @par Parameters
+
+  | Name                | Description                                                    |
+  |--------------------:|:---------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c as_logical_t<T> that evaluates to @c as_logical_t<T>(true).
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/true.hpp>
 #include <boost/simd/constant/simd/true.hpp>

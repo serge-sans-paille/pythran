@@ -22,7 +22,7 @@ namespace boost { namespace simd { namespace ext
   // load from a random access range
   BOOST_DISPATCH_OVERLOAD ( load_
                           , (typename Target, typename Begin, typename End, typename Ext)
-                          , bs::simd_
+                          , bd::cpu_
                           , bd::random_access_iterator_<bd::scalar_<bd::unspecified_<Begin>>>
                           , bd::random_access_iterator_<bd::scalar_<bd::unspecified_<End>>>
                           , bd::target_<bs::pack_<bd::unspecified_<Target>,Ext>>

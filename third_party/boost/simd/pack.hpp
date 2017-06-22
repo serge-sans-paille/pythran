@@ -18,6 +18,7 @@
 #include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/dispatch/detail/declval.hpp>
 #include <boost/simd/detail/pack_traits.hpp>
+#include <boost/simd/detail/pack_proxy_base.hpp>
 #include <boost/simd/detail/storage_of.hpp>
 #include <boost/simd/meta/is_power_of_2.hpp>
 #include <boost/simd/meta/is_iterator.hpp>
@@ -198,8 +199,9 @@ namespace boost { namespace simd
 
       @param value The value to replicate
     **/
-    template<typename U
+    template< typename U
             , typename = typename std::enable_if< !std::is_pointer<U>::value >::type
+            , typename = typename std::enable_if<std::is_convertible<U, value_type>::value>::type
             >
     BOOST_FORCEINLINE explicit pack(U const& value) BOOST_NOEXCEPT
                       : data_( boost::simd::splat<pack>(value).storage() )

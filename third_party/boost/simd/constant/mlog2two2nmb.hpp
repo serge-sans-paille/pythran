@@ -11,50 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_MLOG2TWO2NMB_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MLOG2TWO2NMB_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Mlog2two2nmb Mlog2two2nmb (function template)
 
-    @ingroup group-constant
+  Generates the opposite of the base 2 logarithm of [Two2nmb](@ref constant-Twotonmb)
 
-    Generates constant Mlog2two2nmb.
+  @headerref{<boost/simd/constant/mlog2two2nmb.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/mlog2two2nmb.hpp>
+  1.  @code
+      template<typename T> T Mlog2two2nmb();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Mlog2two2nmb( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = Mlog2two2nmb<T>();
-    @endcode
+  Generates a value of type @c T that evaluates to `-log2(Two2nmb<T>())`.
 
-    is similar to:
+  @par Parameters
 
-    @code
-      r =  T(Nbmantissabits<T>());
-    @endcode
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
+  @par Return Value
+  @par Return Value
+  A value of type @c T that evaluates to
 
+  | Type           | double                        | float                  |
+  |:---------------|:------------------------------|------------------------|
+  | **Values**     |   -52.0                       | -23.0f                 |
+
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Mlog2two2nmb();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Generates constant Mlog2two2nmb.
-
-      Generate the  constant mlog2two2nmb.
-
-      @return The Mlog2two2nmb constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::mlog2two2nmb_> mlog2two2nmb = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/mlog2two2nmb.hpp>
 #include <boost/simd/constant/simd/mlog2two2nmb.hpp>

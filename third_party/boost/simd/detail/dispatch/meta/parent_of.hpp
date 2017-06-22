@@ -21,7 +21,7 @@ namespace boost { namespace dispatch
 {
   /*!
     @ingroup group-introspection
-    @brief Parent class retrievel traits
+    @brief Parent class retrieval traits
 
     For any given type @c T , parent_of try to access one of its base class through a
     predefined parent dependent type or specialization. If no such parent class is defined,

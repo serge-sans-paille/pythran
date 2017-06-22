@@ -60,28 +60,28 @@ namespace boost { namespace simd { namespace detail
                                           >::type;
 
 
-  template<typename T, bits_t<T> N, bits_t<T> M = 0>
+  template<typename T, std::uintmax_t N, std::uintmax_t M = 0>
   struct  constantify
   {
     using type = tt::integral_constant<T,T(N)>;
   };
 
-  template<bits_t<double> V> struct constantify<double,V>
+  template<std::uintmax_t V> struct constantify<double,V>
   {
     using type = nsm::double_<V>;
   };
 
-  template<bits_t<double> V, bits_t<float> W> struct constantify<double,V,W>
+  template<std::uintmax_t V, std::uintmax_t W> struct constantify<double,V,W>
   {
     using type = nsm::double_<V>;
   };
 
-  template<bits_t<double> V> struct constantify<float,V>
+  template<std::uintmax_t V> struct constantify<float,V>
   {
     using type = nsm::single_<V>;
   };
 
-  template<bits_t<double> V, bits_t<float> W> struct constantify<float,V,W>
+  template<std::uintmax_t V, std::uintmax_t W> struct constantify<float,V,W>
   {
     using type = nsm::single_<W>;
   };

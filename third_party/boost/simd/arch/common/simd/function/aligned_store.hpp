@@ -75,6 +75,45 @@ namespace boost { namespace simd { namespace ext
       (void)(std::initializer_list<bool>{(sto_<N>(s,p),true)...});
     }
   };
+
+  //------------------------------------------------------------------------------------------------
+  // aligned_store data to a masked pointer = check + call store
+  BOOST_DISPATCH_OVERLOAD ( aligned_store_
+                          , (typename Src, typename Pointer, typename Zero, typename X)
+                          , bd::cpu_
+                          , bs::pack_<bd::unspecified_<Src>, X>
+                          , bd::masked_pointer_<bd::scalar_<bd::unspecified_<Pointer>>,Zero>
+                          )
+  {
+    BOOST_FORCEINLINE void operator()(const Src& s, Pointer const& p) const
+    {
+      BOOST_ASSERT_MSG( boost::simd::detail::is_aligned(p.get(),Src::alignment)
+                      , "boost::simd::aligned_store was performed on an unaligned pointer"
+                      );
+
+      store(s,p);
+    }
+  };
+
+  //------------------------------------------------------------------------------------------------
+  // store data to a masked pointer from whatever in a pack
+  BOOST_DISPATCH_OVERLOAD ( aligned_store_
+                          , (typename Src, typename Pointer, typename Zero, typename X, typename A2)
+                          , bd::cpu_
+                          , bs::pack_<bd::unspecified_<Src>, X>
+                          , bd::masked_pointer_<bd::scalar_<bd::unspecified_<Pointer>>,Zero>
+                          , bd::scalar_<bd::integer_<A2>>
+                          )
+  {
+    BOOST_FORCEINLINE void operator()(const Src& s, Pointer const& p, A2 idx) const
+    {
+      BOOST_ASSERT_MSG( boost::simd::detail::is_aligned(p.get()+idx,Src::alignment)
+                      , "boost::simd::aligned_store was performed on an unaligned pointer"
+                      );
+
+      store(s,p,idx);
+    }
+  };
 } } }
 
 #endif

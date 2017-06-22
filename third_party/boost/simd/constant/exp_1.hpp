@@ -11,51 +11,39 @@
 #ifndef BOOST_SIMD_CONSTANT_EXP_1_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_EXP_1_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Exp_1 Exp_1 (function template)
 
-    @ingroup group-constant
+  Generates the base of the natural logarithm constant \f$e\f$.
 
-    Generates constant e.
+  @headerref{<boost/simd/constant/exp_1.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/exp_1.hpp>
+  1.  @code
+      template<typename T> T Exp_1();
+      @endcode
 
-    @par Semantic:
-    The e constant is the real number such that \f$\log(e) = 1\f$
+  2.  @code
+      template<typename T> T Exp_1( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = Exp_1<T>();
-    @endcode
+  Generates a value of type @c T that evaluates to \f$e\f which is the unique number whose
+  natural logarithm is equal to one.
 
-    is similar to:
+  @par Parameters
 
-    @code
-      r =  T(2.71828182845904523536028747135266249775724709369995);
-    @endcode
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
+  @par Return Value
+  A value of type @c T  that evaluates to `T(2.71828182845904523536028747135266249775724709369995)`
 
+  @par Requirements
+  - **T** models Value
 **/
-  template<typename T> T Exp_1();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Generates constant e.
-
-      Generate the  constant exp_1.
-
-      @return The Exp_1 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::exp_1_> exp_1 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/exp_1.hpp>
 #include <boost/simd/constant/simd/exp_1.hpp>

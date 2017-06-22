@@ -31,7 +31,7 @@
     a few Eps<Tup>().
 
 
-    This is used to improve accurracy when computing sums of the kind
+    This is used to improve accuracy when computing sums of the kind
     \f$\pi/2 + x\f$ with x small,  by replacing them by
     Pio_2 + (Pio_2lo + x)
 

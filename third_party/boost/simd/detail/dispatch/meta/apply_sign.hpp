@@ -33,7 +33,7 @@ namespace boost { namespace dispatch
     Transforms any type @c T into a corresponding type with specified sign @c Sign.
 
     @tparam T     Type to modify
-    @tparam Sign  Sign to apyl to @c T
+    @tparam Sign  Sign to apply to @c T
   **/
   template<typename T,typename Sign> struct apply_sign : detail::apply_sign<T,Sign> {};
 

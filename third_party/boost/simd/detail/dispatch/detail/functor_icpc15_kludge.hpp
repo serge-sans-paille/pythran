@@ -208,8 +208,8 @@
 namespace boost{ namespace dispatch{
     /*!
       @ingroup group-function
-      @brief Adaptable dispactch-enabled function object
-      
+      @brief Adaptable dispatch-enabled function object
+
       @tparam Tag
       @tparam Site
     **/
@@ -218,17 +218,17 @@ namespace boost{ namespace dispatch{
     {
       /*!
         @brief Architectural target rebinding
-        
+
         Creates an instance of functor which shares current functor's tag but
         dispatched over a specific architecture hierarchy.
-        
+
         @return a instance of functor dispatching specifically on architecture Other
-        
+
         @tparam Other New architecture target to generate a functor for
       **/
       template<typename Other>
       static BOOST_FORCEINLINE functor<Tag,Other> rebind() BOOST_NOEXCEPT { return {}; }
-      
+
       template<typename AS> BOOST_FORCEINLINE
       auto operator()(AS&& as) const
         BOOST_NOEXCEPT_IF(BOOST_NOEXCEPT_EXPR(BOOST_DISPATCH_IMPL_TAG_CALL_0(Tag,Site,AS,as)))
@@ -236,7 +236,7 @@ namespace boost{ namespace dispatch{
       {
         return BOOST_DISPATCH_IMPL_TAG_CALL_0(Tag,Site,AS,as);
       }
-      
+
       template<typename AS, typename T> BOOST_FORCEINLINE
       auto operator()(AS&& as, T&& a0) const
         BOOST_NOEXCEPT_IF(BOOST_NOEXCEPT_EXPR(BOOST_DISPATCH_IMPL_TAG_CALL_1(Tag,Site,AS,as,T,a0)))
@@ -260,7 +260,7 @@ namespace boost{ namespace dispatch{
       {
         return BOOST_DISPATCH_IMPL_TAG_CALL_3(Tag,Site,AS,as,T0,T1,T2,a0,a1,a2);
       }
-    
+
       template<typename AS, 
                typename T0, typename T1, typename T2, typename T3> BOOST_FORCEINLINE
       auto operator()(AS&& as, T0&& a0, T1&& a1, T2&& a2, T3&& a3) const

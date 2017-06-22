@@ -26,7 +26,7 @@ namespace boost { namespace simd { namespace detail
     using ssse3_shuffle::process;
 
     // -------------------------------------------------------------------------------------------
-    // Check if permutaton its into mm_permute_p*
+    // Check if permutation its into mm_permute_p*
     template<int I0, int I1>
     struct permute2 : nsm::bool_<(I0!=-1) && (I1!=-1)> {};
 

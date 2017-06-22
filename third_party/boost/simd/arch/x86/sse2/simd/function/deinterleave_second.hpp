@@ -40,7 +40,7 @@ namespace boost { namespace simd { namespace ext
     {
       auto const  x = _mm_unpacklo_epi16(a0,a1);
       auto const  y = _mm_unpackhi_epi16(a0,a1);
-      
+
       return _mm_unpackhi_epi16 ( _mm_unpacklo_epi16(x,y)
                                 , _mm_unpackhi_epi16(x,y)
                                 );

@@ -32,7 +32,7 @@ namespace boost { namespace simd { namespace ext
       BOOST_ASSERT_MSG( boost::simd::detail::is_aligned(a1, Vec::alignment)
                       , "boost::simd::aligned_load was performed on an unaligned pointer of integer"
                       );
-      _mm_store_pd(reinterpret_cast<double*>(a1),a0);
+      _mm_store_pd((double*)(a1),a0);
     }
   };
 
@@ -49,7 +49,7 @@ namespace boost { namespace simd { namespace ext
       BOOST_ASSERT_MSG( boost::simd::detail::is_aligned(a1, Vec::alignment)
                       , "boost::simd::aligned_load was performed on an unaligned pointer of integer"
                       );
-       _mm_store_si128(reinterpret_cast<__m128i*>(a1), a0);
+       _mm_store_si128((__m128i*)(a1), a0);
     }
   };
 } } }

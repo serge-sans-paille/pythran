@@ -30,7 +30,7 @@
     abs(Tup(Pio_4lo<T>())+Tup(Pio_4<T>())-Pio_4\<Tup\>())  is  less than
     a few Eps<Tup>().
 
-    This is used to improve accurracy when computing sums of the kind
+    This is used to improve accuracy when computing sums of the kind
     Pio_4 + x with x small,  by replacing them by Pio_4 + (Pio_4lo+x)
 
     @par Semantic:

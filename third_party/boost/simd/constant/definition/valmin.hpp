@@ -24,7 +24,7 @@ namespace boost { namespace simd
   namespace tag
   {
     namespace tt = nsm::type_traits;
-    
+
     struct valmin_ : boost::dispatch::constant_value_<valmin_>
     {
       BOOST_DISPATCH_MAKE_CALLABLE(ext,valmin_,boost::dispatch::constant_value_<valmin_>);

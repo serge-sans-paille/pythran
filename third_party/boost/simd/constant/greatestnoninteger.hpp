@@ -11,54 +11,44 @@
 #ifndef BOOST_SIMD_CONSTANT_GREATESTNONINTEGER_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_GREATESTNONINTEGER_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Greatestnoninteger Greatestnoninteger (function template)
 
-    Generate the least integer value which is exactly
-    representable in the type and
-    equal to its integral successor.
+  Generates the greatest representable non-integral value
 
-    All floating numbers greater than Greatestnoninteger are integral.
+  @headerref{<boost/simd/constant/greatestnoninteger.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/greatestnoninteger.hpp>
+  1.  @code
+      template<typename T> T Greatestnoninteger();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Greatestnoninteger( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = Greatestnoninteger<T>();
-    @endcode
+  Generates a value of type @c T which is exactly representable and which its successor has
+  integral value. By definition, all floating numbers greater than `Greatestnoninteger<T>()` have
+  integral value.
 
-    is similar to:
+  @par Parameters
 
-    @code
-    if T is integral
-      r = 0
-    else if T is double
-      r = 4503599627370495.5
-    else if T is float
-      r = 8388607.5f
-    @endcode
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @return The Greatestnoninteger constant for the proper type
-  **/
-  template<typename T> T Greatestnoninteger();
+  @par Return Value
+  A value of type @c as_integer_t<T> that evaluates to:
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant greatestnoninteger.
+  | Type                | double                        | float         |
+  |--------------------:|:------------------------------|---------------|
+  | value               |   4503599627370495.5          | 8388607.5f    |
 
-      @return The Greatestnoninteger constant for the proper type
-    **/
-    Value Greatestnoninteger();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/greatestnoninteger.hpp>
 #include <boost/simd/constant/simd/greatestnoninteger.hpp>

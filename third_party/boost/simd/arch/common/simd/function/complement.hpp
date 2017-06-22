@@ -24,7 +24,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD_IF( complement_
                             , (typename A0,typename X)
                             , (detail::is_native<X>)
-                            , bs::simd_
+                            , bd::cpu_
                             , bs::pack_<bd::arithmetic_<A0>,X>
                             )
   {
@@ -37,7 +37,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD_IF( complement_
                             , (typename A0,typename X)
                             , (detail::is_native<X>)
-                            , bs::simd_
+                            , bd::cpu_
                             , bs::pack_<bs::logical_<A0>,X>
                             )
   {

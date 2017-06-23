@@ -7,99 +7,53 @@ exceptions = [i for i in dir(__builtin__)
                   issubclass(getattr(__builtin__, i),
                              __builtin__.BaseException))]
 
-ALL_EXCEPTION_CODE = """
-def {tested_exception}_register(name):
-    if name == "BaseException":
-        raise BaseException('abc')
-    if name == "SystemExit":
-        raise SystemExit('a','b','c')
-    if name == "KeyboardInterrupt":
-        raise KeyboardInterrupt('a','b','c')
-    if name == "GeneratorExit":
-        raise GeneratorExit('a','b','c')
-    if name == "Exception":
-        raise Exception('a','b','c')
-    if name == "StopIteration":
-        raise StopIteration('a','b','c')
-    if name == "StandardError":
-        raise StandardError('a','b','c')
-    if name == "Warning":
-        raise Warning('a','b','c')
-    if name == "BytesWarning":
-        raise BytesWarning('a','b','c')
-    if name == "UnicodeWarning":
-        raise UnicodeWarning('a','b','c')
-    if name == "ImportWarning":
-        raise ImportWarning('a','b','c')
-    if name == "FutureWarning":
-        raise FutureWarning('a','b','c')
-    if name == "UserWarning":
-        raise UserWarning('a','b','c')
-    if name == "SyntaxWarning":
-        raise SyntaxWarning('a','b','c')
-    if name == "RuntimeWarning":
-        raise RuntimeWarning('a','b','c')
-    if name == "PendingDeprecationWarning":
-        raise PendingDeprecationWarning('a','b','c')
-    if name == "DeprecationWarning":
-        raise DeprecationWarning('a','b','c')
-    if name == "BufferError":
-        raise BufferError('a','b','c')
-    if name == "ArithmeticError":
-        raise ArithmeticError('a','b','c')
-    if name == "AssertionError":
-        raise AssertionError('a','b','c')
-    if name == "AttributeError":
-        raise AttributeError('a','b','c')
-    if name == "EnvironmentError":
-        raise EnvironmentError('a','b','c','d')
-    if name == "EOFError":
-        raise EOFError('a','b','c')
-    if name == "ImportError":
-        raise ImportError('a','b','c')
-    if name == "LookupError":
-        raise LookupError('a','b','c')
-    if name == "MemoryError":
-        raise MemoryError('a','b','c')
-    if name == "NameError":
-        raise NameError('a','b','c')
-    if name == "ReferenceError":
-        raise ReferenceError('a','b','c')
-    if name == "RuntimeError":
-        raise RuntimeError('a','b','c')
-    if name == "SyntaxError":
-        raise SyntaxError('a','b','c')
-    if name == "SystemError":
-        raise SystemError('a','b','c')
-    if name == "TypeError":
-        raise TypeError('a','b','c')
-    if name == "ValueError":
-        raise ValueError('a','b','c')
-    if name == "FloatingPointError":
-        raise FloatingPointError('a','b','c')
-    if name == "OverflowError":
-        raise OverflowError('a','b','c')
-    if name == "ZeroDivisionError":
-        raise ZeroDivisionError('a','b','c')
-    if name == "IOError":
-        raise IOError('a','b','c')
-    if name == "OSError":
-        raise OSError('a','b','c')
-    if name == "IndexError":
-        raise IndexError('a','b','c')
-    if name == "KeyError":
-        raise KeyError('a','b','c')
-    if name == "UnboundLocalError":
-        raise UnboundLocalError('a','b','c')
-    if name == "NotImplementedError":
-        raise NotImplementedError('a','b','c')
-    if name == "IndentationError":
-        raise IndentationError('a','b','c')
-    if name == "TabError":
-        raise TabError('a','b','c')
-    if name == "UnicodeError":
-        raise UnicodeError('a','b','c')
-"""
+exception_args = {
+    "BaseException": "('abc')",
+    "SystemExit": "('a','b','c')",
+    "KeyboardInterrupt": "('a','b','c')",
+    "GeneratorExit": "('a','b','c')",
+    "Exception": "('a','b','c')",
+    "StopIteration": "('a','b','c')",
+    "StandardError": "('a','b','c')",
+    "Warning": "('a','b','c')",
+    "BytesWarning": "('a','b','c')",
+    "UnicodeWarning": "('a','b','c')",
+    "ImportWarning": "('a','b','c')",
+    "FutureWarning": "('a','b','c')",
+    "UserWarning": "('a','b','c')",
+    "SyntaxWarning": "('a','b','c')",
+    "RuntimeWarning": "('a','b','c')",
+    "PendingDeprecationWarning": "('a','b','c')",
+    "DeprecationWarning": "('a','b','c')",
+    "BufferError": "('a','b','c')",
+    "ArithmeticError": "('a','b','c')",
+    "AssertionError": "('a','b','c')",
+    "AttributeError": "('a','b','c')",
+    "EnvironmentError": "('a','b','c','d')",
+    "EOFError": "('a','b','c')",
+    "ImportError": "('a','b','c')",
+    "LookupError": "('a','b','c')",
+    "MemoryError": "('a','b','c')",
+    "NameError": "('a','b','c')",
+    "ReferenceError": "('a','b','c')",
+    "RuntimeError": "('a','b','c')",
+    "SyntaxError": "('a','b','c')",
+    "SystemError": "('a','b','c')",
+    "TypeError": "('a','b','c')",
+    "ValueError": "('a','b','c')",
+    "FloatingPointError": "('a','b','c')",
+    "OverflowError": "('a','b','c')",
+    "ZeroDivisionError": "('a','b','c')",
+    "IOError": "('a','b','c')",
+    "OSError": "('a','b','c')",
+    "IndexError": "('a','b','c')",
+    "KeyError": "('a','b','c')",
+    "UnboundLocalError": "('a','b','c')",
+    "NotImplementedError": "('a','b','c')",
+    "IndentationError": "('a','b','c')",
+    "TabError": "('a','b','c')",
+    "UnicodeError": "('a','b','c')",
+}
 
 class TestException(TestEnv):
 
@@ -342,7 +296,8 @@ for exception in exceptions:
     if str(exception) in ("AssertionError", "UnicodeDecodeError",
                           "UnicodeEncodeError", "UnicodeTranslateError"):
         continue
-    code = ALL_EXCEPTION_CODE.format(tested_exception=exception)
+    args = exception_args[exception]
+    code = 'def {exception}_register(): raise {exception}{args}'.format(**locals())
     setattr(TestException, 'test_' + str(exception) + "_register",
-            eval("""lambda self: self.run_test('''{0}''', '{1}', {1}_register=[str], check_exception=True)""".format(code, exception)))
+            eval("""lambda self: self.run_test('''{0}''', {1}_register=[], check_exception=True)""".format(code, exception)))
 

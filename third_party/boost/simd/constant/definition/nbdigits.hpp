@@ -24,7 +24,7 @@ namespace boost { namespace simd
   namespace tag
   {
     namespace tt = nsm::type_traits;
-    
+
     struct nbdigits_ : boost::dispatch::constant_value_<nbdigits_>
     {
       BOOST_DISPATCH_MAKE_CALLABLE(ext,nbdigits_,boost::dispatch::constant_value_<nbdigits_>);

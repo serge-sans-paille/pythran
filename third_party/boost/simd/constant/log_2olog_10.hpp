@@ -11,50 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_LOG_2OLOG_10_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_LOG_2OLOG_10_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Log_2olog_10 Log_2olog_10 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{\log(2)}{\log(10)}\f$
 
-    Generates constant Log_2olog_10 : \f$\frac{\log(2)}{\log(10)}\f$.
+  @headerref{<boost/simd/constant/log_2olog_10.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/log_2olog_10.hpp>
+  1.  @code
+      template<typename T> T Log_2olog_10();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Log_2olog_10( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = Log_2olog_10<T>();
-    @endcode
+  Generates a value of type @c T that evaluates to \f$\frac{\log(2)}{\log(10)}\f$.
 
-    is similar to:
+  @par Parameters
 
-    @code
-      r =  T(0.3010299956639811952137388947244930267681898814621085);
-    @endcode
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.3010299956639811952137388947244930267681898814621085)`
 
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Log_2olog_10();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Generates constant Log_2olog_10.  (\f$\frac{\log(2)}{\log(10)}\f$)
-
-      Generate the  constant log_2olog_10.
-
-      @return The Log_2olog_10 constant for the proper type
-    **/
-    Value Log_2olog_10<Value>();
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/log_2olog_10.hpp>
 #include <boost/simd/constant/simd/log_2olog_10.hpp>

@@ -48,7 +48,7 @@ namespace boost { namespace dispatch { namespace detail
     using f_t = boost::dispatch::factory_of<T>;
     using p_t = boost::dispatch::primitive_of_t<T>;
 
-    // Fetch from a normalized pool of types if requried by the Direction of the transformation
+    // Fetch from a normalized pool of types if required by the Direction of the transformation
     using d_t = typename fetch<p_t,Map,Sign,Direction,std::is_floating_point<p_t>::value>::type;
 
     // Reconstruct

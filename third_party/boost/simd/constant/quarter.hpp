@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_QUARTER_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_QUARTER_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Quarter Quarter (function template)
 
-    Generate t value 1/4
+  Generates the constant \f$\frac{1}{4}\f$.
 
+  @headerref{<boost/simd/constant/quarter.hpp>}
 
-    @par Header <boost/simd/constant/quarter.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Quarter();
+      @endcode
 
-    @code
-    T r = Quarter<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Quarter( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to 0.25.
 
-    @code
-    T r = T(1)/T(4);
-    @endcode
+  @par Parameters
 
-    @return The Quarter constant for the proper type
-  **/
-  template<typename T> T Quarter();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant quarter.
+  @par Return Value
+  A value of type @c T  that evaluates to `T(0.25)`
 
-      @return The Quarter constant for the proper type
-    **/
-    Value Quarter();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/quarter.hpp>
 #include <boost/simd/constant/simd/quarter.hpp>

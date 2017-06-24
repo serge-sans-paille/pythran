@@ -11,52 +11,44 @@
 #ifndef BOOST_SIMD_CONSTANT_SPLITFACTOR_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SPLITFACTOR_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Splitfactor Splitfactor (function template)
 
-    Generate  a constant used to split a floating number in two parts,
-    in floating point routines (such @ref two_add and
-    @ref two_prod) to get extra precision.
+  Generates a constant able to split IEEE values for precision issues
 
+  @headerref{<boost/simd/constant/splitfactor.hpp>}
 
-    @par Header <boost/simd/constant/splitfactor.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Splitfactor();
+      @endcode
 
-    @code
-    T r = Splitfactor<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Splitfactor( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to the factor usable to split a IEEE754 value
+  into two parts in order to provide precision guarantee for some functions (like
+  [two_add](@ref real-two_add) or [two_prod](@ref real-two_prod).
 
-    @code
-    if T is integral
-      r = 0
-    else if T is double
-      r =  pow(2, 27);
-    else if T is float
-      r =  pow(2, 13);
-    @endcode
+  @par Parameters
 
-    @return The Splitfactor constant for the proper type
-  **/
-  template<typename T> T Splitfactor();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant splitfactor.
+  @par Return Value
+  A value of type @c as_integer_t<T> that evaluates to
 
-      @return The Splitfactor constant for the proper type
-    **/
-    Value Splitfactor();
-  }
-} }
-#endif
+  | Type              | double                        | float         |
+  |:------------------|:------------------------------|---------------|
+  | **Values**        |   \f$2^{27}\f$                | \f$2^{13}\f$  |
+
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/splitfactor.hpp>
 #include <boost/simd/constant/simd/splitfactor.hpp>

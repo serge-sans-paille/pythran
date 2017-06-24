@@ -30,7 +30,7 @@ namespace boost { namespace simd { namespace ext
   // aligned_load from a pointer of whatever + Misalignment
   BOOST_DISPATCH_OVERLOAD ( aligned_load_
                           , (typename Target, typename Pointer, typename Misalignment, typename Ext)
-                          , bs::simd_
+                          , bd::cpu_
                           , bd::pointer_<bd::scalar_<bd::unspecified_<Pointer>>,1u>
                           , bd::constant_< bd::integer_<Misalignment>>
                           , bd::target_<bs::pack_<bd::unspecified_<Target>,Ext>>
@@ -98,7 +98,7 @@ namespace boost { namespace simd { namespace ext
   // aligned_load from a pointer of logical to whatever with misalignment
   BOOST_DISPATCH_OVERLOAD ( aligned_load_
                           , (typename Target, typename Pointer, typename Misalignment, typename Ext)
-                          , bs::simd_
+                          , bd::cpu_
                           , bd::pointer_<bd::scalar_<bs::logical_<Pointer>>,1u>
                           , bd::constant_< bd::integer_<Misalignment>>
                           , bd::target_<bs::pack_<bd::unspecified_<Target>,Ext>>
@@ -116,7 +116,7 @@ namespace boost { namespace simd { namespace ext
   // aligned_load from a pointer of arithmetic to a pack of logical with misalignment
   BOOST_DISPATCH_OVERLOAD ( aligned_load_
                           , (typename Target, typename Pointer, typename Misalignment, typename Ext)
-                          , bs::simd_
+                          , bd::cpu_
                           , bd::pointer_<bd::scalar_<bd::arithmetic_<Pointer>>,1u>
                           , bd::constant_< bd::integer_<Misalignment>>
                           , bd::target_<bs::pack_<bs::logical_<Target>,Ext>>

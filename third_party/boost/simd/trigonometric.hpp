@@ -24,7 +24,7 @@ namespace boost { namespace simd
 
     All these functions can be included individually or all of them just by including <boost/simd/trigonometric.hpp>
 
-    Except a meaningfull case (namely  cospi,  as \f$\cos(\pi n) = (-1)^n\f$ for integral n)
+    Except a meaningful case (namely  cospi,  as \f$\cos(\pi n) = (-1)^n\f$ for integral n)
     these functions are only provided for floating (scalar or SIMD) inputs.
 
     - **Direct trigonometric functors**
@@ -116,7 +116,7 @@ namespace boost { namespace simd
       The reduction of the angle when no information is known on the angle magnitude can be
       very costly.
 
-      there actually are 4 reduction routines protocol that respectly are
+      there actually are 4 reduction routines protocol that respectively are
       sufficient for small_, medium_ and big_ angle values to have within
       cover test one ulp of difference with the according crlibm
       (correctly rounded math library) result.

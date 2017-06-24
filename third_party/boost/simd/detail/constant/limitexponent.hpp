@@ -23,7 +23,7 @@
 
     @ingroup group-constant
 
-    Generate the limit exposant of floating point numbers,  that is Maxexponant+1
+    Generate the limit exponent of floating point numbers,  that is Maxexponant+1
 
     @par Semantic:
 
@@ -46,7 +46,7 @@ namespace boost { namespace simd
   namespace tag
   {
     namespace tt = nsm::type_traits;
-    
+
     struct limitexponent_ : boost::dispatch::constant_value_<limitexponent_>
     {
       BOOST_DISPATCH_MAKE_CALLABLE(ext,limitexponent_,boost::dispatch::constant_value_<limitexponent_>);

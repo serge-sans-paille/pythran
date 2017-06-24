@@ -11,71 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_EPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_EPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
-    Generates a value of the chosen type equals to the difference between 1 and the next
-    representable value of the chosen type.
+/*!
+  @ingroup group-constant
+  @defgroup constant-Eps Eps (function template)
 
+  Generates a constant equals to the [machine epsilon](https://en.wikipedia.org/wiki/Machine_epsilon).
 
-    @par Header <boost/simd/constant/eps.hpp>
+  @headerref{<boost/simd/constant/eps.hpp>}
 
-    @par Semantic:
+  @par Description
 
-    @code
-    T r = Eps<T>();
-    @endcode
-
-    is equivalent to:
-
-    - if @c T is an integral type:
-      @code
-      T r = 1;
+  1.  @code
+      template<typename T> T Eps();
       @endcode
 
-    - otherwise:
-      @code
-      T r = std::numeric_limits<boost::dispatch::scalar_of_t<T>>::epsilon();
+  2.  @code
+      template<typename T> T Eps( boost::simd::as_<T> const& target );
       @endcode
 
-    @return A value of type @c T equals to the difference between 1 and the next
-            representable value of the chosen type.
+  Generates a value of type @c T equals to the difference between 1 and the next representable
+  value of type @c T.
 
-     @see functional::eps
-  **/
-  template<typename T> T Eps();
+  @par Parameters
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generates a value of the chosen type equals to the difference between 1 and the next
-      representable value of the chosen type.
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-      @par Semantic:
+  @par Return Value
+  A value of type @c T that evaluates to:
 
-      For any value @c x of type @c T:
-      @code
-      T r = simd::functional::eps( boost::simd::as(x) );
-      @endcode
+  | Type       | `double`       | `float`       | Integer |
+  |:-----------|:---------------|---------------|---------|
+  | **Values** | \f$2^{-52}\f$  | \f$2^{-23}\f$ |    1    |
 
-      is equivalent to:
-
-      @code
-      T r = simd::Eps<T>();
-      @endcode
-
-      @return A value of type @c T equals to the difference between 1 and the next
-              representable value of the chosen type.
-
-      @see Eps
-    **/
-    Value Eps();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/eps.hpp>
 #include <boost/simd/constant/simd/eps.hpp>

@@ -11,54 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_DEGINRAD_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_DEGINRAD_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Deginrad Deginrad (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac\pi{180}\f$.
 
-    Constant radian in Degree multiplier, \f$\frac{180}\pi\f$.
+  @headerref{<boost/simd/constant/deginrad.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/deginrad.hpp>
+  1.  @code
+      template<typename T> T Deginrad();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Deginrad( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates the constant \f$\frac\pi{180}\f$ usable to convert degrees to radians.
 
-    @code
-    T r = Deginrad<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = Ratio<T, 180>()/Pi<T>() ;
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `Pi<T>()/180`.
 
-    @see  inrad, indeg, Radindeg, Radindegr, Ratio
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Deginrad();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant radian in Degree multiplier, \f$\frac{180}\pi\f$.
-
-      Generate the  constant deginrad.
-
-      @return The Deginrad constant for the proper type
-    **/
-    Value Deginrad();
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/deginrad.hpp>
 #include <boost/simd/constant/simd/deginrad.hpp>

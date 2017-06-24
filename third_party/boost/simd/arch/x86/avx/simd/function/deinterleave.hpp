@@ -10,12 +10,10 @@
 #define BOOST_SIMD_ARCH_X86_AVX_SIMD_FUNCTION_DEINTERLEAVE_HPP_INCLUDED
 
 #include <boost/simd/detail/overload.hpp>
-#include <boost/simd/function/bitwise_cast.hpp>
-#include <boost/simd/function/slice.hpp>
-#include <boost/simd/function/combine.hpp>
 #include <boost/simd/function/deinterleave_first.hpp>
 #include <boost/simd/function/deinterleave_second.hpp>
-#include <boost/simd/detail/dispatch/meta/as_floating.hpp>
+#include <boost/simd/function/combine.hpp>
+#include <boost/simd/function/slice.hpp>
 #include <array>
 
 namespace boost { namespace simd { namespace ext
@@ -38,10 +36,10 @@ namespace boost { namespace simd { namespace ext
       auto f = combine(deinterleave_first (s00,s01), deinterleave_first (s10,s11));
       auto s = combine(deinterleave_second(s00,s01), deinterleave_second(s10,s11));
 
-      return {f,s};
+      std::array<A0,2> that{f,s};
+      return that;
     }
   };
 } } }
 
 #endif
-

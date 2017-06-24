@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FACT_5_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FACT_5_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Fact_5 Fact_5 (function template)
 
-    Generate 5!,  that is 120
+  Generates the @c 5! constant
 
+  @headerref{<boost/simd/constant/fact_5.hpp>}
 
-    @par Header <boost/simd/constant/fact_5.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Fact_5();
+      @endcode
 
-    @code
-    T r = Fact_5<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Fact_5( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to 5!.
 
-    @code
-    T r = T(120);
-    @endcode
+  @par Parameters
 
-    @return The Fact_5 constant for the proper type
-  **/
-  template<typename T> T Fact_5();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant fact_5.
+  @par Return Value
+  A value of type @c T that evaluates to @c T(120).
 
-      @return The Fact_5 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::fact_5_> fact_5 = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/fact_5.hpp>
 #include <boost/simd/constant/simd/fact_5.hpp>

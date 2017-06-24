@@ -22,7 +22,7 @@ namespace boost { namespace simd { namespace ext
   // load data from a masked pointer of whatever in a pack
   BOOST_DISPATCH_OVERLOAD ( load_
                           , (typename Pointer, typename Zero, typename Target, typename TX)
-                          , bs::simd_
+                          , bd::cpu_
                           , bd::masked_pointer_<bd::scalar_<bd::unspecified_<Pointer>>,Zero>
                           , bd::target_<bs::pack_<bd::unspecified_<Target>,TX>>
                           )

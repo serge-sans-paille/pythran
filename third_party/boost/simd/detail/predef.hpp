@@ -19,7 +19,7 @@
 /*
   Force the setup of specific SIMD x86 extension on MSVC.
 
-  As MSVC doesn't have /ARCH: option for each special extension in the SSE familly, we emulate
+  As MSVC doesn't have /ARCH: option for each special extension in the SSE family, we emulate
   it via the use of the BOOST_SIMD_HAS_xxx_SUPPORT macro before using Boost.Predef detection
   system.
 */

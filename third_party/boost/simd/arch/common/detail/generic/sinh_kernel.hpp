@@ -48,7 +48,7 @@ namespace boost { namespace simd
       // computes sinh for abs(a0) < 1 and x2 =  sqr(a0) for doubles
       static  BOOST_FORCEINLINE A0 compute(const A0& a0, const A0& x2) BOOST_NOEXCEPT
       {
-        return fma(a0, horn<A0,
+        return fma(a0, (horn<A0,
                    0xc115782bdbf6ab05ull, //  -3.51754964808151394800E5
                    0xc0c694b8c71d6182ull, //  -1.15614435765005216044E4,
                    0xc064773a398ff4feull, //  -1.63725857525983828727E2,
@@ -59,7 +59,7 @@ namespace boost { namespace simd
           0x40e1a7ba7ed72245ull, //   3.61578279834431989373E4,
           0xc0715b6096e96484ull //  -2.77711081420602794433E2,
           //     0x3ff0000000000000ull  //   1.00000000000000000000E0
-          > (x2), a0);
+                   > (x2))*x2, a0);
       }
     };
   }

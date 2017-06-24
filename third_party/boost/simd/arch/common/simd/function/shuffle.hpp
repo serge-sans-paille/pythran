@@ -25,7 +25,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD_IF( shuffle_
                             , (int... Ps, typename A0, typename X)
                             , (nsm::bool_<A0::static_size==sizeof...(Ps)>)
-                            , bs::simd_
+                            , bd::cpu_
                             , bsd::pattern_<Ps...>
                             , bs::pack_< bd::unspecified_<A0>, X >
                             )
@@ -41,7 +41,7 @@ namespace boost { namespace simd { namespace ext
   BOOST_DISPATCH_OVERLOAD_IF( shuffle_
                             , (int... Ps, typename A0, typename X)
                             , (nsm::bool_<A0::static_size==sizeof...(Ps)>)
-                            , bs::simd_
+                            , bd::cpu_
                             , bsd::pattern_<Ps...>
                             , bs::pack_< bd::unspecified_<A0>, X >
                             , bs::pack_< bd::unspecified_<A0>, X >

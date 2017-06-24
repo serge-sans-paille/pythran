@@ -49,7 +49,8 @@ namespace boost { namespace simd { namespace ext
                                           )
                         );
 
-      return {f,s};
+      std::array<A0,2> that{{f,s}};
+      return that;
     }
   };
 } } }

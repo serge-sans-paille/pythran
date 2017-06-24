@@ -8,7 +8,7 @@
 //==================================================================================================
 #ifndef BOOST_SIMD_ARCH_X86_COMMON_REGISTER_HPP_INCLUDED
 #define BOOST_SIMD_ARCH_X86_COMMON_REGISTER_HPP_INCLUDED
-
+#include <boost/simd/detail/nsm.hpp>
 #include <boost/simd/detail/predef.hpp>
 
 #if BOOST_HW_SIMD_X86
@@ -16,8 +16,8 @@ namespace boost { namespace simd
 {
   struct register_count
   {
-    using general = 2*sizeof(void*);
-    using simd    = 2*sizeof(void*);
+    using general = nsm::size_t<2*sizeof(void*)>;
+    using simd    = nsm::size_t<2*sizeof(void*)>;
   };
 } }
 #endif

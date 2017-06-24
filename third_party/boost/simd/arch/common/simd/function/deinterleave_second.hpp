@@ -12,6 +12,7 @@
 
 #include <boost/simd/detail/overload.hpp>
 #include <boost/simd/function/extract.hpp>
+#include <boost/simd/function/combine.hpp>
 #include <boost/simd/function/make.hpp>
 
 namespace boost { namespace simd { namespace ext
@@ -38,12 +39,11 @@ namespace boost { namespace simd { namespace ext
     }
 
     template<typename N0, typename N1, typename... Ns> static BOOST_FORCEINLINE
-    typename T::storage_type
-    do_( T const& x, T const& y, aggregate_storage const&, nsm::list<N0,N1,Ns...> const&) BOOST_NOEXCEPT
+    T do_( T const& x, T const& y, aggregate_storage const&, nsm::list<N0,N1,Ns...> const&) BOOST_NOEXCEPT
     {
-      return  { { deinterleave_second(x.storage()[0],x.storage()[1])
-                , deinterleave_second(y.storage()[0],y.storage()[1])
-              } };
+      return  combine ( deinterleave_second(x.storage()[0],x.storage()[1])
+                      , deinterleave_second(y.storage()[0],y.storage()[1])
+                      );
     }
 
     BOOST_FORCEINLINE T operator()(T const& x, T const& y) const BOOST_NOEXCEPT

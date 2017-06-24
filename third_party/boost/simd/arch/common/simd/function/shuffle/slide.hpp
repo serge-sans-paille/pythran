@@ -100,7 +100,7 @@ namespace boost { namespace simd
       using mode = typename find_slide<sizeof...(Ps),Ps...>::type;
     };
 
-    // Don' overlap with other hierarchies
+    // Don't overlap with other hierarchies
     template<int N, int P0> struct is_slide<N,P0>     : tt::false_type {};
   }
 

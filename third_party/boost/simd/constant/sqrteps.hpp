@@ -11,50 +11,42 @@
 #ifndef BOOST_SIMD_CONSTANT_SQRTEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SQRTEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Sqrteps Sqrteps (function template)
 
-    Generate the square root of constant Eps
+  Generates the constant \f$\sqrt{\epsilon}\f$
 
+  @headerref{<boost/simd/constant/sqrteps.hpp>}
 
-    @par Header <boost/simd/constant/sqrteps.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Sqrteps();
+      @endcode
 
-    @code
-    T r = Sqrteps<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Sqrteps( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$\sqrt{\epsilon}\f$.
 
-    @code
-    if T is integral
-      r = 1
-    else if T is double
-      r =  Pow(2,-26);
-    else if T is float
-      r =  pow(2,-11.5f);
-    @endcode
+  @par Parameters
 
-    @return The Sqrteps constant for the proper type
-  **/
-  template<typename T> T Sqrteps();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant sqrteps.
+  @par Return Value
+  A value of type @c T that evaluates to:
 
-      @return The Sqrteps constant for the proper type
-    **/
-    Value Sqrteps();
-  }
-} }
-#endif
+  | Type            | double                        | float          | Integral        |
+  |:----------------|:------------------------------|----------------|-----------------|
+  | **Values**      |   1.490116119384766e-08       | 3.4526698e-04f |  1              |
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/sqrteps.hpp>
 #include <boost/simd/constant/simd/sqrteps.hpp>

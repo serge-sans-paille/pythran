@@ -23,7 +23,7 @@ namespace boost { namespace simd { namespace ext
   // This case also handles "load with cast" behavior
   BOOST_DISPATCH_OVERLOAD ( load_
                           , (typename Target, typename Pointer, typename Ext)
-                          , bs::simd_
+                          , bd::cpu_
                           , bd::pointer_<bd::scalar_<bd::unspecified_<Pointer>>,1u>
                           , bd::target_<bs::pack_<bd::unspecified_<Target>,Ext>>
                           )

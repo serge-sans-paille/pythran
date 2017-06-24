@@ -62,7 +62,7 @@ namespace boost { namespace simd
       const auto x_larger_05 = x > bs::Half<A0>();
       A0 z = if_else(x_larger_05, bs::Half<A0>()*bs::oneminus(x), bs::sqr(x));
       x = if_else(x_larger_05, sqrt(z), x);
-      // remez polynomial of degree 4 for (asin(rx)-rx)/(rx*rx*rx) in [0, 0.25]
+      // Remez polynomial of degree 4 for (asin(rx)-rx)/(rx*rx*rx) in [0, 0.25]
       // 2120752146 values (99.53%) within 0.0 ULPs
       //    9954286 values (0.47%)  within 0.5 ULPs
       // 4.0 cycles/element SSE4.2 g++-4.8

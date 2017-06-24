@@ -20,7 +20,7 @@ namespace boost { namespace simd
 {
   /*!
     @ingroup group-hierarchy
-    @brief Intel SSE SIMD familly hierarchy tag
+    @brief Intel SSE SIMD family hierarchy tag
 
     This tag represent architectures implementing any Intel SSE-x SIMD instructions sets.
   **/

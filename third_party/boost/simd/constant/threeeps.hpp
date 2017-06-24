@@ -11,48 +11,42 @@
 #ifndef BOOST_SIMD_CONSTANT_THREEEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_THREEEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Threeeps Threeeps (function template)
 
-    Generate  a value equal to 3 times @ref Eps of the chosen type
+  Generates the constant \f$3\epsilon\f$.
 
+  @headerref{<boost/simd/constant/threeeps.hpp>}
 
-    @par Header <boost/simd/constant/threeeps.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Threeeps();
+      @endcode
 
-    @code
-    T r = Threeeps<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Threeeps( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    if T is integral
-      r = 3
-    else if T is double
-      r =   6.661338147750939e-16;
-    else if T is float
-      r =  3.5762787e-07;
-    @endcode
+  Generates a value of type @c T that evaluates to thrice the machine epsilon.
 
-    @return The Threeeps constant for the proper type
-  **/
-  template<typename T> T Threeeps();
+  @par Parameters
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant threeeps.
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-      @return The Threeeps constant for the proper type
-    **/
-    Value Threeeps();
-  }
-} }
-#endif
+  @par Return Value
+  A value of type @c T that evaluates to:
+
+  | Type          | double                        | float         | Integral        |
+  |:--------------|:------------------------------|---------------|-----------------|
+  | **Values**    |    6.661338147750939e-16      | 3.5762787e-07 | 3               |
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/threeeps.hpp>
 #include <boost/simd/constant/simd/threeeps.hpp>

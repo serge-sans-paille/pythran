@@ -34,7 +34,7 @@ namespace boost { namespace simd
       The control is on the reduction routine of the angle to the
       \f$[-\pi/4, \pi/4]\f$ interval.
 
-      They actually are 3 reduction routines that respectly are
+      They actually are 3 reduction routines that respectively are
       sufficient for small_, medium_ and big_ angle values respecttively,
       to have (within
       cover test) one ulp of difference with the according crlibm
@@ -110,7 +110,7 @@ namespace boost { namespace simd
 
        \arg Even sorting will do no good because the sort cost will be against
        the ratio of 1 successful quadruplet over 2048.
-       \arg  Contrarily if your angles have a gaussian distribution with 0 mean and
+       \arg  Contrarily if your angles have a Gaussian distribution with 0 mean and
        \f$10\pi\f$ standard deviation,  80% of the intervals will be in the "small_"
        case (95% of the values).
        \arg Finally for those that are sure of their angles taking place in a fixed

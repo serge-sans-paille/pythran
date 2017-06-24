@@ -11,50 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_LOG_2_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_LOG_2_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Log_2 Log_2 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\log(2)\f$
 
-    Generates constant Log_2 : \f$\log(2)\f$.
+  @headerref{<boost/simd/constant/log_2.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/log_2.hpp>
+  1.  @code
+      template<typename T> T Log_2();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Log_2( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = Log_2<T>();
-    @endcode
+  Generates a value of type @c T that evaluates to \f$\log(2)\f$.
 
-    is similar to:
+  @par Parameters
 
-    @code
-      r =  T(0.6931471805599453094172321214581765680755001343602553);
-    @endcode
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
+  @par Return Value
+   A value of type @c T that evaluates to ` T(0.6931471805599453094172321214581765680755001343602553)`.
 
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Log_2();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Generates constant Log_2. (\f$\log(2)\f$)
-
-      Generate the  constant log_2.
-
-      @return The Log_2 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::log_2_> log_2 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/log_2.hpp>
 #include <boost/simd/constant/simd/log_2.hpp>

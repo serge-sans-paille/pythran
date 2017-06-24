@@ -11,43 +11,42 @@
 #ifndef BOOST_SIMD_CONSTANT_INF_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_INF_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Inf Inf (function template)
 
-    Generate the Inf IEEE value (\f$\infty\f$) for floating types and maximum value
-    for integer types
+  Generates a constant greater than all other numeric values of a given type.
 
+  @headerref{<boost/simd/constant/inf.hpp>}
 
-    @par Header <boost/simd/constant/inf.hpp>
+  @par Description
 
-    @par Semantic
+  1.  @code
+      template<typename T> T Inf();
+      @endcode
 
-    For any type @c T,
+  2.  @code
+      template<typename T> T Inf( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T x = Inf<T>();
-    @endcode
+  Generates a value of type @c T which value is greater than all other numeric values of type @c T.
+  Compared to the [C++ standard infinity](http://en.cppreference.com/w/cpp/types/numeric_limits/infinity),
+  `Inf<T>()` is defined for both IEEEValue and IntegerValue.
 
-    return IEEE Inf for floating types otherwise the maximum representable value for this type.
+  @par Parameters
 
-    @return The largest value of the input type
-  **/
-  template<typename T> T Inf();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
+  @par Return Value
+  A value of type @c T that evaluates to:
+  - `T(std::numeric_limits<scalar_of_t<T>>::inf()` if @c T models IEEEValue.
+  - [the maximum representable value](@ref constant-Valmax) if @c T models IntegerValue.
 
-      @return The largest representable value of the input type
-    **/
-    Value Inf();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/inf.hpp>
 #include <boost/simd/constant/simd/inf.hpp>

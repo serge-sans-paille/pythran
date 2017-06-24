@@ -46,7 +46,7 @@ namespace boost { namespace simd
   namespace tag
   {
     namespace tt = nsm::type_traits;
-    
+
     struct mask1frexp_ : boost::dispatch::constant_value_<mask1frexp_>
     {
       BOOST_DISPATCH_MAKE_CALLABLE(ext,mask1frexp_,boost::dispatch::constant_value_<mask1frexp_>);

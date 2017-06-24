@@ -11,46 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_SQRT_1O_5_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SQRT_1O_5_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Sqrt_1o_5 Sqrt_1o_5 (function template)
 
-    Generate value \f$ \sqrt{\frac15}\f$
+  Generates the constant \f$ \sqrt{\frac15}\f$
 
+  @headerref{<boost/simd/constant/sqrt_1o_5.hpp>}
 
-    @par Header <boost/simd/constant/sqrt_1o_5.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Sqrt_1o_5();
+      @endcode
 
-    @code
-    T r = Sqrt_1o_5<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Sqrt_1o_5( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$ \sqrt{\frac15}\f$.
 
-    @code
-    T r = sqrt(T(1)/T(5));
-    @endcode
+  @par Parameters
 
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @return The Sqrt_1o_5 constant for the proper type
-  **/
-  template<typename T> T Sqrt_1o_5();
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.44721359549995793928183473374626)`
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant sqrt_1o_5.
-
-      @return The Sqrt_1o_5 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::sqrt_1o_5_> sqrt_1o_5 = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/sqrt_1o_5.hpp>
 #include <boost/simd/constant/simd/sqrt_1o_5.hpp>

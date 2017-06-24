@@ -33,7 +33,7 @@ namespace boost { namespace dispatch
     @ingroup group-function
     @brief Error reporting utility dispatcher.
 
-    Whenver a dispatchable function ends up with no suitable overloads, this dispatcher will cause
+    Whenever a dispatchable function ends up with no suitable overloads, this dispatcher will cause
     a compilation error by producing an incomplete type which type contains the function tag used,
     the architecture hierarchy and the list of types passed as parameters.
 

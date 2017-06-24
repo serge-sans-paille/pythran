@@ -11,51 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_SQRTSMALLESTPOSVAL_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SQRTSMALLESTPOSVAL_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Sqrtsmallestposval Sqrtsmallestposval (function template)
 
-    Generate the square root of the least non zero positive non denormal
-    value of the chosen type.
+  Generates the square root of the least non-zero, positive, non-denormal value.
 
+  @headerref{<boost/simd/constant/sqrtsmallestposval.hpp>}
 
-    @par Header <boost/simd/constant/sqrtsmallestposval.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Sqrtsmallestposval();
+      @endcode
 
-    @code
-    T r = Sqrtsmallestposval<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Sqrtsmallestposval( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to the square root of the least non-zero,
+  positive, non-denormal value of type @c T.
 
-    @code
-    if T is integral
-      r = 1
-    else if T is double
-      r =  1.491668146240041e-154;
-    else if T is float
-      r =   1.0842022e-19;
-    @endcode
+  @par Parameters
 
-    @return The Sqrtsmallestposval constant for the proper type
-  **/
-  template<typename T> T Sqrtsmallestposval();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant sqrtsmallestposval.
+  @par Return Value
+  A value of type @c T that evaluates to:
 
-      @return The Sqrtsmallestposval constant for the proper type
-    **/
-    Value Sqrtsmallestposval();
-  }
-} }
-#endif
+  | Type         | double                        | float          | Integral        |
+  |:-------------|:------------------------------|----------------|-----------------|
+  | **Values**   |   1.491668146240041e-154      | 1.0842022e-19f |  1              |
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/sqrtsmallestposval.hpp>
 #include <boost/simd/constant/simd/sqrtsmallestposval.hpp>

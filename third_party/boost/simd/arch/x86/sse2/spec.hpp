@@ -27,7 +27,6 @@
   #include <emmintrin.h>
   #include <boost/simd/arch/x86/sse2/as_simd.hpp>
   #include <boost/simd/arch/x86/sse2/pack_traits.hpp>
-  #include <boost/simd/arch/x86/sse2/supports.hpp>
 #endif
 
 #endif

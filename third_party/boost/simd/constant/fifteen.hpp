@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FIFTEEN_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FIFTEEN_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Fifteen Fifteen (function template)
 
-    Generate the constant fifteen.
+  Generates the constant @c 15.
 
-    @return The Fifteen constant for the proper type
-  **/
-  template<typename T> T Fifteen();
+  @headerref{<boost/simd/constant/fifteen.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-constant
-      Generate the  constant fifteen.
+  @par Description
 
-      @return The Fifteen constant for the proper type
-    **/
-    Value Fifteen();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Fifteen();
+      @endcode
+
+  2.  @code
+      template<typename T> T Fifteen( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T that evaluates to 15.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(15)`.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/fifteen.hpp>
 #include <boost/simd/constant/simd/fifteen.hpp>

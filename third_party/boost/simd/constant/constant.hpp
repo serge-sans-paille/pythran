@@ -11,35 +11,37 @@
 #ifndef BOOST_SIMD_CONSTANT_CONSTANT_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_CONSTANT_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
 /*!
-    @ingroup group-constant
-    Generates a value of the chosen type from an exact bits pattern
-    that get splat in the return value.
+  @ingroup group-constant
+  @defgroup constant-Constant Constant (function template)
 
+  Generates a constant defined by a bits pattern.
 
-    @par Header <boost/simd/constant/constant.hpp>
+  @headerref{<boost/simd/constant/constant.hpp>}
 
-    @par Semantic:
+  @par Description
 
-    or any type @c T and any integral constant @c N :
+  @code
+  template<typename T, std::uintmax_t N> T Constant();
+  @endcode
 
-    @code
-    T r = Constant<T,N>();
-    @endcode
+  Generates a constant that evaluate to a value of type @c T which bits pattern is defined by
+  the Integral Constant @c N.
 
-    generates a value which bit pattern is represented by the integer N bits.
+  @par Type Parameters
 
-    @tparam Type  Type of the desired value
-    @tparam Bits  Bits pattern to generate as a value
+  | Name                | Description                                              |
+  |--------------------:|:---------------------------------------------------------|
+  | **T**               | type of the generated constant                           |
+  | **N**               | bits pattern holding the value of the generated constant |
 
-    @return A value of type @c T which bits are exactly equals to @c N
-  **/
-  template<typename Type, std::uintmax_t Bits> auto Constant();
-} }
-#endif
+  @par Return Value
+  A value of type @c T so that the expression `bitwise_cast<as_integer_t<T>>(Constant<T,N>()) == N`
+  evaluates to @c true.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/definition/constant.hpp>
 #include <boost/simd/arch/common/scalar/constant/constant_generator.hpp>

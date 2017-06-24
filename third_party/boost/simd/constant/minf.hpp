@@ -11,55 +11,42 @@
 #ifndef BOOST_SIMD_CONSTANT_MINF_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MINF_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Minf Minf (function template)
 
-    Generates the -inf IEEE value (\f$-\infty\f$) for floating types and minimum value
-    for integer types
+  Generates a constant less than all other numeric values of a given type.
 
+  @headerref{<boost/simd/constant/minf.hpp>}
 
-    @par Header <boost/simd/constant/minf.hpp>
+  @par Description
 
-    @par Semantic
-
-    For any type @c T,
-
-    @code
-    T x = Minf<T>();
-    @endcode
-
-
-    @return The least value for the input type
-  **/
-  template<typename T> T Minf();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-      Generates the -inf IEEE value (\f$-\infty\f$) for floating types and minimum value
-      for integer types
-
-      @par Semantic
-
-      For any type @c T,
-
-      @code
-      T x = minf(as(T{}));
+  1.  @code
+      template<typename T> T Minf();
       @endcode
 
-      return the minimum representable value for this type.
+  2.  @code
+      template<typename T> T Minf( boost::simd::as_<T> const& target );
+      @endcode
 
-      @return The minimum representable value of the input type
-    **/
-    Value Minf();
-  }
-} }
-#endif
+  Generates a value of type @c T which value is less than all other numeric values of type @c T.
+  Compared to the [C++ standard infinity](http://en.cppreference.com/w/cpp/types/numeric_limits/infinity),
+  `Minf<T>()` is defined for both IEEEValue and IntegerValue.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to:
+  - `T(-std::numeric_limits<scalar_of_t<T>>::inf()` if @c T models IEEEValue.
+  - [the minimum representable value](@ref constant-Valmin) if @c T models IntegerValue.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/minf.hpp>
 #include <boost/simd/constant/simd/minf.hpp>

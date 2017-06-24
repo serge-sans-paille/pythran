@@ -15,7 +15,7 @@
 namespace boost { namespace simd
 {
   /*!
-    @ingroup group-oerator
+    @ingroup group-operator
 
     This function object computes the remainder of the two parameters of the
     same type with or without option.

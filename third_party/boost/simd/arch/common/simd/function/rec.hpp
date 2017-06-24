@@ -22,7 +22,6 @@ namespace boost { namespace simd { namespace ext
   namespace bd = boost::dispatch;
   namespace bs = boost::simd;
 
-
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   /// rec for integral types
   ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +66,19 @@ namespace boost { namespace simd { namespace ext
     }
   };
 
-
+  BOOST_DISPATCH_OVERLOAD_IF( rec_
+                            , (typename T, typename X)
+                            , (detail::is_native<X>)
+                            , bd::cpu_
+                            , bs::raw_tag
+                            , bs::pack_<bd::unspecified_<T>, X>
+                            )
+  {
+    BOOST_FORCEINLINE T operator()(const raw_tag &, T const& a) const BOOST_NOEXCEPT
+    {
+      return rec(a);
+    }
+  };
 } } }
 
 #endif

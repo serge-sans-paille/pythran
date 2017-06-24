@@ -11,55 +11,39 @@
 #ifndef BOOST_SIMD_CONSTANT_NAN_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_NAN_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Nan Nan (function template)
 
-    Generate the Not a Number (Nan) constant.
+  Generates the Not a Number (Nan) constant
 
+  @headerref{<boost/simd/constant/nan.hpp>}
 
-    @par Header <boost/simd/constant/nan.hpp>
+  @par Description
 
-    @par Semantic
-
-    For any type @c T,
-
-    @code
-    T x = Nan<T>();
-    @endcode
-
-    return the Nan representation for this type, i.e QuietNan for IEEE reals and
-    0 for integers.
-
-    @return The Nan constant for the proper type
-  **/
-  template<typename T> T Nan();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the Not a Number (Nan) constant.
-
-      @par Semantic
-
-      For any type @c T,
-
-      @code
-      T x = nan(as(T{}));
+  1.  @code
+      template<typename T> T Nan();
       @endcode
 
-      return the Nan representation for this type, i.e QuietNan for IEEE reals and
-      0 for integers.
+  2.  @code
+      template<typename T> T Nan( boost::simd::as_<T> const& target );
+      @endcode
 
-      @return The Nan constant for the proper type
-    **/
-    Value Nan();
-  }
-} }
-#endif
+  Generates a value of type @c T that evaluates to the Quiet NaN, i.e an IEEE value with all bits
+  set to 1.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(std::numeric_limits<scalar_of_t<T>>::quiet_NaN())`.
+
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/nan.hpp>
 #include <boost/simd/constant/simd/nan.hpp>

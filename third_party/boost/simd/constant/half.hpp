@@ -11,47 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_HALF_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_HALF_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Half Half (function template)
 
-    Generate value \f$\frac12\f$
+  Generates the constant \f$\frac12\f$
 
+  @headerref{<boost/simd/constant/half.hpp>}
 
-    @par Header <boost/simd/constant/half.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Half();
+      @endcode
 
-    @code
-    T r = Half<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Half( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar for floating types to:
+  Generates a value of type @c T that evaluates to 0.5.
 
-    @code
-    T r = T(1)/T(2);
-    @endcode
+  @par Parameters
 
-    (0 for integral types)
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @return The Half constant for the proper type
-  **/
-  template<typename T> T Half();
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.5)`
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant half.
-
-      @return The Half constant for the proper type
-    **/
-    Value Half();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/half.hpp>
 #include <boost/simd/constant/simd/half.hpp>

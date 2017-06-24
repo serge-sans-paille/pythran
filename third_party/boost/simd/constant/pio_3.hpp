@@ -11,53 +11,39 @@
 #ifndef BOOST_SIMD_CONSTANT_PIO_3_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_PIO_3_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Pio_3 Pio_3 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac\pi{3}\f$.
 
-    Constant \f$\frac\pi{3}\f$.
+  @headerref{<boost/simd/constant/pio_3.hpp>}
+
+  @par Description
+
+  1.  @code
+      template<typename T> T Pio_3();
+      @endcode
+
+  2.  @code
+      template<typename T> T Pio_3( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T  that evaluates to \f$\frac\pi{3}\f$.
 
 
-    @par Header <boost/simd/constant/pio_3.hpp>
+  @par Parameters
 
-    @par Semantic:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    For type T:
+  @par Return Value
+  A value of type @c T that evaluates to `T(1.0471975511965977461542144610932)`
 
-    @code
-    T r = Pio_3<T>();
-    @endcode
-
-    is similar to:
-
-    @code
-    T r = Pi<T>()/Three<T>();
-    @endcode
-
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Pio_3();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant \f$\frac\pi{3}\f$.
-
-      Generate the  constant pio_3.
-
-      @return The Pio_3 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::pio_3_> pio_3 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/pio_3.hpp>
 #include <boost/simd/constant/simd/pio_3.hpp>

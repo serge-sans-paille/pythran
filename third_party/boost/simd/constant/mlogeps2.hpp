@@ -11,46 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_MLOGEPS2_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MLOGEPS2_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Mlogeps2 Mlogeps2 (function template)
 
-    Generate \f$-\log(eps^2)\f$ value
+  Generates the constant \f$-\log\epsilon^2\f$
 
+  @headerref{<boost/simd/constant/mlogeps2.hpp>}
 
-    @par Header <boost/simd/constant/mlogeps2.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Mlogeps2();
+      @endcode
 
-    @code
-    T r = Mlogeps2<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Mlogeps2( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evalujates to \f$-\log\epsilon^2\f$.
 
-    @code
-    T r = -log(sqr(Eps<T>()));
-    @endcode
+  @par Parameters
 
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @return The Mlogeps2 constant for the proper type
-  **/
-  template<typename T> T Mlogeps2();
+  @par Return Value
+  A value of type @c T that evaluates to `-log(sqr(Eps<T>()))`.
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant mlogeps2.
-
-      @return The Mlogeps2 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::mlogeps2_> mlogeps2 = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/mlogeps2.hpp>
 #include <boost/simd/constant/simd/mlogeps2.hpp>

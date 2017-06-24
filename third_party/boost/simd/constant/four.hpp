@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FOUR_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FOUR_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Four Four (function template)
 
-    Generate the constant four.
+  Generates the constant @c 4.
 
-    @return The Four constant for the proper type
-  **/
-  template<typename T> T Four();
+  @headerref{<boost/simd/constant/four.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant four.
+  @par Description
 
-      @return The Four constant for the proper type
-    **/
-    Value Four();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Four();
+      @endcode
+
+  2.  @code
+      template<typename T> T Four( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T  that evaluates to 4.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(4)`.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/four.hpp>
 #include <boost/simd/constant/simd/four.hpp>

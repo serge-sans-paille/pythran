@@ -11,58 +11,42 @@
 #ifndef BOOST_SIMD_CONSTANT_MZERO_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MZERO_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Mzero Mzero (function template)
 
-    Generate value -0
+  Generates the constant @c -0.
 
+  @headerref{<boost/simd/constant/mzero.hpp>}
 
-    @par Header <boost/simd/constant/mzero.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Mzero();
+      @endcode
 
-    @code
-    T r = Mzero<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Mzero( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T  that evaluates to -0.
 
-    @code
-    T r = -T(0);
-    @endcode
+  This constant is the second IEEE representation of 0 and is defined so
+  that the expression `1/Mzero<T>() == Minf<T>()` evaluates to @c true. When computed as an
+  IntegerValue, the expression `Mzero<T>() == Zero<T>()` evaluates to @c true.
 
-    @ par Note:
+  @par Parameters
 
-    This is a special constant as it can be used and considered
-    identical to zero, except that for floating point numbers,
-    there is two different representation of zero with different bit of sign.
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    The existence of the sign can be used in special circumstances as
-    choosing between \f$+\infty\f$ and \f$-\infty\f$ instead of nan in computing 1/0.
-    \par
+  @par Return Value
+  A value of type @c T that evaluates to `T(-0.0)`
 
-    The sign of zero can be accessed through the @ref is_negative
-    and @ref is_positive predicates or the @ref bitofsign functions.
-
-    @return The Mzero constant for the proper type
-  **/
-  template<typename T> T Mzero();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant mzero.
-
-      @return The Mzero constant for the proper type
-    **/
-    Value Mzero();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/mzero.hpp>
 #include <boost/simd/constant/simd/mzero.hpp>

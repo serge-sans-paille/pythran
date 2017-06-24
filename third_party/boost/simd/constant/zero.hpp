@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_ZERO_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_ZERO_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Zero Zero (function template)
 
-    Generate  value 0
+  Generates the constant @c 0.
 
+  @headerref{<boost/simd/constant/zero.hpp>}
 
-    @par Header <boost/simd/constant/zero.hpp>
+  @par Description
 
-    @par Semantic:
-
-    @code
-    T r = Zero<T>();
+  1.  @code
+    template<typename T> T Zero();
     @endcode
 
-    is similar to:
-
-    @code
-    T r = T(0);
+  2.  @code
+    template<typename T> T Zero( boost::simd::as_<T> const& target );
     @endcode
 
-    @return The Zero constant for the proper type
-  **/
-  template<typename T> T Zero();
+  Generates a value of type @c T that evaluates to 0.
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant zero.
+  @par Parameters
 
-      @return The Zero constant for the proper type
-    **/
-    Value Zero();
-  }
-} }
-#endif
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to <tt>T(0)</tt>.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/zero.hpp>
 #include <boost/simd/constant/simd/zero.hpp>

@@ -11,62 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_EIGHT_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_EIGHT_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Eight Eight (function template)
 
-    Generates a value of the chosen type equals to eight.
+  Generates the constant @c 8.
 
+  @headerref{<boost/simd/constant/eight.hpp>}
 
-    @par Header <boost/simd/constant/eight.hpp>
+  @par Description
 
-    @par Semantic:
-
-    @code
-    T r = Eight<T>();
-    @endcode
-
-    is equivalent to:
-
-    @code
-    T r = static_cast<T>(8);
-    @endcode
-
-    @return A value of type @c T equals to eight.
-
-    @see functional::eight
-  **/
-  template<typename T> T Eight();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generates a value of the chosen type equals to eight.
-
-      @par Semantic:
-
-      For any value @c x of type @c T:
-      @code
-      T r = simd::functional::eight( boost::simd::as(x));
+  1.  @code
+      template<typename T> T Eight();
       @endcode
 
-      is equivalent to:
-
-      @code
-      T r = simd::Eight<T>();
+  2.  @code
+      template<typename T> T Eight( boost::simd::as_<T> const& target );
       @endcode
 
-      @return A value of type @c T containing the value eight.
+  Generates a value of type @c T that evaluates to 8.
 
-      @see Eight
-    **/
-    Value Eight();
-  }
-} }
-#endif
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(8)`.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/eight.hpp>
 #include <boost/simd/constant/simd/eight.hpp>

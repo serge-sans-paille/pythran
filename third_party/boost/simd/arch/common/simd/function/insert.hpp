@@ -26,7 +26,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD ( insert_
                           , (typename A0, typename Ext, typename A1, typename A2)
-                          , bs::simd_
+                          , bd::cpu_
                           , bs::pack_<bd::unspecified_<A0>,Ext>
                           , bd::scalar_< bd::integer_<A1>>
                           , bd::scalar_< bd::unspecified_<A2>>
@@ -41,7 +41,7 @@ namespace boost { namespace simd { namespace ext
 
   BOOST_DISPATCH_OVERLOAD ( insert_
                           , (typename A0, typename Ext, typename A1, typename A2)
-                          , bs::simd_
+                          , bd::cpu_
                           , bs::pack_<bs::logical_<A0>,Ext>
                           , bd::scalar_< bd::integer_<A1>>
                           , bd::scalar_< bd::unspecified_<A2>>

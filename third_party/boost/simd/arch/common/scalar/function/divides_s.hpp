@@ -77,6 +77,11 @@ namespace boost { namespace simd { namespace ext
       return a1 ? a0/a1 : genmask(a0);
     }
   };
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
+
 } } }
 
 

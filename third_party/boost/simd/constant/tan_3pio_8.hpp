@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_TAN_3PIO_8_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TAN_3PIO_8_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Tan_3pio_8 Tan_3pio_8 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\tan\frac{3\pi}{8}\f$
 
-    Constant \f$\tan3\frac\pi{8} = \sqrt2 + 1\f$.
+  @headerref{<boost/simd/constant/tan_3pio_8.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/tan_3pio_8.hpp>
+  1.  @code
+      template<typename T> T Tan_3pio_8();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Tan_3pio_8( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\tan\frac{3\pi}{8}\f$, i.e \f$\sqrt2 + 1\f$.
 
-    @code
-    T r = Tan_3pio_8<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = 1.0+sqrt(2.0);
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to  `T(2.4142135623730950488016887242097)`
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Tan_3pio_8();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant \f$\tan3\frac\pi{8} = \sqrt2 + 1\f$.
-
-      Generate the  constant tan_3pio_8.
-
-      @return The Tan_3pio_8 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::tan_3pio_8_> tan_3pio_8 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/tan_3pio_8.hpp>
 #include <boost/simd/constant/simd/tan_3pio_8.hpp>

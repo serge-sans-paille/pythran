@@ -11,50 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_NBEXPONENTBITS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_NBEXPONENTBITS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Nbexponentbits Nbexponentbits (function template)
 
-    Generate  the number of exponent bits of a floating point number,
+  Generates a constant representing the number of exponent bits of a floating point type.
 
+  @headerref{<boost/simd/constant/nbexponentbits.hpp>}
 
-    @par Header <boost/simd/constant/nbexponentbits.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> as_integer_t<T> Nbexponentbits();
+      @endcode
 
-    @code
-    T r = Nbexponentbits<T>();
-    @endcode
+  2.  @code
+      template<typename T> as_integer_t<T> Nbexponentbits( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+    Generates a value of type `as_integer_t<T>` that evaluates to the number of bits used to
+    represents the exponent of an IEEE754 floating-point value.
 
-    @code
-    if T is integral
-      r = 0
-    else if T is double
-      r =  11;
-    else if T is float
-      r =  8;
-    @endcode
+  @par Parameters
 
-    @return The Nbexponentbits constant for the proper type
-  **/
-  template<typename T> T Nbexponentbits();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant nbexponentbits.
+  @par Return Value
+  A value of type @c as_integer_t<T> that evaluates to:
 
-      @return The Nbexponentbits constant for the proper type
-    **/
-    Value Nbexponentbits();
-  }
-} }
-#endif
+  | Type        | double      | float         |
+  |:------------|:------------|---------------|
+  | **Values**  |   11        |      8        |
+
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/nbexponentbits.hpp>
 #include <boost/simd/constant/simd/nbexponentbits.hpp>

@@ -40,7 +40,7 @@ namespace boost { namespace simd
   namespace tag
   {
     namespace tt = nsm::type_traits;
-    
+
     struct ldexpmask_ : boost::dispatch::constant_value_<ldexpmask_>
     {
       BOOST_DISPATCH_MAKE_CALLABLE(ext,ldexpmask_,boost::dispatch::constant_value_<ldexpmask_>);

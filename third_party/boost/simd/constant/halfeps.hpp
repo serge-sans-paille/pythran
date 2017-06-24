@@ -11,50 +11,39 @@
 #ifndef BOOST_SIMD_CONSTANT_HALFEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_HALFEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Halfeps Halfeps (function template)
 
-    Generate the machine epsilon.
+  Generates the constant \f$\frac{1}{2}\epsilon\f$.
 
+  @headerref{<boost/simd/constant/halfeps.hpp>}
 
-    @par Header <boost/simd/constant/halfeps.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Halfeps();
+      @endcode
 
-    @code
-    T r = Halfeps<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Halfeps( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to half the value of the
+  [machine epsilon](https://en.wikipedia.org/wiki/Machine_epsilon).
 
-    @code
-    if T is integral
-      r = T(1)
-    else if T is double
-      r =  pow(2, -54);
-    else if T is float
-      r =  pow(2.0f, -24);
-    @endcode
+  @par Parameters
 
-    @return The Halfeps constant for the proper type
-  **/
-  template<typename T> T Halfeps();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant halfeps.
+  @par Return Value
+  A value of type @c T that evaluates to `Eps<T>()/2`.
 
-      @return The Halfeps constant for the proper type
-    **/
-    Value Halfeps();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/halfeps.hpp>
 #include <boost/simd/constant/simd/halfeps.hpp>

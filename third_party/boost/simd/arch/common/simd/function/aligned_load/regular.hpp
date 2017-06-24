@@ -79,7 +79,7 @@ namespace boost { namespace simd { namespace ext
   // aligned_load from a pointer of arithmetic to a pack of logical
   BOOST_DISPATCH_OVERLOAD ( aligned_load_
                           , (typename Target, typename Pointer, typename Ext)
-                          , bs::simd_
+                          , bd::cpu_
                           , bd::pointer_<bd::scalar_<bd::arithmetic_<Pointer>>,1u>
                           , bd::target_<bs::pack_<bs::logical_<Target>,Ext>>
                           )

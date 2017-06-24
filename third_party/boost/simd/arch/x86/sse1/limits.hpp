@@ -33,6 +33,8 @@ namespace boost { namespace simd
     using smallest_real  = float;
 
     enum { bits = 128, bytes = 16 };
+
+    using supported_types = nsm::list<float>;
   };
 } }
 

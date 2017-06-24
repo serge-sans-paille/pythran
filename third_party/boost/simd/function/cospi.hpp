@@ -28,7 +28,7 @@ namespace boost { namespace simd
      -  The semantics of the function are similar to @ref cos ones.
         See @ref cos for further details
 
-     - As it conveys a peculiar meaning,  unlike the orher cosine, cospi is defined
+     - As it conveys a peculiar meaning,  unlike the other cosine, cospi is defined
          for integral types and the result of cospi(n) coincides with \f$(-1)^n\f$.
 
          Take care that large floating entries are always integral and even !

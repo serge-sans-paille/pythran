@@ -11,50 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_INVLOG_2_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_INVLOG_2_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Invlog_2 Invlog_2 (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{1}{\log(2)}\f$
 
-    Generates constant 1/log(2).
+  @headerref{<boost/simd/constant/invlog_2.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/invlog_2.hpp>
+  1.  @code
+      template<typename T> T Invlog_2();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Invlog_2( boost::simd::as_<T> const& target );
+      @endcode
 
-    @code
-    T r = Invlog_2<T>();
-    @endcode
+  Generates a value of type @c T that evaluates to \f$\frac{1}{\log(2)}\f$.
 
-    is similar to:
+  @par Parameters
 
-    @code
-     r =  T(1.442695040888963407359924681001892137426645954152986);
-    @endcode
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
+  @par Return Value
+  A value of type @c T that evaluates to `T(1.442695040888963407359924681001892137426645954152986)`.
 
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Invlog_2();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Generates constant 1/log(2).
-
-      Generate the  constant invlog_2.
-
-      @return The Invlog_2 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::invlog_2_> invlog_2 = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/invlog_2.hpp>
 #include <boost/simd/constant/simd/invlog_2.hpp>

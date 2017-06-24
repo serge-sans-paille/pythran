@@ -12,28 +12,27 @@
 #ifndef BOOST_SIMD_CONSTANT_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_HPP_INCLUDED
 
-namespace boost { namespace simd
-{
-    /*!
-      @ingroup group-functions
-      @defgroup group-constant Constant Functions
+/*!
+  @ingroup group-functions
+  @defgroup group-constant Constant Functions
 
-      These functions provide scalar and SIMD constant generators for the most usual
-      constant values such as zero, numeric limits, IEEE special values.
+  These functions provide scalar and SIMD constant generators for the most usual
+  constant values such as zero, numeric limits, IEEE special values.
 
-      Constant generator functions ced in two manners:
+  Constant generator functions called by either:
 
-        - taking no arguments but requiring a template type parameter
-        so that the correct type of the required constant is returned
-        (as @c One<float>() to generate 1.0f).
+  - taking no arguments but requiring a template type parameter
+    so that the correct type of the constant is used:
+    @code
+    auto x = One<float>();
+    @endcode
 
-        - taking one dummy arguments from which  the correct type of the
-        required constant is deduced and  returned (as @c One(42.0f) to generate 1.0f).
-
-
-    **/
-
-} }
+  - taking one type-arguments from which the correct type of the constant is deduced:
+    @code
+    double y = 0.;
+    auto x = One( as(y) );
+    @endcode
+**/
 
 #include <boost/simd/constant/allbits.hpp>
 #include <boost/simd/constant/bitincrement.hpp>
@@ -44,8 +43,6 @@ namespace boost { namespace simd
 #include <boost/simd/constant/eps.hpp>
 #include <boost/simd/constant/euler.hpp>
 #include <boost/simd/constant/exp_1.hpp>
-#include <boost/simd/constant/expnibig.hpp>
-#include <boost/simd/constant/expnibig.hpp>
 #include <boost/simd/constant/fact_10.hpp>
 #include <boost/simd/constant/fact_11.hpp>
 #include <boost/simd/constant/fact_12.hpp>
@@ -62,7 +59,6 @@ namespace boost { namespace simd
 #include <boost/simd/constant/fourpi.hpp>
 #include <boost/simd/constant/fourthrooteps.hpp>
 #include <boost/simd/constant/gold.hpp>
-#include <boost/simd/constant/greatestnoninteger.hpp>
 #include <boost/simd/constant/halfeps.hpp>
 #include <boost/simd/constant/half.hpp>
 #include <boost/simd/constant/inf.hpp>
@@ -136,7 +132,7 @@ namespace boost { namespace simd
 #include <boost/simd/detail/constant/pio2_1t.hpp>
 #include <boost/simd/detail/constant/pio2_2.hpp>
 #include <boost/simd/detail/constant/pio2_2t.hpp>
-#include <boost/simd/constant/pio2_3.hpp>
+#include <boost/simd/detail/constant/pio2_3.hpp>
 #include <boost/simd/detail/constant/pio2_3t.hpp>
 #include <boost/simd/constant/pio_2.hpp>
 #include <boost/simd/detail/constant/pio_2lo.hpp>

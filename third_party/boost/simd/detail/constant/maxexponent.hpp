@@ -23,7 +23,7 @@
 
     @ingroup group-constant
 
-    Generate the maximum exposant of floating point numbers
+    Generate the maximum exponent of floating point numbers
 
     @par Semantic:
 

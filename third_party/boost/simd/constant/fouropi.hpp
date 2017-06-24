@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_FOUROPI_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_FOUROPI_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Fouropi Fouropi (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac4\pi\f$.
 
-    Constant \f$\frac4\pi\f$.
+  @headerref{<boost/simd/constant/fouropi.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/fouropi.hpp>
+  1.  @code
+      template<typename T> T Fouropi();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Fouropi( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac4\pi\f$.
 
-    @code
-    T r = Fouropi<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = Four<T>()/Pi<T>();
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(1.2732395447351626861510701069801)`.
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Fouropi();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant \f$\frac4\pi\f$.
-
-      Generate the  constant fouropi.
-
-      @return The Fouropi constant for the proper type
-    **/
-    Value Fouropi();
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/fouropi.hpp>
 #include <boost/simd/constant/simd/fouropi.hpp>

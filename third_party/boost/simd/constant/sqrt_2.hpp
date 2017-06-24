@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_SQRT_2_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SQRT_2_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Sqrt_2 Sqrt_2 (function template)
 
-    Generate  value \f$\sqrt2\f$
+  Generates the constant \f$\sqrt2\f$
 
+  @headerref{<boost/simd/constant/sqrt_2.hpp>}
 
-    @par Header <boost/simd/constant/sqrt_2.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Sqrt_2();
+      @endcode
 
-    @code
-    T r = Sqrt_2<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Sqrt_2( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$\sqrt2\f$.
 
-    @code
-    T r = T(sqrt(Two<T>());
-    @endcode
+  @par Parameters
 
-    @return The Sqrt_2 constant for the proper type
-  **/
-  template<typename T> T Sqrt_2();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant sqrt_2.
+  @par Return Value
+  A value of type @c T that evaluates to `T(1.4142135623730950488016887242097)`
 
-      @return The Sqrt_2 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::sqrt_2_> sqrt_2 = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/sqrt_2.hpp>
 #include <boost/simd/constant/simd/sqrt_2.hpp>

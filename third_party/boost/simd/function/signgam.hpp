@@ -37,5 +37,6 @@ namespace boost { namespace simd
 #endif
 
 #include <boost/simd/function/scalar/signgam.hpp>
+#include <boost/simd/function/simd/signgam.hpp>
 
 #endif

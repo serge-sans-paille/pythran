@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_ONE_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_ONE_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-One One (function template)
 
-    Generate the constant one.
+  Generates  constant @c 1
 
-    @return The One constant for the proper type
-  **/
-  template<typename T> T One();
+  @headerref{<boost/simd/constant/one.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant one.
+  @par Description
 
-      @return The One constant for the proper type
-    **/
-    Value One();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T One();
+      @endcode
+
+  2.  @code
+      template<typename T> T One( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T that evaluates to 1.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(1)`.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/one.hpp>
 #include <boost/simd/constant/simd/one.hpp>

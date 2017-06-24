@@ -138,9 +138,9 @@ namespace boost { namespace simd { namespace ext
   {
     BOOST_FORCEINLINE A0 operator() (const A0& a0, const A1& a1) const BOOST_NOEXCEPT
     {
-      using i_t = bd::as_integer_t<A0>;
+      using i_t = bd::as_integer_t<A0,signed>;
       using sA0 = bd::scalar_of_t<A0>;
-      i_t ik =  a1+Maxexponent<A0>();
+      i_t ik =  bitwise_cast<i_t>(a1)+Maxexponent<A0>();
       ik = shift_left(ik, Nbmantissabits<sA0>());
       return a0*bitwise_cast<A0>(ik);
     }

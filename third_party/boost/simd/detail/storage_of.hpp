@@ -97,7 +97,7 @@ namespace boost { namespace simd { namespace detail
     using type = std::array<Type,Cardinal>;
   };
 
-  // If we match cardinals, use as_simd for current Familly unless Type is no_such_type_
+  // If we match cardinals, use as_simd for current Family unless Type is no_such_type_
   template< typename Type, std::size_t Cardinal, typename ABI>
   struct storage_of<Type,Cardinal,ABI,native_status>
   {

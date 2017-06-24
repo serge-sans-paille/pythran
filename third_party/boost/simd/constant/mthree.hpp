@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_MTHREE_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MTHREE_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Mthree Mthree (function template)
 
-    Generate the constant mthree.
+  Generates the constant@c -3
 
-    @return The Mthree constant for the proper type
-  **/
-  template<typename T> T Mthree();
+  @headerref{<boost/simd/constant/mthree.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant mthree.
+  @par Description
 
-      @return The Mthree constant for the proper type
-    **/
-    Value Mthree();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Mthree();
+      @endcode
+
+  2.  @code
+      template<typename T> T Mthree( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T that evaluates to -3.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(-3)`:
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/mthree.hpp>
 #include <boost/simd/constant/simd/mthree.hpp>

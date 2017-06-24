@@ -11,45 +11,43 @@
 #ifndef BOOST_SIMD_CONSTANT_TWOTONMB_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TWOTONMB_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Twotonmb Twotonmb (function template)
 
-    Generate two to the number of mantissa bits.
+  Generates the constant \f$2^{Nbmantissabits<T>()}\f$.
 
+  @headerref{<boost/simd/constant/twotonmb.hpp>}
 
-    @par Header <boost/simd/constant/twotonmb.hpp>
+  @par Description
 
-    @par Semantic:
-
-    @code
-    T r = Twotonmb<T>();
+  1.  @code
+    template<typename T> T Twotonmb();
     @endcode
 
-    is similar to:
-
-    @code
-    T r = pow(2, Nbmantissabits<T>());
+  2.  @code
+    template<typename T> T Twotonmb( boost::simd::as_<T> const& target );
     @endcode
 
-    @return The Twotonmb constant for the proper type
-  **/
-  template<typename T> T Twotonmb();
+  Generates a constant that evaluates to \f$2^{Nbmantissabits<T>()}\f$.
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant twotonmb.
+  @par Parameters
 
-      @return The Twotonmb constant for the proper type
-    **/
-    Value Twotonmb();
-  }
-} }
-#endif
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to:
+
+  | Type       | double                | float         |
+  |:-----------|:----------------------|---------------|
+  | **Values** | 4503599627370496.0    |  8388608.0f   |
+
+
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/twotonmb.hpp>
 #include <boost/simd/constant/simd/twotonmb.hpp>

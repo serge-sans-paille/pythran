@@ -11,54 +11,39 @@
 #ifndef BOOST_SIMD_CONSTANT_VALMAX_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_VALMAX_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Valmax Valmax (function template)
 
-    Generate the maximum representable value of a given type as a constant.
+  Generates the maximum finite representable value of a given type.
 
+  @headerref{<boost/simd/constant/valmax.hpp>}
 
-    @par Header <boost/simd/constant/valmax.hpp>
+  @par Description
 
-    @par Semantic
-
-    For any type @c T,
-
-    @code
-    T x = Valmax<T>();
-    @endcode
-
-    return the maximum representable value for this type.
-
-    @return The maximum representable value of the input type
-  **/
-  template<typename T> T Valmax();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-      Generate the maximum finite representable value of a given type as a constant.
-
-      @par Semantic
-
-      For any type @c T,
-
-      @code
-      T x = valmax(as(T{}));
+  1.  @code
+      template<typename T> T Valmax();
       @endcode
 
-      return the maximum finite representable value for this type.
+  2.  @code
+      template<typename T> T Valmax( boost::simd::as_<T> const& target );
+      @endcode
 
-      @return The maximum finite representable value of the input type
-    **/
-    Value Valmax();
-  }
-} }
-#endif
+  Generates the maximum finite representable value of a given type
+  [as defined by the C++ standard](http://en.cppreference.com/w/cpp/types/numeric_limits/max).
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(std::numeric_limits<scalar_of_t<T>>::max())`.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/valmax.hpp>
 #include <boost/simd/constant/simd/valmax.hpp>

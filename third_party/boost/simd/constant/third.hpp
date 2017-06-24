@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_THIRD_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_THIRD_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Third Third (function template)
 
-    Generate value 1/3
+  Generates the constant \f$\frac{1}{3}\f$
 
+  @headerref{<boost/simd/constant/third.hpp>}
 
-    @par Header <boost/simd/constant/third.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Third();
+      @endcode
 
-    @code
-    T r = Third<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Third( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$\frac{1}{3}\f$.
 
-    @code
-    T r = T(1)/T(3);
-    @endcode
+  @par Parameters
 
-    @return The Third constant for the proper type
-  **/
-  template<typename T> T Third();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant third.
+  @par Return Value
+  A value of type @c T that evaluates to `1/T(3)`.
 
-      @return The Third constant for the proper type
-    **/
-    Value Third();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/third.hpp>
 #include <boost/simd/constant/simd/third.hpp>

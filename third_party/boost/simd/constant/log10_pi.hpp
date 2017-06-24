@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_LOG10_PI_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_LOG10_PI_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Log10_pi Log10_pi (function template)
 
-    Generate base ten logarithm of pi (\f$\log\!10(\pi)\f$)
+  Generates the constant \f$\log_{10}(\pi)\f$
 
+  @headerref{<boost/simd/constant/log10_pi.hpp>}
 
-    @par Header <boost/simd/constant/log10_pi.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Log10_pi();
+      @endcode
 
-    @code
-    T r = Log10_pi<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Log10_pi( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$\log_{10}(\pi)\f$.
 
-    @code
-    T r = log10(Pi<T>());
-    @endcode
+  @par Parameters
 
-    @return The Log10_pi constant for the proper type
-  **/
-  template<typename T> T Log10_pi();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant log10_pi.
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.4971498726941338543512682882909)`.
 
-      @return The Log10_pi constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::log10_pi_> log10_pi = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/log10_pi.hpp>
 #include <boost/simd/constant/simd/log10_pi.hpp>

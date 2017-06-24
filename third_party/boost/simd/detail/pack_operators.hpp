@@ -73,7 +73,7 @@ BOOST_SIMD_PACK_DEFINE_BINOP(T, operator >> , shift_right)
 #define BOOST_SIMD_PACK_DEFINE_LOGICAL_BINOP(op, f)                                                \
   template <typename T, typename U, std::size_t N> BOOST_FORCEINLINE                               \
   auto op(pack<T, N> const& p0, pack<U, N> const& p1)                                              \
-  BOOST_NOEXCEPT_DECLTYPE_BODY(f(p0, p1));                                                         \
+  BOOST_NOEXCEPT_DECLTYPE_BODY(f(p0, p1))                                                          \
                                                                                                    \
   template <typename T, std::size_t N, typename U> BOOST_FORCEINLINE                               \
   typename std::enable_if < is_not_pack_t<U>::value && std::is_convertible<U, T>::value            \

@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_SQRT_2OPI_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SQRT_2OPI_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Sqrt_2opi Sqrt_2opi (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{\sqrt2}{\pi}\f$
 
-    Constant  \f$\frac{\sqrt2}{\pi}\f$.
+  @headerref{<boost/simd/constant/sqrt_2opi.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/sqrt_2opi.hpp>
+  1.  @code
+      template<typename T> T Sqrt_2opi();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Sqrt_2opi( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac{\sqrt2}{\pi}\f$
 
-    @code
-    T r = Sqrt_2opi<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = sqrt(Two<T>())/Pi<T>();
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.45015815807855303477759959550337)`
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Sqrt_2opi();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant  \f$\frac{\sqrt2}{\pi}\f$.
-
-      Generate the  constant sqrt_2opi.
-
-      @return The Sqrt_2opi constant for the proper type
-    **/
-    Value Sqrt_2opi<Value>();
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/sqrt_2opi.hpp>
 #include <boost/simd/constant/simd/sqrt_2opi.hpp>

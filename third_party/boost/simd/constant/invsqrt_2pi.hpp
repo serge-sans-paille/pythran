@@ -11,53 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_INVSQRT_2PI_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_INVSQRT_2PI_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
+/*!
+  @ingroup group-constant
+  @defgroup constant-Invsqrt_2pi Invsqrt_2pi (function template)
 
-    @ingroup group-constant
+  Generates the constant \f$\frac{1}{\sqrt{2\pi}}\f$
 
-    Constant  \f$\frac1{\sqrt{2\pi}}\f$.
+  @headerref{<boost/simd/constant/invsqrt_2pi.hpp>}
 
+  @par Description
 
-    @par Header <boost/simd/constant/invsqrt_2pi.hpp>
+  1.  @code
+      template<typename T> T Invsqrt_2pi();
+      @endcode
 
-    @par Semantic:
+  2.  @code
+      template<typename T> T Invsqrt_2pi( boost::simd::as_<T> const& target );
+      @endcode
 
-    For type T:
+  Generates a value of type @c T that evaluates to \f$\frac{1}{\sqrt{2\pi}}\f$.
 
-    @code
-    T r = Invsqrt_2pi<T>();
-    @endcode
+  @par Parameters
 
-    is similar to:
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @code
-    T r = rsqrt(Two<T>()*Pi<T>());
-    @endcode
+  @par Return Value
+  A value of type @c T that evaluates to `T(0.39894228040143267793994605993438)`.
 
-    @return a value of type T
-
+  @par Requirements
+  - **T** models IEEEValue
 **/
-  template<typename T> T Invsqrt_2pi();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-
-
-      Constant  \f$\frac1{\sqrt{2\pi}}\f$.
-
-      Generate the  constant invsqrt_2pi.
-
-      @return The Invsqrt_2pi constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::invsqrt_2pi_> invsqrt_2pi = {};
-  }
-} }
-#endif
 
 #include <boost/simd/constant/scalar/invsqrt_2pi.hpp>
 #include <boost/simd/constant/simd/invsqrt_2pi.hpp>

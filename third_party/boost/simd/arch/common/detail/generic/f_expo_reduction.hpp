@@ -60,7 +60,7 @@ namespace boost { namespace simd
 
       static BOOST_FORCEINLINE A0 approx(A0 const& x) BOOST_NOEXCEPT
       {
-        // remez polynomial of degree 4 on [-0.5 0.5] for (exp(x)-1-x)/sqr(x)
+        // Remez polynomial of degree 4 on [-0.5 0.5] for (exp(x)-1-x)/sqr(x)
         // tested in range: [-88.3763, 88.3763]
         //2214928753 values (98.98%)  within 0.0 ULPs
         //  22831063 values (1.02%)   within 0.5 ULPs
@@ -100,7 +100,7 @@ namespace boost { namespace simd
 
       static BOOST_FORCEINLINE A0 approx(A0 const& x) BOOST_NOEXCEPT
       {
-        // remez polynom of degree 4 on [-0.5, 0.5] for (exp2(x)-1-x*log(2))/sqr(x)  tested in range: [-127 127]
+        // Remez polynom of degree 4 on [-0.5, 0.5] for (exp2(x)-1-x*log(2))/sqr(x)  tested in range: [-127 127]
         // 2247884800 values computed.
         // 2224606419 values (98.96%)  within 0.0 ULPs
         // 23278381 values (1.04%)   within 0.5 ULPs
@@ -147,7 +147,7 @@ namespace boost { namespace simd
 
       static BOOST_FORCEINLINE A0 approx(A0 const& x) BOOST_NOEXCEPT
       {
-        // remez polynom of degree 5 on [-0.5, 0.5]*log10(2) for (exp10(x)-1)/x   tested in range: [-37.9, 38.2308]
+        // Remez polynom of degree 5 on [-0.5, 0.5]*log10(2) for (exp10(x)-1)/x   tested in range: [-37.9, 38.2308]
         //  2217772528 values computed.
         //  2198853506 values (99.15%)  within 0.0 ULPs
         //  18919022 values (0.85%)   within 0.5 ULPs

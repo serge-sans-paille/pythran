@@ -23,7 +23,7 @@ namespace boost { namespace simd
   namespace detail
   {
     namespace tt = nsm::type_traits;
-    
+
     template<std::size_t N> struct swap_bytes_helper
     {
       template<typename I, typename C>

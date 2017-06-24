@@ -11,45 +11,39 @@
 #ifndef BOOST_SIMD_CONSTANT_SQRTVALMAX_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_SQRTVALMAX_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Sqrtvalmax Sqrtvalmax (function template)
 
-    Generate the square root of the greatest finite representable value
+  Generates the square root of the greatest finite representable value.
 
+  @headerref{<boost/simd/constant/sqrtvalmax.hpp>}
 
-    @par Header <boost/simd/constant/sqrtvalmax.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Sqrtvalmax();
+      @endcode
 
-    @code
-    T r = Sqrtvalmax<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Sqrtvalmax( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to the value of the greatest representable value
+  which square is also representable.
 
-    @code
-    T r =  sqrt(Valmax<T>();
-    @endcode
+  @par Parameters
 
-    @return The Sqrtvalmax constant for the proper type
-  **/
-  template<typename T> T Sqrtvalmax();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant sqrtvalmax.
+  @par Return Value
+  A value of type @c T that evaluates to `sqrt(Valmax<T>())`
 
-      @return The Sqrtvalmax constant for the proper type
-    **/
-    Value Sqrtvalmax();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/sqrtvalmax.hpp>
 #include <boost/simd/constant/simd/sqrtvalmax.hpp>

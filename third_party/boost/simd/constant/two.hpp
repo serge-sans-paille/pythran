@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_TWO_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_TWO_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Two Two (function template)
 
-    Generate the constant two.
+  Generates the constant @c 2
 
-    @return The Two constant for the proper type
-  **/
-  template<typename T> T Two();
+  @headerref{<boost/simd/constant/two.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant two.
+  @par Description
 
-      @return The Two constant for the proper type
-    **/
-    Value Two();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Two();
+      @endcode
+
+  2.  @code
+      template<typename T> T Two( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T that evaluates to 2.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(2)`.
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/two.hpp>
 #include <boost/simd/constant/simd/two.hpp>

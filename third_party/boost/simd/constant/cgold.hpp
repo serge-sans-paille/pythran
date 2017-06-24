@@ -11,65 +11,40 @@
 #ifndef BOOST_SIMD_CONSTANT_CGOLD_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_CGOLD_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
-    Generates a value of the chosen type which represents the conjugate Golden Ratio.
+/*!
+  @ingroup group-constant
+  @defgroup constant-Cgold Cgold (function template)
 
-    The conjugate Golden Ratio (\f$\bar\phi\f$) is defined as \f$\frac{1-\sqrt5}{2}\f$.
+  Generates the Golden Ratio conjugate constant: \f$\frac{1}{\phi}\f$.
 
+  @headerref{<boost/simd/constant/cgold.hpp>}
 
-    @par Header <boost/simd/constant/cgold.hpp>
+  @par Description
 
-    @par Semantic:
-
-    @code
-    T r = Cgold<T>();
-    @endcode
-
-    is equivalent to:
-
-    @code
-    T r = (1-simd::sqrt(T(5)))/2;
-    @endcode
-
-    @return A value of type @c T containing the conjugate Golden Ratio.
-
-    @see functional::cgold
-  **/
-  template<typename T> T Cgold();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generates a value of the chosen type which represents the conjugate Golden Ratio.
-
-      The conjugate Golden Ratio (\f$\bar\phi\f$) is defined as \f$\frac{1-\sqrt5}{2}\f$.
-
-      @par Semantic:
-
-      For any value @c x of type @c T:
-      @code
-      T r = simd::functional::cgold( boost::simd::as(x));
+  1.  @code
+      template<typename T> T Cgold();
       @endcode
 
-      is equivalent to:
-
-      @code
-      T r = simd::Cgold<T>();
+  2.  @code
+      template<typename T> T Cgold( boost::simd::as_<T> const& target );
       @endcode
 
-      @return A value of type @c T containing the conjugate Golden Ratio.
+  Generates a constant that evaluate to the
+  [Golden Ratio conjugate](http://mathworld.wolfram.com/GoldenRatioConjugate.html)
+  (also known as the silver ratio) defined as \f$\frac{1 - \sqrt{5}}{2}\f$.
 
-      @see Cgold
-    **/
-    Value Cgold();
-  }
-} }
-#endif
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T((1 - sqrt(5))/2)`.
+
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/cgold.hpp>
 #include <boost/simd/constant/simd/cgold.hpp>

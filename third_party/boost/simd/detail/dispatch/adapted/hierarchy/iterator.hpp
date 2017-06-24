@@ -91,9 +91,9 @@ namespace boost { namespace dispatch
 
   /*!
     @ingroup group-tag
-    @brief Bidirectionnal iterator type hierarchy tag
+    @brief Bidirectional iterator type hierarchy tag
 
-    Types classified as iterator_ model the standard BidirectionnalIterator concepts.
+    Types classified as iterator_ model the standard BidirectionalIterator concepts.
 
     @tparam T         Base hierarchy
   **/

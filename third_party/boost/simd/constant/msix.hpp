@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_MSIX_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MSIX_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Msix Msix (function template)
 
-    Generate the constant msix.
+  Generates the constant@c -6
 
-    @return The Msix constant for the proper type
-  **/
-  template<typename T> T Msix();
+  @headerref{<boost/simd/constant/msix.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant msix.
+  @par Description
 
-      @return The Msix constant for the proper type
-    **/
-    Value Msix();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Msix();
+      @endcode
+
+  2.  @code
+      template<typename T> T Msix( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T that evaluates to -6.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(-6)`:
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/msix.hpp>
 #include <boost/simd/constant/simd/msix.hpp>

@@ -11,45 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_ONEOSQRT5_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_ONEOSQRT5_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Oneosqrt5 Oneosqrt5 (function template)
 
-    Generate  \f$1/\sqrt5\f$
+  Generates the constant \f$1/\sqrt5\f$
 
+  @headerref{<boost/simd/constant/oneosqrt5.hpp>}
 
-    @par Header <boost/simd/constant/oneosqrt5.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Oneosqrt5();
+      @endcode
 
-    @code
-    T r = Oneosqrt5<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Oneosqrt5( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$1/\sqrt5\f$.
 
-    @code
-      r =  1/sqrt(T(5));
-    @endcode
+  @par Parameters
 
-    @return The Oneosqrt5 constant for the proper type
-  **/
-  template<typename T> T Oneosqrt5();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant oneosqrt5.
+  @par Return Value
+  1.  A value of type @c T that evaluates to `T(0.44721359549995793928183473374626)`
 
-      @return The Oneosqrt5 constant for the proper type
-    **/
-    const boost::dispatch::functor<tag::oneosqrt5_> oneosqrt5 = {};
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models IEEEValue
+**/
 
 #include <boost/simd/constant/scalar/oneosqrt5.hpp>
 #include <boost/simd/constant/simd/oneosqrt5.hpp>

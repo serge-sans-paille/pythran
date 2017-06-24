@@ -11,66 +11,41 @@
 #ifndef BOOST_SIMD_CONSTANT_BITINCREMENT_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_BITINCREMENT_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Bitincrement Bitincrement (function template)
 
-    Generates a value of the chosen type which represents the minimal increment value for @c T.
+  Generates the minimal increment constant for a given type.
 
+  @headerref{<boost/simd/constant/bitincrement.hpp>}
 
-    @par Header <boost/simd/constant/bitincrement.hpp>
+  @par Description
 
-    @par Semantic:
-
-    For any type @c T,
-
-    @code
-    T r = Bitincrement<T>();
-    @endcode
-
-    generates a value so that, for any value @c x of type @c T,
-
-    @code
-    x + r == simd::nextafter(x, 1);
-    @endcode
-
-    evaluates to @c true.
-
-    @return A value of type @c T containing the minimal increment value for @c T
-
-    @see functional::bitincrement
-  **/
-  template<typename T> T Bitincrement();
-
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generates a value of the chosen type which represents the minimal increment value for @c T.
-
-      @par Semantic:
-
-      For any value @c x of type @c T:
-      @code
-      T r = simd::functional::bitincrement( boost::simd::as(x));
+  1.  @code
+      template<typename T> T Bitincrement();
       @endcode
 
-      is similar to:
-
-      @code
-      T r = simd::Bitincrement<T>();
+  2.  @code
+      template<typename T> T Bitincrement( boost::simd::as_<T> const& target );
       @endcode
 
-      @return A value of type @c T containing the minimal increment value for @c T
+  Generates a value of type @c T that evaluates to the minimal increment value for @c T.
 
-      @see Bitincrement
-    **/
-    Value Bitincrement();
-  }
-} }
-#endif
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that is defined as :
+
+  - the constant `T(1)` if @c T models IntegerValue
+  - the constant `next(T(0))` if @c T models IEEEValue
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/bitincrement.hpp>
 #include <boost/simd/constant/simd/bitincrement.hpp>

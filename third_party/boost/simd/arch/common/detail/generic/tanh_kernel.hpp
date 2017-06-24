@@ -13,12 +13,9 @@
 
 #include <boost/simd/function/horn.hpp>
 #include <boost/simd/function/horn1.hpp>
-#include <boost/simd/function/multiplies.hpp>
-#include <boost/simd/function/divides.hpp>
 #include <boost/simd/function/rec.hpp>
 #include <boost/simd/function/fma.hpp>
 #include <boost/simd/detail/dispatch/meta/scalar_of.hpp>
-#include <boost/array.hpp>
 
 namespace boost { namespace simd
 {

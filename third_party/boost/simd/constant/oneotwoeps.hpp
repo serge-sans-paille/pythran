@@ -11,50 +11,42 @@
 #ifndef BOOST_SIMD_CONSTANT_ONEOTWOEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_ONEOTWOEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Oneotwoeps Oneotwoeps (function template)
 
-    Generate \f$1/(2\epsilon)\f$
+  Generates the constant \f$1/(2\epsilon)\f$
 
+  @headerref{<boost/simd/constant/oneotwoeps.hpp>}
 
-    @par Header <boost/simd/constant/oneotwoeps.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Oneotwoeps();
+      @endcode
 
-    @code
-    T r = Oneotwoeps<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Oneotwoeps( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T evaluating to \f$1/(2\epsilon)\f$.
 
-    @code
-    if T is integral
-      r = T(0)
-    else if T is double
-      r =  pow(2.0, 52);
-    else if T is float
-      r =  pow(2.0f, 22);
-    @endcode
+  @par Parameters
 
-    @return The Oneotwoeps constant for the proper type
-  **/
-  template<typename T> T Oneotwoeps();
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant oneotwoeps.
+  @par Return Value
+  A value of type @c T that evaluates to
 
-      @return The Oneotwoeps constant for the proper type
-    **/
-    Value Oneotwoeps();
-  }
-} }
-#endif
+  | Type        | double                      | float                 | Integral  |
+  |:------------|:----------------------------|-----------------------|-----------|
+  | **Values**  |  \f$2^{52}\f$               | \f$2^{23} \f$         |  0        |
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/oneotwoeps.hpp>
 #include <boost/simd/constant/simd/oneotwoeps.hpp>

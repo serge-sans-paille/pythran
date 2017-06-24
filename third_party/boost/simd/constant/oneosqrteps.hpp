@@ -11,51 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_ONEOSQRTEPS_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_ONEOSQRTEPS_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Oneosqrteps Oneosqrteps (function template)
 
-    Generate \f$1/\sqrt\epsilon\f$
+  Generates the constant \f$1/\sqrt\epsilon\f$
 
+  @headerref{<boost/simd/constant/oneosqrteps.hpp>}
 
-    @par Header <boost/simd/constant/oneosqrteps.hpp>
+  @par Description
 
-    @par Semantic:
+  1.  @code
+      template<typename T> T Oneosqrteps();
+      @endcode
 
-    @code
-    T r = Oneosqrteps<T>();
-    @endcode
+  2.  @code
+      template<typename T> T Oneosqrteps( boost::simd::as_<T> const& target );
+      @endcode
 
-    is similar to:
+  Generates a value of type @c T that evaluates to \f$1/\sqrt\epsilon\f$.
 
-    @code
-    if T is integral
-      r = T(0)
-    else if T is double
-      r =  pow(2.0, 26);
-    else if T is float
-      r =  pow(2.0f, 11.5);
-    @endcode
+  @par Parameters
 
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
 
-    @return The Oneosqrteps constant for the proper type
-  **/
-  template<typename T> T Oneosqrteps();
+  @par Return Value
+  A value of type @c T that evaluates to `rec(sqrt(Eps<T>()))`.
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant oneosqrteps.
-
-      @return The Oneosqrteps constant for the proper type
-    **/
-    Value Oneosqrteps();
-  }
-} }
-#endif
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/oneosqrteps.hpp>
 #include <boost/simd/constant/simd/oneosqrteps.hpp>

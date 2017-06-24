@@ -11,30 +11,38 @@
 #ifndef BOOST_SIMD_CONSTANT_MNINE_HPP_INCLUDED
 #define BOOST_SIMD_CONSTANT_MNINE_HPP_INCLUDED
 
-#if defined(DOXYGEN_ONLY)
-namespace boost { namespace simd
-{
-  /*!
-    @ingroup group-constant
+/*!
+  @ingroup group-constant
+  @defgroup constant-Mnine Mnine (function template)
 
-    Generate the constant mnine.
+  Generates the constant @c -9.
 
-    @return The Mnine constant for the proper type
-  **/
-  template<typename T> T Mnine();
+  @headerref{<boost/simd/constant/mnine.hpp>}
 
-  namespace functional
-  {
-    /*!
-      @ingroup group-callable-constant
-      Generate the  constant mnine.
+  @par Description
 
-      @return The Mnine constant for the proper type
-    **/
-    Value Mnine();
-  }
-} }
-#endif
+  1.  @code
+      template<typename T> T Mnine();
+      @endcode
+
+  2.  @code
+      template<typename T> T Mnine( boost::simd::as_<T> const& target );
+      @endcode
+
+  Generates a value of type @c T that evaluates to -9.
+
+  @par Parameters
+
+  | Name                | Description                                                         |
+  |--------------------:|:--------------------------------------------------------------------|
+  | **target**          | a [placeholder](@ref type-as) value encapsulating the constant type |
+
+  @par Return Value
+  A value of type @c T that evaluates to `T(-9)`:
+
+  @par Requirements
+  - **T** models Value
+**/
 
 #include <boost/simd/constant/scalar/mnine.hpp>
 #include <boost/simd/constant/simd/mnine.hpp>

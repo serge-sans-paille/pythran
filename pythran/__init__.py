@@ -11,7 +11,7 @@ This package provides several entry points
 
 Basic scenario is to turn a Python AST into C++ code:
 >>> code = "def foo(x): return x * 2"
->>> cxx_generator = generate_cxx('my_module', code) # gets a BoostPythonModule
+>>> cxx_generator, error_checker = generate_cxx('my_module', code)
 >>> cxx = cxx_generator.generate()
 
 To generate a native module, one need to add type information:

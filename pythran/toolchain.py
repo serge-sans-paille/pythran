@@ -112,7 +112,10 @@ class HasArgument(ast.NodeVisitor):
 
 def generate_cxx(module_name, code, specs=None, optimizations=None):
     '''python + pythran spec -> c++ code
-    returns a PythonModule object
+    returns a PythonModule object and an error checker
+
+    the error checker can be used to print more detailed info on the origin of
+    a compile error (e.g. due to bad typing)
 
     '''
 
@@ -126,9 +129,6 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                      cfg.get('pythran', 'optimizations').split())
     optimizations = [_parse_optimization(opt) for opt in optimizations]
     refine(pm, ir, optimizations)
-
-    # type check
-    types = tog.typecheck(ir)
 
     # back-end
     content = pm.dump(Cxx, ir)
@@ -146,6 +146,10 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
             generate = __str__
 
         mod = Generable(content)
+
+        def error_checker():
+            tog.typecheck(ir)
+
     else:
 
         # uniform typing
@@ -155,7 +159,11 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
         # verify the pythran export are compatible with the code
         specs = expand_specs(specs)
-        check_specs(ir, specs, renamings, types)
+
+        def error_checker():
+            types = tog.typecheck(ir)
+            check_specs(ir, specs, renamings, types)
+
         specs_to_docstrings(specs, docstrings)
 
         if isinstance(code, bytes):
@@ -234,7 +242,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                     function_name,
                     arguments_types
                 )
-    return mod
+    return mod, error_checker
 
 
 def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
@@ -268,7 +276,8 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
                            ]
               )
     except SystemExit as e:
-        raise CompileError(e.args)
+        raise CompileError(str(e))
+
 
     [target] = glob.glob(os.path.join(builddir, module_name + "*"))
     if not output_binary:
@@ -318,7 +327,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
         specs = spec_parser(pythrancode)
 
     # Generate C++, get a PythonModule object
-    module = generate_cxx(module_name, pythrancode, specs, opts)
+    module, error_checker = generate_cxx(module_name, pythrancode, specs, opts)
 
     if cpponly:
         # User wants only the C++ code
@@ -329,10 +338,16 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
         logger.info("Generated C++ source file: " + output_file)
     else:
         # Compile to binary
-        output_file = compile_cxxcode(module_name,
-                                      str(module),
-                                      output_binary=output_file,
-                                      **kwargs)
+        try:
+            output_file = compile_cxxcode(module_name,
+                                          str(module),
+                                          output_binary=output_file,
+                                          **kwargs)
+        except CompileError as ce:
+            logger.warn("Compilation error, trying hard to find its origin...")
+            error_checker()
+            logger.warn("Nop, I'm going to flood you with C++ errors!")
+            raise
 
     return output_file
 

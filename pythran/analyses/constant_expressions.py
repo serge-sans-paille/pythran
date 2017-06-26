@@ -6,9 +6,6 @@ from pythran.analyses.locals_analysis import Locals
 from pythran.analyses.pure_expressions import PureExpressions
 from pythran.intrinsic import FunctionIntr
 from pythran.passmanager import NodeAnalysis
-from pythran.tables import MODULES
-from pythran.conversion import demangle
-from pythran.utils import path_to_node
 
 import gast as ast
 

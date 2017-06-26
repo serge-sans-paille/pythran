@@ -1,7 +1,6 @@
 """ Module with facilities to represent range values. """
 
 from math import isinf
-import gast as ast
 import itertools
 
 import numpy

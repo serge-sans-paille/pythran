@@ -5,7 +5,6 @@ This module provides a dummy parser for pythran annotations.
 
 from pythran.types.conversion import pytype_to_pretty_type
 
-import itertools
 import re
 import os.path
 import ply.lex as lex
@@ -339,7 +338,7 @@ def expand_specs(specs):
 def specs_to_docstrings(specs, docstrings):
     for function_name, signatures in specs.items():
         sigdocs = []
-        for sigid, signature in enumerate(signatures):
+        for signature in signatures:
             arguments_types = [pytype_to_pretty_type(t) for t in signature]
             function_signatures = '{}({})'.format(
                 function_name,

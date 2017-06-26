@@ -2,7 +2,6 @@
 
 from pythran.analyses import Aliases
 from pythran.analyses.pure_expressions import PureExpressions
-from pythran.analyses.constant_expressions import ConstantExpressions
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.intrinsic import FunctionIntr

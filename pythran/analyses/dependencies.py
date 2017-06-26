@@ -3,7 +3,6 @@ Dependencies lists the functions and types required by a function
 """
 
 from pythran.passmanager import ModuleAnalysis
-from pythran.tables import MODULES
 from pythran.conversion import demangle
 
 import gast as ast

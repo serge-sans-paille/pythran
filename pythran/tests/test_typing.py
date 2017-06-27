@@ -4,7 +4,7 @@ import numpy as np
 import pythran
 from textwrap import dedent
 
-from pythran.typing import List, Dict
+from pythran.typing import List, Dict, NDArray
 
 class TestTyping(TestEnv):
 
@@ -295,7 +295,10 @@ def recursive_interprocedural_typing1():
             4,
             slice_assign=[int])
 
-
+    def verify_type_error(self, code):
+        with self.assertRaises(pythran.types.tog.PythranTypeError):
+            _, eh = pythran.generate_cxx("dumbo", dedent(code))
+            eh()
 
     def test_type_inference0(self):
         code = '''
@@ -313,16 +316,10 @@ def recursive_interprocedural_typing1():
         self.run_test(code, "cha-la head cha-la", wc=[str])
 
         code_bis = code.replace("1", "'1'")
-
-
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code_bis))
+        self.verify_type_error(code_bis)
 
         code_ter = code.replace("0", "None")
-
-
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code_ter))
+        self.verify_type_error(code_ter)
 
     def test_type_inference1(self):
         code = '''
@@ -330,55 +327,48 @@ def recursive_interprocedural_typing1():
                 s = n + "1"
                 s += 2
                 return s'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
 
     def test_type_inference2(self):
         code = '''
             def invalid_ifexp(n):
                 return 1 if n else "1"'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
 
     def test_type_inference3(self):
         code = '''
             def invalid_unary_op(n):
                 return -(n + 'n')'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
 
     def test_type_inference4(self):
         code = '''
             def invalid_list(n):
                 return [n, len(n)]'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
 
     def test_type_inference5(self):
         code = '''
             def invalid_set(n):
                 return {n, len(n)}'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
     def test_type_inference6(self):
         code = '''
             def invalid_dict_key(n):
                 return {n:1, len(n):2}'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
 
     def test_type_inference7(self):
         code = '''
             def invalid_dict_value(n):
                 return {1:n, 2:len(n)}'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
     def test_type_inference8(self):
         code = '''
@@ -386,8 +376,7 @@ def recursive_interprocedural_typing1():
                 for i in n:
                     return [n]
                 return {n}'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
     def test_type_inference9(self):
         code = '''
@@ -395,20 +384,19 @@ def recursive_interprocedural_typing1():
                 for i in n:
                     yield [n]
                 yield n'''
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
-            pythran.compile_pythrancode("dumbo", dedent(code))
+        self.verify_type_error(code)
 
 
     def test_type_inference10(self):
         code = '''
             def valid_augassign(l):
                 l *= 0
-                return l[1,2]'''
-        pythran.compile_pythrancode("dumbo", dedent(code))
+                return l[1:2]'''
+        return self.run_test(code, np.array([0,1,2,3,4]), valid_augassign=[NDArray[int, :]])
 
     def test_type_inference11(self):
         code = '''
             def valid_tuple_index(l):
                 return (1, 2, 3, 4)[l]'''
-        pythran.compile_pythrancode("dumbo", dedent(code))
+        return self.run_test(code, 0, valid_tuple_index=[int])
 

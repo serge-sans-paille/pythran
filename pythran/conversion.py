@@ -2,10 +2,8 @@
 from __future__ import absolute_import
 
 import gast as ast
-import itertools
 import numpy
 import sys
-import types
 import numbers
 
 

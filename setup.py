@@ -17,12 +17,11 @@ except ImportError:
 try:
     import numpy
 except ImportError:
-    print()
-    print("******************************************************************")
-    print("* Numpy must be installed before running setup, sorry about this *")
-    print("******************************************************************")
-    print()
-    raise
+    from warnings import warn
+    warn(("\n******************************************************************"
+          "\n* Numpy must be installed before running setup, sorry about this *"
+          "\n******************************************************************"),
+         UserWarning)
 
 from setuptools.command.build_py import build_py
 from setuptools import setup
@@ -192,5 +191,6 @@ setup(name='pythran',
                      'pythran-config = pythran.config:run']},
       setup_requires=["pytest-runner"],
       tests_require=['pytest', 'pytest-pep8'],
+      extras_require={'deps': ['numpy']},
       test_suite="pythran/test",
       cmdclass={'build_py': BuildWithThirdParty})

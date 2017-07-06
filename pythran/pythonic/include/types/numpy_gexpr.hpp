@@ -348,10 +348,7 @@ namespace pythonic
       // 2. the size of the gexpr is lower than the dim of arg, or it's the
       // same, but the last slice is contiguous
       static const bool is_vectorizable =
-          std::is_same<ndarray<typename std::remove_reference<Arg>::type::dtype,
-                               std::remove_reference<Arg>::type::value>,
-                       typename std::remove_cv<typename std::remove_reference<
-                           Arg>::type>::type>::value and
+          std::remove_reference<Arg>::type::is_vectorizable and
           (sizeof...(S) < std::remove_reference<Arg>::type::value or
            std::is_same<contiguous_slice,
                         typename std::tuple_element<

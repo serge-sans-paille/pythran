@@ -63,18 +63,20 @@ namespace pythonic
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator=(E const &expr)
     {
       assert(buffer);
-      return utils::broadcast_copy<numpy_iexpr &, E, value,
-                                   value - utils::dim_of<E>::value,
-                                   false /*NIY*/>(*this, expr);
+      return utils::broadcast_copy < numpy_iexpr &, E, value,
+             value - utils::dim_of<E>::value,
+             is_vectorizable &&
+                 types::is_vectorizable<E>::value > (*this, expr);
     }
 
     template <class Arg>
     numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator=(numpy_iexpr<Arg> const &expr)
     {
       assert(buffer);
-      return utils::broadcast_copy<numpy_iexpr &, numpy_iexpr const &, value,
-                                   value - utils::dim_of<numpy_iexpr>::value,
-                                   false /*NIY*/>(*this, expr);
+      return utils::broadcast_copy < numpy_iexpr &, numpy_iexpr const &, value,
+             value - utils::dim_of<numpy_iexpr>::value,
+             is_vectorizable &&
+                 numpy_iexpr<Arg>::is_vectorizable > (*this, expr);
     }
 
     template <class Arg>

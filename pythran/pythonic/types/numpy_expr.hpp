@@ -76,8 +76,13 @@ namespace pythonic
     template <int... I>
     bool numpy_expr<Op, Args...>::_no_broadcast(utils::seq<I...>) const
     {
-      std::initializer_list<long> nb = {std::get<I>(args).shape()[0]...};
-      return std::all_of(nb.begin(), nb.end(),
+      std::initializer_list<bool> nb = {
+          utils::no_broadcast(std::get<I>(args))...};
+      if (std::any_of(nb.begin(), nb.end(), [](bool b) { return !b; }))
+        return false;
+
+      std::initializer_list<long> shapes = {std::get<I>(args).shape()[0]...};
+      return std::all_of(shapes.begin(), shapes.end(),
                          [this](long n) { return n == size() || n == 0; });
     }
     template <class Op, class... Args>

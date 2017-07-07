@@ -31,7 +31,7 @@ class RemoveNamedArguments(Transformation):
         '''
         Gather keywords to positional argument information
 
-        Assumes the named parameter exist, raises a ValueError otherwise
+        Assumes the named parameter exist, raises a KeyError otherwise
         '''
         func_argument_names = {}
         for i, arg in enumerate(func.args.args[offset:]):
@@ -87,7 +87,8 @@ class RemoveNamedArguments(Transformation):
                         node.args[index] = value
                     node.keywords = []
 
-            except:
-                err = "function aliases to incompatible types"
+            except KeyError as ve:
+                err = ("function uses an unkown (or unsupported) keyword "
+                       "argument `{}`".format(ve.args[0]))
                 raise PythranSyntaxError(err, node)
         return self.generic_visit(node)

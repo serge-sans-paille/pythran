@@ -23,7 +23,7 @@ addons:
 
 before_install:
     - pip install --upgrade pip setuptools wheel six
-    - pip install --only-binary=numpy -U ply networkx colorlog numpy pytest-pep8 pytest-xdist gast
+    - pip install --only-binary=numpy -U ply networkx colorlog numpy pytest-pep8 pytest-xdist gast ipython
     - python setup.py install 1> /dev/null
 
 env:
@@ -44,6 +44,8 @@ env:
     - TESTCASE=pythran/tests/test_distutils.py
     - PYTHON_VERSION=2 TESTCASE=pythran/tests/test_doc.py
     - PYTHON_VERSION=2 TESTCASE=pythran/tests/test_euler.py
+
+    - PYTHON_VERSION=2 TESTCASE=pythran/tests/test_ipython.py
 
     - MODE=seq PYTHON_VERSION=2 TESTCASE=pythran/tests/test_exception.py
     - MODE=omp PYTHON_VERSION=2 TESTCASE=pythran/tests/test_exception.py

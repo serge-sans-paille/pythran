@@ -214,7 +214,8 @@ class ImportedModule(object):
                 # FIXME : We ignore import of globals
                 pass
             else:
-                raise PythranSyntaxError('Unpythranizable module: %s' % name)
+                raise PythranSyntaxError('Unsupported top-level statement',
+                                         decl)
 
     def call_function(self, registry, func_name):
         """Direct function call from another function of the current module,

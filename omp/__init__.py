@@ -48,7 +48,7 @@ class OpenMP(object):
                 break
             path = path.strip()
             if os.path.isdir(path):
-                libgomp_path = find_library(os.path.join(path, "libgomp"))
+                libgomp_path = find_library(os.path.join(str(path), "libgomp"))
 
         if not libgomp_path:
             raise ImportError("I can't find a shared library for libgomp,"

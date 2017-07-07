@@ -33,8 +33,8 @@ class TestImportAll(TestEnv):
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
             pythran.compile_pythrancode("flamby", dedent(code))
 
-        self.assertEqual(str(ex.exception),
-                         "Unpythranizable module: collections")
+        self.assertIn('Unsupported top-level statement (collections.py',
+                      str(ex.exception))
 
     def test_complex_import_manipulation(self):
         """

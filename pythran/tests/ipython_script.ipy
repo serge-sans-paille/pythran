@@ -1,0 +1,8 @@
+from IPython import get_ipython
+ipython = get_ipython()
+ipython.magic('%load_ext pythran.magic')
+ipython.run_cell_magic('pythran', '', '''
+#pythran export foo(int)
+def foo(n): return n
+''')
+print(foo(3))

@@ -6,7 +6,8 @@ This modules contains a distutils extension mechanism for Pythran
 import pythran.config as cfg
 import pythran.toolchain as tc
 
-from distutils.core import Extension
+from numpy.distutils.extension import Extension
+
 import os.path
 import os
 

@@ -5,6 +5,7 @@ except:
     import ConfigParser as configparser
 import logging
 import numpy.distutils.system_info as numpy_sys
+import numpy
 import os
 import sys
 
@@ -79,6 +80,9 @@ def make_extension(**extra):
         # the patch is *not* portable
         extension["include_dirs"].append(here + '/pythran/pythonic/patch')
 
+    # numpy specific
+    extension['include_dirs'].append(numpy.get_include())
+
     # blas dependency
     user_blas = cfg.get('compiler', 'blas')
     if user_blas:
@@ -87,6 +91,7 @@ def make_extension(**extra):
         numpy_blas = numpy_sys.get_info("blas")
         extension['libraries'].extend(numpy_blas.get('libraries', []))
         extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
+        extension['include_dirs'].extend(numpy_blas.get('include_dirs', []))
     return extension
 
 

@@ -1,2 +1,3 @@
 #pythran export a()
-def a(): return 1
+import numpy
+def a(): return numpy.ones(1)

@@ -66,7 +66,7 @@ class PythranMagics(Magics):
             kwargs.setdefault('extra_link_args', []).append(
                 '-fopenmp')
         m = hashlib.md5()
-        m.update(cell)
+        m.update(cell.encode('utf-8'))
         module_name = "pythranized_" + m.hexdigest()
         module_path = pythran.compile_pythrancode(module_name, cell, **kwargs)
         module = imp.load_dynamic(module_name, module_path)

@@ -46,6 +46,7 @@ env:
     - PYTHON_VERSION=2 TESTCASE=pythran/tests/test_euler.py
 
     - PYTHON_VERSION=2 TESTCASE=pythran/tests/test_ipython.py
+    - PYTHON_VERSION=3 TESTCASE=pythran/tests/test_ipython.py
 
     - MODE=seq PYTHON_VERSION=2 TESTCASE=pythran/tests/test_exception.py
     - MODE=omp PYTHON_VERSION=2 TESTCASE=pythran/tests/test_exception.py

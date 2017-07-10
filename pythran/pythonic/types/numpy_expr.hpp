@@ -43,8 +43,7 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::const_iterator
         numpy_expr<Op, Args...>::_begin(utils::seq<I...>) const
     {
-      return {*this,
-              {(size() == std::get<I>(args).shape()[0])...},
+      return {{(size() == std::get<I>(args).shape()[0])...},
               std::get<I>(args).begin()...};
     }
 
@@ -60,8 +59,7 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::const_iterator
         numpy_expr<Op, Args...>::_end(utils::seq<I...>) const
     {
-      return {*this,
-              {(size() == std::get<I>(args).shape()[0])...},
+      return {{(size() == std::get<I>(args).shape()[0])...},
               std::get<I>(args).end()...};
     }
 
@@ -96,8 +94,7 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::iterator
         numpy_expr<Op, Args...>::_begin(utils::seq<I...>)
     {
-      return {*this,
-              {(size() == std::get<I>(args).shape()[0])...},
+      return {{(size() == std::get<I>(args).shape()[0])...},
               std::get<I>(args).begin()...};
     }
 
@@ -112,8 +109,7 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::iterator
         numpy_expr<Op, Args...>::_end(utils::seq<I...>)
     {
-      return {*this,
-              {(size() == std::get<I>(args).shape()[0])...},
+      return {{(size() == std::get<I>(args).shape()[0])...},
               std::get<I>(args).end()...};
     }
 
@@ -182,8 +178,7 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::simd_iterator
         numpy_expr<Op, Args...>::_vbegin(vectorize, utils::seq<I...>) const
     {
-      return {*this,
-              {(size() == std::get<I>(args).shape()[0])...},
+      return {{(size() == std::get<I>(args).shape()[0])...},
               std::make_tuple(std::get<I>(args).begin()...),
               std::get<I>(args).vbegin(vectorize{})...};
     }
@@ -201,8 +196,7 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::simd_iterator
         numpy_expr<Op, Args...>::_vend(vectorize, utils::seq<I...>) const
     {
-      return {*this,
-              {(size() == std::get<I>(args).shape()[0])...},
+      return {{(size() == std::get<I>(args).shape()[0])...},
               std::make_tuple(std::get<I>(args).end()...),
               std::get<I>(args).vend(vectorize{})...};
     }
@@ -220,7 +214,7 @@ namespace pythonic
         numpy_expr<Op, Args...>::_vbegin(vectorize_nobroadcast,
                                          utils::seq<I...>) const
     {
-      return {*this, std::get<I>(args).vbegin(vectorize_nobroadcast{})...};
+      return {std::get<I>(args).vbegin(vectorize_nobroadcast{})...};
     }
 
     template <class Op, class... Args>
@@ -237,7 +231,7 @@ namespace pythonic
         numpy_expr<Op, Args...>::_vend(vectorize_nobroadcast,
                                        utils::seq<I...>) const
     {
-      return {*this, std::get<I>(args).vend(vectorize_nobroadcast{})...};
+      return {std::get<I>(args).vend(vectorize_nobroadcast{})...};
     }
 
     template <class Op, class... Args>

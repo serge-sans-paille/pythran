@@ -31,19 +31,17 @@ namespace pythonic
         : std::iterator<std::random_access_iterator_tag,
                         typename std::remove_reference<decltype(std::declval<
                             Op>()(*std::declval<Iters>()...))>::type> {
-      E const &holder_;
       std::array<long, sizeof...(Iters)> steps_;
       std::tuple<Iters...> iters_;
 
-      numpy_expr_iterator(E const &holder,
-                          std::array<long, sizeof...(Iters)> steps,
+      numpy_expr_iterator(std::array<long, sizeof...(Iters)> steps,
                           Iters... iters)
-          : holder_(holder), steps_(steps), iters_(iters...)
+          : steps_(steps), iters_(iters...)
       {
       }
 
       numpy_expr_iterator(numpy_expr_iterator const &other)
-          : holder_{other.holder_}, steps_(other.steps_), iters_(other.iters_)
+          : steps_(other.steps_), iters_(other.iters_)
       {
       }
 
@@ -172,21 +170,18 @@ namespace pythonic
         : std::iterator<std::random_access_iterator_tag,
                         typename std::remove_reference<decltype(std::declval<
                             Op>()(*std::declval<Iters>()...))>::type> {
-      E const &holder_;
       std::array<long, sizeof...(Iters)> steps_;
       std::tuple<Iters...> iters_;
       SIters siters_;
 
-      numpy_expr_simd_iterator(E const &holder,
-                               std::array<long, sizeof...(Iters)> steps,
+      numpy_expr_simd_iterator(std::array<long, sizeof...(Iters)> steps,
                                SIters const &siters, Iters... iters)
-          : holder_(holder), steps_(steps), siters_(siters), iters_(iters...)
+          : steps_(steps), siters_(siters), iters_(iters...)
       {
       }
 
       numpy_expr_simd_iterator(numpy_expr_simd_iterator const &other)
-          : holder_{other.holder_}, steps_(other.steps_),
-            siters_(other.siters_), iters_(other.iters_)
+          : steps_(other.steps_), siters_(other.siters_), iters_(other.iters_)
       {
       }
 
@@ -320,17 +315,15 @@ namespace pythonic
         : std::iterator<std::random_access_iterator_tag,
                         typename std::remove_reference<decltype(std::declval<
                             Op>()(*std::declval<Iters>()...))>::type> {
-      E const &holder_;
       std::tuple<Iters...> iters_;
 
-      numpy_expr_simd_iterator_nobroadcast(E const &holder, Iters... iters)
-          : holder_(holder), iters_(iters...)
+      numpy_expr_simd_iterator_nobroadcast(Iters... iters) : iters_(iters...)
       {
       }
 
       numpy_expr_simd_iterator_nobroadcast(
           numpy_expr_simd_iterator_nobroadcast const &other)
-          : holder_{other.holder_}, iters_(other.iters_)
+          : iters_(other.iters_)
       {
       }
 

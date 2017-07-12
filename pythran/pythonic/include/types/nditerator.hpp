@@ -11,6 +11,77 @@ namespace pythonic
 
   namespace types
   {
+    struct fast {
+    };
+
+    template <class T>
+    auto fast_begin(T const &e) ->
+        typename std::enable_if<has_fast_iterator<T>::value,
+                                decltype(e.begin(fast{}))>::type
+    {
+      return e.begin(fast{});
+    }
+    template <class T>
+    auto fast_begin(T const &e) ->
+        typename std::enable_if<!has_fast_iterator<T>::value,
+                                decltype(e.begin())>::type
+    {
+      return e.begin();
+    }
+    template <class T>
+    auto fast_end(T const &e) ->
+        typename std::enable_if<has_fast_iterator<T>::value,
+                                decltype(e.end(fast{}))>::type
+    {
+      return e.end(fast{});
+    }
+    template <class T>
+    auto fast_end(T const &e) ->
+        typename std::enable_if<!has_fast_iterator<T>::value,
+                                decltype(e.end())>::type
+    {
+      return e.end();
+    }
+
+    template <class E>
+    struct fast_range {
+      E const &container_;
+
+      using dtype = typename E::dtype;
+      static constexpr auto value = E::value;
+      static constexpr auto is_vectorizable = E::is_vectorizable;
+
+      operator E const &() const
+      {
+        return container_;
+      }
+
+      fast_range(E const &range) : container_(range)
+      {
+      }
+      auto begin() const -> decltype(fast_begin(this->container_))
+      {
+        return fast_begin(container_);
+      }
+      auto end() const -> decltype(fast_end(this->container_))
+      {
+        return fast_end(container_);
+      }
+    };
+
+    template <class E>
+    auto make_fast_range(E const &e) ->
+        typename std::enable_if<is_iterable<E>::value, fast_range<E>>::type
+    {
+      return {e};
+    }
+    template <class E>
+    auto make_fast_range(E const &e) ->
+        typename std::enable_if<!is_iterable<E>::value, E const &>::type
+    {
+      return e;
+    }
+
     /* Iterator over whatever provides a fast(long) method to access its element
      */
     template <class E>

@@ -72,6 +72,39 @@ namespace pythonic
 
     template <class Op, class... Args>
     template <int... I>
+    typename numpy_expr<Op, Args...>::const_fast_iterator
+        numpy_expr<Op, Args...>::_begin(types::fast, utils::seq<I...>) const
+    {
+      return {{(size() == std::get<I>(args).shape()[0])...},
+              fast_begin(std::get<I>(args))...};
+    }
+
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::const_fast_iterator
+        numpy_expr<Op, Args...>::begin(types::fast) const
+    {
+      return _begin(types::fast{},
+                    typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
+    typename numpy_expr<Op, Args...>::const_fast_iterator
+        numpy_expr<Op, Args...>::_end(types::fast, utils::seq<I...>) const
+    {
+      return {{(size() == std::get<I>(args).shape()[0])...},
+              fast_end(std::get<I>(args))...};
+    }
+
+    template <class Op, class... Args>
+    typename numpy_expr<Op, Args...>::const_fast_iterator
+        numpy_expr<Op, Args...>::end(types::fast) const
+    {
+      return _end(types::fast{}, typename utils::gens<sizeof...(Args)>::type{});
+    }
+
+    template <class Op, class... Args>
+    template <int... I>
     bool numpy_expr<Op, Args...>::_no_broadcast(utils::seq<I...>) const
     {
       std::initializer_list<bool> nb = {

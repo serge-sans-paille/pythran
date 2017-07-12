@@ -26,7 +26,142 @@ namespace pythonic
       }
     };
 
-    template <class E, class Op, class... Iters>
+    template <class Op, class... Iters>
+    struct numpy_expr_fast_iterator
+        : std::iterator<std::random_access_iterator_tag,
+                        typename std::remove_reference<decltype(std::declval<
+                            Op>()(*std::declval<Iters>()...))>::type> {
+      std::tuple<Iters...> iters_;
+
+      numpy_expr_fast_iterator(std::array<long, sizeof...(Iters)> steps,
+                               Iters... iters)
+          : iters_(iters...)
+      {
+      }
+
+      numpy_expr_fast_iterator(numpy_expr_fast_iterator const &other)
+          : iters_(other.iters_)
+      {
+      }
+
+      numpy_expr_fast_iterator &operator=(numpy_expr_fast_iterator const &other)
+      {
+        iters_ = other.iters_;
+        return *this;
+      }
+
+      template <int... I>
+      auto _dereference(utils::seq<I...> s) const
+          -> decltype(Dereferencer<Op>{}(iters_, s))
+      {
+        return Dereferencer<Op>{}(iters_, s);
+      }
+
+      auto operator*() const -> decltype(
+          this->_dereference(typename utils::gens<sizeof...(Iters)>::type{}))
+      {
+        return _dereference(typename utils::gens<sizeof...(Iters)>::type{});
+      }
+
+      template <int... I>
+      void _incr(utils::seq<I...>)
+      {
+        std::initializer_list<bool> __attribute__((unused))
+        _{(std::get<I>(iters_) += 1, true)...};
+      }
+      numpy_expr_fast_iterator &operator++()
+      {
+        _incr(typename utils::gens<sizeof...(Iters)>::type{});
+        return *this;
+      }
+
+      numpy_expr_fast_iterator operator+(long i) const
+      {
+        numpy_expr_fast_iterator other(*this);
+        return other += i;
+      }
+
+      template <int... I>
+      void _update(long i, utils::seq<I...>)
+      {
+        std::initializer_list<bool> __attribute__((unused))
+        _{(std::get<I>(iters_) += i, true)...};
+      }
+      numpy_expr_fast_iterator &operator+=(long i)
+      {
+        _update(i, typename utils::gens<sizeof...(Iters)>::type{});
+        return *this;
+      }
+
+      template <int... I>
+      long _difference(numpy_expr_fast_iterator const &other,
+                       utils::seq<I...>) const
+      {
+        std::initializer_list<long> distances{
+            (std::get<I>(iters_) - std::get<I>(other.iters_))...};
+        return *std::max_element(distances.begin(), distances.end());
+      }
+
+      long operator-(numpy_expr_fast_iterator const &other) const
+      {
+        return _difference(other,
+                           typename utils::gens<sizeof...(Iters)>::type{});
+      }
+
+      bool _neq(numpy_expr_fast_iterator const &other, utils::int_<0u>) const
+      {
+        return false;
+      }
+
+      template <size_t I>
+      bool _neq(numpy_expr_fast_iterator const &other, utils::int_<I>) const
+      {
+        return ((std::get<I - 1>(iters_) != std::get<I - 1>(other.iters_))) ||
+               _neq(other, utils::int_<I - 1>{});
+      }
+
+      bool operator!=(numpy_expr_fast_iterator const &other) const
+      {
+        return _neq(other, utils::int_<sizeof...(Iters)>{});
+      }
+      bool _eq(numpy_expr_fast_iterator const &other, utils::int_<0u>) const
+      {
+        return true;
+      }
+
+      template <size_t I>
+      bool _eq(numpy_expr_fast_iterator const &other, utils::int_<I>) const
+      {
+        return ((std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_))) &&
+               _eq(other, utils::int_<I - 1>{});
+      }
+
+      bool operator==(numpy_expr_fast_iterator const &other) const
+      {
+        return _eq(other, utils::int_<sizeof...(Iters)>{});
+      }
+
+      bool _lt(numpy_expr_fast_iterator const &other, utils::int_<0u>) const
+      {
+        return false;
+      }
+
+      template <size_t I>
+      bool _lt(numpy_expr_fast_iterator const &other, utils::int_<I>) const
+      {
+        if ((std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_)))
+          return _lt(other, utils::int_<I - 1>{});
+        else
+          return (std::get<I - 1>(iters_) < std::get<I - 1>(other.iters_));
+      }
+
+      bool operator<(numpy_expr_fast_iterator const &other) const
+      {
+        return _lt(other, utils::int_<sizeof...(Iters)>{});
+      }
+    };
+
+    template <class Op, class... Iters>
     struct numpy_expr_iterator
         : std::iterator<std::random_access_iterator_tag,
                         typename std::remove_reference<decltype(std::declval<
@@ -411,9 +546,11 @@ namespace pythonic
       static const bool is_strided = utils::any_of<
           std::remove_reference<Args>::type::is_strided...>::value;
       using const_iterator =
-          numpy_expr_iterator<numpy_expr, Op, typename Args::const_iterator...>;
-      using iterator =
-          numpy_expr_iterator<numpy_expr, Op, typename Args::iterator...>;
+          numpy_expr_iterator<Op, typename Args::const_iterator...>;
+      using iterator = numpy_expr_iterator<Op, typename Args::iterator...>;
+      using const_fast_iterator =
+          numpy_expr_fast_iterator<Op, decltype(fast_begin(
+                                           std::declval<Args>()))...>;
 
       static constexpr size_t value = utils::max_element<
           std::remove_reference<Args>::type::value...>::value;
@@ -438,6 +575,14 @@ namespace pythonic
       template <int... I>
       const_iterator _end(utils::seq<I...>) const;
       const_iterator end() const;
+
+      template <int... I>
+      const_fast_iterator _begin(types::fast, utils::seq<I...>) const;
+      const_fast_iterator begin(types::fast) const;
+
+      template <int... I>
+      const_fast_iterator _end(types::fast, utils::seq<I...>) const;
+      const_fast_iterator end(types::fast) const;
 
       template <int... I>
       iterator _begin(utils::seq<I...>);

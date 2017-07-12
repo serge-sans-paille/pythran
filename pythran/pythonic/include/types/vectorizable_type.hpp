@@ -7,9 +7,9 @@ namespace pythonic
   {
     /* types used during vectorization specialization
      */
-    struct novectorizer {
-    };
     struct vectorize {
+    };
+    struct novectorize {
     };
     struct vectorizer {
       template <class E>

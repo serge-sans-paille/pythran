@@ -453,8 +453,7 @@ namespace pythonic
       if (may_overlap(*this, expr)) {
         return utils::broadcast_copy<
             numpy_gexpr &, ndarray<typename E::dtype, E::value>, value,
-            value - utils::dim_of<E>::value, is_vectorizable>(
-            *this, ndarray<typename E::dtype, E::value>{expr});
+            value - utils::dim_of<E>::value, is_vectorizable>(*this, expr);
       } else {
         // 100% sure there's no overlap
         return utils::broadcast_copy < numpy_gexpr &, E, value,

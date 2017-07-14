@@ -90,7 +90,7 @@ namespace pythonic
       reduce_result_type<E> operator()(E const &expr,
                                        reduce_result_type<E> p) const
       {
-        return _reduce<Op, E::value, types::novectorizer>{}(expr, p);
+        return _reduce<Op, E::value, types::novectorize>{}(expr, p);
       }
     };
     template <class Op, class E>
@@ -159,7 +159,7 @@ namespace pythonic
       if (axis == 0) {
         types::array<long, E::value - 1> shp;
         std::copy(shape.begin() + 1, shape.end(), shp.begin());
-        return _reduce<Op, 1, types::novectorizer /* not on scalars*/>{}(
+        return _reduce<Op, 1, types::novectorize /* not on scalars*/>{}(
             array,
             reduced_type<E>{shp, utils::neutral<Op, typename E::dtype>::value});
       } else {

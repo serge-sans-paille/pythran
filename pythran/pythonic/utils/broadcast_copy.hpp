@@ -177,7 +177,11 @@ namespace pythonic
     struct broadcast_copy_dispatcher<E, F, N, D, false> {
       void operator()(E &self, F const &other)
       {
-        _broadcast_copy<types::novectorizer, N, D>{}(self, other);
+        if (utils::no_broadcast(other))
+          _broadcast_copy<types::novectorize, N, D>{}(
+              self, types::make_fast_range(other));
+        else
+          _broadcast_copy<types::novectorize, N, D>{}(self, other);
       }
     };
     template <class E, class F, size_t N, size_t D>
@@ -347,7 +351,7 @@ namespace pythonic
     struct broadcast_update_dispatcher<Op, false, E, F, N, D> {
       void operator()(E &self, F const &other)
       {
-        _broadcast_update<Op, types::novectorizer, N, D>{}(self, other);
+        _broadcast_update<Op, types::novectorize, N, D>{}(self, other);
       }
     };
     template <class Op, class E, class F, size_t N, size_t D>

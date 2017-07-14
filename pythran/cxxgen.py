@@ -488,12 +488,16 @@ class PythonModule(object):
             args_unboxing.append('from_python<{}>(args_obj[{}])'.format(t, i))
             args_checks.append('is_convertible<{}>(args_obj[{}])'.format(t, i))
         if types:
+            arg_decls = func.fdecl.arg_decls[:len(types)]
+            keywords = ",".join('"{}"'.format(arg.name) for arg in arg_decls)
             wrapper = dedent('''
                 static PyObject *
-                {wname}(PyObject *self, PyObject *args)
+                {wname}(PyObject *self, PyObject *args, PyObject *kw)
                 {{
                     PyObject* args_obj[{size}+1];
-                    if(! PyArg_ParseTuple(args, "{fmt}", {objs}))
+                    char const* keywords[] = {{{keywords}, nullptr}};
+                    if(! PyArg_ParseTupleAndKeywords(args, kw, "{fmt}",
+                                                     (char**)keywords, {objs}))
                         return nullptr;
                     if({checks})
                         return to_python({name}({args}));
@@ -502,9 +506,10 @@ class PythonModule(object):
                     }}
                 }}''')
         else:
+            keywords = ''
             wrapper = dedent('''
                 static PyObject *
-                {wname}(PyObject *self, PyObject *args)
+                {wname}(PyObject *self, PyObject *args, PyObject *kw)
                 {{
                     return to_python({name}({args}));
                 }}''')
@@ -518,6 +523,7 @@ class PythonModule(object):
                            args=', '.join(args_unboxing),
                            checks=' and '.join(args_checks),
                            wname=wrapper_name,
+                           keywords=keywords,
                            )
         )
 
@@ -545,8 +551,9 @@ class PythonModule(object):
             candidates = []
             for overload, types in overloads:
                 try_ = dedent("""
-                    if(PyObject* obj = {name}(self, args))
+                    if(PyObject* obj = {name}(self, args, kw))
                         return obj;
+                    PyErr_Clear();
                     """.format(name=overload))
                 tryall.append(try_)
                 theargs = (t.replace("pythonic::types::", "")
@@ -560,9 +567,9 @@ class PythonModule(object):
 
             candidate = dedent('''
             static PyObject *
-            {wname}(PyObject *self, PyObject *args)
+            {wname}(PyObject *self, PyObject *args, PyObject *kw)
             {{
-                return pythonic::handle_python_exception([self, args]()
+                return pythonic::handle_python_exception([self, args, kw]()
                 -> PyObject* {{
                 {tryall}
                 PyErr_SetString(PyExc_TypeError,
@@ -580,8 +587,8 @@ class PythonModule(object):
             fdoc = self.docstring(self.docstrings.get(fname, ''))
             themethod = dedent('''{{
                 "{name}",
-                {wname},
-                METH_VARARGS,
+                (PyCFunction){wname},
+                METH_VARARGS | METH_KEYWORDS,
                 {doc}}}'''.format(name=fname,
                                   wname=wrapper_name,
                                   doc=fdoc))

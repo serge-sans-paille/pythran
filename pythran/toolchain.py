@@ -104,8 +104,8 @@ class HasArgument(ast.NodeVisitor):
     def visit_Module(self, node):
         for n in node.body:
             if isinstance(n, ast.FunctionDef) and n.name == self.fname:
-                return len(n.args.args) > 0
-        return False
+                return [arg.id for arg in n.args.args]
+        return []
 
 # PUBLIC INTERFACE STARTS HERE
 
@@ -205,15 +205,15 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                 numbered_function_name = "{0}{1}".format(internal_func_name,
                                                          sigid)
                 arguments_types = [pytype_to_ctype(t) for t in signature]
-                has_arguments = HasArgument(internal_func_name).visit(ir)
-                arguments = ["a{0}".format(i)
-                             for i in range(len(arguments_types))]
+                arguments_names = HasArgument(internal_func_name).visit(ir)
+                arguments = [n for n, _ in
+                             zip(arguments_names, arguments_types)]
                 name_fmt = pythran_ward + "{0}::{1}::type{2}"
                 args_list = ", ".join(arguments_types)
                 specialized_fname = name_fmt.format(module_name,
                                                     internal_func_name,
                                                     "<{0}>".format(args_list)
-                                                    if has_arguments else "")
+                                                    if arguments_names else "")
                 result_type = "typename %s::result_type" % specialized_fname
                 mod.add_function(
                     FunctionBody(
@@ -277,7 +277,6 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
               )
     except SystemExit as e:
         raise CompileError(str(e))
-
 
     [target] = glob.glob(os.path.join(builddir, module_name + "*"))
     if not output_binary:

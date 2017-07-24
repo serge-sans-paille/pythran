@@ -41,21 +41,7 @@ namespace pythonic
   }
   /* } */
 }
-namespace nt2
-{
-  template <class T, class U>
-  auto divfloor(__gmp_expr<T, U> const &a, long b) -> decltype(a / b)
-  {
-    return a / b;
-  }
 
-  template <class T, class U, class Tp, class Up>
-  auto divfloor(__gmp_expr<T, U> const &a, __gmp_expr<Tp, Up> const &b)
-      -> decltype(a / b)
-  {
-    return a / b;
-  }
-}
 /* compute hash of a gmp { */
 namespace std
 {

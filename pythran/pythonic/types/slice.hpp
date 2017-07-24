@@ -181,10 +181,12 @@ namespace pythonic
       assert(not(upper.is_none and lower.is_none));
       long len;
       if (upper.is_none) {
-        assert(boost::simd::bitofsign((long)step) != boost::simd::bitofsign((long)lower));
+        assert(boost::simd::bitofsign((long)step) !=
+               boost::simd::bitofsign((long)lower));
         len = -(long)lower;
       } else if (lower.is_none) {
-        assert(boost::simd::bitofsign((long)step) ==boost::simd::bitofsign((long)upper));
+        assert(boost::simd::bitofsign((long)step) ==
+               boost::simd::bitofsign((long)upper));
         len = upper;
       } else
         len = upper - lower;

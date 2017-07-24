@@ -14,7 +14,7 @@ class TestNumpyRandom(TestEnv):
             def numpy_random0(n):
                 from numpy.random import random
                 s = sum(random() for x in range(n))
-                assert(abs(s / n - .5) < .05)""",
+                return (abs(s / n - .5) < .05)""",
                       10 ** 5, numpy_random0=[int])
 
     def test_numpy_random1(self):
@@ -23,7 +23,7 @@ class TestNumpyRandom(TestEnv):
             def numpy_random1(n):
                 from numpy.random import random
                 s = sum(random(size=n))
-                assert(abs(s / n - .5) < .05)""",
+                return (abs(s / n - .5) < .05)""",
                       10 ** 5, numpy_random1=[int])
 
     def test_numpy_random2(self):
@@ -33,7 +33,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import random
                 from numpy import sum
                 s = sum(random((n, n)))
-                assert(abs(s / (n * n) - .5) < 5e-3)""",
+                return (abs(s / (n * n) - .5) < 5e-3)""",
                       10 ** 3, numpy_random2=[int])
 
     ###########################################################################
@@ -46,7 +46,7 @@ class TestNumpyRandom(TestEnv):
             def numpy_random_sample0(n):
                 from numpy.random import random_sample
                 s = sum(random_sample() for x in range(n))
-                assert(abs(s / n - .5) < .05)""",
+                return (abs(s / n - .5) < .05)""",
                       10 ** 5, numpy_random_sample0=[int])
 
     def test_numpy_random_sample1(self):
@@ -55,7 +55,7 @@ class TestNumpyRandom(TestEnv):
             def numpy_random_sample1(n):
                 from numpy.random import random_sample
                 s = sum(random_sample(size=n))
-                assert(abs(s / n - .5) < .05)""",
+                return (abs(s / n - .5) < .05)""",
                       10 ** 5, numpy_random_sample1=[int])
 
     def test_numpy_random_sample2(self):
@@ -65,7 +65,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import random_sample
                 from numpy import sum
                 s = sum(random_sample((n, n)))
-                assert(abs(s / (n * n) - .5) < 5e-3)""",
+                return (abs(s / (n * n) - .5) < 5e-3)""",
                       10 ** 3, numpy_random_sample2=[int])
 
     ###########################################################################
@@ -79,7 +79,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import ranf
                 from numpy import mean
                 s = [ranf() for x in range(n)]
-                assert(abs(mean(s) - .5) < .05)""",
+                return (abs(mean(s) - .5) < .05)""",
                       10 ** 5, numpy_ranf0=[int])
 
     def test_numpy_ranf1(self):
@@ -89,7 +89,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import ranf
                 from numpy import mean
                 a = ranf(size=n)
-                assert(abs(mean(a) - .5) < .05)""",
+                return (abs(mean(a) - .5) < .05)""",
                       10 ** 5, numpy_ranf1=[int])
 
     def test_numpy_ranf2(self):
@@ -99,7 +99,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import ranf
                 from numpy import mean
                 a = ranf((n, n))
-                assert(abs(mean(a) - .5) < 5e-3)""",
+                return (abs(mean(a) - .5) < 5e-3)""",
                       10 ** 3, numpy_ranf2=[int])
 
     ###########################################################################
@@ -113,7 +113,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import sample
                 from numpy import mean
                 s = [sample() for x in range(n)]
-                assert(abs(mean(s) - .5) < .05)""",
+                return (abs(mean(s) - .5) < .05)""",
                       10 ** 5, numpy_sample0=[int])
 
     def test_numpy_sample1(self):
@@ -123,7 +123,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import sample
                 from numpy import mean
                 s = sample(size=n)
-                assert(abs(mean(s) - .5) < .05)""",
+                return (abs(mean(s) - .5) < .05)""",
                       10 ** 5, numpy_sample1=[int])
 
     def test_numpy_sample2(self):
@@ -133,7 +133,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import sample
                 from numpy import mean
                 s = sample((n, n))
-                assert(abs(mean(s) - .5) < 5e-3)""",
+                return (abs(mean(s) - .5) < 5e-3)""",
                       10 ** 3, numpy_sample2=[int])
 
     ###########################################################################
@@ -146,7 +146,7 @@ class TestNumpyRandom(TestEnv):
             def numpy_rand0(n):
                 from numpy.random import rand
                 s = sum(rand() for x in range(n))
-                assert(abs(s / n - .5) < .05)""",
+                return (abs(s / n - .5) < .05)""",
                       10 ** 5, numpy_rand0=[int])
 
     def test_numpy_rand1(self):
@@ -156,7 +156,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import rand
                 from numpy import sum
                 s = sum(rand(n, n))
-                assert(abs(s / (n * n) - .5) < 5e-3)""",
+                return (abs(s / (n * n) - .5) < 5e-3)""",
                       10 ** 3, numpy_rand1=[int])
 
     ###########################################################################
@@ -169,7 +169,7 @@ class TestNumpyRandom(TestEnv):
          from numpy.random import binomial
          from numpy import var
          a = [binomial(n, p) for x in range(size)]
-         assert(abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
+         return (abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
         """
         self.run_test(code, 10, .2, 10**5, numpy_binomial0=[float, float, int])
 
@@ -179,7 +179,7 @@ class TestNumpyRandom(TestEnv):
          from numpy.random import binomial
          from numpy import var
          a=binomial(n, p, size)
-         assert(abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
+         return (abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
         """
         self.run_test(code, 7, .2, 10**5, numpy_binomial1=[float, float, int])
 
@@ -189,7 +189,7 @@ class TestNumpyRandom(TestEnv):
          from numpy.random import binomial
          from numpy import sum, var
          a=binomial(n, p, (size, size))
-         assert(abs(float(sum(a))/(size*size) - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
+         return (abs(float(sum(a))/(size*size) - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
         """
         self.run_test(code, 9, .2, 10**3, numpy_binomial2=[float, float, int])
 
@@ -204,7 +204,6 @@ class TestNumpyRandom(TestEnv):
          except ValueError:  c += 1;
          try:  binomial(1, 10);
          except ValueError:  c += 1;
-         assert(c == 3)
          return c
         """
         self.run_test(code, numpy_binomial_exception=[])
@@ -221,7 +220,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [standard_normal() for x in range(size)]
             print mean(a)
-            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_standard_normal0=[int])
 
@@ -233,7 +232,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = standard_normal(size)
             print mean(a)
-            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_standard_normal1=[int])
 
@@ -245,7 +244,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             a = standard_normal((size, size))
             print mean(a)
-            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_standard_normal2=[int])
 
@@ -261,7 +260,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [normal() for x in range(size)]
             print mean(a)
-            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_normal0=[int])
 
@@ -273,7 +272,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [normal(3.) for x in range(size)]
             print mean(a)
-            assert(abs(mean(a)) < 3.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < 3.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_normal0a=[int])
 
@@ -286,7 +285,7 @@ class TestNumpyRandom(TestEnv):
             mu, sigma = 0, 0.1
             a = normal(mu, sigma, size)
             print mean(a)
-            assert(abs(mu - mean(a)) < 0.01 and abs(sigma - sqrt(var(a,ddof=1))) < .01)
+            return (abs(mu - mean(a)) < 0.01 and abs(sigma - sqrt(var(a,ddof=1))) < .01)
         """
         self.run_test(code, 10 ** 5, numpy_normal0b=[int])
 
@@ -300,7 +299,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = normal(size=size)
             print mean(a)
-            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_normal1=[int])
 
@@ -312,7 +311,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             a = normal(size=(size, size))
             print mean(a)
-            assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_normal2=[int])
 
@@ -328,7 +327,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [poisson() for x in range(size)]
             print mean(a)
-            assert(abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0=[int])
 
@@ -340,7 +339,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [poisson(3.) for x in range(size)]
             print mean(a)
-            assert(abs(mean(a)) < 3.05 and abs(var(a) - 3) < .05)
+            return (abs(mean(a)) < 3.05 and abs(var(a) - 3) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0a=[int])
 
@@ -353,7 +352,7 @@ class TestNumpyRandom(TestEnv):
             lam = 10
             a = poisson(lam, size)
             print mean(a)
-            assert(abs(mean(a)) < (lam + 0.05) and abs(sqrt(lam) - sqrt(var(a,ddof=1))) < .05)
+            return (abs(mean(a)) < (lam + 0.05) and abs(sqrt(lam) - sqrt(var(a,ddof=1))) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0b=[int])
 
@@ -367,7 +366,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = poisson(size=size)
             print mean(a)
-            assert(abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson1=[int])
 
@@ -379,7 +378,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             a = poisson(size=(size, size))
             print mean(a)
-            assert(abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_poisson2=[int])
 
@@ -394,7 +393,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import randn
                 from numpy import mean, var
                 a = [randn() for x in range(n)]
-                assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
+                return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
                       10 ** 5, numpy_randn0=[int])
 
     def test_numpy_randn1(self):
@@ -404,7 +403,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import randn
                 from numpy import mean, var
                 a = randn(n, n)
-                assert(abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
+                return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
                       10 ** 3, numpy_randn1=[int])
 
     ###########################################################################
@@ -418,7 +417,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import randint
                 from numpy import mean, var
                 a = [randint(11) for x in range(n)]
-                assert(abs(mean(a) - 5) < .05)""",
+                return (abs(mean(a) - 5) < .05)""",
                       10 ** 5, numpy_randint0=[int])
 
     def test_numpy_randint1(self):
@@ -428,7 +427,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import randint
                 from numpy import mean, var
                 a = [randint(10, 21) for x in range(n)]
-                assert(abs(mean(a) - 15) < .05)""",
+                return (abs(mean(a) - 15) < .05)""",
                       10 ** 5, numpy_randint1=[int])
 
     def test_numpy_randint2(self):
@@ -438,7 +437,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import randint
                 from numpy import mean, var
                 a = randint(10, 21, n)
-                assert(abs(mean(a) - 15) < .05)""",
+                return (abs(mean(a) - 15) < .05)""",
                       10 ** 5, numpy_randint2=[int])
 
     def test_numpy_randint3(self):
@@ -448,7 +447,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import randint
                 from numpy import mean, var
                 a = randint(10, 21, (n, n))
-                assert(abs(mean(a) - 15) < .05)""",
+                return (abs(mean(a) - 15) < .05)""",
                       10 ** 3, numpy_randint3=[int])
 
     ###########################################################################
@@ -462,7 +461,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import random_integers
                 from numpy import mean, var
                 a = [random_integers(9) for x in range(n)]
-                assert(abs(mean(a) - 5) < .05)""",
+                return (abs(mean(a) - 5) < .05)""",
                       10 ** 5, numpy_random_integers0=[int])
 
     def test_numpy_random_integers1(self):
@@ -472,7 +471,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import random_integers
                 from numpy import mean, var
                 a = [random_integers(10, 20) for x in range(n)]
-                assert(abs(mean(a) - 15) < .05)""",
+                return (abs(mean(a) - 15) < .05)""",
                       10 ** 5, numpy_random_integers1=[int])
 
     def test_numpy_random_integers2(self):
@@ -482,7 +481,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import random_integers
                 from numpy import mean, var
                 a = random_integers(10, 20, n)
-                assert(abs(mean(a) - 15) < .05)""",
+                return (abs(mean(a) - 15) < .05)""",
                       10 ** 5, numpy_random_integers2=[int])
 
     def test_numpy_random_integers3(self):
@@ -492,7 +491,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import random_integers
                 from numpy import mean, var
                 a = random_integers(10, 20, (n, n))
-                assert(abs(mean(a) - 15) < .05)""",
+                return (abs(mean(a) - 15) < .05)""",
                       10 ** 3, numpy_random_integers3=[int])
 
     ###########################################################################
@@ -506,7 +505,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var
                 a = [choice(11) for _ in range(n)]
-                assert(abs(mean(a) - 5) < .05)""",
+                return (abs(mean(a) - 5) < .05)""",
                       10 ** 5, numpy_random_choice0=[int])
 
     def test_numpy_random_choice1(self):
@@ -516,7 +515,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = [choice(arange(11)) for _ in range(n)]
-                assert(abs(mean(a) - 5) < .05)""",
+                return (abs(mean(a) - 5) < .05)""",
                       10 ** 5, numpy_random_choice1=[int])
 
     def test_numpy_random_choice2(self):
@@ -526,7 +525,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = [choice(arange(11) + n) for _ in range(n)]
-                assert(abs(mean(a) - (5 + n)) < .05)""",
+                return (abs(mean(a) - (5 + n)) < .05)""",
                       10 ** 5, numpy_random_choice2=[int])
 
     def test_numpy_random_choice3(self):
@@ -536,7 +535,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = choice(11, n)
-                assert(abs(mean(a) - 5) < .05)""",
+                return (abs(mean(a) - 5) < .05)""",
                       10 ** 5, numpy_random_choice3=[int])
 
     def test_numpy_random_choice4(self):
@@ -546,7 +545,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = choice(11, (n, n))
-                assert(abs(mean(a) - 5) < .05)""",
+                return (abs(mean(a) - 5) < .05)""",
                       10 ** 3, numpy_random_choice4=[int])
 
     def test_numpy_random_choice5(self):
@@ -556,7 +555,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = choice(5, (n, n), True, [0.3, 0.3, 0.2, 0.1, 0.1])
-                assert(abs(mean(a) - 1.4) < .05)""",
+                return (abs(mean(a) - 1.4) < .05)""",
                       10 ** 3, numpy_random_choice5=[int])
 
     def test_numpy_random_choice6(self):
@@ -566,7 +565,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = choice(5, n, True, [0.3, 0.3, 0.2, 0.1, 0.1])
-                assert(abs(mean(a) - 1.4) < .05)""",
+                return (abs(mean(a) - 1.4) < .05)""",
                       10 ** 5, numpy_random_choice6=[int])
 
     def test_numpy_random_choice7(self):
@@ -576,7 +575,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = choice(arange(11), n)
-                assert(abs(mean(a) - 5) < .05)""",
+                return (abs(mean(a) - 5) < .05)""",
                       10 ** 5, numpy_random_choice7=[int])
 
     def test_numpy_random_choice8(self):
@@ -586,7 +585,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = choice(arange(11), (n, n))
-                assert(abs(mean(a) - 5) < .05)""",
+                return (abs(mean(a) - 5) < .05)""",
                       10 ** 3, numpy_random_choice8=[int])
 
     def test_numpy_random_choice9(self):
@@ -596,7 +595,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = choice(arange(5), (n, n), True, [0.3, 0.3, 0.2, 0.1, 0.1])
-                assert(abs(mean(a) - 1.4) < .05)""",
+                return (abs(mean(a) - 1.4) < .05)""",
                       10 ** 3, numpy_random_choice9=[int])
 
     def test_numpy_random_choice10(self):
@@ -606,7 +605,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = choice(arange(5), n, True, [0.3, 0.3, 0.2, 0.1, 0.1])
-                assert(abs(mean(a) - 1.4) < .05)""",
+                return (abs(mean(a) - 1.4) < .05)""",
                       10 ** 5, numpy_random_choice10=[int])
 
     ###########################################################################
@@ -618,7 +617,7 @@ class TestNumpyRandom(TestEnv):
         self.run_test("""
             def numpy_random_bytes1(n):
                 from numpy.random import bytes
-                from numpy import mean, fromstring, uint8
+                from numpy import mean, fromstring, uint8, asarray
                 a = bytes(n)
-                assert(abs(mean(fromstring(a, uint8)) - 127.5) < .05)""",
+                return (abs(mean(asarray(fromstring(a, uint8), dtype=float)) - 127.5) < .05)""",
                       10 ** 8, numpy_random_bytes1=[int])

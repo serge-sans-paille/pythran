@@ -45,7 +45,8 @@ namespace pythonic
     bool generator_iterator<T>::
     operator!=(generator_iterator<T> const &other) const
     {
-      assert(other.the_generator.__generator_state == -1);
+      assert(other.the_generator.__generator_state == -1 ||
+             the_generator.__generator_state == -1);
       return the_generator.__generator_state !=
              other.the_generator.__generator_state;
     }
@@ -54,7 +55,8 @@ namespace pythonic
     bool generator_iterator<T>::
     operator==(generator_iterator<T> const &other) const
     {
-      assert(other.the_generator.__generator_state == -1);
+      assert(other.the_generator.__generator_state == -1 ||
+             the_generator.__generator_state == -1);
       return the_generator.__generator_state ==
              other.the_generator.__generator_state;
     }
@@ -63,7 +65,8 @@ namespace pythonic
     bool generator_iterator<T>::
     operator<(generator_iterator<T> const &other) const
     {
-      assert(other.the_generator.__generator_state == -1);
+      assert(other.the_generator.__generator_state == -1 ||
+             the_generator.__generator_state == -1);
       return the_generator.__generator_state !=
              other.the_generator.__generator_state;
     }

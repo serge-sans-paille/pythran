@@ -33,12 +33,12 @@ class TestFile(TestEnv):
     def test_open_write(self):
         filename=mkstemp()[1]
         self.run_test("""def _open_write(filename):\n f=open(filename,"w+")\n f.write("azert")""", filename, _open_write=[str])
-        assert(open(filename).read()== "azert")
+        self.assertEqual(open(filename).read(), "azert")
 
     def test_open_append(self):
         filename=mkstemp()[1]
         self.run_test("""def _open_append(filename):\n f=open(filename,"a")\n f.write("azert")""", filename, _open_append=[str])
-        assert(open(filename).read()== "azert"*2)
+        self.assertEqual(open(filename).read(), "azert"*2)
 
     def test_open_bit(self):
         filename=mkstemp()[1]
@@ -50,7 +50,7 @@ class TestFile(TestEnv):
         # But python execution of test will erase it before pythran can :s
         self.tempfile()
         self.run_test("""def writing_mode_constructor(filename):\n f=open(filename, "w")\n f.close()""", self.filename,prelude=self.reinit_file, writing_mode_constructor=[str])
-        assert(open(self.filename).read()=="")
+        self.assertEqual(open(self.filename).read(), "")
 
     #TODO : tester le differents modes du constructeur
 
@@ -58,13 +58,13 @@ class TestFile(TestEnv):
         self.filename=mkstemp()[1]
         content="""q2\naze23\n"""
         self.run_test("""def _write(filename):\n f=open(filename,'a+')\n f.write("""+str('str("""q2\naze23\n""")')+""")\n f.close()""", self.filename, _write=[str])
-        assert(open(self.filename).read()==content*2)
+        self.assertEqual(open(self.filename).read(), content*2)
 
     def test_writelines(self):
         self.filename=mkstemp()[1]
         content=["""azerty""", "qsdfgh", "12345524"]
         self.run_test("""def _writelines(filename,_content):\n f=open(filename,'a+')\n f.writelines(_content)\n f.close()""", self.filename, content, _writelines=[str, List[str]])
-        assert(open(self.filename).read()==str().join(content)*2)
+        self.assertEqual(open(self.filename).read(), str().join(content)*2)
 
     def test_close(self):
         filename=mkstemp()[1]

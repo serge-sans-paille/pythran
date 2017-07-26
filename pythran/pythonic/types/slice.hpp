@@ -6,7 +6,7 @@
 #include "pythonic/__builtin__/None.hpp"
 
 #ifndef NDEBUG
-#include <nt2/include/functions/bitofsign.hpp>
+#include <boost/simd/function/bitofsign.hpp>
 #endif
 
 #include <cassert>
@@ -181,10 +181,12 @@ namespace pythonic
       assert(not(upper.is_none and lower.is_none));
       long len;
       if (upper.is_none) {
-        assert(nt2::bitofsign((long)step) != nt2::bitofsign((long)lower));
+        assert(boost::simd::bitofsign((long)step) !=
+               boost::simd::bitofsign((long)lower));
         len = -(long)lower;
       } else if (lower.is_none) {
-        assert(nt2::bitofsign((long)step) == nt2::bitofsign((long)upper));
+        assert(boost::simd::bitofsign((long)step) ==
+               boost::simd::bitofsign((long)upper));
         len = upper;
       } else
         len = upper - lower;

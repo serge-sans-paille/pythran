@@ -40,7 +40,7 @@ namespace pythonic
     template <class T>
     template <class... Types>
     shared_ref<T>::shared_ref(Types &&... args)
-        : mem(new memory(std::forward<Types>(args)...))
+        : mem(new (std::nothrow) memory(std::forward<Types>(args)...))
     {
     }
 

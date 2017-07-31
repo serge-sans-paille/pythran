@@ -354,10 +354,10 @@ namespace pythonic
       // We do not implement these because it requires to know the "end"
       // value of the slice which is not possible if it is not "step == 1" slice
       // TODO: We can skip these constraints if we know begin, end and step.
-      if ((static_cast<long>(other.upper) < 0 or
-           static_cast<long>(other.lower) < 0) and
-          step != 1 and step != -1)
-        throw std::runtime_error("not implemented");
+      assert(!((static_cast<long>(other.upper) < 0 or
+                static_cast<long>(other.lower) < 0) and
+               step != 1 and step != -1) &&
+             "not implemented");
 
       none<long> new_lower;
       if ((long)other.lower == 0)

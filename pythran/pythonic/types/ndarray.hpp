@@ -62,6 +62,16 @@ namespace pythonic
   namespace types
   {
 
+    template <size_t N>
+    array<long, N> make_strides(array<long, N> const &shape)
+    {
+      array<long, N> out;
+      out[N - 1] = 1;
+      for (size_t i = 1; i < N; ++i)
+        out[N - i - 1] = out[N - i] * shape[N - i];
+      return out;
+    }
+
     template <class T, size_t N>
     typename type_helper<ndarray<T, N>>::iterator
     type_helper<ndarray<T, N>>::make_iterator(ndarray<T, N> &n, long i)
@@ -240,23 +250,25 @@ namespace pythonic
 
     template <size_t L>
     template <size_t M>
-    long noffset<L>::operator()(array<long, M> const &shape,
+    long noffset<L>::operator()(array<long, M> const &strides,
                                 array<long, M> const &indices) const
     {
-      return noffset<L - 1>{}(shape, indices) * shape[L] + indices[L];
+      return noffset<L - 1>{}(strides, indices) +
+             strides[M - L] * indices[M - L];
     }
 
+    template <>
     template <size_t M>
-    long noffset<0>::operator()(array<long, M> const &,
+    long noffset<1>::operator()(array<long, M> const &,
                                 array<long, M> const &indices) const
     {
-      return indices[0];
+      return indices[M - 1];
     }
 
     /* constructors */
     template <class T, size_t N>
     ndarray<T, N>::ndarray()
-        : mem(utils::no_memory()), buffer(nullptr), _shape()
+        : mem(utils::no_memory()), buffer(nullptr), _shape(), _strides()
     {
     }
 
@@ -264,7 +276,8 @@ namespace pythonic
     template <class T, size_t N>
     ndarray<T, N>::ndarray(utils::shared_ref<raw_array<T>> const &mem,
                            array<long, N> const &shape)
-        : mem(mem), buffer(mem->data), _shape(shape)
+        : mem(mem), buffer(mem->data), _shape(shape),
+          _strides(make_strides(shape))
     {
     }
 
@@ -272,7 +285,8 @@ namespace pythonic
     template <class T, size_t N>
     template <class Tp, size_t Np>
     ndarray<T, N>::ndarray(ndarray<Tp, Np> const &other)
-        : mem(other.flat_size()), buffer(mem->data), _shape(other._shape)
+        : mem(other.flat_size()), buffer(mem->data), _shape(other._shape),
+          _strides(other._strides)
     {
       std::copy(other.fbegin(), other.fend(), fbegin());
     }
@@ -282,7 +296,7 @@ namespace pythonic
     ndarray<T, N>::ndarray(array<long, N> const &shape, none_type init)
         : mem(std::accumulate(shape.begin(), shape.end(), 1,
                               std::multiplies<long>())),
-          buffer(mem->data), _shape(shape)
+          buffer(mem->data), _shape(shape), _strides(make_strides(shape))
     {
     }
 
@@ -300,6 +314,7 @@ namespace pythonic
         : mem(data, o), buffer(mem->data), _shape()
     {
       std::copy(pshape, pshape + N, _shape.begin());
+      _strides = make_strides(_shape);
     }
 
 #ifdef ENABLE_PYTHON_MODULE
@@ -323,6 +338,7 @@ namespace pythonic
     {
       type_helper<ndarray>::initialize_from_iterable(
           _shape, mem->data, std::forward<Iterable>(iterable));
+      _strides = make_strides(_shape);
     }
 
     /* from a  numpy expression */
@@ -339,7 +355,8 @@ namespace pythonic
     template <class T, size_t N>
     template <class Op, class... Args>
     ndarray<T, N>::ndarray(numpy_expr<Op, Args...> const &expr)
-        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape())
+        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+          _strides(make_strides(_shape))
     {
       initialize_from_expr(expr);
     }
@@ -347,7 +364,8 @@ namespace pythonic
     template <class T, size_t N>
     template <class Arg>
     ndarray<T, N>::ndarray(numpy_texpr<Arg> const &expr)
-        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape())
+        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+          _strides(make_strides(_shape))
     {
       initialize_from_expr(expr);
     }
@@ -355,7 +373,8 @@ namespace pythonic
     template <class T, size_t N>
     template <class Arg>
     ndarray<T, N>::ndarray(numpy_texpr_2<Arg> const &expr)
-        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape())
+        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+          _strides(make_strides(_shape))
     {
       initialize_from_expr(expr);
     }
@@ -363,7 +382,8 @@ namespace pythonic
     template <class T, size_t N>
     template <class Arg, class... S>
     ndarray<T, N>::ndarray(numpy_gexpr<Arg, S...> const &expr)
-        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape())
+        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+          _strides(make_strides(_shape))
     {
       initialize_from_expr(expr);
     }
@@ -371,7 +391,8 @@ namespace pythonic
     template <class T, size_t N>
     template <class Arg>
     ndarray<T, N>::ndarray(numpy_iexpr<Arg> const &expr)
-        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape())
+        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+          _strides(make_strides(_shape))
     {
       initialize_from_expr(expr);
     }
@@ -379,7 +400,8 @@ namespace pythonic
     template <class T, size_t N>
     template <class Arg, class F>
     ndarray<T, N>::ndarray(numpy_fexpr<Arg, F> const &expr)
-        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape())
+        : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+          _strides(make_strides(_shape))
     {
       initialize_from_expr(expr);
     }
@@ -484,13 +506,13 @@ namespace pythonic
     template <class T, size_t N>
     T const &ndarray<T, N>::operator[](array<long, N> const &indices) const
     {
-      return *(buffer + noffset<N - 1>{}(_shape, indices));
+      return *(buffer + noffset<N>{}(_strides, indices));
     }
 
     template <class T, size_t N>
     T &ndarray<T, N>::operator[](array<long, N> const &indices)
     {
-      return *(buffer + noffset<N - 1>{}(_shape, indices));
+      return *(buffer + noffset<N>{}(_strides, indices));
     }
 
     template <class T, size_t N>

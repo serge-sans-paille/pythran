@@ -191,7 +191,7 @@ namespace pythonic
     template <size_t L>
     struct noffset {
       template <size_t M>
-      long operator()(array<long, M> const &shape,
+      long operator()(array<long, M> const &strides,
                       array<long, M> const &indices) const;
     };
 
@@ -232,7 +232,8 @@ namespace pythonic
       utils::shared_ref<raw_array<T>> mem; // shared data pointer
       T *buffer; // pointer to the first data stored in the equivalent flat
                  // array
-      array<long, N> _shape; // shape of the multidimensional array
+      array<long, N> _shape;   // shape of the multidimensional array
+      array<long, N> _strides; // strides
 
       /* mem management */
       void mark_memory_external()

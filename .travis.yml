@@ -22,7 +22,7 @@ addons:
             - libatlas-dev
 
 before_install:
-    - pip install --upgrade pip setuptools wheel six
+    - pip install --upgrade pip setuptools wheel six cython
     - pip install --only-binary=numpy -U ply networkx colorlog numpy pytest-pep8 pytest-xdist gast ipython
     - python setup.py install 1> /dev/null
 
@@ -37,6 +37,7 @@ env:
     - MODE=vec TESTCASE=pythran/tests/test_cases.py
     - MODE=all TESTCASE=pythran/tests/test_cases.py
 
+    - TESTCASE=pythran/tests/test_cython.py
     - TESTCASE=pythran/tests/test_complex.py
     - TESTCASE=pythran/tests/test_conversion.py
     - TESTCASE=pythran/tests/test_copperhead.py

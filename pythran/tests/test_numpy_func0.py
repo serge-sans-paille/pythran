@@ -603,6 +603,18 @@ def np_rosen_der(x):
     def test_fliplr0(self):
         self.run_test("def np_fliplr0(x): from numpy import fliplr ; return fliplr(x)", numpy.arange(9).reshape(3,3), np_fliplr0=[NDArray[int,:,:]])
 
+    def test_flip3(self):
+        self.run_test("def np_flip3(x): from numpy import flip; return flip(x[:,:,:-1], 2)", numpy.arange(24).reshape(2,3,4), np_flip3=[NDArray[int, :, :, :]])
+
+    def test_flip2(self):
+        self.run_test("def np_flip2(x): from numpy import flip; return flip(x, 2)", numpy.arange(24).reshape(2,3,4), np_flip2=[NDArray[int, :, :, :]])
+
+    def test_flip1(self):
+        self.run_test("def np_flip1(x): from numpy import flip; return flip(x, 1)", numpy.arange(24).reshape(2,3,4), np_flip1=[NDArray[int, :, :, :]])
+
+    def test_flip0(self):
+        self.run_test("def np_flip0(x): from numpy import flip; return flip(x, 0)", numpy.arange(24).reshape(2,3,4), np_flip0=[NDArray[int, :, :, :]])
+
     def test_flatten0(self):
         self.run_test("def np_flatten0(x): return x.flatten()", numpy.array([[1,2], [3,4]]), np_flatten0=[NDArray[int,:,:]])
 

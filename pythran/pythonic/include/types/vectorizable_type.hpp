@@ -45,7 +45,9 @@ namespace pythonic
     template <class T>
     struct is_vectorizable {
       static const bool value =
-          std::is_fundamental<T>::value and not std::is_same<T, bool>::value;
+          is_dtype<T>::value and not std::is_same<T, bool>::value and
+          not std::is_same<T, std::complex<float>>::value and
+          not std::is_same<T, std::complex<double>>::value;
     };
 
     /* trait to check if is T is an array-like type that supports vectorization

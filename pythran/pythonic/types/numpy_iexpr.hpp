@@ -91,10 +91,11 @@ namespace pythonic
           Op, numpy_iexpr &, BExpr, value,
           value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
           is_vectorizable and
-              std::remove_reference<BExpr>::type::is_vectorizable and
-              std::is_same<dtype,
-                           typename std::decay<BExpr>::type::dtype>::value>(
-          *this, bexpr);
+              types::is_vectorizable<typename std::remove_cv<
+                  typename std::remove_reference<BExpr>::type>::type>::value and
+              std::is_same<dtype, typename dtype_of<typename std::decay<
+                                      BExpr>::type>::type>::value>(*this,
+                                                                   bexpr);
       return *this;
     }
 

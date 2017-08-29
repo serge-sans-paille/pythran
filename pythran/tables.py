@@ -3616,6 +3616,7 @@ MODULES = {
         "fix": ConstFunctionIntr(),
         "flatnonzero": ConstFunctionIntr(),
         "fliplr": ConstFunctionIntr(),
+        "flip": ConstFunctionIntr(),
         "flipud": ConstFunctionIntr(),
         "float32": ConstFunctionIntr(signature=_float_signature),
         "float64": ConstFunctionIntr(signature=_float_signature),

@@ -378,9 +378,6 @@ namespace pythonic
       dtype *buffer;
       array<long, value> _shape;
       array<long, value> const &shape() const;
-      array<long, value> lower;
-      array<long, value> step;
-      array<long, std::remove_reference<Arg>::type::value - value> indices;
 
       numpy_gexpr();
       numpy_gexpr(numpy_gexpr const &) = default;
@@ -395,23 +392,19 @@ namespace pythonic
       typename std::enable_if<std::is_same<Slice, slice>::value or
                                   std::is_same<Slice, contiguous_slice>::value,
                               void>::type
-      init_shape(std::tuple<S const &...> const &values, Slice const &s,
-                 utils::int_<1>, utils::int_<J>);
+      init_shape(Slice const &s, utils::int_<1>, utils::int_<J>);
 
       template <size_t I, size_t J, class Slice>
       typename std::enable_if<std::is_same<Slice, slice>::value or
                                   std::is_same<Slice, contiguous_slice>::value,
                               void>::type
-      init_shape(std::tuple<S const &...> const &values, Slice const &s,
-                 utils::int_<I>, utils::int_<J>);
+      init_shape(Slice const &s, utils::int_<I>, utils::int_<J>);
 
       template <size_t J>
-      void init_shape(std::tuple<S const &...> const &values, long cs,
-                      utils::int_<1>, utils::int_<J>);
+      void init_shape(long cs, utils::int_<1>, utils::int_<J>);
 
       template <size_t I, size_t J>
-      void init_shape(std::tuple<S const &...> const &values, long cs,
-                      utils::int_<I>, utils::int_<J>);
+      void init_shape(long cs, utils::int_<I>, utils::int_<J>);
 
       // private because we must use the make_gexpr factory to create a gexpr
     private:

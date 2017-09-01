@@ -511,9 +511,12 @@ namespace pythonic
       // 100% sure there's no overlap
       return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
              value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
-             is_vectorizable and types::is_vectorizable<E>::value and
-                 std::is_same<dtype,
-                              typename std::decay<BExpr>::type::dtype>::value >
+             is_vectorizable and
+                 types::is_vectorizable<typename std::remove_cv<
+                     typename std::remove_reference<BExpr>::type>::type>::
+                     value and
+                 std::is_same<dtype, typename dtype_of<typename std::decay<
+                                         BExpr>::type>::type>::value >
                      (*this, bexpr);
     }
 

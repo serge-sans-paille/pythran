@@ -1350,28 +1350,35 @@ namespace pythonic
       return arr;
     }
 
-    template <class T, class S>
-    std::tuple<types::slice> make_slices(long const *strides,
-                                         long const *offsets, S const *dims,
-                                         utils::int_<1>)
-    {
-      return std::tuple<types::slice>(types::slice(
-          *offsets, *offsets + *dims * *strides, *strides / sizeof(T)));
-    }
+    template <size_t N>
+    struct make_slices;
 
-    template <class T, class S, size_t N>
-    auto make_slices(long const *strides, long const *offsets, S const *dims,
-                     utils::int_<N>)
-        -> decltype(std::tuple_cat(
-            make_slices<T>(strides, offsets, dims, utils::int_<1>()),
-            make_slices<T>(strides + 1, offsets + 1, dims + 1,
-                           utils::int_<N - 1>())))
-    {
-      return std::tuple_cat(
-          make_slices<T>(strides, offsets, dims, utils::int_<1>()),
-          make_slices<T>(strides + 1, offsets + 1, dims + 1,
-                         utils::int_<N - 1>()));
-    }
+    template <>
+    struct make_slices<1> {
+      template <class T, class S>
+      static std::tuple<types::slice> doit(long const *strides,
+                                           long const *offsets, S const *dims)
+      {
+        return std::tuple<types::slice>(types::slice(
+            *offsets, *offsets + *dims * *strides, *strides / sizeof(T)));
+      }
+    };
+
+    template <size_t N>
+    struct make_slices {
+      template <class T, class S>
+      static auto doit(long const *strides, long const *offsets, S const *dims)
+          -> decltype(std::tuple_cat(
+              make_slices<1>::template doit<T>(strides, offsets, dims),
+              make_slices<N - 1>::template doit<T>(strides + 1, offsets + 1,
+                                                   dims + 1)))
+      {
+        return std::tuple_cat(
+            make_slices<1>::template doit<T>(strides, offsets, dims),
+            make_slices<N - 1>::template doit<T>(strides + 1, offsets + 1,
+                                                 dims + 1));
+      }
+    };
   }
 
   template <typename T, size_t N>
@@ -1483,8 +1490,8 @@ namespace pythonic
 
     types::ndarray<T, N> base_array((T *)PyArray_BYTES(base_arr),
                                     PyArray_DIMS(base_arr), obj);
-    auto slices = impl::make_slices<T>(strides, offsets, PyArray_DIMS(arr),
-                                       utils::int_<N>());
+    auto slices = impl::make_slices<N>::template doit<T>(strides, offsets,
+                                                         PyArray_DIMS(arr));
     types::numpy_gexpr<types::ndarray<T, N>, S...> r(base_array, slices);
 
     Py_INCREF(obj);

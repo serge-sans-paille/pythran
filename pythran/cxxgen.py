@@ -450,6 +450,7 @@ class PythonModule(object):
         self.functions = {}
         self.global_vars = []
         self.implems = []
+        self.python_implems = []
         self.wrappers = []
         self.docstrings = docstrings
 
@@ -468,7 +469,13 @@ class PythonModule(object):
     def add_to_includes(self, *incl):
         self.includes.extend(incl)
 
+    def add_pyfunction(self, func, name, types):
+        self.add_function_to(self.python_implems, func, name, types)
+
     def add_function(self, func, name, types):
+        self.add_function_to(self.implems, fun, name, types)
+
+    def add_function_to(self, to, func, name, types):
         """
         Add a function to be exposed. *func* is expected to be a
         :class:`cgen.FunctionBody`.
@@ -478,7 +485,7 @@ class PythonModule(object):
         and a global wrapper that checks the argument types and
         runs the correct candidate, if any
         """
-        self.implems.append(func)
+        to.append(func)
 
         args_unboxing = []  # turns PyObject to c++ object
         args_checks = []  # check if the above conversion is valid
@@ -532,7 +539,7 @@ class PythonModule(object):
 
     def add_global_var(self, name, init):
         self.global_vars.append(name)
-        self.implems.append(Assign('static PyObject* ' + name,
+        self.python_implems.append(Assign('static PyObject* ' + name,
                                    'to_python({})'.format(init)))
 
     def __str__(self):
@@ -659,8 +666,10 @@ class PythonModule(object):
         body = (self.preamble +
                 self.includes +
                 self.implems +
+                [Line('#ifdef ENABLE_PYTHON_MODULE')] +
+                self.python_implems +
                 [Line(code) for code in self.wrappers + theoverloads] +
-                [Line(methods), Line(module)])
+                [Line(methods), Line(module), Line('#endif')])
 
         return "\n".join(Module(body).generate())
 

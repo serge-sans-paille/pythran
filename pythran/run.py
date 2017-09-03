@@ -32,6 +32,7 @@ def compile_flags(args):
 
     compiler_options = {
         'define_macros': args.defines,
+        'undef_macros': args.undefs,
         'include_dirs': args.include_dirs,
         'extra_compile_args': args.extra_flags,
         'library_dirs': args.libraries_dir,
@@ -94,6 +95,12 @@ def run():
                              'the underlying C++ compiler',
                         default=list())
 
+    parser.add_argument('-U', dest='undefs', metavar='macro_definition',
+                        action='append',
+                        help='any macro undef relevant to '
+                             'the underlying C++ compiler',
+                        default=list())
+
     parser.convert_arg_line_to_args = convert_arg_line_to_args
 
     args, extra = parser.parse_known_args(sys.argv[1:])
@@ -101,6 +108,7 @@ def run():
 
     if args.raw_translate_only:
         args.translate_only = True
+        args.undefs.append('ENABLE_PYTHON_MODULE')
 
     if args.verbose:
         logger.setLevel(logging.INFO)

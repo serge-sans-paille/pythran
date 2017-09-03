@@ -215,7 +215,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                                     "<{0}>".format(args_list)
                                                     if arguments_names else "")
                 result_type = "typename %s::result_type" % specialized_fname
-                mod.add_function(
+                mod.add_pyfunction(
                     FunctionBody(
                         FunctionDeclaration(
                             Value(
@@ -327,6 +327,9 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     # Generate C++, get a PythonModule object
     module, error_checker = generate_cxx(module_name, pythrancode, specs, opts)
+
+    if 'ENABLE_PYTHON_MODULE' in kwargs.get('undef_macros', []):
+        module.preamble.insert(0, Line('#undef ENABLE_PYTHON_MODULE'))
 
     if cpponly:
         # User wants only the C++ code

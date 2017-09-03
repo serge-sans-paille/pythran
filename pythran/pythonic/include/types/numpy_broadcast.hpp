@@ -78,6 +78,8 @@ namespace pythonic
       types::array<long, value> _shape;
       types::array<long, value> const &shape() const;
 
+      broadcasted() = default;
+
       broadcasted(T const &ref);
       const_iterator begin() const
       {
@@ -126,6 +128,7 @@ namespace pythonic
       dtype _value;
       struct ignored {
       } _splated;
+      broadcast_base() = default;
       template <class V>
       broadcast_base(V v);
       template <class I>
@@ -137,6 +140,8 @@ namespace pythonic
     struct broadcast_base<dtype, true> {
       dtype _value;
       boost::simd::pack<dtype> _splated;
+      broadcast_base() = default;
+
       template <class V>
       broadcast_base(V v);
       template <class I>

@@ -86,18 +86,22 @@ namespace pythonic
       template <class E, class F>
       void operator()(E &&self, F const &other)
       {
-        auto sfirst = self.begin();
-        auto siter = sfirst;
-        *sfirst = other;
+        if (types::is_dtype<F>::value) {
+          std::fill(self.begin(), self.end(), other);
+        } else {
+          auto sfirst = self.begin();
+          auto siter = sfirst;
+          *sfirst = other;
 #ifdef _OPENMP
-        long n = self.shape()[0];
-        if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+          long n = self.shape()[0];
+          if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
-          for (long i = 1; i < n; ++i)
-            *(siter + i) = *sfirst;
-        else
+            for (long i = 1; i < n; ++i)
+              *(siter + i) = *sfirst;
+          else
 #endif
-          std::fill(self.begin() + 1, self.end(), *sfirst);
+            std::fill(self.begin() + 1, self.end(), *sfirst);
+        }
       }
     };
 
@@ -111,10 +115,10 @@ namespace pythonic
       using vT = typename boost::simd::pack<T>;
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
-        static const std::size_t vN = vT::static_size;
-        auto oiter = vectorizer::vbegin(other);
-        const long bound =
-            std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
+      static const std::size_t vN = vT::static_size;
+      auto oiter = vectorizer::vbegin(other);
+      const long bound =
+          std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
 #ifdef _OPENMP
       if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
@@ -234,13 +238,16 @@ namespace pythonic
             Op{}(*(siter + i), *(oiter + i));
         else
 #endif
-        if (other_size == 1) {
+            if (other_size == 1) {
           auto value = *oiter;
           for (auto send = self.end(); siter != send; ++siter)
             Op{}(*siter, value);
         } else
-          for (auto send = self.end(); siter != send; siter += other_size)
-            std::transform(siter, siter + other_size, oiter, siter, Op{});
+          for (auto send = self.end(); siter != send;) {
+            auto ooiter = oiter;
+            for (long i = 0; i < other_size; ++i, ++siter, ++ooiter)
+              Op{}(*siter, *ooiter);
+          }
       }
 
       template <class E, class F0, class F1>

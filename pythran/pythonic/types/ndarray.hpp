@@ -280,6 +280,13 @@ namespace pythonic
           _strides(make_strides(shape))
     {
     }
+    template <class T, size_t N>
+    ndarray<T, N>::ndarray(utils::shared_ref<raw_array<T>> &&mem,
+                           array<long, N> const &shape)
+        : mem(std::move(mem)), buffer(this->mem->data), _shape(shape),
+          _strides(make_strides(shape))
+    {
+    }
 
     /* from other array */
     template <class T, size_t N>
@@ -746,9 +753,16 @@ namespace pythonic
 
     template <class T, size_t N>
     template <size_t M>
-    ndarray<T, M> ndarray<T, N>::reshape(array<long, M> const &shape) const
+    ndarray<T, M> ndarray<T, N>::reshape(array<long, M> const &shape) const &
     {
-      return ndarray<T, M>(mem, shape);
+      return {mem, shape};
+    }
+
+    template <class T, size_t N>
+    template <size_t M>
+    ndarray<T, M> ndarray<T, N>::reshape(array<long, M> const &shape) &&
+    {
+      return {std::move(mem), shape};
     }
 
     template <class T, size_t N>

@@ -135,11 +135,10 @@ namespace pythonic
     numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>
         extended_slice<C>::operator()(ndarray<T, N> &&a, S const &... s)
     {
-      return numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>{
-          std::move(a).reshape(make_reshape<N + C>(
-              a.shape(),
-              array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...})),
-          to_slice<S>{}(s)...};
+      return {std::move(a).reshape(make_reshape<N + C>(
+                  a.shape(),
+                  array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...})),
+              to_slice<S>{}(s)...};
     }
 
     template <size_t C>
@@ -147,11 +146,10 @@ namespace pythonic
     numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>
         extended_slice<C>::operator()(ndarray<T, N> const &a, S const &... s)
     {
-      return numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>{
-          a.reshape(make_reshape<N + C>(
-              a.shape(),
-              array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}})),
-          to_slice<S>{}(s)...};
+      return {a.reshape(make_reshape<N + C>(
+                  a.shape(),
+                  array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}})),
+              to_slice<S>{}(s)...};
     }
 
     template <class T, size_t N, class... S>

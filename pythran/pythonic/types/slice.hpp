@@ -63,7 +63,7 @@ namespace pythonic
     {
     }
 
-    slice::slice()
+    slice::slice() : lower(__builtin__::None), upper(__builtin__::None), step(1)
     {
     }
 

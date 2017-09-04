@@ -127,8 +127,8 @@ namespace pythonic
 #ifdef ENABLE_PYTHON_MODULE
         if (mem->foreign) {
           Py_DECREF(mem->foreign);
-#endif
         }
+#endif
         delete mem;
         mem = nullptr;
       }

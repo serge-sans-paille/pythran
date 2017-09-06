@@ -15,11 +15,11 @@ namespace pythonic
 
     template <class E, class... Opts>
     auto cumsum(E &&e, Opts &&... opts)
-        -> decltype(partial_sum<operator_::functor::iadd>(
+        -> decltype(partial_sum<operator_::functor::add>(
             std::forward<E>(e), std::forward<Opts>(opts)...))
     {
-      return partial_sum<operator_::functor::iadd>(std::forward<E>(e),
-                                                   std::forward<Opts>(opts)...);
+      return partial_sum<operator_::functor::add>(std::forward<E>(e),
+                                                  std::forward<Opts>(opts)...);
     }
 
     DEFINE_FUNCTOR(pythonic::numpy, cumsum);

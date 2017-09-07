@@ -14,14 +14,18 @@ namespace pythonic
 
     namespace details
     {
+
       template <size_t value, class... Args>
       array<long, value> init_shape(Args const &... args)
       {
         array<long, value> shape;
         for (int i = 0; i < value; ++i) {
-          array<long, sizeof...(Args)> IShapes{
-              {(value <= Args::value ? args.shape()[i] : 0)...}};
-          shape[i] = *std::max_element(IShapes.begin(), IShapes.end());
+          long max = 0;
+          std::initializer_list<long> __attribute__((unused))
+          _{(value <= Args::value && args.shape()[i] > max
+                 ? max = args.shape()[i]
+                 : max)...};
+          shape[i] = max;
         }
         return shape;
       }

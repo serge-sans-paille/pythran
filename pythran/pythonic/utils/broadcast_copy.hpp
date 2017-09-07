@@ -56,30 +56,27 @@ namespace pythonic
       {
         long self_size = std::distance(self.begin(), self.end()),
              other_size = std::distance(other.begin(), other.end());
-        if (other_size > 0) // empty array sometimes happen when filtering
-        {
 #ifdef _OPENMP
-          if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT) {
-            auto siter = self.begin();
-            auto oiter = other.begin();
+        if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT) {
+          auto siter = self.begin();
+          auto oiter = other.begin();
 #pragma omp parallel for
-            for (long i = 0; i < other_size; ++i)
-              *(siter + i) = *(oiter + i);
-          } else
+          for (long i = 0; i < other_size; ++i)
+            *(siter + i) = *(oiter + i);
+        } else
 #endif
-            std::copy(other.begin(), other.end(), self.begin());
+          std::copy(other.begin(), other.end(), self.begin());
 
 // eventually repeat the pattern
 #ifdef _OPENMP
-          if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
+        if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
 #pragma omp parallel for
-            for (size_t i = other_size; i < self_size; i += other_size)
-              std::copy_n(self.begin(), other_size, self.begin() + i);
-          else
+          for (size_t i = other_size; i < self_size; i += other_size)
+            std::copy_n(self.begin(), other_size, self.begin() + i);
+        else
 #endif
-            for (size_t i = other_size; i < self_size; i += other_size)
-              std::copy_n(self.begin(), other_size, self.begin() + i);
-        }
+          for (size_t i = other_size; i < self_size; i += other_size)
+            std::copy_n(self.begin(), other_size, self.begin() + i);
       }
     };
 
@@ -89,18 +86,22 @@ namespace pythonic
       template <class E, class F>
       void operator()(E &&self, F const &other)
       {
-        auto sfirst = self.begin();
-        auto siter = sfirst;
-        *sfirst = other;
+        if (types::is_dtype<F>::value) {
+          std::fill(self.begin(), self.end(), other);
+        } else {
+          auto sfirst = self.begin();
+          auto siter = sfirst;
+          *sfirst = other;
 #ifdef _OPENMP
-        long n = self.shape()[0];
-        if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+          long n = self.shape()[0];
+          if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
-          for (long i = 1; i < n; ++i)
-            *(siter + i) = *sfirst;
-        else
+            for (long i = 1; i < n; ++i)
+              *(siter + i) = *sfirst;
+          else
 #endif
-          std::fill(self.begin() + 1, self.end(), *sfirst);
+            std::fill(self.begin() + 1, self.end(), *sfirst);
+        }
       }
     };
 
@@ -114,41 +115,38 @@ namespace pythonic
       using vT = typename boost::simd::pack<T>;
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
-      if (other_size > 0) // empty array sometimes happen when filtering
-      {
-        static const std::size_t vN = vT::static_size;
-        auto oiter = vectorizer::vbegin(other);
-        const long bound =
-            std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
+      static const std::size_t vN = vT::static_size;
+      auto oiter = vectorizer::vbegin(other);
+      const long bound =
+          std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
 #ifdef _OPENMP
-        if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+      if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
-          for (long i = 0; i < bound; ++i) {
-            self.store(*(oiter + i), i * vN);
-          }
-        else
-#endif
-          for (long i = 0; i < bound * vN; i += vN, ++oiter)
-            self.store(*oiter, i);
-        // tail
-        {
-          auto siter = self.begin();
-          auto oiter = other.begin();
-          for (long i = bound * vN; i < other_size; ++i)
-            *(siter + i) = *(oiter + i);
+        for (long i = 0; i < bound; ++i) {
+          self.store(*(oiter + i), i * vN);
         }
+      else
+#endif
+        for (long i = 0; i < bound * vN; i += vN, ++oiter)
+          self.store(*oiter, i);
+      // tail
+      {
+        auto siter = self.begin();
+        auto oiter = other.begin();
+        for (long i = bound * vN; i < other_size; ++i)
+          *(siter + i) = *(oiter + i);
+      }
 
 #ifdef _OPENMP
-        if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
+      if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
 #pragma omp parallel for
-          for (size_t i = other_size; i < self_size; i += other_size)
-            std::copy_n(self.begin(), other_size, self.begin() + i);
-        else
+        for (size_t i = other_size; i < self_size; i += other_size)
+          std::copy_n(self.begin(), other_size, self.begin() + i);
+      else
 #endif
-          for (size_t i = other_size; i < self_size; i += other_size)
-            std::copy_n(self.begin(), other_size, self.begin() + i);
-      }
+        for (size_t i = other_size; i < self_size; i += other_size)
+          std::copy_n(self.begin(), other_size, self.begin() + i);
     }
 
     template <>
@@ -231,25 +229,25 @@ namespace pythonic
       void operator()(E &&self, F const &other)
       {
         long other_size = std::distance(other.begin(), other.end());
-        if (other_size > 0) // empty array sometimes happen when filtering
-        {
-          auto siter = self.begin();
-          auto oiter = other.begin();
+        auto siter = self.begin();
+        auto oiter = other.begin();
 #ifdef _OPENMP
-          if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+        if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
-            for (long i = 0; i < other_size; ++i)
-              Op{}(*(siter + i), *(oiter + i));
-          else
+          for (long i = 0; i < other_size; ++i)
+            Op{}(*(siter + i), *(oiter + i));
+        else
 #endif
-              if (other_size == 1) {
-            auto value = *oiter;
-            for (auto send = self.end(); siter != send; ++siter)
-              Op{}(*siter, value);
-          } else
-            for (auto send = self.end(); siter != send; siter += other_size)
-              std::transform(siter, siter + other_size, oiter, siter, Op{});
-        }
+            if (other_size == 1) {
+          auto value = *oiter;
+          for (auto send = self.end(); siter != send; ++siter)
+            Op{}(*siter, value);
+        } else
+          for (auto send = self.end(); siter != send;) {
+            auto ooiter = oiter;
+            for (long i = 0; i < other_size; ++i, ++siter, ++ooiter)
+              Op{}(*siter, *ooiter);
+          }
       }
 
       template <class E, class F0, class F1>
@@ -282,30 +280,27 @@ namespace pythonic
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
 
-      if (other_size > 0) // empty array sometimes happen when filtering
-      {
-        static const std::size_t vN = vT::static_size;
-        auto oiter = vectorizer::vbegin(other);
-        const long bound =
-            std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
+      static const std::size_t vN = vT::static_size;
+      auto oiter = vectorizer::vbegin(other);
+      const long bound =
+          std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
 #ifdef _OPENMP
-        if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+      if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
-          for (long i = 0; i < bound * vN; i += vN) {
-            self.store(Op{}(self.load(i), *(oiter + i)), i);
-          }
-        else
-#endif
-          for (long i = 0; i < bound * vN; i += vN, ++oiter)
-            self.store(Op{}(self.load(i), *oiter), i);
-        // tail
-        {
-          auto siter = self.begin();
-          auto oiter = other.begin();
-          for (long i = bound * vN; i < other_size; ++i)
-            *(siter + i) = Op{}(*(siter + i), *(oiter + i));
+        for (long i = 0; i < bound * vN; i += vN) {
+          self.store(Op{}(self.load(i), *(oiter + i)), i);
         }
+      else
+#endif
+        for (long i = 0; i < bound * vN; i += vN, ++oiter)
+          self.store(Op{}(self.load(i), *oiter), i);
+      // tail
+      {
+        auto siter = self.begin();
+        auto oiter = other.begin();
+        for (long i = bound * vN; i < other_size; ++i)
+          *(siter + i) = Op{}(*(siter + i), *(oiter + i));
       }
     }
 

@@ -135,11 +135,10 @@ namespace pythonic
     numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>
         extended_slice<C>::operator()(ndarray<T, N> &&a, S const &... s)
     {
-      return numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>{
-          std::move(a).reshape(make_reshape<N + C>(
-              a.shape(),
-              array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...})),
-          to_slice<S>{}(s)...};
+      return {std::move(a).reshape(make_reshape<N + C>(
+                  a.shape(),
+                  array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...})),
+              to_slice<S>{}(s)...};
     }
 
     template <size_t C>
@@ -147,11 +146,10 @@ namespace pythonic
     numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>
         extended_slice<C>::operator()(ndarray<T, N> const &a, S const &... s)
     {
-      return numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>{
-          a.reshape(make_reshape<N + C>(
-              a.shape(),
-              array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}})),
-          to_slice<S>{}(s)...};
+      return {a.reshape(make_reshape<N + C>(
+                  a.shape(),
+                  array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}})),
+              to_slice<S>{}(s)...};
     }
 
     template <class T, size_t N, class... S>
@@ -511,9 +509,12 @@ namespace pythonic
       // 100% sure there's no overlap
       return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
              value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
-             is_vectorizable and types::is_vectorizable<E>::value and
-                 std::is_same<dtype,
-                              typename std::decay<BExpr>::type::dtype>::value >
+             is_vectorizable and
+                 types::is_vectorizable<typename std::remove_cv<
+                     typename std::remove_reference<BExpr>::type>::type>::
+                     value and
+                 std::is_same<dtype, typename dtype_of<typename std::decay<
+                                         BExpr>::type>::type>::value >
                      (*this, bexpr);
     }
 

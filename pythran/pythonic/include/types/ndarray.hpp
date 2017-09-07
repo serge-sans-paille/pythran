@@ -252,6 +252,8 @@ namespace pythonic
       /* from other memory */
       ndarray(utils::shared_ref<raw_array<T>> const &mem,
               array<long, N> const &shape);
+      ndarray(utils::shared_ref<raw_array<T>> &&mem,
+              array<long, N> const &shape);
 
       /* from other array */
       template <class Tp, size_t Np>
@@ -430,7 +432,10 @@ namespace pythonic
       bool may_overlap(ndarray const &) const;
 
       template <size_t M>
-      ndarray<T, M> reshape(array<long, M> const &shape) const;
+      ndarray<T, M> reshape(array<long, M> const &shape) const &;
+      template <size_t M>
+          ndarray<T, M> reshape(array<long, M> const &shape) &&
+          ;
 
       ndarray<T, 1> flat() const;
       ndarray<T, N> copy() const;

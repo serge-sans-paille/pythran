@@ -31,25 +31,15 @@ namespace pythonic
     template <class Argp> // not using the default one, to make it possible to
     // accept reference and non reference version of Argp
     numpy_iexpr<Arg>::numpy_iexpr(numpy_iexpr<Argp> const &other)
-        : arg(other.arg), buffer(other.buffer), _shape(other.shape())
+        : buffer(other.buffer), _shape(other.shape())
     {
     }
 
     template <class Arg>
     numpy_iexpr<Arg>::numpy_iexpr(Arg const &arg, long index)
-        : arg(arg), buffer(arg.buffer)
+        : buffer(arg.buffer)
     {
-      buffer += buffer_offset(index, utils::int_<value>());
-    }
-
-    // force the move. Using universal reference here does not work (because of
-    // reference collapsing ?)
-    template <class Arg>
-    numpy_iexpr<Arg>::numpy_iexpr(
-        typename std::remove_reference<Arg>::type &&arg, long index)
-        : arg(std::move(arg)), buffer(arg.buffer)
-    {
-      buffer += buffer_offset(index, utils::int_<value>());
+      buffer += buffer_offset(arg.shape(), index, utils::int_<value>());
     }
 
     template <class Arg>
@@ -402,18 +392,19 @@ namespace pythonic
     }
 
     template <class Arg>
-    long numpy_iexpr<Arg>::buffer_offset(long index, utils::int_<0>)
+    long numpy_iexpr<Arg>::buffer_offset(array<long, value + 1> const &shape,
+                                         long index, utils::int_<0>)
     {
       return index;
     }
 
     template <class Arg>
     template <size_t N>
-    long numpy_iexpr<Arg>::buffer_offset(long index, utils::int_<N>)
+    long numpy_iexpr<Arg>::buffer_offset(array<long, value + 1> const &shape,
+                                         long index, utils::int_<N>)
     {
-      auto &&arg_shape = arg.shape();
-      _shape[value - N] = arg_shape[value - N + 1];
-      return buffer_offset(index * arg_shape[value - N + 1],
+      _shape[value - N] = shape[value - N + 1];
+      return buffer_offset(shape, index * shape[value - N + 1],
                            utils::int_<N - 1>());
     }
 

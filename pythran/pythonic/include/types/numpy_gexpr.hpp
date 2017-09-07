@@ -288,6 +288,14 @@ namespace pythonic
         : std::integral_constant<bool, not is_dtype<E>::value> {
     };
 
+    template <class T0, class T1>
+    struct may_overlap_gexpr<broadcast<T0, T1>> : std::false_type {
+    };
+
+    template <class E>
+    struct may_overlap_gexpr<broadcasted<E>> : std::false_type {
+    };
+
     template <class E>
     struct may_overlap_gexpr<E &> : may_overlap_gexpr<E> {
     };

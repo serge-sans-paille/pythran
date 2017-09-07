@@ -88,14 +88,17 @@ namespace pythonic
     template <int... I>
     bool numpy_expr<Op, Args...>::_no_broadcast(utils::seq<I...>) const
     {
-      std::initializer_list<bool> nb = {
-          utils::no_broadcast(std::get<I>(args))...};
-      if (std::any_of(nb.begin(), nb.end(), [](bool b) { return !b; }))
+      bool child_broadcast = false;
+      std::initializer_list<bool> __attribute__((unused))
+      _0 = {(child_broadcast |= !utils::no_broadcast(std::get<I>(args)))...};
+      if (child_broadcast)
         return false;
 
-      std::initializer_list<long> shapes = {std::get<I>(args).shape()[0]...};
-      return std::all_of(shapes.begin(), shapes.end(),
-                         [this](long n) { return n == size() || n == 0; });
+      bool same_shape = true;
+      std::initializer_list<bool> __attribute__((unused))
+      _1 = {(same_shape &= (std::get<I>(args).shape()[0] == size() ||
+                            std::get<I>(args).shape()[0] == 0))...};
+      return same_shape;
     }
     template <class Op, class... Args>
     bool numpy_expr<Op, Args...>::no_broadcast() const

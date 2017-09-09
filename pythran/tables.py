@@ -2814,6 +2814,16 @@ MODULES = {
             return_range=lambda _: interval.Range(1, 1)
         ),
     },
+    "scipy": {
+        "special": {
+            "gammaln": ConstFunctionIntr(
+                signature=_numpy_unary_op_float_signature
+            ),
+            "gamma": ConstFunctionIntr(
+                signature=_numpy_unary_op_float_signature
+            ),
+        }
+    },
     "numpy": {
         "abs": ConstFunctionIntr(signature=_numpy_unary_op_signature),
         "absolute": ConstFunctionIntr(signature=_numpy_ones_signature),
@@ -4388,11 +4398,14 @@ if 'WindowsError' in sys.modules['__builtin__'].__dict__:
     MODULES['__builtin__']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
-try:
-    __import__("omp")
-except ImportError:
-    logger.warn("Pythran support disabled for module: omp")
-    del MODULES["omp"]
+for module_name in ["omp", "scipy"]:
+    try:
+        __import__(module_name)
+    except ImportError:
+        logger.warn(
+            "Pythran support disabled for module: {}".format(module_name)
+        )
+        del MODULES[module_name]
 
 # check and delete unimplemented numpy methods
 for method in list(MODULES['numpy'].keys()):

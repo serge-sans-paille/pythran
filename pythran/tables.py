@@ -4395,7 +4395,7 @@ except ImportError:
     del MODULES["omp"]
 
 # check and delete unimplemented numpy methods
-for method in MODULES['numpy'].keys():
+for method in list(MODULES['numpy'].keys()):
     if (method not in sys.modules['numpy'].__dict__ and not
             (method[-1:] == '_' and method[:-1] in cxx_keywords and
              method[:-1] in sys.modules['numpy'].__dict__)):

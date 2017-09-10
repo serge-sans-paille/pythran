@@ -29,11 +29,10 @@ namespace pythonic
       {
         /* adapted from http://www.jb.man.ac.uk/~slowe/cpp/itoa.html#performance
          */
-        thread_local static char
-            buffer[8 * (1 << sizeof(value))]; // this buffer is large enough to
-                                              // hold the binary representation,
-                                              // so the decimal representation
-                                              // will be ok
+
+        // this buffer is large enough to hold the binary representation, so
+        // the decimal representation will be ok
+        char buffer[8 * (1 << sizeof(value))];
         char *ptr = buffer, *ptr1 = buffer, tmp_char;
         long tmp_value;
 
@@ -58,14 +57,10 @@ namespace pythonic
 
       inline types::str str(double l)
       {
-        thread_local static char buffer[8 * (1 << sizeof(l))]; // when using %g,
-                                                               // only 6
-                                                               // significant
-                                                               // bits are used,
-                                                               // so this should
-                                                               // be enough. Use
-                                                               // snprintf
-                                                               // though
+        // when using %g, only 6 significant bits are used, so this should be
+        // enough.
+        // Use snprintf though
+        char buffer[8 * (1 << sizeof(l))];
         snprintf(buffer, sizeof(buffer), "%g", l);
         return buffer;
       }

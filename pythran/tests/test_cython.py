@@ -3,6 +3,9 @@ import unittest
 class TestCython(unittest.TestCase):
     pass
 
+def add_test(name, runner, target):
+    setattr(TestCython, "test_" + name, lambda s: runner(s, target))
+
 try:
     import Cython
     import glob
@@ -19,9 +22,8 @@ try:
             except:
                 os.chdir(cwd)
                 raise
-
         name, _ = os.path.splitext(os.path.basename(target))
-        setattr(TestCython, "test_" + name, lambda s: runner(s, target))
+        add_test(name, runner, target)
 
 
 except ImportError:

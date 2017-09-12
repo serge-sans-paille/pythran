@@ -12,6 +12,7 @@
 // workaround the fact that char and short computations are done using int in C,
 // while they are done at their respective type in numpy
 #define DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(opname, op)                         \
+  PYTHONIC_OPERATOR_OVERLOAD_IMPL(bool, opname, op)                            \
   PYTHONIC_OPERATOR_OVERLOAD_IMPL(unsigned char, opname, op)                   \
   PYTHONIC_OPERATOR_OVERLOAD_IMPL(signed char, opname, op)                     \
   PYTHONIC_OPERATOR_OVERLOAD_IMPL(unsigned short, opname, op)                  \

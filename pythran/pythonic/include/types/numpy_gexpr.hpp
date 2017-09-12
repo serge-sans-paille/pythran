@@ -381,7 +381,11 @@ namespace pythonic
                                     const_nditerator<numpy_gexpr>,
                                     dtype const *>::type;
 
+#ifdef CYTHON_ABI
+      typename std::remove_reference<Arg>::type arg;
+#else
       Arg arg;
+#endif
       std::tuple<S...> slices;
       dtype *buffer;
       array<long, value> _shape;

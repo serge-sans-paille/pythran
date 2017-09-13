@@ -1,3 +1,15 @@
+2017-09-12 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Significant compilation time improvements (again)
+
+	* Improved cython cooperation
+
+	* Many OSX and Python3 integration fixes
+
+	* Revive pure C++ mode
+
+	* Exported functions now support keyword passing style
+
 2017-07-04 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Significant compilation time improvements

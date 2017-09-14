@@ -399,7 +399,7 @@ configuration. Here are a few tricks!
 
 
 ``[compiler]``
-==============
+**************
 
 This section contains compiler flags configuration. For education purpose, the default linux configuration is
 
@@ -456,7 +456,7 @@ This section contains compiler flags configuration. For education purpose, the d
 
 
 ``[pythran]``
-=============
+*************
 
 This one contains internal configuration settings. Play with it at your own risk!
 
@@ -472,7 +472,7 @@ This one contains internal configuration settings. Play with it at your own risk
     multiplications. Not very portable, but generally works on Linux.
 
 ``[typing]``
-============
+************
 
 Another internal setting stuff. This controls the accuracy of the typing phase. An extract from the default setting file should convince you not to touch it::
 

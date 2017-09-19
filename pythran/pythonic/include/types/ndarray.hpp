@@ -236,9 +236,10 @@ namespace pythonic
       array<long, N> _strides; // strides
 
       /* mem management */
-      void mark_memory_external()
+      void mark_memory_external(extern_type obj)
       {
-        mem->external = true;
+        mem.external(obj);
+        mem->forget();
       }
 
       /* constructors */

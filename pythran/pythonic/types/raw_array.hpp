@@ -43,6 +43,12 @@ namespace pythonic
       if (data && !external)
         free(data);
     }
+
+    template <class T>
+    void raw_array<T>::forget()
+    {
+      external = true;
+    }
   }
 }
 

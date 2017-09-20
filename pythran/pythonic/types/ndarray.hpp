@@ -1281,7 +1281,6 @@ namespace pythonic
   {
     if (n.mem.get_foreign()) {
       PyObject *p = n.mem.get_foreign();
-      n.mark_memory_external();
       PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(p);
       auto const *pshape = PyArray_DIMS(arr);
       Py_INCREF(p);
@@ -1309,7 +1308,8 @@ namespace pythonic
     } else {
       PyObject *result = pyarray_new<long, N>{}.from_data(
           n._shape.data(), c_type_to_numpy_type<T>::value, n.buffer);
-      n.mark_memory_external();
+      n.mark_memory_external(result);
+      Py_INCREF(result);
       if (!result)
         return nullptr;
       PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject *>(result),

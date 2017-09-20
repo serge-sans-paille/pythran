@@ -18,16 +18,17 @@ namespace pythonic
     class raw_array
     {
       raw_array(raw_array<T> const &) = delete;
+      bool external;
 
     public:
       using pointer_type = T *;
 
       T *data;
-      bool external;
       raw_array();
       raw_array(size_t n);
       raw_array(T *d, ownership o);
       raw_array(raw_array<T> &&d);
+      void forget();
 
       ~raw_array();
     };

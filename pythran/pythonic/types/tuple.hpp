@@ -579,8 +579,10 @@ namespace pythonic
   template <typename K, typename V>
   PyObject *to_python<std::pair<K, V>>::convert(std::pair<K, V> const &t)
   {
-    return PyTuple_Pack(2, ::to_python(std::get<0>(t)),
-                        ::to_python(std::get<1>(t)));
+    PyObject *out = PyTuple_New(2);
+    PyTuple_SET_ITEM(out, 0, ::to_python(std::get<0>(t)));
+    PyTuple_SET_ITEM(out, 1, ::to_python(std::get<1>(t)));
+    return out;
   }
 
   template <typename... Types>
@@ -589,7 +591,10 @@ namespace pythonic
 
       do_convert(std::tuple<Types...> const &t, utils::seq<S...>)
   {
-    return PyTuple_Pack(sizeof...(Types), ::to_python(std::get<S>(t))...);
+    PyObject *out = PyTuple_New(sizeof...(Types));
+    std::initializer_list<bool> __attribute__((unused))
+    _ = {PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
+    return out;
   }
 
   template <typename... Types>
@@ -605,7 +610,10 @@ namespace pythonic
   to_python<types::array<T, N>>::do_convert(types::array<T, N> const &t,
                                             utils::seq<S...>)
   {
-    return PyTuple_Pack(N, ::to_python(std::get<S>(t))...);
+    PyObject *out = PyTuple_New(N);
+    std::initializer_list<bool> __attribute__((unused))
+    _ = {PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
+    return out;
   }
 
   template <typename T, size_t N>

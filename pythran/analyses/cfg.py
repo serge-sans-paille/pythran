@@ -15,6 +15,15 @@ def is_true_predicate(node):
     return False
 
 
+def is_false_predicate(node):
+    # FIXME: there may be more patterns here
+    if isinstance(node, ast.Num) and not node.n:
+        return True
+    if isinstance(node, ast.Attribute) and node.attr == 'False':
+        return True
+    return False
+
+
 class CFG(FunctionAnalysis):
     """
     Computes the Control Flow Graph of a function.
@@ -138,7 +147,10 @@ class CFG(FunctionAnalysis):
 
     def visit_Assert(self, node):
         """OUT = RAISES = (node)"""
-        return (node,), (node,)
+        if is_false_predicate(node.test):
+            return (), (node, )
+        else:
+            return (node,), (node,)
 
     def visit_Try(self, node):
         """

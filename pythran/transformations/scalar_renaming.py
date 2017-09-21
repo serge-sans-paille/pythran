@@ -1,12 +1,13 @@
-""" FalsePolymorphism try to rename variable to avoid false polymorphism."""
+""" Scalar renaming try to rename variable to avoid false polymorphism."""
 
 from pythran.passmanager import Transformation
 from pythran.analyses import UseDefChain, UseOMP, Identifiers
 
 import networkx as nx
+import gast as ast
 
 
-class FalsePolymorphism(Transformation):
+class ScalarRenaming(Transformation):
 
     """
     Rename variable when possible to avoid false polymorphism.
@@ -15,7 +16,7 @@ class FalsePolymorphism(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("def foo(): a = 12; a = 'babar'")
     >>> pm = passmanager.PassManager("test")
-    >>> _, node = pm.apply(FalsePolymorphism, node)
+    >>> _, node = pm.apply(ScalarRenaming, node)
     >>> print pm.dump(backend.Python, node)
     def foo():
         a = 12
@@ -23,7 +24,7 @@ class FalsePolymorphism(Transformation):
     """
 
     def __init__(self):
-        super(FalsePolymorphism, self).__init__(UseDefChain, UseOMP)
+        super(ScalarRenaming, self).__init__(UseDefChain, UseOMP)
 
     def visit_FunctionDef(self, node):
         # function using openmp are ignored
@@ -59,7 +60,6 @@ class FalsePolymorphism(Transformation):
                                        for k in to_change]
                     group_variable.append(nodes_to_change)
                     udgraph.remove_nodes_from(to_change)
-
                 if len(group_variable) > 1:
                     identifiers.remove(name)
                     for group in group_variable:
@@ -69,4 +69,83 @@ class FalsePolymorphism(Transformation):
                             self.update |= var.id != name
                             var.id = name
                         identifiers.add(name)
+            self.identifiers = identifiers
+        return self.generic_visit(node)
+
+
+class PhiInsertion(Transformation):
+    """
+    Insert phi-function equivalent
+
+    >>> import gast as ast
+    >>> from pythran import passmanager, backend
+    >>> node = ast.parse("def foo(a):\n if a\n  a = 2\n else:\n  a = 1\n a")
+    >>> pm = passmanager.PassManager("test")
+    >>> _, node = pm.apply(FalsePolymorphism, node)
+    >>> print pm.dump(backend.Python, node)
+    def foo(a):
+        if a:
+            a_ = 2
+        else:
+            a_ = 1
+        a_
+    """
+
+    def visit_Module(self, node):
+        self.identifiers = self.passmanager.gather(Identifiers, node, self.ctx)
+        return self.generic_visit(node)
+
+    def visit_If(self, node):
+        self.generic_visit(node)
+
+        def isLoad(n):
+            if isinstance(n, ast.Assign):
+                return hasattr(n.targets[0], 'id')
+            return False
+
+        def getLoads(stmts):
+            defs = dict()
+            for i, stmt in reversed(list(enumerate(stmts))):
+                if isinstance(stmt, ast.Expr):
+                    continue
+                elif isLoad(stmt):
+                    if hasattr(stmt, 'target'):
+                        defs[stmt.target.id] = i
+                    else:
+                        defs[stmt.targets[0].id] = i
+                else:
+                    break
+            return defs
+        body_defs = getLoads(node.body)
+        orelse_defs = getLoads(node.orelse)
+        new_defs = set(body_defs.keys()).intersection(orelse_defs.keys())
+
+        renamed_new_defs = []
+        for d in new_defs:
+            new_d = d + '_'
+            while new_d in self.identifiers:
+                new_d += '_'
+            renamed_new_defs.append(new_d)
+
+            renamer = Renamer(d, new_d)
+            for i in range(body_defs[d], len(body_defs)):
+                node.body[i] = renamer.visit(node.body[i])
+            for i in range(orelse_defs[d], len(orelse_defs)):
+                node.orelse[i] = renamer.visit(node.orelse[i])
+
+            self.update = True
+
+        return [node] + [ast.Assign([ast.Name(d, ast.Store(), None)],
+                                    ast.Name(new_d, ast.Load(), None))
+                         for d, new_d in zip(new_defs, renamed_new_defs)]
+
+
+class Renamer(ast.NodeTransformer):
+    '''Helper class to perform renaming in PhiInsertion'''
+
+    def __init__(self, old, new):
+        self.renamings = {old: new}
+
+    def visit_Name(self, node):
+        node.id = self.renamings.get(node.id, node.id)
         return node

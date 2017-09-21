@@ -3,13 +3,13 @@
 from pythran.analyses import ExtendedSyntaxCheck
 from pythran.optimizations import ComprehensionPatterns, ListCompToGenexp
 from pythran.transformations import (ExpandBuiltins, ExpandImports,
-                                     ExpandImportAll, FalsePolymorphism,
+                                     ExpandImportAll, ScalarRenaming,
                                      NormalizeCompare, NormalizeException,
                                      NormalizeMethodCalls, NormalizeReturn,
                                      NormalizeTuples, RemoveComprehension,
                                      RemoveNestedFunctions, RemoveLambdas,
                                      UnshadowParameters, RemoveNamedArguments,
-                                     ExpandGlobals)
+                                     ExpandGlobals, Denone, PhiInsertion)
 
 
 def refine(pm, node, optimizations):
@@ -39,7 +39,9 @@ def refine(pm, node, optimizations):
     # sanitize input
     pm.apply(NormalizeReturn, node)
     pm.apply(UnshadowParameters, node)
-    pm.apply(FalsePolymorphism, node)
+    pm.apply(PhiInsertion, node)
+    pm.apply(ScalarRenaming, node)
+    pm.apply(Denone, node)
 
     # some extra optimizations
     apply_optimisation = True

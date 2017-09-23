@@ -54,7 +54,14 @@ namespace pythonic
 
     template <class Op, class E>
     typename std::enable_if<E::value != 1, reduced_type<E>>::type
-    reduce(E const &array, long axis);
+    reduce(E const &array, long axis,
+           types::none_type dtype = types::none_type(),
+           types::none_type out = types::none_type());
+
+    template <class Op, class E>
+    typename std::enable_if<E::value != 1, reduced_type<E>>::type
+    reduce(E const &array, long axis, types::none_type dtype,
+           reduced_type<E> out);
   }
 }
 

@@ -13,20 +13,11 @@ namespace pythonic
   namespace numpy
   {
 
-    template <class E>
-    auto prod(E &&e)
-        -> decltype(reduce<operator_::functor::imul>(std::forward<E>(e)))
+    template <class... Args>
+    auto prod(Args &&... args) -> decltype(
+        reduce<operator_::functor::imul>(std::forward<Args>(args)...))
     {
-      return reduce<operator_::functor::imul>(std::forward<E>(e));
-    }
-
-    template <class E, class Opt>
-    auto prod(E &&e, Opt &&opt)
-        -> decltype(reduce<operator_::functor::imul>(std::forward<E>(e),
-                                                     std::forward<Opt>(opt)))
-    {
-      return reduce<operator_::functor::imul>(std::forward<E>(e),
-                                              std::forward<Opt>(opt));
+      return reduce<operator_::functor::imul>(std::forward<Args>(args)...);
     }
 
     DEFINE_FUNCTOR(pythonic::numpy, prod);

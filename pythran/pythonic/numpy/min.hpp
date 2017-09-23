@@ -13,20 +13,11 @@ namespace pythonic
   namespace numpy
   {
 
-    template <class E>
-    auto min(E &&e)
-        -> decltype(reduce<operator_::functor::imin>(std::forward<E>(e)))
+    template <class... Args>
+    auto min(Args &&... args) -> decltype(
+        reduce<operator_::functor::imin>(std::forward<Args>(args)...))
     {
-      return reduce<operator_::functor::imin>(std::forward<E>(e));
-    }
-
-    template <class E, class Opt>
-    auto min(E &&e, Opt &&opt)
-        -> decltype(reduce<operator_::functor::imin>(std::forward<E>(e),
-                                                     std::forward<Opt>(opt)))
-    {
-      return reduce<operator_::functor::imin>(std::forward<E>(e),
-                                              std::forward<Opt>(opt));
+      return reduce<operator_::functor::imin>(std::forward<Args>(args)...);
     }
 
     DEFINE_FUNCTOR(pythonic::numpy, min);

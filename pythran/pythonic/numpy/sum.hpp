@@ -14,20 +14,11 @@ namespace pythonic
   namespace numpy
   {
 
-    template <class E>
-    auto sum(E &&e)
-        -> decltype(reduce<operator_::functor::iadd>(std::forward<E>(e)))
+    template <class... Args>
+    auto sum(Args &&... args) -> decltype(
+        reduce<operator_::functor::iadd>(std::forward<Args>(args)...))
     {
-      return reduce<operator_::functor::iadd>(std::forward<E>(e));
-    }
-
-    template <class E, class Opt>
-    auto sum(E &&e, Opt &&opt)
-        -> decltype(reduce<operator_::functor::iadd>(std::forward<E>(e),
-                                                     std::forward<Opt>(opt)))
-    {
-      return reduce<operator_::functor::iadd>(std::forward<E>(e),
-                                              std::forward<Opt>(opt));
+      return reduce<operator_::functor::iadd>(std::forward<Args>(args)...);
     }
 
     DEFINE_FUNCTOR(pythonic::numpy, sum);

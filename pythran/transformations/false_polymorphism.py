@@ -34,7 +34,7 @@ class FalsePolymorphism(Transformation):
                 group_variable = list()
                 # changing the result of an analyse disturbs caching -> COPY
                 while udgraph:
-                    e = next(udgraph.nodes_iter())
+                    e = next(iter(udgraph.nodes))
                     to_change = set()
                     to_analyse_pred = set([e])
                     to_analyse_succ = set()

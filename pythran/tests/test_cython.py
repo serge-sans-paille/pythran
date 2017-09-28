@@ -20,8 +20,9 @@ try:
                 os.chdir(os.path.dirname(target))
                 exec(open(os.path.basename(target)).read())
             except:
-                os.chdir(cwd)
                 raise
+            finally:
+                os.chdir(cwd)
         name, _ = os.path.splitext(os.path.basename(target))
         add_test(name, runner, target)
 

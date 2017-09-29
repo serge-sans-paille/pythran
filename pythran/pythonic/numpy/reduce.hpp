@@ -149,7 +149,7 @@ namespace pythonic
 
     template <class Op, class E>
     typename std::enable_if<E::value != 1, reduced_type<E>>::type
-    reduce(E const &array, long axis)
+    reduce(E const &array, long axis, types::none_type, types::none_type)
     {
       if (axis < 0)
         axis += E::value;
@@ -172,6 +172,27 @@ namespace pythonic
                          return reduce<Op>(other, axis - 1);
                        });
         return sumy;
+      }
+    }
+    template <class Op, class E>
+    typename std::enable_if<E::value != 1, reduced_type<E>>::type
+    reduce(E const &array, long axis, types::none_type, reduced_type<E> out)
+    {
+      if (axis < 0)
+        axis += E::value;
+      if (axis < 0 || size_t(axis) >= E::value)
+        throw types::ValueError("axis out of bounds");
+      if (axis == 0) {
+        std::fill(out.begin(), out.end(),
+                  utils::neutral<Op, typename E::dtype>::value);
+        return _reduce<Op, 1, types::novectorize /* not on scalars*/>{}(array,
+                                                                        out);
+      } else {
+        std::transform(array.begin(), array.end(), out.begin(),
+                       [axis](typename E::const_iterator::value_type other) {
+                         return reduce<Op>(other, axis - 1);
+                       });
+        return out;
       }
     }
   }

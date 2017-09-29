@@ -39,6 +39,25 @@ class TestNumpyFunc0(TestEnv):
                       numpy.arange(120).reshape((3,5,4,2)),
                       numpy_extended_sum5=[NDArray[int,:,:,:,:]])
 
+    def test_out_sum0(self):
+        self.run_test("def numpy_out_sum0(a, b): import numpy ; return numpy.sum(a, axis=0, out=b)",
+                      numpy.arange(10).reshape((5,2)),
+                      numpy.zeros(2, dtype=int),
+                      numpy_out_sum0=[NDArray[int,:,:], NDArray[int,:]])
+
+    def test_out_sum1(self):
+        self.run_test("def numpy_out_sum1(a, b): import numpy ; return numpy.sum(a, axis=0, out=b)",
+                      numpy.arange(10).reshape((5,2)),
+                      numpy.ones(2, dtype=int),
+                      numpy_out_sum1=[NDArray[int,:,:], NDArray[int,:]])
+
+    def test_out_sum2(self):
+        self.run_test("def numpy_out_sum2(a, b): import numpy ; return numpy.sum(a, axis=1, out=b)",
+                      numpy.arange(10).reshape((5,2)),
+                      numpy.zeros(5, dtype=int),
+                      numpy_out_sum2=[NDArray[int,:,:], NDArray[int,:]])
+
+
     def test_numpy_shape_as_function(self):
          self.run_test("def numpy_shape_as_function(a): import numpy ; return numpy.shape(a)",
                        numpy.ones(3, numpy.int16),

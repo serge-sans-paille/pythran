@@ -50,7 +50,7 @@ class UseDefChain(FunctionAnalysis):
                 graph = self.use_only[nid]
             if nid in prev_node and prev_node[nid] != self.continue_[nid]:
                 entering_node = [i for j in prev_node[nid]
-                                 for i in graph.successors_iter(j)]
+                                 for i in graph.successors(j)]
             else:
                 entering_node = [n for n in graph if graph.in_degree(n) == 0]
             graph.add_edges_from(product(self.continue_[nid],

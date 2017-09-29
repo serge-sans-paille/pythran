@@ -80,7 +80,7 @@ class ArgumentEffects(ModuleAnalysis):
                     if not update_effect:
                         continue
                     for pred in self.result.predecessors(function):
-                        edge = self.result.edge[pred][function]
+                        edge = self.result.edges[pred, function]
                         for fp in enumerate(edge["formal_parameters"]):
                             i, formal_parameter_idx = fp
                             # propagate the impurity backward if needed.
@@ -167,7 +167,7 @@ class ArgumentEffects(ModuleAnalysis):
                             func_alias,
                             effective_parameters=[],
                             formal_parameters=[])
-                    edge = self.result.edge[self.current_function][func_alias]
+                    edge = self.result.edges[self.current_function, func_alias]
                     edge["effective_parameters"].append(n)
                     edge["formal_parameters"].append(i)
         self.generic_visit(node)

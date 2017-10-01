@@ -1506,7 +1506,7 @@ namespace pythonic
                                     PyArray_DIMS(base_arr), obj);
     std::tuple<S...> slices;
     impl::fill_slice<T>(slices, strides, offsets, PyArray_DIMS(arr),
-                        utils::int_<N>());
+                        utils::int_<sizeof...(S)>());
     types::numpy_gexpr<types::ndarray<T, N>, S...> r(base_array, slices);
 
     Py_INCREF(obj);

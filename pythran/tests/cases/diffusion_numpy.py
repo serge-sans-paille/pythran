@@ -1,6 +1,5 @@
 #pythran export diffuseNumpy(float [][], float [][], int)
-#runas import numpy as np;lx,ly=(2**7,2**7);u=np.zeros([lx,ly],dtype=np.double);u[lx/2,ly/2]=1000.0;tempU=np.zeros([lx,ly],dtype=np.double);diffuseNumpy(u,tempU,500)
-#unittest.skip gsliced array error (dep not taken into account)
+#runas import numpy as np;lx,ly=(2**7,2**7);u=np.zeros([lx,ly],dtype=np.double);u[lx//2,ly//2]=1000.0;tempU=np.zeros([lx,ly],dtype=np.double);diffuseNumpy(u,tempU,500)
 
 import numpy as np
 

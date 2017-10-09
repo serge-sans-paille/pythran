@@ -779,6 +779,10 @@ namespace pythonic
     static types::numpy_gexpr<types::ndarray<T, N>, S...>
     convert(PyObject *obj);
   };
+  template <typename T, size_t N, class... S>
+  struct from_python<types::numpy_gexpr<types::ndarray<T, N> const &, S...>>
+      : from_python<types::numpy_gexpr<types::ndarray<T, N>, S...>> {
+  };
 
   template <typename E>
   struct from_python<types::numpy_texpr<E>> {

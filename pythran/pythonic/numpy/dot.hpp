@@ -8,7 +8,13 @@
 #include "pythonic/types/numpy_expr.hpp"
 #include "pythonic/types/traits.hpp"
 
+#if defined(PYTHRAN_BLAS_ATLAS)
+extern "C" {
+#endif
 #include <cblas.h>
+#if defined(PYTHRAN_BLAS_ATLAS)
+}
+#endif
 
 namespace pythonic
 {

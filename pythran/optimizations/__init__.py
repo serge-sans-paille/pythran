@@ -10,7 +10,7 @@ into
 import optimisations.xxxxx
 """
 
-from .constant_folding import ConstantFolding
+from .constant_folding import ConstantFolding, PartialConstantFolding
 from .dead_code_elimination import DeadCodeElimination
 from .forward_substitution import ForwardSubstitution
 from .iter_transformation import IterTransformation

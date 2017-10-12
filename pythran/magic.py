@@ -31,9 +31,8 @@ class PythranMagics(Magics):
 
     def _import_all(self, module):
         """ Import only globals modules. """
-        for k, v in module.__dict__.items():
-            if not k.startswith('__'):
-                self.shell.push({k: v})
+        self.shell.push({k: v for k, v in module.__dict__.items()
+                         if not k.startswith('__')})
 
     @magic_arguments.magic_arguments()
     @magic_arguments.argument('-D', action='append', default=[])
@@ -66,6 +65,7 @@ class PythranMagics(Magics):
             kwargs.setdefault('extra_link_args', []).append(
                 '-fopenmp')
         m = hashlib.md5()
+        m.update(line.encode('utf-8'))
         m.update(cell.encode('utf-8'))
         module_name = "pythranized_" + m.hexdigest()
         module_path = pythran.compile_pythrancode(module_name, cell, **kwargs)

@@ -291,6 +291,9 @@ namespace pythonic
 
       template <class F>
       list<T> &operator+=(list<F> const &s);
+      template <class Tp, size_t N>
+      list<T> &operator+=(array<Tp, N> const &s);
+
       long size() const;
       template <class E>
       long _flat_size(E const &e, utils::int_<1>) const;
@@ -315,6 +318,8 @@ namespace pythonic
       list<T> operator+(list<T> const &s) const;
       template <class T, class S>
       sliced_list<T, S> operator+(sliced_list<T, S> const &s) const;
+      template <class T, size_t N>
+      array<T, N> operator+(array<T, N> const &s) const;
       empty_list operator+(empty_list const &) const;
       operator bool() const;
       template <class T>
@@ -452,6 +457,15 @@ struct __combined<pythonic::types::sliced_list<T, S>,
 template <class T, class S>
 struct __combined<pythonic::types::empty_list,
                   pythonic::types::sliced_list<T, S>> {
+  typedef pythonic::types::list<T> type;
+};
+
+template <class T, size_t N>
+struct __combined<pythonic::types::array<T, N>, pythonic::types::empty_list> {
+  typedef pythonic::types::list<T> type;
+};
+template <class T, size_t N>
+struct __combined<pythonic::types::empty_list, pythonic::types::array<T, N>> {
   typedef pythonic::types::list<T> type;
 };
 

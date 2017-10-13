@@ -10,7 +10,7 @@ into
 import optimisations.xxxxx
 """
 
-from .constant_folding import ConstantFolding
+from .constant_folding import ConstantFolding, PartialConstantFolding
 from .dead_code_elimination import DeadCodeElimination
 from .forward_substitution import ForwardSubstitution
 from .iter_transformation import IterTransformation
@@ -22,3 +22,4 @@ from .range_loop_unfolding import RangeLoopUnfolding
 from .square import Square
 from .inlining import Inlining
 from .inline_builtins import InlineBuiltins
+from .list_to_tuple import ListToTuple

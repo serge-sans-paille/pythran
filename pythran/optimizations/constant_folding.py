@@ -9,6 +9,7 @@ from pythran.analyses.ast_matcher import DamnTooLongPattern
 from pythran.syntax import PythranSyntaxError
 
 import gast as ast
+from copy import deepcopy
 
 
 class ConstantFolding(Transformation):
@@ -124,3 +125,84 @@ class ConstantFolding(Transformation):
                 raise PythranSyntaxError(str(e), node)
         else:
             return Transformation.generic_visit(self, node)
+
+
+class PartialConstantFolding(Transformation):
+
+    """
+    Replace partially constant expression by their evaluation.
+
+    >>> import gast as ast
+    >>> from pythran import passmanager, backend
+
+    >>> node = ast.parse("def foo(n): return [n] * 2")
+    >>> pm = passmanager.PassManager("test")
+    >>> _, node = pm.apply(PartialConstantFolding, node)
+    >>> print(pm.dump(backend.Python, node))
+    def foo(n):
+        return [n, n]
+
+    >>> node = ast.parse("def foo(n): return 2 * (n,)")
+    >>> _, node = pm.apply(PartialConstantFolding, node)
+    >>> print(pm.dump(backend.Python, node))
+    def foo(n):
+        return (n, n)
+
+    >>> node = ast.parse("def foo(n): return [n] + [n]")
+    >>> _, node = pm.apply(PartialConstantFolding, node)
+    >>> print(pm.dump(backend.Python, node))
+    def foo(n):
+        return [n, n]
+
+    >>> node = ast.parse("def foo(n, m): return (n,) + (m, n)")
+    >>> _, node = pm.apply(PartialConstantFolding, node)
+    >>> print(pm.dump(backend.Python, node))
+    def foo(n, m):
+        return (n, m, n)
+    """
+
+    def __init__(self):
+        Transformation.__init__(self, ConstantExpressions)
+
+    def fold_mult_left(self, node):
+        if not isinstance(node.left, (ast.List, ast.Tuple)):
+            return False
+        if not isinstance(node.right, ast.Num):
+            return False
+        return isinstance(node.op, ast.Mult)
+
+    def fold_mult_right(self, node):
+        if not isinstance(node.right, (ast.List, ast.Tuple)):
+            return False
+        if not isinstance(node.left, ast.Num):
+            return False
+        return isinstance(node.op, ast.Mult)
+
+    def fold_add(self, node, ty):
+        if not isinstance(node.left, ty):
+            return False
+        if not isinstance(node.right, ty):
+            return False
+        return isinstance(node.op, ast.Add)
+
+    def visit_BinOp(self, node):
+        if node in self.constant_expressions:
+            return node
+
+        node = self.generic_visit(node)
+        if self.fold_mult_left(node):
+            node.left.elts = [deepcopy(elt)
+                              for _ in range(node.right.n)
+                              for elt in node.left.elts]
+            return node.left
+
+        if self.fold_mult_right(node):
+            node.left, node.right = node.right, node.left
+            return self.visit(node)
+
+        for ty in (ast.List, ast.Tuple):
+            if self.fold_add(node, ty):
+                node.left.elts += node.right.elts
+                return node.left
+
+        return node

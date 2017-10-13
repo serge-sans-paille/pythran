@@ -274,6 +274,7 @@ namespace pythonic
       std::copy(other.begin(), other.end(), data->begin());
       return *this;
     }
+
     template <class T>
     template <class S>
     list<T> list<T>::operator+(sliced_list<T, S> const &other) const
@@ -569,6 +570,15 @@ namespace pythonic
     }
 
     template <class T>
+    template <class Tp, size_t N>
+    list<T> &list<T>::operator+=(array<Tp, N> const &s)
+    {
+      reserve(size() + s.size());
+      std::copy(s.begin(), s.end(), std::back_inserter(*this));
+      return *this;
+    }
+
+    template <class T>
     long list<T>::size() const
     {
       return data->size();
@@ -625,6 +635,11 @@ namespace pythonic
     }
     template <class T, class S>
     sliced_list<T, S> empty_list::operator+(sliced_list<T, S> const &s) const
+    {
+      return s;
+    }
+    template <class T, size_t N>
+    array<T, N> empty_list::operator+(array<T, N> const &s) const
     {
       return s;
     }

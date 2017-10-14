@@ -5,6 +5,7 @@ except:
     import ConfigParser as configparser
 import logging
 import numpy.distutils.system_info as numpy_sys
+from distutils.errors import LinkError
 import numpy
 import os
 import sys
@@ -88,7 +89,12 @@ def make_extension(**extra):
     if user_blas:
         extension['libraries'].append(user_blas)
     else:
-        numpy_blas = numpy_sys.get_info("blas")
+        for engine in ('mkl', 'atlas', 'blas'):
+            try:
+                numpy_blas = numpy_sys.get_info(engine)
+                break
+            except LinkError:
+                continue
         extension['libraries'].extend(numpy_blas.get('libraries', []))
         extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
         extension['include_dirs'].extend(numpy_blas.get('include_dirs', []))

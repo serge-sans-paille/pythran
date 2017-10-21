@@ -450,9 +450,7 @@ This section contains compiler flags configuration. For education purpose, the d
 
 :``blas``:
 
-    BLAS library to use. Default is empty, which lets Numpy choose it for you.
-    If you wan to use, say, `openblas <http://www.openblas.net/>`_, then set
-    this to ``openblas``.
+    BLAS library to use. Default is ``blas``, but ``atlas`` or ``mkl`` are also viable choices.
 
 
 ``[pythran]``

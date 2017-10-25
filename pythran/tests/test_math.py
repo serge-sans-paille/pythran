@@ -114,3 +114,29 @@ class TestMath(TestEnv):
 
     def test_isinf_(self):
         self.run_test("def isinf_(a):\n from math import isinf\n n=1\n while not isinf(a):\n  a=a*a\n  n+=1\n return isinf(a)", 2., isinf_=[float])
+
+    def test_pow_accuracy(self):
+        code = '''
+        from math import factorial
+        def pow_accuracy(N, i):
+            N = N ** i
+            p = 0.0000001 * 1.0
+
+            binomial_coef = 1. * factorial(N) / factorial(i) / factorial(N-i)
+            pp = binomial_coef * p**i * (1-p)**(N-i)
+            return pp'''
+        self.run_test(code,
+                      3, 2,
+                      pow_accuracy=[int, int])
+
+    def test_pow_array_accuracy(self):
+        code = '''
+        import numpy as np
+        def pow_array_accuracy(N, i):
+            p = np.arange(N) * 0.0000001
+
+            pp = p**i * (1-p)**(N-i)
+            return pp'''
+        self.run_test(code,
+                      3, 2,
+                      pow_array_accuracy=[int, int])

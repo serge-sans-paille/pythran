@@ -1,10 +1,7 @@
 ﻿Pythran
 #######
 
-.. image:: https://travis-ci.org/serge-sans-paille/pythran.png?branch=master
-        :target: https://travis-ci.org/serge-sans-paille/pythran
-
-http://pythonhosted.org/pythran/
+http://pythran.readthedocs.io
 
 What is it?
 -----------
@@ -44,17 +41,6 @@ Using ``pip``
 2. Use ``easy_install`` or ``pip``::
 
 		$> pip install pythran
-
-Using a private debian repo
-***************************
-
-1. Add serge_sans_paille's debian server to your `source.list`, following the
-   instruction given in http://serge.liyun.free.fr/serge/debian.html
-
-2. Run the classic::
-
-		$> sudo apt-get update
-		$> sudo apt-get install pythran
 
 Using ``conda``
 ***************

@@ -14,8 +14,101 @@
 
 import sys
 import os
+import re
 
 from pythran import __version__
+
+with open("../README.rst") as readme:
+    readme_body = readme.read()
+    toc = '''
+
+.. toctree::
+    :maxdepth: 1
+
+
+    MANUAL
+    CLI
+    SUPPORT
+    DEVGUIDE
+    TUTORIAL
+    INTERNAL
+    LICENSE
+    AUTHORS
+    Changelog
+'''
+
+    readme_body = readme_body.replace('http://pythran.readthedocs.io', toc)
+
+    with open("index.rst", "w") as index:
+        index.write(readme_body)
+    del readme_body
+
+with open("../LICENSE") as license:
+    with open('LICENSE.rst', 'w') as license_rst:
+        license_rst.write("=======\nLICENSE\n=======\n\n")
+        license_rst.write(license.read())
+
+with open("../Changelog") as changelog:
+    with open('Changelog.rst', 'w') as changelog_rst:
+        changelog_rst.write('=========\nChangelog\n=========\n\n')
+        changelog_rst.write(changelog.read())
+
+with open("../AUTHORS") as authors:
+    with open('AUTHORS.rst', 'w') as authors_rst:
+        authors_rst.write(authors.read())
+
+def make_support():
+    from pythran import tables
+
+    TITLE = "Supported Modules and Functions"
+
+    DEPTHS = '=*-+:~#.^"`'
+
+    body = []
+
+    body.append(DEPTHS[0]*len(TITLE))
+    body.append(TITLE)
+    body.append(DEPTHS[0]*len(TITLE))
+    body.append("")
+
+
+    def format_name(name):
+        if name.endswith('_') and not name.startswith('_'):
+            name = name[:-1]
+        return name
+
+
+    def isiterable(obj):
+        return hasattr(obj, '__iter__')
+
+
+    def dump_entry(entry_name, entry_value, depth):
+        if isiterable(entry_value):
+            body.append(entry_name)
+            body.append(DEPTHS[depth] * len(entry_name))
+            body.append("")
+            sym_entries, sub_entries = [], []
+            for sym in entry_value:
+                w = sub_entries if isiterable(entry_value[sym]) else sym_entries
+                w.append(sym)
+            for k in sorted(sym_entries):
+                dump_entry(format_name(k), entry_value[k], depth + 1)
+            body.append("")
+            for k in sorted(sub_entries):
+                dump_entry(format_name(k), entry_value[k], depth + 1)
+                body.append("")
+        else:
+            body.append(entry_name)
+
+    for MODULE in sorted(tables.MODULES):
+        if MODULE != '__dispatch__':
+            dump_entry(format_name(MODULE), tables.MODULES[MODULE], 1)
+
+    return "\n".join(body)
+
+with open('SUPPORT.rst', 'w') as support:
+    support.write(make_support())
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -119,7 +212,7 @@ html_theme_options = {'sidebarwidth':200}
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = 'pythran.png'
+# html_logo = 'pythran.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -129,7 +222,7 @@ html_logo = 'pythran.png'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied

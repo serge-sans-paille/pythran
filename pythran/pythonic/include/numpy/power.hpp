@@ -19,9 +19,12 @@ namespace pythonic
     namespace wrapper
     {
       template <class T0, class T1>
-      auto pow(T0 const &t0, T1 const &t1) -> decltype(boost::simd::pow(t0, t1))
+      auto pow(T0 const &t0, T1 const &t1) -> decltype(
+          boost::simd::pow((typename std::common_type<T0, T1>::type)t0,
+                           (typename std::common_type<T0, T1>::type)t1))
       {
-        return boost::simd::pow(t0, t1);
+        return boost::simd::pow((typename std::common_type<T0, T1>::type)t0,
+                                (typename std::common_type<T0, T1>::type)t1);
       }
       // See https://github.com/MetaScale/nt2/issues/794
       double pow(long const &n, double const &m)

@@ -18,9 +18,9 @@ try:
     import numpy
 except ImportError:
     from warnings import warn
-    warn(("\n******************************************************************"
-          "\n* Numpy must be installed before running setup, sorry about this *"
-          "\n******************************************************************"),
+    warn(("\n*******************************************************"
+          "\n* Numpy must be installed before running setup, sorry *"
+          "\n*******************************************************"),
          UserWarning)
 
 from setuptools.command.build_py import build_py
@@ -31,6 +31,7 @@ from distutils.errors import CompileError, LinkError
 import logging
 import glob
 import os
+import re
 import shutil
 from tempfile import NamedTemporaryFile
 import sys
@@ -160,9 +161,20 @@ if sys.version_info[0] == 3:
 else:
     pythran_cmd = 'pythran'
 
+
+# read longdescr from README
+def longdescr(readme_path):
+    with open(readme_path) as readme:
+        lines = list(readme)
+        start_index = lines.index('What is it?\n')
+        stop_index = lines.index('Installation\n')
+        long_description = "".join(lines[start_index + 2: stop_index])
+        return long_description
+
 setup(name='pythran',
       version=__version__,
       description=__descr__,
+      long_description=longdescr("README.rst"),
       author='Serge Guelton',
       author_email='serge.guelton@telecom-bretagne.eu',
       url=__url__,

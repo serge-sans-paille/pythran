@@ -76,6 +76,32 @@ namespace pythonic
       void load(I) const;
 #endif
 
+      /* element filtering */
+      template <class F> // indexing through an array of boolean -- a mask
+      typename std::enable_if<is_numexpr_arg<F>::value and
+                                  std::is_same<bool, typename F::dtype>::value,
+                              numpy_fexpr<numpy_texpr_2, F>>::type
+      fast(F const &filter) const;
+
+      template <class F> // indexing through an array of indices -- a view
+      typename std::enable_if<
+          is_numexpr_arg<F>::value and
+              not std::is_same<bool, typename F::dtype>::value,
+          ndarray<dtype, 2>>::type
+      fast(F const &filter) const;
+
+      template <class F> // indexing through an array of boolean -- a mask
+      typename std::enable_if<is_numexpr_arg<F>::value and
+                                  std::is_same<bool, typename F::dtype>::value,
+                              numpy_fexpr<numpy_texpr_2, F>>::type
+      operator[](F const &filter) const;
+
+      template <class F> // indexing through an array of indices -- a view
+      typename std::enable_if<
+          is_numexpr_arg<F>::value and
+              not std::is_same<bool, typename F::dtype>::value,
+          ndarray<dtype, 2>>::type
+      operator[](F const &filter) const;
       auto operator[](long i) const -> decltype(this->fast(i));
       auto operator[](long i) -> decltype(this->fast(i));
       auto operator[](array<long, value> const &indices)
@@ -105,33 +131,6 @@ namespace pythonic
           -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
                                                  pythonic::__builtin__::None),
                                 s0));
-
-      /* element filtering */
-      template <class F> // indexing through an array of boolean -- a mask
-      typename std::enable_if<is_numexpr_arg<F>::value and
-                                  std::is_same<bool, typename F::dtype>::value,
-                              numpy_fexpr<numpy_texpr_2, F>>::type
-      fast(F const &filter) const;
-
-      template <class F> // indexing through an array of boolean -- a mask
-      typename std::enable_if<is_numexpr_arg<F>::value and
-                                  std::is_same<bool, typename F::dtype>::value,
-                              numpy_fexpr<numpy_texpr_2, F>>::type
-      operator[](F const &filter) const;
-
-      template <class F> // indexing through an array of indices -- a view
-      typename std::enable_if<
-          is_numexpr_arg<F>::value and
-              not std::is_same<bool, typename F::dtype>::value,
-          ndarray<dtype, 2>>::type
-      operator[](F const &filter) const;
-
-      template <class F> // indexing through an array of indices -- a view
-      typename std::enable_if<
-          is_numexpr_arg<F>::value and
-              not std::is_same<bool, typename F::dtype>::value,
-          ndarray<dtype, 2>>::type
-      fast(F const &filter) const;
 
       template <class S, int... I>
       auto _reverse_index(S const &indices, utils::seq<I...>) const

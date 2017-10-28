@@ -109,8 +109,6 @@ namespace pythonic
       // type is not vectorizable
       void load(I) const;
 #endif
-      auto operator[](long i) const -> decltype(this->fast(i));
-      auto operator[](long i) -> decltype(this->fast(i));
 
       template <class E>
       typename std::enable_if<is_numexpr_arg<E>::value,
@@ -121,6 +119,8 @@ namespace pythonic
       typename std::enable_if<is_numexpr_arg<E>::value,
                               numpy_fexpr<numpy_fexpr, E>>::type
       operator[](E const &expr) const;
+      auto operator[](long i) const -> decltype(this->fast(i));
+      auto operator[](long i) -> decltype(this->fast(i));
 
       long flat_size() const;
     };

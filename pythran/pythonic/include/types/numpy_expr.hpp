@@ -468,9 +468,6 @@ namespace pythonic
                           typename utils::gens<sizeof...(Args)>::type{}));
 
     public:
-      // FIXME: this does not take into account bounds and broadcasting
-      auto operator[](long i) const -> decltype(this->fast(i));
-
       array<long, value> const &shape() const;
       template <int... I>
       bool _no_broadcast(utils::seq<I...>) const;
@@ -539,6 +536,8 @@ namespace pythonic
       typename std::enable_if<is_numexpr_arg<F>::value,
                               numpy_fexpr<numpy_expr, F>>::type
       operator[](F const &filter) const;
+      // FIXME: this does not take into account bounds and broadcasting
+      auto operator[](long i) const -> decltype(this->fast(i));
 
       long flat_size() const;
 

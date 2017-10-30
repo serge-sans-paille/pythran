@@ -521,9 +521,6 @@ namespace pythonic
 
 #endif
 
-      auto operator[](long i) const -> decltype(this->fast(i));
-      auto operator[](long i) -> decltype(this->fast(i));
-
       template <class... Sp>
       auto operator()(contiguous_slice const &s0, Sp const &... s) const
           -> decltype(make_gexpr(*this, s0, s...));
@@ -558,6 +555,8 @@ namespace pythonic
       typename std::enable_if<is_numexpr_arg<F>::value,
                               numpy_fexpr<numpy_gexpr, F>>::type
       operator[](F const &filter) const;
+      auto operator[](long i) const -> decltype(this->fast(i));
+      auto operator[](long i) -> decltype(this->fast(i));
 
       long flat_size() const;
     };

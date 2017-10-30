@@ -336,26 +336,6 @@ namespace pythonic
       auto fast(long i) &&
           -> decltype(type_helper<ndarray>::get(std::move(*this), i));
 
-      auto operator[](long i) const & -> decltype(this->fast(i));
-
-      auto operator[](long i) && -> decltype(std::move(*this).fast(i));
-
-      T const &operator[](array<long, N> const &indices) const;
-
-      T &operator[](array<long, N> const &indices);
-
-      template <size_t M>
-      auto operator[](array<long, M> const &indices) const
-          & -> decltype(nget<M - 1>()(*this, indices));
-
-      template <size_t M>
-          auto operator[](array<long, M> const &indices) &&
-          -> decltype(nget<M - 1>()(std::move(*this), indices));
-
-      template <class... Tys>
-      auto operator[](std::tuple<Tys...> const &indices) const
-          -> decltype((*this)[to_array<long>(indices)]);
-
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_simd_nditerator<ndarray>;
       using simd_iterator_nobroadcast = simd_iterator;
@@ -416,6 +396,26 @@ namespace pythonic
               not std::is_same<bool, typename F::dtype>::value,
           ndarray<T, N>>::type
       fast(F const &filter) const;
+
+      auto operator[](long i) const & -> decltype(this->fast(i));
+
+      auto operator[](long i) && -> decltype(std::move(*this).fast(i));
+
+      T const &operator[](array<long, N> const &indices) const;
+
+      T &operator[](array<long, N> const &indices);
+
+      template <size_t M>
+      auto operator[](array<long, M> const &indices) const
+          & -> decltype(nget<M - 1>()(*this, indices));
+
+      template <size_t M>
+          auto operator[](array<long, M> const &indices) &&
+          -> decltype(nget<M - 1>()(std::move(*this), indices));
+
+      template <class... Tys>
+      auto operator[](std::tuple<Tys...> const &indices) const
+          -> decltype((*this)[to_array<long>(indices)]);
 
       /* through iterators */
       iterator begin();

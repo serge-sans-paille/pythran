@@ -23,13 +23,13 @@ class TestDoctest(unittest.TestCase):
     @pytest.mark.skipif(sys.platform == "win32",
                         reason="We should create a file for windows.")
     def test_tutorial(self):
-        failed, _ = doctest.testfile('../../doc/TUTORIAL.rst')
+        failed, _ = doctest.testfile('../../docs/TUTORIAL.rst')
         self.assertEqual(failed, 0)
 
     @pytest.mark.skipif(sys.platform == "win32",
                         reason="We should create a file for windows.")
     def test_internal(self):
-        tmpfile = self.adapt_rst('../../doc/INTERNAL.rst')
+        tmpfile = self.adapt_rst('../../docs/INTERNAL.rst')
         failed, _ = doctest.testfile(tmpfile, False)
         self.assertEqual(failed, 0)
         os.remove(tmpfile)
@@ -37,7 +37,7 @@ class TestDoctest(unittest.TestCase):
     @pytest.mark.skipif(sys.platform == "win32",
                         reason="We should create a file for windows.")
     def test_cli(self):
-        tmpfile = self.adapt_rst('../../doc/CLI.rst')
+        tmpfile = self.adapt_rst('../../docs/CLI.rst')
         failed, _ = doctest.testfile(tmpfile, False)
         self.assertEqual(failed, 0)
         os.remove(tmpfile)

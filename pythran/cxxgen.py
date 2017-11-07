@@ -450,6 +450,7 @@ class PythonModule(object):
         self.functions = {}
         self.global_vars = []
         self.implems = []
+        self.capsules = []
         self.python_implems = []
         self.wrappers = []
         self.docstrings = docstrings
@@ -471,6 +472,10 @@ class PythonModule(object):
 
     def add_pyfunction(self, func, name, types):
         self.add_function_to(self.python_implems, func, name, types)
+
+    def add_capsule(self, func, ptrname, sig):
+        self.capsules.append((ptrname, sig))
+        self.implems.append(func)
 
     def add_function(self, func, name, types):
         self.add_function_to(self.implems, fun, name, types)
@@ -602,6 +607,14 @@ class PythonModule(object):
             themethods.append(themethod)
             theoverloads.append(candidate)
 
+        for ptrname, sig in self.capsules:
+            capsule = '''
+            PyModule_AddObject(theModule, "{ptrname}",
+                               PyCapsule_New((void*)&{ptrname}, "{sig}", NULL)
+            );'''.format(ptrname=ptrname,
+                         sig=sig)
+            theextraobjects.append(capsule)
+
         methods = dedent('''
             static PyMethodDef Methods[] = {{
                 {methods}
@@ -656,6 +669,7 @@ class PythonModule(object):
                 PyModule_AddObject(theModule,
                                    "__pythran__",
                                    theDoc);
+
                 {extraobjects}
                 PYTHRAN_RETURN;
             }}

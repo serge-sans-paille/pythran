@@ -319,6 +319,19 @@ When distributing a Python application with Pythran modules, you can either:
     setup(...,
           ext_modules=[PythranExtension("mymodule", ["mymodule.py"])])
 
+Capsule Corp
+------------
+
+Instead of creating functions that can be used from Python code, Pythran can
+produce native functions to be used by other Python extension, using the
+``Capsule`` mechanism. To do so, just add the ``capsule`` keyword to the export
+line::
+
+    #pythran export capsule foo(double*, doule)
+
+Note that pointer types are only supported within the context of a capsule, as
+they don't match any real Python type.
+
 Advanced Usage
 --------------
 
@@ -496,9 +509,9 @@ F.A.Q.
 
 1. Supported compiler versions:
 
-   - `g++` version 4.9
+   - `g++` version 4.9 and above
 
-   - `clang++` version 3.5
+   - `clang++` version 3.5 and above
 
 Troubleshooting
 ---------------

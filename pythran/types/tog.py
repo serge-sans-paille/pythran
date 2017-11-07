@@ -453,6 +453,9 @@ def tr(t):
         elif isinstance(t, typing.NDArray):
             return Array(rec_tr(t.__args__[0], env), len(t.__args__[1:]))
 
+        elif isinstance(t, typing.Pointer):
+            return Array(rec_tr(t.__args__[0], env), 1)
+
         elif isinstance(t, typing.Union):
             return MultiType([rec_tr(ut, env) for ut in t.__args__])
 

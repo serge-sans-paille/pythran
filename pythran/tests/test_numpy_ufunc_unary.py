@@ -55,11 +55,11 @@ for module, functions in unary_func_by_module.items():
 
         for test_suffix, (input, pythran_input_type) \
                 in test_inputs_by_type[input_type].items():
-            func_name = "{}_{}{}".format(module.replace('.', '_'), f,
+            func_name = "numpy_ufunc_unary_{}_{}{}".format(module.replace('.', '_'), f,
                                          test_suffix)
             setattr(
                 TestNumpyUFuncUnary,
-                'test_{}'.format(func_name),
+                'test_numpy_ufunc_unary_{}'.format(func_name),
                 eval(
                     """
                     lambda self: self.run_test(

@@ -182,8 +182,8 @@ def check_specs(mod, specs, renamings, types):
     from pythran.types.tog import unify, clone, tr
     from pythran.types.tog import Function, TypeVariable, InferenceError
 
-    specs = {renamings.get(k, k): v for k, v in specs.items()}
-    for fname, signatures in specs.items():
+    functions = {renamings.get(k, k): v for k, v in specs.functions.items()}
+    for fname, signatures in functions.items():
         try:
             ftype = types[fname]
         except KeyError:

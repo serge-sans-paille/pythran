@@ -4,6 +4,7 @@ from test_env import TestFromDir
 import os
 import pythran
 from pythran.syntax import PythranSyntaxError
+from pythran.spec import Spec
 
 class TestOpenMP(TestFromDir):
     path = os.path.join(os.path.dirname(__file__), "openmp")
@@ -17,7 +18,7 @@ class TestOpenMPLegacy(TestFromDir):
 
     @staticmethod
     def interface(name, file=None):
-        return {name: []}
+        return Spec({name: []})
 
 # only activate OpenMP tests if the underlying compiler supports OpenMP
 try:

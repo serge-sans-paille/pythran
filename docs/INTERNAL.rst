@@ -263,3 +263,14 @@ Pythran preserves docstrings::
         - foo()
     function-level-docstring
     $> rm -f docstrings.*
+
+Integration with Scipy LowLevelCallable
+---------------------------------------
+
+Use pythran exported capsule to interact with SciPy's ``LowLevelCallable``::
+
+    $> printf '#pythran export capsule llc(float)\ndef llc(n):\n  return n + 1' > llc.py
+    $> pythran llc.py
+    $> python -c 'import llc; from scipy import LowLevelCallable, integrate; capsule = llc.llc; c = LowLevelCallable(capsule, signature=\"double (double)\"); print(integrate.quad(c, 0, 10))'
+    (60.0, 6.661338147750939e-13)
+    $> rm -f llc.*

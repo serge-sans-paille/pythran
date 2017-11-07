@@ -7,6 +7,7 @@ from pythran.backend import Cxx
 from pythran.config import cfg, make_extension
 from pythran.cxxgen import PythonModule, Define, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
+from pythran.cxxgen import ReturnStatement
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
@@ -14,7 +15,8 @@ from pythran.types import tog
 from pythran.types.types import extract_constructed_types
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
-from pythran.spec import expand_specs, specs_to_docstrings, load_specfile
+from pythran.spec import load_specfile, Spec
+from pythran.spec import spec_to_string
 from pythran.syntax import check_specs
 from pythran.version import __version__
 import pythran.frontend as frontend
@@ -66,12 +68,17 @@ def _extract_specs_dependencies(specs):
     """ Extract types dependencies from specs for each exported signature. """
     deps = set()
     # for each function
-    for signatures in specs.values():
+    for signatures in specs.functions.values():
         # for each signature
         for signature in signatures:
             # for each argument
             for t in signature:
                 deps.update(pytype_to_deps(t))
+    # and each capsule
+    for signature in specs.capsules.values():
+        # for each argument
+        for t in signature:
+            deps.update(pytype_to_deps(t))
     # Keep "include" first
     return sorted(deps, key=lambda x: "include" not in x)
 
@@ -153,18 +160,14 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     else:
 
         # uniform typing
-        for fname, signatures in list(specs.items()):
-            if not isinstance(signatures, tuple):
-                specs[fname] = (signatures,)
-
-        # verify the pythran export are compatible with the code
-        specs = expand_specs(specs)
+        if isinstance(specs, dict):
+            specs = Spec(specs, {})
 
         def error_checker():
             types = tog.typecheck(ir)
             check_specs(ir, specs, renamings, types)
 
-        specs_to_docstrings(specs, docstrings)
+        specs.to_docstrings(docstrings)
 
         if isinstance(code, bytes):
             code_bytes = code
@@ -191,15 +194,17 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
             Include("pythonic/python/exception_handler.hpp"),
         )
 
-        for function_name, signatures in specs.items():
+        def warded(module_name, internal_name):
+            return pythran_ward + '{0}::{1}'.format(module_name, internal_name)
+
+        for function_name, signatures in specs.functions.items():
             internal_func_name = renamings.get(function_name,
                                                function_name)
             # global variables are functions with no signatures :-)
             if not signatures:
                 mod.add_global_var(function_name,
-                                   "{}()()".format(
-                                       pythran_ward + '{0}::{1}'.format(
-                                           module_name, internal_func_name)))
+                                   "{}()()".format(warded(module_name,
+                                                          internal_func_name)))
 
             for sigid, signature in enumerate(signatures):
                 numbered_function_name = "{0}{1}".format(internal_func_name,
@@ -234,14 +239,44 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                 PyEval_RestoreThread(_save);
                                 throw;
                             }}
-                            """.format(
-                            pythran_ward + '{0}::{1}'.format(
-                                module_name, internal_func_name),
-                            ', '.join(arguments)))])
+                            """.format(warded(module_name,
+                                              internal_func_name),
+                                       ', '.join(arguments)))])
                     ),
                     function_name,
                     arguments_types
                 )
+
+        for function_name, signature in specs.capsules.items():
+            internal_func_name = renamings.get(function_name,
+                                               function_name)
+
+            arguments_types = [pytype_to_ctype(t) for t in signature]
+            arguments_names = HasArgument(internal_func_name).visit(ir)
+            arguments = [n for n, _ in
+                         zip(arguments_names, arguments_types)]
+            name_fmt = pythran_ward + "{0}::{1}::type{2}"
+            args_list = ", ".join(arguments_types)
+            specialized_fname = name_fmt.format(module_name,
+                                                internal_func_name,
+                                                "<{0}>".format(args_list)
+                                                if arguments_names else "")
+            result_type = "typename %s::result_type" % specialized_fname
+            docstring = spec_to_string(function_name, signature)
+            mod.add_capsule(
+                FunctionBody(
+                    FunctionDeclaration(
+                        Value(result_type, function_name),
+                        [Value(t, a)
+                         for t, a in zip(arguments_types, arguments)]),
+                    Block([ReturnStatement("{0}()({1})".format(
+                        warded(module_name, internal_func_name),
+                        ', '.join(arguments)))])
+                ),
+                function_name,
+                docstring
+            )
+
     return mod, error_checker
 
 

@@ -711,7 +711,7 @@ namespace std
 #define PyString_FromStringAndSize PyUnicode_FromStringAndSize
 #endif
 #ifndef PyString_Check
-#define PyString_Check PyUnicode_IS_ASCII
+#define PyString_Check(x) PyUnicode_Check(x) && PyUnicode_IS_COMPACT_ASCII(x)
 #endif
 #ifndef PyString_AS_STRING
 #define PyString_AS_STRING (char *) _PyUnicode_COMPACT_DATA

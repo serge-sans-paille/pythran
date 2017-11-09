@@ -129,13 +129,12 @@ class BuildWithThirdParty(build_py):
             print('Failed to compile GMP source, disabling long support.')
             for cfg in glob.glob(os.path.join(self.build_lib, "pythran",
                                               "pythran-*.cfg")):
-                with open(cfg, "r+") as cfg:
-                    content = cfg.read()
+                with open(cfg, "r") as fd:
+                    content = fd.read()
                     content = content.replace('USE_GMP', '')
                     content = content.replace('gmp gmpxx', '')
-                    cfg.seek(0)
-                    cfg.write(content)
-                    cfg.truncate(len(content))
+                with open(cfg, 'w') as fd:
+                    fd.write(content)
         finally:
             tmp_files = objs + srcs + [exe]
             for filename in tmp_files:

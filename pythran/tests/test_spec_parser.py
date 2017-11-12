@@ -117,8 +117,8 @@ def foo(i): return
 #      pythran export foo(float)
 def bar(i): return
             '''
-        self.assertEquals(len(pythran.spec_parser(code)), 1)
-        self.assertEquals(len(pythran.spec_parser(code)['foo']), 2)
+        self.assertEquals(len(pythran.spec_parser(code).functions), 1)
+        self.assertEquals(len(pythran.spec_parser(code).functions['foo']), 2)
 
     def test_var_export0(self):
         code = '''

@@ -22,6 +22,7 @@ from pythran.backend import Python
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
 from pythran.toolchain import _parse_optimization
+from pythran.spec import Spec
 
 
 def may_convert_2_to_3(code):
@@ -375,14 +376,15 @@ class TestFromDir(TestEnv):
     @staticmethod
     def interface(name=None, file_=None):
         """ Return Pythran specs."""
-        default_value = {name: []}
 
         # Look for an extra spec file
         spec_file = os.path.splitext(file_)[0] + '.pythran'
         if os.path.isfile(spec_file):
             return load_specfile(open(spec_file).read())
+        elif file_ is None:
+            return Spec({name: []})
         else:
-            return spec_parser(open(file_).read()) if file_ else default_value
+            return spec_parser(open(file_).read())
 
     def __init__(self, *args, **kwargs):
         """ Dynamically add methods for unittests, second stage. """
@@ -455,7 +457,7 @@ class TestFromDir(TestEnv):
         for filepath in target.files:
             # Module name is file name and external interface is default value
             name, _ = os.path.splitext(os.path.basename(filepath))
-            specs = target.interface(name, filepath)
+            specs = target.interface(name, filepath).functions
             with open(filepath) as runas_fd:
                 runas_list = [line for line in runas_fd.readlines()
                               if any(line.startswith(marker) for

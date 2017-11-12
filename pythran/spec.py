@@ -5,12 +5,81 @@ This module provides a dummy parser for pythran annotations.
 
 from pythran.types.conversion import pytype_to_pretty_type
 
+from collections import defaultdict
 import re
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
 
-from pythran.typing import List, Set, Dict, NDArray, Tuple
+from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer
+
+
+class Spec(object):
+    '''
+    Result of spec parsing.
+
+    ``functions'' is a mapping from function name to a tuple of signatures
+    ``capsule'' is a mapping from function name to signature
+    '''
+
+    def __init__(self, functions, capsules=None):
+        self.functions = dict(functions)
+        self.capsules = capsules or dict()
+
+        # normalize function signatures
+        for fname, signatures in functions.items():
+            if not isinstance(signatures, tuple):
+                self.functions[fname] = (signatures,)
+
+        self._expand_specs()
+
+        if not self:
+            import logging
+            logging.warn("No pythran specification, nothing will be exported")
+
+    def __nonzero__(self):
+        return bool(self.functions or self.capsules)
+
+    def to_docstrings(self, docstrings):
+        for func_name, signatures in self.functions.items():
+            sigdocs = [spec_to_string(func_name, sig) for sig in signatures]
+            docstrings[func_name] = "Supported prototypes:{}\n{}".format(
+                "".join("\n    - " + sigdoc for sigdoc in sigdocs),
+                docstrings.get(func_name, '')
+            )
+
+    def _expand_specs(self):
+        '''
+        Expand a spec in its various variant
+
+        for a generic spec description, generate the possible variants,
+        esp. for ndarrays
+        '''
+        def spec_expander(args):
+            n = len(args)
+            if n == 0:
+                return [[]]
+            elif n == 1:
+                arg = args[0]
+                # handle f_contiguous storage as a transpose of two elements
+                # currently only supported by pythonic for 2D matrices :-/
+                # the trick is to use an array of two elements and transpose it
+                # so that its storage becomes f_contiguous only
+                if isinstance(arg, NDArray) and len(arg.__args__) - 1 == 2:
+                    return [[arg], [NDArray[arg.__args__[0], -1::, -1::]]]
+                else:
+                    return [[arg]]
+            else:
+                return [x + y for x in spec_expander(args[:1])
+                        for y in spec_expander(args[1:])]
+
+        all_specs = {}
+        for function, signatures in self.functions.items():
+            expanded_signatures = []
+            for signature in signatures:
+                expanded_signatures.extend(spec_expander(signature))
+            all_specs[function] = tuple(expanded_signatures)
+        self.functions = all_specs
 
 
 class SpecParser(object):
@@ -29,6 +98,7 @@ class SpecParser(object):
     reserved = {
         '#pythran': 'PYTHRAN',
         'export': 'EXPORT',
+        'capsule': 'CAPSULE',
         'or': 'OR',
         'list': 'LIST',
         'set': 'SET',
@@ -54,16 +124,17 @@ class SpecParser(object):
         'complex128': 'COMPLEX128',
         }
     tokens = ('IDENTIFIER', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP',
-              'LARRAY', 'RARRAY') + tuple(reserved.values())
+              'LARRAY', 'RARRAY', 'STAR') + tuple(reserved.values())
 
     # token <> regexp binding
-    t_CRAP = r'[^,:\(\)\[\]]'
+    t_CRAP = r'[^,:\(\)\[\]*]'
     t_COMMA = r','
     t_COLUMN = r':'
     t_LPAREN = r'\('
     t_RPAREN = r'\)'
     t_RARRAY = r'\]'
     t_LARRAY = r'\['
+    t_STAR = r'\*'
 
     # regexp to extract pythran specs from comments
     # the first part matches lines with a comment and the pythran keyword
@@ -92,28 +163,28 @@ class SpecParser(object):
 
     def p_exports(self, p):
         '''exports :
-                   | PYTHRAN EXPORT export_list opt_craps exports'''
+                   | PYTHRAN EXPORT export_list opt_craps exports
+                   | PYTHRAN EXPORT CAPSULE export_list opt_craps exports'''
+        if len(p) > 1:
+            target = self.exports if len(p) == 6 else self.native_exports
+            for key, val in p[len(p)-3]:
+                target[key] += val
 
     def p_export_list(self, p):
         '''export_list : export
                   | export COMMA export_list'''
+        p[0] = (p[1],) if len(p) == 2 else (p[1],) + p[3]
 
     def p_export(self, p):
         '''export : IDENTIFIER LPAREN opt_types RPAREN
                   | IDENTIFIER
                   | EXPORT LPAREN opt_types RPAREN'''
-        # handle the unlikely case where the IDENTIFIER is ...
-        # export :-)
+        # in the unlikely case where the IDENTIFIER is... export
         if len(p) > 2:
-            if p[3]:
-                for ts in p[3]:
-                    prev_exports = self.exports.get(p[1], ())
-                    self.exports[p[1]] = prev_exports + (ts,)
-            else:
-                prev_exports = self.exports.get(p[1], ())
-                self.exports[p[1]] = prev_exports + ((),)
+            sigs = p[3] or ((),)
         else:
-            self.exports[p[1]] = ()
+            sigs = ()
+        p[0] = p[1], sigs
 
     def p_opt_craps(self, p):
         '''opt_craps :
@@ -134,6 +205,7 @@ class SpecParser(object):
                 | SET
                 | LIST
                 | STR
+                | STAR
                 | BOOL
                 | COMPLEX
                 | INT
@@ -153,6 +225,32 @@ class SpecParser(object):
                 | COMPLEX64
                 | COMPLEX128'''
 
+    def p_dtype(self, p):
+        '''dtype : BOOL
+                 | COMPLEX
+                 | INT
+                 | LONG
+                 | FLOAT
+                 | UINT8
+                 | UINT16
+                 | UINT32
+                 | UINT64
+                 | INT8
+                 | INT16
+                 | INT32
+                 | INT64
+                 | FLOAT32
+                 | FLOAT64
+                 | COMPLEX64
+                 | COMPLEX128'''
+        # these imports are used indirectly by the eval
+        from numpy import complex64, complex128
+        from numpy import float32, float64
+        from numpy import int8, int16, int32, int64
+        from numpy import uint8, uint16, uint32, uint64
+
+        p[0] = eval(p[1]),
+
     def p_opt_types(self, p):
         '''opt_types :
                      | types'''
@@ -168,6 +266,7 @@ class SpecParser(object):
 
     def p_type(self, p):
         '''type : term
+                | pointer_type
                 | type LIST
                 | type SET
                 | type LARRAY array_indices RARRAY
@@ -199,6 +298,10 @@ class SpecParser(object):
             raise SyntaxError("Invalid Pythran spec. "
                               "Unknown text '{0}'".format(p.value))
 
+    def p_pointer_type(self, p):
+        '''pointer_type : dtype STAR'''
+        p[0] = Pointer[p[1][0]]
+
     def p_array_indices(self, p):
         '''array_indices : array_index
                          | array_index COMMA array_indices'''
@@ -218,33 +321,14 @@ class SpecParser(object):
 
     def p_term(self, p):
         '''term : STR
-                | BOOL
-                | COMPLEX
-                | INT
-                | LONG
                 | NONE
-                | FLOAT
-                | UINT8
-                | UINT16
-                | UINT32
-                | UINT64
-                | INT8
-                | INT16
-                | INT32
-                | INT64
-                | FLOAT32
-                | FLOAT64
-                | COMPLEX64
-                | COMPLEX128'''
-        # these imports are used indirectly by the eval
-        from numpy import complex64, complex128
-        from numpy import float32, float64
-        from numpy import int8, int16, int32, int64
-        from numpy import uint8, uint16, uint32, uint64
-
-        p[0] = eval(p[1])
-        if p[0] is None:
+                | dtype'''
+        if p[1] == 'str':
+            p[0] = str
+        elif p[1] == 'None':
             p[0] = type(None)
+        else:
+            p[0] = p[1][0]
 
     def p_error(self, p):
         p_val = p.value if p else ''
@@ -271,7 +355,8 @@ class SpecParser(object):
         return data
 
     def __call__(self, path_or_text):
-        self.exports = dict()
+        self.exports = defaultdict(tuple)
+        self.native_exports = defaultdict(tuple)
         self.input_file = None
 
         data = self.read_path_or_text(path_or_text)
@@ -281,11 +366,13 @@ class SpecParser(object):
                         .replace('#', '')
                         .replace('\_o< pythran >o_/', '#pythran'))
         self.parser.parse(pythran_data, lexer=self.lexer)
-        if not self.exports:
-            import logging
-            logging.warn("No pythran specification, "
-                         "no function will be exported")
-        return self.exports
+        for key, overloads in self.native_exports.items():
+            if len(overloads) > 1:
+                raise SyntaxError("Overloads not supported for capsule '{}'"
+                                  .format(key))
+            self.native_exports[key] = overloads[0]
+
+        return Spec(self.exports, self.native_exports)
 
 
 class ExtraSpecParser(SpecParser):
@@ -301,54 +388,9 @@ class ExtraSpecParser(SpecParser):
         return data
 
 
-def expand_specs(specs):
-    '''
-    Expand a spec in its various variant
-
-    for a generic spec description, generate the possible variants,
-    esp. for ndarrays
-    '''
-    def spec_expander(args):
-        n = len(args)
-        if n == 0:
-            return [[]]
-        elif n == 1:
-            arg = args[0]
-            # handle f_contiguous storage as a transpose of two elements
-            # currently only supported by pythonic for 2D matrices :-/
-            # the trick is to use an array of two elements and transpose it
-            # so that its storage becomes f_contiguous only
-            if isinstance(arg, NDArray) and len(arg.__args__) - 1 == 2:
-                return [[arg], [NDArray[arg.__args__[0], -1::, -1::]]]
-            else:
-                return [[arg]]
-        else:
-            return [x + y for x in spec_expander(args[:1])
-                    for y in spec_expander(args[1:])]
-
-    all_specs = {}
-    for function, signatures in specs.items():
-        expanded_signatures = []
-        for signature in signatures:
-            expanded_signatures.extend(spec_expander(signature))
-        all_specs[function] = tuple(expanded_signatures)
-    return all_specs
-
-
-def specs_to_docstrings(specs, docstrings):
-    for function_name, signatures in specs.items():
-        sigdocs = []
-        for signature in signatures:
-            arguments_types = [pytype_to_pretty_type(t) for t in signature]
-            function_signatures = '{}({})'.format(
-                function_name,
-                ', '.join(arguments_types)
-            )
-            sigdocs.append(function_signatures)
-        docstrings[function_name] = "Supported prototypes:{}\n{}".format(
-            "".join("\n    - " + sigdoc for sigdoc in sigdocs),
-            docstrings.get(function_name, '')
-        )
+def spec_to_string(function_name, spec):
+    arguments_types = [pytype_to_pretty_type(t) for t in spec]
+    return '{}({})'.format(function_name, ', '.join(arguments_types))
 
 
 def spec_parser(path_or_text):

@@ -61,6 +61,12 @@ class NDArrayMeta(type):
         return NDArray(item)
 
 
+class PointerMeta(type):
+
+    def __getitem__(cls, item):
+        return Pointer(item)
+
+
 class Type(type):
 
     def __new__(cls, args):
@@ -112,6 +118,10 @@ class Optional(with_metaclass(OptionalMeta, Type)):
 
 
 class NDArray(with_metaclass(NDArrayMeta, Type)):
+    pass
+
+
+class Pointer(with_metaclass(PointerMeta, Type)):
     pass
 
 

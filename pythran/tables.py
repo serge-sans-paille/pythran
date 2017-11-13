@@ -3573,6 +3573,9 @@ MODULES = {
         "cosh": ConstFunctionIntr(
             signature=_numpy_unary_op_float_signature
         ),
+        "ctypeslib": {
+            "as_array": ConstFunctionIntr()
+        },
         "cumprod": ConstMethodIntr(
             signature=_numpy_unary_op_cumsum_axis_signature
         ),

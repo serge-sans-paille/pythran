@@ -55,6 +55,7 @@ keywords = {
 reserved_contex = {
     'default',
     'schedule',
+    'reduction',
 }
 
 
@@ -108,7 +109,7 @@ class OMPDirective(AST):
                     if par_count == 0:
                         in_reserved_context = False
                 else:
-                    if s[curr_index] == ',':
+                    if s[curr_index] in ',:':
                         in_reserved_context = False
                     out += s[curr_index]
                     curr_index += 1

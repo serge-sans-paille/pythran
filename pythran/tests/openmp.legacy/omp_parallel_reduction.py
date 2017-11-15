@@ -176,4 +176,27 @@ def omp_parallel_reduction():
     if not exclusiv_bit_or:
         print "E: reduction(^:exclusiv_bit_or) with logics[1000/2]=1"
         result = False
+
+    max_ = 0;
+    logics[1000/2]=1
+
+    'omp parallel for schedule(dynamic,1) reduction(max:max_)'
+    for i in xrange(0, 1000):
+        max_ = max(max_, logics[i])
+
+    if not max_:
+        print "E: reduction(max:max_) with logics[1000/2]=1"
+        result = False
+
+    min_ = 1;
+    logics = [1 for _ in range(1000)]
+    logics[1000/2] = 0
+
+    'omp parallel for schedule(dynamic,1) reduction(min:min_)'
+    for i in xrange(0, 1000):
+        min_ = min(min_, logics[i])
+
+    if min_:
+        print "E: reduction(min:min_) with logics[1000/2]=1"
+        result = False
     return result

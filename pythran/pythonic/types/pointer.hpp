@@ -1,5 +1,5 @@
-#ifndef PYTHONIC_TYPES_SET_HPP
-#define PYTHONIC_TYPES_SET_HPP
+#ifndef PYTHONIC_TYPES_POINTER_HPP
+#define PYTHONIC_TYPES_POINTER_HPP
 
 #include "pythonic/include/types/pointer.hpp"
 

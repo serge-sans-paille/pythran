@@ -38,7 +38,7 @@ namespace pythonic
     struct Dereferencer<numpy::functor::where> {
 
       template <class Ts>
-      auto operator()(Ts const &iters, utils::seq<0, 1, 2>) ->
+      auto operator()(Ts const &iters, utils::index_sequence<0, 1, 2>) ->
           typename std::enable_if<
               types::is_dtype<
                   typename std::remove_cv<typename std::remove_reference<
@@ -59,8 +59,8 @@ namespace pythonic
           return *std::get<2>(iters);
       }
 
-      template <class Ts, int... I>
-      auto operator()(Ts const &iters, utils::seq<I...>, ...)
+      template <class Ts, size_t... I>
+      auto operator()(Ts const &iters, utils::index_sequence<I...>, ...)
           -> decltype(numpy::functor::where{}(*std::get<I>(iters)...))
       {
         return numpy::functor::where{}(*std::get<I>(iters)...);

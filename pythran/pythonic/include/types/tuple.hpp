@@ -63,8 +63,8 @@ namespace pythonic
     struct numpy_gexpr;
 
     /* helper to extract the tail of a tuple, and pop the head */
-    template <int Offset, class T, int... N>
-    auto make_tuple_tail(T const &t, utils::seq<N...>)
+    template <int Offset, class T, size_t... N>
+    auto make_tuple_tail(T const &t, utils::index_sequence<N...>)
         -> decltype(std::make_tuple(std::get<Offset + 1 + N>(t)...));
 
     template <class S, class... Stail>
@@ -82,12 +82,12 @@ namespace pythonic
     template <class S, class... Stail>
     auto tuple_pop(std::tuple<S, Stail...> const &t)
         -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(
-            t, typename utils::gens<sizeof...(
-                   Stail)-count_trailing_long<Stail...>::value>::type{}));
+            t, utils::make_index_sequence<
+                   sizeof...(Stail)-count_trailing_long<Stail...>::value>{}));
 
-    template <class A, int... I, class... Types>
-    std::tuple<Types...> array_to_tuple(A const &a, utils::seq<I...>,
-                                        utils::type_seq<Types...>);
+    template <class A, size_t... I, class... Types>
+    std::tuple<Types...> array_to_tuple(A const &a, utils::index_sequence<I...>,
+                                        utils::type_sequence<Types...>);
 
     /* inspired by std::array implementation */
     template <typename T, size_t N>
@@ -199,8 +199,9 @@ namespace pythonic
       operator array<Tp, N>() const;
 
       auto to_tuple() const
-          -> decltype(array_to_tuple(*this, typename utils::gens<N>::type{},
-                                     typename utils::gen_type<N, T>::type{}));
+          -> decltype(array_to_tuple(*this, utils::make_index_sequence<N>{},
+
+                                     utils::make_repeated_type<T, N>()));
 
       list<T> operator[](slice const &s); // definition in list.hpp
 
@@ -314,8 +315,9 @@ namespace pythonic
         -> decltype(_make_tuple<alike<Types...>::value, Types...>()(
             std::forward<Types>(types)...));
 
-    template <class T, class Tuple, int... S>
-    types::array<T, sizeof...(S)> _to_array(Tuple const &t, utils::seq<S...>)
+    template <class T, class Tuple, size_t... S>
+    types::array<T, sizeof...(S)> _to_array(Tuple const &t,
+                                            utils::index_sequence<S...>)
     {
       return {{T{std::get<S>(t)}...}};
     }
@@ -323,7 +325,7 @@ namespace pythonic
     template <class T, class... Tys>
     types::array<T, sizeof...(Tys)> to_array(std::tuple<Tys...> const &t)
     {
-      return _to_array<T>(t, typename utils::gens<sizeof...(Tys)>::type());
+      return _to_array<T>(t, utils::make_index_sequence<sizeof...(Tys)>());
     }
 
     // Tuple concatenation for array and tuple
@@ -538,17 +540,18 @@ namespace pythonic
   template <typename... Types>
   struct to_python<std::tuple<Types...>> {
 
-    template <int... S>
+    template <size_t... S>
     static PyObject *do_convert(std::tuple<Types...> const &t,
-                                utils::seq<S...>);
+                                utils::index_sequence<S...>);
 
     static PyObject *convert(std::tuple<Types...> const &t);
   };
 
   template <typename T, size_t N>
   struct to_python<types::array<T, N>> {
-    template <int... S>
-    static PyObject *do_convert(types::array<T, N> const &t, utils::seq<S...>);
+    template <size_t... S>
+    static PyObject *do_convert(types::array<T, N> const &t,
+                                utils::index_sequence<S...>);
 
     static PyObject *convert(types::array<T, N> const &t);
   };
@@ -556,14 +559,15 @@ namespace pythonic
   template <typename... Types>
   struct from_python<std::tuple<Types...>> {
 
-    template <int... S>
-    static bool do_is_convertible(PyObject *obj, typename utils::seq<S...>);
+    template <size_t... S>
+    static bool do_is_convertible(PyObject *obj,
+                                  typename utils::index_sequence<S...>);
 
     static bool is_convertible(PyObject *obj);
 
-    template <int... S>
-    static std::tuple<Types...> do_convert(PyObject *obj,
-                                           typename utils::seq<S...>);
+    template <size_t... S>
+    static std::tuple<Types...>
+    do_convert(PyObject *obj, typename utils::index_sequence<S...>);
     static std::tuple<Types...> convert(PyObject *obj);
   };
 
@@ -572,9 +576,9 @@ namespace pythonic
 
     static bool is_convertible(PyObject *obj);
 
-    template <int... S>
+    template <size_t... S>
     static types::array<T, N> do_convert(PyObject *obj,
-                                         typename utils::seq<S...>);
+                                         typename utils::index_sequence<S...>);
     static types::array<T, N> convert(PyObject *obj);
   };
 }

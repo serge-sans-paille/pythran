@@ -132,15 +132,15 @@ namespace pythonic
                                                  pythonic::__builtin__::None),
                                 s0));
 
-      template <class S, int... I>
-      auto _reverse_index(S const &indices, utils::seq<I...>) const
+      template <class S, size_t... I>
+      auto _reverse_index(S const &indices, utils::index_sequence<I...>) const
           -> decltype(this->arg(std::get<I>(indices)...));
 
       template <class S0, class... S>
       auto operator()(S0 const &s0, S const &... s) const
           -> decltype(this->_reverse_index(
               std::tuple<S0 const &, S const &...>{s0, s...},
-              typename utils::rgens<1 + sizeof...(S)>::type{}));
+              utils::make_reversed_index_sequence<1 + sizeof...(S)>()));
 
       long flat_size() const;
       intptr_t id() const;

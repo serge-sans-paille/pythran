@@ -35,14 +35,14 @@ namespace pythonic
         task();
         task(ClosureTypes const &... types);
 
-        template <int... S, typename... Types>
-        auto call(utils::seq<S...>, Types &&... types) const
+        template <std::size_t... S, typename... Types>
+        auto call(utils::index_sequence<S...>, Types &&... types) const
             -> decltype(std::get<0>(closure)(std::get<S + 1>(closure)...,
                                              std::forward<Types>(types)...));
 
         template <typename... Types>
         auto operator()(Types &&... types) const -> decltype(
-            this->call(typename utils::gens<sizeof...(ClosureTypes)-1>::type(),
+            this->call(utils::make_index_sequence<sizeof...(ClosureTypes)-1>(),
                        std::forward<Types>(types)...));
       };
     }

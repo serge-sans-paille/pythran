@@ -28,12 +28,12 @@ namespace pythonic
         bool end;
 
         product_iterator() = default;
-        template <int... I>
+        template <size_t... I>
         product_iterator(std::tuple<Iters...> &_iters,
-                         utils::seq<I...> const &);
-        template <int... I>
+                         utils::index_sequence<I...> const &);
+        template <size_t... I>
         product_iterator(npos, std::tuple<Iters...> &_iters,
-                         utils::seq<I...> const &);
+                         utils::index_sequence<I...> const &);
         std::tuple<typename Iters::value_type...> operator*() const;
         product_iterator &operator++();
         bool operator==(product_iterator const &other) const;
@@ -44,9 +44,9 @@ namespace pythonic
         template <size_t N>
         void advance(utils::int_<N>);
         void advance(utils::int_<0>);
-        template <int... I>
+        template <size_t... I>
         std::tuple<typename Iters::value_type...>
-        get_value(utils::seq<I...> const &) const;
+        get_value(utils::index_sequence<I...> const &) const;
       };
 
       template <typename... Iters>

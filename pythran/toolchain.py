@@ -396,6 +396,16 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
 
     Returns the generated .so (or .cpp if `cpponly` is set to true).
 
+    Usage without an existing spec file
+
+    >>> with open('pythran_test.py', 'w') as fd:
+    ...    fd.write('def foo(i): return i ** 2')
+    >>> cpp_path = compile_pythranfile('pythran_test.py', cpponly=True)
+
+    Usage with an existing spec file:
+    >>> with open('pythran_test.pythran', 'w') as fd:
+    ...    fd.write('export foo(int)')
+    >>> so_path = compile_pythranfile('pythran_test.py')
     """
     if not output_file:
         # derive module name from input file name
@@ -414,7 +424,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     spec_file = os.path.splitext(file_path)[0] + '.pythran'
     if os.path.isfile(spec_file):
         specs = load_specfile(open(spec_file).read())
-        kwargs.setdefault('specs', {}).update(specs)
+        kwargs.setdefault('specs', specs)
 
     output_file = compile_pythrancode(module_name, open(file_path).read(),
                                       output_file=output_file,

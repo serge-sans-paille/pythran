@@ -7,53 +7,81 @@ namespace pythonic
   namespace utils
   {
 
-    // gens<N>::type = seq<0, ..., N-1>
-    //
-    // This is a backport for std::make_index_sequence in C++14
+    // make_integer_sequence<N>() = integer_sequence<0, ..., N-1>
 
-    template <int...>
-    struct seq {
+    template <class T, T...>
+    struct integer_sequence {
     };
 
-    template <int N, int... S>
-    struct gens : gens<N - 1, N - 1, S...> {
+    template <std::size_t... S>
+    using index_sequence = integer_sequence<std::size_t, S...>;
+
+    namespace details
+    {
+
+      template <class T, std::size_t N, T... S>
+      struct make_integer_sequence
+          : make_integer_sequence<T, N - 1, static_cast<T>(N - 1), S...> {
+      };
+
+      template <class T, T... S>
+      struct make_integer_sequence<T, 0, S...> {
+        using type = integer_sequence<T, S...>;
+      };
+    }
+
+    template <class T, std::size_t N>
+    using make_integer_sequence =
+        typename details::make_integer_sequence<T, N>::type;
+    template <std::size_t N>
+    using make_index_sequence =
+        typename details::make_integer_sequence<std::size_t, N>::type;
+
+    // make_reversed_integer_sequence<T, N>() = integer_sequence<T, N-1, ..., 0>
+
+    namespace details
+    {
+
+      template <class T, std::size_t N, T... S>
+      struct make_reversed_integer_sequence
+          : make_reversed_integer_sequence<T, N - 1, sizeof...(S), S...> {
+      };
+
+      template <class T, T... S>
+      struct make_reversed_integer_sequence<T, 0, S...> {
+        using type = integer_sequence<T, S...>;
+      };
+    }
+
+    template <class T, std::size_t N>
+    using make_reversed_integer_sequence =
+        typename details::make_reversed_integer_sequence<T, N>::type;
+    template <std::size_t N>
+    using make_reversed_index_sequence =
+        typename details::make_reversed_integer_sequence<std::size_t, N>::type;
+
+    // make_repeated_type<A, 3>() => type_sequence<A, A, A>
+    template <class... Tys>
+    struct type_sequence {
     };
 
-    template <int... S>
-    struct gens<0, S...> {
-      using type = seq<S...>;
+    namespace details
+    {
+      template <class T, std::size_t N, class... Tys>
+      struct repeated_type : repeated_type<T, N - 1, T, Tys...> {
+      };
+
+      template <class T, class... Tys>
+      struct repeated_type<T, 0, Tys...> {
+        using type = type_sequence<Tys...>;
+      };
+    }
+    template <class T, std::size_t N>
+    struct repeated_type : details::repeated_type<T, N> {
     };
 
-    template <>
-    struct gens<0> {
-      using type = seq<>;
-    };
-
-    // Gens multiple time the same type. gen_type<A, 3> => type_seq<A, A, A>
-    //
-    template <class... Types>
-    struct type_seq {
-    };
-
-    template <size_t N, class A, class... Types>
-    struct gen_type : gen_type<N - 1, A, A, Types...> {
-    };
-
-    template <class A, class... Types>
-    struct gen_type<0, A, Types...> {
-      using type = type_seq<Types...>;
-    };
-
-    // rgens<N>::type = seq<N-1, ..., 0>
-
-    template <int N, int... S>
-    struct rgens : rgens<N - 1, sizeof...(S), S...> {
-    };
-
-    template <int... S>
-    struct rgens<0, S...> {
-      using type = seq<S...>;
-    };
+    template <class T, std::size_t N>
+    using make_repeated_type = typename repeated_type<T, N>::type;
   }
 }
 

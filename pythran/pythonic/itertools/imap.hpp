@@ -24,36 +24,37 @@ namespace pythonic
     {
 
       template <typename Operator, typename... Iters>
-      template <int... I>
+      template <size_t... I>
       imap_iterator<Operator, Iters...>::imap_iterator(
-          Operator const &op, std::tuple<Iters...> &_iters, utils::seq<I...>)
+          Operator const &op, std::tuple<Iters...> &_iters,
+          utils::index_sequence<I...>)
           : it(std::get<I>(_iters).begin()...), _op(op)
       {
       }
 
       template <typename Operator, typename... Iters>
-      template <int... I>
+      template <size_t... I>
       imap_iterator<Operator, Iters...>::imap_iterator(
           npos, Operator const &op, std::tuple<Iters...> &_iters,
-          utils::seq<I...>)
+          utils::index_sequence<I...>)
           : it(std::get<I>(_iters).end()...), _op(op)
       {
       }
 
       template <typename Operator, typename... Iters>
-      template <int... I>
+      template <size_t... I>
       typename imap_res<Operator, Iters...>::type
-          imap_iterator<Operator, Iters...>::get_value(utils::seq<I...>,
-                                                       std::false_type) const
+          imap_iterator<Operator, Iters...>::get_value(
+              utils::index_sequence<I...>, std::false_type) const
       {
         return _op(*std::get<I>(it)...);
       }
 
       template <typename Operator, typename... Iters>
-      template <int... I>
+      template <size_t... I>
       typename imap_res<Operator, Iters...>::type
-          imap_iterator<Operator, Iters...>::get_value(utils::seq<I...>,
-                                                       std::true_type) const
+          imap_iterator<Operator, Iters...>::get_value(
+              utils::index_sequence<I...>, std::true_type) const
       {
         return types::make_tuple(*std::get<I>(it)...);
       }
@@ -63,13 +64,13 @@ namespace pythonic
           imap_iterator<Operator, Iters...>::
           operator*() const
       {
-        return get_value(typename utils::gens<sizeof...(Iters)>::type{},
+        return get_value(utils::make_index_sequence<sizeof...(Iters)>{},
                          std::is_same<Operator, types::none_type>());
       }
 
       template <typename Operator, typename... Iters>
-      template <int... I>
-      void imap_iterator<Operator, Iters...>::next(utils::seq<I...>)
+      template <size_t... I>
+      void imap_iterator<Operator, Iters...>::next(utils::index_sequence<I...>)
       {
         utils::fwd(++std::get<I>(it)...);
       }
@@ -78,7 +79,7 @@ namespace pythonic
       imap_iterator<Operator, Iters...> &imap_iterator<Operator, Iters...>::
       operator++()
       {
-        next(typename utils::gens<sizeof...(Iters)>::type{});
+        next(utils::make_index_sequence<sizeof...(Iters)>{});
         return *this;
       }
 
@@ -180,9 +181,9 @@ namespace pythonic
                 std::forward<Types>(_iters)...),
             imap_iterator<Operator, Iters...>(
                 _op, this->value,
-                typename utils::gens<sizeof...(Iters)>::type{}),
+                utils::make_index_sequence<sizeof...(Iters)>{}),
             end_iter(npos(), _op, this->value,
-                     typename utils::gens<sizeof...(Iters)>::type{})
+                     utils::make_index_sequence<sizeof...(Iters)>{})
       {
       }
 

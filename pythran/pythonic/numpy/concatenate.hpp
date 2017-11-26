@@ -47,9 +47,9 @@ namespace pythonic
           }
         }
         // tuple version
-        template <class Out, class A, int... I>
+        template <class Out, class A, size_t... I>
         void operator()(Out &&out, A const &from, long axis,
-                        utils::seq<I...>) const
+                        utils::index_sequence<I...>) const
         {
           if (axis == 0) {
             auto out_iter = out.begin();
@@ -63,7 +63,7 @@ namespace pythonic
             for (auto &&iout : out) {
               auto difroms = std::make_tuple(*std::get<I>(ifroms)...);
               concatenate_helper<N - 1>()(iout, difroms, axis - 1,
-                                          utils::seq<I...>{});
+                                          utils::index_sequence<I...>{});
               int __attribute__((unused)) _[] = {(++std::get<I>(ifroms), 0)...};
             }
           }
@@ -78,14 +78,16 @@ namespace pythonic
         {
         }
         // tuple version - sentinel
-        template <class Out, class E, int... I>
-        void operator()(Out &&, E const &, long, utils::seq<I...>) const
+        template <class Out, class E, size_t... I>
+        void operator()(Out &&, E const &, long,
+                        utils::index_sequence<I...>) const
         {
         }
       };
 
-      template <class A, int... I>
-      long concatenate_axis_size(A const &from, long axis, utils::seq<I...>)
+      template <class A, size_t... I>
+      long concatenate_axis_size(A const &from, long axis,
+                                 utils::index_sequence<I...>)
       {
         long sizes[] = {std::get<I>(from).shape()[axis]...};
         return std::accumulate(std::begin(sizes), std::end(sizes), 0L,
@@ -104,14 +106,14 @@ namespace pythonic
       auto constexpr N = std::decay<decltype(std::get<0>(args))>::type::value;
       auto shape = std::get<0>(args).shape();
       shape[axis] = details::concatenate_axis_size(
-          args, axis, typename utils::gens<sizeof...(Types)>::type{});
+          args, axis, utils::make_index_sequence<sizeof...(Types)>{});
 
       types::ndarray<
           typename __combined<typename std::decay<Types>::type::dtype...>::type,
           std::decay<decltype(std::get<0>(args))>::type::value> result{
           shape, types::none_type{}};
       details::concatenate_helper<N>()(
-          result, args, axis, typename utils::gens<sizeof...(Types)>::type{});
+          result, args, axis, utils::make_index_sequence<sizeof...(Types)>{});
       return result;
     }
 
@@ -123,10 +125,10 @@ namespace pythonic
       auto constexpr N = E::value;
       auto shape = std::get<0>(args).shape();
       shape[axis] = details::concatenate_axis_size(
-          args, axis, typename utils::gens<M>::type{});
+          args, axis, utils::make_index_sequence<M>{});
       decltype(asarray(std::get<0>(args))) out(shape, types::none_type{});
       details::concatenate_helper<N>()(out, args, axis,
-                                       typename utils::gens<M>::type{});
+                                       utils::make_index_sequence<M>{});
       return out;
     }
 

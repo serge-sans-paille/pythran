@@ -43,9 +43,9 @@ namespace pythonic
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     typename numpy_expr<Op, Args...>::const_iterator
-        numpy_expr<Op, Args...>::_begin(utils::seq<I...>) const
+        numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>) const
     {
       return {{(size() == std::get<I>(args).shape()[0])...},
               std::get<I>(args).begin()...};
@@ -55,13 +55,13 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::const_iterator
     numpy_expr<Op, Args...>::begin() const
     {
-      return _begin(typename utils::gens<sizeof...(Args)>::type{});
+      return _begin(utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     typename numpy_expr<Op, Args...>::const_iterator
-        numpy_expr<Op, Args...>::_end(utils::seq<I...>) const
+        numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>) const
     {
       return {{(size() == std::get<I>(args).shape()[0])...},
               std::get<I>(args).end()...};
@@ -71,7 +71,7 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::const_iterator
     numpy_expr<Op, Args...>::end() const
     {
-      return _end(typename utils::gens<sizeof...(Args)>::type{});
+      return _end(utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
@@ -89,8 +89,9 @@ namespace pythonic
     }
 
     template <class Op, class... Args>
-    template <int... I>
-    bool numpy_expr<Op, Args...>::_no_broadcast(utils::seq<I...>) const
+    template <size_t... I>
+    bool numpy_expr<Op, Args...>::_no_broadcast(
+        utils::index_sequence<I...>) const
     {
       bool child_broadcast = false;
       std::initializer_list<bool> __attribute__((unused))
@@ -107,13 +108,13 @@ namespace pythonic
     template <class Op, class... Args>
     bool numpy_expr<Op, Args...>::no_broadcast() const
     {
-      return _no_broadcast(typename utils::gens<sizeof...(Args)>::type{});
+      return _no_broadcast(utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     typename numpy_expr<Op, Args...>::iterator
-        numpy_expr<Op, Args...>::_begin(utils::seq<I...>)
+        numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>)
     {
       return {{(size() == std::get<I>(args).shape()[0])...},
               std::get<I>(args).begin()...};
@@ -122,13 +123,13 @@ namespace pythonic
     template <class Op, class... Args>
     typename numpy_expr<Op, Args...>::iterator numpy_expr<Op, Args...>::begin()
     {
-      return _begin(typename utils::gens<sizeof...(Args)>::type{});
+      return _begin(utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     typename numpy_expr<Op, Args...>::iterator
-        numpy_expr<Op, Args...>::_end(utils::seq<I...>)
+        numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>)
     {
       return {{(size() == std::get<I>(args).shape()[0])...},
               std::get<I>(args).end()...};
@@ -137,12 +138,13 @@ namespace pythonic
     template <class Op, class... Args>
     typename numpy_expr<Op, Args...>::iterator numpy_expr<Op, Args...>::end()
     {
-      return _end(typename utils::gens<sizeof...(Args)>::type{});
+      return _end(utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
-    auto numpy_expr<Op, Args...>::_fast(long i, utils::seq<I...>) const
+    template <size_t... I>
+    auto numpy_expr<Op, Args...>::_fast(long i,
+                                        utils::index_sequence<I...>) const
         -> decltype(Op()(std::get<I>(args).fast(i)...))
     {
       return Op()(std::get<I>(args).fast(i)...);
@@ -151,15 +153,16 @@ namespace pythonic
     template <class Op, class... Args>
     auto numpy_expr<Op, Args...>::fast(long i) const
         -> decltype(this->_fast(i,
-                                typename utils::gens<sizeof...(Args)>::type{}))
+                                utils::make_index_sequence<sizeof...(Args)>{}))
     {
-      return _fast(i, typename utils::gens<sizeof...(Args)>::type{});
+      return _fast(i, utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     auto numpy_expr<Op, Args...>::_map_fast(
-        std::array<long, sizeof...(I)> const &indices, utils::seq<I...>) const
+        std::array<long, sizeof...(I)> const &indices,
+        utils::index_sequence<I...>) const
         -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...))
     {
       return Op()(std::get<I>(args).fast(std::get<I>(indices))...);
@@ -170,11 +173,11 @@ namespace pythonic
     auto numpy_expr<Op, Args...>::map_fast(Indices... indices) const
         -> decltype(
             this->_map_fast(std::array<long, sizeof...(Indices)>{{indices...}},
-                            typename utils::gens<sizeof...(Args)>::type{}))
+                            utils::make_index_sequence<sizeof...(Args)>{}))
     {
       static_assert(sizeof...(Indices) == sizeof...(Args), "compatible call");
       return _map_fast(std::array<long, sizeof...(Indices)>{{indices...}},
-                       typename utils::gens<sizeof...(Args)>::type{});
+                       utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
@@ -195,9 +198,10 @@ namespace pythonic
 
 #ifdef USE_BOOST_SIMD
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     typename numpy_expr<Op, Args...>::simd_iterator
-        numpy_expr<Op, Args...>::_vbegin(vectorize, utils::seq<I...>) const
+        numpy_expr<Op, Args...>::_vbegin(vectorize,
+                                         utils::index_sequence<I...>) const
     {
       return {{(size() == std::get<I>(args).shape()[0])...},
               std::make_tuple(std::get<I>(args).begin()...),
@@ -209,13 +213,14 @@ namespace pythonic
         numpy_expr<Op, Args...>::vbegin(vectorize) const
     {
       return _vbegin(vectorize{},
-                     typename utils::gens<sizeof...(Args)>::type{});
+                     utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     typename numpy_expr<Op, Args...>::simd_iterator
-        numpy_expr<Op, Args...>::_vend(vectorize, utils::seq<I...>) const
+        numpy_expr<Op, Args...>::_vend(vectorize,
+                                       utils::index_sequence<I...>) const
     {
       return {{(size() == std::get<I>(args).shape()[0])...},
               std::make_tuple(std::get<I>(args).end()...),
@@ -226,14 +231,14 @@ namespace pythonic
     typename numpy_expr<Op, Args...>::simd_iterator
         numpy_expr<Op, Args...>::vend(vectorize) const
     {
-      return _vend(vectorize{}, typename utils::gens<sizeof...(Args)>::type{});
+      return _vend(vectorize{}, utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     typename numpy_expr<Op, Args...>::simd_iterator_nobroadcast
         numpy_expr<Op, Args...>::_vbegin(vectorize_nobroadcast,
-                                         utils::seq<I...>) const
+                                         utils::index_sequence<I...>) const
     {
       return {std::get<I>(args).vbegin(vectorize_nobroadcast{})...};
     }
@@ -243,14 +248,14 @@ namespace pythonic
         numpy_expr<Op, Args...>::vbegin(vectorize_nobroadcast) const
     {
       return _vbegin(vectorize_nobroadcast{},
-                     typename utils::gens<sizeof...(Args)>::type{});
+                     utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     typename numpy_expr<Op, Args...>::simd_iterator_nobroadcast
         numpy_expr<Op, Args...>::_vend(vectorize_nobroadcast,
-                                       utils::seq<I...>) const
+                                       utils::index_sequence<I...>) const
     {
       return {std::get<I>(args).vend(vectorize_nobroadcast{})...};
     }
@@ -260,12 +265,13 @@ namespace pythonic
         numpy_expr<Op, Args...>::vend(vectorize_nobroadcast) const
     {
       return _vend(vectorize_nobroadcast{},
-                   typename utils::gens<sizeof...(Args)>::type{});
+                   utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
-    auto numpy_expr<Op, Args...>::_load(long i, utils::seq<I...>) const
+    template <size_t... I>
+    auto numpy_expr<Op, Args...>::_load(long i,
+                                        utils::index_sequence<I...>) const
         -> decltype(Op()(std::get<I>(args).load(i)...))
     {
       return Op()(std::get<I>(args).load(i)...);
@@ -276,15 +282,16 @@ namespace pythonic
     // type is not vectorizable
     auto numpy_expr<Op, Args...>::load(I i) const
         -> decltype(this->_load(i,
-                                typename utils::gens<sizeof...(Args)>::type{}))
+                                utils::make_index_sequence<sizeof...(Args)>{}))
     {
-      return _load(i, typename utils::gens<sizeof...(Args)>::type{});
+      return _load(i, utils::make_index_sequence<sizeof...(Args)>{});
     }
 
     template <class Op, class... Args>
-    template <int... I>
+    template <size_t... I>
     auto numpy_expr<Op, Args...>::_map_load(
-        std::array<long, sizeof...(I)> const &indices, utils::seq<I...>) const
+        std::array<long, sizeof...(I)> const &indices,
+        utils::index_sequence<I...>) const
         -> decltype(Op()(std::get<I>(args).load(std::get<I>(indices))...))
     {
       return Op()(std::get<I>(args).load(std::get<I>(indices))...);
@@ -295,16 +302,17 @@ namespace pythonic
     auto numpy_expr<Op, Args...>::map_load(Indices... indices) const
         -> decltype(
             this->_map_load(std::array<long, sizeof...(Indices)>{{indices...}},
-                            typename utils::gens<sizeof...(Args)>::type{}))
+                            utils::make_index_sequence<sizeof...(Args)>{}))
     {
       return _map_load(std::array<long, sizeof...(Indices)>{{indices...}},
-                       typename utils::gens<sizeof...(Args)>::type{});
+                       utils::make_index_sequence<sizeof...(Args)>{});
     }
 #endif
 
     template <class Op, class... Args>
-    template <int... I, class... S>
-    auto numpy_expr<Op, Args...>::_get(utils::seq<I...>, S const &... s) const
+    template <size_t... I, class... S>
+    auto numpy_expr<Op, Args...>::_get(utils::index_sequence<I...>,
+                                       S const &... s) const
         -> decltype(Op{}(std::get<I>(args)(s...)...))
     {
       return Op{}(std::get<I>(args)(s...)...);
@@ -315,10 +323,10 @@ namespace pythonic
     auto numpy_expr<Op, Args...>::operator()(S0 const &s0, S const &... s) const
         -> typename std::enable_if<
             not std::is_scalar<S0>::value,
-            decltype(this->_get(typename utils::gens<sizeof...(Args)>::type{},
+            decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{},
                                 s0, s...))>::type
     {
-      return _get(typename utils::gens<sizeof...(Args)>::type{}, s0, s...);
+      return _get(utils::make_index_sequence<sizeof...(Args)>{}, s0, s...);
     }
 
     template <class Op, class... Args>

@@ -44,12 +44,12 @@ namespace pythonic
         Operator _op;
 
         imap_iterator() = default;
-        template <int... I>
+        template <size_t... I>
         imap_iterator(Operator const &_op, std::tuple<Iters...> &_iters,
-                      utils::seq<I...>);
-        template <int... I>
+                      utils::index_sequence<I...>);
+        template <size_t... I>
         imap_iterator(npos, Operator const &_op, std::tuple<Iters...> &_iters,
-                      utils::seq<I...>);
+                      utils::index_sequence<I...>);
 
         typename imap_res<Operator, Iters...>::type operator*() const;
         imap_iterator &operator++();
@@ -75,15 +75,15 @@ namespace pythonic
         void advance(long i, utils::int_<I>);
         void advance(long i, utils::int_<0>);
 
-        template <int... I>
-        void next(utils::seq<I...>);
+        template <size_t... I>
+        void next(utils::index_sequence<I...>);
 
-        template <int... I>
+        template <size_t... I>
         typename imap_res<Operator, Iters...>::type
-            get_value(utils::seq<I...>, std::true_type) const;
-        template <int... I>
+            get_value(utils::index_sequence<I...>, std::true_type) const;
+        template <size_t... I>
         typename imap_res<Operator, Iters...>::type
-            get_value(utils::seq<I...>, std::false_type) const;
+            get_value(utils::index_sequence<I...>, std::false_type) const;
       };
 
       template <typename Operator, typename... Iters>

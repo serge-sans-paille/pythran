@@ -426,8 +426,10 @@ namespace pythonic
       template <size_t C>
       friend struct extended_slice;
 
+#ifdef ENABLE_PYTHON_MODULE
       template <typename T>
       friend struct ::pythonic::from_python;
+#endif
 
       // When we create a new numpy_gexpr, we deduce step, lower and shape from
       // slices

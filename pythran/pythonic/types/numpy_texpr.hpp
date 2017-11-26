@@ -249,9 +249,9 @@ namespace pythonic
     }
 
     template <class E>
-    template <class S, int... I>
+    template <class S, size_t... I>
     auto numpy_texpr_2<E>::_reverse_index(S const &indices,
-                                          utils::seq<I...>) const
+                                          utils::index_sequence<I...>) const
         -> decltype(this->arg(std::get<I>(indices)...))
     {
       return arg(std::get<I>(indices)...);
@@ -262,10 +262,11 @@ namespace pythonic
     auto numpy_texpr_2<E>::operator()(S0 const &s0, S const &... s) const
         -> decltype(this->_reverse_index(
             std::tuple<S0 const &, S const &...>{s0, s...},
-            typename utils::rgens<1 + sizeof...(S)>::type{}))
+            utils::make_reversed_index_sequence<1 + sizeof...(S)>()))
     {
-      return _reverse_index(std::tuple<S0 const &, S const &...>{s0, s...},
-                            typename utils::rgens<1 + sizeof...(S)>::type{});
+      return _reverse_index(
+          std::tuple<S0 const &, S const &...>{s0, s...},
+          utils::make_reversed_index_sequence<1 + sizeof...(S)>());
     }
 
     template <class E>

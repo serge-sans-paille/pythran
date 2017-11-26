@@ -64,9 +64,9 @@ namespace pythonic
     {
       return false;
     }
-    template <class Arg, class Tuple, class... S, int... I>
+    template <class Arg, class Tuple, class... S, size_t... I>
     bool may_overlap_helper(numpy_gexpr<Arg, S...> const &gexpr,
-                            Tuple const &args, utils::seq<I...>)
+                            Tuple const &args, utils::index_sequence<I...>)
     {
       bool overlaps[] = {may_overlap(gexpr, std::get<I>(args))...};
       return std::any_of(std::begin(overlaps), std::end(overlaps),
@@ -77,7 +77,7 @@ namespace pythonic
                      numpy_expr<E...> const &expr)
     {
       return may_overlap_helper(gexpr, expr.args,
-                                typename utils::gens<sizeof...(E)-1>::type{});
+                                utils::make_index_sequence<sizeof...(E)-1>{});
     }
     template <class T, size_t N, class Tp, size_t Np, class... S, class... Sp>
     bool may_overlap(numpy_gexpr<ndarray<T, N> const &, S...> const &gexpr,

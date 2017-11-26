@@ -18,8 +18,8 @@ namespace pythonic
 
     template <class Op>
     struct Dereferencer {
-      template <class Ts, int... I>
-      auto operator()(Ts const &iters, utils::seq<I...>)
+      template <class Ts, size_t... I>
+      auto operator()(Ts const &iters, utils::index_sequence<I...>)
           -> decltype(Op{}(*std::get<I>(iters)...))
       {
         return Op{}(*std::get<I>(iters)...);
@@ -51,28 +51,28 @@ namespace pythonic
         return *this;
       }
 
-      template <int... I>
-      auto _dereference(utils::seq<I...> s) const
+      template <size_t... I>
+      auto _dereference(utils::index_sequence<I...> s) const
           -> decltype(Dereferencer<Op>{}(iters_, s))
       {
         return Dereferencer<Op>{}(iters_, s);
       }
 
       auto operator*() const -> decltype(
-          this->_dereference(typename utils::gens<sizeof...(Iters)>::type{}))
+          this->_dereference(utils::make_index_sequence<sizeof...(Iters)>{}))
       {
-        return _dereference(typename utils::gens<sizeof...(Iters)>::type{});
+        return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
       }
 
-      template <int... I>
-      void _incr(utils::seq<I...>)
+      template <size_t... I>
+      void _incr(utils::index_sequence<I...>)
       {
         std::initializer_list<bool> __attribute__((unused))
         _{(std::get<I>(iters_) += steps_[I], true)...};
       }
       numpy_expr_iterator &operator++()
       {
-        _incr(typename utils::gens<sizeof...(Iters)>::type{});
+        _incr(utils::make_index_sequence<sizeof...(Iters)>{});
         return *this;
       }
 
@@ -82,20 +82,21 @@ namespace pythonic
         return other += i;
       }
 
-      template <int... I>
-      void _update(long i, utils::seq<I...>)
+      template <size_t... I>
+      void _update(long i, utils::index_sequence<I...>)
       {
         std::initializer_list<bool> __attribute__((unused))
         _{(std::get<I>(iters_) += steps_[I] * i, true)...};
       }
       numpy_expr_iterator &operator+=(long i)
       {
-        _update(i, typename utils::gens<sizeof...(Iters)>::type{});
+        _update(i, utils::make_index_sequence<sizeof...(Iters)>{});
         return *this;
       }
 
-      template <int... I>
-      long _difference(numpy_expr_iterator const &other, utils::seq<I...>) const
+      template <size_t... I>
+      long _difference(numpy_expr_iterator const &other,
+                       utils::index_sequence<I...>) const
       {
         std::initializer_list<long> distances{
             (std::get<I>(iters_) - std::get<I>(other.iters_))...};
@@ -105,7 +106,7 @@ namespace pythonic
       long operator-(numpy_expr_iterator const &other) const
       {
         return _difference(other,
-                           typename utils::gens<sizeof...(Iters)>::type{});
+                           utils::make_index_sequence<sizeof...(Iters)>{});
       }
 
       bool _neq(numpy_expr_iterator const &other, utils::int_<0u>) const
@@ -192,8 +193,8 @@ namespace pythonic
         return *this;
       }
 
-      template <int... I>
-      auto _dereference(utils::seq<I...>) const
+      template <size_t... I>
+      auto _dereference(utils::index_sequence<I...>) const
           -> decltype(Op{}(*std::get<I>(iters_)...))
       {
         return Op{}(((steps_[I])
@@ -203,20 +204,20 @@ namespace pythonic
       }
 
       auto operator*() const -> decltype(
-          this->_dereference(typename utils::gens<sizeof...(Iters)>::type{}))
+          this->_dereference(utils::make_index_sequence<sizeof...(Iters)>{}))
       {
-        return _dereference(typename utils::gens<sizeof...(Iters)>::type{});
+        return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
       }
 
-      template <int... I>
-      void _incr(utils::seq<I...>)
+      template <size_t... I>
+      void _incr(utils::index_sequence<I...>)
       {
         std::initializer_list<bool> __attribute__((unused))
         _{(std::get<I>(iters_) += steps_[I], true)...};
       }
       numpy_expr_simd_iterator &operator++()
       {
-        _incr(typename utils::gens<sizeof...(Iters)>::type{});
+        _incr(utils::make_index_sequence<sizeof...(Iters)>{});
         return *this;
       }
 
@@ -226,21 +227,21 @@ namespace pythonic
         return other += i;
       }
 
-      template <int... I>
-      void _update(long i, utils::seq<I...>)
+      template <size_t... I>
+      void _update(long i, utils::index_sequence<I...>)
       {
         std::initializer_list<bool> __attribute__((unused))
         _{(std::get<I>(iters_) += steps_[I] * i, true)...};
       }
       numpy_expr_simd_iterator &operator+=(long i)
       {
-        _update(i, typename utils::gens<sizeof...(Iters)>::type{});
+        _update(i, utils::make_index_sequence<sizeof...(Iters)>{});
         return *this;
       }
 
-      template <int... I>
+      template <size_t... I>
       long _difference(numpy_expr_simd_iterator const &other,
-                       utils::seq<I...>) const
+                       utils::index_sequence<I...>) const
       {
         std::initializer_list<long> distances{
             (std::get<I>(iters_) - std::get<I>(other.iters_))...};
@@ -250,7 +251,7 @@ namespace pythonic
       long operator-(numpy_expr_simd_iterator const &other) const
       {
         return _difference(other,
-                           typename utils::gens<sizeof...(Iters)>::type{});
+                           utils::make_index_sequence<sizeof...(Iters)>{});
       }
 
       bool _neq(numpy_expr_simd_iterator const &other, utils::int_<0u>) const
@@ -334,34 +335,34 @@ namespace pythonic
         return *this;
       }
 
-      template <int... I>
-      auto _dereference(utils::seq<I...>) const
+      template <size_t... I>
+      auto _dereference(utils::index_sequence<I...>) const
           -> decltype(Op{}(*std::get<I>(iters_)...))
       {
         return Op{}((*std::get<I>(iters_))...);
       }
 
       auto operator*() const -> decltype(
-          this->_dereference(typename utils::gens<sizeof...(Iters)>::type{}))
+          this->_dereference(utils::make_index_sequence<sizeof...(Iters)>{}))
       {
-        return _dereference(typename utils::gens<sizeof...(Iters)>::type{});
+        return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
       }
 
-      template <int... I>
-      void _incr(utils::seq<I...>)
+      template <size_t... I>
+      void _incr(utils::index_sequence<I...>)
       {
         std::initializer_list<bool> __attribute__((unused))
         _{(++std::get<I>(iters_), true)...};
       }
       numpy_expr_simd_iterator_nobroadcast &operator++()
       {
-        _incr(typename utils::gens<sizeof...(Iters)>::type{});
+        _incr(utils::make_index_sequence<sizeof...(Iters)>{});
         return *this;
       }
 
-      template <int... I>
+      template <size_t... I>
       long _difference(numpy_expr_simd_iterator_nobroadcast const &other,
-                       utils::seq<I...>) const
+                       utils::index_sequence<I...>) const
       {
         std::initializer_list<long> distances{
             (std::get<I>(iters_) - std::get<I>(other.iters_))...};
@@ -371,7 +372,7 @@ namespace pythonic
       long operator-(numpy_expr_simd_iterator_nobroadcast const &other) const
       {
         return _difference(other,
-                           typename utils::gens<sizeof...(Iters)>::type{});
+                           utils::make_index_sequence<sizeof...(Iters)>{});
       }
 
       numpy_expr_simd_iterator_nobroadcast operator+(long i) const
@@ -380,15 +381,15 @@ namespace pythonic
         return other += i;
       }
 
-      template <int... I>
-      void _update(long i, utils::seq<I...>)
+      template <size_t... I>
+      void _update(long i, utils::index_sequence<I...>)
       {
         std::initializer_list<bool> __attribute__((unused))
         _{(std::get<I>(iters_) += i, true)...};
       }
       numpy_expr_simd_iterator_nobroadcast &operator+=(long i)
       {
-        _update(i, typename utils::gens<sizeof...(Iters)>::type{});
+        _update(i, utils::make_index_sequence<sizeof...(Iters)>{});
         return *this;
       }
     };
@@ -431,46 +432,46 @@ namespace pythonic
 
       numpy_expr(Args const &... args);
 
-      template <int... I>
-      const_iterator _begin(utils::seq<I...>) const;
+      template <size_t... I>
+      const_iterator _begin(utils::index_sequence<I...>) const;
       const_iterator begin() const;
 
-      template <int... I>
-      const_iterator _end(utils::seq<I...>) const;
+      template <size_t... I>
+      const_iterator _end(utils::index_sequence<I...>) const;
       const_iterator end() const;
 
       const_fast_iterator begin(types::fast) const;
       const_fast_iterator end(types::fast) const;
 
-      template <int... I>
-      iterator _begin(utils::seq<I...>);
+      template <size_t... I>
+      iterator _begin(utils::index_sequence<I...>);
       iterator begin();
 
-      template <int... I>
-      iterator _end(utils::seq<I...>);
+      template <size_t... I>
+      iterator _end(utils::index_sequence<I...>);
       iterator end();
 
-      template <int... I>
-      auto _fast(long i, utils::seq<I...>) const
+      template <size_t... I>
+      auto _fast(long i, utils::index_sequence<I...>) const
           -> decltype(Op()(std::get<I>(args).fast(i)...));
 
       auto fast(long i) const -> decltype(
-          this->_fast(i, typename utils::gens<sizeof...(Args)>::type{}));
+          this->_fast(i, utils::make_index_sequence<sizeof...(Args)>{}));
 
-      template <int... I>
+      template <size_t... I>
       auto _map_fast(std::array<long, sizeof...(I)> const &indices,
-                     utils::seq<I...>) const
+                     utils::index_sequence<I...>) const
           -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...));
 
       template <class... Indices>
       auto map_fast(Indices... indices) const -> decltype(
           this->_map_fast(std::array<long, sizeof...(Indices)>{{indices...}},
-                          typename utils::gens<sizeof...(Args)>::type{}));
+                          utils::make_index_sequence<sizeof...(Args)>{}));
 
     public:
       array<long, value> const &shape() const;
-      template <int... I>
-      bool _no_broadcast(utils::seq<I...>) const;
+      template <size_t... I>
+      bool _no_broadcast(utils::index_sequence<I...>) const;
       bool no_broadcast() const;
 
 #ifdef USE_BOOST_SIMD
@@ -480,51 +481,52 @@ namespace pythonic
                                    typename Args::simd_iterator...>;
       using simd_iterator_nobroadcast = numpy_expr_simd_iterator_nobroadcast<
           numpy_expr, Op, typename Args::simd_iterator_nobroadcast...>;
-      template <int... I>
-      simd_iterator _vbegin(types::vectorize, utils::seq<I...>) const;
+      template <size_t... I>
+      simd_iterator _vbegin(types::vectorize,
+                            utils::index_sequence<I...>) const;
       simd_iterator vbegin(types::vectorize) const;
-      template <int... I>
-      simd_iterator _vend(types::vectorize, utils::seq<I...>) const;
+      template <size_t... I>
+      simd_iterator _vend(types::vectorize, utils::index_sequence<I...>) const;
       simd_iterator vend(types::vectorize) const;
 
-      template <int... I>
+      template <size_t... I>
       simd_iterator_nobroadcast _vbegin(types::vectorize_nobroadcast,
-                                        utils::seq<I...>) const;
+                                        utils::index_sequence<I...>) const;
       simd_iterator_nobroadcast vbegin(types::vectorize_nobroadcast) const;
-      template <int... I>
+      template <size_t... I>
       simd_iterator_nobroadcast _vend(types::vectorize_nobroadcast,
-                                      utils::seq<I...>) const;
+                                      utils::index_sequence<I...>) const;
       simd_iterator_nobroadcast vend(types::vectorize_nobroadcast) const;
 
-      template <int... I>
-      auto _load(long i, utils::seq<I...>) const
+      template <size_t... I>
+      auto _load(long i, utils::index_sequence<I...>) const
           -> decltype(Op()(std::get<I>(args).load(i)...));
 
       // template to prevent automatic instantiation when the type is not
       // vectorizable
       template <class I>
       auto load(I i) const -> decltype(
-          this->_load(i, typename utils::gens<sizeof...(Args)>::type{}));
+          this->_load(i, utils::make_index_sequence<sizeof...(Args)>{}));
 
-      template <int... I>
+      template <size_t... I>
       auto _map_load(std::array<long, sizeof...(I)> const &indices,
-                     utils::seq<I...>) const
+                     utils::index_sequence<I...>) const
           -> decltype(Op()(std::get<I>(args).load(std::get<I>(indices))...));
 
       template <class... Indices>
       auto map_load(Indices... indices) const -> decltype(
           this->_map_load(std::array<long, sizeof...(Indices)>{{indices...}},
-                          typename utils::gens<sizeof...(Args)>::type{}));
+                          utils::make_index_sequence<sizeof...(Args)>{}));
 #endif
-      template <int... I, class... S>
-      auto _get(utils::seq<I...>, S const &... s) const
+      template <size_t... I, class... S>
+      auto _get(utils::index_sequence<I...>, S const &... s) const
           -> decltype(Op{}(std::get<I>(args)(s...)...));
 
       template <class S0, class... S>
       auto operator()(S0 const &s0, S const &... s) const ->
           typename std::enable_if<
               not std::is_scalar<S0>::value,
-              decltype(this->_get(typename utils::gens<sizeof...(Args)>::type{},
+              decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{},
                                   s0, s...))>::type;
 
       template <class F>

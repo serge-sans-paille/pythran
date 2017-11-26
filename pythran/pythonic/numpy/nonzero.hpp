@@ -42,9 +42,9 @@ namespace pythonic
       }
     }
 
-    template <int... Is>
+    template <size_t... Is>
     types::array<utils::shared_ref<types::raw_array<long>>, sizeof...(Is)>
-    init_buffers(long sz, utils::seq<Is...>)
+    init_buffers(long sz, utils::index_sequence<Is...>)
     {
       return {{(Is, types::raw_array<long>(sz))...}}; // too much memory used
     }
@@ -58,7 +58,7 @@ namespace pythonic
       long sz = expr.flat_size();
 
       types::array<utils::shared_ref<types::raw_array<long>>, N> out_buffers =
-          init_buffers(sz, typename utils::gens<N>::type());
+          init_buffers(sz, utils::make_index_sequence<N>());
       types::array<long *, N> out_iters;
       for (size_t i = 0; i < N; ++i)
         out_iters[i] = out_buffers[i]->data;

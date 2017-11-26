@@ -5,6 +5,7 @@ import sys
 from numpy import int8, int16, int32, int64, uint8, uint16, uint32
 from numpy import float64, float32, complex64, complex128, uint64
 from pythran.typing import List, Dict, Set, Tuple, NDArray, NDArray, Pointer
+from pythran.typing import Fun
 
 PYTYPE_TO_CTYPE_TABLE = {
     complex: 'std::complex<double>',
@@ -70,6 +71,11 @@ def pytype_to_ctype(t):
         return 'pythonic::types::pointer<{0}>'.format(
             pytype_to_ctype(t.__args__[0])
         )
+    elif isinstance(t, Fun):
+        return 'pythonic::types::cfun<{0}({1})>'.format(
+            pytype_to_ctype(t.__args__[-1]),
+            ", ".join(pytype_to_ctype(arg) for arg in t.__args__[:-1]),
+        )
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return PYTYPE_TO_CTYPE_TABLE[t]
     else:
@@ -104,6 +110,10 @@ def pytype_to_pretty_type(t):
     elif isinstance(t, Pointer):
         dtype = pytype_to_pretty_type(t.__args__[0])
         return '{}*'.format(dtype)
+    elif isinstance(t, Fun):
+        rtype = pytype_to_pretty_type(t.__args__[-1])
+        argtypes = [pytype_to_pretty_type(arg) for arg in t.__args__[:-1]]
+        return '{}({})'.format(rtype, ", ".join(argtypes))
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return t.__name__
     else:

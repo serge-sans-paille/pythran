@@ -6,12 +6,13 @@ This module provides a dummy parser for pythran annotations.
 from pythran.types.conversion import pytype_to_pretty_type
 
 from collections import defaultdict
+from itertools import product
 import re
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
 
-from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer
+from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun
 
 
 class Spec(object):
@@ -270,6 +271,7 @@ class SpecParser(object):
                 | type LIST
                 | type SET
                 | type LARRAY array_indices RARRAY
+                | type LPAREN opt_types RPAREN
                 | type COLUMN type DICT
                 | LPAREN types RPAREN
                 | LARRAY type RARRAY
@@ -282,6 +284,11 @@ class SpecParser(object):
             p[0] = tuple(List[t] for t in p[1])
         elif len(p) == 3 and p[2] == 'set':
             p[0] = tuple(Set[t] for t in p[1])
+        elif len(p) == 5 and p[4] == ')':
+            p[0] = tuple(Fun[args, r]
+                         for r in p[1]
+                         for args in (product(*p[3])
+                                      if len(p[3]) > 1 else p[3]))
         elif len(p) == 5 and p[4] == ']':
             def args(t):
                 return t.__args__ if isinstance(t, NDArray) else (t,)

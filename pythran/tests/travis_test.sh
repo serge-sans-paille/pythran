@@ -7,6 +7,11 @@ run_tests() {
     then
         exit
     fi
+    if [ -n "$NOTEBOOK" ]
+    then
+        PYTHONPATH=$PWD:$PYTHONPATH py.test pythran/tests/notebooks --nbval
+        exit
+    fi
     printf "[compiler]\nCXX=$CXX\nCC=$CC\ncflags=-std=c++11 $CXXFLAGS -w\nldflags=$CXXFLAGS\n" > ~/.pythranrc
     OMP_NUM_THREADS=4 PYTHONPATH=$PWD:$PYTHONPATH py.test -v $TESTCASE
 }

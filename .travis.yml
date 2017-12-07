@@ -23,7 +23,7 @@ addons:
 
 before_install:
     - pip install --upgrade pip setuptools wheel six cython
-    - pip install --only-binary=numpy,scipy -U ply "networkx>=2" colorlog numpy scipy pytest-pep8 pytest-xdist gast ipython
+    - pip install --only-binary=numpy,scipy -U ply "networkx>=2" colorlog numpy scipy pytest-pep8 pytest-xdist gast ipython nbval
     - python setup.py install 1> /dev/null
 
 env:
@@ -118,7 +118,9 @@ env:
     - TESTCASE=pythran/tests/test_time.py
     - TESTCASE=pythran/tests/test_typing.py
     - PYTHON_VERSION=2 TESTCASE=pythran/tests/test_user_defined_import.py
+
     - PEP8=true TESTCASE=pythran/tests/test_format.py
+    - PYTHON_VERSION=2 NOTEBOOK=true
 
 script:
     - sh ./pythran/tests/travis_test.sh

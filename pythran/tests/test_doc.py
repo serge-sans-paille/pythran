@@ -8,7 +8,7 @@ import sys
 import unittest
 
 import pythran
-from pythran import transformations, analyses, optimizations, types
+from pythran import transformations, analyses, optimizations, types, log
 
 
 class TestDoctest(unittest.TestCase):
@@ -73,6 +73,9 @@ class TestDoctest(unittest.TestCase):
         return f.name
 
 def generic_test_package(self, mod):
+    # disable logging during doctest
+    log.logging.getLogger('pythran').setLevel(log.logging.ERROR)
+
     failed, _ = doctest.testmod(mod)
     self.assertEqual(failed, 0)
 

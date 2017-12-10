@@ -96,20 +96,11 @@ class SpecParser(object):
 """
 
     # lex part
-    reserved = {
-        '#pythran': 'PYTHRAN',
-        'export': 'EXPORT',
-        'capsule': 'CAPSULE',
-        'or': 'OR',
-        'list': 'LIST',
-        'set': 'SET',
-        'dict': 'DICT',
-        'str': 'STR',
+    dtypes = {
         'bool': 'BOOL',
         'complex': 'COMPLEX',
         'int': 'INT',
         'long': 'LONG',
-        'None': 'NONE',
         'float': 'FLOAT',
         'uint8': 'UINT8',
         'uint16': 'UINT16',
@@ -124,8 +115,25 @@ class SpecParser(object):
         'complex64': 'COMPLEX64',
         'complex128': 'COMPLEX128',
         }
+
+    reserved = {
+        '#pythran': 'PYTHRAN',
+        'export': 'EXPORT',
+        'capsule': 'CAPSULE',
+        'or': 'OR',
+        'list': 'LIST',
+        'set': 'SET',
+        'dict': 'DICT',
+        'str': 'STR',
+        'None': 'NONE',
+        }
+    reserved.update(dtypes)
+
     tokens = ('IDENTIFIER', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP',
               'LARRAY', 'RARRAY', 'STAR') + tuple(reserved.values())
+
+    crap = [tok for tok in tokens if tok != 'PYTHRAN']
+    some_crap = [tok for tok in crap if tok not in ('LPAREN', 'COMMA')]
 
     # token <> regexp binding
     t_CRAP = r'[^,:\(\)\[\]*]'
@@ -136,6 +144,11 @@ class SpecParser(object):
     t_RARRAY = r'\]'
     t_LARRAY = r'\['
     t_STAR = r'\*'
+
+    precedence = (
+        ('left', 'OR'),
+        ('left', 'LIST', 'DICT', 'SET'),
+    )
 
     # regexp to extract pythran specs from comments
     # the first part matches lines with a comment and the pythran keyword
@@ -173,8 +186,8 @@ class SpecParser(object):
 
     def p_export_list(self, p):
         '''export_list : export
-                  | export COMMA export_list'''
-        p[0] = (p[1],) if len(p) == 2 else (p[1],) + p[3]
+                  | export_list COMMA export'''
+        p[0] = (p[1],) if len(p) == 2 else (p[1] + (p[3],))
 
     def p_export(self, p):
         '''export : IDENTIFIER LPAREN opt_types RPAREN
@@ -189,61 +202,23 @@ class SpecParser(object):
 
     def p_opt_craps(self, p):
         '''opt_craps :
-                     | crap opt_craps'''
+                     | some_crap opt_all_craps'''
+
+    def p_opt_all_craps(self, p):
+        '''opt_all_craps :
+                     | crap opt_all_craps'''
 
     def p_crap(self, p):
-        '''crap : CRAP
-                | IDENTIFIER
-                | EXPORT
-                | LPAREN
-                | RPAREN
-                | LARRAY
-                | RARRAY
-                | COLUMN
-                | COMMA
-                | OR
-                | DICT
-                | SET
-                | LIST
-                | STR
-                | STAR
-                | BOOL
-                | COMPLEX
-                | INT
-                | LONG
-                | NONE
-                | FLOAT
-                | UINT8
-                | UINT16
-                | UINT32
-                | UINT64
-                | INT8
-                | INT16
-                | INT32
-                | INT64
-                | FLOAT32
-                | FLOAT64
-                | COMPLEX64
-                | COMPLEX128'''
+        'crap : '
+
+    def p_some_crap(self, p):
+        'some_crap : '
+
+    p_crap.__doc__ += '\n| '.join(crap)
+    p_some_crap.__doc__ += '\n| '.join(some_crap)
 
     def p_dtype(self, p):
-        '''dtype : BOOL
-                 | COMPLEX
-                 | INT
-                 | LONG
-                 | FLOAT
-                 | UINT8
-                 | UINT16
-                 | UINT32
-                 | UINT64
-                 | INT8
-                 | INT16
-                 | INT32
-                 | INT64
-                 | FLOAT32
-                 | FLOAT64
-                 | COMPLEX64
-                 | COMPLEX128'''
+        'dtype : '
         # these imports are used indirectly by the eval
         from numpy import complex64, complex128
         from numpy import float32, float64
@@ -251,6 +226,8 @@ class SpecParser(object):
         from numpy import uint8, uint16, uint32, uint64
 
         p[0] = eval(p[1]),
+
+    p_dtype.__doc__ += '\n| '.join(dtypes.values())
 
     def p_opt_types(self, p):
         '''opt_types :
@@ -329,6 +306,7 @@ class SpecParser(object):
     def p_term(self, p):
         '''term : STR
                 | NONE
+                | LONG
                 | dtype'''
         if p[1] == 'str':
             p[0] = str
@@ -346,10 +324,10 @@ class SpecParser(object):
         raise err
 
     def __init__(self):
-        self.lexer = lex.lex(module=self, debug=0)
+        self.lexer = lex.lex(module=self, debug=False)
         # Do not write the table for better compatibility across ply version
         self.parser = yacc.yacc(module=self,
-                                debug=0,
+                                debug=False,
                                 write_tables=False)
 
     def read_path_or_text(self, path_or_text):
@@ -372,7 +350,7 @@ class SpecParser(object):
         pythran_data = (re.sub(r'#\s*pythran', '\_o< pythran >o_/', raw)
                         .replace('#', '')
                         .replace('\_o< pythran >o_/', '#pythran'))
-        self.parser.parse(pythran_data, lexer=self.lexer)
+        self.parser.parse(pythran_data, lexer=self.lexer, debug=False)
         for key, overloads in self.native_exports.items():
             if len(overloads) > 1:
                 raise SyntaxError("Overloads not supported for capsule '{}'"

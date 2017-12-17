@@ -1,19 +1,28 @@
-#pythran export square(int or float)
-#runas square(200)
-#runas square(200.200)
+#pythran export times(int or str, int)
+#runas times(200, 3)
+#runas times('200', 3)
 
-def square(n):
-    return n*n
+def times(n, m):
+    return n*m
 
-#pythran export mul([int or float] list, int)
-#runas mul([1], 2)
-#runas mul([1.5], 2)
+#pythran export check([str or float] list, int)
+#runas check(['1'], 2)
+#runas check([1.5], 2)
 
-#pythran export mul(int or float list, int or bool)
-#runas mul(1, 2)
-#runas mul([1.5], 2)
-#runas mul(1, True)
-#runas mul([1.5], False)
+def check(x, y):
+    if y:
+        return x, y
+    else:
+        return x + x, y
 
-def mul(x, y):
-    return x * y
+#pythran export check2(str or float list, str or bool list)
+#runas check2('1', '2')
+#runas check2('1', [True])
+#runas check2([1.5], 'True')
+#runas check2([1.5], [False])
+
+def check2(x, y):
+    if y:
+        return x, y
+    else:
+        return x + x, y

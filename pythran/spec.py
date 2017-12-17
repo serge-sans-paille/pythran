@@ -8,11 +8,51 @@ from pythran.types.conversion import pytype_to_pretty_type
 from collections import defaultdict
 from itertools import product
 import re
+import sys
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
 
 from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun
+from pythran.syntax import PythranSyntaxError
+
+
+def ambiguous_types(ty0, ty1):
+    from numpy import complex64, complex128
+    from numpy import float32, float64
+    from numpy import int8, int16, int32, int64
+    from numpy import uint8, uint16, uint32, uint64
+
+    if isinstance(ty0, tuple):
+        if len(ty0) != len(ty1):
+            return False
+        return all(ambiguous_types(t0, t1) for t0, t1 in zip(ty0, ty1))
+
+    ambiguous_float_types = float, float32, float64
+    if ty0 in ambiguous_float_types and ty1 in ambiguous_float_types:
+        return True
+
+    ambiguous_cplx_types = complex, complex64, complex128
+    if ty0 in ambiguous_cplx_types and ty1 in ambiguous_cplx_types:
+        return True
+
+    ambiguous_int_types = (int8, int16, int32, int64,
+                           uint8, uint16, uint32, uint64,
+                           int,)
+    if ty0 in ambiguous_int_types and ty1 in ambiguous_int_types:
+        return True
+
+    if type(ty0) is not type(ty1):
+        return False
+
+    if not hasattr(ty0, '__args__'):
+        return False
+
+    if type(ty0) is NDArray:
+        # no ambiguity for dtype
+        return ambiguous_types(ty0.__args__[1:], ty1.__args__[1:])
+    else:
+        return ambiguous_types(ty0.__args__, ty1.__args__)
 
 
 class Spec(object):
@@ -100,7 +140,6 @@ class SpecParser(object):
         'bool': 'BOOL',
         'complex': 'COMPLEX',
         'int': 'INT',
-        'long': 'LONG',
         'float': 'FLOAT',
         'uint8': 'UINT8',
         'uint16': 'UINT16',
@@ -125,6 +164,7 @@ class SpecParser(object):
         'set': 'SET',
         'dict': 'DICT',
         'str': 'STR',
+        'long': 'LONG',
         'None': 'NONE',
         }
     reserved.update(dtypes)
@@ -279,8 +319,8 @@ class SpecParser(object):
         elif len(p) == 4 and p[3] == ']':
             p[0] = p[2]
         else:
-            raise SyntaxError("Invalid Pythran spec. "
-                              "Unknown text '{0}'".format(p.value))
+            raise PythranSyntaxError("Invalid Pythran spec. "
+                                     "Unknown text '{0}'".format(p.value))
 
     def p_pointer_type(self, p):
         '''pointer_type : dtype STAR'''
@@ -312,12 +352,18 @@ class SpecParser(object):
             p[0] = str
         elif p[1] == 'None':
             p[0] = type(None)
+        elif p[1] == 'long':
+            if sys.version_info.major == 3:
+                p[0] = int
+            else:
+                p[0] = long
         else:
             p[0] = p[1][0]
 
     def p_error(self, p):
         p_val = p.value if p else ''
-        err = SyntaxError("Invalid Pythran spec near '" + str(p_val) + "'")
+        err = PythranSyntaxError(
+            "Invalid Pythran spec near '{}'".format(p_val))
         err.lineno = self.lexer.lineno
         if self.input_file:
             err.filename = self.input_file
@@ -351,11 +397,25 @@ class SpecParser(object):
                         .replace('#', '')
                         .replace('\_o< pythran >o_/', '#pythran'))
         self.parser.parse(pythran_data, lexer=self.lexer, debug=False)
+
         for key, overloads in self.native_exports.items():
             if len(overloads) > 1:
-                raise SyntaxError("Overloads not supported for capsule '{}'"
-                                  .format(key))
+                raise PythranSyntaxError(
+                    "Overloads not supported for capsule '{}'".format(key))
             self.native_exports[key] = overloads[0]
+
+        for key, overloads in self.exports.items():
+            for i, ty_i in enumerate(overloads):
+                sty_i = spec_to_string(key, ty_i)
+                for ty_j in overloads[i+1:]:
+                    sty_j = spec_to_string(key, ty_j)
+                    if sty_i == sty_j:
+                        raise PythranSyntaxError(
+                            "Duplicate export entry {}.".format(sty_i))
+                    if ambiguous_types(ty_i, ty_j):
+                        msg = "Ambiguous overloads\n\t{}\n\t{}.".format(sty_i,
+                                                                        sty_j)
+                        raise PythranSyntaxError(msg)
 
         return Spec(self.exports, self.native_exports)
 

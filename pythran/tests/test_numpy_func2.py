@@ -272,7 +272,7 @@ def test_copy0(x):
         self.run_test("def np_asarray_chkfinite0(a):\n from numpy import asarray_chkfinite\n return asarray_chkfinite(a)", (1,2,3), np_asarray_chkfinite0=[Tuple[int, int, int]])
 
     def test_asarray_chkfinite1(self):
-        self.run_test("def np_asarray_chkfinite1(a, x):\n from numpy import asarray_chkfinite\n try: return asarray_chkfinite(a)\n except ValueError: return asarray_chkfinite(x)", [[1,2],[numpy.nan,4]], [[1.,2.],[3.,4.]], np_asarray_chkfinite1=[List[List[float]], List[List[float]]])
+        self.run_test("def np_asarray_chkfinite1(a, x):\n from numpy import asarray_chkfinite\n try: return asarray_chkfinite(a)\n except ValueError: return asarray_chkfinite(x)", [[1.,2.],[numpy.nan,4.]], [[1.,2.],[3.,4.]], np_asarray_chkfinite1=[List[List[float]], List[List[float]]])
 
     def test_asarray0(self):
         self.run_test("def np_asarray0(a):\n from numpy import asarray\n return asarray(a)", (1,2,3), np_asarray0=[Tuple[int, int, int]])
@@ -402,7 +402,7 @@ def test_copy0(x):
         self.run_test("def np_append2(a): from numpy import append,array ; b = array([[4, 5, 6], [7, 8, 9]]) ; return append(a,b)", numpy.array([1, 2, 3]), np_append2=[NDArray[int,:]])
 
     def test_angle0(self):
-        self.run_test("def np_angle0(a): from numpy import angle ; return angle(a)", [1.0, 1.0j, 1+1j], np_angle0=[List[complex]])
+        self.run_test("def np_angle0(a): from numpy import angle ; return angle(a)", [1.0+0j, 1.0j, 1+1j], np_angle0=[List[complex]])
 
     def test_angle1(self):
                       self.run_test("def np_angle1(a): from numpy import angle ; return angle(a)", numpy.array([1.0, 1.0j, 1+1j]), np_angle1=[NDArray[complex,:]])

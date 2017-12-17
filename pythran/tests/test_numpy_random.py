@@ -171,7 +171,7 @@ class TestNumpyRandom(TestEnv):
          a = [binomial(n, p) for x in range(size)]
          return (abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
         """
-        self.run_test(code, 10, .2, 10**5, numpy_binomial0=[float, float, int])
+        self.run_test(code, 10., .2, 10**5, numpy_binomial0=[float, float, int])
 
     def test_numpy_binomial1(self):
         code = """
@@ -181,7 +181,7 @@ class TestNumpyRandom(TestEnv):
          a=binomial(n, p, size)
          return (abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
         """
-        self.run_test(code, 7, .2, 10**5, numpy_binomial1=[float, float, int])
+        self.run_test(code, 7., .2, 10**5, numpy_binomial1=[float, float, int])
 
     def test_numpy_binomial2(self):
         code = """
@@ -191,7 +191,7 @@ class TestNumpyRandom(TestEnv):
          a=binomial(n, p, (size, size))
          return (abs(float(sum(a))/(size*size) - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
         """
-        self.run_test(code, 9, .2, 10**3, numpy_binomial2=[float, float, int])
+        self.run_test(code, 9., .2, 10**3, numpy_binomial2=[float, float, int])
 
     def test_numpy_binomial_exception(self):
         code = """

@@ -20,7 +20,7 @@ def are_equal(s1):
         self.run_test("def _len(a):\n return len(a)", {'aze', 'qsd', 'azeqsd'}, _len=[Set[str]])
 
     def test_disjoint(self):
-        self.run_test("def _isdisjoint(a,b):\n return a.isdisjoint(b)", {1,3,2}, {7,2,5}, _isdisjoint=[Set[int],Set[float]])
+        self.run_test("def _isdisjoint(a,b):\n return a.isdisjoint(b)", {1,3,2}, {7.,2.,5.}, _isdisjoint=[Set[int],Set[float]])
 
     def test_operator_le(self):
         self.run_test("def _le(a,b):\n return a <= b", {1.,5.}, {1,2,5}, _le=[Set[float],Set[int]])

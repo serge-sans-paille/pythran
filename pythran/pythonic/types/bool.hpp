@@ -17,11 +17,11 @@ namespace pythonic
 
   bool from_python<bool>::is_convertible(PyObject *obj)
   {
-    return PyBool_Check(obj);
+    return obj == Py_True || obj == Py_False;
   }
   bool from_python<bool>::convert(PyObject *obj)
   {
-    return PyInt_AsLong(obj);
+    return obj == Py_True;
   }
 
   template <class T>

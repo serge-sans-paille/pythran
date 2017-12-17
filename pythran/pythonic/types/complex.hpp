@@ -79,7 +79,7 @@ namespace pythonic
   template <class T>
   bool from_python<std::complex<T>>::is_convertible(PyObject *obj)
   {
-    return PyComplex_Check(obj) or PyFloat_Check(obj) or PyInt_Check(obj);
+    return PyComplex_CheckExact(obj);
   }
   template <class T>
   std::complex<T> from_python<std::complex<T>>::convert(PyObject *obj)

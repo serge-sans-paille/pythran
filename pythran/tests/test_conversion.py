@@ -25,7 +25,7 @@ class TestConversion(TestEnv):
         self.run_test('def array_of_uint64_to_uint32(l): import numpy ; return l, numpy.array(l, numpy.uint32)', np.ones(2,dtype=np.uint64), array_of_uint64_to_uint32=[NDArray[np.uint64, :]])
 
     def test_list_of_float64(self):
-        self.run_test('def list_of_float64(l): return [2 * _ for _ in l]', [1,2], list_of_float64=[List[np.float64]])
+        self.run_test('def list_of_float64(l): return [2. * _ for _ in l]', [1.,2.], list_of_float64=[List[np.float64]])
 
     @unittest.skip("No np.float32 python_to_pythran converter exists.")
     def test_set_of_float32(self):

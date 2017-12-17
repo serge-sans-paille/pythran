@@ -101,7 +101,7 @@ def rbf(ngamma, x, y):
         self.run_test(
             code,
             2.3, [1,2,3], [1.1,1.2,1.3],
-            rbf=[float, List[float], List[float]])
+            rbf=[float, List[int], List[float]])
 
 # from copperhead-new/copperhead/prelude.py
     def test_indices(self):
@@ -128,8 +128,8 @@ def scatter(src, indices_, dst):
 """
         self.run_test(
             code,
-            [0.0,1.0,2.,3,4,5,6,7,8,9],[5,6,7,8,9,0,1,2,3,4],[0,0,0,0,0,0,0,0,0,0,18],
-            scatter=[List[float], List[int], List[float]])
+            [0.0,1.0,2.,3.,4.,5.,6.,7.,8.,9.],[5,6,7,8,9,0,1,2,3,4],[0,0,0,0,0,0,0,0,0,0,18],
+            scatter=[List[float], List[int], List[int]])
 
     def test_scan(self):
         code="""
@@ -140,7 +140,7 @@ def scan(f, A):
         B[i] = f(B[i-1], B[i])
     return B
 """
-        self.run_test(code, [1,2,3], prefix=[List[float]])
+        self.run_test(code, [1.,2.,3.], prefix=[List[float]])
 
 
 

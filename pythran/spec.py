@@ -282,12 +282,22 @@ class SpecParser(object):
         else:
             p[0] = tuple((t,) + ts for t in p[1] for ts in p[3])
 
+    def p_array_type(self, p):
+        '''array_type : dtype
+                | array_type LARRAY array_indices RARRAY'''
+        if len(p) == 2:
+            p[0] = p[1][0],
+        elif len(p) == 5 and p[4] == ']':
+            def args(t):
+                return t.__args__ if isinstance(t, NDArray) else (t,)
+            p[0] = tuple(NDArray[args(t) + p[3]] for t in p[1])
+
     def p_type(self, p):
         '''type : term
+                | array_type
                 | pointer_type
                 | type LIST
                 | type SET
-                | type LARRAY array_indices RARRAY
                 | type LPAREN opt_types RPAREN
                 | type COLUMN type DICT
                 | LPAREN types RPAREN
@@ -296,7 +306,10 @@ class SpecParser(object):
                 '''
 
         if len(p) == 2:
-            p[0] = p[1],
+            if isinstance(p[1], tuple):
+                p[0] = p[1]
+            else:
+                p[0] = p[1],
         elif len(p) == 3 and p[2] == 'list':
             p[0] = tuple(List[t] for t in p[1])
         elif len(p) == 3 and p[2] == 'set':
@@ -306,10 +319,6 @@ class SpecParser(object):
                          for r in p[1]
                          for args in (product(*p[3])
                                       if len(p[3]) > 1 else p[3]))
-        elif len(p) == 5 and p[4] == ']':
-            def args(t):
-                return t.__args__ if isinstance(t, NDArray) else (t,)
-            p[0] = tuple(NDArray[args(t) + p[3]] for t in p[1])
         elif len(p) == 5:
             p[0] = tuple(Dict[k, v] for k in p[1] for v in p[3])
         elif len(p) == 4 and p[2] == 'or':

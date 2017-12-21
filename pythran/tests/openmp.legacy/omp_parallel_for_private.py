@@ -2,7 +2,7 @@ import math
 
 def some_work():
     sum = 0;
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         sum += math.sqrt (i)
 
 def omp_parallel_for_private():
@@ -10,7 +10,7 @@ def omp_parallel_for_private():
     i2 = 0
 
     'omp parallel for reduction(+: sum) schedule(static, 1) private(i2)'
-    for i in xrange(1, 1001):
+    for i in range(1, 1001):
         i2 = i
         'omp flush'
         some_work()

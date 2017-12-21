@@ -7,7 +7,8 @@ def omp_for_schedule_guided():
     maxiter = 0
     result = True
     notout = True
-    if 'omp parallel':
+    if 'omp parallel num_threads(4)':
+        in_parallel = omp.in_parallel()
         if 'omp single':
             threads = omp.get_num_threads()
 
@@ -15,10 +16,10 @@ def omp_for_schedule_guided():
         print "This test only works with at least two threads"
         result = False
 
-    if 'omp parallel shared(tids, maxiter)':
+    if 'omp parallel shared(tids, maxiter) num_threads(4)':
         tid = omp.get_num_threads()
         'omp for nowait schedule(guided)'
-        for j in xrange(1000):
+        for j in range(1000):
             count = 0
             'omp flush(maxiter)'
             if j > maxiter:
@@ -36,11 +37,11 @@ def omp_for_schedule_guided():
 
     last_threadnr = tids[0]
     global_chunknr = 0
-    local_chunknr = [0 for i in xrange(10)]
+    local_chunknr = [0 for i in range(10)]
     openwork = 1000;
     tids[1000] = -1
 
-    for i in xrange(1,1001):
+    for i in range(1,1001):
         if last_threadnr == tids[i]:
             pass
         else:
@@ -54,7 +55,7 @@ def omp_for_schedule_guided():
     determined_chunksize = 1
     last_threadnr = tids[0]
 
-    for i in xrange(1,1001):
+    for i in range(1,1001):
         if last_threadnr == tids[i]:
             determined_chunksize += 1
         else:
@@ -67,11 +68,11 @@ def omp_for_schedule_guided():
     expected_chunk_size = openwork / threads
     c = chuncksize[0] / expected_chunk_size
 
-    for i in xrange(global_chunknr):
+    for i in range(global_chunknr):
         if expected_chunk_size > 1:
             expected_chunk_size = c * openwork / threads
         if abs(chuncksize[i] - expected_chunk_size) >= 2:
             result = False
 
         openwork -= chuncksize[i]
-    return result
+    return result or not in_parallel

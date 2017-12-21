@@ -5,7 +5,7 @@ def omp_single():
     LOOPCOUNT = 1000
 
     if 'omp parallel':
-        for i in xrange(LOOPCOUNT):
+        for i in range(LOOPCOUNT):
             if 'omp single':
                 'omp flush'
                 nr_threads_in_single += 1

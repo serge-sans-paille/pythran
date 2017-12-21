@@ -7,7 +7,7 @@ def omp_for_schedule_auto():
         if 'omp single':
             threadsnum = omp.get_num_threads()
         'omp for firstprivate(sum0) schedule(auto)'
-        for i in xrange(1, 1001):
+        for i in range(1, 1001):
             sum0 += i
             sum1 = sum0
         if 'omp critical':

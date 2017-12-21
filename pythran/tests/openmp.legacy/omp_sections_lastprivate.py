@@ -6,21 +6,21 @@ def omp_sections_lastprivate():
         if 'omp sections private(sum0) lastprivate(i0)':
             if 'omp section':
                 sum0 = 0
-                for i in xrange(1, 400):
+                for i in range(1, 400):
                     sum0 += i
                     i0 = i
                 if 'omp critical':
                     sum += sum0
             if 'omp section':
                 sum0 = 0
-                for i in xrange(400, 700):
+                for i in range(400, 700):
                     sum0 += i
                     i0 = i
                 if 'omp critical':
                     sum += sum0
             if 'omp section':
                 sum0 = 0
-                for i in xrange(700, 1000):
+                for i in range(700, 1000):
                     sum0 += i
                     i0 = i
                 if 'omp critical':

@@ -9,14 +9,14 @@ def omp_task_final():
 
     if 'omp parallel':
         if 'omp single':
-            for i in xrange(NUM_TASKS):
+            for i in range(NUM_TASKS):
                 myi = i
                 if 'omp task final(i>=10) private(k) firstprivate(myi)':
                     sleep(0.01)
                     tids[myi] = omp.get_thread_num()
             'omp taskwait'
 
-    for i in xrange(10, NUM_TASKS):
+    for i in range(10, NUM_TASKS):
         if tids[10] != tids[i]:
             print i, tids[10], tids[i]
             error += 1

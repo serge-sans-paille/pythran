@@ -98,7 +98,7 @@ env:
     - MODE=vec TESTCASE=pythran/tests/test_numpy_ufunc_binary.py
     - MODE=all TESTCASE=pythran/tests/test_numpy_ufunc_binary.py
 
-    - TESTCASE=pythran/tests/test_openmp.py
+    - MODE=omp TESTCASE=pythran/tests/test_openmp.py
     - TESTCASE=pythran/tests/test_operator.py
     - PYTHON_VERSION=2 TESTCASE=pythran/tests/test_optimizations.py
     - TESTCASE=pythran/tests/test_os.py

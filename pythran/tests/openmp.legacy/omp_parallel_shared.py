@@ -5,7 +5,7 @@ def omp_parallel_shared():
     if 'omp parallel shared(sum)':
         mysum = 0
         'omp for'
-        for i in xrange(1, LOOPCOUNT + 1):
+        for i in range(1, LOOPCOUNT + 1):
             mysum += i
         if 'omp critical':
             sum += mysum

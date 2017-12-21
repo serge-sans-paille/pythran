@@ -4,7 +4,8 @@ def omp_for_nowait():
     result = 0
     count = 0
     import omp
-    if 'omp parallel':
+    if 'omp parallel num_threads(4)':
+        use_omp = omp.in_parallel()
         rank = omp.get_thread_num()
         'omp for nowait'
         for i in range(LOOPCOUNT):
@@ -16,4 +17,5 @@ def omp_for_nowait():
             'omp flush(count)'
             if count ==0:
                 result = 1
-    return result == 1
+
+    return result == 1 or not use_omp

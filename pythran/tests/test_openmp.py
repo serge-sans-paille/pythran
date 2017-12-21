@@ -16,6 +16,11 @@ class TestOpenMP4(TestFromDir):
     def interface(name, file=None):
         return Spec({name: []})
 
+    @staticmethod
+    def extract_runas(name, filepath):
+        return ['#runas {}()'.format(name)]
+
+
 class TestOpenMPLegacy(TestFromDir):
     '''
     Test old style OpenMP constructs, not using comments but strings
@@ -26,6 +31,10 @@ class TestOpenMPLegacy(TestFromDir):
     @staticmethod
     def interface(name, file=None):
         return Spec({name: []})
+
+    @staticmethod
+    def extract_runas(name, filepath):
+        return ['#runas {}()'.format(name)]
 
 # only activate OpenMP tests if the underlying compiler supports OpenMP
 try:

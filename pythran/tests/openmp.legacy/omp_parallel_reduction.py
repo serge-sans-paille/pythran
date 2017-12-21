@@ -17,7 +17,7 @@ def omp_parallel_reduction():
     known_sum = (1000 * (1000 + 1)) / 2
 
     'omp parallel for schedule(dynamic,1) reduction(+:sum)'
-    for i in xrange(1,1001):
+    for i in range(1,1001):
         sum += i
 
     if known_sum != sum:
@@ -27,7 +27,7 @@ def omp_parallel_reduction():
     diff = (1000 * (1000 + 1)) / 2
 
     'omp parallel for schedule(dynamic,1) reduction(-:diff)'
-    for i in xrange(1,1001):
+    for i in range(1,1001):
         diff -= i
 
     if diff != 0:
@@ -36,12 +36,12 @@ def omp_parallel_reduction():
 
     dsum = 0
     dpt = 0
-    for i in xrange(0, 20):
+    for i in range(0, 20):
         dpt *= dt
     dknown_sum = (1 - dpt) / (1 - dt)
 
     'omp parallel for schedule(dynamic,1) reduction(+:dsum)'
-    for i in xrange(0,20):
+    for i in range(0,20):
         dsum += math.pow(dt, i)
 
     if abs(dsum-dknown_sum) > rounding_error:
@@ -50,12 +50,12 @@ def omp_parallel_reduction():
 
     dsum = 0
     dpt = 1
-    for i in xrange(0, 20):
+    for i in range(0, 20):
         dpt *= dt
     ddiff = (1 - dpt) / (1 - dt)
 
     'omp parallel for schedule(dynamic,1) reduction(-:ddiff)'
-    for i in xrange(0,20):
+    for i in range(0,20):
         ddiff -= math.pow(dt, i)
 
     if abs(ddiff) > rounding_error:
@@ -63,7 +63,7 @@ def omp_parallel_reduction():
         result = False
 
     'omp parallel for schedule(dynamic,1) reduction(*:product)'
-    for i in xrange(1,11):
+    for i in range(1,11):
         product *= i
 
     known_product = 3628800
@@ -72,10 +72,10 @@ def omp_parallel_reduction():
         print "E: reduction(*:product)"
         result = False
 
-    logics = [1 for i in xrange(0,1000)]
+    logics = [1 for i in range(0,1000)]
 
     'omp parallel for schedule(dynamic,1) reduction(&&:logic_and)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         logic_and = (logic_and and logics[i])
 
     if not logic_and:
@@ -83,20 +83,20 @@ def omp_parallel_reduction():
         result = False
 
     logic_and = 1;
-    logics[1000/2]=0
+    logics[1000//2]=0
 
     'omp parallel for schedule(dynamic,1) reduction(&&:logic_and)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         logic_and = (logic_and and logics[i])
 
     if logic_and:
         print "E: reduction(&&:logic_and) with logics[1000/2]=0"
         result = False
 
-    logics = [0 for i in xrange(0,1000)]
+    logics = [0 for i in range(0,1000)]
 
     'omp parallel for schedule(dynamic,1) reduction(||:logic_or)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         logic_or = (logic_or or logics[i])
 
     if logic_or:
@@ -104,20 +104,20 @@ def omp_parallel_reduction():
         result = False
 
     logic_or = 0;
-    logics[1000/2]=1
+    logics[1000//2]=1
 
     'omp parallel for schedule(dynamic,1) reduction(||:logic_or)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         logic_or = (logic_or or logics[i])
 
     if not logic_or:
         print "E: reduction(||:logic_or) with logics[1000/2]=1"
         result = False
 
-    logics = [1 for i in xrange(0,1000)]
+    logics = [1 for i in range(0,1000)]
 
     'omp parallel for schedule(dynamic,1) reduction(&:bit_and)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         bit_and = (bit_and & logics[i])
 
     if not bit_and:
@@ -125,20 +125,20 @@ def omp_parallel_reduction():
         result = False
 
     bit_and = 1;
-    logics[1000/2]=0
+    logics[1000//2]=0
 
     'omp parallel for schedule(dynamic,1) reduction(&:bit_and)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         bit_and = (bit_and & logics[i])
 
     if bit_and:
         print "E: reduction(&:bit_and) with logics[1000/2]=0"
         result = False
 
-    logics = [0 for i in xrange(0,1000)]
+    logics = [0 for i in range(0,1000)]
 
     'omp parallel for schedule(dynamic,1) reduction(|:bit_or)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         bit_or = (bit_or | logics[i])
 
     if bit_or:
@@ -146,20 +146,20 @@ def omp_parallel_reduction():
         result = False
 
     bit_or = 0;
-    logics[1000/2]=1
+    logics[1000//2]=1
 
     'omp parallel for schedule(dynamic,1) reduction(|:bit_or)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         bit_or = (bit_or | logics[i])
 
     if not bit_or:
         print "E: reduction(|:bit_or) with logics[1000/2]=1"
         result = False
 
-    logics = [0 for i in xrange(0,1000)]
+    logics = [0 for i in range(0,1000)]
 
     'omp parallel for schedule(dynamic,1) reduction(^:exclusiv_bit_or)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         exclusiv_bit_or = (exclusiv_bit_or ^ logics[i])
 
     if exclusiv_bit_or:
@@ -167,10 +167,10 @@ def omp_parallel_reduction():
         result = False
 
     exclusiv_bit_or = 0;
-    logics[1000/2]=1
+    logics[1000//2]=1
 
     'omp parallel for schedule(dynamic,1) reduction(^:exclusiv_bit_or)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         exclusiv_bit_or = (exclusiv_bit_or ^ logics[i])
 
     if not exclusiv_bit_or:
@@ -178,10 +178,10 @@ def omp_parallel_reduction():
         result = False
 
     max_ = 0;
-    logics[1000/2]=1
+    logics[1000//2]=1
 
     'omp parallel for schedule(dynamic,1) reduction(max:max_)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         max_ = max(max_, logics[i])
 
     if not max_:
@@ -190,10 +190,10 @@ def omp_parallel_reduction():
 
     min_ = 1;
     logics = [1 for _ in range(1000)]
-    logics[1000/2] = 0
+    logics[1000//2] = 0
 
     'omp parallel for schedule(dynamic,1) reduction(min:min_)'
-    for i in xrange(0, 1000):
+    for i in range(0, 1000):
         min_ = min(min_, logics[i])
 
     if min_:

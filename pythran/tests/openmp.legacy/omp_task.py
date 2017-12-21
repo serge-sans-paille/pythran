@@ -5,13 +5,14 @@ def omp_task():
     tids = range(NUM_TASKS)
 
     if 'omp parallel':
-        for i in xrange(NUM_TASKS):
+        use_parallel = omp.in_parallel()
+        for i in range(NUM_TASKS):
             myi = i
             if 'omp task':
                 sleep(0.01)
                 tids[myi] = omp.get_thread_num()
-    for i in xrange(NUM_TASKS):
+    for i in range(NUM_TASKS):
         if tids[0] != tids[i]:
             return True
 
-    return False
+    return not use_parallel

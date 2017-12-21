@@ -67,6 +67,7 @@ declare_keywords = {
 }
 
 reserved_contex = {
+    'critical',
     'declare',
     'default',
     'schedule',

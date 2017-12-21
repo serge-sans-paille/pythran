@@ -3,7 +3,7 @@ def omp_atomic_bitand():
     LOOPCOUNT = 1000
     logics = [1]*LOOPCOUNT
     "omp parallel for"
-    for i in xrange(LOOPCOUNT):
+    for i in range(LOOPCOUNT):
         "omp atomic"
         sum &= logics[i]
     return sum == 0

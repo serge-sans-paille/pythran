@@ -242,7 +242,7 @@ class CxxFunction(Backend):
         omp_directives = metadata.get(node, OMPDirective)
         if omp_directives:
             directives = list()
-            for directive in reversed(omp_directives):
+            for directive in omp_directives:
                 directive.deps = [self.visit(dep) for dep in directive.deps]
                 directives.append(directive)
             if index is None:

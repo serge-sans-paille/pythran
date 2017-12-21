@@ -9,6 +9,13 @@ from pythran.spec import Spec
 class TestOpenMP(TestFromDir):
     path = os.path.join(os.path.dirname(__file__), "openmp")
 
+class TestOpenMP4(TestFromDir):
+    path = os.path.join(os.path.dirname(__file__), "openmp.4")
+
+    @staticmethod
+    def interface(name, file=None):
+        return Spec({name: []})
+
 class TestOpenMPLegacy(TestFromDir):
     '''
     Test old style OpenMP constructs, not using comments but strings
@@ -26,6 +33,7 @@ try:
                             extra_compile_args=['-fopenmp'],
                             extra_link_args=['-fopenmp'])
     import omp
+    TestOpenMP4.populate(TestOpenMP4)
     TestOpenMP.populate(TestOpenMP)
     TestOpenMPLegacy.populate(TestOpenMPLegacy)
 except PythranSyntaxError:

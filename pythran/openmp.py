@@ -6,25 +6,31 @@ This modules contains OpenMP-related stuff.
 
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
+from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 
 from gast import AST
 import gast as ast
 import re
 
+typenames = {t.__name__: t for t in PYTYPE_TO_CTYPE_TABLE}
+
 keywords = {
     'atomic',
     'barrier',
     'capture',
+    'cancel',
     'collapse',
     'copyin',
     'copyprivate',
     'critical',
+    'declare',
     'default',
     'final',
     'firstprivate',
     'flush',
     'for',
     'if',
+    'initializer',
     'lastprivate',
     'master',
     'mergeable',
@@ -52,7 +58,16 @@ keywords = {
     'write'
 }
 
+declare_keywords = {
+    'omp_in',
+    'omp_init',
+    'omp_orig',
+    'omp_out',
+    'omp_priv',
+}
+
 reserved_contex = {
+    'declare',
     'default',
     'schedule',
     'reduction',
@@ -85,15 +100,20 @@ class OMPDirective(AST):
             par_count = 0
             curr_index = 0
             in_reserved_context = False
+            in_declare = False
             while curr_index < len(s):
                 m = re.match(r'^([a-zA-Z_]\w*)', s[curr_index:])
                 if m:
                     word = m.group(0)
                     curr_index += len(word)
-                    if(in_reserved_context or
-                       (par_count == 0 and word in keywords)):
+                    if word in typenames:
+                        out += PYTYPE_TO_CTYPE_TABLE[typenames[word]]
+                    elif(in_reserved_context or
+                         (in_declare and word in declare_keywords) or
+                         (par_count == 0 and word in keywords)):
                         out += word
                         in_reserved_context = word in reserved_contex
+                        in_declare |= word == 'declare'
                     else:
                         v = '{}'
                         self.deps.append(ast.Name(word, ast.Load(), None))

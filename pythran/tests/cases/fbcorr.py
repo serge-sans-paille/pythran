@@ -1,5 +1,6 @@
 # from https://github.com/numba/numba/blob/master/examples/fbcorr.py
 #pythran export fbcorr(float list list list list, float list list list list)
+#pythran export fbcorr(int list list list list, int list list list list)
 #runas imgs = [ [ [ [ i+j+k for i in xrange(3) ] for j in xrange(16) ] for j in xrange(16) ] for k in xrange(16) ]; filters = [ [ [ [ i+2*j-k for i in xrange(3) ] for j in xrange(5) ] for j in xrange(5) ] for k in xrange(6) ] ; fbcorr(imgs, filters)
 #bench imgs = [ [ [ [ i+j+k for i in xrange(11) ] for j in xrange(16) ] for j in xrange(16) ] for k in xrange(16) ]; filters = [ [ [ [ i+2*j-k for i in xrange(11) ] for j in xrange(5) ] for j in xrange(5) ] for k in xrange(6) ] ; fbcorr(imgs, filters)
 

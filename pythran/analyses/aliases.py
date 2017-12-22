@@ -103,7 +103,6 @@ class Aliases(ModuleAnalysis):
 
     @staticmethod
     def access_path(node):
-
         if isinstance(node, ast.Name):
             return MODULES.get(demangle(node.id), node.id)
         elif isinstance(node, ast.Attribute):

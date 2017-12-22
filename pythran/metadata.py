@@ -46,14 +46,14 @@ class StaticReturn(AST):
 
 def add(node, data):
     if not hasattr(node, 'metadata'):
-        setattr(node, 'metadata', Metadata())
+        node.metadata = Metadata()
         node._fields += ('metadata',)
-    getattr(node, 'metadata').append(data)
+    node.metadata.append(data)
 
 
 def get(node, class_):
     if hasattr(node, 'metadata'):
-        return [s for s in getattr(node, 'metadata') if isinstance(s, class_)]
+        return [s for s in node.metadata if isinstance(s, class_)]
     else:
         return []
 

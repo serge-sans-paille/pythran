@@ -16,14 +16,14 @@ def omp_for_schedule_static_3():
 
     if threads < 2:
         print "E: This test only works with at least two threads"
-        return False
+        return True
 
     tids[1000] = -1
 
     if 'omp parallel shared(tids)':
         tid = omp.get_thread_num()
         'omp for nowait schedule(static,chunk_size)'
-        for j in xrange(1000):
+        for j in range(1000):
             count = 0
             'omp flush(maxiter)'
             if j > maxiter:
@@ -40,7 +40,7 @@ def omp_for_schedule_static_3():
         notout = False
     lasttid = tids[0]
     tmp_count = 0
-    for i in xrange(1001):
+    for i in range(1001):
         if tids[i] == lasttid:
             tmp_count += 1
             continue
@@ -71,15 +71,15 @@ found before the end.\n"
 
     if 'omp parallel':
         'omp for schedule(static) nowait'
-        for n in xrange(1000):
+        for n in range(1000):
             if 1000 == n + 1:
                 sleep(0.0005)
             tids[n] = omp.get_thread_num()
         'omp for schedule(static) nowait'
-        for m in xrange(1, 1001):
+        for m in range(1, 1001):
             tids2[m-1] = omp.get_thread_num()
 
-    for i in xrange(1000):
+    for i in range(1000):
         if tids[i] != tids2[i]:
             print "E: Chunk no. " + str(i) + " was assigned once to thread " +\
             str(tids[i]) + " and later to thread " + str(tids2[i]) + ".\n"

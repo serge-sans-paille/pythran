@@ -63,7 +63,11 @@ class UseDefChain(FunctionAnalysis):
         do the minimal required processing here
         '''
         for dep in node.deps:
-            if dep.id not in self.result and dep.id not in self.use_only:
+            if dep.id in self.globals:
+                # this happens for function calls in expressions
+                self.use_only[dep.id] = nx.DiGraph()
+                self.use_only[dep.id].add_node("D0", action="D", name=dep)
+            elif dep.id not in self.result and dep.id not in self.use_only:
                 # this happens when a local variable is explicitly marked
                 # as shared etc
                 # In that case, it's a define
@@ -99,8 +103,8 @@ class UseDefChain(FunctionAnalysis):
                 graph = self.use_only[node.id]
             if (isinstance(node.ctx, ast.Store) or
                     isinstance(node.ctx, ast.Param)):
-                if node.id in self.use_only:
-                    err = ("identifier {0} has a global linkage and can't"
+                if node.id in self.use_only and node.id not in self.globals:
+                    err = ("identifier '{0}' has a global linkage and can't "
                            "be assigned")
                     raise PythranSyntaxError(err.format(node.id), node)
                 node_name = "D{0}".format(len(graph))

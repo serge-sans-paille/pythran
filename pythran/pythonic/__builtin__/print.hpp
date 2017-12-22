@@ -19,6 +19,12 @@ namespace pythonic
       {
         return os << t;
       }
+
+      std::ostream &print(std::ostream &os, bool const &t)
+      {
+        static char const repr[2][6] = {"False", "True\0"};
+        return os << repr[t];
+      }
     }
 
     void print_nonl()

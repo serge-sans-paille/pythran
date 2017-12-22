@@ -8,10 +8,10 @@ def omp_task_private():
 
     if 'omp parallel':
         if 'omp single':
-            for i in xrange(0, NUM_TASKS):
+            for i in range(0, NUM_TASKS):
                 if 'omp task private(sum) shared(result, known_sum)':
                     sum = 0
-                    for j in xrange(0, LOOPCOUNT + 1):
+                    for j in range(0, LOOPCOUNT + 1):
                         'omp flush'
                         sum += j
                     if sum != known_sum:

@@ -18,11 +18,17 @@ namespace pythonic
     {
 
       template <class T>
-      types::str str(T &&t)
+      types::str str(T const &t)
       {
         std::ostringstream oss;
         oss << t;
         return oss.str();
+      }
+
+      inline types::str str(bool b)
+      {
+        static char const repr[2][6] = {"False", "True\0"};
+        return repr[b];
       }
 
       inline types::str str(long value)

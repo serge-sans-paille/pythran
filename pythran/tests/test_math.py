@@ -26,7 +26,7 @@ class TestMath(TestEnv):
         self.run_test("def e_():\n from math import e\n return e", e_=[])
 
     def test_asinh_(self):
-        self.run_test("def asinh_(a):\n from math import asinh\n return asinh(a)",1, asinh_=[float])
+        self.run_test("def asinh_(a):\n from math import asinh\n return asinh(a)",1., asinh_=[float])
 
     def test_atanh_(self):
         self.run_test("def atanh_(a):\n from math import atanh\n return atanh(a)",.1, atanh_=[float])
@@ -47,7 +47,7 @@ class TestMath(TestEnv):
         self.run_test("def tanh_(a):\n from math import tanh\n return tanh(a)",1, tanh_=[int])
 
     def test_cosh_(self):
-        self.run_test("def cosh_(a):\n from math import cosh\n return cosh(a)",1, cosh_=[float])
+        self.run_test("def cosh_(a):\n from math import cosh\n return cosh(a)",1., cosh_=[float])
 
     def test_sinh_(self):
         self.run_test("def sinh_(a):\n from math import sinh\n return sinh(a)",1, sinh_=[int])

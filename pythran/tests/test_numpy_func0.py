@@ -105,7 +105,7 @@ class TestNumpyFunc0(TestEnv):
         self.run_test("def np_nansum1(a): import numpy as np ; return np.nansum(a)" , numpy.array([[1, 2], [numpy.NINF, numpy.nan]]), np_nansum1=[NDArray[float,:,:]])
 
     def test_nansum2(self):
-        self.run_test("def np_nansum2(a): import numpy as np ; return np.nansum(a)", [1, numpy.nan], np_nansum2=[List[float]])
+        self.run_test("def np_nansum2(a): import numpy as np ; return np.nansum(a)", [1., numpy.nan], np_nansum2=[List[float]])
 
     def test_nanmin0(self):
         self.run_test("def np_nanmin0(a): import numpy as np ; return np.nanmin(a)" , numpy.array([[1, 2], [3, numpy.nan]]), np_nanmin0=[NDArray[float,:,:]])

@@ -36,7 +36,7 @@ namespace pythonic
 
   bool from_python<double>::is_convertible(PyObject *obj)
   {
-    return PyFloat_Check(obj) or PyInt_Check(obj);
+    return PyFloat_CheckExact(obj);
   }
   double from_python<double>::convert(PyObject *obj)
   {
@@ -48,14 +48,11 @@ namespace pythonic
 
   bool from_python<float>::is_convertible(PyObject *obj)
   {
-    return PyFloat_Check(obj) or PyInt_Check(obj);
+    return PyFloat_CheckExact(obj);
   }
   float from_python<float>::convert(PyObject *obj)
   {
-    if (PyFloat_Check(obj))
-      return PyFloat_AsDouble(obj);
-    else
-      return PyInt_AsLong(obj);
+    return PyFloat_AsDouble(obj);
   }
 }
 

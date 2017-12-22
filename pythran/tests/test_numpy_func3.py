@@ -92,7 +92,7 @@ class TestNumpyFunc3(TestEnv):
         def np_dot9(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      numpy.arange(9).reshape(3, 3).tolist(),
+                      numpy.arange(9.).reshape(3, 3).tolist(),
                       [float(x) for x in range(9, 12)],
                       np_dot9=[List[List[float]], List[float]])
 

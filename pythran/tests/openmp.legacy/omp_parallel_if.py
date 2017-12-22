@@ -3,7 +3,7 @@ def omp_parallel_if(control=1):
     known_sum = (1000 * (1000 + 1)) / 2
     if 'omp parallel if(control==0)':
         mysum = 0
-        for i in xrange(1,1001):
+        for i in range(1,1001):
             mysum += i
         if 'omp critical':
             sum += mysum

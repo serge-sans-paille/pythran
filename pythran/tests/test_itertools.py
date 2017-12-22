@@ -19,7 +19,7 @@ class TestItertools(TestEnv):
 
     @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap2(self):
-        self.run_test("def imap2_(l0, l1,v): from itertools import imap; return sum(imap(lambda x,y:x*v+y, l0, l1))", [0,1,2], [0,1.1,2.2], 1, imap2_=[List[int], List[float], int])
+        self.run_test("def imap2_(l0, l1,v): from itertools import imap; return sum(imap(lambda x,y:x*v+y, l0, l1))", [0,1,2], [0.,1.1,2.2], 1, imap2_=[List[int], List[float], int])
 
     @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap2_ineq_size(self):
@@ -28,12 +28,12 @@ class TestItertools(TestEnv):
             def imap2_ineq_size(l0, l1, v):
                 from itertools import imap
                 return sum(imap(lambda x, y : x * v + y, l0, l1))""",
-                      [0, 1, 2, 3], [0, 1.1, 2.2], 1,
+                      [0, 1, 2, 3], [0., 1.1, 2.2], 1,
                       imap2_ineq_size=[List[int], List[float], int])
 
     @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap2_on_generator(self):
-        self.run_test("def imap2_on_generator(l0,l1,v): from itertools import imap; return sum(imap(lambda x,y:x*v+y, (z*z for x in l0 for z in xrange(x)), (z*2 for y in l1 for z in xrange(y))))", [0,1,2,3], [3,2,1,0], 2, imap2_on_generator=[List[int], List[float], int])
+        self.run_test("def imap2_on_generator(l0,l1,v): from itertools import imap; return sum(imap(lambda x,y:x*v+y, (z*z for x in l0 for z in xrange(x)), (z*2 for y in l1 for z in xrange(y))))", [0,1,2,3], [3,2,1,0], 2, imap2_on_generator=[List[int], List[int], int])
 
     @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_imap_none(self):

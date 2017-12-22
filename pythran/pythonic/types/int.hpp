@@ -26,8 +26,8 @@ namespace pythonic
 #ifndef PyInt_FromLong
 #define PyInt_FromLong PyLong_FromLong
 #endif
-#ifndef PyInt_Check
-#define PyInt_Check PyLong_Check
+#ifndef PyInt_CheckExact
+#define PyInt_CheckExact PyLong_CheckExact
 #endif
 #ifndef PyInt_AsLong
 #define PyInt_AsLong PyLong_AsLong
@@ -56,7 +56,7 @@ namespace pythonic
 #define PYTHONIC_INT_FROM_PYTHON(TYPE)                                         \
   bool from_python<TYPE>::is_convertible(PyObject *obj)                        \
   {                                                                            \
-    return PyInt_Check(obj);                                                   \
+    return PyInt_CheckExact(obj);                                              \
   }                                                                            \
   TYPE from_python<TYPE>::convert(PyObject *obj)                               \
   {                                                                            \

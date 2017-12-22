@@ -6,7 +6,7 @@ def omp_task_shared():
 
     if 'omp parallel':
         if 'omp single':
-            for k in xrange(0, NUM_TASKS):
+            for k in range(0, NUM_TASKS):
                 if 'omp task shared(i)':
                     'omp atomic'
                     i += 1

@@ -7,7 +7,7 @@ def omp_taskwait():
 
     if 'omp parallel':
         if 'omp single':
-            for i in xrange(NUM_TASKS):
+            for i in range(NUM_TASKS):
                 myi = i
                 if 'omp task firstprivate(myi)':
                     sleep(0.01)
@@ -15,16 +15,16 @@ def omp_taskwait():
 
             'omp taskwait'
 
-            for i in xrange(NUM_TASKS):
+            for i in range(NUM_TASKS):
                 if array[i] != 1:
                     result1 += 1
 
-            for i in xrange(NUM_TASKS):
+            for i in range(NUM_TASKS):
                 myi = i
                 if 'omp task firstprivate(myi)':
                     array[myi] = 2
 
-    for i in xrange(NUM_TASKS):
+    for i in range(NUM_TASKS):
         if array[i] != 2:
             result2 += 1
 

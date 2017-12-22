@@ -5,6 +5,7 @@ def omp_sections_nowait():
     count = 0
 
     if 'omp parallel':
+        in_parallel = omp.in_parallel()
         rank = omp.get_thread_num()
 
         if 'omp sections nowait':
@@ -21,4 +22,4 @@ def omp_sections_nowait():
             if 'omp section':
                 if count == 0:
                     result = True
-    return result
+    return result or not in_parallel

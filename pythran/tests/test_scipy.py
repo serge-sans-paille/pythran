@@ -67,4 +67,4 @@ def ramp(result, start, end):
     for i in xrange(size):
         result[i] = start + step*i
 """
-        self.run_test(code,[0 for x in xrange(10)], 1.5, 9.5, ramp=[List[float], float, float])
+        self.run_test(code,[0. for x in xrange(10)], 1.5, 9.5, ramp=[List[float], float, float])

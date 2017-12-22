@@ -386,6 +386,14 @@ class TestFromDir(TestEnv):
         else:
             return spec_parser(open(file_).read())
 
+    @staticmethod
+    def extract_runas(name, filepath):
+        with open(filepath) as runas_fd:
+            runas_list = [line for line in runas_fd.readlines()
+                          if any(line.startswith(marker) for
+                                 marker in TestFromDir.runas_markers)]
+            return runas_list or [None]
+
     def __init__(self, *args, **kwargs):
         """ Dynamically add methods for unittests, second stage. """
         TestFromDir.populate(self, stub=False)
@@ -458,11 +466,8 @@ class TestFromDir(TestEnv):
             # Module name is file name and external interface is default value
             name, _ = os.path.splitext(os.path.basename(filepath))
             specs = target.interface(name, filepath).functions
-            with open(filepath) as runas_fd:
-                runas_list = [line for line in runas_fd.readlines()
-                              if any(line.startswith(marker) for
-                                     marker in TestFromDir.runas_markers)]
-                runas_list = runas_list or [None]
+
+            runas_list = target.extract_runas(name, filepath)
             for n, runas in enumerate(runas_list):
                 if runas:
                     # Remove the runas marker
@@ -482,5 +487,4 @@ class TestFromDir(TestEnv):
                         func = TestFromDir.TestFunctor(
                             target, name + suffix + str(n), fd.read(),
                             runas=runas, **specs)
-
                 setattr(target, "test_" + name + suffix + str(n), func)

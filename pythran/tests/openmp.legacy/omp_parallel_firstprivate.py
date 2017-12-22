@@ -5,7 +5,7 @@ def omp_parallel_firstprivate():
 
     if 'omp parallel firstprivate(sum1)':
         'omp for'
-        for i in xrange(1,1000):
+        for i in range(1,1000):
             sum1 += i
 
         if 'omp critical':

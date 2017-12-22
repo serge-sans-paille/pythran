@@ -5,14 +5,14 @@ def omp_single_nowait():
     i = 0
 
     if 'omp parallel private(i)':
-        for i in xrange(LOOPCOUNT):
+        for i in range(LOOPCOUNT):
             if 'omp single nowait':
                 'omp atomic'
                 nr_iterations += 1
 
     if 'omp parallel private(i)':
         my_iterations = 0
-        for i in xrange(LOOPCOUNT):
+        for i in range(LOOPCOUNT):
             if 'omp single nowait':
                 my_iterations += 1
         if 'omp critical':

@@ -5,7 +5,8 @@ def omp_in_parallel():
 
     serial = omp.in_parallel()
 
-    if 'omp parallel':
+    if 'omp parallel num_threads(2)':
+        num_threads = omp.get_num_threads()
         if 'omp single':
             isparallel = omp.in_parallel()
 
@@ -13,4 +14,4 @@ def omp_in_parallel():
         if 'omp single':
             pass
 
-    return not serial and isparallel
+    return (not serial and isparallel) or num_threads == 1

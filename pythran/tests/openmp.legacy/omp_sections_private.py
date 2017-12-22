@@ -6,19 +6,19 @@ def omp_sections_private():
         if 'omp sections private(sum0)':
             if 'omp section':
                 sum0 = 0
-                for i in xrange(0, 400):
+                for i in range(0, 400):
                     sum0 += i
                 if 'omp critical':
                     sum += sum0
             if 'omp section':
                 sum0 = 0
-                for i in xrange(400, 700):
+                for i in range(400, 700):
                     sum0 += i
                 if 'omp critical':
                     sum += sum0
             if 'omp section':
                 sum0 = 0
-                for i in xrange(700, 1000):
+                for i in range(700, 1000):
                     sum0 += i
                 if 'omp critical':
                     sum += sum0

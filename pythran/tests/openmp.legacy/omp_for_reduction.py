@@ -53,7 +53,7 @@ def omp_for_reduction():
         result+=1
         print 'Error in bit and part 1'
 
-    logics[LOOPCOUNT/2]=0
+    logics[LOOPCOUNT//2]=0
     'omp parallel for schedule(dynamic,1) reduction(&:logic_and)'
     for logic in logics:
         logic_and = logic_and & logic
@@ -70,7 +70,7 @@ def omp_for_reduction():
         result+=1
         print 'Error in logic or part 1'
 
-    logics[LOOPCOUNT/2]=1
+    logics[LOOPCOUNT//2]=1
     'omp parallel for schedule(dynamic,1) reduction(|:logic_or)'
     for logic in logics:
         logic_or = logic_or | logic
@@ -87,7 +87,7 @@ def omp_for_reduction():
         result+=1
         print 'Error in exclusive bit or part 1'
 
-    logics[LOOPCOUNT/2]=1
+    logics[LOOPCOUNT//2]=1
     'omp parallel for schedule(dynamic,1) reduction(^:exclusiv_bit_or)'
     for logic in logics:
         exclusiv_bit_or = exclusiv_bit_or ^ logic

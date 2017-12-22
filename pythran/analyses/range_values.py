@@ -302,7 +302,7 @@ class RangeValues(FunctionAnalysis):
         >>> res['a']
         Interval(low=-inf, high=inf)
         """
-        result = UNKNOWN_RANGE
+        result = None
         for alias in self.aliases[node.func]:
             if isinstance(alias, Intrinsic):
                 alias_range = alias.return_range(

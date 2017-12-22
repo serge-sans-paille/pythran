@@ -58,14 +58,17 @@ class Scope(FunctionAnalysis):
                 refs = [udgraph.node[n]['name']
                         for n in udgraph if udgraph.node[n]['action'] == 'D']
                 refs.extend(self.openmp_deps.get(name, []))
+
                 # get their parent
                 prefs = set()
                 for r in refs:
-                    if isinstance(self.ancestors[r][-1], openmp.OMPDirective):
-                        # point to the parent of the stmt holding the metadata
-                        prefs.add(self.ancestors[r][-4])
-                    else:
-                        prefs.add(self.ancestors[r][-1])
+                    ancestor = r
+                    # walk up the ancestor tree until we find the one
+                    # right before common
+                    while self.ancestors[ancestor][-1] is not common:
+                        ancestor = self.ancestors[ancestor][-1]
+                    prefs.add(ancestor)
+
                 # set the defining statement to the first assign in the body
                 # unless another statements uses it before
                 # or the common itselfs holds a dependency

@@ -8,6 +8,7 @@ from pythran.analyses import Globals, Aliases
 from pythran.intrinsic import Intrinsic
 from pythran.passmanager import FunctionAnalysis
 from pythran.interval import Interval, UNKNOWN_RANGE
+from pythran.tables import MODULES, attributes
 
 
 def combine(op, node0, node1):
@@ -304,7 +305,14 @@ class RangeValues(FunctionAnalysis):
         """
         result = None
         for alias in self.aliases[node.func]:
-            if isinstance(alias, Intrinsic):
+            if alias is MODULES['__builtin__']['getattr']:
+                attr_name = node.args[-1].s
+                attribute = attributes[attr_name][-1]
+                if result is None:
+                    result = attribute.return_range_content(None)
+                else:
+                    result.union_update(attribute.return_range_content(None))
+            elif isinstance(alias, Intrinsic):
                 alias_range = alias.return_range(
                     [self.visit(n) for n in node.args])
                 if result is None:

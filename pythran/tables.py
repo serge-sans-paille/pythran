@@ -748,7 +748,8 @@ CLASSES = {
                 Fun[[NDArray[complex, :, :]], Tuple[int, int]],
                 Fun[[NDArray[complex, :, :, :]], Tuple[int, int, int]],
                 Fun[[NDArray[complex, :, :, :, :]], Tuple[int, int, int, int]],
-            ]
+            ],
+            return_range_content=interval.positive_values
         ),
         "size": AttributeIntr(signature=Fun[[NDArray[T0, :]], int],
                               return_range=interval.positive_values),

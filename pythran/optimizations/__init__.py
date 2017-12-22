@@ -19,6 +19,7 @@ from .list_comp_to_genexp import ListCompToGenexp
 from .loop_full_unrolling import LoopFullUnrolling
 from .pattern_transform import PatternTransform
 from .range_loop_unfolding import RangeLoopUnfolding
+from .range_based_simplify import RangeBasedSimplify
 from .square import Square
 from .inlining import Inlining
 from .inline_builtins import InlineBuiltins

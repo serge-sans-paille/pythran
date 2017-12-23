@@ -66,7 +66,7 @@ namespace pythonic
      */
     template <class T>
     struct broadcasted {
-      static const bool is_vectorizable = false;
+      static const bool is_vectorizable = true;
       static const bool is_strided = false;
       using dtype = typename T::dtype;
       using value_type = typename T::value_type;

@@ -1,6 +1,6 @@
 """ Module with facilities to represent range values. """
 
-from math import isinf
+from math import isinf, isnan
 import itertools
 
 import numpy
@@ -12,8 +12,20 @@ class Interval(object):
 
     def __init__(self, low, high):
         """ Set initial bound of the range object. """
-        self.low = low
-        self.high = high
+        if isnan(low):
+            low = -float('inf')
+        if isnan(high):
+            high = +float('inf')
+        self._low = low
+        self._high = high
+
+    @property
+    def low(self):
+        return self._low
+
+    @property
+    def high(self):
+        return self._high
 
     def __repr__(self):
         """ Return a nicely formatted representation string. """
@@ -23,16 +35,9 @@ class Interval(object):
     def bounds(self):
         return self.low, self.high
 
-    def union_update(self, other):
-        """ Intersect current range with other."""
-        self.low = min(self.low, other.low)
-        self.high = max(self.high, other.high)
-
     def union(self, other):
         """ Intersect current range with other."""
-        res = self.copy()
-        res.union_update(other)
-        return res
+        return Interval(min(self.low, other.low), max(self.high, other.high))
 
     def copy(self):
         return Interval(self.low, self.high)
@@ -40,9 +45,14 @@ class Interval(object):
     def widen(self, other):
         """ Widen current range. """
         if self.low < other.low:
-            self.low = -float("inf")
+            low = -float("inf")
+        else:
+            low = self.low
         if self.high > other.high:
-            self.high = float("inf")
+            high = float("inf")
+        else:
+            high = self.high
+        return Interval(low, high)
 
     def __sub__(self, other):
         """
@@ -205,6 +215,140 @@ class Interval(object):
         res = [v1 // v2 for v1, v2 in
                itertools.product(range1.bounds(), range2.bounds())]
         return Interval(min(res), max(res))
+
+    def __lt__(self, other):
+        """
+        Combiner for lower than operation.
+
+        >>> Interval(-1, 5) < Interval(6, 7)
+        Interval(low=1, high=1)
+        >>> Interval(-1, 5) < Interval(5, 7)
+        Interval(low=0, high=1)
+
+        >>> Interval(-1, 5) < Interval(-16, -7)
+        Interval(low=0, high=0)
+
+        >>> Interval(1, 5) < Interval(3, 7)
+        Interval(low=0, high=1)
+
+        """
+        if self.high < other.low:
+            return Interval(1, 1)
+        if self.low > other.high:
+            return Interval(0, 0)
+        return Interval(0, 1)
+
+    def __le__(self, other):
+        """
+        Combiner for lower than or equal operation.
+
+        >>> Interval(-1, 5) <= Interval(6, 7)
+        Interval(low=1, high=1)
+        >>> Interval(-1, 5) <= Interval(5, 7)
+        Interval(low=1, high=1)
+
+        >>> Interval(-1, 5) <= Interval(-16, -7)
+        Interval(low=0, high=0)
+
+        >>> Interval(1, 5) <= Interval(3, 7)
+        Interval(low=0, high=1)
+
+        """
+        if self.high <= other.low:
+            return Interval(1, 1)
+        if self.low > other.high:
+            return Interval(0, 0)
+        return Interval(0, 1)
+
+    def __gt__(self, other):
+        """
+        Combiner for greater than operation.
+
+        >>> Interval(-5, 1) > Interval(-7, -6)
+        Interval(low=1, high=1)
+        >>> Interval(-5, 1) > Interval(-7, -5)
+        Interval(low=0, high=1)
+
+        >>> Interval(-1, 5) > Interval(6, 7)
+        Interval(low=0, high=0)
+
+        >>> Interval(1, 5) > Interval(3, 7)
+        Interval(low=0, high=1)
+
+        """
+        if self.low > other.high:
+            return Interval(1, 1)
+        if self.high < other.low:
+            return Interval(0, 0)
+        return Interval(0, 1)
+
+    def __ge__(self, other):
+        """
+        Combiner for greater than or equal operation.
+
+        >>> Interval(-5, 1) >= Interval(-7, -6)
+        Interval(low=1, high=1)
+        >>> Interval(-5, 1) >= Interval(-7, -5)
+        Interval(low=1, high=1)
+
+        >>> Interval(-1, 5) >= Interval(6, 7)
+        Interval(low=0, high=0)
+
+        >>> Interval(1, 5) >= Interval(3, 7)
+        Interval(low=0, high=1)
+
+        """
+        if self.low >= other.high:
+            return Interval(1, 1)
+        if self.high < other.low:
+            return Interval(0, 0)
+        return Interval(0, 1)
+
+    def __eq__(self, other):
+        """
+        Combiner for equal operation.
+
+        >>> Interval(-5, 1) == Interval(-7, -6)
+        Interval(low=0, high=0)
+        >>> Interval(-5, 1) == Interval(-7, -5)
+        Interval(low=0, high=1)
+        >>> Interval(-1, 5) == Interval(6, 7)
+        Interval(low=0, high=0)
+        """
+        if isinf(self.low):
+            return Interval(0, 1)
+        elif self.low == self.high == other.low == other.high:
+            return Interval(1, 1)
+        elif (self < other) or (self > other):
+            return Interval(0, 0)
+        else:
+            return Interval(0, 1)
+
+    def __ne__(self, other):
+        """
+        Combiner for not equal operation.
+
+        >>> Interval(-5, 1) != Interval(-7, -6)
+        Interval(low=1, high=1)
+        >>> Interval(-5, 1) != Interval(-7, -5)
+        Interval(low=0, high=1)
+        >>> Interval(-1, 5) != Interval(6, 7)
+        Interval(low=1, high=1)
+        """
+        if isinf(self.low):
+            return Interval(0, 1)
+        elif self.low == self.high == other.low == other.high:
+            return Interval(1, 1)
+        elif (self < other) or (self > other):
+            return Interval(1, 1)
+        else:
+            return Interval(0, 1)
+
+    def __nonzero__(self):
+        return not isinf(self.high) and self.low == self.high and self .low > 0
+
+    __bool__ = __nonzero__
+
 
 UNKNOWN_RANGE = Interval(-float("inf"), float("inf"))
 

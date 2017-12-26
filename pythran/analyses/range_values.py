@@ -1,8 +1,8 @@
 """ Module Analysing code to extract positive subscripts from code.  """
-# TODO check bound of while and if for more occurate values.
+# TODO check bound of while and if for more accurate values.
 
 import gast as ast
-import copy
+from collections import defaultdict
 
 from pythran.analyses import Globals, Aliases
 from pythran.intrinsic import Intrinsic
@@ -24,7 +24,7 @@ class RangeValues(FunctionAnalysis):
     """
     This analyse extract positive subscripts from code.
 
-    It is flow insensitive and aliasing is not taken into account as integer
+    It is flow sensitive and aliasing is not taken into account as integer
     doesn't create aliasing in Python.
 
     >>> import gast as ast
@@ -41,7 +41,7 @@ class RangeValues(FunctionAnalysis):
 
     def __init__(self):
         """Initialize instance variable and gather globals name information."""
-        self.result = dict()
+        self.result = defaultdict(lambda: UNKNOWN_RANGE)
         super(RangeValues, self).__init__(Globals, Aliases)
 
     def add(self, variable, range_):
@@ -54,7 +54,8 @@ class RangeValues(FunctionAnalysis):
         if variable not in self.result:
             self.result[variable] = range_
         else:
-            self.result[variable].union_update(range_)
+            self.result[variable] = self.result[variable].union(range_)
+        return self.result[variable]
 
     def visit_FunctionDef(self, node):
         """ Set default range value for globals and attributes.
@@ -67,11 +68,6 @@ class RangeValues(FunctionAnalysis):
         >>> res['a']
         Interval(low=-inf, high=inf)
         """
-        for global_name in self.globals:
-            self.result[global_name] = UNKNOWN_RANGE
-        for attr in node.args.args:
-            self.result[attr.id] = UNKNOWN_RANGE
-
         for stmt in node.body:
             self.visit(stmt)
 
@@ -95,7 +91,9 @@ class RangeValues(FunctionAnalysis):
         for target in node.targets:
             if isinstance(target, ast.Name):
                 # Make sure all Interval doesn't alias for multiple variables.
-                self.add(target.id, copy.deepcopy(assigned_range))
+                self.add(target.id, assigned_range)
+            else:
+                self.visit(target)
 
     def visit_AugAssign(self, node):
         """ Update range value for augassigned variables.
@@ -108,11 +106,13 @@ class RangeValues(FunctionAnalysis):
         >>> res['a']
         Interval(low=1, high=2)
         """
+        self.generic_visit(node)
         if isinstance(node.target, ast.Name):
+            name = node.target.id
             res = combine(node.op,
-                          self.result[node.target.id],
-                          self.visit(node.value))
-            self.result[node.target.id].union_update(res)
+                          self.result[name],
+                          self.result[node.value])
+            self.result[name] = self.result[name].union(res)
 
     def visit_For(self, node):
         """ Handle iterate variable in for loops.
@@ -135,20 +135,17 @@ class RangeValues(FunctionAnalysis):
         Interval(low=2, high=2)
         """
         assert isinstance(node.target, ast.Name), "For apply on variables."
+        self.visit(node.iter)
         if isinstance(node.iter, ast.Call):
             for alias in self.aliases[node.iter.func]:
                 if isinstance(alias, Intrinsic):
                     self.add(node.target.id,
                              alias.return_range_content(
                                  [self.visit(n) for n in node.iter.args]))
-                else:
-                    self.add(node.target.id, UNKNOWN_RANGE)
-        else:
-            self.add(node.target.id, UNKNOWN_RANGE)
 
         self.visit_loop(node)
 
-    def visit_loop(self, node):
+    def visit_loop(self, node, cond=None):
         """ Handle incremented variables in loop body.
 
         >>> import gast as ast
@@ -168,15 +165,32 @@ class RangeValues(FunctionAnalysis):
         >>> res['c']
         Interval(low=2, high=2)
         """
-        old_range = copy.deepcopy(self.result)
+        # visit once to gather newly declared vars
         for stmt in node.body:
             self.visit(stmt)
-        for name, range_ in old_range.items():
-            self.result[name].widen(range_)
+
+        # freeze current state
+        old_range = self.result.copy()
+
+        # extra round
+        for stmt in node.body:
+            self.visit(stmt)
+
+        # widen any change
+        for expr, range_ in old_range.items():
+            self.result[expr] = self.result[expr].widen(range_)
+
+        # propagate  the new informations
+        cond and self.visit(cond)
+        for stmt in node.body:
+            self.visit(stmt)
+
         for stmt in node.orelse:
             self.visit(stmt)
 
-    visit_While = visit_loop
+    def visit_While(self, node):
+        self.visit(node.test)
+        return self.visit_loop(node, node.test)
 
     def visit_BoolOp(self, node):
         """ Merge right and left operands ranges.
@@ -196,7 +210,7 @@ class RangeValues(FunctionAnalysis):
         Interval(low=2, high=3)
         """
         res = list(zip(*[self.visit(elt).bounds() for elt in node.values]))
-        return Interval(min(res[0]), max(res[1]))
+        return self.add(node, Interval(min(res[0]), max(res[1])))
 
     def visit_BinOp(self, node):
         """ Combine operands ranges for given operator.
@@ -213,7 +227,8 @@ class RangeValues(FunctionAnalysis):
         >>> res['d']
         Interval(low=-1, high=-1)
         """
-        return combine(node.op, self.visit(node.left), self.visit(node.right))
+        res = combine(node.op, self.visit(node.left), self.visit(node.right))
+        return self.add(node, res)
 
     def visit_UnaryOp(self, node):
         """ Update range with given unary operation.
@@ -240,17 +255,53 @@ class RangeValues(FunctionAnalysis):
         """
         res = self.visit(node.operand)
         if isinstance(node.op, ast.Not):
-            return Interval(0, 1)
+            res = Interval(0, 1)
         elif(isinstance(node.op, ast.Invert) and
              isinstance(res.high, int) and
              isinstance(res.low, int)):
-            return Interval(~res.high, ~res.low)
+            res = Interval(~res.high, ~res.low)
         elif isinstance(node.op, ast.UAdd):
-            return res
+            pass
         elif isinstance(node.op, ast.USub):
-            return Interval(-res.high, -res.low)
+            res = Interval(-res.high, -res.low)
         else:
-            return UNKNOWN_RANGE
+            res = UNKNOWN_RANGE
+        return self.add(node, res)
+
+    def visit_If(self, node):
+        """ Handle iterate variable across branches
+
+        >>> import gast as ast
+        >>> from pythran import passmanager, backend
+        >>> node = ast.parse('''
+        ... def foo(a):
+        ...     if a > 1: b = 1
+        ...     else: b = 3''')
+
+        >>> pm = passmanager.PassManager("test")
+        >>> res = pm.gather(RangeValues, node)
+        >>> res['b']
+        Interval(low=1, high=3)
+        """
+        self.visit(node.test)
+        old_range = self.result
+
+        self.result = old_range.copy()
+        for stmt in node.body:
+            self.visit(stmt)
+        body_range = self.result
+
+        self.result = old_range.copy()
+        for stmt in node.orelse:
+            self.visit(stmt)
+        orelse_range = self.result
+
+        self.result = body_range
+        for k, v in orelse_range.items():
+            if k in self.result:
+                self.result[k] = self.result[k].union(v)
+            else:
+                self.result[k] = v
 
     def visit_IfExp(self, node):
         """ Use worst case for both possible values.
@@ -270,10 +321,9 @@ class RangeValues(FunctionAnalysis):
         self.visit(node.test)
         body_res = self.visit(node.body)
         orelse_res = self.visit(node.orelse)
-        return orelse_res.union(body_res)
+        return self.add(node, orelse_res.union(body_res))
 
-    @staticmethod
-    def visit_Compare(_):
+    def visit_Compare(self, node):
         """ Boolean are possible index.
 
         >>> import gast as ast
@@ -282,13 +332,40 @@ class RangeValues(FunctionAnalysis):
         ... def foo():
         ...     a = 2 or 3
         ...     b = 4 or 5
-        ...     c = a < b''')
+        ...     c = a < b
+        ...     d = b < 3
+        ...     e = b == 4''')
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['c']
+        Interval(low=1, high=1)
+        >>> res['d']
+        Interval(low=0, high=0)
+        >>> res['e']
         Interval(low=0, high=1)
         """
-        return Interval(0, 1)
+        if any(isinstance(op, (ast.In, ast.NotIn, ast.Is, ast.IsNot))
+               for op in node.ops):
+            self.generic_visit(node)
+            return self.add(node, Interval(0, 1))
+
+        curr = self.visit(node.left)
+        res = []
+        for op, comparator in zip(node.ops, node.comparators):
+            comparator = self.visit(comparator)
+            fake = ast.Compare(ast.Name('x', ast.Load(), None),
+                               [op],
+                               [ast.Name('y', ast.Load(), None)])
+            fake = ast.Expression(fake)
+            ast.fix_missing_locations(fake)
+            expr = compile(ast.gast_to_ast(fake), '<range_values>', 'eval')
+            res.append(eval(expr, {'x': curr, 'y': comparator}))
+        if all(res):
+            return self.add(node, Interval(1, 1))
+        elif any(r.low == r.high == 0 for r in res):
+            return self.add(node, Interval(0, 0))
+        else:
+            return self.add(node, Interval(0, 1))
 
     def visit_Call(self, node):
         """ Function calls are not handled for now.
@@ -303,6 +380,7 @@ class RangeValues(FunctionAnalysis):
         >>> res['a']
         Interval(low=-inf, high=inf)
         """
+        self.generic_visit(node)
         result = None
         for alias in self.aliases[node.func]:
             if alias is MODULES['__builtin__']['getattr']:
@@ -311,29 +389,32 @@ class RangeValues(FunctionAnalysis):
                 if result is None:
                     result = attribute.return_range_content(None)
                 else:
-                    result.union_update(attribute.return_range_content(None))
+                    result = result.union(
+                        attribute.return_range_content(None))
             elif isinstance(alias, Intrinsic):
                 alias_range = alias.return_range(
                     [self.visit(n) for n in node.args])
                 if result is None:
                     result = alias_range
                 else:
-                    result.union_update(alias_range)
+                    result = result.union(alias_range)
             else:
-                return UNKNOWN_RANGE
-        return result
+                result = UNKNOWN_RANGE
+                break
+        return self.add(node, result or UNKNOWN_RANGE)
 
-    @staticmethod
-    def visit_Num(node):
+    def visit_Num(self, node):
         """ Handle literals integers values. """
         if isinstance(node.n, int):
-            return Interval(node.n, node.n)
-        else:
-            return UNKNOWN_RANGE
+            return self.add(node, Interval(node.n, node.n))
+        return UNKNOWN_RANGE
 
     def visit_Name(self, node):
         """ Get range for parameters for examples or false branching. """
-        return self.result[node.id]
+        return self.add(node, self.result[node.id])
+
+    def visit_Index(self, node):
+        return self.add(node, self.visit(node.value))
 
     def visit_ExceptHandler(self, node):
         """ Add a range value for exception variable.
@@ -351,12 +432,10 @@ class RangeValues(FunctionAnalysis):
         >>> res['e']
         Interval(low=-inf, high=inf)
         """
-        if node.name:
-            self.result[node.name.id] = UNKNOWN_RANGE
         for stmt in node.body:
             self.visit(stmt)
 
     def generic_visit(self, node):
         """ Other nodes are not known and range value neither. """
         super(RangeValues, self).generic_visit(node)
-        return UNKNOWN_RANGE
+        return self.add(node, UNKNOWN_RANGE)

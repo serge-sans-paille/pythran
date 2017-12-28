@@ -95,7 +95,7 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
 
 class Inliner(ast.NodeTransformer):
 
-    """ Helper transform that perfomed inlined body transformation. """
+    """ Helper transform that performed inlined body transformation. """
 
     def __init__(self, match):
         """ match : {original_variable_name : Arguments use on call}. """

@@ -944,8 +944,7 @@ class CxxFunction(Backend):
             return "{1}({0})".format(','.join(slice_), value)
         # positive indexing case
         elif (isinstance(node.slice, ast.Index) and
-              isinstance(node.slice.value, ast.Name) and
-              self.range_values[node.slice.value.id].low >= 0):
+              self.range_values[node.slice.value].low >= 0):
             slice_ = self.visit(node.slice)
             return "{1}.fast({0})".format(slice_, value)
         # standard case

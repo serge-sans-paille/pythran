@@ -132,3 +132,14 @@ class TestBroadcasting(TestEnv):
                       np.arange(100).reshape(1,100),
                       np.arange(100).reshape(100, 1),
                       broadcast_sum=[NDArray[int, :, :], NDArray[int, :, :]])
+
+    def test_broadcast_sum_axis(self):
+        code = '''
+            import numpy as np
+            def broadcast_sum_axis(forecasted_array, observed_array):
+                return np.abs(forecasted_array[:, None] - observed_array).sum()
+            '''
+        self.run_test(code,
+                      np.arange(100.),
+                      np.arange(100.),
+                      broadcast_sum_axis=[NDArray[float, :], NDArray[float, :]])

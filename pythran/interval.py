@@ -212,7 +212,7 @@ class Interval(object):
             return UNKNOWN_RANGE
         if range2.low == 0:
             return UNKNOWN_RANGE
-        res = [v1 // v2 for v1, v2 in
+        res = [v1 if isinf(v1) else (v1 // v2) for v1, v2 in
                itertools.product(range1.bounds(), range2.bounds())]
         return Interval(min(res), max(res))
 

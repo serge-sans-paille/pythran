@@ -6,6 +6,7 @@ from pythran.passmanager import Transformation
 import gast as ast
 from functools import reduce
 from collections import OrderedDict
+from copy import deepcopy
 
 
 class ConvertToTuple(ast.NodeTransformer):
@@ -128,17 +129,21 @@ class NormalizeTuples(Transformation):
         self.generic_visit(node)
         # if the rhs is an identifier, we don't need to duplicate it
         # otherwise, better duplicate it...
-        no_tmp = isinstance(node.value, ast.Name)
+        no_tmp = isinstance(node.value, (ast.Name, ast.Attribute))
         extra_assign = [] if no_tmp else [node]
         for i, t in enumerate(node.targets):
             if isinstance(t, ast.Tuple) or isinstance(t, ast.List):
                 renamings = OrderedDict()
                 self.traverse_tuples(t, (), renamings)
                 if renamings:
-                    gtarget = node.value.id if no_tmp else self.get_new_id()
-                    node.targets[i] = ast.Name(gtarget,
-                                               node.targets[i].ctx,
-                                               None)
+                    if no_tmp:
+                        gstore = deepcopy(node.value)
+                    else:
+                        gstore = ast.Name(self.get_new_id(),
+                                          ast.Store(), None)
+                    gload = deepcopy(gstore)
+                    gload.ctx = ast.Load()
+                    node.targets[i] = gstore
                     for rename, state in renamings.items():
                         nnode = reduce(
                             lambda x, y: ast.Subscript(
@@ -146,7 +151,7 @@ class NormalizeTuples(Transformation):
                                 ast.Index(ast.Num(y)),
                                 ast.Load()),
                             state,
-                            ast.Name(gtarget, ast.Load(), None))
+                            gload)
                         if isinstance(rename, str):
                             extra_assign.append(
                                 ast.Assign(

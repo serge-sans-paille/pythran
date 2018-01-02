@@ -380,28 +380,18 @@ class RangeValues(FunctionAnalysis):
         >>> res['a']
         Interval(low=-inf, high=inf)
         """
-        self.generic_visit(node)
-        result = None
         for alias in self.aliases[node.func]:
             if alias is MODULES['__builtin__']['getattr']:
                 attr_name = node.args[-1].s
                 attribute = attributes[attr_name][-1]
-                if result is None:
-                    result = attribute.return_range_content(None)
-                else:
-                    result = result.union(
-                        attribute.return_range_content(None))
+                self.add(node, attribute.return_range(None))
             elif isinstance(alias, Intrinsic):
                 alias_range = alias.return_range(
                     [self.visit(n) for n in node.args])
-                if result is None:
-                    result = alias_range
-                else:
-                    result = result.union(alias_range)
+                self.add(node, alias_range)
             else:
-                result = UNKNOWN_RANGE
-                break
-        return self.add(node, result or UNKNOWN_RANGE)
+                return self.generic_visit(node)
+        return self.result[node]
 
     def visit_Num(self, node):
         """ Handle literals integers values. """
@@ -415,6 +405,26 @@ class RangeValues(FunctionAnalysis):
 
     def visit_Index(self, node):
         return self.add(node, self.visit(node.value))
+
+    def visit_Subscript(self, node):
+        if isinstance(node.value, ast.Call):
+            for alias in self.aliases[node.value.func]:
+                if alias is MODULES['__builtin__']['getattr']:
+                    attr_name = node.value.args[-1].s
+                    attribute = attributes[attr_name][-1]
+                    self.add(node, attribute.return_range_content(None))
+                elif isinstance(alias, Intrinsic):
+                    self.add(node,
+                             alias.return_range_content(
+                                 [self.visit(n) for n in node.value.args]))
+                else:
+                    return self.generic_visit(node)
+            if not self.aliases[node.value.func]:
+                return self.generic_visit(node)
+            self.visit(node.slice)
+            return self.result[node]
+        else:
+            return self.generic_visit(node)
 
     def visit_ExceptHandler(self, node):
         """ Add a range value for exception variable.

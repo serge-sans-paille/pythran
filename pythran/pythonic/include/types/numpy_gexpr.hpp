@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_GEXPR_HPP
 
 #include "pythonic/include/utils/meta.hpp"
+#include "pythonic/include/utils/array_helper.hpp"
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/pack.hpp>
 #include <boost/simd/function/store.hpp>
@@ -97,8 +98,6 @@ namespace pythonic
                  S const &... s);
     };
 
-    template <size_t L>
-    struct nget;
     /* manually unrolled copy function
      */
     template <size_t I>

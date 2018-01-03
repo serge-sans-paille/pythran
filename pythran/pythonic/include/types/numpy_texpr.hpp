@@ -64,6 +64,10 @@ namespace pythonic
           -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
                                                  pythonic::__builtin__::None),
                                 i));
+      auto fast(array<long, value> const &indices)
+          -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}));
+      auto fast(array<long, value> const &indices) const
+          -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}));
 
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_simd_nditerator<numpy_texpr_2>;

@@ -652,3 +652,40 @@ def assign_ndarray(t):
         self.run_test("def ndarray_ubyte(n): import numpy; return numpy.arange(0, n, 1, dtype=numpy.ubyte)",
                 4,
                 ndarray_ubyte=[int])
+
+    def test_ndarray_1d_index(self):
+        self.run_test(
+            'def ndarray_1d_index(a): return a[1], a[-1]',
+            numpy.arange(30).reshape((2,3,5)),
+            ndarray_1d_index=[NDArray[int, :, :,:]])
+
+    def test_ndarray_2d_index(self):
+        self.run_test(
+            'def ndarray_2d_index(a): return a[0,1], a[0, -1]',
+            numpy.arange(30).reshape((2,3,5)),
+            ndarray_2d_index=[NDArray[int, :, :,:]])
+
+    def test_ndarray_3d_index(self):
+        self.run_test(
+            'def ndarray_3d_index(a): return a[0, 1, 2], a[0, -1, -2]',
+            numpy.arange(30).reshape((2,3,5)),
+            ndarray_3d_index=[NDArray[int, :, :,:]])
+
+    def test_numpy_iexpr_1d_index(self):
+        self.run_test(
+            'def numpy_iexpr_1d_index(A): a = A[0]; return a[1], a[-1]',
+            numpy.arange(30).reshape((1, 2,3,5)),
+            numpy_iexpr_1d_index=[NDArray[int, :, :,:, :]])
+
+    def test_numpy_iexpr_2d_index(self):
+        self.run_test(
+            'def numpy_iexpr_2d_index(A): a = A[0]; return a[0,1], a[0, -1]',
+            numpy.arange(30).reshape((1, 2,3,5)),
+            numpy_iexpr_2d_index=[NDArray[int, :, :,:, :]])
+
+    def test_numpy_iexpr_3d_index(self):
+        self.run_test(
+            'def numpy_iexpr_3d_index(A): a = A[0]; return a[0, 1, 2], a[0, -1, -2]',
+            numpy.arange(30).reshape((1, 2,3,5)),
+            numpy_iexpr_3d_index=[NDArray[int, :, :,:, :]])
+

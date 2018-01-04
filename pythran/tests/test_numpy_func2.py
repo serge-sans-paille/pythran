@@ -425,6 +425,18 @@ def test_copy0(x):
     def test_any3(self):
         self.run_test("def np_any3(a): from numpy import any ; return any(a).any(0)", [-1, 0, 5], np_any3=[List[int]])
 
+    def test_any4(self):
+        self.run_test("def np_any4(a): from numpy import any ; return any(a > 10)", [-1, 0, 5], np_any4=[List[int]])
+
+    def test_any5(self):
+        self.run_test("def np_any5(a): from numpy import any ; return any(a > 10.0)", [-1.0, 0.0, 5.0], np_any5=[List[float]])
+
+    def test_any6(self):
+        self.run_test("def np_any6(a): from numpy import any ; return any(a > 10.0)", numpy.array([[-1.0, 0.0], [5.0, 3.0]]), np_any6=[NDArray[float,:,:]])
+
+    def test_any7(self):
+        self.run_test("def np_any7(a): from numpy import any ; return any(a)", numpy.array([[False, False], [False, False]]), np_any7=[NDArray[bool,:,:]])
+
     def test_array1D_(self):
         self.run_test("def np_array1D_(a):\n from numpy import array\n return array(a)", [1,2,3], np_array1D_=[List[int]])
 

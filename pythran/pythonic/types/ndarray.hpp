@@ -592,9 +592,16 @@ namespace pythonic
 
     template <class T, size_t N>
     numpy_gexpr<ndarray<T, N> const &, slice> ndarray<T, N>::
-    operator[](slice const &s) const
+    operator[](slice const &s) const &
     {
       return make_gexpr(*this, s);
+    }
+
+    template <class T, size_t N>
+    numpy_gexpr<ndarray<T, N>, slice> ndarray<T, N>::
+    operator[](slice const &s) &&
+    {
+      return make_gexpr(std::move(*this), s);
     }
 
     template <class T, size_t N>

@@ -9,7 +9,7 @@ def projection_simplex(v, z=1):
     The arguments v and z should be a vector and a scalar, respectively.
     """
     n_features = v.shape[0]
-    u = np.array(np.sort(v)[::-1])
+    u = np.sort(v)[::-1]
     cssv = np.cumsum(u) - z
     ind = np.arange(n_features) + 1
     cond = u - cssv / ind > 0

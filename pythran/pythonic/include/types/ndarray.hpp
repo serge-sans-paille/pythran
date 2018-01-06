@@ -353,7 +353,8 @@ namespace pythonic
       /* slice indexing */
       ndarray<T, N + 1> operator[](none_type) const;
 
-      numpy_gexpr<ndarray const &, slice> operator[](slice const &s) const;
+      numpy_gexpr<ndarray const &, slice> operator[](slice const &s) const &;
+      numpy_gexpr<ndarray, slice> operator[](slice const &s) && ;
 
       numpy_gexpr<ndarray const &, contiguous_slice>
       operator[](contiguous_slice const &s) const;

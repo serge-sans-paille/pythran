@@ -14,26 +14,38 @@ namespace pythonic
   {
     namespace
     {
-      template <class T>
-      bool _comp(T const &i, T const &j)
-      {
-        return i < j;
-      }
 
       template <class T>
-      bool _comp(std::complex<T> const &i, std::complex<T> const &j)
+      struct _comp {
+        bool operator()(T const &i, T const &j) const
+        {
+          return i < j;
+        }
+      };
+
+      template <class T>
+      struct _comp<std::complex<T>> {
+        bool operator()(std::complex<T> const &i,
+                        std::complex<T> const &j) const
+        {
+          if (std::real(i) == std::real(j))
+            return std::imag(i) < std::imag(j);
+          else
+            return std::real(i) < std::real(j);
+        }
+      };
+      template <class T>
+      void _sort(types::ndarray<T, 1> &out, long axis)
       {
-        if (std::real(i) == std::real(j))
-          return std::imag(i) < std::imag(j);
-        else
-          return std::real(i) < std::real(j);
+        std::sort(out.begin(), out.end(), _comp<T>{});
       }
 
       template <class T, size_t N>
       void _sort(types::ndarray<T, N> &out, long axis)
       {
-        while (axis < 0)
+        if (axis < 0)
           axis += N;
+
         axis = axis % N;
         auto &&out_shape = out.shape();
         const long step =
@@ -49,8 +61,7 @@ namespace pythonic
             to_sort.push_back(*iter);
             iter += step / out_shape[axis];
           }
-          std::sort(to_sort.begin(), to_sort.end(),
-                    static_cast<bool (*)(T const &, T const &)>(_comp));
+          std::sort(to_sort.begin(), to_sort.end(), _comp<T>{});
           iter = out.buffer + (i % out.flat_size() + i / out.flat_size());
           for (auto val : to_sort) {
             *iter = val;

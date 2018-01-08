@@ -47,7 +47,7 @@ namespace pythonic
     typename broadcasted<T>::simd_iterator
         broadcasted<T>::vbegin(vectorizer) const
     {
-      return {*this, 0};
+      return {*this};
     }
 
     template <class T>
@@ -55,16 +55,9 @@ namespace pythonic
     typename broadcasted<T>::simd_iterator
         broadcasted<T>::vend(vectorizer) const
     {
-      return {*this, 0}; // should not happen anyway
+      return {*this}; // should not happen anyway
     }
 
-    template <class T>
-    template <class I> // template to prevent automatic instantiation, but the
-    // declaration is still needed
-    void broadcasted<T>::load(I) const
-    {
-      static_assert(I::this_should_never_happen, "this is *not* vectorizable");
-    }
 #endif
 
     template <class T>
@@ -88,14 +81,6 @@ namespace pythonic
     {
     }
 
-    template <class dtype, bool is_vectorizable>
-    template <class I>
-    void broadcast_base<dtype, is_vectorizable>::load(I) const
-    {
-      static_assert(sizeof(I) != sizeof(I),
-                    "this method should never be instantiated");
-    }
-
 #ifdef USE_BOOST_SIMD
     template <class dtype>
     template <class V>
@@ -105,12 +90,6 @@ namespace pythonic
     {
     }
 
-    template <class dtype>
-    template <class I>
-    auto broadcast_base<dtype, true>::load(I) const -> decltype(this->_splated)
-    {
-      return _splated;
-    }
 #endif
 
     template <class T, class B>
@@ -130,13 +109,6 @@ namespace pythonic
     typename broadcast<T, B>::dtype broadcast<T, B>::fast(long) const
     {
       return _base._value;
-    }
-
-    template <class T, class B>
-    template <class I>
-    auto broadcast<T, B>::load(I i) const -> decltype(this->_base.load(i))
-    {
-      return _base.load(i);
     }
     template <class T, class B>
     template <class... Args>

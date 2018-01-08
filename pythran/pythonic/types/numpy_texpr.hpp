@@ -94,7 +94,7 @@ namespace pythonic
     typename numpy_texpr_2<E>::simd_iterator
         numpy_texpr_2<E>::vbegin(vectorizer) const
     {
-      return {*this, 0};
+      return {*this};
     }
 
     template <class E>
@@ -102,13 +102,7 @@ namespace pythonic
     typename numpy_texpr_2<E>::simd_iterator
         numpy_texpr_2<E>::vend(vectorizer) const
     {
-      return {*this, 0}; // not vectorizable anyway
-    }
-    template <class E>
-    template <class I>
-    void numpy_texpr_2<E>::load(I) const
-    {
-      static_assert(I::this_should_never_happen, "this is *not* vectorizable");
+      return {*this}; // not vectorizable anyway
     }
 #endif
 

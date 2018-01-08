@@ -124,12 +124,13 @@ namespace pythonic
       if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
         for (long i = 0; i < bound; ++i) {
-          self.store(*(oiter + i), i * vN);
+          self.store(*(oiter + i), i);
         }
       else
 #endif
-        for (long i = 0; i < bound * vN; i += vN, ++oiter)
+        for (long i = 0; i < bound; i++, ++oiter) {
           self.store(*oiter, i);
+        }
       // tail
       {
         auto siter = self.begin();
@@ -282,19 +283,21 @@ namespace pythonic
 
       static const std::size_t vN = vT::static_size;
       auto oiter = vectorizer::vbegin(other);
+      auto iter = vectorizer::vbegin(self);
       const long bound =
           std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
 #ifdef _OPENMP
       if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
-        for (long i = 0; i < bound * vN; i += vN) {
-          self.store(Op{}(self.load(i), *(oiter + i)), i);
+        for (long i = 0; i < bound; i++) {
+          self.store(Op{}(*(iter + i), *(oiter + i)), i);
         }
       else
 #endif
-        for (long i = 0; i < bound * vN; i += vN, ++oiter)
-          self.store(Op{}(self.load(i), *oiter), i);
+        for (long i = 0; i < bound; i++, ++iter, ++oiter) {
+          self.store(Op{}(*iter, *oiter), i);
+        }
       // tail
       {
         auto siter = self.begin();

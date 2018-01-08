@@ -105,9 +105,6 @@ namespace pythonic
       simd_iterator vbegin(vectorizer) const;
       template <class vectorizer>
       simd_iterator vend(vectorizer) const;
-      template <class I> // template to prevent automatic instantiation when the
-      // type is not vectorizable
-      void load(I) const;
 #endif
 
       template <class E>

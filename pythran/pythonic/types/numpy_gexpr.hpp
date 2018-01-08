@@ -690,7 +690,7 @@ namespace pythonic
     typename numpy_gexpr<Arg, S...>::simd_iterator
         numpy_gexpr<Arg, S...>::vbegin(vectorizer) const
     {
-      return {*this, 0};
+      return {buffer + std::get<count_leading_long<S...>::value>(slices).lower};
     }
 
     template <class Arg, class... S>
@@ -700,28 +700,18 @@ namespace pythonic
     {
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;
-      return {*this, long(_shape[0] / vector_size * vector_size)};
-    }
-
-    template <class Arg, class... S>
-    template <class I>
-    auto numpy_gexpr<Arg, S...>::load(I i) const
-        -> decltype(boost::simd::load<boost::simd::pack<dtype>>(this->buffer,
-                                                                i))
-    {
-      using T = dtype;
-      using vT = typename boost::simd::pack<T>;
-      return boost::simd::load<vT>(
-          buffer, std::get<count_leading_long<S...>::value>(slices).lower + i);
+      return {buffer + std::get<count_leading_long<S...>::value>(slices).lower +
+              long(_shape[0] / vector_size * vector_size)};
     }
 
     template <class Arg, class... S>
     template <class V>
     void numpy_gexpr<Arg, S...>::store(V &&v, long i)
     {
+      using vector_type = typename boost::simd::pack<dtype>;
       boost::simd::store(
-          v,
-          buffer + std::get<count_leading_long<S...>::value>(slices).lower + i);
+          v, buffer + std::get<count_leading_long<S...>::value>(slices).lower +
+                 i * vector_type::static_size);
     }
 
 #endif

@@ -137,29 +137,42 @@ namespace pythonic
     template <class E>
     struct const_simd_nditerator
         : public std::iterator<std::random_access_iterator_tag,
-                               typename std::remove_reference<decltype(
-                                   std::declval<E &>().load(0))>::type> {
-
-      E const &data;
-      long index;
+                               boost::simd::pack<typename E::dtype>> {
 
       using vector_type = typename boost::simd::pack<typename E::dtype>;
+      typename E::dtype const *data;
       static const std::size_t vector_size = vector_type::static_size;
 
-      const_simd_nditerator(E const &data, long index);
+      const_simd_nditerator(typename E::dtype const *data);
 
-      auto operator*() const -> decltype(data.load(index));
+      auto operator*() const -> decltype(
+          boost::simd::load<boost::simd::pack<typename E::dtype>>(data));
       const_simd_nditerator &operator++();
+      const_simd_nditerator &operator+=(long);
+      const_simd_nditerator operator+(long);
       const_simd_nditerator &operator--();
-      const_simd_nditerator &operator+=(long i);
-      const_simd_nditerator &operator-=(long i);
-      const_simd_nditerator operator+(long i) const;
-      const_simd_nditerator operator-(long i) const;
       long operator-(const_simd_nditerator const &other) const;
       bool operator!=(const_simd_nditerator const &other) const;
       bool operator==(const_simd_nditerator const &other) const;
       bool operator<(const_simd_nditerator const &other) const;
       const_simd_nditerator &operator=(const_simd_nditerator const &other);
+    };
+    template <class E>
+    struct const_simd_nditerator_nostep : const_simd_nditerator<E> {
+      const_simd_nditerator_nostep &operator++()
+      {
+        return *this;
+      }
+      const_simd_nditerator_nostep &operator+=(long)
+      {
+        return *this;
+      }
+      const_simd_nditerator_nostep &operator--()
+      {
+        return *this;
+      }
+      const_simd_nditerator_nostep &
+      operator=(const_simd_nditerator_nostep const &other) = default;
     };
 #endif
 

@@ -76,8 +76,6 @@ namespace pythonic
       simd_iterator vbegin(vectorizer) const;
       template <class vectorizer>
       simd_iterator vend(vectorizer) const;
-      template <class I>
-      void load(I) const;
 #endif
 
       /* element filtering */

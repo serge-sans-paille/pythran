@@ -20,7 +20,7 @@ namespace pythonic
 
     template <class T>
     raw_array<T>::raw_array(size_t n)
-        : data((T *)malloc(sizeof(T) * n)), external(false)
+        : data((T *)malloc(n * sizeof(T))), external(false)
     {
     }
 

@@ -191,13 +191,6 @@ namespace pythonic
       static const std::size_t vector_size = vector_type::static_size;
       return {*this, long(_shape[0] / vector_size * vector_size)};
     }
-    template <class Arg, class F>
-    template <class I> // template to prevent automatic instantiation when the
-    // type is not vectorizable
-    void numpy_fexpr<Arg, F>::load(I) const
-    {
-      static_assert(I::this_should_never_happen, "this is *not* vectorizable");
-    }
 #endif
     template <class Arg, class F>
     auto numpy_fexpr<Arg, F>::operator[](long i) const

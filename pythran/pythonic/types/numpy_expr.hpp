@@ -268,45 +268,6 @@ namespace pythonic
                    utils::make_index_sequence<sizeof...(Args)>{});
     }
 
-    template <class Op, class... Args>
-    template <size_t... I>
-    auto numpy_expr<Op, Args...>::_load(long i,
-                                        utils::index_sequence<I...>) const
-        -> decltype(Op()(std::get<I>(args).load(i)...))
-    {
-      return Op()(std::get<I>(args).load(i)...);
-    }
-
-    template <class Op, class... Args>
-    template <class I> // template to prevent automatic instantiation when the
-    // type is not vectorizable
-    auto numpy_expr<Op, Args...>::load(I i) const
-        -> decltype(this->_load(i,
-                                utils::make_index_sequence<sizeof...(Args)>{}))
-    {
-      return _load(i, utils::make_index_sequence<sizeof...(Args)>{});
-    }
-
-    template <class Op, class... Args>
-    template <size_t... I>
-    auto numpy_expr<Op, Args...>::_map_load(
-        std::array<long, sizeof...(I)> const &indices,
-        utils::index_sequence<I...>) const
-        -> decltype(Op()(std::get<I>(args).load(std::get<I>(indices))...))
-    {
-      return Op()(std::get<I>(args).load(std::get<I>(indices))...);
-    }
-
-    template <class Op, class... Args>
-    template <class... Indices>
-    auto numpy_expr<Op, Args...>::map_load(Indices... indices) const
-        -> decltype(
-            this->_map_load(std::array<long, sizeof...(Indices)>{{indices...}},
-                            utils::make_index_sequence<sizeof...(Args)>{}))
-    {
-      return _map_load(std::array<long, sizeof...(Indices)>{{indices...}},
-                       utils::make_index_sequence<sizeof...(Args)>{});
-    }
 #endif
 
     template <class Op, class... Args>

@@ -498,25 +498,6 @@ namespace pythonic
                                       utils::index_sequence<I...>) const;
       simd_iterator_nobroadcast vend(types::vectorize_nobroadcast) const;
 
-      template <size_t... I>
-      auto _load(long i, utils::index_sequence<I...>) const
-          -> decltype(Op()(std::get<I>(args).load(i)...));
-
-      // template to prevent automatic instantiation when the type is not
-      // vectorizable
-      template <class I>
-      auto load(I i) const -> decltype(
-          this->_load(i, utils::make_index_sequence<sizeof...(Args)>{}));
-
-      template <size_t... I>
-      auto _map_load(std::array<long, sizeof...(I)> const &indices,
-                     utils::index_sequence<I...>) const
-          -> decltype(Op()(std::get<I>(args).load(std::get<I>(indices))...));
-
-      template <class... Indices>
-      auto map_load(Indices... indices) const -> decltype(
-          this->_map_load(std::array<long, sizeof...(Indices)>{{indices...}},
-                          utils::make_index_sequence<sizeof...(Args)>{}));
 #endif
       template <size_t... I, class... S>
       auto _get(utils::index_sequence<I...>, S const &... s) const

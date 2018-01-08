@@ -265,7 +265,7 @@ namespace pythonic
     template <class vectorizer>
     typename array<T, N>::simd_iterator array<T, N>::vbegin(vectorizer) const
     {
-      return {*this, 0};
+      return {&buffer[0]};
     }
 
     template <class T, size_t N>
@@ -274,13 +274,7 @@ namespace pythonic
     {
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;
-      return {*this, long(size() / vector_size * vector_size)};
-    }
-    template <typename T, size_t N>
-    auto array<T, N>::load(long i) const
-        -> decltype(boost::simd::load<boost::simd::pack<T>>(&buffer[0], i))
-    {
-      return boost::simd::load<boost::simd::pack<T>>(&buffer[0], i);
+      return {&buffer[long(size() / vector_size * vector_size)]};
     }
 
     template <typename T, size_t N>

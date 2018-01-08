@@ -584,7 +584,7 @@ namespace pythonic
     typename ndarray<T, N>::simd_iterator
         ndarray<T, N>::vbegin(vectorizer) const
     {
-      return {*this, 0};
+      return {buffer};
     }
 
     template <class T, size_t N>
@@ -593,21 +593,15 @@ namespace pythonic
     {
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;
-      return {*this, long(_shape[0] / vector_size * vector_size)};
-    }
-
-    template <class T, size_t N>
-    auto ndarray<T, N>::load(long i) const
-        -> decltype(boost::simd::load<boost::simd::pack<T>>(buffer, i))
-    {
-      return boost::simd::load<boost::simd::pack<T>>(buffer, i);
+      return {buffer + long(_shape[0] / vector_size * vector_size)};
     }
 
     template <class T, size_t N>
     template <class V>
     void ndarray<T, N>::store(V &&v, long i)
     {
-      boost::simd::store(v, buffer + i);
+      using vector_type = typename boost::simd::pack<dtype>;
+      boost::simd::store(v, buffer + i * vector_type::static_size);
     }
 #endif
 

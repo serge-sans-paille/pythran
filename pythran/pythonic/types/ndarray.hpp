@@ -40,6 +40,7 @@
 #include "pythonic/types/numpy_iexpr.hpp"
 #include "pythonic/types/numpy_gexpr.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/utils/array_helper.hpp"
 
 #include "pythonic/__builtin__/len.hpp"
 #include "pythonic/operator_/iadd.hpp"
@@ -228,26 +229,6 @@ namespace pythonic
       return 1;
     }
 
-    /* recursively return the value at the position given by `indices' in the
-     * `self' "array like". It may be a sub array instead of real value.
-     * indices[0] is the coordinate for the first dimension and indices[M-1] is
-     * for the last one.
-     */
-    template <size_t L>
-    template <class A, size_t M>
-    auto nget<L>::operator()(A &&self, array<long, M> const &indices)
-        -> decltype(nget<L - 1>()(std::forward<A>(self)[0], indices))
-    {
-      return nget<L - 1>()(std::forward<A>(self)[indices[M - L - 1]], indices);
-    }
-
-    template <class A, size_t M>
-    auto nget<0>::operator()(A &&self, array<long, M> const &indices)
-        -> decltype(std::forward<A>(self)[indices[M - 1]])
-    {
-      return std::forward<A>(self)[indices[M - 1]];
-    }
-
     template <size_t L>
     template <size_t M>
     long noffset<L>::operator()(array<long, M> const &strides,
@@ -257,12 +238,34 @@ namespace pythonic
              strides[M - L] * indices[M - L];
     }
 
+    template <size_t L>
+    template <size_t M>
+    long noffset<L>::operator()(array<long, M> const &strides,
+                                array<long, M> const &indices,
+                                array<long, M> const &shape) const
+    {
+      return noffset<L - 1>{}(strides, indices, shape) +
+             strides[M - L] * ((indices[M - L] < 0)
+                                   ? indices[M - L] + shape[M - L]
+                                   : indices[M - L]);
+    }
+
     template <>
     template <size_t M>
     long noffset<1>::operator()(array<long, M> const &,
                                 array<long, M> const &indices) const
     {
       return indices[M - 1];
+    }
+
+    template <>
+    template <size_t M>
+    long noffset<1>::operator()(array<long, M> const &,
+                                array<long, M> const &indices,
+                                array<long, M> const &shape) const
+    {
+      return (indices[M - 1] < 0) ? indices[M - 1] + shape[M - 1]
+                                  : indices[M - 1];
     }
 
     /* constructors */
@@ -495,6 +498,34 @@ namespace pythonic
     }
 
     template <class T, size_t N>
+    T &ndarray<T, N>::fast(array<long, N> const &indices)
+    {
+      return *(buffer + noffset<N>{}(_strides, indices));
+    }
+
+    template <class T, size_t N>
+    T ndarray<T, N>::fast(array<long, N> const &indices) const
+    {
+      return *(buffer + noffset<N>{}(_strides, indices));
+    }
+
+    template <class T, size_t N>
+    template <size_t M>
+    auto ndarray<T, N>::fast(array<long, M> const &indices) const
+        & -> decltype(nget<M - 1>().fast(*this, indices))
+    {
+      return nget<M - 1>().fast(*this, indices);
+    }
+
+    template <class T, size_t N>
+        template <size_t M>
+        auto ndarray<T, N>::fast(array<long, M> const &indices) &&
+        -> decltype(nget<M - 1>().fast(std::move(*this), indices))
+    {
+      return nget<M - 1>().fast(std::move(*this), indices);
+    }
+
+    template <class T, size_t N>
     auto ndarray<T, N>::operator[](long i) const & -> decltype(this->fast(i))
     {
       if (i < 0)
@@ -514,13 +545,13 @@ namespace pythonic
     template <class T, size_t N>
     T const &ndarray<T, N>::operator[](array<long, N> const &indices) const
     {
-      return *(buffer + noffset<N>{}(_strides, indices));
+      return *(buffer + noffset<N>{}(_strides, indices, _shape));
     }
 
     template <class T, size_t N>
     T &ndarray<T, N>::operator[](array<long, N> const &indices)
     {
-      return *(buffer + noffset<N>{}(_strides, indices));
+      return *(buffer + noffset<N>{}(_strides, indices, _shape));
     }
 
     template <class T, size_t N>
@@ -662,7 +693,7 @@ namespace pythonic
     template <class T, size_t N>
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<
-        is_numexpr_arg<F>::value and
+        is_numexpr_arg<F>::value and not is_array_index<F>::value and
             not std::is_same<bool, typename F::dtype>::value,
         ndarray<T, N>>::type ndarray<T, N>::
     operator[](F const &filter) const
@@ -681,7 +712,7 @@ namespace pythonic
     template <class T, size_t N>
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<
-        is_numexpr_arg<F>::value and
+        is_numexpr_arg<F>::value and not is_array_index<F>::value and
             not std::is_same<bool, typename F::dtype>::value,
         ndarray<T, N>>::type
     ndarray<T, N>::fast(F const &filter) const

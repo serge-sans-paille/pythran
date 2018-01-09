@@ -926,6 +926,12 @@ class CxxFunction(Backend):
             sattr += '{}'
         return sattr
 
+    def all_positive(self, node):
+        if isinstance(node, ast.Tuple):
+            return all(self.range_values[elt].low >=0
+                       for elt in node.elts)
+        return self.range_values[node].low >= 0
+
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         # we cannot overload the [] operator in that case
@@ -944,7 +950,7 @@ class CxxFunction(Backend):
             return "{1}({0})".format(','.join(slice_), value)
         # positive indexing case
         elif (isinstance(node.slice, ast.Index) and
-              self.range_values[node.slice.value].low >= 0):
+              self.all_positive(node.slice.value)):
             slice_ = self.visit(node.slice)
             return "{1}.fast({0})".format(slice_, value)
         # standard case

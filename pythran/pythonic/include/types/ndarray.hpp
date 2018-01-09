@@ -38,6 +38,7 @@
 #include "pythonic/include/types/numpy_iexpr.hpp"
 #include "pythonic/include/types/numpy_gexpr.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
+#include "pythonic/include/utils/array_helper.hpp"
 
 #include "pythonic/include/__builtin__/len.hpp"
 
@@ -70,6 +71,13 @@ namespace pythonic
 
   namespace types
   {
+
+    template <class T>
+    struct is_array_index : std::false_type {
+    };
+    template <size_t N>
+    struct is_array_index<array<long, N>> : std::true_type {
+    };
 
     template <class T, size_t N>
     struct ndarray;
@@ -169,30 +177,15 @@ namespace pythonic
       static constexpr long step(ndarray<T, 1> const &);
     };
 
-    /* recursively return the value at the position given by `indices' in
-     * the `self' "array like". It may be a sub array instead of real value.
-     * indices[0] is the coordinate for the first dimension and indices[M-1]
-     * is for the last one.
-     */
-    template <size_t L>
-    struct nget {
-      template <class A, size_t M>
-      auto operator()(A &&self, array<long, M> const &indices)
-          -> decltype(nget<L - 1>()(std::forward<A>(self)[0], indices));
-    };
-
-    template <>
-    struct nget<0> {
-      template <class A, size_t M>
-      auto operator()(A &&self, array<long, M> const &indices)
-          -> decltype(std::forward<A>(self)[indices[M - 1]]);
-    };
-
     template <size_t L>
     struct noffset {
       template <size_t M>
       long operator()(array<long, M> const &strides,
                       array<long, M> const &indices) const;
+      template <size_t M>
+      long operator()(array<long, M> const &strides,
+                      array<long, M> const &indices,
+                      array<long, M> const &shape) const;
     };
 
     template <>
@@ -200,6 +193,9 @@ namespace pythonic
       template <size_t M>
       long operator()(array<long, M> const &,
                       array<long, M> const &indices) const;
+      template <size_t M>
+      long operator()(array<long, M> const &, array<long, M> const &indices,
+                      array<long, M> const &shape) const;
     };
 
     /* Multidimensional array of values
@@ -336,6 +332,17 @@ namespace pythonic
       auto fast(long i) &&
           -> decltype(type_helper<ndarray>::get(std::move(*this), i));
 
+      T &fast(array<long, N> const &indices);
+      T fast(array<long, N> const &indices) const;
+
+      template <size_t M>
+      auto fast(array<long, M> const &indices) const
+          & -> decltype(nget<M - 1>().fast(*this, indices));
+
+      template <size_t M>
+          auto fast(array<long, M> const &indices) &&
+          -> decltype(nget<M - 1>().fast(std::move(*this), indices));
+
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_simd_nditerator<ndarray>;
       using simd_iterator_nobroadcast = simd_iterator;
@@ -386,14 +393,14 @@ namespace pythonic
 
       template <class F> // indexing through an array of indices -- a view
       typename std::enable_if<
-          is_numexpr_arg<F>::value and
+          is_numexpr_arg<F>::value and not is_array_index<F>::value and
               not std::is_same<bool, typename F::dtype>::value,
           ndarray<T, N>>::type
       operator[](F const &filter) const;
 
       template <class F> // indexing through an array of indices -- a view
       typename std::enable_if<
-          is_numexpr_arg<F>::value and
+          is_numexpr_arg<F>::value and not is_array_index<F>::value and
               not std::is_same<bool, typename F::dtype>::value,
           ndarray<T, N>>::type
       fast(F const &filter) const;

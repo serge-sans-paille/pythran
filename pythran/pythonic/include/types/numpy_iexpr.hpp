@@ -3,6 +3,7 @@
 
 #include "pythonic/include/types/nditerator.hpp"
 #include "pythonic/include/types/tuple.hpp"
+#include "pythonic/utils/array_helper.hpp"
 
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/pack.hpp>
@@ -143,6 +144,21 @@ namespace pythonic
           -> decltype(
               numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i));
 
+      dtype const &fast(array<long, value> const &indices) const;
+      dtype &fast(array<long, value> const &indices);
+
+      template <size_t M>
+      auto fast(array<long, M> const &indices) const
+          -> decltype(nget<M - 1>()(*this, indices))
+      {
+        return nget<M - 1>()(*this, indices);
+      }
+
+      template <class F>
+      typename std::enable_if<is_numexpr_arg<F>::value,
+                              numpy_fexpr<numpy_iexpr, F>>::type
+      fast(F const &filter) const;
+
 #ifdef USE_BOOST_SIMD
       using simd_iterator = const_simd_nditerator<numpy_iexpr>;
       using simd_iterator_nobroadcast = simd_iterator;
@@ -173,11 +189,6 @@ namespace pythonic
       template <class F>
       typename std::enable_if<is_numexpr_arg<F>::value,
                               numpy_fexpr<numpy_iexpr, F>>::type
-      fast(F const &filter) const;
-
-      template <class F>
-      typename std::enable_if<is_numexpr_arg<F>::value,
-                              numpy_fexpr<numpy_iexpr, F>>::type
       operator[](F const &filter) const;
       auto operator[](long i) const & -> decltype(this->fast(i));
       auto operator[](long i) & -> decltype(this->fast(i));
@@ -188,6 +199,12 @@ namespace pythonic
 
       dtype const &operator[](array<long, value> const &indices) const;
       dtype &operator[](array<long, value> const &indices);
+      template <size_t M>
+      auto operator[](array<long, M> const &indices) const
+          & -> decltype(nget<M - 1>()(*this, indices))
+      {
+        return nget<M - 1>()(*this, indices);
+      }
 
       long flat_size() const;
       array<long, value> const &shape() const;

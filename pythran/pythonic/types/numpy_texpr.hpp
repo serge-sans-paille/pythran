@@ -73,6 +73,20 @@ namespace pythonic
                                   pythonic::__builtin__::None),
                  i);
     }
+    template <class E>
+    auto numpy_texpr_2<E>::fast(
+        array<long, numpy_texpr_2<E>::value> const &indices)
+        -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}))
+    {
+      return arg.fast(array<long, 2>{{indices[1], indices[0]}});
+    }
+    template <class E>
+    auto numpy_texpr_2<E>::fast(
+        array<long, numpy_texpr_2<E>::value> const &indices) const
+        -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}))
+    {
+      return arg.fast(array<long, 2>{{indices[1], indices[0]}});
+    }
 
 #ifdef USE_BOOST_SIMD
     template <class E>

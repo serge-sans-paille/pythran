@@ -5,6 +5,7 @@
 
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/array_helper.hpp"
 
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/operator_/iand.hpp"
@@ -238,6 +239,36 @@ namespace pythonic
       return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
     }
 
+    template <class Arg>
+    typename numpy_iexpr<Arg>::dtype const &
+    numpy_iexpr<Arg>::fast(array<long, value> const &indices) const
+    {
+      size_t offset = indices[value - 1];
+      long mult = _shape[value - 1];
+      for (size_t i = value - 2; i > 0; --i) {
+        offset += indices[i] * mult;
+        mult *= _shape[i];
+      }
+      return buffer[offset + indices[0] * mult];
+    }
+
+    template <class Arg>
+    typename numpy_iexpr<Arg>::dtype &
+    numpy_iexpr<Arg>::fast(array<long, value> const &indices)
+    {
+      return const_cast<dtype &>(
+          const_cast<numpy_iexpr const &>(*this)[indices]);
+    }
+
+    template <class Arg>
+    template <class F>
+    typename std::enable_if<is_numexpr_arg<F>::value,
+                            numpy_fexpr<numpy_iexpr<Arg>, F>>::type
+    numpy_iexpr<Arg>::fast(F const &filter) const
+    {
+      return numpy_fexpr<numpy_iexpr, F>(*this, filter);
+    }
+
 #ifdef USE_BOOST_SIMD
     template <class Arg>
     template <class vectorizer>
@@ -342,15 +373,6 @@ namespace pythonic
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value,
                             numpy_fexpr<numpy_iexpr<Arg>, F>>::type
-    numpy_iexpr<Arg>::fast(F const &filter) const
-    {
-      return numpy_fexpr<numpy_iexpr, F>(*this, filter);
-    }
-
-    template <class Arg>
-    template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
-                            numpy_fexpr<numpy_iexpr<Arg>, F>>::type
         numpy_iexpr<Arg>::
         operator[](F const &filter) const
     {
@@ -361,13 +383,17 @@ namespace pythonic
     typename numpy_iexpr<Arg>::dtype const &numpy_iexpr<Arg>::
     operator[](array<long, value> const &indices) const
     {
-      size_t offset = indices[value - 1];
+      size_t offset = indices[value - 1] < 0
+                          ? indices[value - 1] + _shape[value - 1]
+                          : indices[value - 1];
       long mult = _shape[value - 1];
       for (size_t i = value - 2; i > 0; --i) {
-        offset += indices[i] * mult;
+        offset += (indices[i] < 0 ? indices[i] + _shape[i] : indices[i]) * mult;
         mult *= _shape[i];
       }
-      return buffer[offset + indices[0] * mult];
+      return buffer[offset +
+                    (indices[0] < 0 ? indices[0] + _shape[0] : indices[0]) *
+                        mult];
     }
 
     template <class Arg>

@@ -761,3 +761,14 @@ def add_slice_to_list(l):
         self.run_test("def floordiv_float1(n): return n//2, (-n)//2",
                       3.5,
                       floordiv_float1=[float])
+
+    def test_int_base0(self):
+        self.run_test("def int_base(x, y): return [int(x0, y0) for x0, y0 in zip(x, y)]",
+                      ["11", "11", "16", "FF"],
+                      [2, 4, 8, 16],
+                      int_base=[List[str], List[int]])
+
+    def test_int_base1(self):
+        self.run_test("def int_base_lit(x, y): return int(x, 8), int('A', y)",
+                      "14", 16,
+                      int_base_lit=[str, int])

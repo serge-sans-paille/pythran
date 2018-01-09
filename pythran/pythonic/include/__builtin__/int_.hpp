@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_INT_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_INT_HPP
 
-#include "pythonic/include/utils/functor.hpp"
+#include "pythonic/include/types/str.hpp"
 
 namespace pythonic
 {
@@ -16,6 +16,8 @@ namespace pythonic
         using callable = void;
         using type = long;
 
+        type operator()(char const t[], int base) const;
+        type operator()(types::str const &t, int base) const;
         template <class T>
         type operator()(T &&t) const;
         type operator()(char t) const;

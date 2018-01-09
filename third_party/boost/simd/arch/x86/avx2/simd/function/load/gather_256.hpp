@@ -34,7 +34,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer p, Offset const& o, Target const&) const
     {
-      return _mm256_i32gather_pd(p, o, sizeof(typename target::value_type));
+      constexpr auto mask = sizeof(typename target::value_type);
+      return _mm256_i32gather_pd(p, o, mask);
     }
   };
 
@@ -51,7 +52,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer p, Offset const& o, Target const&) const
     {
-      return _mm256_i32gather_ps(p, o, sizeof(typename target::value_type));
+      constexpr auto mask = sizeof(typename target::value_type);
+      return _mm256_i32gather_ps(p, o, mask);
     }
   };
 
@@ -68,7 +70,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer p, Offset const& o, Target const&) const
     {
-      return _mm256_i32gather_epi32( (int const*)(p), o, sizeof(typename target::value_type));
+      constexpr auto mask = sizeof(typename target::value_type);
+      return _mm256_i32gather_epi32( (int const*)(p), o, mask);
     }
   };
 
@@ -85,7 +88,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer p, Offset const& o, Target const&) const
     {
-      return _mm256_i32gather_epi64((long long int const*)(p), o, sizeof(typename target::value_type));
+      constexpr auto mask = sizeof(typename target::value_type);
+      return _mm256_i32gather_epi64((long long int const*)(p), o, mask);
     }
   };
 
@@ -106,7 +110,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer p, Offset const& o, Target const&) const
     {
-      return _mm256_i64gather_ps(p, o, sizeof(typename target::value_type));
+      constexpr auto mask = sizeof(typename target::value_type);
+      return _mm256_i64gather_ps(p, o, mask);
     }
   };
 
@@ -123,7 +128,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer p, Offset const& o, Target const&) const
     {
-      return _mm256_i64gather_pd(p, o, sizeof(typename target::value_type));
+      constexpr auto mask = sizeof(typename target::value_type);
+      return _mm256_i64gather_pd(p, o, mask);
     }
   };
 
@@ -140,7 +146,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer p, Offset const& o, Target const&) const
     {
-      return _mm256_i64gather_epi64( (long long int const*)(p), o, sizeof(typename target::value_type));
+      constexpr auto mask = sizeof(typename target::value_type);
+      return _mm256_i64gather_epi64( (long long int const*)(p), o, mask);
     }
   };
 
@@ -157,7 +164,8 @@ namespace boost { namespace simd { namespace ext
     using target = typename Target::type;
     BOOST_FORCEINLINE target operator()(Pointer p, Offset const& o, Target const&) const
     {
-      return _mm256_i64gather_epi32( (int const*)(p), o, sizeof(typename target::value_type));
+      constexpr auto mask = sizeof(typename target::value_type);
+      return _mm256_i64gather_epi32( (int const*)(p), o, mask);
     }
   };
 } } }

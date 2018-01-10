@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/int_.hpp"
 
-#include "pythonic/utils/functor.hpp"
+#include "pythonic/types/str.hpp"
 
 #include <cassert>
 
@@ -15,6 +15,14 @@ namespace pythonic
 
     namespace functor
     {
+      int_::type int_::operator()(char const t[], int base) const
+      {
+        return std::strtol(t, nullptr, base);
+      }
+      int_::type int_::operator()(types::str const &t, int base) const
+      {
+        return (*this)(t.c_str(), base);
+      }
 
       template <class T>
       int_::type int_::operator()(T &&t) const

@@ -14,19 +14,19 @@ namespace pythonic
   namespace numpy
   {
     template <class E>
-    bool _any(E begin, E end, utils::int_<1>)
+    bool _any(E const &e, utils::int_<1>)
     {
-      return std::any_of(begin, end,
-                         [](typename std::iterator_traits<E>::value_type e)
-                             -> bool { return e; });
+      return std::any_of(e.begin(), e.end(),
+                         [](typename E::dtype elt) -> bool { return elt; });
     }
 
     template <class E, size_t N>
-    bool _any(E begin, E end, utils::int_<N>)
+    bool _any(E const &e, utils::int_<N>)
     {
-      for (; begin != end; ++begin)
-        if (_any((*begin).begin(), (*begin).end(), utils::int_<N - 1>()))
+      for (auto &&elt : e)
+        if (_any(elt, utils::int_<N - 1>())) {
           return true;
+        }
       return false;
     }
 
@@ -34,7 +34,7 @@ namespace pythonic
     typename std::enable_if<types::is_numexpr_arg<E>::value, bool>::type
     any(E const &expr, types::none_type)
     {
-      return _any(expr.begin(), expr.end(), utils::int_<E::value>());
+      return _any(expr, utils::int_<E::value>());
     }
 
     template <class E>

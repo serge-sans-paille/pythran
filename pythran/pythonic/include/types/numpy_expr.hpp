@@ -134,7 +134,7 @@ namespace pythonic
       template <size_t I>
       bool _eq(numpy_expr_iterator const &other, utils::int_<I>) const
       {
-        return (steps_[I - 1] &&
+        return (!steps_[I - 1] ||
                 (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_))) &&
                _eq(other, utils::int_<I - 1>{});
       }

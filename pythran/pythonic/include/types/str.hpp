@@ -117,6 +117,7 @@ namespace pythonic
 
     public:
       static const size_t npos = std::string::npos;
+      static constexpr bool is_vectorizable = false;
 
       using value_type = str; // in Python, a string contains... strings
       using iterator = container_type::iterator;

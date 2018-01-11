@@ -57,6 +57,7 @@ namespace pythonic
       return utils::broadcast_copy < numpy_iexpr &, E, value,
              value - utils::dim_of<E>::value,
              is_vectorizable &&
+                 std::is_same<dtype, typename dtype_of<E>::type>::value &&
                  types::is_vectorizable<E>::value > (*this, expr);
     }
 

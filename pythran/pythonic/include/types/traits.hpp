@@ -67,6 +67,9 @@ namespace pythonic
     /* trait to check if a type has a fast iterator */
     MEMBER_TYPE_TRAIT(has_fast_iterator, const_fast_iterator);
 
+    /* trait to check if a type has a fast vectorizable type field */
+    MEMBER_TYPE_TRAIT(has_vectorizable, vectorizable);
+
     /* trait to check if the type has a contains member */
     template <typename T, class V>
     struct has_contains {

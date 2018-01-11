@@ -199,95 +199,79 @@ namespace pythonic
     }
 #ifdef USE_BOOST_SIMD
     template <class E>
-    const_simd_nditerator<E>::const_simd_nditerator(E const &data, long index)
-        : data(data), index(index)
+    const_simd_nditerator<E>::const_simd_nditerator(
+        typename E::dtype const *data)
+        : data(data)
     {
     }
 
     template <class E>
-    auto const_simd_nditerator<E>::operator*() const
-        -> decltype(data.load(index))
+    auto const_simd_nditerator<E>::operator*() const -> decltype(
+        boost::simd::load<boost::simd::pack<typename E::dtype>>(data))
     {
-      return data.load(index);
+      return boost::simd::load<boost::simd::pack<typename E::dtype>>(data);
     }
 
     template <class E>
     const_simd_nditerator<E> &const_simd_nditerator<E>::operator++()
     {
-      index += vector_size;
-      return *this;
-    }
-
-    template <class E>
-    const_simd_nditerator<E> &const_simd_nditerator<E>::operator--()
-    {
-      index -= vector_size;
+      data += vector_size;
       return *this;
     }
 
     template <class E>
     const_simd_nditerator<E> &const_simd_nditerator<E>::operator+=(long i)
     {
-      index += i * vector_size;
+      data += vector_size * i;
       return *this;
     }
 
     template <class E>
-    const_simd_nditerator<E> &const_simd_nditerator<E>::operator-=(long i)
+    const_simd_nditerator<E> const_simd_nditerator<E>::operator+(long i)
     {
-      index -= i * vector_size;
+      return {data + vector_size * i};
+    }
+
+    template <class E>
+    const_simd_nditerator<E> &const_simd_nditerator<E>::operator--()
+    {
+      data -= vector_size;
       return *this;
-    }
-
-    template <class E>
-    const_simd_nditerator<E> const_simd_nditerator<E>::operator+(long i) const
-    {
-      const_simd_nditerator<E> other(*this);
-      other += i;
-      return other;
-    }
-
-    template <class E>
-    const_simd_nditerator<E> const_simd_nditerator<E>::operator-(long i) const
-    {
-      const_simd_nditerator<E> other(*this);
-      other -= i;
-      return other;
     }
 
     template <class E>
     long const_simd_nditerator<E>::
     operator-(const_simd_nditerator<E> const &other) const
     {
-      return (index - other.index) / vector_size;
+      return (data - other.data) / vector_size;
     }
 
     template <class E>
     bool const_simd_nditerator<E>::
     operator!=(const_simd_nditerator<E> const &other) const
     {
-      return index != other.index;
+      return data != other.data;
     }
 
     template <class E>
     bool const_simd_nditerator<E>::
     operator==(const_simd_nditerator<E> const &other) const
     {
-      return index == other.index;
+      return data == other.data;
     }
 
     template <class E>
     bool const_simd_nditerator<E>::
     operator<(const_simd_nditerator<E> const &other) const
     {
-      return index < other.index;
+      return data < other.data;
     }
 
     template <class E>
     const_simd_nditerator<E> &const_simd_nditerator<E>::
     operator=(const_simd_nditerator const &other)
     {
-      index = other.index;
+      data = other.data;
       return *this;
     }
 #endif

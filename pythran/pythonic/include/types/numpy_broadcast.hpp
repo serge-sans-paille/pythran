@@ -93,15 +93,12 @@ namespace pythonic
       T const &operator[](long i) const;
       T const &fast(long i) const;
 #ifdef USE_BOOST_SIMD
-      using simd_iterator = const_simd_nditerator<broadcasted>;
+      using simd_iterator = const_simd_nditerator_nostep<broadcasted>;
       using simd_iterator_nobroadcast = simd_iterator;
       template <class vectorizer>
       simd_iterator vbegin(vectorizer) const;
       template <class vectorizer>
       simd_iterator vend(vectorizer) const;
-      template <class I> // template to prevent automatic instantiation, but the
-      // declaration is still needed
-      void load(I) const;
 #endif
 
       template <class Arg0, class... Args>

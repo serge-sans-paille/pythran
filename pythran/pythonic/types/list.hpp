@@ -393,7 +393,7 @@ namespace pythonic
     template <class vectorizer>
     typename list<T>::simd_iterator list<T>::vbegin(vectorizer) const
     {
-      return {*this, 0};
+      return {data->data()};
     }
 
     template <class T>
@@ -402,14 +402,9 @@ namespace pythonic
     {
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;
-      return {*this, long(size() / vector_size * vector_size)};
+      return {data->data() + long(size() / vector_size * vector_size)};
     }
-    template <class T>
-    auto list<T>::load(long i) const
-        -> decltype(boost::simd::load<boost::simd::pack<T>>((*this->data), i))
-    {
-      return boost::simd::load<boost::simd::pack<T>>(data->data(), i);
-    }
+
     template <class T>
     template <class V>
     void list<T>::store(V &&v, long i)

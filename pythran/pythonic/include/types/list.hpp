@@ -238,9 +238,6 @@ namespace pythonic
       simd_iterator vbegin(vectorizer) const;
       template <class vectorizer>
       simd_iterator vend(vectorizer) const;
-      auto load(long i) const
-          -> decltype(boost::simd::load<boost::simd::pack<T>>((*this->data),
-                                                              i));
       template <class V>
       void store(V &&v, long i);
 #endif

@@ -275,7 +275,7 @@ namespace pythonic
     typename numpy_iexpr<Arg>::simd_iterator
         numpy_iexpr<Arg>::vbegin(vectorizer) const
     {
-      return {*this, 0};
+      return {buffer};
     }
 
     template <class Arg>
@@ -285,25 +285,15 @@ namespace pythonic
     {
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;
-      return {*this, long(_shape[0] / vector_size * vector_size)};
-    }
-
-    template <class Arg>
-    template <class I>
-    auto numpy_iexpr<Arg>::load(I i) const
-        -> decltype(boost::simd::load<boost::simd::pack<dtype>>(this->buffer,
-                                                                i))
-    {
-      using T = dtype;
-      using vT = typename boost::simd::pack<T>;
-      return boost::simd::load<vT>(buffer, i);
+      return {buffer + long(_shape[0] / vector_size * vector_size)};
     }
 
     template <class Arg>
     template <class V>
     void numpy_iexpr<Arg>::store(V &&v, long i)
     {
-      boost::simd::store(v, buffer, i);
+      using vector_type = typename boost::simd::pack<dtype>;
+      boost::simd::store(v, buffer, i * vector_type::static_size);
     }
 #endif
     template <class Arg>

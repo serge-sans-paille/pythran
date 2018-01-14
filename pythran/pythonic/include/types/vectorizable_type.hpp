@@ -43,7 +43,7 @@ namespace pythonic
     };
 
     template <class T>
-    struct is_vectorizable {
+    struct is_vectorizable_dtype {
       static const bool value =
           is_dtype<T>::value and not std::is_same<T, bool>::value and
           not std::is_same<T, std::complex<float>>::value and
@@ -52,16 +52,23 @@ namespace pythonic
 
     /* trait to check if is T is an array-like type that supports vectorization
     */
-    template <class T, bool scalar = is_dtype<T>::value>
+    template <class T, bool scalar = has_vectorizable<T>::value>
     struct is_vectorizable_array;
 
     template <class T>
-    struct is_vectorizable_array<T, true> : std::false_type {
+    struct is_vectorizable_array<T, false> : std::false_type {
     };
 
     template <class T>
-    struct is_vectorizable_array<T, false>
+    struct is_vectorizable_array<T, true>
         : std::integral_constant<bool, T::is_vectorizable> {
+    };
+
+    template <class T>
+    struct is_vectorizable {
+      static const bool value =
+          std::conditional<is_dtype<T>::value, is_vectorizable_dtype<T>,
+                           is_vectorizable_array<T>>::type::value;
     };
 
     template <class O>

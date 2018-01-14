@@ -464,6 +464,7 @@ namespace pythonic
         return utils::broadcast_copy < numpy_gexpr &, E, value,
                value - utils::dim_of<E>::value,
                is_vectorizable and
+                   std::is_same<dtype, typename dtype_of<E>::type>::value and
                    is_vectorizable_array<E>::value > (*this, expr);
       }
     }
@@ -479,6 +480,7 @@ namespace pythonic
       return utils::broadcast_copy < numpy_gexpr &, E, value,
              value - utils::dim_of<E>::value,
              is_vectorizable and
+                 std::is_same<dtype, typename dtype_of<E>::type>::value and
                  is_vectorizable_array<E>::value > (*this, expr);
     }
 

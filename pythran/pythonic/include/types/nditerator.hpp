@@ -156,6 +156,7 @@ namespace pythonic
       bool operator==(const_simd_nditerator const &other) const;
       bool operator<(const_simd_nditerator const &other) const;
       const_simd_nditerator &operator=(const_simd_nditerator const &other);
+      void store(boost::simd::pack<typename E::dtype> const &);
     };
     template <class E>
     struct const_simd_nditerator_nostep : const_simd_nditerator<E> {

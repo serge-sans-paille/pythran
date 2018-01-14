@@ -128,8 +128,9 @@ namespace pythonic
         }
       else
 #endif
-        for (long i = 0; i < bound; i++, ++oiter) {
-          self.store(*oiter, i);
+        for (auto iter = vectorizer::vbegin(self), end = vectorizer::vend(self);
+             iter != end; ++iter, ++oiter) {
+          iter.store(*oiter);
         }
       // tail
       {
@@ -291,19 +292,19 @@ namespace pythonic
       if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
         for (long i = 0; i < bound; i++) {
-          self.store(Op{}(*(iter + i), *(oiter + i)), i);
+          (iter + i).store(Op{}(*(iter + i), *(oiter + i)));
         }
       else
 #endif
-        for (long i = 0; i < bound; i++, ++iter, ++oiter) {
-          self.store(Op{}(*iter, *oiter), i);
+        for (auto end = vectorizer::vend(self); iter != end; ++iter, ++oiter) {
+          iter.store(Op{}(*iter, *oiter));
         }
       // tail
       {
         auto siter = self.begin();
         auto oiter = other.begin();
         for (long i = bound * vN; i < other_size; ++i)
-          *(siter + i) = Op{}(*(siter + i), *(oiter + i));
+          Op{}(*(siter + i), *(oiter + i));
       }
     }
 

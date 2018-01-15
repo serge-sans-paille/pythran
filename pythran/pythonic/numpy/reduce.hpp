@@ -8,6 +8,14 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/utils/neutral.hpp"
 
+#ifdef USE_BOOST_SIMD
+#include <boost/simd/function/broadcast.hpp>
+#include <boost/simd/function/aligned_store.hpp>
+#include <boost/simd/pack.hpp>
+#include <boost/simd/function/load.hpp>
+#include <boost/simd/function/store.hpp>
+#endif
+
 #include <algorithm>
 
 namespace pythonic
@@ -49,8 +57,7 @@ namespace pythonic
       const long bound = std::distance(viter, vend);
       if (bound > 0) {
         auto vacc = *viter;
-        ++viter;
-        for (long i = 1; i < bound; ++i, ++viter)
+        for (++viter; viter != vend; ++viter)
           Op{}(vacc, *viter);
         alignas(sizeof(vT)) T stored[vN];
         boost::simd::store(vacc, &stored[0]);

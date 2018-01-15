@@ -5,11 +5,6 @@
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/utils/array_helper.hpp"
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/store.hpp>
-#endif
-
 #include <numeric>
 
 namespace pythonic
@@ -166,9 +161,6 @@ namespace pythonic
       simd_iterator vbegin(vectorizer) const;
       template <class vectorizer>
       simd_iterator vend(vectorizer) const;
-
-      template <class V>
-      void store(V &&v, long i);
 #endif
       template <class... S>
       numpy_gexpr<numpy_iexpr, slice, S...> operator()(slice const &s0,

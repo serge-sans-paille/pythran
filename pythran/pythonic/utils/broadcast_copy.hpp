@@ -121,12 +121,13 @@ namespace pythonic
           std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
 #ifdef _OPENMP
-      if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+      if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT) {
+        auto iter = vectorizer::vbegin(self);
 #pragma omp parallel for
         for (long i = 0; i < bound; ++i) {
-          self.store(*(oiter + i), i);
+          (iter + i).store(*(oiter + i));
         }
-      else
+      } else
 #endif
         for (auto iter = vectorizer::vbegin(self), end = vectorizer::vend(self);
              iter != end; ++iter, ++oiter) {

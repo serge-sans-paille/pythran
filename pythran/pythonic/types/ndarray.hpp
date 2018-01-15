@@ -596,13 +596,6 @@ namespace pythonic
       return {buffer + long(_shape[0] / vector_size * vector_size)};
     }
 
-    template <class T, size_t N>
-    template <class V>
-    void ndarray<T, N>::store(V &&v, long i)
-    {
-      using vector_type = typename boost::simd::pack<dtype>;
-      boost::simd::store(v, buffer + i * vector_type::static_size);
-    }
 #endif
 
     /* slice indexing */

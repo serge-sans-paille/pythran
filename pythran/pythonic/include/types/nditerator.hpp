@@ -2,8 +2,11 @@
 #define PYTHONIC_INCLUDE_TYPES_NDITERATOR_HPP
 
 #include <iterator>
+
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/pack.hpp>
+#include <boost/simd/function/load.hpp>
+#include <boost/simd/function/store.hpp>
 #endif
 
 namespace pythonic

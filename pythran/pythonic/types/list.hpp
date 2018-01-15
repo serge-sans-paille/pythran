@@ -405,12 +405,6 @@ namespace pythonic
       return {data->data() + long(size() / vector_size * vector_size)};
     }
 
-    template <class T>
-    template <class V>
-    void list<T>::store(V &&v, long i)
-    {
-      boost::simd::store(v, data->data(), i);
-    }
 #endif
     template <class T>
     typename list<T>::reference list<T>::fast(long n)

@@ -8,12 +8,6 @@
 #include "pythonic/include/utils/seq.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/load.hpp>
-#include <boost/simd/function/store.hpp>
-#endif
-
 #include <tuple>
 #include <algorithm>
 
@@ -159,9 +153,6 @@ namespace pythonic
       simd_iterator vbegin(vectorizer) const;
       template <class vectorizer>
       simd_iterator vend(vectorizer) const;
-
-      template <class V>
-      void store(V &&v, long i);
 #endif
 
       reference operator[](size_type __n);

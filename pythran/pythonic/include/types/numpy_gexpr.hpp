@@ -3,10 +3,6 @@
 
 #include "pythonic/include/utils/meta.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/store.hpp>
-#endif
 
 namespace pythonic
 {
@@ -512,10 +508,6 @@ namespace pythonic
       simd_iterator vbegin(vectorizer) const;
       template <class vectorizer>
       simd_iterator vend(vectorizer) const;
-
-      template <class V>
-      void store(V &&v, long i);
-
 #endif
 
       template <class... Sp>

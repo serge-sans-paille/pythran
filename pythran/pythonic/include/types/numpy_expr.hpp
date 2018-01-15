@@ -271,6 +271,7 @@ namespace pythonic
       {
         return _neq(other, utils::int_<sizeof...(Iters)>{});
       }
+
       bool _eq(numpy_expr_simd_iterator const &other, utils::int_<0u>) const
       {
         return true;
@@ -391,6 +392,65 @@ namespace pythonic
       {
         _update(i, utils::make_index_sequence<sizeof...(Iters)>{});
         return *this;
+      }
+
+      bool _neq(numpy_expr_simd_iterator_nobroadcast const &other,
+                utils::int_<0u>) const
+      {
+        return false;
+      }
+
+      template <size_t I>
+      bool _neq(numpy_expr_simd_iterator_nobroadcast const &other,
+                utils::int_<I>) const
+      {
+        return (std::get<I - 1>(iters_) != std::get<I - 1>(other.iters_)) ||
+               _neq(other, utils::int_<I - 1>{});
+      }
+
+      bool operator!=(numpy_expr_simd_iterator_nobroadcast const &other) const
+      {
+        return _neq(other, utils::int_<sizeof...(Iters)>{});
+      }
+
+      bool _eq(numpy_expr_simd_iterator_nobroadcast const &other,
+               utils::int_<0u>) const
+      {
+        return true;
+      }
+
+      template <size_t I>
+      bool _eq(numpy_expr_simd_iterator_nobroadcast const &other,
+               utils::int_<I>) const
+      {
+        return (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_)) &&
+               _eq(other, utils::int_<I - 1>{});
+      }
+
+      bool operator==(numpy_expr_simd_iterator_nobroadcast const &other) const
+      {
+        return _eq(other, utils::int_<sizeof...(Iters)>{});
+      }
+
+      bool _lt(numpy_expr_simd_iterator_nobroadcast const &other,
+               utils::int_<0u>) const
+      {
+        return false;
+      }
+
+      template <size_t I>
+      bool _lt(numpy_expr_simd_iterator_nobroadcast const &other,
+               utils::int_<I>) const
+      {
+        if (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_))
+          return _lt(other, utils::int_<I - 1>{});
+        else
+          return std::get<I - 1>(iters_) < std::get<I - 1>(other.iters_);
+      }
+
+      bool operator<(numpy_expr_simd_iterator_nobroadcast const &other) const
+      {
+        return _lt(other, utils::int_<sizeof...(Iters)>{});
       }
     };
 #endif

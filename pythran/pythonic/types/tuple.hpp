@@ -10,12 +10,6 @@
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/seq.hpp"
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/load.hpp>
-#include <boost/simd/function/store.hpp>
-#endif
-
 #include <tuple>
 #include <algorithm>
 
@@ -275,13 +269,6 @@ namespace pythonic
       using vector_type = typename boost::simd::pack<dtype>;
       static const std::size_t vector_size = vector_type::static_size;
       return {&buffer[long(size() / vector_size * vector_size)]};
-    }
-
-    template <typename T, size_t N>
-    template <class V>
-    void array<T, N>::store(V &&v, long i)
-    {
-      boost::simd::store(v, &buffer[0], i);
     }
 #endif
 

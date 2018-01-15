@@ -5,6 +5,7 @@ from pythran.config import have_gmp_support
 
 from unittest import skip, skipIf
 import sys
+import numpy
 
 from pythran.typing import *
 
@@ -239,3 +240,12 @@ def combiner_on_empty_list():
                 'éàea'
         '''
         self.run_test(code, function_with_non_ascii_docstring=[])
+
+    @skipIf(sys.version_info.major == 2, "@ is a Python3 extension")
+    def test_matmul_operator(self):
+        code = 'def matmul_operator(x, y): return x @ y'
+        self.run_test(
+            code,
+            numpy.array([[1., 1.], [2., 2.]]),
+            numpy.array([[0., 2.], [1., 3.]]),
+            matmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])

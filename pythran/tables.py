@@ -3308,6 +3308,8 @@ MODULES = {
         "ceil": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "clip": ConstMethodIntr(signature=_numpy_ternary_op_signature),
         "concatenate": ConstFunctionIntr(
+            args=('_', 'axis'),
+            defaults=(0,),
             signature=Union[
                 # 1D
                 Fun[[Iterable[Iterable[bool]]], NDArray[bool, :]],

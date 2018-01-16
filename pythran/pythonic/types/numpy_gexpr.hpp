@@ -706,16 +706,6 @@ namespace pythonic
               long(_shape[0] / vector_size * vector_size)};
     }
 
-    template <class Arg, class... S>
-    template <class V>
-    void numpy_gexpr<Arg, S...>::store(V &&v, long i)
-    {
-      using vector_type = typename boost::simd::pack<dtype>;
-      boost::simd::store(
-          v, buffer + std::get<count_leading_long<S...>::value>(slices).lower +
-                 i * vector_type::static_size);
-    }
-
 #endif
 
     template <class Arg, class... S>

@@ -211,6 +211,7 @@ namespace pythonic
     {
       return boost::simd::load<boost::simd::pack<typename E::dtype>>(data);
     }
+
     template <class E>
     void const_simd_nditerator<E>::store(
         boost::simd::pack<typename E::dtype> const &val)

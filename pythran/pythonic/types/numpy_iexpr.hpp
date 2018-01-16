@@ -289,13 +289,6 @@ namespace pythonic
       return {buffer + long(_shape[0] / vector_size * vector_size)};
     }
 
-    template <class Arg>
-    template <class V>
-    void numpy_iexpr<Arg>::store(V &&v, long i)
-    {
-      using vector_type = typename boost::simd::pack<dtype>;
-      boost::simd::store(v, buffer, i * vector_type::static_size);
-    }
 #endif
     template <class Arg>
     auto numpy_iexpr<Arg>::operator[](long i) const & -> decltype(this->fast(i))

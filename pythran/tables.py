@@ -3695,6 +3695,7 @@ MODULES = {
         "linalg": {
             "norm": FunctionIntr(args=('x', 'ord', 'axis'),
                                  defaults=(None, None)),
+            "matrix_power": ConstFunctionIntr(),
         },
         "linspace": ConstFunctionIntr(),
         "log": ConstFunctionIntr(),

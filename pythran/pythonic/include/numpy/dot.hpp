@@ -119,6 +119,12 @@ namespace pythonic
     typename std::enable_if<is_blas_type<E>::value, types::ndarray<E, 2>>::type
         dot(types::ndarray<E, 2> const &a, types::ndarray<E, 2> const &b);
 
+    template <class E>
+    typename std::enable_if<is_blas_type<E>::value,
+                            types::ndarray<E, 2>>::type &
+        dot(types::ndarray<E, 2> const &a, types::ndarray<E, 2> const &b,
+            types::ndarray<E, 2> &c);
+
     // If arguments could be sue with blas, we evaluate them as we need pointer
     // on array for blas
     template <class E, class F>

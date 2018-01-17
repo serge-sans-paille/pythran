@@ -17,6 +17,7 @@ from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr, UFunc
 from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran import interval
+from functools import reduce
 
 if sys.version_info.major == 3:
     sys.modules['__builtin__'] = sys.modules['builtins']
@@ -3801,6 +3802,8 @@ MODULES = {
                                           global_effects=True),
             "sample": FunctionIntr(args=('size',),
                                    global_effects=True),
+            "seed": FunctionIntr(global_effects=True),
+            "shuffle": FunctionIntr(global_effects=True),
             "standard_normal": FunctionIntr(args=('size',),
                                             global_effects=True),
         },
@@ -4402,14 +4405,15 @@ if 'WindowsError' in sys.modules['__builtin__'].__dict__:
     MODULES['__builtin__']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
-for module_name in ["omp", "scipy"]:
+for module_name in ["omp", "scipy.special"]:
     try:
         __import__(module_name)
     except ImportError:
         logger.warn(
             "Pythran support disabled for module: {}".format(module_name)
         )
-        del MODULES[module_name]
+        parts = module_name.split(".")
+        del reduce(lambda m, field: m[field], parts[:-1], MODULES)[parts[-1]]
 
 # check and delete unimplemented numpy methods
 for method in list(MODULES['numpy'].keys()):

@@ -88,6 +88,7 @@ operator_to_lambda = {
     ast.BitOr: "({0} | {1})".format,
     ast.BitXor: "({0} ^ {1})".format,
     ast.BitAnd: "({0} & {1})".format,
+    ast.MatMult: "pythonic::operator_::matmul({0}, {1})".format,
     # assume from __future__ import division
     ast.FloorDiv:
         "(pythonic::operator_::functor::floordiv{{}}({0}, {1}))".format,
@@ -3307,6 +3308,8 @@ MODULES = {
         "ceil": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "clip": ConstMethodIntr(signature=_numpy_ternary_op_signature),
         "concatenate": ConstFunctionIntr(
+            args=('_', 'axis'),
+            defaults=(0,),
             signature=Union[
                 # 1D
                 Fun[[Iterable[Iterable[bool]]], NDArray[bool, :]],
@@ -3694,6 +3697,7 @@ MODULES = {
         "linalg": {
             "norm": FunctionIntr(args=('x', 'ord', 'axis'),
                                  defaults=(None, None)),
+            "matrix_power": ConstFunctionIntr(),
         },
         "linspace": ConstFunctionIntr(),
         "log": ConstFunctionIntr(),
@@ -4249,6 +4253,8 @@ MODULES = {
         "__lshift__": ConstFunctionIntr(
             signature=_numpy_int_binary_op_signature
         ),
+        "matmul": ConstFunctionIntr(signature=_operator_mul_signature),
+        "__matmul__": ConstFunctionIntr(signature=_operator_mul_signature),
         "mod": ConstFunctionIntr(signature=_operator_mod_signature),
         "__mod__": ConstFunctionIntr(signature=_operator_mod_signature),
         "mul": ConstFunctionIntr(signature=_operator_mul_signature),
@@ -4392,6 +4398,9 @@ if sys.version_info.major == 3:
                 CLASSES['file'], global_effects=True)
         }
     }
+else:
+    del MODULES['operator_']['matmul']
+    del MODULES['operator_']['__matmul__']
 
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:

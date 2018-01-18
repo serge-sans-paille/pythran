@@ -162,6 +162,12 @@ def test_copy0(x):
     def test_concatenate1(self):
         self.run_test("def np_concatenate1(a): from numpy import array, concatenate ; b = array([[5, 6]]) ; return concatenate([a,b])", numpy.array([[1, 2], [3, 4]]), np_concatenate1=[NDArray[int,:,:]])
 
+    def test_concatenate2(self):
+        self.run_test(
+            "def np_concatenate2(a): from numpy import array, concatenate ; b = array([[5, 6]]).T ; return concatenate([a,b, b], axis=1)",
+            numpy.array([[1, 2], [3, 4]]),
+            np_concatenate2=[NDArray[int,:,:]])
+
     def test_hstack0(self):
         self.run_test("def np_hstack0(a,b): import numpy as np; return np.hstack((a,b))",
                       numpy.array((1,2,3)),
@@ -671,4 +677,24 @@ def np_broadcast_dup():
     def test_sum_neg_shape(self):
         self.run_test("def np_sum_neg_shape(a): return a.sum(axis=-1)", numpy.arange(10).reshape(5,2), np_sum_neg_shape=[NDArray[int,:,:]])
 
+    def test_matrix_power0(self):
+        self.run_test(
+            "def np_matrix_power0(a): from numpy.linalg import matrix_power; return matrix_power(a, 0)",
+            numpy.ones((10,10)),
+            np_matrix_power0=[NDArray[float,:,:]]
+        )
+
+    def test_matrix_power1(self):
+        self.run_test(
+            "def np_matrix_power1(a): from numpy.linalg import matrix_power; return matrix_power(a, 1)",
+            numpy.ones((10,10)),
+            np_matrix_power1=[NDArray[float,:,:]]
+        )
+
+    def test_matrix_power2(self):
+        self.run_test(
+            "def np_matrix_power2(a): from numpy.linalg import matrix_power; return matrix_power(a, 5)",
+            numpy.ones((10,10)),
+            np_matrix_power2=[NDArray[float,:,:]]
+        )
 

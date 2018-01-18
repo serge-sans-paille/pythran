@@ -38,6 +38,10 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('__builtin__', 'pow'))
         self.generic_visit(node)
 
+    def visit_MatMult(self, node):
+        self.result.add(('operator_', 'matmul'))
+        self.generic_visit(node)
+
     def visit_In(self, node):
         self.result.add(('__builtin__', 'in'))
         self.generic_visit(node)

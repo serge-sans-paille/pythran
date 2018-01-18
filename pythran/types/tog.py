@@ -37,6 +37,7 @@ symbol_of = {
     gast.BitAnd: '&',
     gast.FloorDiv: '//',
     gast.Invert: '~',
+    gast.MatMult: '@',
     gast.Not: '!',
     gast.UAdd: '+',
     gast.USub: '-',
@@ -703,6 +704,8 @@ def analyse(node, env, non_generic=None):
         return tr(MODULES['operator_']['add'])
     elif isinstance(node, gast.Mult):
         return tr(MODULES['operator_']['mul'])
+    elif isinstance(node, gast.MatMult):
+        return tr(MODULES['operator_']['matmul'])
     elif isinstance(node, (gast.Div, gast.FloorDiv)):
         return tr(MODULES['operator_']['floordiv'])
     elif isinstance(node, gast.Mod):

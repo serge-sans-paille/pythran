@@ -239,6 +239,18 @@ namespace pythonic
       return out;
     }
 
+    template <class E>
+    typename std::enable_if<is_blas_type<E>::value,
+                            types::ndarray<E, 2>>::type &
+        dot(types::ndarray<E, 2> const &a, types::ndarray<E, 2> const &b,
+            types::ndarray<E, 2> &c)
+    {
+      int n = b.shape()[1], m = a.shape()[0], k = b.shape()[0];
+
+      mm(m, n, k, a.buffer, b.buffer, c.buffer);
+      return c;
+    }
+
 #define TM_DEF(T, L)                                                           \
   void tm(int m, int n, int k, T *A, T *B, T *C)                               \
   {                                                                            \

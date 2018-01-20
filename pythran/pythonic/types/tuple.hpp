@@ -345,6 +345,13 @@ namespace pythonic
 
     template <typename T, size_t N>
     template <size_t M>
+    bool array<T, N>::operator!=(array<T, M> const &other) const
+    {
+      return !(*this == other);
+    }
+
+    template <typename T, size_t N>
+    template <size_t M>
     bool array<T, N>::operator<(array<T, M> const &other) const
     {
       return std::lexicographical_compare(begin(), end(), other.begin(),

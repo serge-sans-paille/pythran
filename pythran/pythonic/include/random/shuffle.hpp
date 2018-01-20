@@ -3,6 +3,7 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/random/random.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 
 namespace pythonic
 {
@@ -10,9 +11,9 @@ namespace pythonic
   namespace random
   {
     template <class T>
-    void shuffle(T &seq);
+    types::none_type shuffle(T &seq);
     template <class T, class function>
-    void shuffle(T &seq, function &&randf);
+    types::none_type shuffle(T &seq, function &&randf);
 
     DECLARE_FUNCTOR(pythonic::random, shuffle)
   }

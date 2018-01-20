@@ -46,6 +46,26 @@ namespace std
   {
     return double(self) / other;
   }
+
+  bool operator==(std::complex<double> self, long other)
+  {
+    return self == double(other);
+  }
+
+  bool operator==(long self, std::complex<double> other)
+  {
+    return double(self) == other;
+  }
+
+  bool operator!=(std::complex<double> self, long other)
+  {
+    return self != double(other);
+  }
+
+  bool operator!=(long self, std::complex<double> other)
+  {
+    return double(self) != other;
+  }
 }
 
 namespace pythonic

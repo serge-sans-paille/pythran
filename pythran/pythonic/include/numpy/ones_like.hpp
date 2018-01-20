@@ -9,10 +9,14 @@ namespace pythonic
 
   namespace numpy
   {
+
+    template <class E, class dtype>
+    auto ones_like(E const &expr, dtype d = dtype())
+        -> decltype(ones(expr.shape(), d));
+
     template <class E>
-    auto ones_like(E const &expr)
-        -> decltype(ones(expr.shape(),
-                         pythonic::types::dtype_t<typename E::dtype>()));
+    auto ones_like(E const &expr, types::none_type d = __builtin__::None)
+        -> decltype(ones(expr.shape(), types::dtype_t<typename E::dtype>()));
 
     DECLARE_FUNCTOR(pythonic::numpy, ones_like)
   }

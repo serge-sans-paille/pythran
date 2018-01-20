@@ -5,8 +5,6 @@
 #include "pythonic/include/__builtin__/None.hpp"
 #include "pythonic/include/random/random.hpp"
 
-#include <ctime>
-
 namespace pythonic
 {
 

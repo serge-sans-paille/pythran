@@ -3806,6 +3806,8 @@ MODULES = {
                                           global_effects=True),
             "sample": FunctionIntr(args=('size',),
                                    global_effects=True),
+            "seed": FunctionIntr(global_effects=True),
+            "shuffle": FunctionIntr(global_effects=True),
             "standard_normal": FunctionIntr(args=('size',),
                                             global_effects=True),
         },

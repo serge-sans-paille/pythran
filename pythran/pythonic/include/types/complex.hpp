@@ -13,6 +13,10 @@ namespace std
   std::complex<double> operator*(long self, std::complex<double> other);
   std::complex<double> operator/(std::complex<double> self, long other);
   std::complex<double> operator/(long self, std::complex<double> other);
+  bool operator==(std::complex<double> self, long other);
+  bool operator==(long self, std::complex<double> other);
+  bool operator!=(std::complex<double> self, long other);
+  bool operator!=(long self, std::complex<double> other);
 }
 
 namespace pythonic
@@ -52,6 +56,8 @@ STD_COMPLEX_IMPLICT_OPERATOR_CAST(+)
 STD_COMPLEX_IMPLICT_OPERATOR_CAST(-)
 STD_COMPLEX_IMPLICT_OPERATOR_CAST(*)
 STD_COMPLEX_IMPLICT_OPERATOR_CAST(/ )
+STD_COMPLEX_IMPLICT_OPERATOR_CAST(== )
+STD_COMPLEX_IMPLICT_OPERATOR_CAST(!= )
 
 #ifdef ENABLE_PYTHON_MODULE
 

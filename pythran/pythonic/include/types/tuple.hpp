@@ -175,6 +175,9 @@ namespace pythonic
       bool operator==(array<T, M> const &other) const;
 
       template <size_t M>
+      bool operator!=(array<T, M> const &other) const;
+
+      template <size_t M>
       bool operator<(array<T, M> const &other) const;
 
       template <size_t M>

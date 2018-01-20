@@ -1,8 +1,11 @@
-from test_env import TestEnv
 from pythran.typing import List
+from test_env import TestFromDir
+
+import os
+
 # from http://www.scipy.org/Download , weave/example directory
 
-class TestScipy(TestEnv):
+class TestScipy(TestFromDir):
 
     def test_laplace(self):
         code="""
@@ -68,3 +71,8 @@ def ramp(result, start, end):
         result[i] = start + step*i
 """
         self.run_test(code,[0. for x in xrange(10)], 1.5, 9.5, ramp=[List[float], float, float])
+
+    path = os.path.join(os.path.dirname(__file__), "scipy")
+
+
+TestScipy.populate(TestScipy)

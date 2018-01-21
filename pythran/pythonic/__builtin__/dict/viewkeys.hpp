@@ -6,24 +6,23 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
+    template <class K, class V>
+    types::dict_keys<types::dict<K, V>> viewkeys(types::dict<K, V> const &d)
     {
-
-      template <class K, class V>
-      types::dict_keys<types::dict<K, V>> viewkeys(types::dict<K, V> const &d)
-      {
-        return d.viewkeys();
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::dict, viewkeys);
+      return d.viewkeys();
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, viewkeys);
   }
 }
+PYTHONIC_NS_END
 
 #endif

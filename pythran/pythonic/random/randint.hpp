@@ -6,20 +6,19 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/random/randrange.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
 
-  namespace random
+  long randint(long a, long b)
   {
-
-    long randint(long a, long b)
-    {
-      // TODO: It should be implemented with an uniform_int_distribution
-      return randrange(a, b + 1);
-    }
-
-    DEFINE_FUNCTOR(pythonic::random, randint);
+    // TODO: It should be implemented with an uniform_int_distribution
+    return randrange(a, b + 1);
   }
+
+  DEFINE_FUNCTOR(pythonic::random, randint);
 }
+PYTHONIC_NS_END
 
 #endif

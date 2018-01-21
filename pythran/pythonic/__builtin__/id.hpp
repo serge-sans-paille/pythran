@@ -12,35 +12,34 @@
  * Accuracy is lost this way...
  */
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <class T>
+  long id(T const &t)
   {
-
-    template <class T>
-    long id(T const &t)
-    {
-      return t.id();
-    }
-
-    long id(long const &t)
-    {
-      return reinterpret_cast<uintptr_t>(&t);
-    }
-
-    long id(double const &t)
-    {
-      return reinterpret_cast<uintptr_t>(&t);
-    }
-
-    long id(bool const &t)
-    {
-      return reinterpret_cast<uintptr_t>(&t);
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, id);
+    return t.id();
   }
+
+  long id(long const &t)
+  {
+    return reinterpret_cast<uintptr_t>(&t);
+  }
+
+  long id(double const &t)
+  {
+    return reinterpret_cast<uintptr_t>(&t);
+  }
+
+  long id(bool const &t)
+  {
+    return reinterpret_cast<uintptr_t>(&t);
+  }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, id);
 }
+PYTHONIC_NS_END
 
 #endif

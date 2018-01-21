@@ -7,22 +7,21 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  namespace details
   {
-    namespace details
-    {
 
-      std::complex<double> complex(double v = 0, double v2 = 0.);
-    }
+    std::complex<double> complex(double v = 0, double v2 = 0.);
+  }
 
 #define NUMPY_NARY_FUNC_NAME complex
 #define NUMPY_NARY_FUNC_SYM details::complex
 #define NUMPY_NARY_EXTRA_METHOD using type = std::complex<double>;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

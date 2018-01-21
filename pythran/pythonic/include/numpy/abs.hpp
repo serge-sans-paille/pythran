@@ -8,30 +8,29 @@
 
 #include <boost/simd/function/abs.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
+    // boost simd does not handle bool specialization, which is indeed a
+    // corner case...
+    template <class T>
+    auto abs(T const &v) -> decltype(boost::simd::abs(v))
     {
-      // boost simd does not handle bool specialization, which is indeed a
-      // corner case...
-      template <class T>
-      auto abs(T const &v) -> decltype(boost::simd::abs(v))
-      {
-        return boost::simd::abs(v);
-      }
-      constexpr bool abs(bool const &v)
-      {
-        return v;
-      }
-      template <class T>
-      T abs(std::complex<T> const v)
-      {
-        return std::abs(v);
-      }
+      return boost::simd::abs(v);
     }
+    constexpr bool abs(bool const &v)
+    {
+      return v;
+    }
+    template <class T>
+    T abs(std::complex<T> const v)
+    {
+      return std::abs(v);
+    }
+  }
 
 #define NUMPY_NARY_FUNC_NAME abs
 #ifdef USE_BOOST_SIMD
@@ -40,7 +39,7 @@ namespace pythonic
 #define NUMPY_NARY_FUNC_SYM std::abs
 #endif
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

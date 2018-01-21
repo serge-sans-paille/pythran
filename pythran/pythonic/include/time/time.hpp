@@ -3,16 +3,15 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace time
 {
 
-  namespace time
-  {
+  double time();
 
-    double time();
-
-    DECLARE_FUNCTOR(pythonic::time, time)
-  }
+  DECLARE_FUNCTOR(pythonic::time, time)
 }
+PYTHONIC_NS_END
 
 #endif

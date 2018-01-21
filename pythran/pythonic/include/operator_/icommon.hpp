@@ -16,11 +16,10 @@
 #include <boost/simd/pack.hpp>
 #endif
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
+namespace operator_
+{
 
 #ifdef USE_BOOST_SIMD
 #if 0
@@ -58,19 +57,19 @@ namespace pythonic
 #endif
 #endif
 
-    template <class A, class B>
-    auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
-        std::is_const<A>::value or not std::is_assignable<A, B>::value,
-        decltype(std::forward<A>(a) OPERATOR_SYMBOL std::forward<B>(b))>::type;
+  template <class A, class B>
+  auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
+      std::is_const<A>::value or not std::is_assignable<A, B>::value,
+      decltype(std::forward<A>(a) OPERATOR_SYMBOL std::forward<B>(b))>::type;
 
-    template <class A, class B>
-    auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
-        not std::is_const<A>::value and std::is_assignable<A, B>::value,
-        decltype(std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b))>::type;
+  template <class A, class B>
+  auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
+      not std::is_const<A>::value and std::is_assignable<A, B>::value,
+      decltype(std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b))>::type;
 
-    DECLARE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);
 }
+PYTHONIC_NS_END
 
 #undef OPERATOR_NAME
 #undef OPERATOR_SYMBOL

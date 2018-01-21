@@ -9,23 +9,22 @@
 
 #include <algorithm>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class T, class U>
+  typename std::enable_if<!types::is_numexpr_arg<T>::value, long>::type
+  searchsorted(U const &a, T const &v, types::str const &side = "left");
 
-    template <class T, class U>
-    typename std::enable_if<!types::is_numexpr_arg<T>::value, long>::type
-    searchsorted(U const &a, T const &v, types::str const &side = "left");
+  template <class E, class T>
+  typename std::enable_if<types::is_numexpr_arg<E>::value,
+                          types::ndarray<long, E::value>>::type
+  searchsorted(T const &a, E const &v, types::str const &side = "left");
 
-    template <class E, class T>
-    typename std::enable_if<types::is_numexpr_arg<E>::value,
-                            types::ndarray<long, E::value>>::type
-    searchsorted(T const &a, E const &v, types::str const &side = "left");
-
-    DECLARE_FUNCTOR(pythonic::numpy, searchsorted);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, searchsorted);
 }
+PYTHONIC_NS_END
 
 #endif

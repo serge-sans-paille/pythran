@@ -4,33 +4,32 @@
 #include "pythonic/include/types/set.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace set
   {
 
-    namespace set
-    {
+    template <typename T, typename... Types>
+    typename __combined<types::set<T>, Types...>::type
+    union_(types::set<T> const &set, Types const &... others);
 
-      template <typename T, typename... Types>
-      typename __combined<types::set<T>, Types...>::type
-      union_(types::set<T> const &set, Types const &... others);
+    template <typename... Types>
+    typename __combined<types::empty_set, Types...>::type
+    union_(types::empty_set const &init, Types const &... others);
 
-      template <typename... Types>
-      typename __combined<types::empty_set, Types...>::type
-      union_(types::empty_set const &init, Types const &... others);
+    template <typename T>
+    types::set<T> union_(types::set<T> const &set);
 
-      template <typename T>
-      types::set<T> union_(types::set<T> const &set);
+    template <typename T>
+    typename __combined<types::empty_set, T>::type union_(T const &set);
 
-      template <typename T>
-      typename __combined<types::empty_set, T>::type union_(T const &set);
+    types::empty_set union_(types::empty_set const &init);
 
-      types::empty_set union_(types::empty_set const &init);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::set, union_);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::set, union_);
   }
 }
+PYTHONIC_NS_END
 #endif

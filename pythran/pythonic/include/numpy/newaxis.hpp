@@ -3,14 +3,13 @@
 
 #include "pythonic/include/types/NoneType.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
-
-    auto const &newaxis = __builtin__::None;
-  }
+  auto const &newaxis = __builtin__::None;
 }
+PYTHONIC_NS_END
 
 #endif

@@ -3,12 +3,11 @@
 
 #include "pythonic/include/numpy/uint8.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
-  {
-    USING_FUNCTOR(ubyte, uint8);
-  }
+  USING_FUNCTOR(ubyte, uint8);
 }
+PYTHONIC_NS_END
 
 #endif

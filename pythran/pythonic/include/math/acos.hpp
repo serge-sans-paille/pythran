@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    DECLARE_FUNCTOR_2(acos, std::acos);
-  }
+namespace math
+{
+  DECLARE_FUNCTOR_2(acos, std::acos);
 }
+PYTHONIC_NS_END
 
 #endif

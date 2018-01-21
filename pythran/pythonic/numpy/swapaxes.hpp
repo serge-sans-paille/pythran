@@ -5,25 +5,25 @@
 
 #include "pythonic/numpy/transpose.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class T>
+  auto swapaxes(T &&a, int axis1, int axis2)
+      -> decltype(_transpose(std::forward<T>(a),
+                             std::declval<long[std::decay<T>::type::value]>()))
   {
-    template <class T>
-    auto swapaxes(T &&a, int axis1, int axis2) -> decltype(_transpose(
-        std::forward<T>(a), std::declval<long[std::decay<T>::type::value]>()))
-    {
-      constexpr long N = std::decay<T>::type::value;
-      long t[N];
-      for (unsigned long i = 0; i < N; ++i)
-        t[i] = i;
-      std::swap(t[axis1], t[axis2]);
-      return _transpose(std::forward<T>(a), t);
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, swapaxes);
+    constexpr long N = std::decay<T>::type::value;
+    long t[N];
+    for (unsigned long i = 0; i < N; ++i)
+      t[i] = i;
+    std::swap(t[axis1], t[axis2]);
+    return _transpose(std::forward<T>(a), t);
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, swapaxes);
 }
+PYTHONIC_NS_END
 
 #endif

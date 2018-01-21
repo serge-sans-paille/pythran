@@ -4,21 +4,20 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
-    {
+    // TODO : Add implementation for tuple as first argument.
+    bool endswith(types::str const &s, types::str const &suffix, long start = 0,
+                  long end = -1);
 
-      // TODO : Add implementation for tuple as first argument.
-      bool endswith(types::str const &s, types::str const &suffix,
-                    long start = 0, long end = -1);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, endswith);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, endswith);
   }
 }
+PYTHONIC_NS_END
 #endif

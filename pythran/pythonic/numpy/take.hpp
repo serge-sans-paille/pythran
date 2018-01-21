@@ -5,22 +5,21 @@
 
 #include "pythonic/types/numpy_fexpr.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class F, class T>
+  auto take(T &&expr, F &&indices)
+      -> decltype(types::numpy_fexpr<T, F>(std::forward<T>(expr),
+                                           std::forward<F>(indices)))
   {
-    template <class F, class T>
-    auto take(T &&expr, F &&indices)
-        -> decltype(types::numpy_fexpr<T, F>(std::forward<T>(expr),
-                                             std::forward<F>(indices)))
-    {
-      return types::numpy_fexpr<T, F>(std::forward<T>(expr),
-                                      std::forward<F>(indices));
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, take);
+    return types::numpy_fexpr<T, F>(std::forward<T>(expr),
+                                    std::forward<F>(indices));
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, take);
 }
+PYTHONIC_NS_END
 
 #endif

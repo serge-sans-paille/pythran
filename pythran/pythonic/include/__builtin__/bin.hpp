@@ -5,16 +5,15 @@
 
 #include "pythonic/include/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
+  template <class T>
+  types::str bin(T const &v);
 
-  namespace __builtin__
-  {
-    template <class T>
-    types::str bin(T const &v);
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, bin);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, bin);
 }
+PYTHONIC_NS_END
 
 #endif

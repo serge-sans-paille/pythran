@@ -5,20 +5,19 @@
 #include "pythonic/numpy/var.hpp"
 #include "pythonic/numpy/sqrt.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class... Args>
+  auto std_(Args &&... args)
+      -> decltype(functor::sqrt{}(var(std::forward<Args>(args)...)))
   {
-    template <class... Args>
-    auto std_(Args &&... args)
-        -> decltype(functor::sqrt{}(var(std::forward<Args>(args)...)))
-    {
-      return functor::sqrt{}(var(std::forward<Args>(args)...));
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, std_);
+    return functor::sqrt{}(var(std::forward<Args>(args)...));
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, std_);
 }
+PYTHONIC_NS_END
 
 #endif

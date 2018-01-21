@@ -6,26 +6,25 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/numpy/empty.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class E, class dtype>
+  auto empty_like(E const &expr, dtype d) -> decltype(empty(expr.shape(), d))
   {
-    template <class E, class dtype>
-    auto empty_like(E const &expr, dtype d) -> decltype(empty(expr.shape(), d))
-    {
-      return empty(expr.shape(), d);
-    }
-
-    template <class E>
-    auto empty_like(E const &expr, types::none_type)
-        -> decltype(empty(expr.shape(), types::dtype_t<typename E::dtype>()))
-    {
-      return empty(expr.shape(), types::dtype_t<typename E::dtype>());
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, empty_like)
+    return empty(expr.shape(), d);
   }
+
+  template <class E>
+  auto empty_like(E const &expr, types::none_type)
+      -> decltype(empty(expr.shape(), types::dtype_t<typename E::dtype>()))
+  {
+    return empty(expr.shape(), types::dtype_t<typename E::dtype>());
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, empty_like)
 }
+PYTHONIC_NS_END
 
 #endif

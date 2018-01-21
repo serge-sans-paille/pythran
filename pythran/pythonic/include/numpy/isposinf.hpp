@@ -5,20 +5,19 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
-    {
-      template <class T>
-      bool isposinf(T const &t);
-    }
+    template <class T>
+    bool isposinf(T const &t);
+  }
 #define NUMPY_NARY_FUNC_NAME isposinf
 #define NUMPY_NARY_FUNC_SYM wrapper::isposinf
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

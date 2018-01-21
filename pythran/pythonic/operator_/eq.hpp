@@ -5,19 +5,18 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
-
-  namespace operator_
+  template <class A, class B>
+  auto eq(A const &a, B const &b) -> decltype(a == b)
   {
-    template <class A, class B>
-    auto eq(A const &a, B const &b) -> decltype(a == b)
-    {
-      return a == b;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, eq);
+    return a == b;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, eq);
 }
+PYTHONIC_NS_END
 
 #endif

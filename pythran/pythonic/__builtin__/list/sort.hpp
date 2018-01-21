@@ -8,24 +8,23 @@
 #include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace list
   {
 
-    namespace list
+    template <class T>
+    types::none_type sort(types::list<T> &seq)
     {
-
-      template <class T>
-      types::none_type sort(types::list<T> &seq)
-      {
-        std::sort(seq.begin(), seq.end());
-        return __builtin__::None;
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::list, sort);
+      std::sort(seq.begin(), seq.end());
+      return __builtin__::None;
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::list, sort);
   }
 }
+PYTHONIC_NS_END
 #endif

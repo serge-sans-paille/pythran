@@ -3,19 +3,18 @@
 
 #include "pythonic/include/__builtin__/file/flush.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace io
 {
 
-  namespace io
+  namespace _io
   {
-
-    namespace _io
+    namespace TextIOWrapper
     {
-      namespace TextIOWrapper
-      {
-        USING_FUNCTOR(flush, __builtin__::file::functor::flush);
-      }
+      USING_FUNCTOR(flush, __builtin__::file::functor::flush);
     }
   }
 }
+PYTHONIC_NS_END
 #endif

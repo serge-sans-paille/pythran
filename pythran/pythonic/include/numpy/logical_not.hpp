@@ -6,16 +6,15 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/operator_/not_.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 
 #define NUMPY_NARY_FUNC_NAME logical_not
 #define NUMPY_NARY_FUNC_SYM pythonic::operator_::not_
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

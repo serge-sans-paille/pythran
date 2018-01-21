@@ -4,18 +4,17 @@
 #include "pythonic/include/numpy/var.hpp"
 #include "pythonic/include/numpy/sqrt.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class... Args>
+  auto std_(Args &&... args)
+      -> decltype(functor::sqrt{}(var(std::forward<Args>(args)...)));
 
-    template <class... Args>
-    auto std_(Args &&... args)
-        -> decltype(functor::sqrt{}(var(std::forward<Args>(args)...)));
-
-    DECLARE_FUNCTOR(pythonic::numpy, std_);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, std_);
 }
+PYTHONIC_NS_END
 
 #endif

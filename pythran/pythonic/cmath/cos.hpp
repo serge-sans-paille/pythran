@@ -8,25 +8,24 @@
 
 #include <cmath>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace cmath
 {
-
-  namespace cmath
+  template <class T>
+  std::complex<T> cos(std::complex<T> const &v)
   {
-    template <class T>
-    std::complex<T> cos(std::complex<T> const &v)
-    {
-      return std::cos(v);
-    }
-
-    template <class T>
-    std::complex<T> cos(T const &v)
-    {
-      return std::cos(v);
-    }
-
-    DEFINE_FUNCTOR(pythonic::cmath, cos);
+    return std::cos(v);
   }
+
+  template <class T>
+  std::complex<T> cos(T const &v)
+  {
+    return std::cos(v);
+  }
+
+  DEFINE_FUNCTOR(pythonic::cmath, cos);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,28 +4,29 @@
 #include "pythonic/include/numpy/random/seed.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
+
+    types::none_type seed(long s)
     {
-
-      types::none_type seed(long s)
-      {
-        details::generator.seed(s);
-        return __builtin__::None;
-      }
-
-      types::none_type seed(types::none_type)
-      {
-        details::generator.seed();
-        return __builtin__::None;
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::random, seed);
+      details::generator.seed(s);
+      return __builtin__::None;
     }
+
+    types::none_type seed(types::none_type)
+    {
+      details::generator.seed();
+      return __builtin__::None;
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::random, seed);
   }
 }
+
+PYTHONIC_NS_END
 
 #endif

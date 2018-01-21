@@ -6,18 +6,17 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
-
-  namespace random
+  double uniform(double a, double b)
   {
-    double uniform(double a, double b)
-    {
-      return a + (b - a) * random();
-    }
-
-    DEFINE_FUNCTOR(pythonic::random, uniform);
+    return a + (b - a) * random();
   }
+
+  DEFINE_FUNCTOR(pythonic::random, uniform);
 }
+PYTHONIC_NS_END
 
 #endif

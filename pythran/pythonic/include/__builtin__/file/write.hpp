@@ -5,20 +5,19 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
-    {
+    void write(types::file &f, types::str const &str);
+    void write(types::file &&f, types::str const &str);
 
-      void write(types::file &f, types::str const &str);
-      void write(types::file &&f, types::str const &str);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::file, write);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::file, write);
   }
 }
+PYTHONIC_NS_END
 #endif

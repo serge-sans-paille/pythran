@@ -3,22 +3,21 @@
 
 #include "pythonic/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace os
 {
-  namespace os
+  namespace path
   {
-    namespace path
-    {
 
-      template <class T>
-      T join(T &&head);
+    template <class T>
+    T join(T &&head);
 
-      template <class T, class... Types>
-      types::str join(T &&head, Types &&... tail);
+    template <class T, class... Types>
+    types::str join(T &&head, Types &&... tail);
 
-      DECLARE_FUNCTOR(pythonic::os::path, join);
-    }
+    DECLARE_FUNCTOR(pythonic::os::path, join);
   }
 }
+PYTHONIC_NS_END
 
 #endif

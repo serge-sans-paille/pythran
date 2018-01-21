@@ -8,28 +8,27 @@
 
 #include <sstream>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <class T>
+  types::str oct(T const &v)
   {
-
-    template <class T>
-    types::str oct(T const &v)
-    {
-      std::ostringstream oss;
-      oss <<
+    std::ostringstream oss;
+    oss <<
 #if defined(__PYTHRAN__) && __PYTHRAN__ == 3
-          "0o"
+        "0o"
 #else
-          '0'
+        '0'
 #endif
-          << std::oct << v;
-      return oss.str();
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, oct);
+        << std::oct << v;
+    return oss.str();
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, oct);
 }
+PYTHONIC_NS_END
 
 #endif

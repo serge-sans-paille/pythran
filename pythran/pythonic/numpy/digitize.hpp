@@ -8,52 +8,51 @@
 #include "pythonic/operator_/gt.hpp"
 #include "pythonic/operator_/lt.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  namespace
   {
-    namespace
+    template <class I, class O, class B, class Op>
+    void _digitize(I begin, I end, O &out, B &bins, Op const &op,
+                   utils::int_<1>)
     {
-      template <class I, class O, class B, class Op>
-      void _digitize(I begin, I end, O &out, B &bins, Op const &op,
-                     utils::int_<1>)
-      {
-        for (; begin != end; ++begin, ++out)
-          *out = std::lower_bound(bins.begin(), bins.end(), *begin, op) -
-                 bins.begin();
-      }
-
-      template <class I, class O, class B, class Op, size_t N>
-      void _digitize(I begin, I end, O &out, B &bins, Op const &op,
-                     utils::int_<N>)
-      {
-        for (; begin != end; ++begin)
-          _digitize((*begin).begin(), (*begin).end(), out, bins, op,
-                    utils::int_<N - 1>());
-      }
+      for (; begin != end; ++begin, ++out)
+        *out = std::lower_bound(bins.begin(), bins.end(), *begin, op) -
+               bins.begin();
     }
 
-    template <class E, class F>
-    types::ndarray<long, 1> digitize(E const &expr, F const &b)
+    template <class I, class O, class B, class Op, size_t N>
+    void _digitize(I begin, I end, O &out, B &bins, Op const &op,
+                   utils::int_<N>)
     {
-      auto bins = asarray(b);
-      bool is_increasing =
-          bins.flat_size() > 1 and *bins.fbegin() < *(bins.fbegin() + 1);
-      types::ndarray<long, 1> out(types::make_tuple(long(expr.flat_size())),
-                                  __builtin__::None);
-      auto out_iter = out.fbegin();
-      if (is_increasing)
-        _digitize(expr.begin(), expr.end(), out_iter, bins,
-                  operator_::functor::lt(), utils::int_<E::value>());
-      else
-        _digitize(expr.begin(), expr.end(), out_iter, bins,
-                  operator_::functor::gt(), utils::int_<E::value>());
-      return out;
+      for (; begin != end; ++begin)
+        _digitize((*begin).begin(), (*begin).end(), out, bins, op,
+                  utils::int_<N - 1>());
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy, digitize);
   }
+
+  template <class E, class F>
+  types::ndarray<long, 1> digitize(E const &expr, F const &b)
+  {
+    auto bins = asarray(b);
+    bool is_increasing =
+        bins.flat_size() > 1 and *bins.fbegin() < *(bins.fbegin() + 1);
+    types::ndarray<long, 1> out(types::make_tuple(long(expr.flat_size())),
+                                __builtin__::None);
+    auto out_iter = out.fbegin();
+    if (is_increasing)
+      _digitize(expr.begin(), expr.end(), out_iter, bins,
+                operator_::functor::lt(), utils::int_<E::value>());
+    else
+      _digitize(expr.begin(), expr.end(), out_iter, bins,
+                operator_::functor::gt(), utils::int_<E::value>());
+    return out;
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, digitize);
 }
+PYTHONIC_NS_END
 
 #endif

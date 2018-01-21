@@ -5,16 +5,15 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/isnan.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  long nanargmax(E const &expr);
 
-  namespace numpy
-  {
-    template <class E>
-    long nanargmax(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, nanargmax);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, nanargmax);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,16 +4,15 @@
 #include "pythonic/include/__dispatch__/remove.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace list
   {
-
-    namespace list
-    {
-      USING_FUNCTOR(remove, pythonic::__dispatch__::functor::remove);
-    }
+    USING_FUNCTOR(remove, pythonic::__dispatch__::functor::remove);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -6,22 +6,21 @@
 #include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
-    {
-      template <size_t N>
-      types::ndarray<double, N> random(types::array<long, N> const &shape);
+    template <size_t N>
+    types::ndarray<double, N> random(types::array<long, N> const &shape);
 
-      auto random(long size) -> decltype(random(types::array<long, 1>{{size}}));
+    auto random(long size) -> decltype(random(types::array<long, 1>{{size}}));
 
-      double random(types::none_type d = types::none_type());
+    double random(types::none_type d = types::none_type());
 
-      DECLARE_FUNCTOR(pythonic::numpy::random, random);
-    }
+    DECLARE_FUNCTOR(pythonic::numpy::random, random);
   }
 }
+PYTHONIC_NS_END
 
 #endif

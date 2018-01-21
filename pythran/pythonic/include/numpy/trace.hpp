@@ -3,17 +3,16 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class T>
+  typename T::dtype trace(T const &expr, int offset = 0);
 
-    template <class T>
-    typename T::dtype trace(T const &expr, int offset = 0);
-
-    DECLARE_FUNCTOR(pythonic::numpy, trace)
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, trace)
 }
+PYTHONIC_NS_END
 
 #endif

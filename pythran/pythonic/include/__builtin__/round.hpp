@@ -3,19 +3,18 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
+  template <class T>
+  double round(T const &v, size_t n);
 
-  namespace __builtin__
-  {
-    template <class T>
-    double round(T const &v, size_t n);
+  template <class T>
+  double round(T const &v);
 
-    template <class T>
-    double round(T const &v);
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, round);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, round);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -3,13 +3,12 @@
 
 #include "pythonic/types/str.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace string
-  {
-    types::str constexpr hexdigits("0123456789abcdefABCDEF");
-  }
+namespace string
+{
+  types::str constexpr hexdigits("0123456789abcdefABCDEF");
 }
+PYTHONIC_NS_END
 
 #endif

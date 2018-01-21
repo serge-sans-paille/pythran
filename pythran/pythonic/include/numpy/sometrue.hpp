@@ -3,13 +3,12 @@
 
 #include "pythonic/include/numpy/any.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(sometrue, any);
-  }
+namespace numpy
+{
+  USING_FUNCTOR(sometrue, any);
 }
+PYTHONIC_NS_END
 
 #endif

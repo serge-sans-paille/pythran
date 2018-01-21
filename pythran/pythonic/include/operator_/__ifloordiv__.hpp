@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/ifloordiv.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__ifloordiv__, ifloordiv);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__ifloordiv__, ifloordiv);
 }
+PYTHONIC_NS_END
 
 #endif

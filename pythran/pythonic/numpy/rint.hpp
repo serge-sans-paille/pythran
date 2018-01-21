@@ -8,23 +8,22 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include <boost/simd/function/inearbyint.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
+    template <class T>
+    T rint(T const &v)
     {
-      template <class T>
-      T rint(T const &v)
-      {
-        return boost::simd::inearbyint(v);
-      }
+      return boost::simd::inearbyint(v);
     }
+  }
 #define NUMPY_NARY_FUNC_NAME rint
 #define NUMPY_NARY_FUNC_SYM wrapper::rint
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

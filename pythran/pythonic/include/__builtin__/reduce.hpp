@@ -6,29 +6,27 @@
 #include <numeric>
 #include <utility>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
+  template <class Iterable, class Operator>
+  auto reduce(Operator op, Iterable s)
+      -> decltype(op(std::declval<typename Iterable::iterator::value_type>(),
+                     std::declval<typename Iterable::iterator::value_type>()));
 
-    template <class Iterable, class Operator>
-    auto reduce(Operator op, Iterable s) -> decltype(
-        op(std::declval<typename Iterable::iterator::value_type>(),
-           std::declval<typename Iterable::iterator::value_type>()));
+  template <class Iterable, class Operator, class T>
+  auto reduce(Operator op, Iterable s, T const &init)
+      -> decltype(std::accumulate(
+          s.begin(), s.end(),
+          static_cast<decltype(op(
+              init, std::declval<typename Iterable::iterator::value_type>()))>(
+              init),
+          op));
 
-    template <class Iterable, class Operator, class T>
-    auto reduce(Operator op, Iterable s, T const &init)
-        -> decltype(std::accumulate(
-            s.begin(), s.end(),
-            static_cast<decltype(
-                op(init,
-                   std::declval<typename Iterable::iterator::value_type>()))>(
-                init),
-            op));
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, reduce);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, reduce);
 }
+PYTHONIC_NS_END
 
 #endif

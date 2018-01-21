@@ -4,15 +4,14 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/random/random.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
+  double uniform(double a, double b);
 
-  namespace random
-  {
-    double uniform(double a, double b);
-
-    DECLARE_FUNCTOR(pythonic::random, uniform);
-  }
+  DECLARE_FUNCTOR(pythonic::random, uniform);
 }
+PYTHONIC_NS_END
 
 #endif

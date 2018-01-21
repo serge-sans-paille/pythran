@@ -8,40 +8,39 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  namespace
   {
-    namespace
+    template <class E, class F>
+    void _nanmax(E begin, E end, F &max, utils::int_<1>)
     {
-      template <class E, class F>
-      void _nanmax(E begin, E end, F &max, utils::int_<1>)
-      {
-        for (; begin != end; ++begin) {
-          auto curr = *begin;
-          if (not functor::isnan()(curr) and curr > max)
-            max = curr;
-        }
-      }
-      template <class E, class F, size_t N>
-      void _nanmax(E begin, E end, F &max, utils::int_<N>)
-      {
-        for (; begin != end; ++begin)
-          _nanmax((*begin).begin(), (*begin).end(), max, utils::int_<N - 1>());
+      for (; begin != end; ++begin) {
+        auto curr = *begin;
+        if (not functor::isnan()(curr) and curr > max)
+          max = curr;
       }
     }
-
-    template <class E>
-    typename E::dtype nanmax(E const &expr)
+    template <class E, class F, size_t N>
+    void _nanmax(E begin, E end, F &max, utils::int_<N>)
     {
-      typename E::dtype max = std::numeric_limits<typename E::dtype>::lowest();
-      _nanmax(expr.begin(), expr.end(), max, utils::int_<E::value>());
-      return max;
+      for (; begin != end; ++begin)
+        _nanmax((*begin).begin(), (*begin).end(), max, utils::int_<N - 1>());
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy, nanmax);
   }
+
+  template <class E>
+  typename E::dtype nanmax(E const &expr)
+  {
+    typename E::dtype max = std::numeric_limits<typename E::dtype>::lowest();
+    _nanmax(expr.begin(), expr.end(), max, utils::int_<E::value>());
+    return max;
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, nanmax);
 }
+PYTHONIC_NS_END
 
 #endif

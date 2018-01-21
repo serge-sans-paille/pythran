@@ -6,20 +6,19 @@
 #include "pythonic/types/complex.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace functor
   {
-
-    namespace functor
+    complex::type complex::operator()(double v0, double v1) const
     {
-      complex::type complex::operator()(double v0, double v1) const
-      {
-        return {v0, v1};
-      }
+      return {v0, v1};
     }
   }
 }
+PYTHONIC_NS_END
 
 #endif

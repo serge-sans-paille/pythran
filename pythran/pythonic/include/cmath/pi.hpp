@@ -6,13 +6,12 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace cmath
-  {
-    double constexpr pi = std::atan(1) * 4;
-  }
+namespace cmath
+{
+  double constexpr pi = std::atan(1) * 4;
 }
+PYTHONIC_NS_END
 
 #endif

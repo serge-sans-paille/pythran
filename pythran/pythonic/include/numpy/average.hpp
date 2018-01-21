@@ -4,26 +4,23 @@
 #include "pythonic/include/numpy/asarray.hpp"
 #include "pythonic/include/numpy/sum.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  auto average(E const &expr, types::none_type const &axis = __builtin__::None)
+      -> decltype(sum(expr, axis) / 1.);
 
-  namespace numpy
-  {
-    template <class E>
-    auto average(E const &expr,
-                 types::none_type const &axis = __builtin__::None)
-        -> decltype(sum(expr, axis) / 1.);
+  template <class E>
+  auto average(E const &expr, long axis) -> decltype(sum(expr, axis) / 1.);
 
-    template <class E>
-    auto average(E const &expr, long axis) -> decltype(sum(expr, axis) / 1.);
+  template <class E, class W>
+  auto average(E const &expr, types::none_type const &axis, W const &weights)
+      -> decltype(average(expr *asarray(weights) / average(asarray(weights))));
 
-    template <class E, class W>
-    auto average(E const &expr, types::none_type const &axis, W const &weights)
-        -> decltype(average(expr *asarray(weights) /
-                            average(asarray(weights))));
-
-    DECLARE_FUNCTOR(pythonic::numpy, average);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, average);
 }
+PYTHONIC_NS_END
 
 #endif

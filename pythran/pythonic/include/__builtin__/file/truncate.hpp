@@ -4,22 +4,21 @@
 #include "pythonic/include/types/file.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
-    {
+    void truncate(types::file &f);
+    void truncate(types::file &&f);
+    void truncate(types::file &f, long size);
+    void truncate(types::file &&f, long size);
 
-      void truncate(types::file &f);
-      void truncate(types::file &&f);
-      void truncate(types::file &f, long size);
-      void truncate(types::file &&f, long size);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::file, truncate);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::file, truncate);
   }
 }
+PYTHONIC_NS_END
 #endif

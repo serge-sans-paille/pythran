@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    DECLARE_FUNCTOR_2(cos, std::cos);
-  }
+namespace math
+{
+  DECLARE_FUNCTOR_2(cos, std::cos);
 }
+PYTHONIC_NS_END
 
 #endif

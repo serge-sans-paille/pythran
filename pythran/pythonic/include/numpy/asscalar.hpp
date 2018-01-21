@@ -5,16 +5,15 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  typename E::dtype asscalar(E const &expr);
 
-  namespace numpy
-  {
-    template <class E>
-    typename E::dtype asscalar(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, asscalar);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, asscalar);
 }
+PYTHONIC_NS_END
 
 #endif

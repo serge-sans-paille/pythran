@@ -7,22 +7,21 @@
 
 #include <type_traits>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
-    {
+    template <class Iterable, class V = types::none_type>
+    types::dict<typename std::remove_reference<Iterable>::type::value_type, V>
+    fromkeys(Iterable &&iter, V const &v = __builtin__::None);
 
-      template <class Iterable, class V = types::none_type>
-      types::dict<typename std::remove_reference<Iterable>::type::value_type, V>
-      fromkeys(Iterable &&iter, V const &v = __builtin__::None);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::dict, fromkeys);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::dict, fromkeys);
   }
 }
+PYTHONIC_NS_END
 
 #endif

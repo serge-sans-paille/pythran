@@ -4,21 +4,20 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace ndarray
   {
+    template <class T, size_t N>
+    types::ndarray<T, 1> flatten(types::ndarray<T, N> const &a);
 
-    namespace ndarray
-    {
-      template <class T, size_t N>
-      types::ndarray<T, 1> flatten(types::ndarray<T, N> const &a);
-
-      NUMPY_EXPR_TO_NDARRAY0_DECL(flatten);
-      DECLARE_FUNCTOR(pythonic::numpy::ndarray, flatten);
-    }
+    NUMPY_EXPR_TO_NDARRAY0_DECL(flatten);
+    DECLARE_FUNCTOR(pythonic::numpy::ndarray, flatten);
   }
 }
+PYTHONIC_NS_END
 
 #endif

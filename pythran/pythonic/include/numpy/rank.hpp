@@ -4,16 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  size_t rank(E const &expr);
 
-  namespace numpy
-  {
-    template <class E>
-    size_t rank(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, rank);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, rank);
 }
+PYTHONIC_NS_END
 
 #endif

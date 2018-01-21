@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/contains.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__contains__, contains);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__contains__, contains);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -5,22 +5,21 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace math
 {
 
-  namespace math
+  template <class T>
+  T factorial(T x)
   {
-
-    template <class T>
-    T factorial(T x)
-    {
-      long res = 1;
-      for (long i = 2; i <= x; i++)
-        res *= i;
-      return res;
-    }
-    DEFINE_FUNCTOR(pythonic::math, factorial);
+    long res = 1;
+    for (long i = 2; i <= x; i++)
+      res *= i;
+    return res;
   }
+  DEFINE_FUNCTOR(pythonic::math, factorial);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,15 +4,14 @@
 #include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    using std::log;
-    double log(double x, double base);
-    DECLARE_FUNCTOR(pythonic::math, log);
-  }
+namespace math
+{
+  using std::log;
+  double log(double x, double base);
+  DECLARE_FUNCTOR(pythonic::math, log);
 }
+PYTHONIC_NS_END
 
 #endif

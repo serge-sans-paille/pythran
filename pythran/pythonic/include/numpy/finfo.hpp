@@ -5,16 +5,15 @@
 #include "pythonic/include/numpy/float64.hpp"
 #include "pythonic/include/types/finfo.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class dtype = functor::float64>
+  types::finfo<typename dtype::type> finfo(dtype d = dtype());
 
-  namespace numpy
-  {
-    template <class dtype = functor::float64>
-    types::finfo<typename dtype::type> finfo(dtype d = dtype());
-
-    DECLARE_FUNCTOR(pythonic::numpy, finfo)
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, finfo)
 }
+PYTHONIC_NS_END
 
 #endif

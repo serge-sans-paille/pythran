@@ -4,14 +4,13 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/numpy/conjugate.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace __builtin__
 {
-  namespace __builtin__
+  namespace complex
   {
-    namespace complex
-    {
-      USING_FUNCTOR(conjugate, numpy::functor::conjugate);
-    }
+    USING_FUNCTOR(conjugate, numpy::functor::conjugate);
   }
 }
+PYTHONIC_NS_END
 #endif

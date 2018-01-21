@@ -4,15 +4,14 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/numpy/abs.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace __builtin__
-  {
-    // FIXME np.abs accept any iterator while __builtin__.abs only accept
-    // numeric types and numpy.array
-    USING_FUNCTOR(abs, numpy::functor::abs);
-  }
+namespace __builtin__
+{
+  // FIXME np.abs accept any iterator while __builtin__.abs only accept
+  // numeric types and numpy.array
+  USING_FUNCTOR(abs, numpy::functor::abs);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -17,30 +17,29 @@ bool operator!(__gmp_expr<T, U> const &t0)
   return t0 == 0;
 }
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  long id(pythran_long_t const &t)
   {
-
-    long id(pythran_long_t const &t)
-    {
-      return reinterpret_cast<uintptr_t>(&t);
-    }
+    return reinterpret_cast<uintptr_t>(&t);
   }
-
-  /* some math overloads { */
-
-  namespace operator_
-  {
-    template <class T, class U, class T1>
-    auto mod(__gmp_expr<T, U> const &t0, T1 const &t1) -> decltype(t0 % t1)
-    {
-      return t0 % t1;
-    }
-  }
-  /* } */
 }
+
+/* some math overloads { */
+
+namespace operator_
+{
+  template <class T, class U, class T1>
+  auto mod(__gmp_expr<T, U> const &t0, T1 const &t1) -> decltype(t0 % t1)
+  {
+    return t0 % t1;
+  }
+}
+/* } */
+PYTHONIC_NS_END
 
 /* compute hash of a gmp { */
 namespace std
@@ -65,29 +64,28 @@ namespace std
 #endif
 #endif
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+bool from_python<mpz_class>::is_convertible(PyObject *obj)
 {
-
-  bool from_python<mpz_class>::is_convertible(PyObject *obj)
-  {
-    return PyLong_Check(obj);
-  }
-  mpz_class from_python<mpz_class>::convert(PyObject *obj)
-  {
-    auto s = PyObject_Str(obj);
-    mpz_class r(PyString_AsString(s));
-    Py_DECREF(s);
-    return r;
-  }
-
-  PyObject *to_python<mpz_class>::convert(mpz_class const &v)
-  {
-    auto s = PyString_FromString(v.get_str().c_str());
-    auto l = PyNumber_Long(s);
-    Py_DECREF(s);
-    return l;
-  }
+  return PyLong_Check(obj);
 }
+mpz_class from_python<mpz_class>::convert(PyObject *obj)
+{
+  auto s = PyObject_Str(obj);
+  mpz_class r(PyString_AsString(s));
+  Py_DECREF(s);
+  return r;
+}
+
+PyObject *to_python<mpz_class>::convert(mpz_class const &v)
+{
+  auto s = PyString_FromString(v.get_str().c_str());
+  auto l = PyNumber_Long(s);
+  Py_DECREF(s);
+  return l;
+}
+PYTHONIC_NS_END
 
 #endif
 

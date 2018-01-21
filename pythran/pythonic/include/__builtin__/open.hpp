@@ -5,17 +5,15 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
+  types::file open(types::str const &filename, types::str const &strmode = "r");
 
-    types::file open(types::str const &filename,
-                     types::str const &strmode = "r");
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, open);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, open);
 }
+PYTHONIC_NS_END
 
 #endif

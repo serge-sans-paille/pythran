@@ -4,16 +4,15 @@
 #include <omp.h>
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace omp
 {
 
-  namespace omp
-  {
+  void set_nested(long val);
 
-    void set_nested(long val);
-
-    DECLARE_FUNCTOR(pythonic::omp, set_nested);
-  }
+  DECLARE_FUNCTOR(pythonic::omp, set_nested);
 }
+PYTHONIC_NS_END
 
 #endif

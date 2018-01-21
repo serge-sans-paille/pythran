@@ -3,19 +3,18 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __dispatch__
 {
-
-  namespace __dispatch__
+  template <class Any>
+  auto clear(Any &&any) -> decltype(any.clear())
   {
-    template <class Any>
-    auto clear(Any &&any) -> decltype(any.clear())
-    {
-      return any.clear();
-    }
-
-    DECLARE_FUNCTOR(pythonic::__dispatch__, clear);
+    return any.clear();
   }
+
+  DECLARE_FUNCTOR(pythonic::__dispatch__, clear);
 }
+PYTHONIC_NS_END
 
 #endif

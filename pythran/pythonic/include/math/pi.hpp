@@ -4,14 +4,13 @@
 #include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace math
 {
 
-  namespace math
-  {
-
-    double const pi = std::atan(1) * 4;
-  }
+  double const pi = std::atan(1) * 4;
 }
+PYTHONIC_NS_END
 
 #endif

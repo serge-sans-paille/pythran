@@ -5,21 +5,20 @@
 #include "pythonic/include/numpy/partial_sum.hpp"
 #include "pythonic/include/operator_/imul.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class E, class... Opts>
+  auto cumprod(E &&e, Opts &&... opts)
+      -> decltype(partial_sum<operator_::functor::imul>(
+          std::forward<E>(e), std::forward<Opts>(opts)...));
 
-    template <class E, class... Opts>
-    auto cumprod(E &&e, Opts &&... opts)
-        -> decltype(partial_sum<operator_::functor::imul>(
-            std::forward<E>(e), std::forward<Opts>(opts)...));
+  NUMPY_EXPR_TO_NDARRAY0_DECL(cumprod);
 
-    NUMPY_EXPR_TO_NDARRAY0_DECL(cumprod);
-
-    DECLARE_FUNCTOR(pythonic::numpy, cumprod);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, cumprod);
 }
+PYTHONIC_NS_END
 
 #endif

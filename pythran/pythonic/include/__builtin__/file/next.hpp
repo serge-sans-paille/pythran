@@ -4,14 +4,13 @@
 #include "pythonic/include/__dispatch__/next.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace __builtin__
 {
-  namespace __builtin__
+  namespace file
   {
-    namespace file
-    {
-      USING_FUNCTOR(next, pythonic::__dispatch__::functor::next);
-    }
+    USING_FUNCTOR(next, pythonic::__dispatch__::functor::next);
   }
 }
+PYTHONIC_NS_END
 #endif

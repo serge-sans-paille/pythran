@@ -8,31 +8,30 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace details
   {
 
-    namespace details
+    uint8_t uint8()
     {
-
-      uint8_t uint8()
-      {
-        return uint8_t();
-      }
-
-      template <class V>
-      uint8_t uint8(V v)
-      {
-        return v;
-      }
+      return uint8_t();
     }
+
+    template <class V>
+    uint8_t uint8(V v)
+    {
+      return v;
+    }
+  }
 
 #define NUMPY_NARY_FUNC_NAME uint8
 #define NUMPY_NARY_FUNC_SYM details::uint8
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

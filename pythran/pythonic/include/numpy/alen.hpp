@@ -4,16 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class T>
+  long alen(T &&expr);
 
-  namespace numpy
-  {
-    template <class T>
-    long alen(T &&expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, alen);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, alen);
 }
+PYTHONIC_NS_END
 
 #endif

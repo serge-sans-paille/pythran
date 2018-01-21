@@ -3,13 +3,12 @@
 
 #include "pythonic/include/numpy/around.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(round, around);
-  }
+namespace numpy
+{
+  USING_FUNCTOR(round, around);
 }
+PYTHONIC_NS_END
 
 #endif

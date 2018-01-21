@@ -7,19 +7,18 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  types::file open(types::str const &filename, types::str const &strmode)
   {
-
-    types::file open(types::str const &filename, types::str const &strmode)
-    {
-      return {filename, strmode};
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, open);
+    return {filename, strmode};
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, open);
 }
+PYTHONIC_NS_END
 
 #endif

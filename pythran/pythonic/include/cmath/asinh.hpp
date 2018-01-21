@@ -6,13 +6,12 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace cmath
-  {
-    DECLARE_FUNCTOR_2(asinh, std::asinh);
-  }
+namespace cmath
+{
+  DECLARE_FUNCTOR_2(asinh, std::asinh);
 }
+PYTHONIC_NS_END
 
 #endif

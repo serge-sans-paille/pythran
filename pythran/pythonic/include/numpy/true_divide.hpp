@@ -7,17 +7,16 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/operator_/div.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 
 // FIXME: this is not always a true_divide...
 #define NUMPY_NARY_FUNC_NAME true_divide
 #define NUMPY_NARY_FUNC_SYM pythonic::operator_::div
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

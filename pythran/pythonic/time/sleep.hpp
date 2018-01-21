@@ -8,20 +8,19 @@
 #include <thread>
 #include <chrono>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace time
 {
 
-  namespace time
+  types::none_type sleep(double const value)
   {
-
-    types::none_type sleep(double const value)
-    {
-      std::this_thread::sleep_for(std::chrono::duration<double>(value));
-      return __builtin__::None;
-    }
-
-    DEFINE_FUNCTOR(pythonic::time, sleep)
+    std::this_thread::sleep_for(std::chrono::duration<double>(value));
+    return __builtin__::None;
   }
+
+  DEFINE_FUNCTOR(pythonic::time, sleep)
 }
+PYTHONIC_NS_END
 
 #endif

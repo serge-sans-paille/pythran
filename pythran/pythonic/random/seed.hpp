@@ -9,25 +9,24 @@
 
 #include <ctime>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
-
-  namespace random
+  types::none_type seed(long s)
   {
-    types::none_type seed(long s)
-    {
-      __random_generator.seed(s);
-      return __builtin__::None;
-    }
-
-    types::none_type seed()
-    {
-      __random_generator.seed(time(nullptr));
-      return __builtin__::None;
-    }
-
-    DEFINE_FUNCTOR(pythonic::random, seed);
+    __random_generator.seed(s);
+    return __builtin__::None;
   }
+
+  types::none_type seed()
+  {
+    __random_generator.seed(time(nullptr));
+    return __builtin__::None;
+  }
+
+  DEFINE_FUNCTOR(pythonic::random, seed);
 }
+PYTHONIC_NS_END
 
 #endif

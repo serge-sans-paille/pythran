@@ -5,18 +5,17 @@
 #include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/operator_/mod.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  /* this is still a numpy_expr, because operator::mod_ forwards to
+   * operator% which is correctly overloaded
+   */
 
-    /* this is still a numpy_expr, because operator::mod_ forwards to
-     * operator% which is correctly overloaded
-     */
-
-    USING_FUNCTOR(mod, operator_::functor::mod);
-  }
+  USING_FUNCTOR(mod, operator_::functor::mod);
 }
+PYTHONIC_NS_END
 
 #endif

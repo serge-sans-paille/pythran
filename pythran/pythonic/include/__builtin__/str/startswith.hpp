@@ -4,20 +4,19 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
-    {
+    bool startswith(types::str const &s, types::str const &prefix,
+                    long start = 0, long end = -1);
 
-      bool startswith(types::str const &s, types::str const &prefix,
-                      long start = 0, long end = -1);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, startswith);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, startswith);
   }
 }
+PYTHONIC_NS_END
 #endif

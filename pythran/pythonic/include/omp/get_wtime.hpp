@@ -4,16 +4,15 @@
 #include <omp.h>
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace omp
 {
 
-  namespace omp
-  {
+  long get_wtime();
 
-    long get_wtime();
-
-    DECLARE_FUNCTOR(pythonic::omp, get_wtime);
-  }
+  DECLARE_FUNCTOR(pythonic::omp, get_wtime);
 }
+PYTHONIC_NS_END
 
 #endif

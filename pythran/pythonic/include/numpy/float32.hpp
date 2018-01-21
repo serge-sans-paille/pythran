@@ -6,25 +6,24 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace details
   {
 
-    namespace details
-    {
-
-      float float32();
-      template <class V>
-      float float32(V v);
-    }
+    float float32();
+    template <class V>
+    float float32(V v);
+  }
 
 #define NUMPY_NARY_FUNC_NAME float32
 #define NUMPY_NARY_FUNC_SYM details::float32
 #define NUMPY_NARY_EXTRA_METHOD using type = float;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

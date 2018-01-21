@@ -6,27 +6,26 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/numpy/maximum.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
-
-  namespace operator_
+  template <class A, class B>
+  auto imax(A const &a, B &&b)
+      -> decltype(numpy::functor::maximum{}(a, std::forward<B>(b)))
   {
-    template <class A, class B>
-    auto imax(A const &a, B &&b)
-        -> decltype(numpy::functor::maximum{}(a, std::forward<B>(b)))
-    {
-      return numpy::functor::maximum{}(a, std::forward<B>(b));
-    }
-
-    template <class A, class B>
-    auto imax(A &a, B &&b)
-        -> decltype(a = numpy::functor::maximum{}(a, std::forward<B>(b)))
-    {
-      return a = numpy::functor::maximum{}(a, std::forward<B>(b));
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, imax);
+    return numpy::functor::maximum{}(a, std::forward<B>(b));
   }
+
+  template <class A, class B>
+  auto imax(A &a, B &&b)
+      -> decltype(a = numpy::functor::maximum{}(a, std::forward<B>(b)))
+  {
+    return a = numpy::functor::maximum{}(a, std::forward<B>(b));
+  }
+
+  DEFINE_FUNCTOR(pythonic::operator_, imax);
 }
+PYTHONIC_NS_END
 
 #endif

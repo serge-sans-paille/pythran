@@ -3,23 +3,21 @@
 
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class T>
+  typename std::enable_if<types::is_dtype<T>::value, types::ndarray<T, 1>>::type
+  atleast_1d(T t);
 
-  namespace numpy
-  {
-    template <class T>
-    typename std::enable_if<types::is_dtype<T>::value,
-                            types::ndarray<T, 1>>::type
-    atleast_1d(T t);
+  template <class T>
+  auto atleast_1d(T const &t) -> typename std::enable_if<
+      not(types::is_dtype<T>::value),
+      types::ndarray<typename T::dtype, T::value>>::type;
 
-    template <class T>
-    auto atleast_1d(T const &t) -> typename std::enable_if<
-        not(types::is_dtype<T>::value),
-        types::ndarray<typename T::dtype, T::value>>::type;
-
-    DECLARE_FUNCTOR(pythonic::numpy, atleast_1d);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, atleast_1d);
 }
+PYTHONIC_NS_END
 
 #endif

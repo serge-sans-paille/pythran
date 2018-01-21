@@ -3,14 +3,13 @@
 
 #include "pythonic/include/numpy/max.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
-
-    USING_FUNCTOR(amax, max);
-  }
+  USING_FUNCTOR(amax, max);
 }
+PYTHONIC_NS_END
 
 #endif

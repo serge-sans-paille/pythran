@@ -9,29 +9,28 @@
 #include "pythonic/numpy/isfinite.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
-  {
 
-    namespace wrapper
+  namespace wrapper
+  {
+    template <class T0, class T1>
+    bool isclose(T0 const &u, T1 const &v, double rtol, double atol,
+                 bool equal_nan)
     {
-      template <class T0, class T1>
-      bool isclose(T0 const &u, T1 const &v, double rtol, double atol,
-                   bool equal_nan)
-      {
-        if (functor::isfinite()(u) && functor::isfinite()(v))
-          return functor::abs()(u - v) <= (atol + rtol * functor::abs()(v));
-        else if (functor::isnan()(u) && functor::isnan()(v))
-          return equal_nan;
-        else
-          return (u == v);
-      }
+      if (functor::isfinite()(u) && functor::isfinite()(v))
+        return functor::abs()(u - v) <= (atol + rtol * functor::abs()(v));
+      else if (functor::isnan()(u) && functor::isnan()(v))
+        return equal_nan;
+      else
+        return (u == v);
     }
+  }
 #define NUMPY_NARY_FUNC_NAME isclose
 #define NUMPY_NARY_FUNC_SYM wrapper::isclose
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

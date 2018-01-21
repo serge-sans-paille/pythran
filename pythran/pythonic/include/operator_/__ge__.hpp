@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/ge.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__ge__, ge);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__ge__, ge);
 }
+PYTHONIC_NS_END
 
 #endif

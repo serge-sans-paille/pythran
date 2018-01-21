@@ -7,32 +7,31 @@
 #include "pythonic/include/types/long.hpp"
 #endif
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace functor
   {
+    struct float_ {
+      using callable = void;
+      using type = double;
 
-    namespace functor
-    {
-      struct float_ {
-        using callable = void;
-        using type = double;
+      template <class T>
+      type operator()(T &&t) const;
 
-        template <class T>
-        type operator()(T &&t) const;
-
-        type operator()() const;
+      type operator()() const;
 
 #ifdef USE_GMP
-        template <class T, class U>
-        type operator()(__gmp_expr<T, U> const &a) const;
-        template <class T, class U>
-        type operator()(__gmp_expr<T, U> &a) const;
+      template <class T, class U>
+      type operator()(__gmp_expr<T, U> const &a) const;
+      template <class T, class U>
+      type operator()(__gmp_expr<T, U> &a) const;
 #endif
-      };
-    }
+    };
   }
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,16 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  typename types::ndarray<long, 2> argwhere(E const &expr);
 
-  namespace numpy
-  {
-    template <class E>
-    typename types::ndarray<long, 2> argwhere(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, argwhere);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, argwhere);
 }
+PYTHONIC_NS_END
 
 #endif

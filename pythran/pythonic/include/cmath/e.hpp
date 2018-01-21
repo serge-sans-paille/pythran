@@ -6,13 +6,12 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace cmath
-  {
-    double constexpr e = std::exp(1);
-  }
+namespace cmath
+{
+  double constexpr e = std::exp(1);
 }
+PYTHONIC_NS_END
 
 #endif

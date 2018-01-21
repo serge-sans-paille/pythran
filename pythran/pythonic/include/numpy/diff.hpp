@@ -5,17 +5,16 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class E>
+  types::ndarray<typename E::dtype, E::value> diff(E const &expr, long n = 1);
 
-    template <class E>
-    types::ndarray<typename E::dtype, E::value> diff(E const &expr, long n = 1);
-
-    DECLARE_FUNCTOR(pythonic::numpy, diff);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, diff);
 }
+PYTHONIC_NS_END
 
 #endif

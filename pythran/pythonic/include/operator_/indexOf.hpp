@@ -3,17 +3,16 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
+  template <class A, class B>
+  long indexOf(A const &a, B const &b);
 
-    template <class A, class B>
-    long indexOf(A const &a, B const &b);
-
-    DECLARE_FUNCTOR(pythonic::operator_, indexOf);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, indexOf);
 }
+PYTHONIC_NS_END
 
 #endif

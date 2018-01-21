@@ -5,20 +5,19 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __dispatch__
 {
 
-  namespace __dispatch__
+  template <class Any>
+  auto next(Any &&any) -> decltype(any.next())
   {
-
-    template <class Any>
-    auto next(Any &&any) -> decltype(any.next())
-    {
-      return any.next();
-    }
-
-    DEFINE_FUNCTOR(pythonic::__dispatch__, next);
+    return any.next();
   }
+
+  DEFINE_FUNCTOR(pythonic::__dispatch__, next);
 }
+PYTHONIC_NS_END
 
 #endif

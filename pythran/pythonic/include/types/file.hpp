@@ -15,150 +15,148 @@
 #include <cstdio>
 #include <unistd.h>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
+  class file;
 
-  namespace types
+  struct file_iterator
+      : std::iterator<std::forward_iterator_tag, types::str, ptrdiff_t,
+                      types::str *, types::str /* no ref */> {
+  private:
+    file &f;
+    types::str curr;
+    int position;
+
+  public:
+    using value_type = types::str;
+
+    struct npos {
+    };
+
+    file_iterator(file &ref);
+    file_iterator(file &ref, npos);
+    bool operator==(file_iterator const &f2) const;
+    bool operator!=(file_iterator const &f2) const;
+    bool operator<(file_iterator const &f2) const;
+    file_iterator &operator++();
+    types::str const &operator*() const;
+  };
+
+  struct _file {
+    FILE *f;
+    _file();
+    _file(types::str const &filename, types::str const &strmode = "r");
+    FILE *operator*() const;
+    ~_file();
+  };
+
+  class file
   {
-    class file;
 
-    struct file_iterator
-        : std::iterator<std::forward_iterator_tag, types::str, ptrdiff_t,
-                        types::str *, types::str /* no ref */> {
-    private:
-      file &f;
-      types::str curr;
-      int position;
+  private:
+    using container_type = _file;
+    utils::shared_ref<container_type> data;
+    bool is_open;
+    types::str mode, name, newlines;
 
-    public:
-      using value_type = types::str;
+  public:
+    // Types
+    using iterator = file_iterator;
+    using value_type = types::str;
 
-      struct npos {
-      };
+    // Constructors
+    file();
+    file(types::str const &filename, types::str const &strmode = "r");
 
-      file_iterator(file &ref);
-      file_iterator(file &ref, npos);
-      bool operator==(file_iterator const &f2) const;
-      bool operator!=(file_iterator const &f2) const;
-      bool operator<(file_iterator const &f2) const;
-      file_iterator &operator++();
-      types::str const &operator*() const;
-    };
+    // Iterators
+    iterator begin();
+    iterator end();
 
-    struct _file {
-      FILE *f;
-      _file();
-      _file(types::str const &filename, types::str const &strmode = "r");
-      FILE *operator*() const;
-      ~_file();
-    };
+    // Modifiers
+    void open(types::str const &filename, types::str const &strmode);
 
-    class file
-    {
+    void close();
 
-    private:
-      using container_type = _file;
-      utils::shared_ref<container_type> data;
-      bool is_open;
-      types::str mode, name, newlines;
+    bool closed() const;
 
-    public:
-      // Types
-      using iterator = file_iterator;
-      using value_type = types::str;
+    types::str const &getmode() const;
 
-      // Constructors
-      file();
-      file(types::str const &filename, types::str const &strmode = "r");
+    types::str const &getname() const;
 
-      // Iterators
-      iterator begin();
-      iterator end();
+    types::str const &getnewlines() const;
 
-      // Modifiers
-      void open(types::str const &filename, types::str const &strmode);
+    bool eof();
 
-      void close();
+    void flush();
 
-      bool closed() const;
+    int fileno() const;
 
-      types::str const &getmode() const;
+    bool isatty() const;
 
-      types::str const &getname() const;
+    types::str next();
 
-      types::str const &getnewlines() const;
+    types::str read(int size = -1);
 
-      bool eof();
+    types::str readline(long size = std::numeric_limits<long>::max());
 
-      void flush();
+    types::list<types::str> readlines(int sizehint = -1);
 
-      int fileno() const;
+    void seek(int offset, int whence = SEEK_SET);
 
-      bool isatty() const;
+    int tell() const;
 
-      types::str next();
+    void truncate(int size = -1);
 
-      types::str read(int size = -1);
+    void write(types::str const &str);
 
-      types::str readline(long size = std::numeric_limits<long>::max());
-
-      types::list<types::str> readlines(int sizehint = -1);
-
-      void seek(int offset, int whence = SEEK_SET);
-
-      int tell() const;
-
-      void truncate(int size = -1);
-
-      void write(types::str const &str);
-
-      template <class T>
-      void writelines(T const &seq);
-    };
-  }
+    template <class T>
+    void writelines(T const &seq);
+  };
 }
+PYTHONIC_NS_END
 
 /* pythran attribute system { */
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace types
 {
-  namespace types
+  namespace __file
   {
-    namespace __file
-    {
 
-      template <int I>
-      struct getattr;
-
-      template <>
-      struct getattr<attr::CLOSED> {
-        bool operator()(file const &f);
-      };
-
-      template <>
-      struct getattr<attr::MODE> {
-        str const &operator()(file const &f);
-      };
-
-      template <>
-      struct getattr<attr::NAME> {
-        str const &operator()(file const &f);
-      };
-
-      template <>
-      struct getattr<attr::NEWLINES> {
-        // Python seems to always return none... Doing the same.
-        none_type operator()(file const &f);
-      };
-    }
-  }
-
-  namespace __builtin__
-  {
     template <int I>
-    auto getattr(pythonic::types::file const &f)
-        -> decltype(pythonic::types::__file::getattr<I>()(f));
+    struct getattr;
+
+    template <>
+    struct getattr<attr::CLOSED> {
+      bool operator()(file const &f);
+    };
+
+    template <>
+    struct getattr<attr::MODE> {
+      str const &operator()(file const &f);
+    };
+
+    template <>
+    struct getattr<attr::NAME> {
+      str const &operator()(file const &f);
+    };
+
+    template <>
+    struct getattr<attr::NEWLINES> {
+      // Python seems to always return none... Doing the same.
+      none_type operator()(file const &f);
+    };
   }
 }
+
+namespace __builtin__
+{
+  template <int I>
+  auto getattr(pythonic::types::file const &f)
+      -> decltype(pythonic::types::__file::getattr<I>()(f));
+}
+PYTHONIC_NS_END
 
 /* } */
 

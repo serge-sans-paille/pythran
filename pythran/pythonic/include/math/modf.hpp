@@ -6,14 +6,13 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    std::tuple<double, double> modf(double x);
-    DECLARE_FUNCTOR(pythonic::math, modf);
-  }
+namespace math
+{
+  std::tuple<double, double> modf(double x);
+  DECLARE_FUNCTOR(pythonic::math, modf);
 }
+PYTHONIC_NS_END
 
 #endif

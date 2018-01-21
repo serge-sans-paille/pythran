@@ -4,16 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/random/random.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
 
-  namespace random
-  {
+  double gauss(double mu, double sigma);
 
-    double gauss(double mu, double sigma);
-
-    DECLARE_FUNCTOR(pythonic::random, gauss);
-  }
+  DECLARE_FUNCTOR(pythonic::random, gauss);
 }
+PYTHONIC_NS_END
 
 #endif

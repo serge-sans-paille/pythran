@@ -4,23 +4,22 @@
 #include "pythonic/include/types/set.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace anonymous
   {
+    inline types::empty_set set();
 
-    namespace anonymous
-    {
-      inline types::empty_set set();
-
-      template <class Iterable>
-      inline types::set<
-          typename std::remove_reference<Iterable>::type::iterator::value_type>
-      set(Iterable &&t);
-    }
-
-    DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, set);
+    template <class Iterable>
+    inline types::set<
+        typename std::remove_reference<Iterable>::type::iterator::value_type>
+    set(Iterable &&t);
   }
+
+  DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, set);
 }
+PYTHONIC_NS_END
 #endif

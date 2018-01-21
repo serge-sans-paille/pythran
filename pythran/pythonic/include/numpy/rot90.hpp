@@ -6,17 +6,16 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/copy.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class T, size_t N>
+  types::ndarray<T, N> rot90(types::ndarray<T, N> const &expr, int k = 1);
 
-  namespace numpy
-  {
-    template <class T, size_t N>
-    types::ndarray<T, N> rot90(types::ndarray<T, N> const &expr, int k = 1);
-
-    NUMPY_EXPR_TO_NDARRAY0_DECL(rot90)
-    DECLARE_FUNCTOR(pythonic::numpy, rot90);
-  }
+  NUMPY_EXPR_TO_NDARRAY0_DECL(rot90)
+  DECLARE_FUNCTOR(pythonic::numpy, rot90);
 }
+PYTHONIC_NS_END
 
 #endif

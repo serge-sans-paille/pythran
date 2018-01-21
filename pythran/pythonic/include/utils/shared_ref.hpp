@@ -11,94 +11,93 @@
 #include <Python.h>
 #endif
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 #ifdef ENABLE_PYTHON_MODULE
-  using extern_type = PyObject *;
+using extern_type = PyObject *;
 #else
-  using extern_type = void *;
+using extern_type = void *;
 #endif
 
 #ifdef _OPENMP
-  using atomic_size_t = std::atomic_size_t;
+using atomic_size_t = std::atomic_size_t;
 #else
-  using atomic_size_t = size_t;
+using atomic_size_t = size_t;
 #endif
 
-  namespace utils
+namespace utils
+{
+
+  // Force construction of an uninitialized shared_ref
+  struct no_memory {
+  };
+
+  /** Light-weight shared_ptr like-class
+   *
+   *  Unlike std::shared_ptr, it allocates the memory itself using new.
+   */
+  template <class T>
+  class shared_ref
   {
-
-    // Force construction of an uninitialized shared_ref
-    struct no_memory {
-    };
-
-    /** Light-weight shared_ptr like-class
-     *
-     *  Unlike std::shared_ptr, it allocates the memory itself using new.
-     */
-    template <class T>
-    class shared_ref
-    {
-    private:
-      struct memory {
-        T ptr;
-        atomic_size_t count;
-        extern_type foreign;
-        template <class... Types>
-        memory(Types &&... args);
-      } * mem;
-
-    public:
-      // This attributs exists for non-Python code to avoid #ifdef everywhere
-
-      // Uninitialized ctor
-      shared_ref(no_memory const &) noexcept;
-
-      // Uninitialized ctor (rvalue ref)
-      shared_ref(no_memory &&) noexcept;
-
-      // Ctor allocate T and forward all arguments to T ctor
+  private:
+    struct memory {
+      T ptr;
+      atomic_size_t count;
+      extern_type foreign;
       template <class... Types>
-      shared_ref(Types &&... args);
+      memory(Types &&... args);
+    } * mem;
 
-      // Move Ctor
-      shared_ref(shared_ref<T> &&p) noexcept;
+  public:
+    // This attributs exists for non-Python code to avoid #ifdef everywhere
 
-      // Copy Ctor
-      shared_ref(shared_ref<T> const &p) noexcept;
+    // Uninitialized ctor
+    shared_ref(no_memory const &) noexcept;
 
-      // Copy Ctor, again
-      // Without a non-const copy-ctor here, the greedy variadic template ctor
-      // takes over
-      shared_ref(shared_ref<T> &p) noexcept;
+    // Uninitialized ctor (rvalue ref)
+    shared_ref(no_memory &&) noexcept;
 
-      ~shared_ref() noexcept;
+    // Ctor allocate T and forward all arguments to T ctor
+    template <class... Types>
+    shared_ref(Types &&... args);
 
-      // Magic swapperator, help for assignment operators
-      void swap(shared_ref<T> &rhs) noexcept;
+    // Move Ctor
+    shared_ref(shared_ref<T> &&p) noexcept;
 
-      // Takes by copy so that acquire/release is handle by ctor
-      shared_ref<T> &operator=(shared_ref<T> p) noexcept;
+    // Copy Ctor
+    shared_ref(shared_ref<T> const &p) noexcept;
 
-      T &operator*() const noexcept;
+    // Copy Ctor, again
+    // Without a non-const copy-ctor here, the greedy variadic template ctor
+    // takes over
+    shared_ref(shared_ref<T> &p) noexcept;
 
-      T *operator->() const noexcept;
+    ~shared_ref() noexcept;
 
-      bool operator!=(shared_ref<T> const &other) const noexcept;
-      bool operator==(shared_ref<T> const &other) const noexcept;
+    // Magic swapperator, help for assignment operators
+    void swap(shared_ref<T> &rhs) noexcept;
 
-      // Save pointer to the external object to decref once we doesn't
-      // use it anymore
-      void external(extern_type obj_ptr);
+    // Takes by copy so that acquire/release is handle by ctor
+    shared_ref<T> &operator=(shared_ref<T> p) noexcept;
 
-      extern_type get_foreign();
-      bool is_foreign() const;
+    T &operator*() const noexcept;
 
-    private:
-      void dispose();
-      void acquire();
-    };
-  }
+    T *operator->() const noexcept;
+
+    bool operator!=(shared_ref<T> const &other) const noexcept;
+    bool operator==(shared_ref<T> const &other) const noexcept;
+
+    // Save pointer to the external object to decref once we doesn't
+    // use it anymore
+    void external(extern_type obj_ptr);
+
+    extern_type get_foreign();
+    bool is_foreign() const;
+
+  private:
+    void dispose();
+    void acquire();
+  };
 }
+PYTHONIC_NS_END
 
 #endif

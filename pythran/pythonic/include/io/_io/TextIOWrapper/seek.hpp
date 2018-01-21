@@ -3,18 +3,17 @@
 
 #include "pythonic/include/__builtin__/file/seek.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace io
 {
-  namespace io
-  {
 
-    namespace _io
+  namespace _io
+  {
+    namespace TextIOWrapper
     {
-      namespace TextIOWrapper
-      {
-        USING_FUNCTOR(seek, __builtin__::file::functor::seek);
-      }
+      USING_FUNCTOR(seek, __builtin__::file::functor::seek);
     }
   }
 }
+PYTHONIC_NS_END
 #endif

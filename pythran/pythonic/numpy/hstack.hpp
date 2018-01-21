@@ -4,23 +4,22 @@
 #include <pythonic/include/numpy/hstack.hpp>
 #include <pythonic/numpy/concatenate.hpp>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  template <class ArraySequence>
+  auto hstack(ArraySequence &&seq)
+      -> decltype(concatenate(std::forward<ArraySequence>(seq), 1))
   {
-
-    template <class ArraySequence>
-    auto hstack(ArraySequence &&seq)
-        -> decltype(concatenate(std::forward<ArraySequence>(seq), 1))
-    {
-      auto constexpr concatenate_axis =
-          (decltype(concatenate(std::forward<ArraySequence>(seq), 1))::value !=
-           1);
-      return concatenate(std::forward<ArraySequence>(seq), concatenate_axis);
-    }
-    DEFINE_FUNCTOR(pythonic::numpy, hstack);
+    auto constexpr concatenate_axis =
+        (decltype(concatenate(std::forward<ArraySequence>(seq), 1))::value !=
+         1);
+    return concatenate(std::forward<ArraySequence>(seq), concatenate_axis);
   }
+  DEFINE_FUNCTOR(pythonic::numpy, hstack);
 }
+PYTHONIC_NS_END
 
 #endif

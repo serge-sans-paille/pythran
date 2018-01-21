@@ -3,17 +3,16 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
+  template <class A, class B>
+  auto ne(A const &a, B const &b) -> decltype(a != b);
 
-    template <class A, class B>
-    auto ne(A const &a, B const &b) -> decltype(a != b);
-
-    DECLARE_FUNCTOR(pythonic::operator_, ne);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, ne);
 }
+PYTHONIC_NS_END
 
 #endif

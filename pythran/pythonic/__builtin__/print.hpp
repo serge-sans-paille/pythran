@@ -6,55 +6,54 @@
 
 #include <iostream>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace details
   {
-
-    namespace details
+    template <class T>
+    std::ostream &print(std::ostream &os, T const &t)
     {
-      template <class T>
-      std::ostream &print(std::ostream &os, T const &t)
-      {
-        return os << t;
-      }
-
-      std::ostream &print(std::ostream &os, bool const &t)
-      {
-        static char const repr[2][6] = {"False", "True\0"};
-        return os << repr[t];
-      }
+      return os << t;
     }
 
-    void print_nonl()
+    std::ostream &print(std::ostream &os, bool const &t)
     {
+      static char const repr[2][6] = {"False", "True\0"};
+      return os << repr[t];
     }
-
-    template <typename T, typename... Types>
-    void print_nonl(T const &value, Types const &... values)
-    {
-      details::print(std::cout, value);
-      if (sizeof...(Types) > 0)
-        std::cout << ' ';
-      print_nonl(values...);
-    }
-
-    void print()
-    {
-      std::cout << std::endl;
-    }
-
-    template <typename T, typename... Types>
-    void print(T const &value, Types const &... values)
-    {
-      details::print(std::cout, value);
-      if (sizeof...(values) > 0)
-        std::cout << ' ';
-      print(values...);
-    }
-    DEFINE_FUNCTOR(pythonic::__builtin__, print);
   }
+
+  void print_nonl()
+  {
+  }
+
+  template <typename T, typename... Types>
+  void print_nonl(T const &value, Types const &... values)
+  {
+    details::print(std::cout, value);
+    if (sizeof...(Types) > 0)
+      std::cout << ' ';
+    print_nonl(values...);
+  }
+
+  void print()
+  {
+    std::cout << std::endl;
+  }
+
+  template <typename T, typename... Types>
+  void print(T const &value, Types const &... values)
+  {
+    details::print(std::cout, value);
+    if (sizeof...(values) > 0)
+      std::cout << ' ';
+    print(values...);
+  }
+  DEFINE_FUNCTOR(pythonic::__builtin__, print);
 }
+PYTHONIC_NS_END
 
 #endif

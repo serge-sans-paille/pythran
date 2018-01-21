@@ -8,19 +8,18 @@
 
 #include <cmath>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace cmath
 {
-
-  namespace cmath
+  using std::log;
+  double log(double x, double base)
   {
-    using std::log;
-    double log(double x, double base)
-    {
-      return log(x) / log(base);
-    }
-
-    DEFINE_FUNCTOR(pythonic::cmath, log);
+    return log(x) / log(base);
   }
+
+  DEFINE_FUNCTOR(pythonic::cmath, log);
 }
+PYTHONIC_NS_END
 
 #endif

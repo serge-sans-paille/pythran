@@ -6,16 +6,15 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/pi.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  types::ndarray<double, E::value> unwrap(E const &expr, double discont = pi);
 
-  namespace numpy
-  {
-    template <class E>
-    types::ndarray<double, E::value> unwrap(E const &expr, double discont = pi);
-
-    DECLARE_FUNCTOR(pythonic::numpy, unwrap)
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, unwrap)
 }
+PYTHONIC_NS_END
 
 #endif

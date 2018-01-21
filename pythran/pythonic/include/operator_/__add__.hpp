@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/operator_/add.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__add__, add);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__add__, add);
 }
+PYTHONIC_NS_END
 
 #endif

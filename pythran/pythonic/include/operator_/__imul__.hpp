@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/imul.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__imul__, imul);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__imul__, imul);
 }
+PYTHONIC_NS_END
 
 #endif

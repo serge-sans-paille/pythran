@@ -7,31 +7,30 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace details
   {
 
-    namespace details
+    uint32_t uint32()
     {
-
-      uint32_t uint32()
-      {
-        return uint32_t();
-      }
-
-      template <class V>
-      uint32_t uint32(V v)
-      {
-        return v;
-      }
+      return uint32_t();
     }
+
+    template <class V>
+    uint32_t uint32(V v)
+    {
+      return v;
+    }
+  }
 
 #define NUMPY_NARY_FUNC_NAME uint32
 #define NUMPY_NARY_FUNC_SYM details::uint32
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

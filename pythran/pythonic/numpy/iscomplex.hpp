@@ -8,34 +8,33 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/traits.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace wrapper
   {
-
-    namespace wrapper
+    template <class I>
+    typename std::enable_if<types::is_complex<I>::value, bool>::type
+    iscomplex(I const &a)
     {
-      template <class I>
-      typename std::enable_if<types::is_complex<I>::value, bool>::type
-      iscomplex(I const &a)
-      {
-        return a.imag() != 0.;
-      }
-
-      template <class I>
-      constexpr
-          typename std::enable_if<not types::is_complex<I>::value, bool>::type
-          iscomplex(I const &a)
-      {
-        return false;
-      }
+      return a.imag() != 0.;
     }
+
+    template <class I>
+    constexpr
+        typename std::enable_if<not types::is_complex<I>::value, bool>::type
+        iscomplex(I const &a)
+    {
+      return false;
+    }
+  }
 
 #define NUMPY_NARY_FUNC_NAME iscomplex
 #define NUMPY_NARY_FUNC_SYM wrapper::iscomplex
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

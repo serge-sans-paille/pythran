@@ -6,21 +6,20 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
-
-  namespace operator_
+  template <class A, class B>
+  auto xor_(A const &a, B const &b) -> decltype(a ^ b)
   {
-    template <class A, class B>
-    auto xor_(A const &a, B const &b) -> decltype(a ^ b)
-    {
-      return a ^ b;
-    }
-
-    DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(xor_, ^)
-
-    DEFINE_FUNCTOR(pythonic::operator_, xor_);
+    return a ^ b;
   }
+
+  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(xor_, ^)
+
+  DEFINE_FUNCTOR(pythonic::operator_, xor_);
 }
+PYTHONIC_NS_END
 
 #endif

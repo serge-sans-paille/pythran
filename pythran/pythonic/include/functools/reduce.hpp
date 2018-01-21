@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/__builtin__/reduce.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace functools
-  {
-    USING_FUNCTOR(reduce, __builtin__::functor::reduce);
-  }
+namespace functools
+{
+  USING_FUNCTOR(reduce, __builtin__::functor::reduce);
 }
+PYTHONIC_NS_END
 
 #endif

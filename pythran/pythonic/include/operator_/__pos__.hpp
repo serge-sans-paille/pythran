@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/pos.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__pos__, pos);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__pos__, pos);
 }
+PYTHONIC_NS_END
 
 #endif

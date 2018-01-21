@@ -6,13 +6,12 @@
 #include "pythonic/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    DEFINE_FUNCTOR_2(atan, std::atan);
-  }
+namespace math
+{
+  DEFINE_FUNCTOR_2(atan, std::atan);
 }
+PYTHONIC_NS_END
 
 #endif

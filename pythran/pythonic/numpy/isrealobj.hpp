@@ -7,19 +7,18 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/traits.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class E>
+  constexpr bool isrealobj(E const &expr)
   {
-    template <class E>
-    constexpr bool isrealobj(E const &expr)
-    {
-      return not types::is_complex<typename E::dtype>::value;
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, isrealobj);
+    return not types::is_complex<typename E::dtype>::value;
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, isrealobj);
 }
+PYTHONIC_NS_END
 
 #endif

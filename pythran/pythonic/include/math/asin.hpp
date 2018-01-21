@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    DECLARE_FUNCTOR_2(asin, std::asin);
-  }
+namespace math
+{
+  DECLARE_FUNCTOR_2(asin, std::asin);
 }
+PYTHONIC_NS_END
 
 #endif

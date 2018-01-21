@@ -4,20 +4,19 @@
 #include "pythonic/include/types/file.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
-    {
+    void flush(types::file &f);
+    void flush(types::file &&f);
 
-      void flush(types::file &f);
-      void flush(types::file &&f);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::file, flush);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::file, flush);
   }
 }
+PYTHONIC_NS_END
 #endif

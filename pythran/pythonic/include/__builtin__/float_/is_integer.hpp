@@ -3,20 +3,19 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace float_
   {
 
-    namespace float_
-    {
+    bool is_integer(double d);
 
-      bool is_integer(double d);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::float_, is_integer);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::float_, is_integer);
   }
 }
+PYTHONIC_NS_END
 
 #endif

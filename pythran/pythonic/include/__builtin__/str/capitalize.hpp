@@ -4,19 +4,18 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
-    {
+    types::str capitalize(types::str const &s);
 
-      types::str capitalize(types::str const &s);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, capitalize);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, capitalize);
   }
 }
+PYTHONIC_NS_END
 #endif

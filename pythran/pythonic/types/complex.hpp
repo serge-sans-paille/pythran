@@ -68,50 +68,48 @@ namespace std
   }
 }
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <size_t AttributeID>
+  double getattr(std::complex<double> const &self)
   {
-
-    template <size_t AttributeID>
-    double getattr(std::complex<double> const &self)
-    {
-      return AttributeID == pythonic::types::attr::REAL ? std::real(self)
-                                                        : std::imag(self);
-    }
+    return AttributeID == pythonic::types::attr::REAL ? std::real(self)
+                                                      : std::imag(self);
   }
 }
+PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+template <class T>
+PyObject *to_python<std::complex<T>>::convert(std::complex<T> const &c)
 {
-
-  template <class T>
-  PyObject *to_python<std::complex<T>>::convert(std::complex<T> const &c)
-  {
-    return PyComplex_FromDoubles(c.real(), c.imag());
-  }
-
-  template <class T>
-  bool from_python<std::complex<T>>::is_convertible(PyObject *obj)
-  {
-    return PyComplex_CheckExact(obj);
-  }
-  template <class T>
-  std::complex<T> from_python<std::complex<T>>::convert(PyObject *obj)
-  {
-    if (PyComplex_Check(obj))
-      return {PyComplex_RealAsDouble(obj), PyComplex_ImagAsDouble(obj)};
-    else if (PyFloat_Check(obj))
-      return {PyFloat_AsDouble(obj), 0.};
-    else
-      return {(double)PyInt_AsLong(obj), 0.};
-  }
+  return PyComplex_FromDoubles(c.real(), c.imag());
 }
+
+template <class T>
+bool from_python<std::complex<T>>::is_convertible(PyObject *obj)
+{
+  return PyComplex_CheckExact(obj);
+}
+template <class T>
+std::complex<T> from_python<std::complex<T>>::convert(PyObject *obj)
+{
+  if (PyComplex_Check(obj))
+    return {PyComplex_RealAsDouble(obj), PyComplex_ImagAsDouble(obj)};
+  else if (PyFloat_Check(obj))
+    return {PyFloat_AsDouble(obj), 0.};
+  else
+    return {(double)PyInt_AsLong(obj), 0.};
+}
+PYTHONIC_NS_END
 #endif
 
 #endif

@@ -3,13 +3,12 @@
 
 #include "pythonic/include/numpy/min.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(amin, min);
-  }
+namespace numpy
+{
+  USING_FUNCTOR(amin, min);
 }
+PYTHONIC_NS_END
 
 #endif

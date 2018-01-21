@@ -6,27 +6,26 @@
 #include "pythonic/types/file.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
+    void flush(types::file &f)
     {
-
-      void flush(types::file &f)
-      {
-        f.flush();
-      }
-
-      void flush(types::file &&f)
-      {
-        f.flush();
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::file, flush);
+      f.flush();
     }
+
+    void flush(types::file &&f)
+    {
+      f.flush();
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, flush);
   }
 }
+PYTHONIC_NS_END
 #endif

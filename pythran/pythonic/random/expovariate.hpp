@@ -6,18 +6,17 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
-
-  namespace random
+  double expovariate(double l)
   {
-    double expovariate(double l)
-    {
-      return std::exponential_distribution<>(l)(__random_generator);
-    }
-
-    DEFINE_FUNCTOR(pythonic::random, expovariate);
+    return std::exponential_distribution<>(l)(__random_generator);
   }
+
+  DEFINE_FUNCTOR(pythonic::random, expovariate);
 }
+PYTHONIC_NS_END
 
 #endif

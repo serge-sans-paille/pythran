@@ -12,38 +12,37 @@
 #include <random>
 #include <algorithm>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
+
+    template <size_t N>
+    types::ndarray<double, N> normal(double loc, double scale,
+                                     types::array<long, N> const &shape)
     {
-
-      template <size_t N>
-      types::ndarray<double, N> normal(double loc, double scale,
-                                       types::array<long, N> const &shape)
-      {
-        types::ndarray<double, N> result{shape, types::none_type()};
-        std::normal_distribution<double> distribution{loc, scale};
-        std::generate(result.fbegin(), result.fend(),
-                      [&]() { return distribution(details::generator); });
-        return result;
-      }
-
-      auto normal(double loc, double scale, long size)
-          -> decltype(normal(loc, scale, types::array<long, 1>{{size}}))
-      {
-        return normal(loc, scale, types::array<long, 1>{{size}});
-      }
-
-      double normal(double loc, double scale, types::none_type d)
-      {
-        return std::normal_distribution<double>{loc, scale}(details::generator);
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::random, normal);
+      types::ndarray<double, N> result{shape, types::none_type()};
+      std::normal_distribution<double> distribution{loc, scale};
+      std::generate(result.fbegin(), result.fend(),
+                    [&]() { return distribution(details::generator); });
+      return result;
     }
+
+    auto normal(double loc, double scale, long size)
+        -> decltype(normal(loc, scale, types::array<long, 1>{{size}}))
+    {
+      return normal(loc, scale, types::array<long, 1>{{size}});
+    }
+
+    double normal(double loc, double scale, types::none_type d)
+    {
+      return std::normal_distribution<double>{loc, scale}(details::generator);
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::random, normal);
   }
 }
+PYTHONIC_NS_END
 
 #endif

@@ -7,26 +7,25 @@
 #include <iterator>
 #include <type_traits>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace anonymous
   {
 
-    namespace anonymous
-    {
+    inline types::empty_list list();
+    inline types::empty_list list(types::empty_list);
 
-      inline types::empty_list list();
-      inline types::empty_list list(types::empty_list);
-
-      template <class Iterable>
-      types::list<typename std::iterator_traits<
-          typename std::remove_reference<Iterable>::type::iterator>::value_type>
-      list(Iterable &&t);
-    }
-
-    DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, list);
+    template <class Iterable>
+    types::list<typename std::iterator_traits<
+        typename std::remove_reference<Iterable>::type::iterator>::value_type>
+    list(Iterable &&t);
   }
+
+  DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, list);
 }
+PYTHONIC_NS_END
 
 #endif

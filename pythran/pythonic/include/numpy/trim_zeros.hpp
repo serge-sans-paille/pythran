@@ -4,18 +4,17 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/numpy_gexpr.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class T>
 
-  namespace numpy
-  {
-    template <class T>
+  types::numpy_gexpr<T, types::contiguous_slice>
+  trim_zeros(T const &expr, types::str const &trim = "fb");
 
-    types::numpy_gexpr<T, types::contiguous_slice>
-    trim_zeros(T const &expr, types::str const &trim = "fb");
-
-    DECLARE_FUNCTOR(pythonic::numpy, trim_zeros)
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, trim_zeros)
 }
+PYTHONIC_NS_END
 
 #endif

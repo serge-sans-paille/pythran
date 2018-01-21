@@ -7,27 +7,26 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
+    void write(types::file &f, types::str const &str)
     {
-
-      void write(types::file &f, types::str const &str)
-      {
-        f.write(str);
-      }
-
-      void write(types::file &&f, types::str const &str)
-      {
-        f.write(str);
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::file, write);
+      f.write(str);
     }
+
+    void write(types::file &&f, types::str const &str)
+    {
+      f.write(str);
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, write);
   }
 }
+PYTHONIC_NS_END
 #endif

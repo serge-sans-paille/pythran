@@ -6,23 +6,22 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
+    bool isdigit(types::str const &s)
     {
-
-      bool isdigit(types::str const &s)
-      {
-        return not s.empty() and
-               std::all_of(s.begin(), s.end(), (int (*)(int))std::isdigit);
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::str, isdigit);
+      return not s.empty() and
+             std::all_of(s.begin(), s.end(), (int (*)(int))std::isdigit);
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, isdigit);
   }
 }
+PYTHONIC_NS_END
 #endif

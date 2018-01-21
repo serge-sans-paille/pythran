@@ -7,14 +7,13 @@
 #include <type_traits>
 #include <utility>
 
-namespace pythonic
-{
-  template <class T>
-  struct to_python;
+PYTHONIC_NS_BEGIN
+template <class T>
+struct to_python;
 
-  template <class T>
-  struct from_python;
-}
+template <class T>
+struct from_python;
+PYTHONIC_NS_END
 
 template <class T>
 auto to_python(T &&value) -> decltype(pythonic::to_python<

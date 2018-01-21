@@ -8,72 +8,71 @@
 #include <iterator>
 #include <type_traits>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace itertools
 {
-
-  namespace itertools
+  namespace details
   {
-    namespace details
-    {
 
-      // FIXME : should be a combined_iterator_tag
-      template <typename... Iters>
-      struct product_iterator
-          : std::iterator<std::forward_iterator_tag,
-                          std::tuple<typename Iters::value_type...>> {
+    // FIXME : should be a combined_iterator_tag
+    template <typename... Iters>
+    struct product_iterator
+        : std::iterator<std::forward_iterator_tag,
+                        std::tuple<typename Iters::value_type...>> {
 
-        std::tuple<typename Iters::iterator...> const it_begin;
-        std::tuple<typename Iters::iterator...> const it_end;
-        std::tuple<typename Iters::iterator...> it;
-        bool end;
+      std::tuple<typename Iters::iterator...> const it_begin;
+      std::tuple<typename Iters::iterator...> const it_end;
+      std::tuple<typename Iters::iterator...> it;
+      bool end;
 
-        product_iterator() = default;
-        template <size_t... I>
-        product_iterator(std::tuple<Iters...> &_iters,
-                         utils::index_sequence<I...> const &);
-        template <size_t... I>
-        product_iterator(npos, std::tuple<Iters...> &_iters,
-                         utils::index_sequence<I...> const &);
-        std::tuple<typename Iters::value_type...> operator*() const;
-        product_iterator &operator++();
-        bool operator==(product_iterator const &other) const;
-        bool operator!=(product_iterator const &other) const;
-        bool operator<(product_iterator const &other) const;
+      product_iterator() = default;
+      template <size_t... I>
+      product_iterator(std::tuple<Iters...> &_iters,
+                       utils::index_sequence<I...> const &);
+      template <size_t... I>
+      product_iterator(npos, std::tuple<Iters...> &_iters,
+                       utils::index_sequence<I...> const &);
+      std::tuple<typename Iters::value_type...> operator*() const;
+      product_iterator &operator++();
+      bool operator==(product_iterator const &other) const;
+      bool operator!=(product_iterator const &other) const;
+      bool operator<(product_iterator const &other) const;
 
-      private:
-        template <size_t N>
-        void advance(utils::int_<N>);
-        void advance(utils::int_<0>);
-        template <size_t... I>
-        std::tuple<typename Iters::value_type...>
-        get_value(utils::index_sequence<I...> const &) const;
-      };
+    private:
+      template <size_t N>
+      void advance(utils::int_<N>);
+      void advance(utils::int_<0>);
+      template <size_t... I>
+      std::tuple<typename Iters::value_type...>
+      get_value(utils::index_sequence<I...> const &) const;
+    };
 
-      template <typename... Iters>
-      struct product : utils::iterator_reminder<true, Iters...>,
-                       product_iterator<Iters...> {
+    template <typename... Iters>
+    struct product : utils::iterator_reminder<true, Iters...>,
+                     product_iterator<Iters...> {
 
-        using value_type = std::tuple<typename Iters::value_type...>;
-        using iterator = product_iterator<Iters...>;
+      using value_type = std::tuple<typename Iters::value_type...>;
+      using iterator = product_iterator<Iters...>;
 
-        iterator end_iter;
+      iterator end_iter;
 
-        product() = default;
-        product(Iters const &... _iters);
+      product() = default;
+      product(Iters const &... _iters);
 
-        iterator &begin();
-        iterator const &begin() const;
-        iterator const &end() const;
-      };
-    }
-
-    template <typename... Iter>
-    details::product<typename std::remove_cv<
-        typename std::remove_reference<Iter>::type>::type...>
-    product(Iter &&... iters);
-
-    DECLARE_FUNCTOR(pythonic::itertools, product);
+      iterator &begin();
+      iterator const &begin() const;
+      iterator const &end() const;
+    };
   }
+
+  template <typename... Iter>
+  details::product<typename std::remove_cv<
+      typename std::remove_reference<Iter>::type>::type...>
+  product(Iter &&... iters);
+
+  DECLARE_FUNCTOR(pythonic::itertools, product);
 }
+PYTHONIC_NS_END
 
 #endif

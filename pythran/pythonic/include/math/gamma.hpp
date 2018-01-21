@@ -4,14 +4,13 @@
 #include "pythonic/include/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    double gamma(double x);
-    DECLARE_FUNCTOR(pythonic::math, gamma);
-  }
+namespace math
+{
+  double gamma(double x);
+  DECLARE_FUNCTOR(pythonic::math, gamma);
 }
+PYTHONIC_NS_END
 
 #endif

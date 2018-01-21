@@ -9,44 +9,42 @@
 #include <tuple>
 #include <utility>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace anonymous
   {
-
-    namespace anonymous
+    inline types::empty_dict dict()
     {
-      inline types::empty_dict dict()
-      {
-        return types::empty_dict();
-      }
-
-      template <class Iterable>
-      inline types::dict<
-          typename std::tuple_element<
-              0, typename std::remove_reference<
-                     Iterable>::type::iterator::value_type>::type,
-          typename std::tuple_element<
-              1, typename std::remove_reference<
-                     Iterable>::type::iterator::value_type>::type>
-      dict(Iterable &&iterable)
-      {
-        types::dict<typename std::tuple_element<
-                        0, typename std::remove_reference<
-                               Iterable>::type::iterator::value_type>::type,
-                    typename std::tuple_element<
-                        1, typename std::remove_reference<
-                               Iterable>::type::iterator::value_type>::type>
-            out = types::empty_dict();
-        for (auto const &i : iterable)
-          out[std::get<0>(i)] = std::get<1>(i);
-        return out;
-      }
+      return types::empty_dict();
     }
 
-    DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, dict);
+    template <class Iterable>
+    inline types::dict<typename std::tuple_element<
+                           0, typename std::remove_reference<
+                                  Iterable>::type::iterator::value_type>::type,
+                       typename std::tuple_element<
+                           1, typename std::remove_reference<
+                                  Iterable>::type::iterator::value_type>::type>
+    dict(Iterable &&iterable)
+    {
+      types::dict<typename std::tuple_element<
+                      0, typename std::remove_reference<
+                             Iterable>::type::iterator::value_type>::type,
+                  typename std::tuple_element<
+                      1, typename std::remove_reference<
+                             Iterable>::type::iterator::value_type>::type> out =
+          types::empty_dict();
+      for (auto const &i : iterable)
+        out[std::get<0>(i)] = std::get<1>(i);
+      return out;
+    }
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, dict);
 }
+PYTHONIC_NS_END
 
 #endif

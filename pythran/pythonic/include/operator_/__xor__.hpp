@@ -4,12 +4,11 @@
 #include "pythonic/include/operator_/xor_.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace operator_
 {
-  namespace operator_
-  {
-    USING_FUNCTOR(__xor__, xor_);
-  }
+  USING_FUNCTOR(__xor__, xor_);
 }
+PYTHONIC_NS_END
 
 #endif

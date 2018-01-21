@@ -6,21 +6,20 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/operator_/truediv.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
-
-  namespace operator_
+  template <class A, class B>
+  auto itruediv(A a, B const &b) -> decltype(truediv(a, b))
   {
-    template <class A, class B>
-    auto itruediv(A a, B const &b) -> decltype(truediv(a, b))
-    {
-      auto tmp = a;
-      a = truediv(a, b);
-      return truediv(tmp, b);
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, itruediv);
+    auto tmp = a;
+    a = truediv(a, b);
+    return truediv(tmp, b);
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, itruediv);
 }
+PYTHONIC_NS_END
 
 #endif

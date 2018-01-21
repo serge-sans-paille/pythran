@@ -5,22 +5,21 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
+  template <class A, class B>
+  A ifloordiv(A a, B const &b)
   {
-
-    template <class A, class B>
-    A ifloordiv(A a, B const &b)
-    {
-      A tmp = (a - (a % b)) / b;
-      a = tmp;
-      return tmp;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, ifloordiv);
+    A tmp = (a - (a % b)) / b;
+    a = tmp;
+    return tmp;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, ifloordiv);
 }
+PYTHONIC_NS_END
 
 #endif

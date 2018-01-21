@@ -6,13 +6,12 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace cmath
-  {
-    DECLARE_FUNCTOR_2(atan, std::atan);
-  }
+namespace cmath
+{
+  DECLARE_FUNCTOR_2(atan, std::atan);
 }
+PYTHONIC_NS_END
 
 #endif

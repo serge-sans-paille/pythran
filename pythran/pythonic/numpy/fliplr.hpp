@@ -6,23 +6,22 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class E>
+  auto fliplr(E &&expr) -> decltype(std::forward<E>(expr)(
+      types::contiguous_slice{__builtin__::None, __builtin__::None},
+      types::slice{__builtin__::None, __builtin__::None, -1}))
   {
-    template <class E>
-    auto fliplr(E &&expr) -> decltype(std::forward<E>(expr)(
+    return std::forward<E>(expr)(
         types::contiguous_slice{__builtin__::None, __builtin__::None},
-        types::slice{__builtin__::None, __builtin__::None, -1}))
-    {
-      return std::forward<E>(expr)(
-          types::contiguous_slice{__builtin__::None, __builtin__::None},
-          types::slice{__builtin__::None, __builtin__::None, -1});
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, fliplr);
+        types::slice{__builtin__::None, __builtin__::None, -1});
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, fliplr);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,19 +4,18 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
-    {
+    bool isalpha(types::str const &s);
 
-      bool isalpha(types::str const &s);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, isalpha);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, isalpha);
   }
 }
+PYTHONIC_NS_END
 #endif

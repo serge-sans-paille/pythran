@@ -10,56 +10,55 @@
 
 #include <algorithm>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace details
   {
-
-    namespace details
+    template <class Tuple, size_t N>
+    auto tuple_sum<Tuple, N>::operator()(Tuple const &t)
+        -> decltype(std::get<N>(t) + tuple_sum<Tuple, N - 1>()(t))
     {
-      template <class Tuple, size_t N>
-      auto tuple_sum<Tuple, N>::operator()(Tuple const &t)
-          -> decltype(std::get<N>(t) + tuple_sum<Tuple, N - 1>()(t))
-      {
-        return std::get<N>(t) + tuple_sum<Tuple, N - 1>()(t);
-      }
-
-      template <class Tuple>
-      auto tuple_sum<Tuple, 0>::operator()(Tuple const &t)
-          -> decltype(std::get<0>(t))
-      {
-        return std::get<0>(t);
-      }
+      return std::get<N>(t) + tuple_sum<Tuple, N - 1>()(t);
     }
 
-    template <class Iterable, class T>
-    auto sum(Iterable s, T start) -> decltype(std::accumulate(
+    template <class Tuple>
+    auto tuple_sum<Tuple, 0>::operator()(Tuple const &t)
+        -> decltype(std::get<0>(t))
+    {
+      return std::get<0>(t);
+    }
+  }
+
+  template <class Iterable, class T>
+  auto sum(Iterable s, T start) -> decltype(std::accumulate(
+      s.begin(), s.end(),
+      static_cast<typename assignable<decltype(start + *s.begin())>::type>(
+          start)))
+  {
+    return std::accumulate(
         s.begin(), s.end(),
         static_cast<typename assignable<decltype(start + *s.begin())>::type>(
-            start)))
-    {
-      return std::accumulate(
-          s.begin(), s.end(),
-          static_cast<typename assignable<decltype(start + *s.begin())>::type>(
-              start));
-    }
-
-    template <class Iterable>
-    auto sum(Iterable s) -> decltype(sum(s, 0L))
-    {
-      return sum(s, 0L);
-    }
-
-    template <class... Types>
-    auto sum(std::tuple<Types...> const &t) -> decltype(
-        details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t))
-    {
-      return details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t);
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, sum);
+            start));
   }
+
+  template <class Iterable>
+  auto sum(Iterable s) -> decltype(sum(s, 0L))
+  {
+    return sum(s, 0L);
+  }
+
+  template <class... Types>
+  auto sum(std::tuple<Types...> const &t) -> decltype(
+      details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t))
+  {
+    return details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t);
+  }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, sum);
 }
+PYTHONIC_NS_END
 
 #endif

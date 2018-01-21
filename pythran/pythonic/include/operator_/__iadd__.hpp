@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/iadd.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__iadd__, iadd);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__iadd__, iadd);
 }
+PYTHONIC_NS_END
 
 #endif

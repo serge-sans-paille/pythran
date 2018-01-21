@@ -3,16 +3,15 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __dispatch__
 {
+  template <class Any, class Arg0>
+  auto remove(Any &any, Arg0 const &arg0) -> decltype(any.remove(arg0));
 
-  namespace __dispatch__
-  {
-    template <class Any, class Arg0>
-    auto remove(Any &any, Arg0 const &arg0) -> decltype(any.remove(arg0));
-
-    DECLARE_FUNCTOR(pythonic::__dispatch__, remove);
-  }
+  DECLARE_FUNCTOR(pythonic::__dispatch__, remove);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -6,22 +6,21 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
-    {
+    template <class F>
+    types::list<types::str> readlines(F &&f);
+    template <class F>
+    types::list<types::str> readlines(F &&f, long sizehint);
 
-      template <class F>
-      types::list<types::str> readlines(F &&f);
-      template <class F>
-      types::list<types::str> readlines(F &&f, long sizehint);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::file, readlines);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::file, readlines);
   }
 }
+PYTHONIC_NS_END
 #endif

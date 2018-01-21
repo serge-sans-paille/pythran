@@ -4,23 +4,22 @@
 #include <ostream>
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
+  void print_nonl();
 
-    void print_nonl();
+  template <typename T, typename... Types>
+  void print_nonl(T const &value, Types const &... values);
 
-    template <typename T, typename... Types>
-    void print_nonl(T const &value, Types const &... values);
+  void print();
 
-    void print();
-
-    template <typename T, typename... Types>
-    void print(T const &value, Types const &... values);
-    DECLARE_FUNCTOR(pythonic::__builtin__, print);
-  }
+  template <typename T, typename... Types>
+  void print(T const &value, Types const &... values);
+  DECLARE_FUNCTOR(pythonic::__builtin__, print);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -5,21 +5,20 @@
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
-    {
+    template <class K, class V>
+    types::list<K> keys(types::dict<K, V> const &d);
 
-      template <class K, class V>
-      types::list<K> keys(types::dict<K, V> const &d);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::dict, keys);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::dict, keys);
   }
 }
+PYTHONIC_NS_END
 
 #endif

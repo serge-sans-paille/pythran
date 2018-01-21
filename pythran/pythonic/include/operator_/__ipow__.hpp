@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/ipow.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__ipow__, ipow);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__ipow__, ipow);
 }
+PYTHONIC_NS_END
 
 #endif

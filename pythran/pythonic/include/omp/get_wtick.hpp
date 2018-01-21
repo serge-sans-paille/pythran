@@ -4,15 +4,14 @@
 #include <omp.h>
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace omp
 {
+  long get_wtick();
 
-  namespace omp
-  {
-    long get_wtick();
-
-    DECLARE_FUNCTOR(pythonic::omp, get_wtick);
-  }
+  DECLARE_FUNCTOR(pythonic::omp, get_wtick);
 }
+PYTHONIC_NS_END
 
 #endif

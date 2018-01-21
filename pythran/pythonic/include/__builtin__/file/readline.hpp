@@ -5,20 +5,19 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
-    {
+    types::str readline(types::file &f, long size = -1);
+    types::str readline(types::file &&f, long size = -1);
 
-      types::str readline(types::file &f, long size = -1);
-      types::str readline(types::file &&f, long size = -1);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::file, readline);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::file, readline);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -5,20 +5,19 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __dispatch__
 {
-
-  namespace __dispatch__
+  template <class Any, class... Arg0>
+  auto pop(Any &&any, Arg0 &&... arg0)
+      -> decltype(any.pop(std::forward<Arg0>(arg0)...))
   {
-    template <class Any, class... Arg0>
-    auto pop(Any &&any, Arg0 &&... arg0)
-        -> decltype(any.pop(std::forward<Arg0>(arg0)...))
-    {
-      return any.pop(std::forward<Arg0>(arg0)...);
-    }
-
-    DEFINE_FUNCTOR(pythonic::__dispatch__, pop);
+    return any.pop(std::forward<Arg0>(arg0)...);
   }
+
+  DEFINE_FUNCTOR(pythonic::__dispatch__, pop);
 }
+PYTHONIC_NS_END
 
 #endif

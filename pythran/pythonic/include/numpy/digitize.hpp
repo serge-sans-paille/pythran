@@ -6,16 +6,15 @@
 #include "pythonic/include/operator_/gt.hpp"
 #include "pythonic/include/operator_/lt.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E, class F>
+  types::ndarray<long, 1> digitize(E const &expr, F const &b);
 
-  namespace numpy
-  {
-    template <class E, class F>
-    types::ndarray<long, 1> digitize(E const &expr, F const &b);
-
-    DECLARE_FUNCTOR(pythonic::numpy, digitize);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, digitize);
 }
+PYTHONIC_NS_END
 
 #endif

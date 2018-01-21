@@ -6,15 +6,14 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace cmath
-  {
-    using std::log;
-    double log(double x, double base);
-    DECLARE_FUNCTOR(pythonic::cmath, log);
-  }
+namespace cmath
+{
+  using std::log;
+  double log(double x, double base);
+  DECLARE_FUNCTOR(pythonic::cmath, log);
 }
+PYTHONIC_NS_END
 
 #endif

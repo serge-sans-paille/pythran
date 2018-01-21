@@ -6,23 +6,22 @@
 
 #include <chrono>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace time
 {
 
-  namespace time
+  double time()
   {
-
-    double time()
-    {
-      std::chrono::time_point<std::chrono::steady_clock> tp =
-          std::chrono::steady_clock::now();
-      return std::chrono::duration_cast<std::chrono::milliseconds>(
-                 tp.time_since_epoch()).count() /
-             1000.;
-    }
-
-    DEFINE_FUNCTOR(pythonic::time, time)
+    std::chrono::time_point<std::chrono::steady_clock> tp =
+        std::chrono::steady_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               tp.time_since_epoch()).count() /
+           1000.;
   }
+
+  DEFINE_FUNCTOR(pythonic::time, time)
 }
+PYTHONIC_NS_END
 
 #endif

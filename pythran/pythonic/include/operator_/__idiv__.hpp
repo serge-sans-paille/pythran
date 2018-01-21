@@ -3,14 +3,13 @@
 
 #include "pythonic/include/operator_/idiv.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
-
-    USING_FUNCTOR(__idiv__, idiv);
-  }
+  USING_FUNCTOR(__idiv__, idiv);
 }
+PYTHONIC_NS_END
 
 #endif

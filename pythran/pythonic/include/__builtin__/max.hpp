@@ -4,18 +4,17 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/__builtin__/minmax.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
+  template <class... Types>
+  typename details::minmax<sizeof...(Types) == 1, Types...>::result_type
+  max(Types &&... values);
 
-    template <class... Types>
-    typename details::minmax<sizeof...(Types) == 1, Types...>::result_type
-    max(Types &&... values);
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, max);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, max);
 }
+PYTHONIC_NS_END
 
 #endif

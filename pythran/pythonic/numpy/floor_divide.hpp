@@ -12,15 +12,14 @@
 #include "pythonic/types/long.hpp"
 #endif
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 #define NUMPY_NARY_FUNC_NAME floor_divide
 #define NUMPY_NARY_FUNC_SYM wrapper::divfloor
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

@@ -8,24 +8,23 @@
 #include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace list
   {
 
-    namespace list
+    template <class T>
+    types::none_type reverse(types::list<T> &seq)
     {
-
-      template <class T>
-      types::none_type reverse(types::list<T> &seq)
-      {
-        std::reverse(seq.begin(), seq.end());
-        return __builtin__::None;
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::list, reverse);
+      std::reverse(seq.begin(), seq.end());
+      return __builtin__::None;
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::list, reverse);
   }
 }
+PYTHONIC_NS_END
 #endif

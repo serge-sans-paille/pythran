@@ -4,18 +4,17 @@
 #include "pythonic/include/utils/functor.hpp"
 #include <random>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
 
-  namespace random
-  {
+  static std::mt19937 __random_generator;
 
-    static std::mt19937 __random_generator;
+  double random();
 
-    double random();
-
-    DECLARE_FUNCTOR(pythonic::random, random);
-  }
+  DECLARE_FUNCTOR(pythonic::random, random);
 }
+PYTHONIC_NS_END
 
 #endif

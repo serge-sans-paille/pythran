@@ -3,17 +3,16 @@
 
 #include "pythonic/include/numpy/all.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class... Types>
+  auto alltrue(Types &&... types)
+      -> decltype(all(std::forward<Types>(types)...));
 
-  namespace numpy
-  {
-    template <class... Types>
-    auto alltrue(Types &&... types)
-        -> decltype(all(std::forward<Types>(types)...));
-
-    DECLARE_FUNCTOR(pythonic::numpy, alltrue);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, alltrue);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/numpy/abs.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(absolute, numpy::functor::abs);
-  }
+namespace numpy
+{
+  USING_FUNCTOR(absolute, numpy::functor::abs);
 }
+PYTHONIC_NS_END
 
 #endif

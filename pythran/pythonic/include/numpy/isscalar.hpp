@@ -7,17 +7,16 @@
 
 #include <type_traits>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class E>
+  constexpr bool isscalar(E const &);
 
-    template <class E>
-    constexpr bool isscalar(E const &);
-
-    DECLARE_FUNCTOR(pythonic::numpy, isscalar);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, isscalar);
 }
+PYTHONIC_NS_END
 
 #endif

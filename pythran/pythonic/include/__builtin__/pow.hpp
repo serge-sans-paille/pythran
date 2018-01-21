@@ -8,20 +8,19 @@
 #include "pythonic/include/types/long.hpp"
 #endif
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace __builtin__
-  {
-    template <class... Types>
-    auto pow(Types &&... args)
-        -> decltype(numpy::functor::power{}(std::forward<Types>(args)...));
+namespace __builtin__
+{
+  template <class... Types>
+  auto pow(Types &&... args)
+      -> decltype(numpy::functor::power{}(std::forward<Types>(args)...));
 #ifdef USE_GMP
-    template <class T, class U>
-    pythran_long_t pow(__gmp_expr<T, U> const &a, long b);
+  template <class T, class U>
+  pythran_long_t pow(__gmp_expr<T, U> const &a, long b);
 #endif
-    DECLARE_FUNCTOR(pythonic::__builtin__, pow);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, pow);
 }
+PYTHONIC_NS_END
 
 #endif

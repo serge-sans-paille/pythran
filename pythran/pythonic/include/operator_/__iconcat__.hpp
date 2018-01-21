@@ -3,14 +3,13 @@
 
 #include "pythonic/include/operator_/iconcat.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
-
-    USING_FUNCTOR(__iconcat__, iconcat);
-  }
+  USING_FUNCTOR(__iconcat__, iconcat);
 }
+PYTHONIC_NS_END
 
 #endif

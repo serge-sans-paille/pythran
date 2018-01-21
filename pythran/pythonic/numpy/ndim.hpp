@@ -6,21 +6,19 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  template <class E>
+  auto ndim(E const &e) -> decltype(__builtin__::getattr<types::attr::NDIM>(e))
   {
-
-    template <class E>
-    auto ndim(E const &e)
-        -> decltype(__builtin__::getattr<types::attr::NDIM>(e))
-    {
-      return __builtin__::getattr<types::attr::NDIM>(e);
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, ndim)
+    return __builtin__::getattr<types::attr::NDIM>(e);
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, ndim)
 }
+PYTHONIC_NS_END
 
 #endif

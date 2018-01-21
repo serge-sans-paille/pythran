@@ -6,19 +6,18 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/math/pi.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace math
 {
-
-  namespace math
+  template <class T>
+  double radians(T x)
   {
-    template <class T>
-    double radians(T x)
-    {
-      return (x * 2. * pi) / 360.;
-    }
-
-    DEFINE_FUNCTOR(pythonic::math, radians);
+    return (x * 2. * pi) / 360.;
   }
+
+  DEFINE_FUNCTOR(pythonic::math, radians);
 }
+PYTHONIC_NS_END
 
 #endif

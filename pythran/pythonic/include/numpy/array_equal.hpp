@@ -4,17 +4,16 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class U, class V>
+  bool array_equal(U const &u, V const &v);
 
-    template <class U, class V>
-    bool array_equal(U const &u, V const &v);
-
-    DECLARE_FUNCTOR(pythonic::numpy, array_equal);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, array_equal);
 }
+PYTHONIC_NS_END
 
 #endif

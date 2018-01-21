@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/lt.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__lt__, lt);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__lt__, lt);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -7,24 +7,23 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
+    template <class K, class V>
+    types::list<K> keys(types::dict<K, V> const &d)
     {
-
-      template <class K, class V>
-      types::list<K> keys(types::dict<K, V> const &d)
-      {
-        return {d.key_begin(), d.key_end()};
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::dict, keys);
+      return {d.key_begin(), d.key_end()};
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, keys);
   }
 }
+PYTHONIC_NS_END
 
 #endif

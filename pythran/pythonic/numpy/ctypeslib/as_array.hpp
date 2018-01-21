@@ -6,28 +6,27 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/pointer.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace ctypeslib
   {
-    namespace ctypeslib
+    template <class T, size_t N>
+    types::ndarray<T, N> as_array(types::pointer<T> ptr,
+                                  types::array<long, N> shape)
     {
-      template <class T, size_t N>
-      types::ndarray<T, N> as_array(types::pointer<T> ptr,
-                                    types::array<long, N> shape)
-      {
-        return {ptr.data, shape.data(), types::ownership::external};
-      }
-
-      template <class T>
-      types::ndarray<T, 1> as_array(types::pointer<T> ptr, long size)
-      {
-        return as_array(ptr, types::array<long, 1>{{size}});
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::ctypeslib, as_array);
+      return {ptr.data, shape.data(), types::ownership::external};
     }
+
+    template <class T>
+    types::ndarray<T, 1> as_array(types::pointer<T> ptr, long size)
+    {
+      return as_array(ptr, types::array<long, 1>{{size}});
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::ctypeslib, as_array);
   }
 }
+PYTHONIC_NS_END
 
 #endif

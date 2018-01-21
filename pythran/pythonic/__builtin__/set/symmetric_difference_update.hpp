@@ -6,41 +6,40 @@
 #include "pythonic/types/set.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace set
   {
 
-    namespace set
+    template <typename T, typename U>
+    types::none_type symmetric_difference_update(types::set<T> &set,
+                                                 U const &other)
     {
-
-      template <typename T, typename U>
-      types::none_type symmetric_difference_update(types::set<T> &set,
-                                                   U const &other)
-      {
-        set.symmetric_difference_update(other);
-        return {};
-      }
-
-      template <typename T, typename U>
-      types::none_type symmetric_difference_update(types::set<T> &&set,
-                                                   U const &other)
-      {
-        // nothing to be done on rvalue
-        return {};
-      }
-
-      template <typename U>
-      types::none_type symmetric_difference_update(types::empty_set const &set,
-                                                   U const &other)
-      {
-        // nothing otherwise empty_set have not its correct type.
-        return {};
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference_update);
+      set.symmetric_difference_update(other);
+      return {};
     }
+
+    template <typename T, typename U>
+    types::none_type symmetric_difference_update(types::set<T> &&set,
+                                                 U const &other)
+    {
+      // nothing to be done on rvalue
+      return {};
+    }
+
+    template <typename U>
+    types::none_type symmetric_difference_update(types::empty_set const &set,
+                                                 U const &other)
+    {
+      // nothing otherwise empty_set have not its correct type.
+      return {};
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference_update);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -6,15 +6,14 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include <boost/simd/function/inrad.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 #define NUMPY_NARY_FUNC_NAME deg2rad
 #define NUMPY_NARY_FUNC_SYM boost::simd::inrad
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

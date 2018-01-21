@@ -3,14 +3,13 @@
 
 #include "pythonic/include/operator_/concat.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
-
-    USING_FUNCTOR(__concat__, concat);
-  }
+  USING_FUNCTOR(__concat__, concat);
 }
+PYTHONIC_NS_END
 
 #endif

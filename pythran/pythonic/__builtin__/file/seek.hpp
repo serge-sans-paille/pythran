@@ -6,37 +6,36 @@
 #include "pythonic/types/file.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
+    void seek(types::file &f, long offset)
     {
-
-      void seek(types::file &f, long offset)
-      {
-        f.seek(offset);
-      }
-
-      void seek(types::file &&f, long offset)
-      {
-        // Nothing have to be done as it is a lvalue
-      }
-
-      void seek(types::file &f, long offset, long whence)
-      {
-        f.seek(offset, whence);
-      }
-
-      void seek(types::file &&f, long offset, long whence)
-      {
-        // Nothing have to be done as it is a lvalue
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::file, seek);
+      f.seek(offset);
     }
+
+    void seek(types::file &&f, long offset)
+    {
+      // Nothing have to be done as it is a lvalue
+    }
+
+    void seek(types::file &f, long offset, long whence)
+    {
+      f.seek(offset, whence);
+    }
+
+    void seek(types::file &&f, long offset, long whence)
+    {
+      // Nothing have to be done as it is a lvalue
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, seek);
   }
 }
+PYTHONIC_NS_END
 #endif

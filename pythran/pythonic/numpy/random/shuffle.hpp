@@ -6,22 +6,23 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
-namespace pythonic
-{
-  namespace numpy
-  {
-    namespace random
-    {
-      template <class T>
-      types::none_type shuffle(T &seq)
-      {
-        std::shuffle(seq.begin(), seq.end(), details::generator);
-        return __builtin__::None;
-      }
+PYTHONIC_NS_BEGIN
 
-      DEFINE_FUNCTOR(pythonic::numpy::random, shuffle);
+namespace numpy
+{
+  namespace random
+  {
+    template <class T>
+    types::none_type shuffle(T &seq)
+    {
+      std::shuffle(seq.begin(), seq.end(), details::generator);
+      return __builtin__::None;
     }
+
+    DEFINE_FUNCTOR(pythonic::numpy::random, shuffle);
   }
 }
+
+PYTHONIC_NS_END
 
 #endif

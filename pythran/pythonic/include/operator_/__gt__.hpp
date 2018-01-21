@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/gt.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__gt__, gt);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__gt__, gt);
 }
+PYTHONIC_NS_END
 
 #endif

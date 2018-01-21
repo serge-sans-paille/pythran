@@ -8,42 +8,41 @@
 
 #include <set>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  namespace
   {
-    namespace
+    template <class I, class O>
+    void _union1d(I begin, I end, O &out, utils::int_<1>)
     {
-      template <class I, class O>
-      void _union1d(I begin, I end, O &out, utils::int_<1>)
-      {
-        for (; begin != end; ++begin)
-          out.insert(*begin);
-      }
-
-      template <class I, class O, size_t N>
-      void _union1d(I begin, I end, O &out, utils::int_<N>)
-      {
-        for (; begin != end; ++begin)
-          _union1d((*begin).begin(), (*begin).end(), out, utils::int_<N - 1>());
-      }
+      for (; begin != end; ++begin)
+        out.insert(*begin);
     }
 
-    template <class E, class F>
-    types::ndarray<
-        typename __combined<typename E::dtype, typename F::dtype>::type, 1>
-    union1d(E const &e, F const &f)
+    template <class I, class O, size_t N>
+    void _union1d(I begin, I end, O &out, utils::int_<N>)
     {
-      std::set<typename __combined<typename E::dtype, typename F::dtype>::type>
-          res;
-      _union1d(e.begin(), e.end(), res, utils::int_<E::value>());
-      _union1d(f.begin(), f.end(), res, utils::int_<F::value>());
-      return res;
+      for (; begin != end; ++begin)
+        _union1d((*begin).begin(), (*begin).end(), out, utils::int_<N - 1>());
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy, union1d)
   }
+
+  template <class E, class F>
+  types::ndarray<
+      typename __combined<typename E::dtype, typename F::dtype>::type, 1>
+  union1d(E const &e, F const &f)
+  {
+    std::set<typename __combined<typename E::dtype, typename F::dtype>::type>
+        res;
+    _union1d(e.begin(), e.end(), res, utils::int_<E::value>());
+    _union1d(f.begin(), f.end(), res, utils::int_<F::value>());
+    return res;
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, union1d)
 }
+PYTHONIC_NS_END
 
 #endif

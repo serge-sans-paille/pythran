@@ -4,22 +4,21 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E, class F>
+  void _nansum(E begin, E end, F &sum, utils::int_<1>);
 
-  namespace numpy
-  {
-    template <class E, class F>
-    void _nansum(E begin, E end, F &sum, utils::int_<1>);
+  template <class E, class F, size_t N>
+  void _nansum(E begin, E end, F &sum, utils::int_<N>);
 
-    template <class E, class F, size_t N>
-    void _nansum(E begin, E end, F &sum, utils::int_<N>);
+  template <class E>
+  typename E::dtype nansum(E const &expr);
 
-    template <class E>
-    typename E::dtype nansum(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, nansum);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, nansum);
 }
+PYTHONIC_NS_END
 
 #endif

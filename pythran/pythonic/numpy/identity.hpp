@@ -5,19 +5,18 @@
 
 #include "pythonic/numpy/eye.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class dtype>
+  auto identity(long n, dtype d) -> decltype(eye(n, n, 0, d))
   {
-    template <class dtype>
-    auto identity(long n, dtype d) -> decltype(eye(n, n, 0, d))
-    {
-      return eye(n, n, 0, d);
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, identity);
+    return eye(n, n, 0, d);
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, identity);
 }
+PYTHONIC_NS_END
 
 #endif

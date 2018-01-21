@@ -3,21 +3,20 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
+  template <class T>
+  long id(T const &t);
 
-    template <class T>
-    long id(T const &t);
+  long id(long const &t);
+  long id(double const &t);
+  long id(bool const &t);
 
-    long id(long const &t);
-    long id(double const &t);
-    long id(bool const &t);
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, id);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, id);
 }
+PYTHONIC_NS_END
 
 #endif

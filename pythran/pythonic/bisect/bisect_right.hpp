@@ -6,26 +6,25 @@
 #include "pythonic/bisect/bisect.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace bisect
 {
 
-  namespace bisect
+  template <class X, class A>
+  long bisect_right(X const &x, A const &a, long lo)
   {
-
-    template <class X, class A>
-    long bisect_right(X const &x, A const &a, long lo)
-    {
-      return bisect(x, a, lo);
-    }
-
-    template <class X, class A>
-    long bisect_right(X const &x, A const &a, long lo, long hi)
-    {
-      return bisect(x, a, lo, hi);
-    }
-
-    DEFINE_FUNCTOR(pythonic::bisect, bisect_right);
+    return bisect(x, a, lo);
   }
+
+  template <class X, class A>
+  long bisect_right(X const &x, A const &a, long lo, long hi)
+  {
+    return bisect(x, a, lo, hi);
+  }
+
+  DEFINE_FUNCTOR(pythonic::bisect, bisect_right);
 }
+PYTHONIC_NS_END
 
 #endif

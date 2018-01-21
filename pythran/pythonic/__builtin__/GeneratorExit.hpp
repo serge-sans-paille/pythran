@@ -5,14 +5,13 @@
 
 #include "pythonic/types/exceptions.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
-
-    PYTHONIC_EXCEPTION_IMPL(GeneratorExit)
-  }
+  PYTHONIC_EXCEPTION_IMPL(GeneratorExit)
 }
+PYTHONIC_NS_END
 
 #endif

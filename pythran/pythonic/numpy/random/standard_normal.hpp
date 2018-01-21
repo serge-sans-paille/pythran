@@ -13,34 +13,33 @@
 #include <random>
 #include <algorithm>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
+
+    template <size_t N>
+    types::ndarray<double, N>
+    standard_normal(types::array<long, N> const &shape)
     {
-
-      template <size_t N>
-      types::ndarray<double, N>
-      standard_normal(types::array<long, N> const &shape)
-      {
-        return normal(0., 1., shape);
-      }
-
-      auto standard_normal(long size)
-          -> decltype(standard_normal(types::array<long, 1>{{size}}))
-      {
-        return standard_normal(types::array<long, 1>{{size}});
-      }
-
-      double standard_normal(types::none_type d)
-      {
-        return normal(0., 1., d);
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::random, standard_normal);
+      return normal(0., 1., shape);
     }
+
+    auto standard_normal(long size)
+        -> decltype(standard_normal(types::array<long, 1>{{size}}))
+    {
+      return standard_normal(types::array<long, 1>{{size}});
+    }
+
+    double standard_normal(types::none_type d)
+    {
+      return normal(0., 1., d);
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::random, standard_normal);
   }
 }
+PYTHONIC_NS_END
 
 #endif

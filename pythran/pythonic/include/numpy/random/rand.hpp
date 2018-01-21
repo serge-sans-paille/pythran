@@ -4,20 +4,19 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
-    {
-      template <class... T>
-      types::ndarray<double, sizeof...(T)> rand(T... shape);
+    template <class... T>
+    types::ndarray<double, sizeof...(T)> rand(T... shape);
 
-      double rand();
+    double rand();
 
-      DECLARE_FUNCTOR(pythonic::numpy::random, rand);
-    }
+    DECLARE_FUNCTOR(pythonic::numpy::random, rand);
   }
 }
+PYTHONIC_NS_END
 
 #endif

@@ -3,17 +3,16 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace math
 {
 
-  namespace math
-  {
+  template <class T>
+  T factorial(T x);
 
-    template <class T>
-    T factorial(T x);
-
-    DECLARE_FUNCTOR(pythonic::math, factorial);
-  }
+  DECLARE_FUNCTOR(pythonic::math, factorial);
 }
+PYTHONIC_NS_END
 
 #endif

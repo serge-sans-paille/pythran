@@ -3,24 +3,23 @@
 
 #include "pythonic/include/types/traits.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace purity
 {
+  struct unknown_tag {
+  };
 
-  namespace purity
-  {
-    struct unknown_tag {
-    };
-
-    struct pure_tag {
-    };
-  }
-
-  template <class T>
-  struct purity_of {
-    using type =
-        typename std::conditional<types::is_pure<T>::value, purity::pure_tag,
-                                  purity::unknown_tag>::type;
+  struct pure_tag {
   };
 }
+
+template <class T>
+struct purity_of {
+  using type =
+      typename std::conditional<types::is_pure<T>::value, purity::pure_tag,
+                                purity::unknown_tag>::type;
+};
+PYTHONIC_NS_END
 
 #endif

@@ -13,30 +13,29 @@
 #include "pythonic/types/set.hpp"
 #include "pythonic/types/dict.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
+  template <class A>
+  auto iadd(types::empty_list, types::list<A> const &b) -> decltype(b)
   {
+    return b;
+  }
 
-    template <class A>
-    auto iadd(types::empty_list, types::list<A> const &b) -> decltype(b)
-    {
-      return b;
-    }
+  template <class K, class V>
+  auto iadd(types::empty_dict, types::dict<K, V> const &b) -> decltype(b)
+  {
+    return b;
+  }
 
-    template <class K, class V>
-    auto iadd(types::empty_dict, types::dict<K, V> const &b) -> decltype(b)
-    {
-      return b;
-    }
-
-    template <class A>
-    auto iadd(types::empty_set, types::set<A> const &b) -> decltype(b)
-    {
-      return b;
-    }
+  template <class A>
+  auto iadd(types::empty_set, types::set<A> const &b) -> decltype(b)
+  {
+    return b;
   }
 }
+PYTHONIC_NS_END
 
 #endif

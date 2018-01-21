@@ -4,16 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/__builtin__/in.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
+  template <class A, class B>
+  auto contains(A const &a, B const &b) -> decltype(in(a, b));
 
-  namespace operator_
-  {
-    template <class A, class B>
-    auto contains(A const &a, B const &b) -> decltype(in(a, b));
-
-    DECLARE_FUNCTOR(pythonic::operator_, contains);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, contains);
 }
+PYTHONIC_NS_END
 
 #endif

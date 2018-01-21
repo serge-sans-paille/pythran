@@ -8,30 +8,29 @@
 #include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace list
   {
 
-    namespace list
+    template <class T, class F>
+    types::none_type append(types::list<T> &seq, F &&value)
     {
-
-      template <class T, class F>
-      types::none_type append(types::list<T> &seq, F &&value)
-      {
-        seq.push_back(std::forward<F>(value));
-        return __builtin__::None;
-      }
-      template <class T, class F>
-      types::none_type append(types::list<T> &&seq, F &&value)
-      {
-        seq.push_back(std::forward<F>(value));
-        return __builtin__::None;
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::list, append);
+      seq.push_back(std::forward<F>(value));
+      return __builtin__::None;
     }
+    template <class T, class F>
+    types::none_type append(types::list<T> &&seq, F &&value)
+    {
+      seq.push_back(std::forward<F>(value));
+      return __builtin__::None;
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::list, append);
   }
 }
+PYTHONIC_NS_END
 #endif

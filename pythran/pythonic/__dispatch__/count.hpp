@@ -5,21 +5,20 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __dispatch__
 {
 
-  namespace __dispatch__
+  template <class Any, class Value>
+  auto count(Any &&any, Value &&value)
+      -> decltype(any.count(std::forward<Value>(value)))
   {
-
-    template <class Any, class Value>
-    auto count(Any &&any, Value &&value)
-        -> decltype(any.count(std::forward<Value>(value)))
-    {
-      return any.count(std::forward<Value>(value));
-    }
-
-    DEFINE_FUNCTOR(pythonic::__dispatch__, count);
+    return any.count(std::forward<Value>(value));
   }
+
+  DEFINE_FUNCTOR(pythonic::__dispatch__, count);
 }
+PYTHONIC_NS_END
 
 #endif

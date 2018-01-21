@@ -3,13 +3,12 @@
 
 #include "pythonic/include/numpy/dot.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(inner, dot);
-  }
+namespace numpy
+{
+  USING_FUNCTOR(inner, dot);
 }
+PYTHONIC_NS_END
 
 #endif

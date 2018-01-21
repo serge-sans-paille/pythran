@@ -8,54 +8,52 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace
   {
-
-    namespace
+    template <class E, class F>
+    void _nanargmin(E begin, E end, F &min, long &index, long &where,
+                    utils::int_<1>)
     {
-      template <class E, class F>
-      void _nanargmin(E begin, E end, F &min, long &index, long &where,
-                      utils::int_<1>)
-      {
-        for (; begin != end; ++begin, ++index) {
-          auto curr = *begin;
-          if (not functor::isnan()(curr) and curr < min) {
-            min = curr;
-            where = index;
-          }
+      for (; begin != end; ++begin, ++index) {
+        auto curr = *begin;
+        if (not functor::isnan()(curr) and curr < min) {
+          min = curr;
+          where = index;
         }
       }
-
-      template <class E, class F, size_t N>
-      void _nanargmin(E begin, E end, F &min, long &index, long &where,
-                      utils::int_<N>)
-      {
-        for (; begin != end; ++begin)
-          _nanargmin((*begin).begin(), (*begin).end(), min, index, where,
-                     utils::int_<N - 1>());
-      }
     }
 
-    template <class E>
-    long nanargmin(E const &expr)
+    template <class E, class F, size_t N>
+    void _nanargmin(E begin, E end, F &min, long &index, long &where,
+                    utils::int_<N>)
     {
-      typename E::dtype min =
-          std::numeric_limits<typename E::dtype>::infinity();
-      long where = -1;
-      long index = 0;
-      _nanargmin(expr.begin(), expr.end(), min, index, where,
-                 utils::int_<E::value>());
-      if (where >= 0)
-        return where;
-      else
-        throw types::ValueError("empty sequence");
+      for (; begin != end; ++begin)
+        _nanargmin((*begin).begin(), (*begin).end(), min, index, where,
+                   utils::int_<N - 1>());
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy, nanargmin);
   }
+
+  template <class E>
+  long nanargmin(E const &expr)
+  {
+    typename E::dtype min = std::numeric_limits<typename E::dtype>::infinity();
+    long where = -1;
+    long index = 0;
+    _nanargmin(expr.begin(), expr.end(), min, index, where,
+               utils::int_<E::value>());
+    if (where >= 0)
+      return where;
+    else
+      throw types::ValueError("empty sequence");
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, nanargmin);
 }
+PYTHONIC_NS_END
 
 #endif

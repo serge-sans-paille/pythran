@@ -6,19 +6,18 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
-
-  namespace __builtin__
+  template <class T>
+  types::str chr(T const &v)
   {
-    template <class T>
-    types::str chr(T const &v)
-    {
-      return {(char)v};
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, chr);
+    return {(char)v};
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, chr);
 }
+PYTHONIC_NS_END
 
 #endif

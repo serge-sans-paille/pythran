@@ -1,95 +1,94 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_VECTORIZABLE_TYPE_HPP
 #define PYTHONIC_INCLUDE_TYPES_VECTORIZABLE_TYPE_HPP
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace types
 {
-  namespace types
+  /* types used during vectorization specialization
+   */
+  struct vectorize {
+  };
+  struct novectorize {
+  };
+  struct vectorizer {
+    template <class E>
+    static auto vbegin(E &&expr)
+        -> decltype(std::forward<E>(expr).vbegin(vectorize{}))
+    {
+      return std::forward<E>(expr).vbegin(vectorize{});
+    }
+    template <class E>
+    static auto vend(E &&expr)
+        -> decltype(std::forward<E>(expr).vend(vectorize{}))
+    {
+      return std::forward<E>(expr).vend(vectorize{});
+    }
+  };
+  struct vectorize_nobroadcast {
+  };
+  struct vectorizer_nobroadcast {
+    template <class E>
+    static auto vbegin(E &&expr)
+        -> decltype(std::forward<E>(expr).vbegin(vectorize_nobroadcast{}))
+    {
+      return std::forward<E>(expr).vbegin(vectorize_nobroadcast{});
+    }
+    template <class E>
+    static auto vend(E &&expr)
+        -> decltype(std::forward<E>(expr).vend(vectorize_nobroadcast{}))
+    {
+      return std::forward<E>(expr).vend(vectorize_nobroadcast{});
+    }
+  };
+
+  template <class T>
+  struct is_vectorizable_dtype {
+    static const bool value =
+        is_dtype<T>::value and not std::is_same<T, bool>::value and
+        not std::is_same<T, std::complex<float>>::value and
+        not std::is_same<T, std::complex<double>>::value;
+  };
+
+  /* trait to check if is T is an array-like type that supports vectorization
+  */
+  template <class T, bool scalar = has_vectorizable<T>::value>
+  struct is_vectorizable_array;
+
+  template <class T>
+  struct is_vectorizable_array<T, false> : std::false_type {
+  };
+
+  template <class T>
+  struct is_vectorizable_array<T, true>
+      : std::integral_constant<bool, T::is_vectorizable> {
+  };
+
+  template <class T>
+  struct is_vectorizable {
+    static const bool value =
+        std::conditional<is_dtype<T>::value, is_vectorizable_dtype<T>,
+                         is_vectorizable_array<T>>::type::value;
+  };
+
+  template <class O>
+  struct is_vector_op;
+
+  template <class Op, class... Args>
+  struct numpy_expr;
+}
+
+namespace utils
+{
+  template <class Op, class... Args>
+  bool no_broadcast(types::numpy_expr<Op, Args...> const &arg)
   {
-    /* types used during vectorization specialization
-     */
-    struct vectorize {
-    };
-    struct novectorize {
-    };
-    struct vectorizer {
-      template <class E>
-      static auto vbegin(E &&expr)
-          -> decltype(std::forward<E>(expr).vbegin(vectorize{}))
-      {
-        return std::forward<E>(expr).vbegin(vectorize{});
-      }
-      template <class E>
-      static auto vend(E &&expr)
-          -> decltype(std::forward<E>(expr).vend(vectorize{}))
-      {
-        return std::forward<E>(expr).vend(vectorize{});
-      }
-    };
-    struct vectorize_nobroadcast {
-    };
-    struct vectorizer_nobroadcast {
-      template <class E>
-      static auto vbegin(E &&expr)
-          -> decltype(std::forward<E>(expr).vbegin(vectorize_nobroadcast{}))
-      {
-        return std::forward<E>(expr).vbegin(vectorize_nobroadcast{});
-      }
-      template <class E>
-      static auto vend(E &&expr)
-          -> decltype(std::forward<E>(expr).vend(vectorize_nobroadcast{}))
-      {
-        return std::forward<E>(expr).vend(vectorize_nobroadcast{});
-      }
-    };
-
-    template <class T>
-    struct is_vectorizable_dtype {
-      static const bool value =
-          is_dtype<T>::value and not std::is_same<T, bool>::value and
-          not std::is_same<T, std::complex<float>>::value and
-          not std::is_same<T, std::complex<double>>::value;
-    };
-
-    /* trait to check if is T is an array-like type that supports vectorization
-    */
-    template <class T, bool scalar = has_vectorizable<T>::value>
-    struct is_vectorizable_array;
-
-    template <class T>
-    struct is_vectorizable_array<T, false> : std::false_type {
-    };
-
-    template <class T>
-    struct is_vectorizable_array<T, true>
-        : std::integral_constant<bool, T::is_vectorizable> {
-    };
-
-    template <class T>
-    struct is_vectorizable {
-      static const bool value =
-          std::conditional<is_dtype<T>::value, is_vectorizable_dtype<T>,
-                           is_vectorizable_array<T>>::type::value;
-    };
-
-    template <class O>
-    struct is_vector_op;
-
-    template <class Op, class... Args>
-    struct numpy_expr;
+    return arg.no_broadcast();
   }
-
-  namespace utils
+  template <class Arg>
+  constexpr bool no_broadcast(Arg const &arg)
   {
-    template <class Op, class... Args>
-    bool no_broadcast(types::numpy_expr<Op, Args...> const &arg)
-    {
-      return arg.no_broadcast();
-    }
-    template <class Arg>
-    constexpr bool no_broadcast(Arg const &arg)
-    {
-      return true;
-    }
+    return true;
   }
 }
+PYTHONIC_NS_END
 #endif

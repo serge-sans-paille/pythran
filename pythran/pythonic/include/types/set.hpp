@@ -18,17 +18,16 @@
 #include <algorithm>
 #include <iterator>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace types
 {
-  namespace types
-  {
 
-    struct empty_set;
+  struct empty_set;
 
-    template <class T>
-    class set;
-  }
+  template <class T>
+  class set;
 }
+PYTHONIC_NS_END
 
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"
@@ -111,235 +110,233 @@ struct __combined<pythonic::types::set<T0>, pythonic::types::set<T1>> {
 
 /* } */
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
 
-  namespace types
+  template <class T>
+  class set
   {
 
+    // data holder
+    using _type =
+        typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+    using container_type = std::set<_type>;
+    utils::shared_ref<container_type> data;
+
+  public:
+    template <class U>
+    friend class set;
+
+    // types
+    using reference = typename container_type::reference;
+    using const_reference = typename container_type::const_reference;
+    using iterator =
+        utils::comparable_iterator<typename container_type::iterator>;
+    using const_iterator =
+        utils::comparable_iterator<typename container_type::const_iterator>;
+    using size_type = typename container_type::size_type;
+    using difference_type = typename container_type::difference_type;
+    using value_type = typename container_type::value_type;
+    using allocator_type = typename container_type::allocator_type;
+    using pointer = typename container_type::pointer;
+    using const_pointer = typename container_type::const_pointer;
+    using reverse_iterator = typename container_type::reverse_iterator;
+    using const_reverse_iterator =
+        typename container_type::const_reverse_iterator;
+
+    // constructors
+    set();
+    template <class InputIterator>
+    set(InputIterator start, InputIterator stop);
+    set(empty_set const &);
+    set(std::initializer_list<value_type> l);
+    set(set<T> const &other);
+    template <class F>
+    set(set<F> const &other);
+
+    // iterators
+    iterator begin();
+    const_iterator begin() const;
+    iterator end();
+    const_iterator end() const;
+    reverse_iterator rbegin();
+    const_reverse_iterator rbegin() const;
+    reverse_iterator rend();
+    const_reverse_iterator rend() const;
+
+    // modifiers
+    T pop();
+    void add(const T &x);
+    void push_back(const T &x);
+    void clear();
+
+    template <class U>
+    void discard(U const &elem);
+
+    template <class U>
+    void remove(U const &elem);
+
+    // set interface
+    operator bool() const;
+
+    long size() const;
+
+    // Misc
+
+    set<T> copy() const;
+
+    template <class U>
+    bool isdisjoint(U const &other) const;
+
+    template <class U>
+    bool issubset(U const &other) const;
+
+    template <class U>
+    bool issuperset(U const &other) const;
+
+    set<T> union_() const;
+
+    template <typename U, typename... Types>
+    typename __combined<set<T>, U, Types...>::type
+    union_(U &&other, Types &&... others) const;
+
+    template <typename... Types>
+    none_type update(Types &&... others);
+
+    set<T> intersection() const;
+
+    template <typename U, typename... Types>
+    typename __combined<set<T>, U, Types...>::type
+    intersection(U const &other, Types const &... others) const;
+
+    template <typename... Types>
+    void intersection_update(Types const &... others);
+
+    set<T> difference() const;
+
+    template <typename U, typename... Types>
+    set<T> difference(U const &other, Types const &... others) const;
+
+    template <class V>
+    bool contains(V const &v) const;
+
+    template <typename... Types>
+    void difference_update(Types const &... others);
+
+    template <typename U>
+    set<typename __combined<T, U>::type>
+    symmetric_difference(set<U> const &other) const;
+
+    template <typename U>
+    typename __combined<U, set<T>>::type
+    symmetric_difference(U const &other) const;
+
+    template <typename U>
+    void symmetric_difference_update(U const &other);
+
+    // Operators
+    template <class U>
+    bool operator==(set<U> const &other) const;
+
+    template <class U>
+    bool operator<=(set<U> const &other) const;
+
+    template <class U>
+    bool operator<(set<U> const &other) const;
+
+    template <class U>
+    bool operator>=(set<U> const &other) const;
+
+    template <class U>
+    bool operator>(set<U> const &other) const;
+
+    template <class U>
+    set<typename __combined<T, U>::type> operator|(set<U> const &other) const;
+
+    template <class U>
+    void operator|=(set<U> const &other);
+
+    template <class U>
+    set<typename __combined<U, T>::type> operator&(set<U> const &other) const;
+
+    template <class U>
+    void operator&=(set<U> const &other);
+
+    template <class U>
+    set<T> operator-(set<U> const &other) const;
+
+    template <class U>
+    void operator-=(set<U> const &other);
+
+    template <class U>
+    set<typename __combined<U, T>::type> operator^(set<U> const &other) const;
+
+    template <class U>
+    void operator^=(set<U> const &other);
+
+    intptr_t id() const;
+
+    template <class U>
+    friend std::ostream &operator<<(std::ostream &os, set<U> const &v);
+  };
+
+  struct empty_set {
+
+    using value_type = void;
+    using iterator = empty_iterator;
+    using const_iterator = empty_iterator;
+
+    empty_set operator|(empty_set const &);
     template <class T>
-    class set
-    {
+    set<T> operator|(set<T> const &s);
+    template <class U>
+    empty_set operator&(U const &s);
+    template <class U>
+    empty_set operator-(U const &s);
+    empty_set operator^(empty_set const &);
+    template <class T>
+    set<T> operator^(set<T> const &s);
 
-      // data holder
-      using _type = typename std::remove_cv<
-          typename std::remove_reference<T>::type>::type;
-      using container_type = std::set<_type>;
-      utils::shared_ref<container_type> data;
+    template <class... Types>
+    none_type update(Types &&...);
 
-    public:
-      template <class U>
-      friend class set;
-
-      // types
-      using reference = typename container_type::reference;
-      using const_reference = typename container_type::const_reference;
-      using iterator =
-          utils::comparable_iterator<typename container_type::iterator>;
-      using const_iterator =
-          utils::comparable_iterator<typename container_type::const_iterator>;
-      using size_type = typename container_type::size_type;
-      using difference_type = typename container_type::difference_type;
-      using value_type = typename container_type::value_type;
-      using allocator_type = typename container_type::allocator_type;
-      using pointer = typename container_type::pointer;
-      using const_pointer = typename container_type::const_pointer;
-      using reverse_iterator = typename container_type::reverse_iterator;
-      using const_reverse_iterator =
-          typename container_type::const_reverse_iterator;
-
-      // constructors
-      set();
-      template <class InputIterator>
-      set(InputIterator start, InputIterator stop);
-      set(empty_set const &);
-      set(std::initializer_list<value_type> l);
-      set(set<T> const &other);
-      template <class F>
-      set(set<F> const &other);
-
-      // iterators
-      iterator begin();
-      const_iterator begin() const;
-      iterator end();
-      const_iterator end() const;
-      reverse_iterator rbegin();
-      const_reverse_iterator rbegin() const;
-      reverse_iterator rend();
-      const_reverse_iterator rend() const;
-
-      // modifiers
-      T pop();
-      void add(const T &x);
-      void push_back(const T &x);
-      void clear();
-
-      template <class U>
-      void discard(U const &elem);
-
-      template <class U>
-      void remove(U const &elem);
-
-      // set interface
-      operator bool() const;
-
-      long size() const;
-
-      // Misc
-
-      set<T> copy() const;
-
-      template <class U>
-      bool isdisjoint(U const &other) const;
-
-      template <class U>
-      bool issubset(U const &other) const;
-
-      template <class U>
-      bool issuperset(U const &other) const;
-
-      set<T> union_() const;
-
-      template <typename U, typename... Types>
-      typename __combined<set<T>, U, Types...>::type
-      union_(U &&other, Types &&... others) const;
-
-      template <typename... Types>
-      none_type update(Types &&... others);
-
-      set<T> intersection() const;
-
-      template <typename U, typename... Types>
-      typename __combined<set<T>, U, Types...>::type
-      intersection(U const &other, Types const &... others) const;
-
-      template <typename... Types>
-      void intersection_update(Types const &... others);
-
-      set<T> difference() const;
-
-      template <typename U, typename... Types>
-      set<T> difference(U const &other, Types const &... others) const;
-
-      template <class V>
-      bool contains(V const &v) const;
-
-      template <typename... Types>
-      void difference_update(Types const &... others);
-
-      template <typename U>
-      set<typename __combined<T, U>::type>
-      symmetric_difference(set<U> const &other) const;
-
-      template <typename U>
-      typename __combined<U, set<T>>::type
-      symmetric_difference(U const &other) const;
-
-      template <typename U>
-      void symmetric_difference_update(U const &other);
-
-      // Operators
-      template <class U>
-      bool operator==(set<U> const &other) const;
-
-      template <class U>
-      bool operator<=(set<U> const &other) const;
-
-      template <class U>
-      bool operator<(set<U> const &other) const;
-
-      template <class U>
-      bool operator>=(set<U> const &other) const;
-
-      template <class U>
-      bool operator>(set<U> const &other) const;
-
-      template <class U>
-      set<typename __combined<T, U>::type> operator|(set<U> const &other) const;
-
-      template <class U>
-      void operator|=(set<U> const &other);
-
-      template <class U>
-      set<typename __combined<U, T>::type> operator&(set<U> const &other) const;
-
-      template <class U>
-      void operator&=(set<U> const &other);
-
-      template <class U>
-      set<T> operator-(set<U> const &other) const;
-
-      template <class U>
-      void operator-=(set<U> const &other);
-
-      template <class U>
-      set<typename __combined<U, T>::type> operator^(set<U> const &other) const;
-
-      template <class U>
-      void operator^=(set<U> const &other);
-
-      intptr_t id() const;
-
-      template <class U>
-      friend std::ostream &operator<<(std::ostream &os, set<U> const &v);
-    };
-
-    struct empty_set {
-
-      using value_type = void;
-      using iterator = empty_iterator;
-      using const_iterator = empty_iterator;
-
-      empty_set operator|(empty_set const &);
-      template <class T>
-      set<T> operator|(set<T> const &s);
-      template <class U>
-      empty_set operator&(U const &s);
-      template <class U>
-      empty_set operator-(U const &s);
-      empty_set operator^(empty_set const &);
-      template <class T>
-      set<T> operator^(set<T> const &s);
-
-      template <class... Types>
-      none_type update(Types &&...);
-
-      operator bool();
-      iterator begin() const;
-      iterator end() const;
-      template <class V>
-      bool contains(V const &) const;
-    };
-  }
-
-  template <class T>
-  struct assignable<types::set<T>> {
-    using type = types::set<typename assignable<T>::type>;
+    operator bool();
+    iterator begin() const;
+    iterator end() const;
+    template <class V>
+    bool contains(V const &) const;
   };
 }
+
+template <class T>
+struct assignable<types::set<T>> {
+  using type = types::set<typename assignable<T>::type>;
+};
+PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  template <typename T>
-  struct to_python<types::set<T>> {
-    static PyObject *convert(types::set<T> const &v);
-  };
+template <typename T>
+struct to_python<types::set<T>> {
+  static PyObject *convert(types::set<T> const &v);
+};
 
-  template <>
-  struct to_python<types::empty_set> {
-    static PyObject *convert(types::empty_set);
-  };
+template <>
+struct to_python<types::empty_set> {
+  static PyObject *convert(types::empty_set);
+};
 
-  template <class T>
-  struct from_python<types::set<T>> {
-    static bool is_convertible(PyObject *obj);
-    static types::set<T> convert(PyObject *obj);
-  };
-}
+template <class T>
+struct from_python<types::set<T>> {
+  static bool is_convertible(PyObject *obj);
+  static types::set<T> convert(PyObject *obj);
+};
+PYTHONIC_NS_END
 
 #endif
 

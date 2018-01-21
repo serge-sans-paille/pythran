@@ -5,18 +5,17 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
-
-  namespace operator_
+  bool truth(bool const &a)
   {
-    bool truth(bool const &a)
-    {
-      return a;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, truth);
+    return a;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, truth);
 }
+PYTHONIC_NS_END
 
 #endif

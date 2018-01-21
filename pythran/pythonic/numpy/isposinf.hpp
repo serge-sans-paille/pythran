@@ -10,23 +10,22 @@
 #include <boost/simd/function/is_inf.hpp>
 #include <boost/simd/function/is_positive.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
+    template <class T>
+    bool isposinf(T const &t)
     {
-      template <class T>
-      bool isposinf(T const &t)
-      {
-        return boost::simd::is_inf(t) and boost::simd::is_positive(t);
-      }
+      return boost::simd::is_inf(t) and boost::simd::is_positive(t);
     }
+  }
 #define NUMPY_NARY_FUNC_NAME isposinf
 #define NUMPY_NARY_FUNC_SYM wrapper::isposinf
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

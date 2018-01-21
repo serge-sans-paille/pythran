@@ -8,19 +8,18 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
+namespace math
+{
+  std::tuple<double, long> frexp(double x)
   {
-    std::tuple<double, long> frexp(double x)
-    {
-      int exp;
-      double sig = std::frexp(x, &exp);
-      return std::tuple<double, long>(sig, exp);
-    }
-    DEFINE_FUNCTOR(pythonic::math, frexp);
+    int exp;
+    double sig = std::frexp(x, &exp);
+    return std::tuple<double, long>(sig, exp);
   }
+  DEFINE_FUNCTOR(pythonic::math, frexp);
 }
+PYTHONIC_NS_END
 
 #endif

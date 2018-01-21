@@ -10,15 +10,14 @@
 
 #include "pythonic/operator_/rshift.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 #define NUMPY_NARY_FUNC_NAME right_shift
 #define NUMPY_NARY_FUNC_SYM operator_::rshift
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

@@ -5,18 +5,17 @@
 #include "pythonic/include/operator_/imin.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class... Args>
+  auto min(Args &&... args) -> decltype(
+      reduce<operator_::functor::imin>(std::forward<Args>(args)...));
 
-    template <class... Args>
-    auto min(Args &&... args) -> decltype(
-        reduce<operator_::functor::imin>(std::forward<Args>(args)...));
-
-    DECLARE_FUNCTOR(pythonic::numpy, min);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, min);
 }
+PYTHONIC_NS_END
 
 #endif

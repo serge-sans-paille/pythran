@@ -4,15 +4,14 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/NoneType.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace time
 {
+  types::none_type sleep(double const value);
 
-  namespace time
-  {
-    types::none_type sleep(double const value);
-
-    DECLARE_FUNCTOR(pythonic::time, sleep)
-  }
+  DECLARE_FUNCTOR(pythonic::time, sleep)
 }
+PYTHONIC_NS_END
 
 #endif

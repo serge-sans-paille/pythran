@@ -6,19 +6,18 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
 
-  namespace random
+  double gauss(double mu, double sigma)
   {
-
-    double gauss(double mu, double sigma)
-    {
-      return std::normal_distribution<>(mu, sigma)(__random_generator);
-    }
-
-    DEFINE_FUNCTOR(pythonic::random, gauss);
+    return std::normal_distribution<>(mu, sigma)(__random_generator);
   }
+
+  DEFINE_FUNCTOR(pythonic::random, gauss);
 }
+PYTHONIC_NS_END
 
 #endif

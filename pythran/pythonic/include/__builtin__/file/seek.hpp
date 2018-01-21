@@ -4,22 +4,21 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/file.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
-    {
+    void seek(types::file &f, long offset);
+    void seek(types::file &&f, long offset);
+    void seek(types::file &f, long offset, long whence);
+    void seek(types::file &&f, long offset, long whence);
 
-      void seek(types::file &f, long offset);
-      void seek(types::file &&f, long offset);
-      void seek(types::file &f, long offset, long whence);
-      void seek(types::file &&f, long offset, long whence);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::file, seek);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::file, seek);
   }
 }
+PYTHONIC_NS_END
 #endif

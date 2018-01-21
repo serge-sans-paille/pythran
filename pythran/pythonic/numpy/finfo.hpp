@@ -6,19 +6,18 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/finfo.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class dtype>
+  types::finfo<typename dtype::type> finfo(dtype d)
   {
-    template <class dtype>
-    types::finfo<typename dtype::type> finfo(dtype d)
-    {
-      return types::finfo<typename dtype::type>();
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, finfo)
+    return types::finfo<typename dtype::type>();
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, finfo)
 }
+PYTHONIC_NS_END
 
 #endif

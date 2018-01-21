@@ -3,17 +3,16 @@
 
 #include "pythonic/include/numpy/arange.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  types::ndarray<double, 1> linspace(double start, double stop, long num = 50,
+                                     bool endpoint = true);
 
-    types::ndarray<double, 1> linspace(double start, double stop, long num = 50,
-                                       bool endpoint = true);
-
-    DECLARE_FUNCTOR(pythonic::numpy, linspace);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, linspace);
 }
+PYTHONIC_NS_END
 
 #endif

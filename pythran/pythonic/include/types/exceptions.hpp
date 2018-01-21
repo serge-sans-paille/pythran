@@ -8,35 +8,34 @@
 
 #include <stdexcept>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
 
-  namespace types
+  namespace BaseError
   {
 
-    namespace BaseError
-    {
-
-      template <size_t I>
-      struct Type {
-        using type = str;
-      };
-
-      template <>
-      struct Type<0> {
-        using type = list<str>;
-      };
-    }
-
-    class BaseException : public std::exception
-    {
-    public:
-      BaseException(const BaseException &e);
-      template <typename... Types>
-      BaseException(Types const &... types);
-      virtual ~BaseException() noexcept;
-      list<str> args;
+    template <size_t I>
+    struct Type {
+      using type = str;
     };
+
+    template <>
+    struct Type<0> {
+      using type = list<str>;
+    };
+  }
+
+  class BaseException : public std::exception
+  {
+  public:
+    BaseException(const BaseException &e);
+    template <typename... Types>
+    BaseException(Types const &... types);
+    virtual ~BaseException() noexcept;
+    list<str> args;
+  };
 
 // Use this to create a python exception class
 #define CLASS_EXCEPTION_DECL(name, parent)                                     \
@@ -50,54 +49,54 @@ namespace pythonic
     virtual ~name() noexcept;                                                  \
   };
 
-    CLASS_EXCEPTION_DECL(SystemExit, BaseException);
-    CLASS_EXCEPTION_DECL(KeyboardInterrupt, BaseException);
-    CLASS_EXCEPTION_DECL(GeneratorExit, BaseException);
-    CLASS_EXCEPTION_DECL(Exception, BaseException);
-    CLASS_EXCEPTION_DECL(StopIteration, Exception);
-    CLASS_EXCEPTION_DECL(StandardError, Exception);
-    CLASS_EXCEPTION_DECL(Warning, Exception);
-    CLASS_EXCEPTION_DECL(BytesWarning, Warning);
-    CLASS_EXCEPTION_DECL(UnicodeWarning, Warning);
-    CLASS_EXCEPTION_DECL(ImportWarning, Warning);
-    CLASS_EXCEPTION_DECL(FutureWarning, Warning);
-    CLASS_EXCEPTION_DECL(UserWarning, Warning);
-    CLASS_EXCEPTION_DECL(SyntaxWarning, Warning);
-    CLASS_EXCEPTION_DECL(RuntimeWarning, Warning);
-    CLASS_EXCEPTION_DECL(PendingDeprecationWarning, Warning);
-    CLASS_EXCEPTION_DECL(DeprecationWarning, Warning);
-    CLASS_EXCEPTION_DECL(BufferError, StandardError);
-    CLASS_EXCEPTION_DECL(ArithmeticError, StandardError);
-    CLASS_EXCEPTION_DECL(AssertionError, StandardError);
-    CLASS_EXCEPTION_DECL(AttributeError, StandardError);
-    CLASS_EXCEPTION_DECL(EnvironmentError, StandardError);
-    CLASS_EXCEPTION_DECL(EOFError, StandardError);
-    CLASS_EXCEPTION_DECL(ImportError, StandardError);
-    CLASS_EXCEPTION_DECL(LookupError, StandardError);
-    CLASS_EXCEPTION_DECL(MemoryError, StandardError);
-    CLASS_EXCEPTION_DECL(NameError, StandardError);
-    CLASS_EXCEPTION_DECL(ReferenceError, StandardError);
-    CLASS_EXCEPTION_DECL(RuntimeError, StandardError);
-    CLASS_EXCEPTION_DECL(SyntaxError, StandardError);
-    CLASS_EXCEPTION_DECL(SystemError, StandardError);
-    CLASS_EXCEPTION_DECL(TypeError, StandardError);
-    CLASS_EXCEPTION_DECL(ValueError, StandardError);
-    CLASS_EXCEPTION_DECL(FloatingPointError, ArithmeticError);
-    CLASS_EXCEPTION_DECL(OverflowError, ArithmeticError);
-    CLASS_EXCEPTION_DECL(ZeroDivisionError, ArithmeticError);
-    CLASS_EXCEPTION_DECL(IOError, EnvironmentError);
-    CLASS_EXCEPTION_DECL(OSError, EnvironmentError);
-    CLASS_EXCEPTION_DECL(WindowsError, OSError);
-    CLASS_EXCEPTION_DECL(VMSError, OSError);
-    CLASS_EXCEPTION_DECL(IndexError, LookupError);
-    CLASS_EXCEPTION_DECL(KeyError, LookupError);
-    CLASS_EXCEPTION_DECL(UnboundLocalError, NameError);
-    CLASS_EXCEPTION_DECL(NotImplementedError, RuntimeError);
-    CLASS_EXCEPTION_DECL(IndentationError, SyntaxError);
-    CLASS_EXCEPTION_DECL(TabError, IndentationError);
-    CLASS_EXCEPTION_DECL(UnicodeError, ValueError);
-  }
+  CLASS_EXCEPTION_DECL(SystemExit, BaseException);
+  CLASS_EXCEPTION_DECL(KeyboardInterrupt, BaseException);
+  CLASS_EXCEPTION_DECL(GeneratorExit, BaseException);
+  CLASS_EXCEPTION_DECL(Exception, BaseException);
+  CLASS_EXCEPTION_DECL(StopIteration, Exception);
+  CLASS_EXCEPTION_DECL(StandardError, Exception);
+  CLASS_EXCEPTION_DECL(Warning, Exception);
+  CLASS_EXCEPTION_DECL(BytesWarning, Warning);
+  CLASS_EXCEPTION_DECL(UnicodeWarning, Warning);
+  CLASS_EXCEPTION_DECL(ImportWarning, Warning);
+  CLASS_EXCEPTION_DECL(FutureWarning, Warning);
+  CLASS_EXCEPTION_DECL(UserWarning, Warning);
+  CLASS_EXCEPTION_DECL(SyntaxWarning, Warning);
+  CLASS_EXCEPTION_DECL(RuntimeWarning, Warning);
+  CLASS_EXCEPTION_DECL(PendingDeprecationWarning, Warning);
+  CLASS_EXCEPTION_DECL(DeprecationWarning, Warning);
+  CLASS_EXCEPTION_DECL(BufferError, StandardError);
+  CLASS_EXCEPTION_DECL(ArithmeticError, StandardError);
+  CLASS_EXCEPTION_DECL(AssertionError, StandardError);
+  CLASS_EXCEPTION_DECL(AttributeError, StandardError);
+  CLASS_EXCEPTION_DECL(EnvironmentError, StandardError);
+  CLASS_EXCEPTION_DECL(EOFError, StandardError);
+  CLASS_EXCEPTION_DECL(ImportError, StandardError);
+  CLASS_EXCEPTION_DECL(LookupError, StandardError);
+  CLASS_EXCEPTION_DECL(MemoryError, StandardError);
+  CLASS_EXCEPTION_DECL(NameError, StandardError);
+  CLASS_EXCEPTION_DECL(ReferenceError, StandardError);
+  CLASS_EXCEPTION_DECL(RuntimeError, StandardError);
+  CLASS_EXCEPTION_DECL(SyntaxError, StandardError);
+  CLASS_EXCEPTION_DECL(SystemError, StandardError);
+  CLASS_EXCEPTION_DECL(TypeError, StandardError);
+  CLASS_EXCEPTION_DECL(ValueError, StandardError);
+  CLASS_EXCEPTION_DECL(FloatingPointError, ArithmeticError);
+  CLASS_EXCEPTION_DECL(OverflowError, ArithmeticError);
+  CLASS_EXCEPTION_DECL(ZeroDivisionError, ArithmeticError);
+  CLASS_EXCEPTION_DECL(IOError, EnvironmentError);
+  CLASS_EXCEPTION_DECL(OSError, EnvironmentError);
+  CLASS_EXCEPTION_DECL(WindowsError, OSError);
+  CLASS_EXCEPTION_DECL(VMSError, OSError);
+  CLASS_EXCEPTION_DECL(IndexError, LookupError);
+  CLASS_EXCEPTION_DECL(KeyError, LookupError);
+  CLASS_EXCEPTION_DECL(UnboundLocalError, NameError);
+  CLASS_EXCEPTION_DECL(NotImplementedError, RuntimeError);
+  CLASS_EXCEPTION_DECL(IndentationError, SyntaxError);
+  CLASS_EXCEPTION_DECL(TabError, IndentationError);
+  CLASS_EXCEPTION_DECL(UnicodeError, ValueError);
 }
+PYTHONIC_NS_END
 
 #include "pythonic/include/utils/functor.hpp"
 #define PYTHONIC_EXCEPTION_DECL(name)                                          \
@@ -108,64 +107,62 @@ namespace pythonic
 
 /* pythran attribute system { */
 #define DECLARE_EXCEPTION_GETATTR(name)                                        \
-  namespace pythonic                                                           \
+  PYTHONIC_NS_BEGIN                                                            \
+  namespace types                                                              \
   {                                                                            \
-    namespace types                                                            \
+    namespace __##name                                                         \
     {                                                                          \
-      namespace __##name                                                       \
-      {                                                                        \
                                                                                \
-        template <int I>                                                       \
-        struct getattr;                                                        \
-        template <>                                                            \
-        struct getattr<attr::ARGS> {                                           \
-          none<list<str>> operator()(name const &e);                           \
-        };                                                                     \
-      }                                                                        \
-    }                                                                          \
-    namespace __builtin__                                                      \
-    {                                                                          \
       template <int I>                                                         \
-      auto getattr(types::name const &f)                                       \
-          -> decltype(types::__##name::getattr<I>()(f));                       \
+      struct getattr;                                                          \
+      template <>                                                              \
+      struct getattr<attr::ARGS> {                                             \
+        none<list<str>> operator()(name const &e);                             \
+      };                                                                       \
     }                                                                          \
-  }
+  }                                                                            \
+  namespace __builtin__                                                        \
+  {                                                                            \
+    template <int I>                                                           \
+    auto getattr(types::name const &f)                                         \
+        -> decltype(types::__##name::getattr<I>()(f));                         \
+  }                                                                            \
+  PYTHONIC_NS_END
 
 #define DECLARE_EXCEPTION_GETATTR_FULL(name)                                   \
-  namespace pythonic                                                           \
+  PYTHONIC_NS_BEGIN                                                            \
+  namespace types                                                              \
   {                                                                            \
-    namespace types                                                            \
+    namespace __##name                                                         \
     {                                                                          \
-      namespace __##name                                                       \
-      {                                                                        \
                                                                                \
-        template <int I>                                                       \
-        struct getattr;                                                        \
-        template <>                                                            \
-        struct getattr<attr::ARGS> {                                           \
-          none<list<str>> operator()(name const &e);                           \
-        };                                                                     \
-        template <>                                                            \
-        struct getattr<attr::ERRNO> {                                          \
-          none<str> operator()(name const &e);                                 \
-        };                                                                     \
-        template <>                                                            \
-        struct getattr<attr::STRERROR> {                                       \
-          none<str> operator()(name const &e);                                 \
-        };                                                                     \
-        template <>                                                            \
-        struct getattr<attr::FILENAME> {                                       \
-          none<str> operator()(name const &e);                                 \
-        };                                                                     \
-      }                                                                        \
-    }                                                                          \
-    namespace __builtin__                                                      \
-    {                                                                          \
       template <int I>                                                         \
-      auto getattr(types::name const &f)                                       \
-          -> decltype(types::__##name::getattr<I>()(f));                       \
+      struct getattr;                                                          \
+      template <>                                                              \
+      struct getattr<attr::ARGS> {                                             \
+        none<list<str>> operator()(name const &e);                             \
+      };                                                                       \
+      template <>                                                              \
+      struct getattr<attr::ERRNO> {                                            \
+        none<str> operator()(name const &e);                                   \
+      };                                                                       \
+      template <>                                                              \
+      struct getattr<attr::STRERROR> {                                         \
+        none<str> operator()(name const &e);                                   \
+      };                                                                       \
+      template <>                                                              \
+      struct getattr<attr::FILENAME> {                                         \
+        none<str> operator()(name const &e);                                   \
+      };                                                                       \
     }                                                                          \
-  }
+  }                                                                            \
+  namespace __builtin__                                                        \
+  {                                                                            \
+    template <int I>                                                           \
+    auto getattr(types::name const &f)                                         \
+        -> decltype(types::__##name::getattr<I>()(f));                         \
+  }                                                                            \
+  PYTHONIC_NS_END
 
 DECLARE_EXCEPTION_GETATTR(BaseException);
 DECLARE_EXCEPTION_GETATTR(SystemExit);
@@ -213,28 +210,27 @@ DECLARE_EXCEPTION_GETATTR_FULL(IOError);
 DECLARE_EXCEPTION_GETATTR_FULL(EnvironmentError);
 DECLARE_EXCEPTION_GETATTR_FULL(OSError);
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
 
-  namespace types
-  {
+  std::ostream &operator<<(std::ostream &o, BaseException const &e);
 
-    std::ostream &operator<<(std::ostream &o, BaseException const &e);
-
-    /* @brief Convert EnvironmentError to a string.
-     *
-     * The number of arguments used when creating the EnvironmentError impact
-     * the resulting "type" or formatting of the chain. We aim to mimic python
-     * behavior of course:
-     * - only one arg, then assume it can be converted to string,
-     * - two args, then the first one is the errno, the next one a string,
-     * - three args, like two args, adding "filename" as third one (after ':')
-     * - four or more args, the "tuple" used to construct the exception
-     *
-     */
-    std::ostream &operator<<(std::ostream &o, EnvironmentError const &e);
-  }
+  /* @brief Convert EnvironmentError to a string.
+   *
+   * The number of arguments used when creating the EnvironmentError impact
+   * the resulting "type" or formatting of the chain. We aim to mimic python
+   * behavior of course:
+   * - only one arg, then assume it can be converted to string,
+   * - two args, then the first one is the errno, the next one a string,
+   * - three args, like two args, adding "filename" as third one (after ':')
+   * - four or more args, the "tuple" used to construct the exception
+   *
+   */
+  std::ostream &operator<<(std::ostream &o, EnvironmentError const &e);
 }
+PYTHONIC_NS_END
 
 /* } */
 

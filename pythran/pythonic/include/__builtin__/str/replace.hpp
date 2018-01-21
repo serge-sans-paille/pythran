@@ -4,21 +4,20 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
-    {
+    types::str replace(types::str const &self, types::str const &old_pattern,
+                       types::str const &new_pattern,
+                       long count = std::numeric_limits<long>::max());
 
-      types::str replace(types::str const &self, types::str const &old_pattern,
-                         types::str const &new_pattern,
-                         long count = std::numeric_limits<long>::max());
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, replace);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, replace);
   }
 }
+PYTHONIC_NS_END
 #endif

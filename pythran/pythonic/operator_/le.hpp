@@ -5,19 +5,18 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
-
-  namespace operator_
+  template <class A, class B>
+  auto le(A const &a, B const &b) -> decltype(a <= b)
   {
-    template <class A, class B>
-    auto le(A const &a, B const &b) -> decltype(a <= b)
-    {
-      return a <= b;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, le);
+    return a <= b;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, le);
 }
+PYTHONIC_NS_END
 
 #endif

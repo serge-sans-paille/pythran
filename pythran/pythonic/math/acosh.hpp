@@ -6,13 +6,12 @@
 #include "pythonic/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    DEFINE_FUNCTOR_2(acosh, std::acosh);
-  }
+namespace math
+{
+  DEFINE_FUNCTOR_2(acosh, std::acosh);
 }
+PYTHONIC_NS_END
 
 #endif

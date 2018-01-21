@@ -5,17 +5,16 @@
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class T>
+  types::ndarray<T, 2> triu(types::ndarray<T, 2> const &expr, int k = 0);
 
-  namespace numpy
-  {
-    template <class T>
-    types::ndarray<T, 2> triu(types::ndarray<T, 2> const &expr, int k = 0);
-
-    NUMPY_EXPR_TO_NDARRAY0_DECL(triu)
-    DECLARE_FUNCTOR(pythonic::numpy, triu)
-  }
+  NUMPY_EXPR_TO_NDARRAY0_DECL(triu)
+  DECLARE_FUNCTOR(pythonic::numpy, triu)
 }
+PYTHONIC_NS_END
 
 #endif

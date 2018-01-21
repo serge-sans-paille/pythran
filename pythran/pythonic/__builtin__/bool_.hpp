@@ -9,39 +9,38 @@
 #include "pythonic/types/long.hpp"
 #endif
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
-
-  namespace __builtin__
+  namespace functor
   {
-    namespace functor
+
+    template <class T>
+    bool bool_::operator()(T &&val) const
     {
+      return (bool)val;
+    }
 
-      template <class T>
-      bool bool_::operator()(T &&val) const
-      {
-        return (bool)val;
-      }
-
-      bool bool_::operator()() const
-      {
-        return false;
-      }
+    bool bool_::operator()() const
+    {
+      return false;
+    }
 
 #ifdef USE_GMP
-      template <class T, class U>
-      bool bool_::operator()(__gmp_expr<T, U> const &a) const
-      {
-        return a != 0;
-      }
-      template <class T, class U>
-      bool bool_::operator()(__gmp_expr<T, U> &&a) const
-      {
-        return a != 0;
-      }
-#endif
+    template <class T, class U>
+    bool bool_::operator()(__gmp_expr<T, U> const &a) const
+    {
+      return a != 0;
     }
+    template <class T, class U>
+    bool bool_::operator()(__gmp_expr<T, U> &&a) const
+    {
+      return a != 0;
+    }
+#endif
   }
 }
+PYTHONIC_NS_END
 
 #endif

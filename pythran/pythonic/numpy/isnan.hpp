@@ -9,29 +9,28 @@
 
 #include <boost/simd/function/is_nan.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
+    template <class T>
+    bool isnan(std::complex<T> const &v)
     {
-      template <class T>
-      bool isnan(std::complex<T> const &v)
-      {
-        return boost::simd::is_nan(v.real()) || boost::simd::is_nan(v.imag());
-      }
-      template <class T>
-      bool isnan(T const &v)
-      {
-        return boost::simd::is_nan(v);
-      }
+      return boost::simd::is_nan(v.real()) || boost::simd::is_nan(v.imag());
     }
+    template <class T>
+    bool isnan(T const &v)
+    {
+      return boost::simd::is_nan(v);
+    }
+  }
 
 #define NUMPY_NARY_FUNC_NAME isnan
 #define NUMPY_NARY_FUNC_SYM wrapper::isnan
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

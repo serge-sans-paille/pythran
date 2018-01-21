@@ -5,20 +5,19 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
+  template <class A, class B>
+  A imod(A a, B const &b)
   {
-
-    template <class A, class B>
-    A imod(A a, B const &b)
-    {
-      return a %= b;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, imod);
+    return a %= b;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, imod);
 }
+PYTHONIC_NS_END
 
 #endif

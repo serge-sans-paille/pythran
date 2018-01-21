@@ -7,28 +7,27 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  long ord(types::str const &v)
   {
-
-    long ord(types::str const &v)
-    {
-      if (v.size() != 1)
-        throw types::TypeError(
-            "ord() expected a character, but string of length " +
-            std::to_string(v.size()) + " found");
-      return (long)v[0];
-    }
-
-    long ord(char v)
-    {
-      return v;
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, ord);
+    if (v.size() != 1)
+      throw types::TypeError(
+          "ord() expected a character, but string of length " +
+          std::to_string(v.size()) + " found");
+    return (long)v[0];
   }
+
+  long ord(char v)
+  {
+    return v;
+  }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, ord);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,23 +4,22 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/include/__builtin__/all.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <class Iterable>
+  bool all(Iterable &&s)
   {
-
-    template <class Iterable>
-    bool all(Iterable &&s)
-    {
-      auto iend = s.end();
-      for (auto iter = s.begin(); iter != iend; ++iter)
-        if (not*iter)
-          return false;
-      return true;
-    }
-    DEFINE_FUNCTOR(pythonic::__builtin__, all);
+    auto iend = s.end();
+    for (auto iter = s.begin(); iter != iend; ++iter)
+      if (not*iter)
+        return false;
+    return true;
   }
+  DEFINE_FUNCTOR(pythonic::__builtin__, all);
 }
+PYTHONIC_NS_END
 
 #endif

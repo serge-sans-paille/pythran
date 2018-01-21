@@ -5,24 +5,23 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class F, class T, size_t N, class E>
+  typename std::enable_if<types::is_numexpr_arg<F>::value,
+                          types::none_type>::type
+  put(types::ndarray<T, N> &expr, F const &ind, E const &v);
 
-  namespace numpy
-  {
-    template <class F, class T, size_t N, class E>
-    typename std::enable_if<types::is_numexpr_arg<F>::value,
-                            types::none_type>::type
-    put(types::ndarray<T, N> &expr, F const &ind, E const &v);
+  template <class T, size_t N>
+  types::none_type put(types::ndarray<T, N> &expr, long int ind, T const &v);
 
-    template <class T, size_t N>
-    types::none_type put(types::ndarray<T, N> &expr, long int ind, T const &v);
+  template <class E, class M, class V>
+  types::none_type put(E &, M const &, V const &);
 
-    template <class E, class M, class V>
-    types::none_type put(E &, M const &, V const &);
-
-    DECLARE_FUNCTOR(pythonic::numpy, put);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, put);
 }
+PYTHONIC_NS_END
 
 #endif

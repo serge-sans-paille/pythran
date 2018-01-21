@@ -8,18 +8,17 @@
 
 #include <algorithm>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E, class F>
+  types::ndarray<
+      typename __combined<typename E::dtype, typename F::dtype>::type, 1>
+  intersect1d(E const &e, F const &f);
 
-  namespace numpy
-  {
-    template <class E, class F>
-    types::ndarray<
-        typename __combined<typename E::dtype, typename F::dtype>::type, 1>
-    intersect1d(E const &e, F const &f);
-
-    DECLARE_FUNCTOR(pythonic::numpy, intersect1d);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, intersect1d);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -6,21 +6,20 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
+  template <class A, class B>
+  types::none_type delitem(A &&a, B const &b)
   {
-
-    template <class A, class B>
-    types::none_type delitem(A &&a, B const &b)
-    {
-      a.remove(b);
-      return __builtin__::None;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, delitem);
+    a.remove(b);
+    return __builtin__::None;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, delitem);
 }
+PYTHONIC_NS_END
 
 #endif

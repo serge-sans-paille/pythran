@@ -8,8 +8,7 @@ long getattr(long const &);
 
 #include "pythonic/python/core.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
 #define PYTHONIC_INT_TO_PYTHON(TYPE)                                           \
   template <>                                                                  \
@@ -17,16 +16,16 @@ namespace pythonic
     static PyObject *convert(TYPE l);                                          \
   }
 
-  PYTHONIC_INT_TO_PYTHON(unsigned char);
-  PYTHONIC_INT_TO_PYTHON(signed char);
-  PYTHONIC_INT_TO_PYTHON(unsigned short);
-  PYTHONIC_INT_TO_PYTHON(signed short);
-  PYTHONIC_INT_TO_PYTHON(unsigned int);
-  PYTHONIC_INT_TO_PYTHON(signed int);
-  PYTHONIC_INT_TO_PYTHON(unsigned long);
-  PYTHONIC_INT_TO_PYTHON(signed long);
-  PYTHONIC_INT_TO_PYTHON(unsigned long long);
-  PYTHONIC_INT_TO_PYTHON(signed long long);
+PYTHONIC_INT_TO_PYTHON(unsigned char);
+PYTHONIC_INT_TO_PYTHON(signed char);
+PYTHONIC_INT_TO_PYTHON(unsigned short);
+PYTHONIC_INT_TO_PYTHON(signed short);
+PYTHONIC_INT_TO_PYTHON(unsigned int);
+PYTHONIC_INT_TO_PYTHON(signed int);
+PYTHONIC_INT_TO_PYTHON(unsigned long);
+PYTHONIC_INT_TO_PYTHON(signed long);
+PYTHONIC_INT_TO_PYTHON(unsigned long long);
+PYTHONIC_INT_TO_PYTHON(signed long long);
 
 #undef PYTHONIC_INT_TO_PYTHON
 
@@ -37,19 +36,19 @@ namespace pythonic
     static TYPE convert(PyObject *obj);                                        \
   }
 
-  PYTHONIC_INT_FROM_PYTHON(unsigned char);
-  PYTHONIC_INT_FROM_PYTHON(signed char);
-  PYTHONIC_INT_FROM_PYTHON(unsigned short);
-  PYTHONIC_INT_FROM_PYTHON(signed short);
-  PYTHONIC_INT_FROM_PYTHON(unsigned int);
-  PYTHONIC_INT_FROM_PYTHON(signed int);
-  PYTHONIC_INT_FROM_PYTHON(unsigned long);
-  PYTHONIC_INT_FROM_PYTHON(signed long);
-  PYTHONIC_INT_FROM_PYTHON(unsigned long long);
-  PYTHONIC_INT_FROM_PYTHON(signed long long);
+PYTHONIC_INT_FROM_PYTHON(unsigned char);
+PYTHONIC_INT_FROM_PYTHON(signed char);
+PYTHONIC_INT_FROM_PYTHON(unsigned short);
+PYTHONIC_INT_FROM_PYTHON(signed short);
+PYTHONIC_INT_FROM_PYTHON(unsigned int);
+PYTHONIC_INT_FROM_PYTHON(signed int);
+PYTHONIC_INT_FROM_PYTHON(unsigned long);
+PYTHONIC_INT_FROM_PYTHON(signed long);
+PYTHONIC_INT_FROM_PYTHON(unsigned long long);
+PYTHONIC_INT_FROM_PYTHON(signed long long);
 
 #undef PYTHONIC_INT_FROM_PYTHON
-}
+PYTHONIC_NS_END
 #endif
 
 #endif

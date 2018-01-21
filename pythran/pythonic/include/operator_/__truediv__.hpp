@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/operator_/truediv.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__truediv__, truediv)
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__truediv__, truediv)
 }
+PYTHONIC_NS_END
 
 #endif

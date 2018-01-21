@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/not_.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__not__, not_);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__not__, not_);
 }
+PYTHONIC_NS_END
 
 #endif

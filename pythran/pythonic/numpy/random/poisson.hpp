@@ -12,38 +12,37 @@
 #include <algorithm>
 #include <random>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
+
+    template <size_t N>
+    types::ndarray<double, N> poisson(double lam,
+                                      types::array<long, N> const &shape)
     {
-
-      template <size_t N>
-      types::ndarray<double, N> poisson(double lam,
-                                        types::array<long, N> const &shape)
-      {
-        types::ndarray<double, N> result{shape, types::none_type()};
-        std::poisson_distribution<long> distribution{lam};
-        std::generate(result.fbegin(), result.fend(),
-                      [&]() { return distribution(details::generator); });
-        return result;
-      }
-
-      auto poisson(double lam, long size)
-          -> decltype(poisson(lam, types::array<long, 1>{{size}}))
-      {
-        return poisson(lam, types::array<long, 1>{{size}});
-      }
-
-      double poisson(double lam, types::none_type d)
-      {
-        return std::poisson_distribution<long>{lam}(details::generator);
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::random, poisson);
+      types::ndarray<double, N> result{shape, types::none_type()};
+      std::poisson_distribution<long> distribution{lam};
+      std::generate(result.fbegin(), result.fend(),
+                    [&]() { return distribution(details::generator); });
+      return result;
     }
+
+    auto poisson(double lam, long size)
+        -> decltype(poisson(lam, types::array<long, 1>{{size}}))
+    {
+      return poisson(lam, types::array<long, 1>{{size}});
+    }
+
+    double poisson(double lam, types::none_type d)
+    {
+      return std::poisson_distribution<long>{lam}(details::generator);
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::random, poisson);
   }
 }
+PYTHONIC_NS_END
 
 #endif

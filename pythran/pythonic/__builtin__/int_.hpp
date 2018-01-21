@@ -7,41 +7,40 @@
 
 #include <cassert>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace functor
   {
-
-    namespace functor
+    int_::type int_::operator()(char const t[], int base) const
     {
-      int_::type int_::operator()(char const t[], int base) const
-      {
-        return std::strtol(t, nullptr, base);
-      }
-      int_::type int_::operator()(types::str const &t, int base) const
-      {
-        return (*this)(t.c_str(), base);
-      }
+      return std::strtol(t, nullptr, base);
+    }
+    int_::type int_::operator()(types::str const &t, int base) const
+    {
+      return (*this)(t.c_str(), base);
+    }
 
-      template <class T>
-      int_::type int_::operator()(T &&t) const
-      {
-        return t;
-      }
+    template <class T>
+    int_::type int_::operator()(T &&t) const
+    {
+      return t;
+    }
 
-      int_::type int_::operator()(char t) const
-      {
-        assert(t >= '0' and t <= '9');
-        return t - '0';
-      }
+    int_::type int_::operator()(char t) const
+    {
+      assert(t >= '0' and t <= '9');
+      return t - '0';
+    }
 
-      int_::type int_::operator()() const
-      {
-        return 0L;
-      }
+    int_::type int_::operator()() const
+    {
+      return 0L;
     }
   }
 }
+PYTHONIC_NS_END
 
 #endif

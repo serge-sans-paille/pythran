@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/rshift.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__rshift__, rshift);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__rshift__, rshift);
 }
+PYTHONIC_NS_END
 
 #endif

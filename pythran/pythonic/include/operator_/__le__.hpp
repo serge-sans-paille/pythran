@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/le.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__le__, le);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__le__, le);
 }
+PYTHONIC_NS_END
 
 #endif

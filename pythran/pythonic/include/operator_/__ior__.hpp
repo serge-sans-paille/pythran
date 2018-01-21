@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/ior.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__ior__, ior);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__ior__, ior);
 }
+PYTHONIC_NS_END
 
 #endif

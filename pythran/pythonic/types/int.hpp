@@ -3,18 +3,6 @@
 
 #include "pythonic/include/types/int.hpp"
 
-template <>
-long getattr<0>(long const &l)
-{
-  return l;
-}
-
-template <>
-long getattr<1>(long const &)
-{
-  return 0L;
-}
-
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"

@@ -3,19 +3,18 @@
 
 #include "pythonic/include/__builtin__/file/isatty.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace io
 {
 
-  namespace io
+  namespace _io
   {
-
-    namespace _io
+    namespace TextIOWrapper
     {
-      namespace TextIOWrapper
-      {
-        USING_FUNCTOR(isatty, __builtin__::file::functor::isatty);
-      }
+      USING_FUNCTOR(isatty, __builtin__::file::functor::isatty);
     }
   }
 }
+PYTHONIC_NS_END
 #endif

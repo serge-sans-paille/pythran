@@ -7,22 +7,21 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace anonymous
   {
-
-    namespace anonymous
+    types::file file(types::str const &filename, types::str const &strmode)
     {
-      types::file file(types::str const &filename, types::str const &strmode)
-      {
-        return {filename, strmode};
-      }
+      return {filename, strmode};
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, file);
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, file);
 }
+PYTHONIC_NS_END
 
 #endif

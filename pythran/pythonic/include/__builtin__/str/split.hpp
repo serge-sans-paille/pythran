@@ -6,24 +6,23 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
-    {
+    types::list<types::str> split(types::str const &in,
+                                  types::str const &sep = " \n",
+                                  long maxsplit = -1);
 
-      types::list<types::str> split(types::str const &in,
-                                    types::str const &sep = " \n",
-                                    long maxsplit = -1);
+    types::list<types::str> split(types::str const &s, types::none_type const &,
+                                  long maxsplit = -1);
 
-      types::list<types::str>
-      split(types::str const &s, types::none_type const &, long maxsplit = -1);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, split);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, split);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -4,17 +4,16 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
-    {
-      types::str bytes(long length);
+    types::str bytes(long length);
 
-      DECLARE_FUNCTOR(pythonic::numpy::random, bytes);
-    }
+    DECLARE_FUNCTOR(pythonic::numpy::random, bytes);
   }
 }
+PYTHONIC_NS_END
 
 #endif

@@ -5,20 +5,19 @@
 #include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace list
   {
 
-    namespace list
-    {
+    template <class T>
+    types::none_type reverse(types::list<T> &seq);
 
-      template <class T>
-      types::none_type reverse(types::list<T> &seq);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::list, reverse);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::list, reverse);
   }
 }
+PYTHONIC_NS_END
 #endif

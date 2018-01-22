@@ -4,16 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/NoneType.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  types::none_type fill_diagonal(E &&, typename std::decay<E>::type::dtype);
 
-  namespace numpy
-  {
-    template <class E>
-    types::none_type fill_diagonal(E &&, typename std::decay<E>::type::dtype);
-
-    DECLARE_FUNCTOR(pythonic::numpy, fill_diagonal)
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, fill_diagonal)
 }
+PYTHONIC_NS_END
 
 #endif

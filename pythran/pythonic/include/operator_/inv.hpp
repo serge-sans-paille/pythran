@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/operator_/invert.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(inv, invert);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(inv, invert);
 }
+PYTHONIC_NS_END
 
 #endif

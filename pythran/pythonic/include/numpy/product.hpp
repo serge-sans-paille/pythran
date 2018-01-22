@@ -3,12 +3,11 @@
 
 #include "pythonic/include/numpy/prod.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
-  {
-    USING_FUNCTOR(product, prod);
-  }
+  USING_FUNCTOR(product, prod);
 }
+PYTHONIC_NS_END
 
 #endif

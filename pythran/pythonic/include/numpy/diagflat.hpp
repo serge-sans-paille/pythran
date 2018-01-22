@@ -3,13 +3,12 @@
 
 #include "pythonic/include/numpy/diag.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(diagflat, diag);
-  }
+namespace numpy
+{
+  USING_FUNCTOR(diagflat, diag);
 }
+PYTHONIC_NS_END
 
 #endif

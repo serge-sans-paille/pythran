@@ -4,29 +4,28 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/set.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace set
   {
 
-    namespace set
-    {
+    template <typename T, typename... Types>
+    types::none_type difference_update(types::set<T> &set,
+                                       Types const &... others);
 
-      template <typename T, typename... Types>
-      types::none_type difference_update(types::set<T> &set,
-                                         Types const &... others);
+    template <typename T, typename... Types>
+    types::none_type difference_update(types::set<T> &&set,
+                                       Types const &... others);
 
-      template <typename T, typename... Types>
-      types::none_type difference_update(types::set<T> &&set,
-                                         Types const &... others);
+    template <typename... Types>
+    types::none_type difference_update(types::empty_set const &set,
+                                       Types const &... others);
 
-      template <typename... Types>
-      types::none_type difference_update(types::empty_set const &set,
-                                         Types const &... others);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::set, difference_update);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::set, difference_update);
   }
 }
+PYTHONIC_NS_END
 #endif

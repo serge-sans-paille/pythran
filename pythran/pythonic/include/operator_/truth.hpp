@@ -3,15 +3,14 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
+  bool truth(bool const &a);
 
-  namespace operator_
-  {
-    bool truth(bool const &a);
-
-    DECLARE_FUNCTOR(pythonic::operator_, truth);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, truth);
 }
+PYTHONIC_NS_END
 
 #endif

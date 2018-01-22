@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/neg.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__neg__, neg);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__neg__, neg);
 }
+PYTHONIC_NS_END
 
 #endif

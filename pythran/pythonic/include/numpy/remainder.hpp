@@ -8,15 +8,14 @@
 
 #include <boost/simd/function/rem.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 #define NUMPY_NARY_FUNC_NAME remainder
 #define NUMPY_NARY_FUNC_SYM boost::simd::rem
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

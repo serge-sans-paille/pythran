@@ -6,20 +6,19 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  template <class E>
+  auto size(E const &e) -> decltype(e.flat_size())
   {
-
-    template <class E>
-    auto size(E const &e) -> decltype(e.flat_size())
-    {
-      return e.flat_size();
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, size)
+    return e.flat_size();
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, size)
 }
+PYTHONIC_NS_END
 
 #endif

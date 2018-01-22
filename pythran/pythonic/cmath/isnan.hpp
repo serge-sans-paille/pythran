@@ -8,13 +8,12 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace cmath
-  {
-    DEFINE_FUNCTOR_2(isnan, std::isnan);
-  }
+namespace cmath
+{
+  DEFINE_FUNCTOR_2(isnan, std::isnan);
 }
+PYTHONIC_NS_END
 
 #endif

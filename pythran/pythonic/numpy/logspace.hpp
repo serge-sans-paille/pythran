@@ -6,22 +6,20 @@
 #include "pythonic/numpy/linspace.hpp"
 #include "pythonic/numpy/power.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  auto logspace(double start, double stop, long num, bool endpoint, double base)
+      -> decltype(functor::power()(base, functor::linspace()(start, stop, num,
+                                                             endpoint)))
   {
-    auto logspace(double start, double stop, long num, bool endpoint,
-                  double base)
-        -> decltype(functor::power()(base, functor::linspace()(start, stop, num,
-                                                               endpoint)))
-    {
-      return functor::power()(base,
-                              functor::linspace()(start, stop, num, endpoint));
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, logspace);
+    return functor::power()(base,
+                            functor::linspace()(start, stop, num, endpoint));
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, logspace);
 }
+PYTHONIC_NS_END
 
 #endif

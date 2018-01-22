@@ -7,44 +7,42 @@
 
 #include <limits>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace types
+namespace types
+{
+  template <class T>
+  T finfo<T>::eps() const
   {
-    template <class T>
-    T finfo<T>::eps() const
-    {
-      return std::numeric_limits<T>::epsilon();
-    }
+    return std::numeric_limits<T>::epsilon();
   }
 }
+PYTHONIC_NS_END
 
 /* pythran attribute system { */
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace types
 {
-  namespace types
+  namespace __finfo
   {
-    namespace __finfo
-    {
 
-      template <class T>
-      auto getattr<attr::EPS, T>::operator()(finfo<T> const &f)
-          -> decltype(f.eps()) const
-      {
-        return f.eps();
-      }
-    }
-  }
-  namespace __builtin__
-  {
-    template <int I, class T>
-    auto getattr(pythonic::types::finfo<T> const &f)
-        -> decltype(pythonic::types::__finfo::getattr<I, T>()(f))
+    template <class T>
+    auto getattr<attr::EPS, T>::operator()(finfo<T> const &f)
+        -> decltype(f.eps()) const
     {
-      return pythonic::types::__finfo::getattr<I, T>()(f);
+      return f.eps();
     }
   }
 }
+namespace __builtin__
+{
+  template <int I, class T>
+  auto getattr(pythonic::types::finfo<T> const &f)
+      -> decltype(pythonic::types::__finfo::getattr<I, T>()(f))
+  {
+    return pythonic::types::__finfo::getattr<I, T>()(f);
+  }
+}
+PYTHONIC_NS_END
 /* } */
 #endif

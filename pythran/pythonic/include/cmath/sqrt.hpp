@@ -6,13 +6,12 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace cmath
-  {
-    DECLARE_FUNCTOR_2(sqrt, std::sqrt);
-  }
+namespace cmath
+{
+  DECLARE_FUNCTOR_2(sqrt, std::sqrt);
 }
+PYTHONIC_NS_END
 
 #endif

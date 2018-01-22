@@ -6,36 +6,35 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class T, size_t N>
+  types::ndarray<long, N> argsort(types::ndarray<T, N> const &a)
   {
-    template <class T, size_t N>
-    types::ndarray<long, N> argsort(types::ndarray<T, N> const &a)
-    {
-      size_t last_axis = a.shape()[N - 1];
-      size_t n = a.flat_size();
-      types::ndarray<long, N> indices(a.shape(), __builtin__::None);
-      for (long j = 0, *iter_indices = indices.buffer,
-                *end_indices = indices.buffer + n;
-           iter_indices != end_indices;
-           iter_indices += last_axis, j += last_axis) {
-        // fill with the original indices
-        std::iota(iter_indices, iter_indices + last_axis, 0L);
-        // sort the index using the value from a
-        std::sort(iter_indices, iter_indices + last_axis,
-                  [&a, j](long i1, long i2) {
-                    return *(a.fbegin() + j + i1) < *(a.fbegin() + j + i2);
-                  });
-      }
-      return indices;
+    size_t last_axis = a.shape()[N - 1];
+    size_t n = a.flat_size();
+    types::ndarray<long, N> indices(a.shape(), __builtin__::None);
+    for (long j = 0, *iter_indices = indices.buffer,
+              *end_indices = indices.buffer + n;
+         iter_indices != end_indices;
+         iter_indices += last_axis, j += last_axis) {
+      // fill with the original indices
+      std::iota(iter_indices, iter_indices + last_axis, 0L);
+      // sort the index using the value from a
+      std::sort(iter_indices, iter_indices + last_axis,
+                [&a, j](long i1, long i2) {
+                  return *(a.fbegin() + j + i1) < *(a.fbegin() + j + i2);
+                });
     }
-
-    NUMPY_EXPR_TO_NDARRAY0_IMPL(argsort);
-
-    DEFINE_FUNCTOR(pythonic::numpy, argsort);
+    return indices;
   }
+
+  NUMPY_EXPR_TO_NDARRAY0_IMPL(argsort);
+
+  DEFINE_FUNCTOR(pythonic::numpy, argsort);
 }
+PYTHONIC_NS_END
 
 #endif

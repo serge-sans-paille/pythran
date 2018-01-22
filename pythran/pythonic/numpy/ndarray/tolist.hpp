@@ -7,34 +7,33 @@
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace ndarray
   {
 
-    namespace ndarray
+    template <class T>
+    types::list<T> tolist(types::ndarray<T, 1> const &expr)
     {
-
-      template <class T>
-      types::list<T> tolist(types::ndarray<T, 1> const &expr)
-      {
-        return {expr.fbegin(), expr.fend()};
-      }
-
-      template <class T, size_t N>
-      typename tolist_type<T, N>::type tolist(types::ndarray<T, N> const &expr)
-      {
-        typename tolist_type<T, N>::type out(0);
-        for (types::ndarray<T, N - 1> const &elts : expr)
-          out.push_back(tolist(elts));
-        return out;
-      }
-
-      NUMPY_EXPR_TO_NDARRAY0_IMPL(tolist);
-      DEFINE_FUNCTOR(pythonic::numpy::ndarray, tolist);
+      return {expr.fbegin(), expr.fend()};
     }
+
+    template <class T, size_t N>
+    typename tolist_type<T, N>::type tolist(types::ndarray<T, N> const &expr)
+    {
+      typename tolist_type<T, N>::type out(0);
+      for (types::ndarray<T, N - 1> const &elts : expr)
+        out.push_back(tolist(elts));
+      return out;
+    }
+
+    NUMPY_EXPR_TO_NDARRAY0_IMPL(tolist);
+    DEFINE_FUNCTOR(pythonic::numpy::ndarray, tolist);
   }
 }
+PYTHONIC_NS_END
 
 #endif

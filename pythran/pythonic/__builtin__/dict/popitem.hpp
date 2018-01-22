@@ -8,30 +8,29 @@
 
 #include <tuple>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
+    template <class K, class V>
+    std::tuple<K, V> popitem(types::dict<K, V> &d)
     {
-
-      template <class K, class V>
-      std::tuple<K, V> popitem(types::dict<K, V> &d)
-      {
-        return d.popitem();
-      }
-
-      template <class K, class V>
-      std::tuple<K, V> popitem(types::dict<K, V> &&d)
-      {
-        return d.popitem();
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::dict, popitem);
+      return d.popitem();
     }
+
+    template <class K, class V>
+    std::tuple<K, V> popitem(types::dict<K, V> &&d)
+    {
+      return d.popitem();
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, popitem);
   }
 }
+PYTHONIC_NS_END
 
 #endif

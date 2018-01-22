@@ -3,18 +3,17 @@
 
 #include "pythonic/include/types/numpy_fexpr.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class F, class T>
+  auto take(T &&expr, F &&indices)
+      -> decltype(types::numpy_fexpr<T, F>(std::forward<T>(expr),
+                                           std::forward<F>(indices)));
 
-  namespace numpy
-  {
-    template <class F, class T>
-    auto take(T &&expr, F &&indices)
-        -> decltype(types::numpy_fexpr<T, F>(std::forward<T>(expr),
-                                             std::forward<F>(indices)));
-
-    DECLARE_FUNCTOR(pythonic::numpy, take);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, take);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -3,18 +3,17 @@
 
 #include "pythonic/include/__builtin__/file/readline.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace io
 {
-  namespace io
-  {
 
-    namespace _io
+  namespace _io
+  {
+    namespace TextIOWrapper
     {
-      namespace TextIOWrapper
-      {
-        USING_FUNCTOR(readline, __builtin__::file::functor::readline);
-      }
+      USING_FUNCTOR(readline, __builtin__::file::functor::readline);
     }
   }
 }
+PYTHONIC_NS_END
 #endif

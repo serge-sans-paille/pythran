@@ -6,18 +6,17 @@
 #include <omp.h>
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace omp
 {
-
-  namespace omp
+  long get_num_threads()
   {
-    long get_num_threads()
-    {
-      return omp_get_num_threads();
-    }
-
-    DEFINE_FUNCTOR(pythonic::omp, get_num_threads);
+    return omp_get_num_threads();
   }
+
+  DEFINE_FUNCTOR(pythonic::omp, get_num_threads);
 }
+PYTHONIC_NS_END
 
 #endif

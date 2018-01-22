@@ -5,26 +5,25 @@
 #include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace set
   {
 
-    namespace set
-    {
+    template <class T, class F>
+    types::none_type add(types::set<T> &s, F const &value);
 
-      template <class T, class F>
-      types::none_type add(types::set<T> &s, F const &value);
+    template <class T, class F>
+    types::none_type add(types::set<T> &&s, F const &value);
 
-      template <class T, class F>
-      types::none_type add(types::set<T> &&s, F const &value);
+    template <class F>
+    types::none_type add(types::empty_set const &s, F &&value);
 
-      template <class F>
-      types::none_type add(types::empty_set const &s, F &&value);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::set, add);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::set, add);
   }
 }
+PYTHONIC_NS_END
 #endif

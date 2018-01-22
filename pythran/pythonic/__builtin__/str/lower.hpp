@@ -6,24 +6,23 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
+    types::str lower(types::str const &s)
     {
-
-      types::str lower(types::str const &s)
-      {
-        types::str copy = s;
-        std::transform(s.begin(), s.end(), copy.begin(), ::tolower);
-        return copy;
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::str, lower);
+      types::str copy = s;
+      std::transform(s.begin(), s.end(), copy.begin(), ::tolower);
+      return copy;
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, lower);
   }
 }
+PYTHONIC_NS_END
 #endif

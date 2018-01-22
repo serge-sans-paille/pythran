@@ -6,16 +6,15 @@
 #include "pythonic/types/exceptions.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  void pythran_assert(bool cond, types::str const &what)
-  {
+void pythran_assert(bool cond, types::str const &what)
+{
 #ifndef NDEBUG
-    if (not cond)
-      throw types::AssertionError(what);
+  if (not cond)
+    throw types::AssertionError(what);
 #endif
-  }
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,15 +4,14 @@
 #include "pythonic/include/__dispatch__/clear.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace __builtin__
 {
-  namespace __builtin__
+  namespace dict
   {
-    namespace dict
-    {
-      USING_FUNCTOR(clear, pythonic::__dispatch__::functor::clear);
-    }
+    USING_FUNCTOR(clear, pythonic::__dispatch__::functor::clear);
   }
 }
+PYTHONIC_NS_END
 
 #endif

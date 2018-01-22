@@ -8,27 +8,26 @@
 
 #include <cmath>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <class T>
+  double round(T const &v, size_t n)
   {
-
-    template <class T>
-    double round(T const &v, size_t n)
-    {
-      T p = functor::pow()(10, n);
-      return std::lround(v * p) / p;
-    }
-
-    template <class T>
-    double round(T const &v)
-    {
-      return std::lround(v);
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, round);
+    T p = functor::pow()(10, n);
+    return std::lround(v * p) / p;
   }
+
+  template <class T>
+  double round(T const &v)
+  {
+    return std::lround(v);
+  }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, round);
 }
+PYTHONIC_NS_END
 
 #endif

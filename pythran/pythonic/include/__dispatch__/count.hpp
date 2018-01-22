@@ -3,17 +3,16 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __dispatch__
 {
+  template <class Any, class Value>
+  auto count(Any &&any, Value &&value)
+      -> decltype(any.count(std::forward<Value>(value)));
 
-  namespace __dispatch__
-  {
-    template <class Any, class Value>
-    auto count(Any &&any, Value &&value)
-        -> decltype(any.count(std::forward<Value>(value)));
-
-    DECLARE_FUNCTOR(pythonic::__dispatch__, count);
-  }
+  DECLARE_FUNCTOR(pythonic::__dispatch__, count);
 }
+PYTHONIC_NS_END
 
 #endif

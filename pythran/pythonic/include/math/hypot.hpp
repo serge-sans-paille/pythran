@@ -8,13 +8,12 @@
 // This is a windows defined macro that clash with std::hypot and our hypot
 // function
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    DECLARE_FUNCTOR_2(hypot, std::hypot);
-  }
+namespace math
+{
+  DECLARE_FUNCTOR_2(hypot, std::hypot);
 }
+PYTHONIC_NS_END
 
 #endif

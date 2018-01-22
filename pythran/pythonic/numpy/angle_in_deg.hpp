@@ -10,16 +10,15 @@
  * this file is here only to split the angle function in two parts
  */
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 
 #define NUMPY_NARY_FUNC_NAME angle_in_deg
 #define NUMPY_NARY_FUNC_SYM wrapper::angle_in_deg
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

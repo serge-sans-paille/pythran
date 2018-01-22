@@ -6,37 +6,36 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/set.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace set
   {
 
-    namespace set
+    template <typename T, typename... Types>
+    typename __combined<types::set<T>, Types...>::type
+    intersection(types::set<T> const &set, Types const &... others)
     {
-
-      template <typename T, typename... Types>
-      typename __combined<types::set<T>, Types...>::type
-      intersection(types::set<T> const &set, Types const &... others)
-      {
-        return set.intersection(others...);
-      }
-
-      /* No rvalue overload possible because of return type modification.:
-       * >>> a = set([1,2,3])
-       * >>> b = set([1., 2., 3.])
-       * >>> a.intersection(b)
-       * set([1.0, 2.0, 3.0])
-       */
-      template <typename... Types>
-      types::empty_set intersection(types::empty_set const &set,
-                                    Types const &... others)
-      {
-        return types::empty_set();
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::set, intersection);
+      return set.intersection(others...);
     }
+
+    /* No rvalue overload possible because of return type modification.:
+     * >>> a = set([1,2,3])
+     * >>> b = set([1., 2., 3.])
+     * >>> a.intersection(b)
+     * set([1.0, 2.0, 3.0])
+     */
+    template <typename... Types>
+    types::empty_set intersection(types::empty_set const &set,
+                                  Types const &... others)
+    {
+      return types::empty_set();
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, intersection);
   }
 }
+PYTHONIC_NS_END
 #endif

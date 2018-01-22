@@ -6,23 +6,22 @@
 
 #include <utility>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
-    {
-      template <class T>
-      auto random_integers(long min, long max, T &&size)
-          -> decltype(randint(min, max, std::forward<T>(size)));
+    template <class T>
+    auto random_integers(long min, long max, T &&size)
+        -> decltype(randint(min, max, std::forward<T>(size)));
 
-      long random_integers(long max);
+    long random_integers(long max);
 
-      long random_integers(long min, long max);
+    long random_integers(long min, long max);
 
-      DECLARE_FUNCTOR(pythonic::numpy::random, random_integers);
-    }
+    DECLARE_FUNCTOR(pythonic::numpy::random, random_integers);
   }
 }
+PYTHONIC_NS_END
 
 #endif

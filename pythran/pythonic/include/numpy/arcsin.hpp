@@ -7,22 +7,21 @@
 
 #include <boost/simd/function/asin.hpp>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace wrapper
   {
-
-    namespace wrapper
-    {
-      double arcsin(long const &v);
-      template <class T>
-      auto arcsin(T const &v) -> decltype(boost::simd::asin(v));
-    }
+    double arcsin(long const &v);
+    template <class T>
+    auto arcsin(T const &v) -> decltype(boost::simd::asin(v));
+  }
 #define NUMPY_NARY_FUNC_NAME arcsin
 #define NUMPY_NARY_FUNC_SYM wrapper::arcsin
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

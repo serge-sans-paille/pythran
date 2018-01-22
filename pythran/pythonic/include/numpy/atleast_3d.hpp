@@ -3,30 +3,27 @@
 
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class T>
+  typename std::enable_if<types::is_dtype<T>::value, types::ndarray<T, 3>>::type
+  atleast_3d(T t);
 
-  namespace numpy
-  {
-    template <class T>
-    typename std::enable_if<types::is_dtype<T>::value,
-                            types::ndarray<T, 3>>::type
-    atleast_3d(T t);
+  template <class T>
+  auto atleast_3d(T const &t) ->
+      typename std::enable_if<(not types::is_dtype<T>::value) and
+                                  (T::value < 3),
+                              types::ndarray<typename T::dtype, 3>>::type;
 
-    template <class T>
-    auto atleast_3d(T const &t) ->
-        typename std::enable_if<(not types::is_dtype<T>::value) and
-                                    (T::value < 3),
-                                types::ndarray<typename T::dtype, 3>>::type;
+  template <class T>
+  auto atleast_3d(T const &t) ->
+      typename std::enable_if<(not types::is_dtype<T>::value) and T::value >= 3,
+                              decltype(asarray(t))>::type;
 
-    template <class T>
-    auto atleast_3d(T const &t) ->
-        typename std::enable_if<(not types::is_dtype<T>::value) and
-                                    T::value >= 3,
-                                decltype(asarray(t))>::type;
-
-    DECLARE_FUNCTOR(pythonic::numpy, atleast_3d);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, atleast_3d);
 }
+PYTHONIC_NS_END
 
 #endif

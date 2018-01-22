@@ -6,15 +6,14 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include <boost/simd/function/atan.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 #define NUMPY_NARY_FUNC_NAME arctan
 #define NUMPY_NARY_FUNC_SYM boost::simd::atan
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

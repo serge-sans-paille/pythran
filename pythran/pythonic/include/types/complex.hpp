@@ -19,14 +19,13 @@ namespace std
   bool operator!=(long self, std::complex<double> other);
 }
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace __builtin__
 {
-  namespace __builtin__
-  {
-    template <size_t AttributeID>
-    double getattr(std::complex<double> const &self);
-  }
+  template <size_t AttributeID>
+  double getattr(std::complex<double> const &self);
 }
+PYTHONIC_NS_END
 
 /* for type inference { */
 
@@ -63,20 +62,19 @@ STD_COMPLEX_IMPLICT_OPERATOR_CAST(!= )
 
 #include "pythonic/python/core.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  template <class T>
-  struct to_python<std::complex<T>> {
-    static PyObject *convert(std::complex<T> const &c);
-  };
+template <class T>
+struct to_python<std::complex<T>> {
+  static PyObject *convert(std::complex<T> const &c);
+};
 
-  template <class T>
-  struct from_python<std::complex<T>> {
-    static bool is_convertible(PyObject *obj);
-    static std::complex<T> convert(PyObject *obj);
-  };
-}
+template <class T>
+struct from_python<std::complex<T>> {
+  static bool is_convertible(PyObject *obj);
+  static std::complex<T> convert(PyObject *obj);
+};
+PYTHONIC_NS_END
 #endif
 
 #endif

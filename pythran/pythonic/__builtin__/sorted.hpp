@@ -8,37 +8,36 @@
 
 #include <algorithm>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <class Iterable>
+  types::list<
+      typename std::remove_cv<typename Iterable::iterator::value_type>::type>
+  sorted(Iterable const &seq)
   {
-
-    template <class Iterable>
     types::list<
         typename std::remove_cv<typename Iterable::iterator::value_type>::type>
-    sorted(Iterable const &seq)
-    {
-      types::list<typename std::remove_cv<
-          typename Iterable::iterator::value_type>::type> out(seq.begin(),
-                                                              seq.end());
-      std::sort(out.begin(), out.end());
-      return out;
-    }
-    template <class Iterable, class C>
-    types::list<
-        typename std::remove_cv<typename Iterable::iterator::value_type>::type>
-    sorted(Iterable const &seq, C const &cmp)
-    {
-      types::list<typename std::remove_cv<
-          typename Iterable::iterator::value_type>::type> out(seq.begin(),
-                                                              seq.end());
-      std::sort(out.begin(), out.end(), cmp);
-      return out;
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, sorted);
+        out(seq.begin(), seq.end());
+    std::sort(out.begin(), out.end());
+    return out;
   }
+  template <class Iterable, class C>
+  types::list<
+      typename std::remove_cv<typename Iterable::iterator::value_type>::type>
+  sorted(Iterable const &seq, C const &cmp)
+  {
+    types::list<
+        typename std::remove_cv<typename Iterable::iterator::value_type>::type>
+        out(seq.begin(), seq.end());
+    std::sort(out.begin(), out.end(), cmp);
+    return out;
+  }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, sorted);
 }
+PYTHONIC_NS_END
 
 #endif

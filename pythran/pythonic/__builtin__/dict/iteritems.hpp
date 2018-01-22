@@ -6,25 +6,24 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
+    // See iterkeys for copy explication and TODOs
+    template <class K, class V>
+    auto iteritems(types::dict<K, V> d) -> decltype(d.iteritems())
     {
-
-      // See iterkeys for copy explication and TODOs
-      template <class K, class V>
-      auto iteritems(types::dict<K, V> d) -> decltype(d.iteritems())
-      {
-        return d.iteritems();
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::dict, iteritems);
+      return d.iteritems();
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, iteritems);
   }
 }
+PYTHONIC_NS_END
 
 #endif

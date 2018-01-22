@@ -6,20 +6,19 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  template <class T, size_t N>
+  types::ndarray<T, N> copyto(types::ndarray<T, N> &out,
+                              types::ndarray<T, N> const &a)
   {
-    template <class T, size_t N>
-    types::ndarray<T, N> copyto(types::ndarray<T, N> &out,
-                                types::ndarray<T, N> const &a)
-    {
-      std::copy(a.fbegin(), a.fend(), out.fbegin());
-      return out;
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, copyto);
+    std::copy(a.fbegin(), a.fend(), out.fbegin());
+    return out;
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, copyto);
 }
+PYTHONIC_NS_END
 
 #endif

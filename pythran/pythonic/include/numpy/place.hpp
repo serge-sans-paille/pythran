@@ -6,24 +6,23 @@
 #include "pythonic/include/__builtin__/None.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class T, size_t N, class Tp, size_t Np, class F>
+  types::none_type place(types::ndarray<T, N> &expr,
+                         types::ndarray<Tp, Np> const &mask, F const &values);
 
-  namespace numpy
-  {
-    template <class T, size_t N, class Tp, size_t Np, class F>
-    types::none_type place(types::ndarray<T, N> &expr,
-                           types::ndarray<Tp, Np> const &mask, F const &values);
+  template <class T, size_t N, class M, class F>
+  types::none_type place(types::ndarray<T, N> &expr, M const &mask,
+                         F const &values);
 
-    template <class T, size_t N, class M, class F>
-    types::none_type place(types::ndarray<T, N> &expr, M const &mask,
-                           F const &values);
+  template <class E, class M, class F>
+  types::none_type place(E &, M const &, F const &);
 
-    template <class E, class M, class F>
-    types::none_type place(E &, M const &, F const &);
-
-    DECLARE_FUNCTOR(pythonic::numpy, place);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, place);
 }
+PYTHONIC_NS_END
 
 #endif

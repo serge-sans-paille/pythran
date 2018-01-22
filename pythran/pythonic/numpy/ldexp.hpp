@@ -10,24 +10,23 @@
 
 #include <boost/simd/function/ldexp.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
+    template <class T, class U>
+    double ldexp(T const &v, U const &u)
     {
-      template <class T, class U>
-      double ldexp(T const &v, U const &u)
-      {
-        return boost::simd::ldexp(v, u);
-      }
+      return boost::simd::ldexp(v, u);
     }
+  }
 
 #define NUMPY_NARY_FUNC_NAME ldexp
 #define NUMPY_NARY_FUNC_SYM wrapper::ldexp
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

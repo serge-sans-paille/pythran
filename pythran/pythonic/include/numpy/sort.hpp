@@ -6,17 +6,16 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
-  {
 
-    template <class T, size_t N>
-    types::ndarray<T, N> sort(types::ndarray<T, N> const &expr, long axis = -1);
+  template <class T, size_t N>
+  types::ndarray<T, N> sort(types::ndarray<T, N> const &expr, long axis = -1);
 
-    NUMPY_EXPR_TO_NDARRAY0_DECL(sort);
-    DECLARE_FUNCTOR(pythonic::numpy, sort);
-  }
+  NUMPY_EXPR_TO_NDARRAY0_DECL(sort);
+  DECLARE_FUNCTOR(pythonic::numpy, sort);
 }
+PYTHONIC_NS_END
 
 #endif

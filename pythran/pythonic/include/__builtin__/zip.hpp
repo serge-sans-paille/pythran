@@ -5,21 +5,20 @@
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
+  template <class List0, class... Lists>
+  auto zip(List0 &&s0, Lists &&... lists)
+      -> types::list<decltype(types::make_tuple(*s0.begin(),
+                                                *lists.begin()...))>;
 
-    template <class List0, class... Lists>
-    auto zip(List0 &&s0, Lists &&... lists)
-        -> types::list<decltype(types::make_tuple(*s0.begin(),
-                                                  *lists.begin()...))>;
+  types::empty_list zip();
 
-    types::empty_list zip();
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, zip);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, zip);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,15 +4,14 @@
 #include "pythonic/include/__dispatch__/copy.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace __builtin__
 {
-  namespace __builtin__
+  namespace dict
   {
-    namespace dict
-    {
-      USING_FUNCTOR(copy, pythonic::__dispatch__::functor::copy);
-    }
+    USING_FUNCTOR(copy, pythonic::__dispatch__::functor::copy);
   }
 }
+PYTHONIC_NS_END
 
 #endif

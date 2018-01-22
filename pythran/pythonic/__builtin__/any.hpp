@@ -5,23 +5,22 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
-
-  namespace __builtin__
+  template <class Iterable>
+  bool any(Iterable &&s)
   {
-    template <class Iterable>
-    bool any(Iterable &&s)
-    {
-      auto iend = s.end();
-      for (auto iter = s.begin(); iter != iend; ++iter)
-        if (*iter)
-          return true;
-      return false;
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, any);
+    auto iend = s.end();
+    for (auto iter = s.begin(); iter != iend; ++iter)
+      if (*iter)
+        return true;
+    return false;
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, any);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -9,18 +9,17 @@
 #include <limits>
 #include <sstream>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class dtype = functor::float64>
+  types::ndarray<typename dtype::type, 1>
+  fromstring(types::str const &string, dtype d = dtype(), long count = -1,
+             types::str const &sep = "");
 
-  namespace numpy
-  {
-    template <class dtype = functor::float64>
-    types::ndarray<typename dtype::type, 1>
-    fromstring(types::str const &string, dtype d = dtype(), long count = -1,
-               types::str const &sep = "");
-
-    DECLARE_FUNCTOR(pythonic::numpy, fromstring);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, fromstring);
 }
+PYTHONIC_NS_END
 
 #endif

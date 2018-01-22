@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/__builtin__/abs.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(abs, __builtin__::functor::abs);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(abs, __builtin__::functor::abs);
 }
+PYTHONIC_NS_END
 
 #endif

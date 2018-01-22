@@ -4,17 +4,16 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class E>
+  auto shape(E const &e) -> decltype(e.shape());
 
-    template <class E>
-    auto shape(E const &e) -> decltype(e.shape());
-
-    DECLARE_FUNCTOR(pythonic::numpy, shape)
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, shape)
 }
+PYTHONIC_NS_END
 
 #endif

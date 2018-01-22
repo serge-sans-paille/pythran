@@ -4,30 +4,29 @@
 #include "pythonic/include/types/dict.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
-    {
+    template <class K, class V, class W, class X>
+    V &setdefault(types::dict<K, V> &d, W const &k, X const &default_);
 
-      template <class K, class V, class W, class X>
-      V &setdefault(types::dict<K, V> &d, W const &k, X const &default_);
+    template <class K, class V, class W>
+    types::none<V> setdefault(types::dict<K, V> &d, W const &k);
 
-      template <class K, class V, class W>
-      types::none<V> setdefault(types::dict<K, V> &d, W const &k);
+    template <class K, class V, class W, class X>
+    V setdefault(types::dict<K, V> &&d, W const &k, X const &default_);
 
-      template <class K, class V, class W, class X>
-      V setdefault(types::dict<K, V> &&d, W const &k, X const &default_);
+    template <class K, class V, class W>
+    types::none<V> setdefault(types::dict<K, V> &&d, W const &k);
 
-      template <class K, class V, class W>
-      types::none<V> setdefault(types::dict<K, V> &&d, W const &k);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::dict, setdefault);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::dict, setdefault);
   }
 }
+PYTHONIC_NS_END
 
 #endif

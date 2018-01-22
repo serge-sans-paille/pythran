@@ -4,20 +4,19 @@
 #include "pythonic/include/types/file.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
-    {
+    template <class F, class T>
+    void writelines(F &&f, T const &sequence);
 
-      template <class F, class T>
-      void writelines(F &&f, T const &sequence);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::file, writelines);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::file, writelines);
   }
 }
+PYTHONIC_NS_END
 #endif

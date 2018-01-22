@@ -8,20 +8,20 @@
 #include <pythonic/numpy/partial_sum.hpp>
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace UFUNC_NAME
   {
-    namespace UFUNC_NAME
+    template <class T, class dtype>
+    auto accumulate(T &&a, long axis, dtype d)
+        -> decltype(partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a),
+                                                            axis, d))
     {
-      template <class T, class dtype>
-      auto accumulate(T &&a, long axis, dtype d) -> decltype(
-          partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a), axis, d))
-      {
-        return partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a), axis,
-                                                       d);
-      }
-      DEFINE_FUNCTOR(pythonic::numpy::UFUNC_NAME, accumulate);
+      return partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a), axis,
+                                                     d);
     }
+    DEFINE_FUNCTOR(pythonic::numpy::UFUNC_NAME, accumulate);
   }
 }
+PYTHONIC_NS_END

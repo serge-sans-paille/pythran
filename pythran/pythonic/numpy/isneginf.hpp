@@ -7,25 +7,24 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
+    template <class T>
+    auto isneginf(T const &t)
+        -> decltype(boost::simd::is_inf(t) and boost::simd::is_negative(t))
     {
-      template <class T>
-      auto isneginf(T const &t)
-          -> decltype(boost::simd::is_inf(t) and boost::simd::is_negative(t))
-      {
-        return boost::simd::is_inf(t) and boost::simd::is_negative(t);
-      }
+      return boost::simd::is_inf(t) and boost::simd::is_negative(t);
     }
+  }
 
 #define NUMPY_NARY_FUNC_NAME isneginf
 #define NUMPY_NARY_FUNC_SYM wrapper::isneginf
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

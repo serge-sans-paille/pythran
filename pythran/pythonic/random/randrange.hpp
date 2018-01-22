@@ -8,28 +8,27 @@
 
 #include <cmath>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
-
-  namespace random
+  long randrange(long stop)
   {
-    long randrange(long stop)
-    {
-      return long(random() * stop);
-    }
-
-    long randrange(long start, long stop)
-    {
-      return start + long(random() * (stop - start));
-    }
-
-    long randrange(long start, long stop, long step)
-    {
-      return start + step * long((random() * (stop - start)) / std::abs(step));
-    }
-
-    DEFINE_FUNCTOR(pythonic::random, randrange)
+    return long(random() * stop);
   }
+
+  long randrange(long start, long stop)
+  {
+    return start + long(random() * (stop - start));
+  }
+
+  long randrange(long start, long stop, long step)
+  {
+    return start + step * long((random() * (stop - start)) / std::abs(step));
+  }
+
+  DEFINE_FUNCTOR(pythonic::random, randrange)
 }
+PYTHONIC_NS_END
 
 #endif

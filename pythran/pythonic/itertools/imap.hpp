@@ -15,212 +15,210 @@
 #include <tuple>
 #include <type_traits>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace itertools
 {
-
-  namespace itertools
+  namespace details
   {
-    namespace details
+
+    template <typename Operator, typename... Iters>
+    template <size_t... I>
+    imap_iterator<Operator, Iters...>::imap_iterator(
+        Operator const &op, std::tuple<Iters...> &_iters,
+        utils::index_sequence<I...>)
+        : it(std::get<I>(_iters).begin()...), _op(op)
     {
-
-      template <typename Operator, typename... Iters>
-      template <size_t... I>
-      imap_iterator<Operator, Iters...>::imap_iterator(
-          Operator const &op, std::tuple<Iters...> &_iters,
-          utils::index_sequence<I...>)
-          : it(std::get<I>(_iters).begin()...), _op(op)
-      {
-      }
-
-      template <typename Operator, typename... Iters>
-      template <size_t... I>
-      imap_iterator<Operator, Iters...>::imap_iterator(
-          npos, Operator const &op, std::tuple<Iters...> &_iters,
-          utils::index_sequence<I...>)
-          : it(std::get<I>(_iters).end()...), _op(op)
-      {
-      }
-
-      template <typename Operator, typename... Iters>
-      template <size_t... I>
-      typename imap_res<Operator, Iters...>::type
-          imap_iterator<Operator, Iters...>::get_value(
-              utils::index_sequence<I...>, std::false_type) const
-      {
-        return _op(*std::get<I>(it)...);
-      }
-
-      template <typename Operator, typename... Iters>
-      template <size_t... I>
-      typename imap_res<Operator, Iters...>::type
-          imap_iterator<Operator, Iters...>::get_value(
-              utils::index_sequence<I...>, std::true_type) const
-      {
-        return types::make_tuple(*std::get<I>(it)...);
-      }
-
-      template <typename Operator, typename... Iters>
-      typename imap_res<Operator, Iters...>::type
-          imap_iterator<Operator, Iters...>::
-          operator*() const
-      {
-        return get_value(utils::make_index_sequence<sizeof...(Iters)>{},
-                         std::is_same<Operator, types::none_type>());
-      }
-
-      template <typename Operator, typename... Iters>
-      template <size_t... I>
-      void imap_iterator<Operator, Iters...>::next(utils::index_sequence<I...>)
-      {
-        utils::fwd(++std::get<I>(it)...);
-      }
-
-      template <typename Operator, typename... Iters>
-      imap_iterator<Operator, Iters...> &imap_iterator<Operator, Iters...>::
-      operator++()
-      {
-        next(utils::make_index_sequence<sizeof...(Iters)>{});
-        return *this;
-      }
-
-      template <typename Operator, typename... Iters>
-      template <size_t I>
-      void imap_iterator<Operator, Iters...>::advance(long i, utils::int_<I>)
-      {
-        std::get<I>(it) += i;
-        advance(i, utils::int_<I - 1>());
-      }
-
-      template <typename Operator, typename... Iters>
-      void imap_iterator<Operator, Iters...>::advance(long i, utils::int_<0>)
-      {
-        std::get<0>(it) += i;
-      }
-
-      template <typename Operator, typename... Iters>
-      imap_iterator<Operator, Iters...> &imap_iterator<Operator, Iters...>::
-      operator+=(long i)
-      {
-        advance(i, utils::int_<sizeof...(Iters)-1>());
-        return *this;
-      }
-
-      template <typename Operator, typename... Iters>
-      imap_iterator<Operator, Iters...> imap_iterator<Operator, Iters...>::
-      operator+(long i) const
-      {
-        imap_iterator<Operator, Iters...> other(*this);
-        other += i;
-        return other;
-      }
-
-      template <typename Operator, typename... Iters>
-      template <size_t N>
-      bool imap_iterator<Operator, Iters...>::equal(
-          imap_iterator<Operator, Iters...> const &other, utils::int_<N>) const
-      {
-        return std::get<N>(other.it) == std::get<N>(it) or
-               equal(other, utils::int_<N - 1>());
-      }
-
-      template <typename Operator, typename... Iters>
-      bool imap_iterator<Operator, Iters...>::equal(
-          imap_iterator<Operator, Iters...> const &other, utils::int_<0>) const
-      {
-        return std::get<0>(other.it) == std::get<0>(it);
-      }
-
-      template <typename Operator, typename... Iters>
-      bool imap_iterator<Operator, Iters...>::
-      operator==(imap_iterator<Operator, Iters...> const &other) const
-      {
-        return equal(other, utils::int_<sizeof...(Iters)-1>());
-      }
-
-      template <typename Operator, typename... Iters>
-      bool imap_iterator<Operator, Iters...>::
-      operator!=(imap_iterator<Operator, Iters...> const &other) const
-      {
-        return !(*this == other);
-      }
-
-      template <typename Operator, typename... Iters>
-      bool imap_iterator<Operator, Iters...>::
-      operator<(imap_iterator<Operator, Iters...> const &other) const
-      {
-        return !(*this == other);
-      }
-
-      template <typename Operator, typename... Iters>
-      template <size_t N>
-      long imap_iterator<Operator, Iters...>::min_len(
-          imap_iterator<Operator, Iters...> const &other, utils::int_<N>) const
-      {
-        return std::min(std::get<N>(it) - std::get<N>(other.it),
-                        min_len(other, utils::int_<N - 1>()));
-      }
-
-      template <typename Operator, typename... Iters>
-      long imap_iterator<Operator, Iters...>::min_len(
-          imap_iterator<Operator, Iters...> const &other, utils::int_<0>) const
-      {
-        return std::get<0>(it) - std::get<0>(other.it);
-      }
-
-      template <typename Operator, typename... Iters>
-      long imap_iterator<Operator, Iters...>::
-      operator-(imap_iterator<Operator, Iters...> const &other) const
-      {
-        return min_len(other, utils::int_<sizeof...(Iters)-1>());
-      }
-
-      template <typename Operator, typename... Iters>
-      template <class... Types>
-      imap<Operator, Iters...>::imap(Operator const &_op, Types &&... _iters)
-          : utils::iterator_reminder<true, Iters...>(
-                std::forward<Types>(_iters)...),
-            imap_iterator<Operator, Iters...>(
-                _op, this->value,
-                utils::make_index_sequence<sizeof...(Iters)>{}),
-            end_iter(npos(), _op, this->value,
-                     utils::make_index_sequence<sizeof...(Iters)>{})
-      {
-      }
-
-      template <typename Operator, typename... Iters>
-      typename imap<Operator, Iters...>::iterator &
-      imap<Operator, Iters...>::begin()
-      {
-        return *this;
-      }
-
-      template <typename Operator, typename... Iters>
-      typename imap<Operator, Iters...>::iterator const &
-      imap<Operator, Iters...>::begin() const
-      {
-        return *this;
-      }
-
-      template <typename Operator, typename... Iters>
-      typename imap<Operator, Iters...>::iterator const &
-      imap<Operator, Iters...>::end() const
-      {
-        return end_iter;
-      }
     }
 
-    template <typename Operator, typename... Iter>
-    auto imap(Operator &&_op, Iter &&... iters) -> details::imap<
-        typename std::remove_cv<
-            typename std::remove_reference<Operator>::type>::type,
-        typename std::remove_cv<
-            typename std::remove_reference<Iter>::type>::type...>
+    template <typename Operator, typename... Iters>
+    template <size_t... I>
+    imap_iterator<Operator, Iters...>::imap_iterator(
+        npos, Operator const &op, std::tuple<Iters...> &_iters,
+        utils::index_sequence<I...>)
+        : it(std::get<I>(_iters).end()...), _op(op)
     {
-      return {std::forward<Operator>(_op), std::forward<Iter>(iters)...};
     }
 
-    DEFINE_FUNCTOR(pythonic::itertools, imap);
+    template <typename Operator, typename... Iters>
+    template <size_t... I>
+    typename imap_res<Operator, Iters...>::type
+        imap_iterator<Operator, Iters...>::get_value(
+            utils::index_sequence<I...>, std::false_type) const
+    {
+      return _op(*std::get<I>(it)...);
+    }
+
+    template <typename Operator, typename... Iters>
+    template <size_t... I>
+    typename imap_res<Operator, Iters...>::type
+        imap_iterator<Operator, Iters...>::get_value(
+            utils::index_sequence<I...>, std::true_type) const
+    {
+      return types::make_tuple(*std::get<I>(it)...);
+    }
+
+    template <typename Operator, typename... Iters>
+    typename imap_res<Operator, Iters...>::type
+        imap_iterator<Operator, Iters...>::
+        operator*() const
+    {
+      return get_value(utils::make_index_sequence<sizeof...(Iters)>{},
+                       std::is_same<Operator, types::none_type>());
+    }
+
+    template <typename Operator, typename... Iters>
+    template <size_t... I>
+    void imap_iterator<Operator, Iters...>::next(utils::index_sequence<I...>)
+    {
+      utils::fwd(++std::get<I>(it)...);
+    }
+
+    template <typename Operator, typename... Iters>
+    imap_iterator<Operator, Iters...> &imap_iterator<Operator, Iters...>::
+    operator++()
+    {
+      next(utils::make_index_sequence<sizeof...(Iters)>{});
+      return *this;
+    }
+
+    template <typename Operator, typename... Iters>
+    template <size_t I>
+    void imap_iterator<Operator, Iters...>::advance(long i, utils::int_<I>)
+    {
+      std::get<I>(it) += i;
+      advance(i, utils::int_<I - 1>());
+    }
+
+    template <typename Operator, typename... Iters>
+    void imap_iterator<Operator, Iters...>::advance(long i, utils::int_<0>)
+    {
+      std::get<0>(it) += i;
+    }
+
+    template <typename Operator, typename... Iters>
+    imap_iterator<Operator, Iters...> &imap_iterator<Operator, Iters...>::
+    operator+=(long i)
+    {
+      advance(i, utils::int_<sizeof...(Iters)-1>());
+      return *this;
+    }
+
+    template <typename Operator, typename... Iters>
+    imap_iterator<Operator, Iters...> imap_iterator<Operator, Iters...>::
+    operator+(long i) const
+    {
+      imap_iterator<Operator, Iters...> other(*this);
+      other += i;
+      return other;
+    }
+
+    template <typename Operator, typename... Iters>
+    template <size_t N>
+    bool imap_iterator<Operator, Iters...>::equal(
+        imap_iterator<Operator, Iters...> const &other, utils::int_<N>) const
+    {
+      return std::get<N>(other.it) == std::get<N>(it) or
+             equal(other, utils::int_<N - 1>());
+    }
+
+    template <typename Operator, typename... Iters>
+    bool imap_iterator<Operator, Iters...>::equal(
+        imap_iterator<Operator, Iters...> const &other, utils::int_<0>) const
+    {
+      return std::get<0>(other.it) == std::get<0>(it);
+    }
+
+    template <typename Operator, typename... Iters>
+    bool imap_iterator<Operator, Iters...>::
+    operator==(imap_iterator<Operator, Iters...> const &other) const
+    {
+      return equal(other, utils::int_<sizeof...(Iters)-1>());
+    }
+
+    template <typename Operator, typename... Iters>
+    bool imap_iterator<Operator, Iters...>::
+    operator!=(imap_iterator<Operator, Iters...> const &other) const
+    {
+      return !(*this == other);
+    }
+
+    template <typename Operator, typename... Iters>
+    bool imap_iterator<Operator, Iters...>::
+    operator<(imap_iterator<Operator, Iters...> const &other) const
+    {
+      return !(*this == other);
+    }
+
+    template <typename Operator, typename... Iters>
+    template <size_t N>
+    long imap_iterator<Operator, Iters...>::min_len(
+        imap_iterator<Operator, Iters...> const &other, utils::int_<N>) const
+    {
+      return std::min(std::get<N>(it) - std::get<N>(other.it),
+                      min_len(other, utils::int_<N - 1>()));
+    }
+
+    template <typename Operator, typename... Iters>
+    long imap_iterator<Operator, Iters...>::min_len(
+        imap_iterator<Operator, Iters...> const &other, utils::int_<0>) const
+    {
+      return std::get<0>(it) - std::get<0>(other.it);
+    }
+
+    template <typename Operator, typename... Iters>
+    long imap_iterator<Operator, Iters...>::
+    operator-(imap_iterator<Operator, Iters...> const &other) const
+    {
+      return min_len(other, utils::int_<sizeof...(Iters)-1>());
+    }
+
+    template <typename Operator, typename... Iters>
+    template <class... Types>
+    imap<Operator, Iters...>::imap(Operator const &_op, Types &&... _iters)
+        : utils::iterator_reminder<true, Iters...>(
+              std::forward<Types>(_iters)...),
+          imap_iterator<Operator, Iters...>(
+              _op, this->value, utils::make_index_sequence<sizeof...(Iters)>{}),
+          end_iter(npos(), _op, this->value,
+                   utils::make_index_sequence<sizeof...(Iters)>{})
+    {
+    }
+
+    template <typename Operator, typename... Iters>
+    typename imap<Operator, Iters...>::iterator &
+    imap<Operator, Iters...>::begin()
+    {
+      return *this;
+    }
+
+    template <typename Operator, typename... Iters>
+    typename imap<Operator, Iters...>::iterator const &
+    imap<Operator, Iters...>::begin() const
+    {
+      return *this;
+    }
+
+    template <typename Operator, typename... Iters>
+    typename imap<Operator, Iters...>::iterator const &
+    imap<Operator, Iters...>::end() const
+    {
+      return end_iter;
+    }
   }
+
+  template <typename Operator, typename... Iter>
+  auto imap(Operator &&_op, Iter &&... iters)
+      -> details::imap<typename std::remove_cv<typename std::remove_reference<
+                           Operator>::type>::type,
+                       typename std::remove_cv<
+                           typename std::remove_reference<Iter>::type>::type...>
+  {
+    return {std::forward<Operator>(_op), std::forward<Iter>(iters)...};
+  }
+
+  DEFINE_FUNCTOR(pythonic::itertools, imap);
 }
+PYTHONIC_NS_END
 
 #endif

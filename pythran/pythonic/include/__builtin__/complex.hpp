@@ -4,22 +4,21 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/complex.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace functor
   {
-
-    namespace functor
-    {
-      struct complex {
-        using callable = void;
-        using type = std::complex<double>;
-        // TODO: do not handle string as first argument
-        type operator()(double v0 = 0, double v1 = 0) const;
-      };
-    }
+    struct complex {
+      using callable = void;
+      using type = std::complex<double>;
+      // TODO: do not handle string as first argument
+      type operator()(double v0 = 0, double v1 = 0) const;
+    };
   }
 }
+PYTHONIC_NS_END
 
 #endif

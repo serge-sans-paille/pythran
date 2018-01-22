@@ -7,33 +7,31 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  namespace details
   {
-    namespace details
+    template <class E, class S, size_t... I>
+    auto flip(E const &expr, S const &slices, utils::index_sequence<I...>)
+        -> decltype(expr(slices[I]...))
     {
-      template <class E, class S, size_t... I>
-      auto flip(E const &expr, S const &slices, utils::index_sequence<I...>)
-          -> decltype(expr(slices[I]...))
-      {
-        return expr(slices[I]...);
-      }
+      return expr(slices[I]...);
     }
-
-    template <class E>
-    auto flip(E const &expr, long axis)
-        -> decltype(details::flip(expr, std::array<types::slice, E::value>{},
-                                  utils::make_index_sequence<E::value>{}))
-    {
-      std::array<types::slice, E::value> slices;
-      slices[axis].step = -1;
-      return details::flip(expr, slices,
-                           utils::make_index_sequence<E::value>{});
-    }
-    DEFINE_FUNCTOR(pythonic::numpy, flip);
   }
+
+  template <class E>
+  auto flip(E const &expr, long axis)
+      -> decltype(details::flip(expr, std::array<types::slice, E::value>{},
+                                utils::make_index_sequence<E::value>{}))
+  {
+    std::array<types::slice, E::value> slices;
+    slices[axis].step = -1;
+    return details::flip(expr, slices, utils::make_index_sequence<E::value>{});
+  }
+  DEFINE_FUNCTOR(pythonic::numpy, flip);
 }
+PYTHONIC_NS_END
 
 #endif

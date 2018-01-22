@@ -3,14 +3,13 @@
 
 #include "pythonic/include/operator_/imod.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
-
-    USING_FUNCTOR(__imod__, imod);
-  }
+  USING_FUNCTOR(__imod__, imod);
 }
+PYTHONIC_NS_END
 
 #endif

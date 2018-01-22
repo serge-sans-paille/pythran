@@ -3,16 +3,15 @@
 
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  types::ndarray<long, 1> flatnonzero(E const &expr);
 
-  namespace numpy
-  {
-    template <class E>
-    types::ndarray<long, 1> flatnonzero(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, flatnonzero);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, flatnonzero);
 }
+PYTHONIC_NS_END
 
 #endif

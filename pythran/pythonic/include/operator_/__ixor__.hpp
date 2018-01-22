@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/ixor.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__ixor__, ixor);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__ixor__, ixor);
 }
+PYTHONIC_NS_END
 
 #endif

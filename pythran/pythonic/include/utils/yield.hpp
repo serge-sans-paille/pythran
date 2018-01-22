@@ -7,18 +7,17 @@
 
 #include "pythonic/include/types/generator.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+class yielder
 {
-  class yielder
-  {
-  public:
-    yielder();
+public:
+  yielder();
 
-    bool operator!=(yielder const &other) const;
-    bool operator==(yielder const &other) const;
+  bool operator!=(yielder const &other) const;
+  bool operator==(yielder const &other) const;
 
-    long __generator_state;
-  };
-}
+  long __generator_state;
+};
+PYTHONIC_NS_END
 
 #endif

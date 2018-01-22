@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/or_.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__or__, or_);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__or__, or_);
 }
+PYTHONIC_NS_END
 
 #endif

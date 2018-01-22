@@ -3,20 +3,18 @@
 
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  types::ndarray<typename E::dtype, 1> ediff1d(E const &expr);
 
-  namespace numpy
-  {
-    template <class E>
-    types::ndarray<typename E::dtype, 1> ediff1d(E const &expr);
+  template <class E>
+  auto ediff1d(types::list<E> const &expr) -> decltype(ediff1d(asarray(expr)));
 
-    template <class E>
-    auto ediff1d(types::list<E> const &expr)
-        -> decltype(ediff1d(asarray(expr)));
-
-    DECLARE_FUNCTOR(pythonic::numpy, ediff1d);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, ediff1d);
 }
+PYTHONIC_NS_END
 
 #endif

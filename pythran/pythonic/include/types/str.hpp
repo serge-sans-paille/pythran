@@ -16,233 +16,232 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
 
-  namespace types
+  class str;
+
+  struct const_sliced_str_iterator
+      : std::iterator<std::random_access_iterator_tag, char, ptrdiff_t, char *,
+                      char> {
+    const char *data;
+    long step;
+    const_sliced_str_iterator(char const *data, long step);
+    const_sliced_str_iterator operator++();
+    bool operator<(const_sliced_str_iterator const &other) const;
+    bool operator==(const_sliced_str_iterator const &other) const;
+    bool operator!=(const_sliced_str_iterator const &other) const;
+    char operator*() const;
+    const_sliced_str_iterator operator-(long n) const;
+    long operator-(const_sliced_str_iterator const &other) const;
+  };
+
+  template <class S = slice>
+  class sliced_str
   {
 
-    class str;
+    using container_type = std::string;
+    utils::shared_ref<container_type> data;
 
-    struct const_sliced_str_iterator
-        : std::iterator<std::random_access_iterator_tag, char, ptrdiff_t,
-                        char *, char> {
-      const char *data;
-      long step;
-      const_sliced_str_iterator(char const *data, long step);
-      const_sliced_str_iterator operator++();
-      bool operator<(const_sliced_str_iterator const &other) const;
-      bool operator==(const_sliced_str_iterator const &other) const;
-      bool operator!=(const_sliced_str_iterator const &other) const;
-      char operator*() const;
-      const_sliced_str_iterator operator-(long n) const;
-      long operator-(const_sliced_str_iterator const &other) const;
-    };
+    typename S::normalized_type slicing;
 
-    template <class S = slice>
-    class sliced_str
-    {
+  public:
+    //  types
+    using reference = container_type::reference;
+    using const_reference = container_type::const_reference;
+    using iterator = const_sliced_str_iterator;
+    using const_iterator = const_sliced_str_iterator;
+    using size_type = container_type::size_type;
+    using difference_type = container_type::difference_type;
+    using value_type = container_type::value_type;
+    using allocator_type = container_type::allocator_type;
+    using pointer = container_type::pointer;
+    using const_pointer = container_type::const_pointer;
 
-      using container_type = std::string;
-      utils::shared_ref<container_type> data;
+    // constructor
+    sliced_str();
+    sliced_str(sliced_str const &s);
 
-      typename S::normalized_type slicing;
+    sliced_str(sliced_str const &s, typename S::normalized_type const &sl);
+    sliced_str(types::str const &other, typename S::normalized_type const &s);
 
-    public:
-      //  types
-      using reference = container_type::reference;
-      using const_reference = container_type::const_reference;
-      using iterator = const_sliced_str_iterator;
-      using const_iterator = const_sliced_str_iterator;
-      using size_type = container_type::size_type;
-      using difference_type = container_type::difference_type;
-      using value_type = container_type::value_type;
-      using allocator_type = container_type::allocator_type;
-      using pointer = container_type::pointer;
-      using const_pointer = container_type::const_pointer;
+    // const getter
+    container_type const &get_data() const;
+    typename S::normalized_type const &get_slice() const;
 
-      // constructor
-      sliced_str();
-      sliced_str(sliced_str const &s);
+    // assignment
+    sliced_str &operator=(str const &);
+    sliced_str &operator=(sliced_str const &);
+    str operator+(sliced_str const &);
 
-      sliced_str(sliced_str const &s, typename S::normalized_type const &sl);
-      sliced_str(types::str const &other, typename S::normalized_type const &s);
+    // iterators
+    const_iterator begin() const;
+    const_iterator end() const;
 
-      // const getter
-      container_type const &get_data() const;
-      typename S::normalized_type const &get_slice() const;
+    // size
+    long size() const;
 
-      // assignment
-      sliced_str &operator=(str const &);
-      sliced_str &operator=(sliced_str const &);
-      str operator+(sliced_str const &);
+    // accessor
+    char operator[](long i) const;
+    char &operator[](long i);
+    char fast(long i) const;
+    char &fast(long i);
+    sliced_str<slice> operator[](slice const &s) const;
+    sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
 
-      // iterators
-      const_iterator begin() const;
-      const_iterator end() const;
+    // conversion
+    operator long() const;
+    explicit operator bool() const;
+    bool operator!() const;
 
-      // size
-      long size() const;
+    size_t find(str const &s, size_t pos = 0) const;
+    bool contains(str const &v) const;
 
-      // accessor
-      char operator[](long i) const;
-      char &operator[](long i);
-      char fast(long i) const;
-      char &fast(long i);
-      sliced_str<slice> operator[](slice const &s) const;
-      sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
+    // io
+    template <class SS>
+    friend std::ostream &operator<<(std::ostream &os,
+                                    types::sliced_str<SS> const &v);
+  };
 
-      // conversion
-      operator long() const;
-      explicit operator bool() const;
-      bool operator!() const;
+  class str
+  {
 
-      size_t find(str const &s, size_t pos = 0) const;
-      bool contains(str const &v) const;
+    template <class S>
+    friend class sliced_str;
 
-      // io
-      template <class SS>
-      friend std::ostream &operator<<(std::ostream &os,
-                                      types::sliced_str<SS> const &v);
-    };
+    using container_type = std::string;
+    utils::shared_ref<container_type> data;
 
-    class str
-    {
+  public:
+    static const size_t npos = std::string::npos;
+    static constexpr bool is_vectorizable = false;
 
-      template <class S>
-      friend class sliced_str;
+    using value_type = str; // in Python, a string contains... strings
+    using iterator = container_type::iterator;
+    using reverse_iterator = container_type::reverse_iterator;
+    using const_reverse_iterator = container_type::const_reverse_iterator;
 
-      using container_type = std::string;
-      utils::shared_ref<container_type> data;
+    str();
+    str(std::string const &s);
+    str(std::string &&s);
+    str(const char *s);
+    str(const char *s, size_t n);
+    str(char c);
+    template <class S>
+    str(sliced_str<S> const &other);
+    template <class T>
+    str(T const &begin, T const &end);
 
-    public:
-      static const size_t npos = std::string::npos;
-      static constexpr bool is_vectorizable = false;
+    explicit operator char() const;
+    operator long int() const;
+    operator pythran_long_t() const;
+    explicit operator double() const;
 
-      using value_type = str; // in Python, a string contains... strings
-      using iterator = container_type::iterator;
-      using reverse_iterator = container_type::reverse_iterator;
-      using const_reverse_iterator = container_type::const_reverse_iterator;
+    template <class S>
+    str &operator=(sliced_str<S> const &other);
 
-      str();
-      str(std::string const &s);
-      str(std::string &&s);
-      str(const char *s);
-      str(const char *s, size_t n);
-      str(char c);
-      template <class S>
-      str(sliced_str<S> const &other);
-      template <class T>
-      str(T const &begin, T const &end);
+    types::str &operator+=(types::str const &s);
 
-      explicit operator char() const;
-      operator long int() const;
-      operator pythran_long_t() const;
-      explicit operator double() const;
+    container_type const &get_data() const;
 
-      template <class S>
-      str &operator=(sliced_str<S> const &other);
+    long size() const;
+    auto begin() const -> decltype(data->begin());
+    auto begin() -> decltype(data->begin());
+    auto rbegin() const -> decltype(data->rbegin());
+    auto rbegin() -> decltype(data->rbegin());
+    auto end() const -> decltype(data->end());
+    auto end() -> decltype(data->end());
+    auto rend() const -> decltype(data->rend());
+    auto rend() -> decltype(data->rend());
+    auto c_str() const -> decltype(data->c_str());
+    auto resize(long n) -> decltype(data->resize(n));
+    long find(str const &s, size_t pos = 0) const;
+    bool contains(str const &v) const;
+    long find_first_of(str const &s, size_t pos = 0) const;
+    long find_first_of(const char *s, size_t pos = 0) const;
+    long find_first_not_of(str const &s, size_t pos = 0) const;
+    long find_last_not_of(str const &s, size_t pos = npos) const;
+    str substr(size_t pos = 0, size_t len = npos) const;
+    bool empty() const;
+    int compare(size_t pos, size_t len, str const &str) const;
+    void reserve(size_t n);
+    str &replace(size_t pos, size_t len, str const &str);
 
-      types::str &operator+=(types::str const &s);
+    template <class S>
+    str &operator+=(sliced_str<S> const &other);
+    bool operator==(str const &other) const;
+    bool operator!=(str const &other) const;
+    bool operator<=(str const &other) const;
+    bool operator<(str const &other) const;
+    bool operator>=(str const &other) const;
+    bool operator>(str const &other) const;
+    template <class S>
+    bool operator==(sliced_str<S> const &other) const;
+    sliced_str<slice> operator()(slice const &s) const;
+    sliced_str<contiguous_slice> operator()(contiguous_slice const &s) const;
 
-      container_type const &get_data() const;
+    char operator[](long i) const;
+    char &operator[](long i);
+    char fast(long i) const;
+    char &fast(long i);
 
-      long size() const;
-      auto begin() const -> decltype(data->begin());
-      auto begin() -> decltype(data->begin());
-      auto rbegin() const -> decltype(data->rbegin());
-      auto rbegin() -> decltype(data->rbegin());
-      auto end() const -> decltype(data->end());
-      auto end() -> decltype(data->end());
-      auto rend() const -> decltype(data->rend());
-      auto rend() -> decltype(data->rend());
-      auto c_str() const -> decltype(data->c_str());
-      auto resize(long n) -> decltype(data->resize(n));
-      long find(str const &s, size_t pos = 0) const;
-      bool contains(str const &v) const;
-      long find_first_of(str const &s, size_t pos = 0) const;
-      long find_first_of(const char *s, size_t pos = 0) const;
-      long find_first_not_of(str const &s, size_t pos = 0) const;
-      long find_last_not_of(str const &s, size_t pos = npos) const;
-      str substr(size_t pos = 0, size_t len = npos) const;
-      bool empty() const;
-      int compare(size_t pos, size_t len, str const &str) const;
-      void reserve(size_t n);
-      str &replace(size_t pos, size_t len, str const &str);
-
-      template <class S>
-      str &operator+=(sliced_str<S> const &other);
-      bool operator==(str const &other) const;
-      bool operator!=(str const &other) const;
-      bool operator<=(str const &other) const;
-      bool operator<(str const &other) const;
-      bool operator>=(str const &other) const;
-      bool operator>(str const &other) const;
-      template <class S>
-      bool operator==(sliced_str<S> const &other) const;
-      sliced_str<slice> operator()(slice const &s) const;
-      sliced_str<contiguous_slice> operator()(contiguous_slice const &s) const;
-
-      char operator[](long i) const;
-      char &operator[](long i);
-      char fast(long i) const;
-      char &fast(long i);
-
-      sliced_str<slice> operator[](slice const &s) const;
-      sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
+    sliced_str<slice> operator[](slice const &s) const;
+    sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
 #ifdef USE_GMP
-      char operator[](pythran_long_t const &m) const;
-      char &operator[](pythran_long_t const &m);
-      char fast(pythran_long_t const &m) const;
-      char &fast(pythran_long_t const &m);
+    char operator[](pythran_long_t const &m) const;
+    char &operator[](pythran_long_t const &m);
+    char fast(pythran_long_t const &m) const;
+    char &fast(pythran_long_t const &m);
 #endif
 
-      explicit operator bool() const;
-      long count(types::str const &sub) const;
-    };
-
-    size_t hash_value(str const &x);
-
-    str operator+(str const &self, str const &other);
-
-    template <size_t N>
-    str operator+(str const &self, char const(&other)[N]);
-
-    template <size_t N>
-    str operator+(char const(&self)[N], str const &other);
-
-    bool operator==(char c, str const &s);
-    bool operator==(str const &s, char c);
-    bool operator!=(char c, str const &s);
-    bool operator!=(str const &s, char c);
-    std::ostream &operator<<(std::ostream &os, str const &s);
-  }
-
-  namespace operator_
-  {
-
-    template <size_t N, class Arg>
-    auto mod(const char(&fmt)[N], Arg &&arg)
-        -> decltype(pythonic::types::str(fmt) % std::forward<Arg>(arg));
-  }
-
-  template <>
-  struct assignable<char *> {
-    using type = types::str;
+    explicit operator bool() const;
+    long count(types::str const &sub) const;
   };
-  template <>
-  struct assignable<char const *> {
-    using type = types::str;
-  };
+
+  size_t hash_value(str const &x);
+
+  str operator+(str const &self, str const &other);
+
   template <size_t N>
-  struct assignable<char[N]> {
-    using type = types::str;
-  };
+  str operator+(str const &self, char const(&other)[N]);
+
   template <size_t N>
-  struct assignable<char const[N]> {
-    using type = types::str;
-  };
+  str operator+(char const(&self)[N], str const &other);
+
+  bool operator==(char c, str const &s);
+  bool operator==(str const &s, char c);
+  bool operator!=(char c, str const &s);
+  bool operator!=(str const &s, char c);
+  std::ostream &operator<<(std::ostream &os, str const &s);
 }
+
+namespace operator_
+{
+
+  template <size_t N, class Arg>
+  auto mod(const char(&fmt)[N], Arg &&arg)
+      -> decltype(pythonic::types::str(fmt) % std::forward<Arg>(arg));
+}
+
+template <>
+struct assignable<char *> {
+  using type = types::str;
+};
+template <>
+struct assignable<char const *> {
+  using type = types::str;
+};
+template <size_t N>
+struct assignable<char[N]> {
+  using type = types::str;
+};
+template <size_t N>
+struct assignable<char const[N]> {
+  using type = types::str;
+};
+PYTHONIC_NS_END
 
 pythonic::types::str operator*(pythonic::types::str const &s, long n);
 pythonic::types::str operator*(long t, pythonic::types::str const &s);
@@ -292,29 +291,28 @@ struct __combined<char[N], char[M]> {
 
 #include "pythonic/python/core.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  template <>
-  struct to_python<types::str> {
-    static PyObject *convert(types::str const &v);
-  };
+template <>
+struct to_python<types::str> {
+  static PyObject *convert(types::str const &v);
+};
 
-  template <class S>
-  struct to_python<types::sliced_str<S>> {
-    static PyObject *convert(types::sliced_str<S> const &v);
-  };
-  template <>
-  struct to_python<char> {
-    static PyObject *convert(char l);
-  };
+template <class S>
+struct to_python<types::sliced_str<S>> {
+  static PyObject *convert(types::sliced_str<S> const &v);
+};
+template <>
+struct to_python<char> {
+  static PyObject *convert(char l);
+};
 
-  template <>
-  struct from_python<types::str> {
-    static bool is_convertible(PyObject *obj);
-    static types::str convert(PyObject *obj);
-  };
-}
+template <>
+struct from_python<types::str> {
+  static bool is_convertible(PyObject *obj);
+  static types::str convert(PyObject *obj);
+};
+PYTHONIC_NS_END
 
 #endif
 

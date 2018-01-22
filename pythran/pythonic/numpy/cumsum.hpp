@@ -7,23 +7,22 @@
 #include "pythonic/numpy/partial_sum.hpp"
 #include "pythonic/operator_/iadd.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  template <class E, class... Opts>
+  auto cumsum(E &&e, Opts &&... opts)
+      -> decltype(partial_sum<operator_::functor::add>(
+          std::forward<E>(e), std::forward<Opts>(opts)...))
   {
-
-    template <class E, class... Opts>
-    auto cumsum(E &&e, Opts &&... opts)
-        -> decltype(partial_sum<operator_::functor::add>(
-            std::forward<E>(e), std::forward<Opts>(opts)...))
-    {
-      return partial_sum<operator_::functor::add>(std::forward<E>(e),
-                                                  std::forward<Opts>(opts)...);
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, cumsum);
+    return partial_sum<operator_::functor::add>(std::forward<E>(e),
+                                                std::forward<Opts>(opts)...);
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, cumsum);
 }
+PYTHONIC_NS_END
 
 #endif

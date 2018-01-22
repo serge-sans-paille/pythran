@@ -3,18 +3,17 @@
 
 #include "pythonic/include/__builtin__/file/next.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace io
 {
-  namespace io
-  {
 
-    namespace _io
+  namespace _io
+  {
+    namespace TextIOWrapper
     {
-      namespace TextIOWrapper
-      {
-        USING_FUNCTOR(next, __builtin__::file::functor::next);
-      }
+      USING_FUNCTOR(next, __builtin__::file::functor::next);
     }
   }
 }
+PYTHONIC_NS_END
 #endif

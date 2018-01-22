@@ -4,14 +4,13 @@
 #include "pythonic/include/__dispatch__/count.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace __builtin__
 {
-  namespace __builtin__
+  namespace str
   {
-    namespace str
-    {
-      USING_FUNCTOR(count, pythonic::__dispatch__::functor::count);
-    }
+    USING_FUNCTOR(count, pythonic::__dispatch__::functor::count);
   }
 }
+PYTHONIC_NS_END
 #endif

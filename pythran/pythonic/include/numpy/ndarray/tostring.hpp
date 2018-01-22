@@ -6,20 +6,19 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace ndarray
   {
+    template <class T, size_t N>
+    types::str tostring(types::ndarray<T, N> const &expr);
 
-    namespace ndarray
-    {
-      template <class T, size_t N>
-      types::str tostring(types::ndarray<T, N> const &expr);
-
-      NUMPY_EXPR_TO_NDARRAY0_DECL(tostring);
-      DECLARE_FUNCTOR(pythonic::numpy::ndarray, tostring);
-    }
+    NUMPY_EXPR_TO_NDARRAY0_DECL(tostring);
+    DECLARE_FUNCTOR(pythonic::numpy::ndarray, tostring);
   }
 }
+PYTHONIC_NS_END
 #endif

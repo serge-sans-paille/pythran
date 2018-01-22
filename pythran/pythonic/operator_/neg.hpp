@@ -5,20 +5,19 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
+  template <class A>
+  auto neg(A const &a) -> decltype(-a)
   {
-
-    template <class A>
-    auto neg(A const &a) -> decltype(-a)
-    {
-      return -a;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, neg);
+    return -a;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, neg);
 }
+PYTHONIC_NS_END
 
 #endif

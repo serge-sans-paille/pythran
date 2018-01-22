@@ -3,19 +3,18 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace bisect
 {
+  template <class X, class A>
+  long bisect_left(X const &x, A const &a, long lo = 0);
 
-  namespace bisect
-  {
-    template <class X, class A>
-    long bisect_left(X const &x, A const &a, long lo = 0);
+  template <class X, class A>
+  long bisect_left(X const &x, A const &a, long lo, long hi);
 
-    template <class X, class A>
-    long bisect_left(X const &x, A const &a, long lo, long hi);
-
-    DECLARE_FUNCTOR(pythonic::bisect, bisect_left);
-  }
+  DECLARE_FUNCTOR(pythonic::bisect, bisect_left);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -5,16 +5,15 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  types::str array2string(E &&a);
 
-  namespace numpy
-  {
-    template <class E>
-    types::str array2string(E &&a);
-
-    DECLARE_FUNCTOR(pythonic::numpy, array2string);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, array2string);
 }
+PYTHONIC_NS_END
 
 #endif

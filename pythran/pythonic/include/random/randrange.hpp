@@ -6,17 +6,16 @@
 
 #include <cmath>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
+  long randrange(long stop);
+  long randrange(long start, long stop);
+  long randrange(long start, long stop, long step);
 
-  namespace random
-  {
-    long randrange(long stop);
-    long randrange(long start, long stop);
-    long randrange(long start, long stop, long step);
-
-    DECLARE_FUNCTOR(pythonic::random, randrange)
-  }
+  DECLARE_FUNCTOR(pythonic::random, randrange)
 }
+PYTHONIC_NS_END
 
 #endif

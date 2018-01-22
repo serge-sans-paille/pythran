@@ -6,20 +6,19 @@
 #include "pythonic/utils/functor.hpp"
 #include <random>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
 
-  namespace random
+  double random()
   {
-
-    double random()
-    {
-      static std::uniform_real_distribution<> uniform_distrib(0.0, 1.0);
-      return uniform_distrib(__random_generator);
-    }
-
-    DEFINE_FUNCTOR(pythonic::random, random);
+    static std::uniform_real_distribution<> uniform_distrib(0.0, 1.0);
+    return uniform_distrib(__random_generator);
   }
+
+  DEFINE_FUNCTOR(pythonic::random, random);
 }
+PYTHONIC_NS_END
 
 #endif

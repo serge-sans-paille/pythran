@@ -4,17 +4,16 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/random/random.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
 
-  namespace random
-  {
+  template <class Seq>
+  typename Seq::value_type choice(Seq const &seq);
 
-    template <class Seq>
-    typename Seq::value_type choice(Seq const &seq);
-
-    DECLARE_FUNCTOR(pythonic::random, choice);
-  }
+  DECLARE_FUNCTOR(pythonic::random, choice);
 }
+PYTHONIC_NS_END
 
 #endif

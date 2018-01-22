@@ -5,18 +5,17 @@
 #include "pythonic/include/operator_/iadd.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class... Args>
+  auto sum(Args &&... args) -> decltype(
+      reduce<operator_::functor::iadd>(std::forward<Args>(args)...));
 
-    template <class... Args>
-    auto sum(Args &&... args) -> decltype(
-        reduce<operator_::functor::iadd>(std::forward<Args>(args)...));
-
-    DECLARE_FUNCTOR(pythonic::numpy, sum);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, sum);
 }
+PYTHONIC_NS_END
 
 #endif

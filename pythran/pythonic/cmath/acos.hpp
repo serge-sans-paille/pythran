@@ -8,13 +8,12 @@
 
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace cmath
-  {
-    DEFINE_FUNCTOR_2(acos, std::acos);
-  }
+namespace cmath
+{
+  DEFINE_FUNCTOR_2(acos, std::acos);
 }
+PYTHONIC_NS_END
 
 #endif

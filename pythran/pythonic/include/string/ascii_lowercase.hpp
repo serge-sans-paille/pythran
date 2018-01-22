@@ -3,13 +3,12 @@
 
 #include "pythonic/types/str.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace string
-  {
-    types::str constexpr ascii_lowercase("abcdefghijklmnopqrstuvwxyz");
-  }
+namespace string
+{
+  types::str constexpr ascii_lowercase("abcdefghijklmnopqrstuvwxyz");
 }
+PYTHONIC_NS_END
 
 #endif

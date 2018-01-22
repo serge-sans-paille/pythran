@@ -5,20 +5,19 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
+  template <class A>
+  decltype(~std::declval<A const &>()) invert(A const &a)
   {
-
-    template <class A>
-    decltype(~std::declval<A const &>()) invert(A const &a)
-    {
-      return ~a;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, invert);
+    return ~a;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, invert);
 }
+PYTHONIC_NS_END
 
 #endif

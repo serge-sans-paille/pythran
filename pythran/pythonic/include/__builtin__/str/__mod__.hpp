@@ -4,23 +4,22 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
+    template <class T>
+    types::str __mod__(types::str const &, T const &arg);
+    template <class... Ts>
+    types::str __mod__(types::str const &, std::tuple<Ts...> const &args);
+    template <size_t N, class T>
+    types::str __mod__(types::str const &, types::array<T, N> const &args);
 
-    namespace str
-    {
-      template <class T>
-      types::str __mod__(types::str const &, T const &arg);
-      template <class... Ts>
-      types::str __mod__(types::str const &, std::tuple<Ts...> const &args);
-      template <size_t N, class T>
-      types::str __mod__(types::str const &, types::array<T, N> const &args);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, __mod__);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, __mod__);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -6,22 +6,21 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
+    types::str lstrip(types::str const &self, types::str const &to_del)
     {
-
-      types::str lstrip(types::str const &self, types::str const &to_del)
-      {
-        return {self.begin() + self.find_first_not_of(to_del), self.end()};
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::str, lstrip);
+      return {self.begin() + self.find_first_not_of(to_del), self.end()};
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, lstrip);
   }
 }
+PYTHONIC_NS_END
 #endif

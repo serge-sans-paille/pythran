@@ -6,18 +6,17 @@
 #include <omp.h>
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace omp
 {
-
-  namespace omp
+  long get_wtick()
   {
-    long get_wtick()
-    {
-      return omp_get_wtick();
-    }
-
-    DEFINE_FUNCTOR(pythonic::omp, get_wtick);
+    return omp_get_wtick();
   }
+
+  DEFINE_FUNCTOR(pythonic::omp, get_wtick);
 }
+PYTHONIC_NS_END
 
 #endif

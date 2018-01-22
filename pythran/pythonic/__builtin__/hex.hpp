@@ -8,22 +8,21 @@
 
 #include <sstream>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <class T>
+  types::str hex(T const &v)
   {
-
-    template <class T>
-    types::str hex(T const &v)
-    {
-      std::ostringstream oss;
-      oss << "0x" << std::hex << v;
-      return oss.str();
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, hex);
+    std::ostringstream oss;
+    oss << "0x" << std::hex << v;
+    return oss.str();
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, hex);
 }
+PYTHONIC_NS_END
 
 #endif

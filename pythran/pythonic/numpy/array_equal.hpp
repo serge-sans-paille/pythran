@@ -7,21 +7,20 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/all.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class U, class V>
+  bool array_equal(U const &u, V const &v)
   {
-    template <class U, class V>
-    bool array_equal(U const &u, V const &v)
-    {
-      if (u.shape() == v.shape())
-        return all(types::numpy_expr<operator_::functor::eq, U, V>(u, v));
-      return false;
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, array_equal);
+    if (u.shape() == v.shape())
+      return all(types::numpy_expr<operator_::functor::eq, U, V>(u, v));
+    return false;
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, array_equal);
 }
+PYTHONIC_NS_END
 
 #endif

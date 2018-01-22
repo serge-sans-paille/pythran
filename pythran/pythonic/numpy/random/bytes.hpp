@@ -10,27 +10,26 @@
 #include <random>
 #include <string>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
+
+    types::str bytes(long length)
     {
-
-      types::str bytes(long length)
-      {
-        // dummy init + rewrite is faster than reserve and push_back
-        types::str result(std::string(length, 0));
-        std::uniform_int_distribution<long> distribution{0, 255};
-        std::generate(result.begin(), result.end(), [&]() {
-          return static_cast<char>(distribution(details::generator));
-        });
-        return result;
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::random, bytes);
+      // dummy init + rewrite is faster than reserve and push_back
+      types::str result(std::string(length, 0));
+      std::uniform_int_distribution<long> distribution{0, 255};
+      std::generate(result.begin(), result.end(), [&]() {
+        return static_cast<char>(distribution(details::generator));
+      });
+      return result;
     }
+
+    DEFINE_FUNCTOR(pythonic::numpy::random, bytes);
   }
 }
+PYTHONIC_NS_END
 
 #endif

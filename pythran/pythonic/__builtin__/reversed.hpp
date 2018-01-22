@@ -5,60 +5,58 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
-
-  namespace __builtin__
+  namespace details
   {
-    namespace details
+
+    template <class Iterable>
+    reversed<Iterable>::reversed()
     {
-
-      template <class Iterable>
-      reversed<Iterable>::reversed()
-      {
-      }
-
-      template <class Iterable>
-      reversed<Iterable>::reversed(Iterable const &iterable)
-          : iterable(iterable)
-      {
-      }
-
-      template <class Iterable>
-      typename reversed<Iterable>::iterator reversed<Iterable>::begin()
-      {
-        return iterable.rbegin();
-      }
-
-      template <class Iterable>
-      typename reversed<Iterable>::iterator reversed<Iterable>::end()
-      {
-        return iterable.rend();
-      }
-
-      template <class Iterable>
-      typename reversed<Iterable>::const_iterator
-      reversed<Iterable>::begin() const
-      {
-        return iterable.rbegin();
-      }
-
-      template <class Iterable>
-      typename reversed<Iterable>::const_iterator
-      reversed<Iterable>::end() const
-      {
-        return iterable.rend();
-      }
     }
 
     template <class Iterable>
-    details::reversed<Iterable> reversed(Iterable const &iterable)
+    reversed<Iterable>::reversed(Iterable const &iterable)
+        : iterable(iterable)
     {
-      return {iterable};
     }
 
-    DEFINE_FUNCTOR(pythonic::__builtin__, reversed);
+    template <class Iterable>
+    typename reversed<Iterable>::iterator reversed<Iterable>::begin()
+    {
+      return iterable.rbegin();
+    }
+
+    template <class Iterable>
+    typename reversed<Iterable>::iterator reversed<Iterable>::end()
+    {
+      return iterable.rend();
+    }
+
+    template <class Iterable>
+    typename reversed<Iterable>::const_iterator
+    reversed<Iterable>::begin() const
+    {
+      return iterable.rbegin();
+    }
+
+    template <class Iterable>
+    typename reversed<Iterable>::const_iterator reversed<Iterable>::end() const
+    {
+      return iterable.rend();
+    }
   }
+
+  template <class Iterable>
+  details::reversed<Iterable> reversed(Iterable const &iterable)
+  {
+    return {iterable};
+  }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, reversed);
 }
+PYTHONIC_NS_END
 
 #endif

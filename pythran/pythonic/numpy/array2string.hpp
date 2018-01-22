@@ -7,21 +7,20 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class E>
+  types::str array2string(E &&a)
   {
-    template <class E>
-    types::str array2string(E &&a)
-    {
-      std::ostringstream oss;
-      oss << std::forward<E>(a);
-      return oss.str();
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, array2string);
+    std::ostringstream oss;
+    oss << std::forward<E>(a);
+    return oss.str();
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, array2string);
 }
+PYTHONIC_NS_END
 
 #endif

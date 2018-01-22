@@ -4,17 +4,16 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class E>
+  long argmax(E const &expr);
 
-    template <class E>
-    long argmax(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, argmax);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, argmax);
 }
+PYTHONIC_NS_END
 
 #endif

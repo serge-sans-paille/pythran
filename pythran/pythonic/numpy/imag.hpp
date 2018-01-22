@@ -8,27 +8,26 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/list.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class E>
+  auto imag(E &&expr) -> decltype(
+      __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr)))
   {
-    template <class E>
-    auto imag(E &&expr) -> decltype(
-        __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr)))
-    {
-      return __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr));
-    }
-
-    template <class T>
-    auto imag(types::list<T> const &expr)
-        -> decltype(imag(numpy::functor::asarray{}(expr)))
-    {
-      return imag(numpy::functor::asarray{}(expr));
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, imag);
+    return __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr));
   }
+
+  template <class T>
+  auto imag(types::list<T> const &expr)
+      -> decltype(imag(numpy::functor::asarray{}(expr)))
+  {
+    return imag(numpy::functor::asarray{}(expr));
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, imag);
 }
+PYTHONIC_NS_END
 
 #endif

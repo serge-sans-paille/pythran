@@ -3,37 +3,36 @@
 
 #include "pythonic/include/types/pointer.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
 
-  namespace types
+  template <class T>
+  typename pointer<T>::reference pointer<T>::operator[](long i)
   {
+    return data[i];
+  }
 
-    template <class T>
-    typename pointer<T>::reference pointer<T>::operator[](long i)
-    {
-      return data[i];
-    }
+  template <class T>
+  typename pointer<T>::value_type pointer<T>::operator[](long i) const
+  {
+    return data[i];
+  }
 
-    template <class T>
-    typename pointer<T>::value_type pointer<T>::operator[](long i) const
-    {
-      return data[i];
-    }
+  template <class T>
+  typename pointer<T>::reference pointer<T>::fast(long i)
+  {
+    return data[i];
+  }
 
-    template <class T>
-    typename pointer<T>::reference pointer<T>::fast(long i)
-    {
-      return data[i];
-    }
-
-    template <class T>
-    typename pointer<T>::value_type pointer<T>::fast(long i) const
-    {
-      return data[i];
-    }
+  template <class T>
+  typename pointer<T>::value_type pointer<T>::fast(long i) const
+  {
+    return data[i];
   }
 }
+PYTHONIC_NS_END
 
 namespace std
 {
@@ -61,26 +60,25 @@ namespace std
 
 #ifdef ENABLE_PYTHON_MODULE
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+template <typename T>
+PyObject *to_python<types::pointer<T>>::convert(types::pointer<T> const &v)
 {
-
-  template <typename T>
-  PyObject *to_python<types::pointer<T>>::convert(types::pointer<T> const &v)
-  {
-    return nullptr;
-  }
-
-  template <class T>
-  bool from_python<types::pointer<T>>::is_convertible(PyObject *obj)
-  {
-    return false;
-  }
-  template <class T>
-  types::pointer<T> from_python<types::pointer<T>>::convert(PyObject *obj)
-  {
-    return {nullptr};
-  }
+  return nullptr;
 }
+
+template <class T>
+bool from_python<types::pointer<T>>::is_convertible(PyObject *obj)
+{
+  return false;
+}
+template <class T>
+types::pointer<T> from_python<types::pointer<T>>::convert(PyObject *obj)
+{
+  return {nullptr};
+}
+PYTHONIC_NS_END
 
 #endif
 

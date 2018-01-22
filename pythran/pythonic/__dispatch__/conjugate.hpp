@@ -6,19 +6,18 @@
 #include "pythonic/numpy/conjugate.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __dispatch__
 {
-
-  namespace __dispatch__
+  template <class Any>
+  auto conjugate(Any const &any) -> decltype(numpy::functor::conjugate{}(any))
   {
-    template <class Any>
-    auto conjugate(Any const &any) -> decltype(numpy::functor::conjugate{}(any))
-    {
-      return numpy::functor::conjugate{}(any);
-    }
-
-    DEFINE_FUNCTOR(pythonic::__dispatch__, conjugate);
+    return numpy::functor::conjugate{}(any);
   }
+
+  DEFINE_FUNCTOR(pythonic::__dispatch__, conjugate);
 }
+PYTHONIC_NS_END
 
 #endif

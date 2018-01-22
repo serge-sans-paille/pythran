@@ -5,37 +5,35 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  template <class T>
+  typename T::dtype trace(T const &expr, int offset)
   {
+    static_assert(T::value == 2, "Not Implemented : Trace for dimension != 2");
 
-    template <class T>
-    typename T::dtype trace(T const &expr, int offset)
-    {
-      static_assert(T::value == 2,
-                    "Not Implemented : Trace for dimension != 2");
-
-      typename T::dtype res = 0;
-      long y_offset = std::max(-offset, 0);
-      long x_offset = std::max(0, offset);
-      long size = std::min(expr.flat_size() - y_offset,
-                           expr.fast(0).flat_size() - x_offset);
-      if (offset < 0)
-        for (long i = 0; i < size; i++)
-          res += expr.fast(i + offset).fast(i);
-      else if (offset > 0)
-        for (long i = 0; i < size; i++)
-          res += expr.fast(i).fast(i + offset);
-      else
-        for (long i = 0; i < size; i++)
-          res += expr.fast(i).fast(i);
-      return res;
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, trace)
+    typename T::dtype res = 0;
+    long y_offset = std::max(-offset, 0);
+    long x_offset = std::max(0, offset);
+    long size = std::min(expr.flat_size() - y_offset,
+                         expr.fast(0).flat_size() - x_offset);
+    if (offset < 0)
+      for (long i = 0; i < size; i++)
+        res += expr.fast(i + offset).fast(i);
+    else if (offset > 0)
+      for (long i = 0; i < size; i++)
+        res += expr.fast(i).fast(i + offset);
+    else
+      for (long i = 0; i < size; i++)
+        res += expr.fast(i).fast(i);
+    return res;
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, trace)
 }
+PYTHONIC_NS_END
 
 #endif

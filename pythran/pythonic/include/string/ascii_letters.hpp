@@ -3,15 +3,14 @@
 
 #include "pythonic/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace string
 {
 
-  namespace string
-  {
-
-    types::str constexpr ascii_letters(
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-  }
+  types::str constexpr ascii_letters(
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 }
+PYTHONIC_NS_END
 
 #endif

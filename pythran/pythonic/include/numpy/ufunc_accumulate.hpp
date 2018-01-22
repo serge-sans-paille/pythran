@@ -10,17 +10,17 @@
 
 #include <utility>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace UFUNC_NAME
   {
-    namespace UFUNC_NAME
-    {
-      template <class T, class dtype =
-                             numpy::result_dtype<numpy::functor::UFUNC_NAME, T>>
-      auto accumulate(T &&a, long axis = 0, dtype d = dtype()) -> decltype(
-          partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a), axis, d));
-      DECLARE_FUNCTOR(pythonic::numpy::UFUNC_NAME, accumulate);
-    }
+    template <class T,
+              class dtype = numpy::result_dtype<numpy::functor::UFUNC_NAME, T>>
+    auto accumulate(T &&a, long axis = 0, dtype d = dtype())
+        -> decltype(partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a),
+                                                            axis, d));
+    DECLARE_FUNCTOR(pythonic::numpy::UFUNC_NAME, accumulate);
   }
 }
+PYTHONIC_NS_END

@@ -3,14 +3,13 @@
 
 #include "pythonic/include/types/bool.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
-
-    static const bool False = false;
-  }
+  static const bool False = false;
 }
+PYTHONIC_NS_END
 
 #endif

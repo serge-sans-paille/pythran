@@ -1,38 +1,37 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_RAW_ARRAY_HPP
 #define PYTHONIC_INCLUDE_TYPES_RAW_ARRAY_HPP
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
-
-  namespace types
+  enum class ownership {
+    external,
+    owned,
+  };
+  /* Wrapper class to store an array pointer
+   *
+   * for internal use only, meant to be stored in a shared_ptr
+   */
+  template <class T>
+  class raw_array
   {
-    enum class ownership {
-      external,
-      owned,
-    };
-    /* Wrapper class to store an array pointer
-     *
-     * for internal use only, meant to be stored in a shared_ptr
-     */
-    template <class T>
-    class raw_array
-    {
-      raw_array(raw_array<T> const &) = delete;
-      bool external;
+    raw_array(raw_array<T> const &) = delete;
+    bool external;
 
-    public:
-      using pointer_type = T *;
+  public:
+    using pointer_type = T *;
 
-      T *data;
-      raw_array();
-      raw_array(size_t n);
-      raw_array(T *d, ownership o);
-      raw_array(raw_array<T> &&d);
-      void forget();
+    T *data;
+    raw_array();
+    raw_array(size_t n);
+    raw_array(T *d, ownership o);
+    raw_array(raw_array<T> &&d);
+    void forget();
 
-      ~raw_array();
-    };
-  }
+    ~raw_array();
+  };
 }
+PYTHONIC_NS_END
 
 #endif

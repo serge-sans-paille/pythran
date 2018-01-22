@@ -3,25 +3,24 @@
 
 #include <iterator>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
 
-  namespace types
-  {
-
-    struct empty_iterator : std::iterator<std::forward_iterator_tag, int> {
-      // Empty iterator used, among other things, by empty_set
-      empty_iterator();
-      empty_iterator(empty_iterator const &);
-      bool operator==(empty_iterator const &) const;
-      bool operator!=(empty_iterator const &) const;
-      bool operator<(empty_iterator const &) const;
-      empty_iterator &operator++();
-      empty_iterator &operator++(int);
-      void operator*() const;
-      void operator->() const;
-    };
-  }
+  struct empty_iterator : std::iterator<std::forward_iterator_tag, int> {
+    // Empty iterator used, among other things, by empty_set
+    empty_iterator();
+    empty_iterator(empty_iterator const &);
+    bool operator==(empty_iterator const &) const;
+    bool operator!=(empty_iterator const &) const;
+    bool operator<(empty_iterator const &) const;
+    empty_iterator &operator++();
+    empty_iterator &operator++(int);
+    void operator*() const;
+    void operator->() const;
+  };
 }
+PYTHONIC_NS_END
 
 #endif

@@ -5,17 +5,16 @@
 #include "pythonic/include/operator_/imax.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class... Args>
+  auto max(Args &&... args) -> decltype(
+      reduce<operator_::functor::imax>(std::forward<Args>(args)...));
 
-  namespace numpy
-  {
-    template <class... Args>
-    auto max(Args &&... args) -> decltype(
-        reduce<operator_::functor::imax>(std::forward<Args>(args)...));
-
-    DECLARE_FUNCTOR(pythonic::numpy, max);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, max);
 }
+PYTHONIC_NS_END
 
 #endif

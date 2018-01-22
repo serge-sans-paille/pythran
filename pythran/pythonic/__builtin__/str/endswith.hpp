@@ -6,27 +6,25 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
+    bool endswith(types::str const &s, types::str const &suffix, long start,
+                  long end)
     {
-
-      bool endswith(types::str const &s, types::str const &suffix, long start,
-                    long end)
-      {
-        if (end == -1)
-          end = s.size();
-        long rstart = end - suffix.size();
-        return rstart >= start and
-               s.compare(rstart, suffix.size(), suffix) == 0;
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::str, endswith);
+      if (end == -1)
+        end = s.size();
+      long rstart = end - suffix.size();
+      return rstart >= start and s.compare(rstart, suffix.size(), suffix) == 0;
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, endswith);
   }
 }
+PYTHONIC_NS_END
 #endif

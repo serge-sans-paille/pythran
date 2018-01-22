@@ -8,31 +8,30 @@
 
 #include <iterator>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace bisect
 {
-
-  namespace bisect
+  template <class X, class A>
+  long bisect(X const &x, A const &a, long lo,
+              details::bisect_fun<X, A> const &fun)
   {
-    template <class X, class A>
-    long bisect(X const &x, A const &a, long lo,
-                details::bisect_fun<X, A> const &fun)
-    {
-      if (lo < 0)
-        throw types::ValueError("lo must be non-negative");
-      return std::distance(x.begin(), fun(x.begin() + lo, x.end(), a));
-    }
-
-    template <class X, class A>
-    long bisect(X const &x, A const &a, long lo, long hi,
-                details::bisect_fun<X, A> const &fun)
-    {
-      if (lo < 0)
-        throw types::ValueError("lo must be non-negative");
-      return std::distance(x.begin(), fun(x.begin() + lo, x.begin() + hi, a));
-    }
-
-    DEFINE_FUNCTOR(pythonic::bisect, bisect);
+    if (lo < 0)
+      throw types::ValueError("lo must be non-negative");
+    return std::distance(x.begin(), fun(x.begin() + lo, x.end(), a));
   }
+
+  template <class X, class A>
+  long bisect(X const &x, A const &a, long lo, long hi,
+              details::bisect_fun<X, A> const &fun)
+  {
+    if (lo < 0)
+      throw types::ValueError("lo must be non-negative");
+    return std::distance(x.begin(), fun(x.begin() + lo, x.begin() + hi, a));
+  }
+
+  DEFINE_FUNCTOR(pythonic::bisect, bisect);
 }
+PYTHONIC_NS_END
 
 #endif

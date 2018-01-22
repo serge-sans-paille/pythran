@@ -1,13 +1,12 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_E_HPP
 #define PYTHONIC_INCLUDE_NUMPY_E_HPP
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    double constexpr e = 2.718281828459045235360287471352662498;
-  }
+namespace numpy
+{
+  double constexpr e = 2.718281828459045235360287471352662498;
 }
+PYTHONIC_NS_END
 
 #endif

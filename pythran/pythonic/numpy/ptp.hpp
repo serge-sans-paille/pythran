@@ -6,26 +6,25 @@
 #include "pythonic/numpy/min.hpp"
 #include "pythonic/numpy/max.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class E>
+  auto ptp(E const &expr, long axis)
+      -> decltype(max(expr, axis) - min(expr, axis))
   {
-    template <class E>
-    auto ptp(E const &expr, long axis)
-        -> decltype(max(expr, axis) - min(expr, axis))
-    {
-      return max(expr, axis) - min(expr, axis);
-    }
-
-    template <class E>
-    auto ptp(E const &expr) -> decltype(max(expr) - min(expr))
-    {
-      return max(expr) - min(expr);
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, ptp);
+    return max(expr, axis) - min(expr, axis);
   }
+
+  template <class E>
+  auto ptp(E const &expr) -> decltype(max(expr) - min(expr))
+  {
+    return max(expr) - min(expr);
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, ptp);
 }
+PYTHONIC_NS_END
 
 #endif

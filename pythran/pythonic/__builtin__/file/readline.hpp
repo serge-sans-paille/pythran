@@ -7,27 +7,26 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
+    types::str readline(types::file &f, long size)
     {
-
-      types::str readline(types::file &f, long size)
-      {
-        return size < 0 ? f.readline() : f.readline(size);
-      }
-
-      types::str readline(types::file &&f, long size)
-      {
-        return size < 0 ? f.readline() : f.readline(size);
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::file, readline);
+      return size < 0 ? f.readline() : f.readline(size);
     }
+
+    types::str readline(types::file &&f, long size)
+    {
+      return size < 0 ? f.readline() : f.readline(size);
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, readline);
   }
 }
+PYTHONIC_NS_END
 #endif

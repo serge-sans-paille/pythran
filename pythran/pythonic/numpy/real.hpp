@@ -8,27 +8,26 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/list.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class E>
+  auto real(E &&expr) -> decltype(
+      __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr)))
   {
-    template <class E>
-    auto real(E &&expr) -> decltype(
-        __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr)))
-    {
-      return __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr));
-    }
-
-    template <class T>
-    auto real(types::list<T> const &expr)
-        -> decltype(real(numpy::functor::asarray{}(expr)))
-    {
-      return real(numpy::functor::asarray{}(expr));
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, real);
+    return __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr));
   }
+
+  template <class T>
+  auto real(types::list<T> const &expr)
+      -> decltype(real(numpy::functor::asarray{}(expr)))
+  {
+    return real(numpy::functor::asarray{}(expr));
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, real);
 }
+PYTHONIC_NS_END
 
 #endif

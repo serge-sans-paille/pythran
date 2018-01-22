@@ -9,16 +9,15 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/operator_/lt.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 
 #define NUMPY_NARY_FUNC_NAME less
 #define NUMPY_NARY_FUNC_SYM pythonic::operator_::lt
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

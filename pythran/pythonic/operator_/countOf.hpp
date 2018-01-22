@@ -6,19 +6,18 @@
 #include "pythonic/utils/functor.hpp"
 #include <algorithm>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
-
-  namespace operator_
+  template <class A, class B>
+  long countOf(A const &a, B const &b)
   {
-    template <class A, class B>
-    long countOf(A const &a, B const &b)
-    {
-      return std::count(a.begin(), a.end(), b);
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, countOf);
+    return std::count(a.begin(), a.end(), b);
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, countOf);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,22 +4,21 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/numpy/minimum.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
+  template <class A, class B>
+  auto imin(A const &a, B &&b)
+      -> decltype(numpy::functor::minimum{}(a, std::forward<B>(b)));
 
-    template <class A, class B>
-    auto imin(A const &a, B &&b)
-        -> decltype(numpy::functor::minimum{}(a, std::forward<B>(b)));
+  template <class A, class B>
+  auto imin(A &a, B &&b)
+      -> decltype(a = numpy::functor::minimum{}(a, std::forward<B>(b)));
 
-    template <class A, class B>
-    auto imin(A &a, B &&b)
-        -> decltype(a = numpy::functor::minimum{}(a, std::forward<B>(b)));
-
-    DECLARE_FUNCTOR(pythonic::operator_, imin);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, imin);
 }
+PYTHONIC_NS_END
 
 #endif

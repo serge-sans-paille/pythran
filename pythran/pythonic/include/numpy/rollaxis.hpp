@@ -4,18 +4,17 @@
 #include "pythonic/include/numpy/transpose.hpp"
 #include "pythonic/include/numpy/copy.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class T, size_t N>
+  types::ndarray<T, N> rollaxis(types::ndarray<T, N> const &a, long axis,
+                                long start = 0);
 
-  namespace numpy
-  {
-    template <class T, size_t N>
-    types::ndarray<T, N> rollaxis(types::ndarray<T, N> const &a, long axis,
-                                  long start = 0);
-
-    NUMPY_EXPR_TO_NDARRAY0_DECL(rollaxis);
-    DECLARE_FUNCTOR(pythonic::numpy, rollaxis);
-  }
+  NUMPY_EXPR_TO_NDARRAY0_DECL(rollaxis);
+  DECLARE_FUNCTOR(pythonic::numpy, rollaxis);
 }
+PYTHONIC_NS_END
 
 #endif

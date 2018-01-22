@@ -4,22 +4,21 @@
 #include "pythonic/include/numpy/ndarray/astype.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  namespace ndarray
   {
-    namespace ndarray
-    {
 
-      template <class E, class dtype>
-      auto astype(E &&e, dtype d) -> decltype(asarray(std::forward<E>(e), d))
-      {
-        return asarray(std::forward<E>(e), d);
-      }
-      DEFINE_FUNCTOR(pythonic::numpy::ndarray, astype);
+    template <class E, class dtype>
+    auto astype(E &&e, dtype d) -> decltype(asarray(std::forward<E>(e), d))
+    {
+      return asarray(std::forward<E>(e), d);
     }
+    DEFINE_FUNCTOR(pythonic::numpy::ndarray, astype);
   }
 }
+PYTHONIC_NS_END
 
 #endif

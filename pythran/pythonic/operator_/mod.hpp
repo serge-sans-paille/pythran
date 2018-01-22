@@ -5,45 +5,44 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
+  template <class A, class B>
+  auto mod(A const &a, B const &b) ->
+      typename std::enable_if<std::is_fundamental<A>::value and
+                                  std::is_fundamental<B>::value,
+                              decltype(a % b)>::type
   {
-
-    template <class A, class B>
-    auto mod(A const &a, B const &b) ->
-        typename std::enable_if<std::is_fundamental<A>::value and
-                                    std::is_fundamental<B>::value,
-                                decltype(a % b)>::type
-    {
-      auto t = a % b;
-      return t < 0 ? (t + b) : t;
-    }
-
-    inline double mod(double a, long b)
-    {
-      auto t = std::fmod(a, double(b));
-      return t < 0 ? (t + b) : t;
-    }
-
-    inline double mod(double a, double b)
-    {
-      auto t = std::fmod(a, b);
-      return t < 0 ? (t + b) : t;
-    }
-
-    template <class A, class B>
-    auto mod(A const &a, B const &b) // for ndarrays
-        -> typename std::enable_if<not std::is_fundamental<A>::value or
-                                       not std::is_fundamental<B>::value,
-                                   decltype(a % b)>::type
-    {
-      return a % b;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, mod);
+    auto t = a % b;
+    return t < 0 ? (t + b) : t;
   }
+
+  inline double mod(double a, long b)
+  {
+    auto t = std::fmod(a, double(b));
+    return t < 0 ? (t + b) : t;
+  }
+
+  inline double mod(double a, double b)
+  {
+    auto t = std::fmod(a, b);
+    return t < 0 ? (t + b) : t;
+  }
+
+  template <class A, class B>
+  auto mod(A const &a, B const &b) // for ndarrays
+      -> typename std::enable_if<not std::is_fundamental<A>::value or
+                                     not std::is_fundamental<B>::value,
+                                 decltype(a % b)>::type
+  {
+    return a % b;
+  }
+
+  DEFINE_FUNCTOR(pythonic::operator_, mod);
 }
+PYTHONIC_NS_END
 
 #endif

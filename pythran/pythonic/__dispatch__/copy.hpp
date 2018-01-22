@@ -5,19 +5,18 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __dispatch__
 {
-
-  namespace __dispatch__
+  template <class Any>
+  auto copy(Any const &any) -> decltype(any.copy())
   {
-    template <class Any>
-    auto copy(Any const &any) -> decltype(any.copy())
-    {
-      return any.copy();
-    }
-
-    DEFINE_FUNCTOR(pythonic::__dispatch__, copy);
+    return any.copy();
   }
+
+  DEFINE_FUNCTOR(pythonic::__dispatch__, copy);
 }
+PYTHONIC_NS_END
 
 #endif

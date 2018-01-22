@@ -8,26 +8,25 @@
 
 #include <algorithm>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace bisect
 {
-
-  namespace bisect
+  template <class X, class A>
+  long bisect_left(X const &x, A const &a, long lo)
   {
-    template <class X, class A>
-    long bisect_left(X const &x, A const &a, long lo)
-    {
-      return bisect(x, a, lo, std::lower_bound<typename X::const_iterator, A>);
-    }
-
-    template <class X, class A>
-    long bisect_left(X const &x, A const &a, long lo, long hi)
-    {
-      return bisect(x, a, lo, hi,
-                    std::lower_bound<typename X::const_iterator, A>);
-    }
-
-    DEFINE_FUNCTOR(pythonic::bisect, bisect_left);
+    return bisect(x, a, lo, std::lower_bound<typename X::const_iterator, A>);
   }
+
+  template <class X, class A>
+  long bisect_left(X const &x, A const &a, long lo, long hi)
+  {
+    return bisect(x, a, lo, hi,
+                  std::lower_bound<typename X::const_iterator, A>);
+  }
+
+  DEFINE_FUNCTOR(pythonic::bisect, bisect_left);
 }
+PYTHONIC_NS_END
 
 #endif

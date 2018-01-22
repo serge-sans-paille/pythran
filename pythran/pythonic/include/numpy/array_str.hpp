@@ -3,13 +3,12 @@
 
 #include "pythonic/include/numpy/array2string.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(array_str, array2string);
-  }
+namespace numpy
+{
+  USING_FUNCTOR(array_str, array2string);
 }
+PYTHONIC_NS_END
 
 #endif

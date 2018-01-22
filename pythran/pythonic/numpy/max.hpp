@@ -7,21 +7,20 @@
 #include "pythonic/numpy/reduce.hpp"
 #include "pythonic/operator_/imax.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  template <class... Args>
+  auto max(Args &&... args)
+      -> decltype(reduce<operator_::functor::imax>(std::forward<Args>(args)...))
   {
-
-    template <class... Args>
-    auto max(Args &&... args) -> decltype(
-        reduce<operator_::functor::imax>(std::forward<Args>(args)...))
-    {
-      return reduce<operator_::functor::imax>(std::forward<Args>(args)...);
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, max);
+    return reduce<operator_::functor::imax>(std::forward<Args>(args)...);
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, max);
 }
+PYTHONIC_NS_END
 
 #endif

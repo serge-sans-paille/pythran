@@ -7,15 +7,14 @@
 
 #include <boost/simd/function/log.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 #define NUMPY_NARY_FUNC_NAME log
 #define NUMPY_NARY_FUNC_SYM boost::simd::log
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

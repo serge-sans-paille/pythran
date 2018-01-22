@@ -6,23 +6,22 @@
 #include "pythonic/types/file.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
+    template <class F, class T>
+    void writelines(F &&f, T const &sequence)
     {
-
-      template <class F, class T>
-      void writelines(F &&f, T const &sequence)
-      {
-        f.writelines(sequence);
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::file, writelines);
+      f.writelines(sequence);
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, writelines);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -4,21 +4,20 @@
 #include "pythonic/types/dict.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
-    {
+    template <class K, class V>
+    auto itervalues(types::dict<K, V> d) -> decltype(d.itervalues());
 
-      template <class K, class V>
-      auto itervalues(types::dict<K, V> d) -> decltype(d.itervalues());
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::dict, itervalues);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::dict, itervalues);
   }
 }
+PYTHONIC_NS_END
 
 #endif

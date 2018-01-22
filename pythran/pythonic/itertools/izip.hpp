@@ -5,21 +5,20 @@
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/itertools/imap.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace itertools
 {
 
-  namespace itertools
+  template <typename... Iter>
+  auto izip(Iter &&... iters)
+      -> decltype(imap(__builtin__::None, std::forward<Iter>(iters)...))
   {
-
-    template <typename... Iter>
-    auto izip(Iter &&... iters)
-        -> decltype(imap(__builtin__::None, std::forward<Iter>(iters)...))
-    {
-      return imap(__builtin__::None, std::forward<Iter>(iters)...);
-    }
-
-    DEFINE_FUNCTOR(pythonic::itertools, izip);
+    return imap(__builtin__::None, std::forward<Iter>(iters)...);
   }
+
+  DEFINE_FUNCTOR(pythonic::itertools, izip);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -6,19 +6,18 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include <boost/simd/function/gammaln.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace scipy
+namespace scipy
+{
+  namespace special
   {
-    namespace special
-    {
 
 #define NUMPY_NARY_FUNC_NAME gammaln
 #define NUMPY_NARY_FUNC_SYM boost::simd::gammaln
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-    }
   }
 }
+PYTHONIC_NS_END
 
 #endif

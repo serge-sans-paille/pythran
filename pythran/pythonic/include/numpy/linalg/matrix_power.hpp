@@ -3,19 +3,18 @@
 
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace linalg
   {
-    namespace linalg
-    {
-      template <class E>
-      auto matrix_power(E const &expr, int n)
-          -> decltype(numpy::functor::asarray{}(expr));
+    template <class E>
+    auto matrix_power(E const &expr, int n)
+        -> decltype(numpy::functor::asarray{}(expr));
 
-      DECLARE_FUNCTOR(pythonic::numpy::linalg, matrix_power);
-    }
+    DECLARE_FUNCTOR(pythonic::numpy::linalg, matrix_power);
   }
 }
+PYTHONIC_NS_END
 
 #endif

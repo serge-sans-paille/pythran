@@ -8,27 +8,26 @@
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
+
+    template <class... T>
+    types::ndarray<double, sizeof...(T)> randn(T... shape)
     {
-
-      template <class... T>
-      types::ndarray<double, sizeof...(T)> randn(T... shape)
-      {
-        return standard_normal(types::array<long, sizeof...(T)>{{shape...}});
-      }
-
-      double randn()
-      {
-        return standard_normal();
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::random, randn);
+      return standard_normal(types::array<long, sizeof...(T)>{{shape...}});
     }
+
+    double randn()
+    {
+      return standard_normal();
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::random, randn);
   }
 }
+PYTHONIC_NS_END
 
 #endif

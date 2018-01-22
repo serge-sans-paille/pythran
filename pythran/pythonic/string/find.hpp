@@ -6,20 +6,19 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace string
 {
 
-  namespace string
+  template <class T>
+  long find(types::str const &s, T &&val)
   {
-
-    template <class T>
-    long find(types::str const &s, T &&val)
-    {
-      return s.find(std::forward<T>(val));
-    }
-
-    DEFINE_FUNCTOR(pythonic::string, find);
+    return s.find(std::forward<T>(val));
   }
+
+  DEFINE_FUNCTOR(pythonic::string, find);
 }
+PYTHONIC_NS_END
 
 #endif

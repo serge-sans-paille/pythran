@@ -8,31 +8,30 @@
 #include "pythonic/types/set.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace set
   {
 
-    namespace set
+    template <class T, class F>
+    types::none_type add(types::set<T> &s, F const &value)
     {
-
-      template <class T, class F>
-      types::none_type add(types::set<T> &s, F const &value)
-      {
-        s.add(value);
-        return __builtin__::None;
-      }
-
-      template <class T, class F>
-      types::none_type add(types::set<T> &&s, F const &value)
-      {
-        s.add(value);
-        return __builtin__::None;
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::set, add);
+      s.add(value);
+      return __builtin__::None;
     }
+
+    template <class T, class F>
+    types::none_type add(types::set<T> &&s, F const &value)
+    {
+      s.add(value);
+      return __builtin__::None;
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, add);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -3,16 +3,15 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
+  template <class A, class B>
+  auto ge(A const &a, B const &b) -> decltype(a >= b);
 
-  namespace operator_
-  {
-    template <class A, class B>
-    auto ge(A const &a, B const &b) -> decltype(a >= b);
-
-    DECLARE_FUNCTOR(pythonic::operator_, ge);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, ge);
 }
+PYTHONIC_NS_END
 
 #endif

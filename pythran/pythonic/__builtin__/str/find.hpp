@@ -6,36 +6,35 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
+    long find(types::str const &s, types::str const &value, long start,
+              long end)
     {
-
-      long find(types::str const &s, types::str const &value, long start,
-                long end)
-      {
-        if (end < 0)
-          end += s.size();
-        long a = s.find(value, start);
-        return (a > end) ? -1 : a;
-      }
-
-      long find(types::str const &s, types::str const &value, long start)
-      {
-        return find(s, value, start, s.size());
-      }
-
-      long find(types::str const &s, types::str const &value)
-      {
-        return find(s, value, 0, s.size());
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::str, find);
+      if (end < 0)
+        end += s.size();
+      long a = s.find(value, start);
+      return (a > end) ? -1 : a;
     }
+
+    long find(types::str const &s, types::str const &value, long start)
+    {
+      return find(s, value, start, s.size());
+    }
+
+    long find(types::str const &s, types::str const &value)
+    {
+      return find(s, value, 0, s.size());
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, find);
   }
 }
+PYTHONIC_NS_END
 #endif

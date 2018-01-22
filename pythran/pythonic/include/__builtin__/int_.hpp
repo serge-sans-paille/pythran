@@ -3,28 +3,27 @@
 
 #include "pythonic/include/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace functor
   {
 
-    namespace functor
-    {
+    struct int_ {
+      using callable = void;
+      using type = long;
 
-      struct int_ {
-        using callable = void;
-        using type = long;
-
-        type operator()(char const t[], int base) const;
-        type operator()(types::str const &t, int base) const;
-        template <class T>
-        type operator()(T &&t) const;
-        type operator()(char t) const;
-        type operator()() const;
-      };
-    }
+      type operator()(char const t[], int base) const;
+      type operator()(types::str const &t, int base) const;
+      template <class T>
+      type operator()(T &&t) const;
+      type operator()(char t) const;
+      type operator()() const;
+    };
   }
 }
+PYTHONIC_NS_END
 
 #endif

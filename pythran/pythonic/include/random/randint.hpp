@@ -4,16 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/random/randrange.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
 
-  namespace random
-  {
+  long randint(long a, long b);
 
-    long randint(long a, long b);
-
-    DECLARE_FUNCTOR(pythonic::random, randint);
-  }
+  DECLARE_FUNCTOR(pythonic::random, randint);
 }
+PYTHONIC_NS_END
 
 #endif

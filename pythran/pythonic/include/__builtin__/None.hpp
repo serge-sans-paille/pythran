@@ -3,14 +3,13 @@
 
 #include "pythonic/types/NoneType.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
-
-    types::none_type const None;
-  }
+  types::none_type const None;
 }
+PYTHONIC_NS_END
 
 #endif

@@ -4,15 +4,14 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/random/random.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace random
 {
+  double expovariate(double l);
 
-  namespace random
-  {
-    double expovariate(double l);
-
-    DECLARE_FUNCTOR(pythonic::random, expovariate);
-  }
+  DECLARE_FUNCTOR(pythonic::random, expovariate);
 }
+PYTHONIC_NS_END
 
 #endif

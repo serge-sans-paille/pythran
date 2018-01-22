@@ -6,22 +6,21 @@
 #include "pythonic/types/file.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace file
   {
 
-    namespace file
+    bool isatty(types::file const &f)
     {
-
-      bool isatty(types::file const &f)
-      {
-        return f.isatty();
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::file, isatty);
+      return f.isatty();
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, isatty);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -6,17 +6,16 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 #define NUMPY_NARY_FUNC_NAME power
 #define NUMPY_NARY_FUNC_SYM wrapper::pow
 // no need to adapt_type here, as it may turn a**2 into a**2.f
 #define NUMPY_NARY_RESHAPE_MODE reshape_type
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

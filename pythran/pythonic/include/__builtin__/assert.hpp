@@ -3,9 +3,8 @@
 
 #include "pythonic/include/types/str.hpp"
 
-namespace pythonic
-{
-  void pythran_assert(bool cond, types::str const &what = "");
-}
+PYTHONIC_NS_BEGIN
+void pythran_assert(bool cond, types::str const &what = "");
+PYTHONIC_NS_END
 
 #endif

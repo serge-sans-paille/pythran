@@ -6,32 +6,31 @@
 #include "pythonic/numpy/random/randint.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
+    template <class T>
+    auto random_integers(long min, long max, T &&size)
+        -> decltype(randint(min, max, std::forward<T>(size)))
     {
-      template <class T>
-      auto random_integers(long min, long max, T &&size)
-          -> decltype(randint(min, max, std::forward<T>(size)))
-      {
-        return randint(min, max + 1, std::forward<T>(size));
-      }
-
-      long random_integers(long max)
-      {
-        return randint(1, max + 1);
-      }
-
-      long random_integers(long min, long max)
-      {
-        return randint(min, max + 1);
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::random, random_integers);
+      return randint(min, max + 1, std::forward<T>(size));
     }
+
+    long random_integers(long max)
+    {
+      return randint(1, max + 1);
+    }
+
+    long random_integers(long min, long max)
+    {
+      return randint(min, max + 1);
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::random, random_integers);
   }
 }
+PYTHONIC_NS_END
 
 #endif

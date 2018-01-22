@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/sub.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__sub__, sub);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__sub__, sub);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -3,14 +3,13 @@
 
 #include "pythonic/include/operator_/div.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
-
-    USING_FUNCTOR(__div__, div);
-  }
+  USING_FUNCTOR(__div__, div);
 }
+PYTHONIC_NS_END
 
 #endif

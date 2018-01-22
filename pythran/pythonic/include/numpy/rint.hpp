@@ -5,20 +5,19 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
-    {
-      template <class T>
-      T rint(T const &v);
-    }
+    template <class T>
+    T rint(T const &v);
+  }
 #define NUMPY_NARY_FUNC_NAME rint
 #define NUMPY_NARY_FUNC_SYM wrapper::rint
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

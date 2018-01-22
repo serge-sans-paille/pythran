@@ -9,19 +9,18 @@
 
 #include <type_traits>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  template <class E>
+  constexpr bool isscalar(E const &)
   {
-    template <class E>
-    constexpr bool isscalar(E const &)
-    {
-      return types::is_dtype<E>::value or std::is_same<E, types::str>::value;
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, isscalar);
+    return types::is_dtype<E>::value or std::is_same<E, types::str>::value;
   }
+
+  DEFINE_FUNCTOR(pythonic::numpy, isscalar);
 }
+PYTHONIC_NS_END
 
 #endif

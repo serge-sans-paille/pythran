@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/itruediv.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__itruediv__, itruediv);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__itruediv__, itruediv);
 }
+PYTHONIC_NS_END
 
 #endif

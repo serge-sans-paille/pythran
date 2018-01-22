@@ -9,53 +9,52 @@
 #include "pythonic/numpy/floor_divide.hpp"
 #include <boost/simd/function/pow.hpp>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  // fast path
+  template <class E>
+  auto around(E const &a) -> decltype(functor::rint{}(a))
   {
-    // fast path
-    template <class E>
-    auto around(E const &a) -> decltype(functor::rint{}(a))
-    {
-      return functor::rint{}(a);
-    }
-
-    // generic floating point version, pure numpy_expr
-    template <class E>
-    auto around(E const &a, long decimals) -> typename std::enable_if<
-        !std::is_integral<typename types::dtype_of<E>::type>::value,
-        decltype(functor::rint{}(
-                     a *std::declval<typename types::dtype_of<E>::type>()) /
-                 std::declval<typename types::dtype_of<E>::type>())>::type
-    {
-      typename types::dtype_of<E>::type const fact =
-          boost::simd::pow(10., decimals);
-      return functor::rint{}(a * fact) / fact;
-    }
-
-    // the integer version is only relevant when decimals < 0
-    template <class E>
-    auto around(E const &a, long decimals) -> typename std::enable_if<
-        std::is_integral<typename types::dtype_of<E>::type>::value,
-        decltype(numpy::functor::floor_divide{}(
-                     a, std::declval<typename types::dtype_of<E>::type>()) *
-                 std::declval<typename types::dtype_of<E>::type>())>::type
-    {
-      typename types::dtype_of<E>::type const fact =
-          boost::simd::pow(10L, std::max(0L, -decimals));
-      return pythonic::numpy::functor::floor_divide{}(a, fact) * fact;
-    }
-    // list version
-    template <class E>
-    auto around(types::list<E> const &a, long decimals)
-        -> decltype(around(functor::asarray{}(a), decimals))
-    {
-      return around(functor::asarray{}(a), decimals);
-    }
-
-    DEFINE_FUNCTOR(pythonic::numpy, around);
+    return functor::rint{}(a);
   }
+
+  // generic floating point version, pure numpy_expr
+  template <class E>
+  auto around(E const &a, long decimals) -> typename std::enable_if<
+      !std::is_integral<typename types::dtype_of<E>::type>::value,
+      decltype(functor::rint{}(
+                   a *std::declval<typename types::dtype_of<E>::type>()) /
+               std::declval<typename types::dtype_of<E>::type>())>::type
+  {
+    typename types::dtype_of<E>::type const fact =
+        boost::simd::pow(10., decimals);
+    return functor::rint{}(a * fact) / fact;
+  }
+
+  // the integer version is only relevant when decimals < 0
+  template <class E>
+  auto around(E const &a, long decimals) -> typename std::enable_if<
+      std::is_integral<typename types::dtype_of<E>::type>::value,
+      decltype(numpy::functor::floor_divide{}(
+                   a, std::declval<typename types::dtype_of<E>::type>()) *
+               std::declval<typename types::dtype_of<E>::type>())>::type
+  {
+    typename types::dtype_of<E>::type const fact =
+        boost::simd::pow(10L, std::max(0L, -decimals));
+    return pythonic::numpy::functor::floor_divide{}(a, fact) * fact;
+  }
+  // list version
+  template <class E>
+  auto around(types::list<E> const &a, long decimals)
+      -> decltype(around(functor::asarray{}(a), decimals))
+  {
+    return around(functor::asarray{}(a), decimals);
+  }
+
+  DEFINE_FUNCTOR(pythonic::numpy, around);
 }
+PYTHONIC_NS_END
 
 #endif

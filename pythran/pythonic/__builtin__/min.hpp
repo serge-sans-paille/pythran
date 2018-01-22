@@ -7,22 +7,21 @@
 #include "pythonic/operator_/gt.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <class... Types>
+  typename details::minmax<sizeof...(Types) == 1, Types...>::result_type
+  min(Types &&... values)
   {
-
-    template <class... Types>
-    typename details::minmax<sizeof...(Types) == 1, Types...>::result_type
-    min(Types &&... values)
-    {
-      return details::minmax<sizeof...(Types) == 1, Types...>()(
-          operator_::functor::gt{}, std::forward<Types>(values)...);
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, min);
+    return details::minmax<sizeof...(Types) == 1, Types...>()(
+        operator_::functor::gt{}, std::forward<Types>(values)...);
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, min);
 }
+PYTHONIC_NS_END
 
 #endif

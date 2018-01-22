@@ -7,31 +7,30 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace ndarray
   {
-
-    namespace ndarray
+    template <class E, class F>
+    types::none_type fill(E &&e, F f)
     {
-      template <class E, class F>
-      types::none_type fill(E &&e, F f)
-      {
-        std::fill(e.begin(), e.end(), f);
-        return __builtin__::None;
-      }
-
-      template <class T, size_t N, class F>
-      types::none_type fill(types::ndarray<T, N> &e, F f)
-      {
-        std::fill(e.fbegin(), e.fend(), f);
-        return __builtin__::None;
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::ndarray, fill);
+      std::fill(e.begin(), e.end(), f);
+      return __builtin__::None;
     }
+
+    template <class T, size_t N, class F>
+    types::none_type fill(types::ndarray<T, N> &e, F f)
+    {
+      std::fill(e.fbegin(), e.fend(), f);
+      return __builtin__::None;
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::ndarray, fill);
   }
 }
+PYTHONIC_NS_END
 
 #endif

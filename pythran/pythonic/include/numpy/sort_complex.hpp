@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/numpy/sort.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(sort_complex, sort)
-  }
+namespace numpy
+{
+  USING_FUNCTOR(sort_complex, sort)
 }
+PYTHONIC_NS_END
 
 #endif

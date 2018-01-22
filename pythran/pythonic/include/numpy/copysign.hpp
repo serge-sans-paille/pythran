@@ -8,15 +8,14 @@
 
 #include <boost/simd/function/copysign.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 #define NUMPY_NARY_FUNC_NAME copysign
 #define NUMPY_NARY_FUNC_SYM boost::simd::copysign
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

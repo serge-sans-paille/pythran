@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/isub.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__isub__, isub);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__isub__, isub);
 }
+PYTHONIC_NS_END
 
 #endif

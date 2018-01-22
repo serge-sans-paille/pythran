@@ -6,23 +6,22 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include <boost/simd/function/trunc.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
+    template <class T>
+    double fix(T const &v)
     {
-      template <class T>
-      double fix(T const &v)
-      {
-        return boost::simd::trunc(v);
-      }
+      return boost::simd::trunc(v);
     }
+  }
 #define NUMPY_NARY_FUNC_NAME fix
 #define NUMPY_NARY_FUNC_SYM wrapper::fix
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

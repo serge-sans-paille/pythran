@@ -4,17 +4,16 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/str.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace string
 {
 
-  namespace string
-  {
+  template <class T>
+  long find(types::str const &s, T &&val);
 
-    template <class T>
-    long find(types::str const &s, T &&val);
-
-    DECLARE_FUNCTOR(pythonic::string, find);
-  }
+  DECLARE_FUNCTOR(pythonic::string, find);
 }
+PYTHONIC_NS_END
 
 #endif

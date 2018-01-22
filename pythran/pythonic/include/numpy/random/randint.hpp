@@ -5,26 +5,25 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+namespace numpy
 {
-  namespace numpy
+  namespace random
   {
-    namespace random
-    {
-      template <size_t N>
-      types::ndarray<long, N> randint(long min, long max,
-                                      types::array<long, N> const &shape);
+    template <size_t N>
+    types::ndarray<long, N> randint(long min, long max,
+                                    types::array<long, N> const &shape);
 
-      long randint(long min, long max);
+    long randint(long min, long max);
 
-      long randint(long max);
+    long randint(long max);
 
-      auto randint(long min, long max, long size)
-          -> decltype(randint(min, max, types::array<long, 1>{{size}}));
+    auto randint(long min, long max, long size)
+        -> decltype(randint(min, max, types::array<long, 1>{{size}}));
 
-      DECLARE_FUNCTOR(pythonic::numpy::random, randint);
-    }
+    DECLARE_FUNCTOR(pythonic::numpy::random, randint);
   }
 }
+PYTHONIC_NS_END
 
 #endif

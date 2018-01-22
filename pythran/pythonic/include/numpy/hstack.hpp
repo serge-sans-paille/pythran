@@ -3,18 +3,17 @@
 
 #include <pythonic/include/numpy/concatenate.hpp>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class ArraySequence>
+  auto hstack(ArraySequence &&seq)
+      -> decltype(concatenate(std::forward<ArraySequence>(seq), 1));
 
-    template <class ArraySequence>
-    auto hstack(ArraySequence &&seq)
-        -> decltype(concatenate(std::forward<ArraySequence>(seq), 1));
-
-    DECLARE_FUNCTOR(pythonic::numpy, hstack);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, hstack);
 }
+PYTHONIC_NS_END
 
 #endif

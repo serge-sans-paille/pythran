@@ -8,24 +8,23 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include <boost/simd/function/bitofsign.hpp>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
+    template <class T>
+    bool signbit(T const &v)
     {
-      template <class T>
-      bool signbit(T const &v)
-      {
-        return boost::simd::bitofsign(v);
-      }
+      return boost::simd::bitofsign(v);
     }
+  }
 
 #define NUMPY_NARY_FUNC_NAME signbit
 #define NUMPY_NARY_FUNC_SYM wrapper::signbit
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

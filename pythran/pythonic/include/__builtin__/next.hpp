@@ -5,17 +5,16 @@
 
 #include <utility>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
-  {
+  template <class T>
+  auto next(T &&y) -> decltype(*y);
 
-    template <class T>
-    auto next(T &&y) -> decltype(*y);
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, next);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, next);
 }
+PYTHONIC_NS_END
 
 #endif

@@ -3,16 +3,15 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
+  template <class Iterable>
+  bool any(Iterable &&s);
 
-  namespace __builtin__
-  {
-    template <class Iterable>
-    bool any(Iterable &&s);
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, any);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, any);
 }
+PYTHONIC_NS_END
 
 #endif

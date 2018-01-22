@@ -6,21 +6,20 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace wrapper
   {
-    namespace wrapper
-    {
-      template <class T0, class T1>
-      auto logical_or(T0 const &t0, T1 const &t1) -> decltype(t0 or t1);
-    }
+    template <class T0, class T1>
+    auto logical_or(T0 const &t0, T1 const &t1) -> decltype(t0 or t1);
+  }
 
 #define NUMPY_NARY_FUNC_NAME logical_or
 #define NUMPY_NARY_FUNC_SYM wrapper::logical_or
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

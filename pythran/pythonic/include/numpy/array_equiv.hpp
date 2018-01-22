@@ -4,26 +4,25 @@
 #include "pythonic/include/numpy/array_equal.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class U, class V>
+  typename std::enable_if<U::value == V::value, bool>::type
+  array_equiv(U const &u, V const &v);
 
-    template <class U, class V>
-    typename std::enable_if<U::value == V::value, bool>::type
-    array_equiv(U const &u, V const &v);
+  template <class U, class V>
+      typename std::enable_if <
+      U::value<V::value, bool>::type array_equiv(U const &u, V const &v);
 
-    template <class U, class V>
-        typename std::enable_if <
-        U::value<V::value, bool>::type array_equiv(U const &u, V const &v);
+  template <class U, class V>
+  typename std::enable_if<(U::value > V::value), bool>::type
+  array_equiv(U const &u, V const &v);
 
-    template <class U, class V>
-    typename std::enable_if<(U::value > V::value), bool>::type
-    array_equiv(U const &u, V const &v);
-
-    DECLARE_FUNCTOR(pythonic::numpy, array_equiv);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, array_equiv);
 }
+PYTHONIC_NS_END
 
 #endif

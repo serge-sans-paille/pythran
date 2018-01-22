@@ -4,17 +4,16 @@
 #include "pythonic/include/numpy/eye.hpp"
 #include "pythonic/include/numpy/float64.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class dtype = functor::float64>
+  auto identity(long n, dtype d = dtype()) -> decltype(eye(n, n, 0, d));
 
-    template <class dtype = functor::float64>
-    auto identity(long n, dtype d = dtype()) -> decltype(eye(n, n, 0, d));
-
-    DECLARE_FUNCTOR(pythonic::numpy, identity);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, identity);
 }
+PYTHONIC_NS_END
 
 #endif

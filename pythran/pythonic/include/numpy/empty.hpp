@@ -5,20 +5,19 @@
 #include "pythonic/include/numpy/float64.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <size_t N, class dtype = functor::float64>
+  types::ndarray<typename dtype::type, N>
+  empty(types::array<long, N> const &shape, dtype d = dtype());
 
-  namespace numpy
-  {
-    template <size_t N, class dtype = functor::float64>
-    types::ndarray<typename dtype::type, N>
-    empty(types::array<long, N> const &shape, dtype d = dtype());
+  template <class dtype = functor::float64>
+  types::ndarray<typename dtype::type, 1> empty(long size, dtype d = dtype());
 
-    template <class dtype = functor::float64>
-    types::ndarray<typename dtype::type, 1> empty(long size, dtype d = dtype());
-
-    DECLARE_FUNCTOR(pythonic::numpy, empty);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, empty);
 }
+PYTHONIC_NS_END
 
 #endif

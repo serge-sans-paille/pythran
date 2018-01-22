@@ -5,20 +5,19 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace anonymous
   {
-
-    namespace anonymous
-    {
-      types::file file(types::str const &filename,
-                       types::str const &strmode = "r");
-    }
-
-    DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, file);
+    types::file file(types::str const &filename,
+                     types::str const &strmode = "r");
   }
+
+  DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, file);
 }
+PYTHONIC_NS_END
 
 #endif

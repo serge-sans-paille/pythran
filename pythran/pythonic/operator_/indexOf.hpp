@@ -5,20 +5,19 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
+  template <class A, class B>
+  long indexOf(A const &a, B const &b)
   {
-
-    template <class A, class B>
-    long indexOf(A const &a, B const &b)
-    {
-      return a.index(b);
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, indexOf);
+    return a.index(b);
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, indexOf);
 }
+PYTHONIC_NS_END
 
 #endif

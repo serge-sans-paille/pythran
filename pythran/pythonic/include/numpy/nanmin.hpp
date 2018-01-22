@@ -5,16 +5,15 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/isnan.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  typename E::dtype nanmin(E const &expr);
 
-  namespace numpy
-  {
-    template <class E>
-    typename E::dtype nanmin(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, nanmin);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, nanmin);
 }
+PYTHONIC_NS_END
 
 #endif

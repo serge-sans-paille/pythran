@@ -6,26 +6,25 @@
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
+  template <class T>
+  types::numpy_texpr<types::ndarray<T, 2>>
+      transpose(types::ndarray<T, 2> const &arr);
 
-    template <class T>
-    types::numpy_texpr<types::ndarray<T, 2>>
-        transpose(types::ndarray<T, 2> const &arr);
+  template <class T, size_t N>
+  types::ndarray<T, N> transpose(types::ndarray<T, N> const &a);
 
-    template <class T, size_t N>
-    types::ndarray<T, N> transpose(types::ndarray<T, N> const &a);
+  template <class T, size_t N, size_t M>
+  types::ndarray<T, N> transpose(types::ndarray<T, N> const &a,
+                                 types::array<long, M> const &t);
 
-    template <class T, size_t N, size_t M>
-    types::ndarray<T, N> transpose(types::ndarray<T, N> const &a,
-                                   types::array<long, M> const &t);
-
-    NUMPY_EXPR_TO_NDARRAY0_DECL(transpose);
-    DECLARE_FUNCTOR(pythonic::numpy, transpose);
-  }
+  NUMPY_EXPR_TO_NDARRAY0_DECL(transpose);
+  DECLARE_FUNCTOR(pythonic::numpy, transpose);
 }
+PYTHONIC_NS_END
 
 #endif

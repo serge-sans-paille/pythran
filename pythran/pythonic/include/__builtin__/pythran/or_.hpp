@@ -5,21 +5,20 @@
 #include "pythonic/include/types/combined.hpp"
 #include "pythonic/include/types/lazy.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace pythran
   {
 
-    namespace pythran
-    {
+    template <class T0, class T1>
+    types::lazy_combined_t<T0, T1> or_(T0 &&, T1 &&);
 
-      template <class T0, class T1>
-      types::lazy_combined_t<T0, T1> or_(T0 &&, T1 &&);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::pythran, or_);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::pythran, or_);
   }
 }
+PYTHONIC_NS_END
 
 #endif

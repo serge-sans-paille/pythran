@@ -3,17 +3,16 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace math
 {
 
-  namespace math
-  {
+  template <class T>
+  double degrees(T x);
 
-    template <class T>
-    double degrees(T x);
-
-    DECLARE_FUNCTOR(pythonic::math, degrees);
-  }
+  DECLARE_FUNCTOR(pythonic::math, degrees);
 }
+PYTHONIC_NS_END
 
 #endif

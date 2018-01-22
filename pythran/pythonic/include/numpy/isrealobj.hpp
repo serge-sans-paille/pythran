@@ -5,16 +5,15 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/traits.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class E>
+  constexpr bool isrealobj(E const &expr);
 
-  namespace numpy
-  {
-    template <class E>
-    constexpr bool isrealobj(E const &expr);
-
-    DECLARE_FUNCTOR(pythonic::numpy, isrealobj);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, isrealobj);
 }
+PYTHONIC_NS_END
 
 #endif

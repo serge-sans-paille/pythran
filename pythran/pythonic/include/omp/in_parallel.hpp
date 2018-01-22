@@ -4,15 +4,14 @@
 #include <omp.h>
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace omp
 {
+  bool in_parallel();
 
-  namespace omp
-  {
-    bool in_parallel();
-
-    DECLARE_FUNCTOR(pythonic::omp, in_parallel);
-  }
+  DECLARE_FUNCTOR(pythonic::omp, in_parallel);
 }
+PYTHONIC_NS_END
 
 #endif

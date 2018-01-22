@@ -6,34 +6,33 @@
 #include "pythonic/types/set.hpp"
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace set
   {
-
-    namespace set
+    template <class T, class U>
+    void discard(types::set<T> &set, U const &elem)
     {
-      template <class T, class U>
-      void discard(types::set<T> &set, U const &elem)
-      {
-        set.discard(elem);
-      }
-
-      template <class T, class U>
-      void discard(types::set<T> &&set, U const &elem)
-      {
-        // nothing to be done for lvalue
-      }
-
-      template <class U>
-      void discard(types::empty_set const &set, U const &elem)
-      {
-        // nothing to remove in an empty_set
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::set, discard);
+      set.discard(elem);
     }
+
+    template <class T, class U>
+    void discard(types::set<T> &&set, U const &elem)
+    {
+      // nothing to be done for lvalue
+    }
+
+    template <class U>
+    void discard(types::empty_set const &set, U const &elem)
+    {
+      // nothing to remove in an empty_set
+    }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, discard);
   }
 }
+PYTHONIC_NS_END
 #endif

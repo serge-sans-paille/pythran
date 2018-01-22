@@ -5,18 +5,19 @@
 #include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/numpy/random/generator.hpp"
 
-namespace pythonic
-{
-  namespace numpy
-  {
-    namespace random
-    {
-      template <class T>
-      types::none_type shuffle(T &seq);
+PYTHONIC_NS_BEGIN
 
-      DECLARE_FUNCTOR(pythonic::numpy::random, shuffle);
-    }
+namespace numpy
+{
+  namespace random
+  {
+    template <class T>
+    types::none_type shuffle(T &seq);
+
+    DECLARE_FUNCTOR(pythonic::numpy::random, shuffle);
   }
 }
+
+PYTHONIC_NS_END
 
 #endif

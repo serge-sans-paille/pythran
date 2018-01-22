@@ -6,42 +6,41 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace ndarray
   {
 
-    namespace ndarray
+    template <class T, size_t N>
+    T item(types::ndarray<T, N> const &expr, long i)
     {
-
-      template <class T, size_t N>
-      T item(types::ndarray<T, N> const &expr, long i)
-      {
-        if (i < 0)
-          i += expr.flat_size();
-        return *(expr.fbegin() + i);
-      }
-
-      template <class E, size_t N>
-      auto item(E &&expr, types::array<long, N> const &i) -> decltype(expr[i])
-      {
-        return expr[i];
-      }
-
-      // only for compatibility purpose, very bad impl
-      template <class E>
-      typename std::decay<E>::type::dtype item(E &&expr, long i)
-      {
-        if (i < 0)
-          i += expr.flat_size();
-        return types::ndarray<typename std::decay<E>::type::dtype,
-                              std::decay<E>::type::value>{
-            std::forward<E>(expr)}.flat()[i];
-      }
-
-      DEFINE_FUNCTOR(pythonic::numpy::ndarray, item);
+      if (i < 0)
+        i += expr.flat_size();
+      return *(expr.fbegin() + i);
     }
+
+    template <class E, size_t N>
+    auto item(E &&expr, types::array<long, N> const &i) -> decltype(expr[i])
+    {
+      return expr[i];
+    }
+
+    // only for compatibility purpose, very bad impl
+    template <class E>
+    typename std::decay<E>::type::dtype item(E &&expr, long i)
+    {
+      if (i < 0)
+        i += expr.flat_size();
+      return types::ndarray<typename std::decay<E>::type::dtype,
+                            std::decay<E>::type::value>{
+          std::forward<E>(expr)}.flat()[i];
+    }
+
+    DEFINE_FUNCTOR(pythonic::numpy::ndarray, item);
   }
 }
+PYTHONIC_NS_END
 #endif

@@ -4,17 +4,16 @@
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
+  types::list<long> range(long e);
 
-  namespace __builtin__
-  {
-    types::list<long> range(long e);
+  types::list<long> range(long b, long e, long s = 1);
 
-    types::list<long> range(long b, long e, long s = 1);
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, range);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, range);
 }
+PYTHONIC_NS_END
 
 #endif

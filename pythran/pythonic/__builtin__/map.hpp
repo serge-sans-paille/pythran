@@ -12,66 +12,63 @@
 
 #include <utility>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace details
   {
-
-    namespace details
+    template <typename Operator, typename List0, typename... Iterators>
+    auto map(Operator &op, List0 &&seq, Iterators... iterators)
+        -> types::list<decltype(op(*seq.begin(), *iterators...))>
     {
-      template <typename Operator, typename List0, typename... Iterators>
-      auto map(Operator &op, List0 &&seq, Iterators... iterators)
-          -> types::list<decltype(op(*seq.begin(), *iterators...))>
-      {
-        types::list<decltype(op(*seq.begin(), *iterators...))> s(0);
-        utils::reserve(s, seq);
-        for (auto const &iseq : seq) {
-          s.push_back(op(iseq, *iterators...));
-          utils::fwd(++iterators...);
-        }
-        return s;
+      types::list<decltype(op(*seq.begin(), *iterators...))> s(0);
+      utils::reserve(s, seq);
+      for (auto const &iseq : seq) {
+        s.push_back(op(iseq, *iterators...));
+        utils::fwd(++iterators...);
       }
-
-      template <typename List0, typename... Iterators>
-      auto map(types::none_type, List0 &&seq, Iterators... iterators)
-          -> types::list<decltype(types::make_tuple(*seq.begin(),
-                                                    *iterators...))>
-      {
-        types::list<decltype(types::make_tuple(*seq.begin(), *iterators...))> s(
-            0);
-        utils::reserve(s, seq);
-        for (auto const &iseq : seq) {
-          s.push_back(types::make_tuple(iseq, *iterators...));
-          utils::fwd(++iterators...);
-        }
-        return s;
-      }
-
-      template <typename List0>
-      types::list<
-          typename std::remove_reference<List0>::type::iterator::value_type>
-      map(types::none_type, List0 &&seq)
-      {
-        types::list<typename std::remove_reference<
-            List0>::type::iterator::value_type> s(0);
-        utils::reserve(s, seq);
-        for (auto const &iseq : seq)
-          s.push_back(iseq);
-        return s;
-      }
+      return s;
     }
 
-    template <typename Operator, typename List0, typename... ListN>
-    auto map(Operator op, List0 &&seq, ListN &&... lists)
-        -> decltype(details::map(op, std::forward<List0>(seq),
-                                 lists.begin()...))
+    template <typename List0, typename... Iterators>
+    auto map(types::none_type, List0 &&seq, Iterators... iterators)
+        -> types::list<decltype(types::make_tuple(*seq.begin(), *iterators...))>
     {
-      return details::map(op, std::forward<List0>(seq), lists.begin()...);
+      types::list<decltype(types::make_tuple(*seq.begin(), *iterators...))> s(
+          0);
+      utils::reserve(s, seq);
+      for (auto const &iseq : seq) {
+        s.push_back(types::make_tuple(iseq, *iterators...));
+        utils::fwd(++iterators...);
+      }
+      return s;
     }
 
-    DEFINE_FUNCTOR(pythonic::__builtin__, map);
+    template <typename List0>
+    types::list<
+        typename std::remove_reference<List0>::type::iterator::value_type>
+    map(types::none_type, List0 &&seq)
+    {
+      types::list<typename std::remove_reference<
+          List0>::type::iterator::value_type> s(0);
+      utils::reserve(s, seq);
+      for (auto const &iseq : seq)
+        s.push_back(iseq);
+      return s;
+    }
   }
+
+  template <typename Operator, typename List0, typename... ListN>
+  auto map(Operator op, List0 &&seq, ListN &&... lists)
+      -> decltype(details::map(op, std::forward<List0>(seq), lists.begin()...))
+  {
+    return details::map(op, std::forward<List0>(seq), lists.begin()...);
+  }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, map);
 }
+PYTHONIC_NS_END
 
 #endif

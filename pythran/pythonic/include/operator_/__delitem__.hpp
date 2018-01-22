@@ -3,14 +3,13 @@
 
 #include "pythonic/include/operator_/delitem.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
-
-    USING_FUNCTOR(__delitem__, delitem);
-  }
+  USING_FUNCTOR(__delitem__, delitem);
 }
+PYTHONIC_NS_END
 
 #endif

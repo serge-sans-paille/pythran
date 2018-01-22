@@ -5,17 +5,16 @@
 #include "pythonic/include/numpy/nonzero.hpp"
 #include "pythonic/include/numpy/copy.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
+namespace numpy
+{
+  namespace impl
   {
-    namespace impl
-    {
-      template <class E, class F, class G>
-      typename __combined<F, G>::type where(E const &cond, F const &true_,
-                                            G const &false_);
-    }
+    template <class E, class F, class G>
+    typename __combined<F, G>::type where(E const &cond, F const &true_,
+                                          G const &false_);
+  }
 
 #define NUMPY_NARY_EXTRA_METHOD                                                \
   template <class E>                                                           \
@@ -28,7 +27,7 @@ namespace pythonic
 #define NUMPY_NARY_FUNC_SYM impl::where
 #define NUMPY_NARY_RESHAPE_MODE reshape_type
 #include "pythonic/include/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

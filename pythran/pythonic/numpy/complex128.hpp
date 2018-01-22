@@ -8,30 +8,29 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
-
-  namespace numpy
+  namespace details
   {
-    namespace details
+
+    std::complex<double> complex128()
     {
-
-      std::complex<double> complex128()
-      {
-        return {};
-      }
-
-      template <class V>
-      std::complex<double> complex128(V v)
-      {
-        return v;
-      }
+      return {};
     }
+
+    template <class V>
+    std::complex<double> complex128(V v)
+    {
+      return v;
+    }
+  }
 
 #define NUMPY_NARY_FUNC_NAME complex128
 #define NUMPY_NARY_FUNC_SYM details::complex128
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

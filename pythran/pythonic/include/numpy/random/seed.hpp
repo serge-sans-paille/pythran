@@ -3,18 +3,19 @@
 
 #include "pythonic/include/numpy/random/generator.hpp"
 
-namespace pythonic
-{
-  namespace numpy
-  {
-    namespace random
-    {
-      types::none_type seed(long s);
-      types::none_type seed(types::none_type _ = {});
+PYTHONIC_NS_BEGIN
 
-      DECLARE_FUNCTOR(pythonic::numpy::random, seed);
-    }
+namespace numpy
+{
+  namespace random
+  {
+    types::none_type seed(long s);
+    types::none_type seed(types::none_type _ = {});
+
+    DECLARE_FUNCTOR(pythonic::numpy::random, seed);
   }
 }
+
+PYTHONIC_NS_END
 
 #endif

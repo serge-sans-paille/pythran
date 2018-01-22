@@ -3,14 +3,13 @@
 
 #include "pythonic/include/operator_/and_.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
-
-    USING_FUNCTOR(__and__, and_);
-  }
+  USING_FUNCTOR(__and__, and_);
 }
+PYTHONIC_NS_END
 
 #endif

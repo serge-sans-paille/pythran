@@ -3,13 +3,12 @@
 
 #include "pythonic/include/numpy/cumprod.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
-    USING_FUNCTOR(cumproduct, cumprod);
-  }
+namespace numpy
+{
+  USING_FUNCTOR(cumproduct, cumprod);
 }
+PYTHONIC_NS_END
 
 #endif

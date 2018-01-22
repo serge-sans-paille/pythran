@@ -6,17 +6,15 @@
 #include "pythonic/include/numpy/abs.hpp"
 #include "pythonic/include/numpy/isfinite.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
+  template <class U, class V>
+  bool allclose(U const &u, V const &v, double rtol = 1e-5, double atol = 1e-8);
 
-  namespace numpy
-  {
-    template <class U, class V>
-    bool allclose(U const &u, V const &v, double rtol = 1e-5,
-                  double atol = 1e-8);
-
-    DECLARE_FUNCTOR(pythonic::numpy, allclose);
-  }
+  DECLARE_FUNCTOR(pythonic::numpy, allclose);
 }
+PYTHONIC_NS_END
 
 #endif

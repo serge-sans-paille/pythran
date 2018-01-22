@@ -6,25 +6,24 @@
 #include "pythonic/include/types/set.hpp"
 #include "pythonic/include/types/dict.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
+  template <class A, class B>
+  A iconcat(A a, B const &b);
 
-  namespace operator_
-  {
-    template <class A, class B>
-    A iconcat(A a, B const &b);
+  template <class A>
+  auto iconcat(types::empty_list a, types::list<A> b) -> decltype(b);
 
-    template <class A>
-    auto iconcat(types::empty_list a, types::list<A> b) -> decltype(b);
+  template <class K, class V>
+  auto iconcat(types::empty_dict a, types::dict<K, V> b) -> decltype(b);
 
-    template <class K, class V>
-    auto iconcat(types::empty_dict a, types::dict<K, V> b) -> decltype(b);
+  template <class A>
+  auto iconcat(types::empty_set a, types::set<A> b) -> decltype(b);
 
-    template <class A>
-    auto iconcat(types::empty_set a, types::set<A> b) -> decltype(b);
-
-    DECLARE_FUNCTOR(pythonic::operator_, iconcat);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, iconcat);
 }
+PYTHONIC_NS_END
 
 #endif

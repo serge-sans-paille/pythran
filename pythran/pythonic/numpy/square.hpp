@@ -10,16 +10,15 @@
 #include "pythonic/types/long.hpp"
 #endif
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace numpy
-  {
+namespace numpy
+{
 
 #define NUMPY_NARY_FUNC_NAME square
 #define NUMPY_NARY_FUNC_SYM wrapper::square
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

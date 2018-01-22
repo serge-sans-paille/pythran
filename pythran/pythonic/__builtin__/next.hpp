@@ -8,25 +8,24 @@
 
 #include <utility>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  template <class T>
+  auto next(T &&y) -> decltype(*y)
   {
-
-    template <class T>
-    auto next(T &&y) -> decltype(*y)
-    {
-      if ((decltype(y.begin()))y != y.end()) {
-        auto &&tmp = *y;
-        ++y;
-        return tmp;
-      } else
-        throw types::StopIteration();
-    }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__, next);
+    if ((decltype(y.begin()))y != y.end()) {
+      auto &&tmp = *y;
+      ++y;
+      return tmp;
+    } else
+      throw types::StopIteration();
   }
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, next);
 }
+PYTHONIC_NS_END
 
 #endif

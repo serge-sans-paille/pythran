@@ -3,14 +3,13 @@
 
 #include "pythonic/include/numpy/asarray.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
-  {
-
-    USING_FUNCTOR(ascontiguousarray, asarray);
-  }
+  USING_FUNCTOR(ascontiguousarray, asarray);
 }
+PYTHONIC_NS_END
 
 #endif

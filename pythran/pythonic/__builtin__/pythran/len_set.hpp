@@ -7,25 +7,24 @@
 
 #include <set>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace pythran
   {
 
-    namespace pythran
+    template <class Iterable>
+    long len_set(Iterable const &s)
     {
-
-      template <class Iterable>
-      long len_set(Iterable const &s)
-      {
-        return std::set<typename Iterable::iterator::value_type>(
-                   s.begin(), s.end()).size();
-      }
-
-      DEFINE_FUNCTOR(pythonic::__builtin__::pythran, len_set);
+      return std::set<typename Iterable::iterator::value_type>(s.begin(),
+                                                               s.end()).size();
     }
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, len_set);
   }
 }
+PYTHONIC_NS_END
 
 #endif

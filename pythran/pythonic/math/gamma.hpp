@@ -6,18 +6,17 @@
 #include "pythonic/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace math
 {
-
-  namespace math
+  double gamma(double x)
   {
-    double gamma(double x)
-    {
-      return std::tgamma(x);
-    }
-
-    DEFINE_FUNCTOR(pythonic::math, gamma);
+    return std::tgamma(x);
   }
+
+  DEFINE_FUNCTOR(pythonic::math, gamma);
 }
+PYTHONIC_NS_END
 
 #endif

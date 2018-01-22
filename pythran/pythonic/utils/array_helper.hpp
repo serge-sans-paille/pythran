@@ -3,43 +3,42 @@
 
 #include "pythonic/include/utils/array_helper.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+/* recursively return the value at the position given by `indices' in the
+ * `self' "array like". It may be a sub array instead of real value.
+ * indices[0] is the coordinate for the first dimension and indices[M-1] is
+ * for the last one.
+ */
+template <size_t L>
+template <class A, size_t M>
+auto nget<L>::operator()(A &&self, types::array<long, M> const &indices)
+    -> decltype(nget<L - 1>()(std::forward<A>(self)[0], indices))
 {
-
-  /* recursively return the value at the position given by `indices' in the
-   * `self' "array like". It may be a sub array instead of real value.
-   * indices[0] is the coordinate for the first dimension and indices[M-1] is
-   * for the last one.
-   */
-  template <size_t L>
-  template <class A, size_t M>
-  auto nget<L>::operator()(A &&self, types::array<long, M> const &indices)
-      -> decltype(nget<L - 1>()(std::forward<A>(self)[0], indices))
-  {
-    return nget<L - 1>()(std::forward<A>(self)[indices[M - L - 1]], indices);
-  }
-
-  template <size_t L>
-  template <class A, size_t M>
-  auto nget<L>::fast(A &&self, types::array<long, M> const &indices)
-      -> decltype(nget<L - 1>().fast(std::forward<A>(self).fast(0), indices))
-  {
-    return nget<L - 1>().fast(std::forward<A>(self).fast(indices[M - L - 1]),
-                              indices);
-  }
-
-  template <class A, size_t M>
-  auto nget<0>::operator()(A &&self, types::array<long, M> const &indices)
-      -> decltype(std::forward<A>(self)[indices[M - 1]])
-  {
-    return std::forward<A>(self)[indices[M - 1]];
-  }
-
-  template <class A, size_t M>
-  auto nget<0>::fast(A &&self, types::array<long, M> const &indices)
-      -> decltype(std::forward<A>(self).fast(indices[M - 1]))
-  {
-    return std::forward<A>(self).fast(indices[M - 1]);
-  }
+  return nget<L - 1>()(std::forward<A>(self)[indices[M - L - 1]], indices);
 }
+
+template <size_t L>
+template <class A, size_t M>
+auto nget<L>::fast(A &&self, types::array<long, M> const &indices)
+    -> decltype(nget<L - 1>().fast(std::forward<A>(self).fast(0), indices))
+{
+  return nget<L - 1>().fast(std::forward<A>(self).fast(indices[M - L - 1]),
+                            indices);
+}
+
+template <class A, size_t M>
+auto nget<0>::operator()(A &&self, types::array<long, M> const &indices)
+    -> decltype(std::forward<A>(self)[indices[M - 1]])
+{
+  return std::forward<A>(self)[indices[M - 1]];
+}
+
+template <class A, size_t M>
+auto nget<0>::fast(A &&self, types::array<long, M> const &indices)
+    -> decltype(std::forward<A>(self).fast(indices[M - 1]))
+{
+  return std::forward<A>(self).fast(indices[M - 1]);
+}
+PYTHONIC_NS_END
 #endif

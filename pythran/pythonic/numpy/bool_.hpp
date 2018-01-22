@@ -8,31 +8,30 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace numpy
 {
 
-  namespace numpy
+  namespace details
   {
 
-    namespace details
+    bool bool_()
     {
-
-      bool bool_()
-      {
-        return bool();
-      }
-
-      template <class V>
-      bool bool_(V v)
-      {
-        return v;
-      }
+      return bool();
     }
+
+    template <class V>
+    bool bool_(V v)
+    {
+      return v;
+    }
+  }
 
 #define NUMPY_NARY_FUNC_NAME bool_
 #define NUMPY_NARY_FUNC_SYM details::bool_
 #include "pythonic/types/numpy_nary_expr.hpp"
-  }
 }
+PYTHONIC_NS_END
 
 #endif

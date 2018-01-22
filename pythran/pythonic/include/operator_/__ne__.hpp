@@ -3,13 +3,12 @@
 
 #include "pythonic/include/operator_/ne.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(__ne__, ne);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(__ne__, ne);
 }
+PYTHONIC_NS_END
 
 #endif

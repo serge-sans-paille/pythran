@@ -18,243 +18,242 @@
 #include <iterator>
 #include <unordered_map>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace types
 {
 
-  namespace types
-  {
+  static const size_t DEFAULT_DICT_CAPACITY = 64;
 
-    static const size_t DEFAULT_DICT_CAPACITY = 64;
+  struct empty_dict;
 
-    struct empty_dict;
-
-    template <class I>
-    struct key_iterator_adaptator : public I {
-      using value_type = typename I::value_type::first_type;
-      using pointer = typename I::value_type::first_type *;
-      using reference = typename I::value_type::first_type &;
-      key_iterator_adaptator();
-      key_iterator_adaptator(I const &i);
-      value_type operator*();
-    };
-
-    template <class I>
-    struct value_iterator_adaptator : public I {
-      using value_type = typename I::value_type::second_type;
-      using pointer = typename I::value_type::second_type *;
-      using reference = typename I::value_type::second_type &;
-      value_iterator_adaptator();
-      value_iterator_adaptator(I const &i);
-      value_type operator*();
-    };
-
-    template <class I>
-    struct dict_iterator {
-      typedef I iterator;
-      I _begin;
-      I _end;
-      dict_iterator(I b, I e);
-      iterator begin();
-      iterator end();
-    };
-
-    template <class D>
-    struct dict_items {
-      using iterator = typename D::item_const_iterator;
-      D data;
-      dict_items();
-      dict_items(D const &d);
-      iterator begin() const;
-      iterator end() const;
-    };
-
-    template <class D>
-    struct dict_keys {
-      using iterator = typename D::key_const_iterator;
-      D data;
-      dict_keys();
-      dict_keys(D const &d);
-      iterator begin() const;
-      iterator end() const;
-    };
-
-    template <class D>
-    struct dict_values {
-      using iterator = typename D::value_const_iterator;
-      D data;
-      dict_values();
-      dict_values(D const &d);
-      iterator begin() const;
-      iterator end() const;
-    };
-
-    template <class K, class V>
-    class dict
-    {
-
-      // data holder
-      using _key_type = typename std::remove_cv<
-          typename std::remove_reference<K>::type>::type;
-      using _value_type = typename std::remove_cv<
-          typename std::remove_reference<V>::type>::type;
-      using container_type = std::unordered_map<_key_type, _value_type>;
-
-      utils::shared_ref<container_type> data;
-
-    public:
-      // types
-      using reference = typename container_type::reference;
-      using const_reference = typename container_type::const_reference;
-      using iterator = utils::comparable_iterator<
-          key_iterator_adaptator<typename container_type::iterator>>;
-      using const_iterator = utils::comparable_iterator<
-          key_iterator_adaptator<typename container_type::const_iterator>>;
-      using item_iterator =
-          utils::comparable_iterator<typename container_type::iterator>;
-      using item_const_iterator =
-          utils::comparable_iterator<typename container_type::const_iterator>;
-      using key_iterator = utils::comparable_iterator<
-          key_iterator_adaptator<typename container_type::iterator>>;
-      using key_const_iterator = utils::comparable_iterator<
-          key_iterator_adaptator<typename container_type::const_iterator>>;
-      using value_iterator = utils::comparable_iterator<
-          value_iterator_adaptator<typename container_type::iterator>>;
-      using value_const_iterator = utils::comparable_iterator<
-          value_iterator_adaptator<typename container_type::const_iterator>>;
-      using size_type = typename container_type::size_type;
-      using difference_type = typename container_type::difference_type;
-      using value_type = typename container_type::value_type;
-      using allocator_type = typename container_type::allocator_type;
-      using pointer = typename container_type::pointer;
-      using const_pointer = typename container_type::const_pointer;
-
-      // constructors
-      dict();
-      dict(empty_dict const &);
-      dict(std::initializer_list<value_type> l);
-      dict(dict<K, V> const &other);
-      template <class Kp, class Vp>
-      dict(dict<Kp, Vp> const &other);
-      template <class B, class E>
-      dict(B begin, E end);
-
-      // iterators
-      iterator begin();
-      const_iterator begin() const;
-      iterator end();
-      const_iterator end() const;
-      item_iterator item_begin();
-      item_const_iterator item_begin() const;
-      item_iterator item_end();
-      item_const_iterator item_end() const;
-      key_iterator key_begin();
-      key_const_iterator key_begin() const;
-      key_iterator key_end();
-      key_const_iterator key_end() const;
-      value_iterator value_begin();
-      value_const_iterator value_begin() const;
-      value_iterator value_end();
-      value_const_iterator value_end() const;
-
-      // dict interface
-      operator bool();
-      V &operator[](K const &key);
-      V const &operator[](K const &key) const;
-
-      V &fast(K const &key);
-      V const &fast(K const &key) const;
-
-      item_const_iterator find(K const &key) const;
-
-      void clear();
-
-      dict<K, V> copy() const;
-
-      template <class W>
-      typename __combined<V, W>::type get(K const &key, W d) const;
-
-      none<V> get(K const &key) const;
-
-      template <class W>
-      V &setdefault(K const &key, W d);
-
-      none<V> &setdefault(K const &key);
-
-      template <class K0, class W0>
-      void update(dict<K0, W0> const &d);
-
-      template <class Iterable>
-      void update(Iterable const &d);
-
-      template <class W>
-      typename __combined<V, W>::type pop(K const &key, W d);
-
-      V pop(K const &key);
-
-      std::tuple<K, V> popitem();
-
-      long size() const;
-
-      dict_iterator<item_iterator> iteritems();
-      dict_iterator<item_const_iterator> iteritems() const;
-
-      dict_iterator<key_iterator> iterkeys();
-      dict_iterator<key_const_iterator> iterkeys() const;
-
-      dict_iterator<value_iterator> itervalues();
-      dict_iterator<value_const_iterator> itervalues() const;
-
-      dict_items<dict<K, V>> viewitems() const;
-      dict_keys<dict<K, V>> viewkeys() const;
-      dict_values<dict<K, V>> viewvalues() const;
-
-      // type inference stuff
-      template <class K_, class V_>
-      dict<typename __combined<K, K_>::type, typename __combined<V, V_>::type>
-      operator+(dict<K_, V_> const &);
-
-      // id interface
-      intptr_t id() const;
-
-      template <class T>
-      bool contains(T const &key) const;
-    };
-
-    struct empty_dict {
-
-      using value_type = void;
-      using iterator = empty_iterator;
-      using const_iterator = empty_iterator;
-
-      template <class K, class V>
-      dict<K, V> operator+(dict<K, V> const &s);
-
-      empty_dict operator+(empty_dict const &);
-      operator bool() const;
-      iterator begin() const;
-      iterator end() const;
-      template <class V>
-      bool contains(V const &) const;
-    };
-
-    template <class K, class V>
-    dict<K, V> operator+(dict<K, V> const &d, empty_dict);
-  }
-
-  template <class K, class V>
-  struct assignable<types::dict<K, V>> {
-    using type =
-        types::dict<typename assignable<K>::type, typename assignable<V>::type>;
+  template <class I>
+  struct key_iterator_adaptator : public I {
+    using value_type = typename I::value_type::first_type;
+    using pointer = typename I::value_type::first_type *;
+    using reference = typename I::value_type::first_type &;
+    key_iterator_adaptator();
+    key_iterator_adaptator(I const &i);
+    value_type operator*();
   };
 
-  std::ostream &operator<<(std::ostream &os, types::empty_dict const &);
+  template <class I>
+  struct value_iterator_adaptator : public I {
+    using value_type = typename I::value_type::second_type;
+    using pointer = typename I::value_type::second_type *;
+    using reference = typename I::value_type::second_type &;
+    value_iterator_adaptator();
+    value_iterator_adaptator(I const &i);
+    value_type operator*();
+  };
+
+  template <class I>
+  struct dict_iterator {
+    typedef I iterator;
+    I _begin;
+    I _end;
+    dict_iterator(I b, I e);
+    iterator begin();
+    iterator end();
+  };
+
+  template <class D>
+  struct dict_items {
+    using iterator = typename D::item_const_iterator;
+    D data;
+    dict_items();
+    dict_items(D const &d);
+    iterator begin() const;
+    iterator end() const;
+  };
+
+  template <class D>
+  struct dict_keys {
+    using iterator = typename D::key_const_iterator;
+    D data;
+    dict_keys();
+    dict_keys(D const &d);
+    iterator begin() const;
+    iterator end() const;
+  };
+
+  template <class D>
+  struct dict_values {
+    using iterator = typename D::value_const_iterator;
+    D data;
+    dict_values();
+    dict_values(D const &d);
+    iterator begin() const;
+    iterator end() const;
+  };
 
   template <class K, class V>
-  std::ostream &operator<<(std::ostream &os, std::pair<K, V> const &p);
+  class dict
+  {
+
+    // data holder
+    using _key_type =
+        typename std::remove_cv<typename std::remove_reference<K>::type>::type;
+    using _value_type =
+        typename std::remove_cv<typename std::remove_reference<V>::type>::type;
+    using container_type = std::unordered_map<_key_type, _value_type>;
+
+    utils::shared_ref<container_type> data;
+
+  public:
+    // types
+    using reference = typename container_type::reference;
+    using const_reference = typename container_type::const_reference;
+    using iterator = utils::comparable_iterator<
+        key_iterator_adaptator<typename container_type::iterator>>;
+    using const_iterator = utils::comparable_iterator<
+        key_iterator_adaptator<typename container_type::const_iterator>>;
+    using item_iterator =
+        utils::comparable_iterator<typename container_type::iterator>;
+    using item_const_iterator =
+        utils::comparable_iterator<typename container_type::const_iterator>;
+    using key_iterator = utils::comparable_iterator<
+        key_iterator_adaptator<typename container_type::iterator>>;
+    using key_const_iterator = utils::comparable_iterator<
+        key_iterator_adaptator<typename container_type::const_iterator>>;
+    using value_iterator = utils::comparable_iterator<
+        value_iterator_adaptator<typename container_type::iterator>>;
+    using value_const_iterator = utils::comparable_iterator<
+        value_iterator_adaptator<typename container_type::const_iterator>>;
+    using size_type = typename container_type::size_type;
+    using difference_type = typename container_type::difference_type;
+    using value_type = typename container_type::value_type;
+    using allocator_type = typename container_type::allocator_type;
+    using pointer = typename container_type::pointer;
+    using const_pointer = typename container_type::const_pointer;
+
+    // constructors
+    dict();
+    dict(empty_dict const &);
+    dict(std::initializer_list<value_type> l);
+    dict(dict<K, V> const &other);
+    template <class Kp, class Vp>
+    dict(dict<Kp, Vp> const &other);
+    template <class B, class E>
+    dict(B begin, E end);
+
+    // iterators
+    iterator begin();
+    const_iterator begin() const;
+    iterator end();
+    const_iterator end() const;
+    item_iterator item_begin();
+    item_const_iterator item_begin() const;
+    item_iterator item_end();
+    item_const_iterator item_end() const;
+    key_iterator key_begin();
+    key_const_iterator key_begin() const;
+    key_iterator key_end();
+    key_const_iterator key_end() const;
+    value_iterator value_begin();
+    value_const_iterator value_begin() const;
+    value_iterator value_end();
+    value_const_iterator value_end() const;
+
+    // dict interface
+    operator bool();
+    V &operator[](K const &key);
+    V const &operator[](K const &key) const;
+
+    V &fast(K const &key);
+    V const &fast(K const &key) const;
+
+    item_const_iterator find(K const &key) const;
+
+    void clear();
+
+    dict<K, V> copy() const;
+
+    template <class W>
+    typename __combined<V, W>::type get(K const &key, W d) const;
+
+    none<V> get(K const &key) const;
+
+    template <class W>
+    V &setdefault(K const &key, W d);
+
+    none<V> &setdefault(K const &key);
+
+    template <class K0, class W0>
+    void update(dict<K0, W0> const &d);
+
+    template <class Iterable>
+    void update(Iterable const &d);
+
+    template <class W>
+    typename __combined<V, W>::type pop(K const &key, W d);
+
+    V pop(K const &key);
+
+    std::tuple<K, V> popitem();
+
+    long size() const;
+
+    dict_iterator<item_iterator> iteritems();
+    dict_iterator<item_const_iterator> iteritems() const;
+
+    dict_iterator<key_iterator> iterkeys();
+    dict_iterator<key_const_iterator> iterkeys() const;
+
+    dict_iterator<value_iterator> itervalues();
+    dict_iterator<value_const_iterator> itervalues() const;
+
+    dict_items<dict<K, V>> viewitems() const;
+    dict_keys<dict<K, V>> viewkeys() const;
+    dict_values<dict<K, V>> viewvalues() const;
+
+    // type inference stuff
+    template <class K_, class V_>
+    dict<typename __combined<K, K_>::type, typename __combined<V, V_>::type>
+    operator+(dict<K_, V_> const &);
+
+    // id interface
+    intptr_t id() const;
+
+    template <class T>
+    bool contains(T const &key) const;
+  };
+
+  struct empty_dict {
+
+    using value_type = void;
+    using iterator = empty_iterator;
+    using const_iterator = empty_iterator;
+
+    template <class K, class V>
+    dict<K, V> operator+(dict<K, V> const &s);
+
+    empty_dict operator+(empty_dict const &);
+    operator bool() const;
+    iterator begin() const;
+    iterator end() const;
+    template <class V>
+    bool contains(V const &) const;
+  };
 
   template <class K, class V>
-  std::ostream &operator<<(std::ostream &os, types::dict<K, V> const &v);
+  dict<K, V> operator+(dict<K, V> const &d, empty_dict);
 }
+
+template <class K, class V>
+struct assignable<types::dict<K, V>> {
+  using type =
+      types::dict<typename assignable<K>::type, typename assignable<V>::type>;
+};
+
+std::ostream &operator<<(std::ostream &os, types::empty_dict const &);
+
+template <class K, class V>
+std::ostream &operator<<(std::ostream &os, std::pair<K, V> const &p);
+
+template <class K, class V>
+std::ostream &operator<<(std::ostream &os, types::dict<K, V> const &v);
+PYTHONIC_NS_END
 
 /* overload std::get */
 namespace std
@@ -448,27 +447,26 @@ struct __combined<container<V>, indexable_dict<K>> {
 
 #include "pythonic/python/core.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  template <typename K, typename V>
-  struct to_python<types::dict<K, V>> {
-    static PyObject *convert(types::dict<K, V> const &v);
-  };
+template <typename K, typename V>
+struct to_python<types::dict<K, V>> {
+  static PyObject *convert(types::dict<K, V> const &v);
+};
 
-  template <>
-  struct to_python<types::empty_dict> {
-    static PyObject *convert(types::empty_dict);
-  };
+template <>
+struct to_python<types::empty_dict> {
+  static PyObject *convert(types::empty_dict);
+};
 
-  template <typename K, typename V>
-  struct from_python<types::dict<K, V>> {
+template <typename K, typename V>
+struct from_python<types::dict<K, V>> {
 
-    static bool is_convertible(PyObject *obj);
+  static bool is_convertible(PyObject *obj);
 
-    static types::dict<K, V> convert(PyObject *obj);
-  };
-}
+  static types::dict<K, V> convert(PyObject *obj);
+};
+PYTHONIC_NS_END
 
 #endif
 

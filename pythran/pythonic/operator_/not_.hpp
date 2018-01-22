@@ -5,19 +5,18 @@
 
 #include "pythonic/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
-
-  namespace operator_
+  template <class T>
+  decltype(!std::declval<T const &>()) not_(T const &a)
   {
-    template <class T>
-    decltype(!std::declval<T const &>()) not_(T const &a)
-    {
-      return !a;
-    }
-
-    DEFINE_FUNCTOR(pythonic::operator_, not_);
+    return !a;
   }
+
+  DEFINE_FUNCTOR(pythonic::operator_, not_);
 }
+PYTHONIC_NS_END
 
 #endif

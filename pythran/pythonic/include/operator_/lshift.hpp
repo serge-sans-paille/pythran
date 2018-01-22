@@ -4,19 +4,18 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/operator_/overloads.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace operator_
 {
 
-  namespace operator_
-  {
+  template <class A, class B>
+  auto lshift(A const &a, B const &b) -> decltype(a << b);
 
-    template <class A, class B>
-    auto lshift(A const &a, B const &b) -> decltype(a << b);
+  DEFINE_ALL_OPERATOR_OVERLOADS_DECL(lshift, << )
 
-    DEFINE_ALL_OPERATOR_OVERLOADS_DECL(lshift, << )
-
-    DECLARE_FUNCTOR(pythonic::operator_, lshift);
-  }
+  DECLARE_FUNCTOR(pythonic::operator_, lshift);
 }
+PYTHONIC_NS_END
 
 #endif

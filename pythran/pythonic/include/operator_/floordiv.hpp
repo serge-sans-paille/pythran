@@ -4,13 +4,12 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/numpy/floor_divide.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace operator_
-  {
-    USING_FUNCTOR(floordiv, numpy::functor::floor_divide);
-  }
+namespace operator_
+{
+  USING_FUNCTOR(floordiv, numpy::functor::floor_divide);
 }
+PYTHONIC_NS_END
 
 #endif

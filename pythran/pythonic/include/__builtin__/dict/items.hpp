@@ -7,21 +7,20 @@
 
 #include <tuple>
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace dict
   {
 
-    namespace dict
-    {
+    template <class K, class V>
+    types::list<std::tuple<K, V>> items(types::dict<K, V> const &d);
 
-      template <class K, class V>
-      types::list<std::tuple<K, V>> items(types::dict<K, V> const &d);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::dict, items);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::dict, items);
   }
 }
+PYTHONIC_NS_END
 
 #endif

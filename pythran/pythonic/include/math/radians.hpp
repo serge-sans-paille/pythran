@@ -4,15 +4,14 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/math/pi.hpp"
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    template <class T>
-    double radians(T x);
-    DECLARE_FUNCTOR(pythonic::math, radians);
-  }
+namespace math
+{
+  template <class T>
+  double radians(T x);
+  DECLARE_FUNCTOR(pythonic::math, radians);
 }
+PYTHONIC_NS_END
 
 #endif

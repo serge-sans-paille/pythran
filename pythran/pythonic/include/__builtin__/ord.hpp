@@ -4,17 +4,16 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
+  long ord(types::str const &v);
 
-  namespace __builtin__
-  {
-    long ord(types::str const &v);
+  long ord(char v);
 
-    long ord(char v);
-
-    DECLARE_FUNCTOR(pythonic::__builtin__, ord);
-  }
+  DECLARE_FUNCTOR(pythonic::__builtin__, ord);
 }
+PYTHONIC_NS_END
 
 #endif

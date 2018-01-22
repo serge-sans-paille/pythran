@@ -4,18 +4,17 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
+    types::str lstrip(types::str const &self, types::str const &to_del = " ");
 
-    namespace str
-    {
-      types::str lstrip(types::str const &self, types::str const &to_del = " ");
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, lstrip);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, lstrip);
   }
 }
+PYTHONIC_NS_END
 #endif

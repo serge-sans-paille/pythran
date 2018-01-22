@@ -6,13 +6,12 @@
 #include "pythonic/utils/functor.hpp"
 #include <cmath>
 
-namespace pythonic
-{
+PYTHONIC_NS_BEGIN
 
-  namespace math
-  {
-    DEFINE_FUNCTOR_2(sqrt, std::sqrt);
-  }
+namespace math
+{
+  DEFINE_FUNCTOR_2(sqrt, std::sqrt);
 }
+PYTHONIC_NS_END
 
 #endif

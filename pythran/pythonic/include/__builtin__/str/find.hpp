@@ -4,24 +4,23 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-namespace pythonic
+PYTHONIC_NS_BEGIN
+
+namespace __builtin__
 {
 
-  namespace __builtin__
+  namespace str
   {
 
-    namespace str
-    {
+    long find(types::str const &s, types::str const &value, long start,
+              long end);
 
-      long find(types::str const &s, types::str const &value, long start,
-                long end);
+    long find(types::str const &s, types::str const &value, long start);
 
-      long find(types::str const &s, types::str const &value, long start);
+    long find(types::str const &s, types::str const &value);
 
-      long find(types::str const &s, types::str const &value);
-
-      DECLARE_FUNCTOR(pythonic::__builtin__::str, find);
-    }
+    DECLARE_FUNCTOR(pythonic::__builtin__::str, find);
   }
 }
+PYTHONIC_NS_END
 #endif

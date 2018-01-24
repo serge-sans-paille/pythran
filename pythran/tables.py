@@ -4414,7 +4414,7 @@ if 'WindowsError' in sys.modules['__builtin__'].__dict__:
     MODULES['__builtin__']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
-for module_name in ["omp", "scipy.special"]:
+for module_name in ["omp", "scipy.special", "scipy"]:
     try:
         __import__(module_name)
     except ImportError:

@@ -1217,9 +1217,9 @@ class Cxx(Backend):
     >>> r = pm.dump(Cxx, node)
     >>> print(str(r).replace(os.sep, '/'))
     #include <pythonic/include/__builtin__/print.hpp>
-    #include <pythonic/include/__builtin__/str.hpp>
+    #include <pythonic/include/types/str.hpp>
     #include <pythonic/__builtin__/print.hpp>
-    #include <pythonic/__builtin__/str.hpp>
+    #include <pythonic/types/str.hpp>
     namespace __pythran_test
     {
       struct foo

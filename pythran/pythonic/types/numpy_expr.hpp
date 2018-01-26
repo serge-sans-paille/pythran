@@ -18,20 +18,17 @@ namespace types
     array<long, value> init_shape(Args const &... args)
     {
       array<long, value> shape;
-      for (int i = 0; i < value; ++i) {
+      for (size_t i = 0; i < value; ++i) {
         long max = 0;
         std::initializer_list<long> __attribute__((unused))
-        _{(value <= Args::value && args.shape()[i] > max ? max = args.shape()[i]
-                                                         : max)...};
+        _{(value <= std::remove_reference<Args>::type::value &&
+                   args.shape()[i] > max
+               ? max = args.shape()[i]
+               : max)...};
         shape[i] = max;
       }
       return shape;
     }
-  }
-
-  template <class Op, class... Args>
-  numpy_expr<Op, Args...>::numpy_expr()
-  {
   }
 
   template <class Op, class... Args>
@@ -46,7 +43,8 @@ namespace types
       numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>) const
   {
     return {{(size() == std::get<I>(args).shape()[0])...},
-            std::get<I>(args).begin()...};
+            const_cast<typename std::decay<Args>::type const &>(
+                std::get<I>(args)).begin()...};
   }
 
   template <class Op, class... Args>
@@ -62,7 +60,8 @@ namespace types
       numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>) const
   {
     return {{(size() == std::get<I>(args).shape()[0])...},
-            std::get<I>(args).end()...};
+            const_cast<typename std::decay<Args>::type const &>(
+                std::get<I>(args)).end()...};
   }
 
   template <class Op, class... Args>
@@ -114,7 +113,8 @@ namespace types
       numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>)
   {
     return {{(size() == std::get<I>(args).shape()[0])...},
-            std::get<I>(args).begin()...};
+            const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
+                .begin()...};
   }
 
   template <class Op, class... Args>
@@ -129,7 +129,8 @@ namespace types
       numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>)
   {
     return {{(size() == std::get<I>(args).shape()[0])...},
-            std::get<I>(args).end()...};
+            const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
+                .end()...};
   }
 
   template <class Op, class... Args>
@@ -198,7 +199,8 @@ namespace types
                                        utils::index_sequence<I...>) const
   {
     return {{(size() == std::get<I>(args).shape()[0])...},
-            std::make_tuple(std::get<I>(args).begin()...),
+            std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
+                                std::get<I>(args)).begin()...),
             std::get<I>(args).vbegin(vectorize{})...};
   }
 
@@ -216,7 +218,8 @@ namespace types
                                      utils::index_sequence<I...>) const
   {
     return {{(size() == std::get<I>(args).shape()[0])...},
-            std::make_tuple(std::get<I>(args).end()...),
+            std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
+                                std::get<I>(args)).end()...),
             std::get<I>(args).vend(vectorize{})...};
   }
 

@@ -25,10 +25,11 @@ namespace numpy
   template <class Op, size_t N, class vector_form>
   struct _reduce {
     template <class E, class F>
-    F operator()(E e, F acc)
+    F operator()(E &&e, F acc)
     {
-      for (auto const &value : e)
-        acc = _reduce<Op, N - 1, vector_form>{}(value, acc);
+      for (auto &&value : std::forward<E>(e))
+        acc = _reduce<Op, N - 1, vector_form>{}(
+            std::forward<decltype(value)>(value), acc);
       return acc;
     }
   };
@@ -36,10 +37,11 @@ namespace numpy
   template <class Op, class vector_form>
   struct _reduce<Op, 1, vector_form> {
     template <class E, class F>
-    F operator()(E e, F acc)
+    F operator()(E &&e, F acc)
     {
-      for (auto const &value : e)
+      for (auto value : std::forward<E>(e)) {
         Op{}(acc, value);
+      }
       return acc;
     }
   };
@@ -74,17 +76,18 @@ namespace numpy
   template <class Op>
   struct _reduce<Op, 1, types::vectorizer> {
     template <class E, class F>
-    F operator()(E e, F acc)
+    F operator()(E &&e, F acc)
     {
-      return vreduce<types::vectorizer, Op>(e, acc);
+      return vreduce<types::vectorizer, Op>(std::forward<E>(e), acc);
     }
   };
   template <class Op>
   struct _reduce<Op, 1, types::vectorizer_nobroadcast> {
     template <class E, class F>
-    F operator()(E e, F acc)
+    F operator()(E &&e, F acc)
     {
-      return vreduce<types::vectorizer_nobroadcast, Op>(e, acc);
+      return vreduce<types::vectorizer_nobroadcast, Op>(std::forward<E>(e),
+                                                        acc);
     }
   };
 #endif

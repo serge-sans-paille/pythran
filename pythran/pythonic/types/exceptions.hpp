@@ -14,9 +14,6 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
-  BaseException::BaseException(const BaseException &e) : args(e.args)
-  {
-  }
 
   template <typename... Types>
   BaseException::BaseException(Types const &... types)
@@ -24,27 +21,12 @@ namespace types
   {
   }
 
-  BaseException::~BaseException() noexcept
-  {
-  }
-
 // Use this to create a python exception class
 #define CLASS_EXCEPTION_IMPL(name, parent)                                     \
-  name::name(const name &e) : parent(*(parent *)&e)                            \
-  {                                                                            \
-  }                                                                            \
                                                                                \
   template <class... Types>                                                    \
   name::name(Types const &... types)                                           \
       : parent(types...)                                                       \
-  {                                                                            \
-  }                                                                            \
-                                                                               \
-  name::name() : parent()                                                      \
-  {                                                                            \
-  }                                                                            \
-                                                                               \
-  name::~name() noexcept                                                       \
   {                                                                            \
   }
 

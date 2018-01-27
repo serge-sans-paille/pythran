@@ -745,7 +745,8 @@ PYTHONIC_NS_BEGIN
 
 template <class T, size_t N>
 struct to_python<types::ndarray<T, N>> {
-  static PyObject *convert(types::ndarray<T, N> n, bool transpose = false);
+  static PyObject *convert(types::ndarray<T, N> const &n,
+                           bool transpose = false);
 };
 
 template <class Arg>

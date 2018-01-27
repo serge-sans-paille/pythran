@@ -1283,11 +1283,12 @@ struct pyarray_new<npy_intp, N> {
 };
 
 template <class T, size_t N>
-PyObject *to_python<types::ndarray<T, N>>::convert(types::ndarray<T, N> n,
-                                                   bool transpose)
+PyObject *
+to_python<types::ndarray<T, N>>::convert(types::ndarray<T, N> const &cn,
+                                         bool transpose)
 {
-  if (n.mem.get_foreign()) {
-    PyObject *p = n.mem.get_foreign();
+  types::ndarray<T, N> &n = const_cast<types::ndarray<T, N> &>(cn);
+  if (PyObject *p = n.mem.get_foreign()) {
     PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(p);
     auto const *pshape = PyArray_DIMS(arr);
     Py_INCREF(p);

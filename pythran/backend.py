@@ -5,10 +5,9 @@ This module contains all pythran backends.
 '''
 from __future__ import print_function
 
-from pythran.analyses import ArgumentEffects, Dependencies
 from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
-from pythran.analyses import RangeValues, PureExpressions
+from pythran.analyses import RangeValues, PureExpressions, Dependencies
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Nop
@@ -170,13 +169,13 @@ def make_function_declaration(self, node, rtype, name, ftypes, fargs,
         attributes = []
 
     arguments = list()
+    first_default = len(node.args.args) - len(node.args.defaults)
     for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
-        if isinstance(self, CxxGenerator):
+        # because universal reference and default don't get on well
+        if isinstance(self, CxxGenerator) or i >= first_default:
             rvalue_ref = ""
-        elif self.argument_effects[node][i]:
-            rvalue_ref = "&&"
         else:
-            rvalue_ref = " const &"
+            rvalue_ref = "&&"
         argument = Value(t + rvalue_ref, "{0}{1}".format(a, make_default(d)))
         arguments.append(argument)
     return FunctionDeclaration(Value(rtype, name), arguments, *attributes)
@@ -210,7 +209,6 @@ class CxxFunction(Backend):
         self.passmanager = parent.passmanager
         self.types = parent.types
         self.pure_expressions = parent.pure_expressions
-        self.argument_effects = parent.argument_effects
         self.global_declarations = parent.global_declarations
 
     # local declaration processing
@@ -1244,8 +1242,7 @@ class Cxx(Backend):
     def __init__(self):
         """ Basic initialiser gathering analysis informations. """
         self.result = None
-        super(Cxx, self).__init__(Dependencies, GlobalDeclarations,
-                                  Types, ArgumentEffects,
+        super(Cxx, self).__init__(Dependencies, GlobalDeclarations, Types,
                                   Scope, RangeValues, PureExpressions)
 
     # mod

@@ -480,7 +480,11 @@ namespace types
     using dtype = decltype(Op()(
         std::declval<typename std::remove_reference<Args>::type::dtype>()...));
 
+#ifdef CYTHON_ABI
+    std::tuple<typename std::remove_reference<Args>::type...> args;
+#else
     std::tuple<Args...> args;
+#endif
     array<long, value> _shape;
 
     numpy_expr() = default;

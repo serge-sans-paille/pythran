@@ -158,7 +158,17 @@ namespace types
     // dict interface
     operator bool();
     V &operator[](K const &key);
+    template <class OtherKey>
+    V &operator[](OtherKey const &key)
+    {
+      return (*this)[K(key)];
+    }
     V const &operator[](K const &key) const;
+    template <class OtherKey>
+    V const &operator[](OtherKey const &key) const
+    {
+      return (*this)[K(key)];
+    }
 
     V &fast(K const &key);
     V const &fast(K const &key) const;

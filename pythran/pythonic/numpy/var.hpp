@@ -8,6 +8,7 @@
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/add.hpp"
+#include "pythonic/numpy/subtract.hpp"
 #include "pythonic/numpy/mean.hpp"
 #include "pythonic/numpy/reshape.hpp"
 #include "pythonic/numpy/sum.hpp"
@@ -24,7 +25,7 @@ namespace numpy
            types::none_type out, long ddof) -> decltype(var_type<E>(mean(expr)))
   {
     auto m = mean(expr);
-    auto t = expr - m;
+    auto t = pythonic::numpy::functor::subtract{}(expr, m);
     return sum(t * t) / var_type<E>(expr.flat_size() - ddof);
   }
 
@@ -59,7 +60,7 @@ namespace numpy
   {
     auto m = mean(expr, axis);
     if (axis == 0) {
-      auto t = expr - m;
+      auto t = pythonic::numpy::functor::subtract{}(expr, m);
       return sum(t * t, axis) /= var_type<E>(expr.shape()[axis] - ddof);
     } else {
       types::array<long, E::value> shp;

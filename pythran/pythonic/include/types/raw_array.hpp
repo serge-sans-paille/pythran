@@ -17,7 +17,6 @@ namespace types
   class raw_array
   {
     raw_array(raw_array<T> const &) = delete;
-    bool external;
 
   public:
     using pointer_type = T *;
@@ -30,6 +29,9 @@ namespace types
     void forget();
 
     ~raw_array();
+
+  private:
+    bool external;
   };
 }
 PYTHONIC_NS_END

@@ -226,7 +226,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                             Value(
                                 result_type,
                                 numbered_function_name),
-                            [Value(t, a)
+                            [Value(t + '&&', a)
                              for t, a in zip(arguments_types, arguments)]),
                         Block([Statement("""
                             PyThreadState *_save = PyEval_SaveThread();

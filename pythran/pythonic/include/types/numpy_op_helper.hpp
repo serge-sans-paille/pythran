@@ -25,12 +25,11 @@ namespace types
   template <class T0, class... Types>
   struct any_numexpr_arg {
     static constexpr bool value =
-        is_numexpr_arg<T0>::value or any_numexpr_arg<Types...>::value;
+        any_numexpr_arg<T0>::value or any_numexpr_arg<Types...>::value;
   };
 
   template <class T>
-  struct any_numexpr_arg<T> {
-    static constexpr bool value = is_numexpr_arg<T>::value;
+  struct any_numexpr_arg<T> : is_numexpr_arg<T> {
   };
 
   template <class... Types>
@@ -41,6 +40,32 @@ namespace types
 
   template <>
   struct valid_numexpr_parameters<> : std::false_type {
+  };
+
+  template <class T0, class... Types>
+  struct any_numop_arg {
+    static constexpr bool value =
+        any_numop_arg<T0>::value or any_numop_arg<Types...>::value;
+  };
+
+  template <class T>
+  struct any_numop_arg<T> : is_numexpr_arg<T> {
+  };
+  template <class T>
+  struct any_numop_arg<list<T>> : std::false_type {
+  };
+  template <class T, size_t N>
+  struct any_numop_arg<array<T, N>> : std::false_type {
+  };
+
+  template <class... Types>
+  struct valid_numop_parameters {
+    static constexpr bool value =
+        any_numop_arg<Types...>::value and all_valid_arg<Types...>::value;
+  };
+
+  template <>
+  struct valid_numop_parameters<> : std::false_type {
   };
 
   template <class T0, class T1,
@@ -102,7 +127,7 @@ namespace types
 
   template <class T, class C>
   struct adapted_type<T, C, false, true> {
-    using type = broadcast<typename C::dtype, T>;
+    using type = broadcast<typename C::dtype, typename std::decay<T>::type>;
   };
 
   template <class T, class C>
@@ -112,10 +137,13 @@ namespace types
 
   template <class T, class... OtherTypes>
   struct adapt_type {
-    using ctype = typename common_type<T, OtherTypes...>::type;
-    static constexpr bool isdtype = is_dtype<T>::value;
-    using type = typename adapted_type<T, ctype, std::is_same<T, ctype>::value,
-                                       isdtype>::type;
+    using ctype =
+        typename common_type<typename std::decay<T>::type, OtherTypes...>::type;
+    static constexpr bool isdtype =
+        is_dtype<typename std::decay<T>::type>::value;
+    using type = typename adapted_type<
+        T, ctype, std::is_same<typename std::decay<T>::type, ctype>::value,
+        isdtype>::type;
   };
   template <class T, class Tp, class... OtherTypes>
   struct adapt_type<broadcast<T, Tp>, OtherTypes...> {
@@ -136,7 +164,8 @@ namespace types
 
   template <class T, class C>
   struct reshaped_type<T, C, false, true> {
-    using type = broadcast<T, T>;
+    using type =
+        broadcast<typename std::decay<T>::type, typename std::decay<T>::type>;
   };
 
   template <class T, class C>
@@ -146,10 +175,13 @@ namespace types
 
   template <class T, class... OtherTypes>
   struct reshape_type {
-    using ctype = typename common_type<T, OtherTypes...>::type;
-    static constexpr bool isdtype = is_dtype<T>::value;
-    using type = typename reshaped_type<T, ctype, std::is_same<T, ctype>::value,
-                                        isdtype>::type;
+    using ctype =
+        typename common_type<typename std::decay<T>::type, OtherTypes...>::type;
+    static constexpr bool isdtype =
+        is_dtype<typename std::decay<T>::type>::value;
+    using type = typename reshaped_type<
+        T, ctype, std::is_same<typename std::decay<T>::type, ctype>::value,
+        isdtype>::type;
   };
 }
 PYTHONIC_NS_END

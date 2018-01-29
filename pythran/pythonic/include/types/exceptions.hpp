@@ -13,27 +13,13 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  namespace BaseError
-  {
-
-    template <size_t I>
-    struct Type {
-      using type = str;
-    };
-
-    template <>
-    struct Type<0> {
-      using type = list<str>;
-    };
-  }
-
   class BaseException : public std::exception
   {
   public:
-    BaseException(const BaseException &e);
+    BaseException(const BaseException &e) = default;
     template <typename... Types>
     BaseException(Types const &... types);
-    virtual ~BaseException() noexcept;
+    virtual ~BaseException() noexcept = default;
     list<str> args;
   };
 
@@ -42,11 +28,11 @@ namespace types
   class name : public parent                                                   \
   {                                                                            \
   public:                                                                      \
-    name();                                                                    \
-    name(const name &e);                                                       \
+    name() = default;                                                          \
+    name(const name &e) = default;                                             \
     template <class... Types>                                                  \
     name(Types const &... types);                                              \
-    virtual ~name() noexcept;                                                  \
+    virtual ~name() noexcept = default;                                        \
   };
 
   CLASS_EXCEPTION_DECL(SystemExit, BaseException);

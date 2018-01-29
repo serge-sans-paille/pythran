@@ -17,7 +17,8 @@ namespace types
 {
   template <class T>
   struct broadcasted_iterator
-      : std::iterator<std::random_access_iterator_tag, T> {
+      : std::iterator<std::random_access_iterator_tag,
+                      typename std::remove_reference<T>::type> {
     T value_;
 
     broadcasted_iterator(T const &value) : value_(value)
@@ -67,9 +68,9 @@ namespace types
   struct broadcasted {
     static const bool is_vectorizable = true;
     static const bool is_strided = false;
-    using dtype = typename T::dtype;
-    using value_type = typename T::value_type;
-    static constexpr size_t value = T::value + 1;
+    using dtype = typename std::remove_reference<T>::type::dtype;
+    using value_type = typename std::remove_reference<T>::type::value_type;
+    static constexpr size_t value = std::remove_reference<T>::type::value + 1;
     using const_iterator = broadcasted_iterator<T>;
     using iterator = const_iterator;
 

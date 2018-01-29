@@ -467,9 +467,10 @@ namespace types
         types::is_vector_op<Op>::value;
     static const bool is_strided =
         utils::any_of<std::remove_reference<Args>::type::is_strided...>::value;
-    using const_iterator =
-        numpy_expr_iterator<Op, typename Args::const_iterator...>;
-    using iterator = numpy_expr_iterator<Op, typename Args::iterator...>;
+    using const_iterator = numpy_expr_iterator<
+        Op, typename std::remove_reference<Args>::type::const_iterator...>;
+    using iterator = numpy_expr_iterator<
+        Op, typename std::remove_reference<Args>::type::iterator...>;
     using const_fast_iterator = const_nditerator<numpy_expr>;
 
     static constexpr size_t value =
@@ -479,10 +480,14 @@ namespace types
     using dtype = decltype(Op()(
         std::declval<typename std::remove_reference<Args>::type::dtype>()...));
 
+#ifdef CYTHON_ABI
     std::tuple<typename std::remove_reference<Args>::type...> args;
+#else
+    std::tuple<Args...> args;
+#endif
     array<long, value> _shape;
 
-    numpy_expr();
+    numpy_expr() = default;
     numpy_expr(numpy_expr const &) = default;
     numpy_expr(numpy_expr &&) = default;
 
@@ -532,12 +537,13 @@ namespace types
     bool no_broadcast() const;
 
 #ifdef USE_BOOST_SIMD
-    using simd_iterator =
-        numpy_expr_simd_iterator<numpy_expr, Op,
-                                 std::tuple<typename Args::const_iterator...>,
-                                 typename Args::simd_iterator...>;
+    using simd_iterator = numpy_expr_simd_iterator<
+        numpy_expr, Op, std::tuple<typename std::remove_reference<
+                            Args>::type::const_iterator...>,
+        typename std::remove_reference<Args>::type::simd_iterator...>;
     using simd_iterator_nobroadcast = numpy_expr_simd_iterator_nobroadcast<
-        numpy_expr, Op, typename Args::simd_iterator_nobroadcast...>;
+        numpy_expr, Op, typename std::remove_reference<
+                            Args>::type::simd_iterator_nobroadcast...>;
     template <size_t... I>
     simd_iterator _vbegin(types::vectorize, utils::index_sequence<I...>) const;
     simd_iterator vbegin(types::vectorize) const;

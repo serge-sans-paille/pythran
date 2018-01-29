@@ -1,9 +1,6 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_INT_HPP
 #define PYTHONIC_INCLUDE_TYPES_INT_HPP
 
-template <int I>
-long getattr(long const &);
-
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"

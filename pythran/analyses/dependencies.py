@@ -31,7 +31,7 @@ class Dependencies(ModuleAnalysis):
         self.generic_visit(node)
 
     def visit_Str(self, node):
-        self.result.add(('__builtin__', 'str'))
+        self.result.add(('types', 'str'))
         self.generic_visit(node)
 
     def visit_Pow(self, node):

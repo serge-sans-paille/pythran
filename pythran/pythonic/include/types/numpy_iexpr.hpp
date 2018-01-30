@@ -39,10 +39,10 @@ namespace types
         std::remove_reference<Arg>::type::is_strided;
 
     using iterator =
-        typename std::conditional<is_strided or value != 1,
+        typename std::conditional<is_strided || value != 1,
                                   nditerator<numpy_iexpr>, dtype *>::type;
     using const_iterator =
-        typename std::conditional<is_strided or value != 1,
+        typename std::conditional<is_strided || value != 1,
                                   const_nditerator<numpy_iexpr>,
                                   dtype const *>::type;
 
@@ -53,8 +53,8 @@ namespace types
     numpy_iexpr(numpy_iexpr const &) = default;
     numpy_iexpr(numpy_iexpr &&) = default;
 
-    template <class Argp> // not using the default one, to make it possible to
-    // accept reference and non reference version of
+    template <class Argp> // ! using the default one, to make it possible to
+    // accept reference && non reference version of
     // Argp
     numpy_iexpr(numpy_iexpr<Argp> const &other);
 
@@ -105,27 +105,27 @@ namespace types
     dtype *fbegin();
     dtype const *fend();
 
-    /* There are three kind of indexing operator: fast(long), [long] and
+    /* There are three kind of indexing operator: fast(long), [long] &&
      *(long):
-     * - fast does not perform automatic bound wrapping
+     * - fast does ! perform automatic bound wrapping
      * - [] performs automatic bound wrapping, hen forwards to fast
-     * - () is an alias to [] and directly forwards to []
+     * - () is an alias to [] && directly forwards to []
      *
-     * For each indexing operator, we have three variant: &, const& and &&:
+     * For each indexing operator, we have three variant: &, const& && &&:
      * - & means the numpy_iexpr has been bound to a non-const value, as in
      *``b=a[i] ; print b[j]``
      *   in that case the return type if the dim of a is 2 is a reference, to
      *allow ``b[j] = 1``
      * - const & means the numpy_iexpr has been bound to a const value, as in
      *``np.copy(a[i])``
-     *   in that case the return type if the dim of a is 2 is a value (or
+     *   in that case the return type if the dim of a is 2 is a value (||
      *const ref)
      * - && means the numpy_iexpr is a r-value, which happens a lot, as in
      *``a[i][j]``
      *   in that case the return type if the dim of a is 2 is a reference.
      *   It is a bit weird because we return a refrence from a rvalue, but the
      *reference is bound to
-     *   the buffer of ``a`` that is not temp.
+     *   the buffer of ``a`` that is ! temp.
      */
     auto fast(long i) const
         & -> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i));
@@ -193,11 +193,14 @@ namespace types
     }
 
     long flat_size() const;
-    array<long, value> const &shape() const;
+    array<long, value> const &shape() const
+    {
+      return _shape;
+    }
 
   private:
     /* compute the buffer offset, returning the offset between the
-     * first element of the iexpr and the start of the buffer.
+     * first element of the iexpr && the start of the buffer.
      * This used to be a plain loop, but g++ fails to unroll it, while it
      * unrolls it with the template version...
      */

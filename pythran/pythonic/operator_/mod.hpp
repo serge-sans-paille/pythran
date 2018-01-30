@@ -12,7 +12,7 @@ namespace operator_
 
   template <class A, class B>
   auto mod(A const &a, B const &b) ->
-      typename std::enable_if<std::is_fundamental<A>::value and
+      typename std::enable_if<std::is_fundamental<A>::value &&
                                   std::is_fundamental<B>::value,
                               decltype(a % b)>::type
   {
@@ -34,8 +34,8 @@ namespace operator_
 
   template <class A, class B>
   auto mod(A const &a, B const &b) // for ndarrays
-      -> typename std::enable_if<not std::is_fundamental<A>::value or
-                                     not std::is_fundamental<B>::value,
+      -> typename std::enable_if<!std::is_fundamental<A>::value ||
+                                     !std::is_fundamental<B>::value,
                                  decltype(a % b)>::type
   {
     return a % b;

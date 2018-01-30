@@ -20,10 +20,10 @@ namespace numpy
     long _select(Ichoice ibegin, Ichoice iend, Iout obegin, Isel sbegin,
                  Icond cbegin, long size, utils::int_<1>)
     {
-      for (; ibegin != iend and size != 0;
+      for (; ibegin != iend && size != 0;
            ibegin++, obegin++, sbegin++, cbegin++) {
-        // If elements it not already selected and condition match, copy it!
-        if (!*sbegin and *cbegin) {
+        // If elements it ! already selected && condition match, copy it!
+        if (!*sbegin && *cbegin) {
           *obegin = *ibegin;
           *sbegin = true;
           size--;
@@ -36,7 +36,7 @@ namespace numpy
     long _select(Ichoice ibegin, Ichoice iend, Iout obegin, Isel sbegin,
                  Icond cbegin, long size, utils::int_<N>)
     {
-      for (; ibegin != iend and size != 0;
+      for (; ibegin != iend && size != 0;
            ibegin++, obegin++, sbegin++, cbegin++)
         size = _select((*ibegin).begin(), (*ibegin).end(), (*obegin).begin(),
                        (*sbegin).begin(), (*cbegin).begin(), size,

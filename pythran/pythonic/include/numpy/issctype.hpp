@@ -13,13 +13,13 @@ namespace numpy
 {
   template <class E>
   constexpr auto issctype(E const &expr) ->
-      typename std::enable_if<not types::is_dtype<E>::value and
-                                  not std::is_same<E, types::str>::value,
+      typename std::enable_if<!types::is_dtype<E>::value &&
+                                  !std::is_same<E, types::str>::value,
                               bool>::type;
 
   template <class E>
   constexpr auto issctype(E const &expr) ->
-      typename std::enable_if<types::is_dtype<E>::value or
+      typename std::enable_if<types::is_dtype<E>::value ||
                                   std::is_same<E, types::str>::value,
                               bool>::type;
 

@@ -50,37 +50,37 @@ namespace types
   struct is_vector_op {
 
     // vectorize everything but these ops. They require special handling for
-    // vectorization, and SG did not invest enough time in those
+    // vectorization, && SG did ! invest enough time in those
     static const bool value =
-        not std::is_same<O, operator_::functor::mod>::value and
-        not std::is_same<O, numpy::functor::logaddexp2>::value and
+        !std::is_same<O, operator_::functor::mod>::value &&
+        !std::is_same<O, numpy::functor::logaddexp2>::value &&
         // Return type for generic function should be generic
-        not std::is_same<O, numpy::functor::angle_in_rad>::value and
-        not std::is_same<O, numpy::functor::ldexp>::value and
-        not std::is_same<O, numpy::functor::isfinite>::value and
-        not std::is_same<O, numpy::functor::fix>::value and
-        not std::is_same<O, numpy::functor::isinf>::value and
-        not std::is_same<O, numpy::functor::isnan>::value and
-        not std::is_same<O, numpy::functor::isposinf>::value and
-        not std::is_same<O, numpy::functor::rint>::value and
-        not std::is_same<O, numpy::functor::signbit>::value and
+        !std::is_same<O, numpy::functor::angle_in_rad>::value &&
+        !std::is_same<O, numpy::functor::ldexp>::value &&
+        !std::is_same<O, numpy::functor::isfinite>::value &&
+        !std::is_same<O, numpy::functor::fix>::value &&
+        !std::is_same<O, numpy::functor::isinf>::value &&
+        !std::is_same<O, numpy::functor::isnan>::value &&
+        !std::is_same<O, numpy::functor::isposinf>::value &&
+        !std::is_same<O, numpy::functor::rint>::value &&
+        !std::is_same<O, numpy::functor::signbit>::value &&
         // conditional processing doesn't permit SIMD
-        not std::is_same<O, numpy::functor::nan_to_num>::value and
-        not std::is_same<O, numpy::functor::asarray_chkfinite>::value and
-        not std::is_same<O, numpy::functor::clip>::value and
-        not std::is_same<O, numpy::functor::where>::value and
+        !std::is_same<O, numpy::functor::nan_to_num>::value &&
+        !std::is_same<O, numpy::functor::asarray_chkfinite>::value &&
+        !std::is_same<O, numpy::functor::clip>::value &&
+        !std::is_same<O, numpy::functor::where>::value &&
         // transtyping
-        not std::is_same<O, numpy::functor::bool_>::value and
-        not std::is_same<O, numpy::functor::int8>::value and
-        not std::is_same<O, numpy::functor::int16>::value and
-        not std::is_same<O, numpy::functor::int32>::value and
-        not std::is_same<O, numpy::functor::int64>::value and
-        not std::is_same<O, numpy::functor::uint8>::value and
-        not std::is_same<O, numpy::functor::uint16>::value and
-        not std::is_same<O, numpy::functor::uint32>::value and
-        not std::is_same<O, numpy::functor::uint64>::value and
-        not std::is_same<O, numpy::functor::float32>::value and
-        not std::is_same<O, numpy::functor::float64>::value and
+        !std::is_same<O, numpy::functor::bool_>::value &&
+        !std::is_same<O, numpy::functor::int8>::value &&
+        !std::is_same<O, numpy::functor::int16>::value &&
+        !std::is_same<O, numpy::functor::int32>::value &&
+        !std::is_same<O, numpy::functor::int64>::value &&
+        !std::is_same<O, numpy::functor::uint8>::value &&
+        !std::is_same<O, numpy::functor::uint16>::value &&
+        !std::is_same<O, numpy::functor::uint32>::value &&
+        !std::is_same<O, numpy::functor::uint64>::value &&
+        !std::is_same<O, numpy::functor::float32>::value &&
+        !std::is_same<O, numpy::functor::float64>::value &&
         //
         true;
   };

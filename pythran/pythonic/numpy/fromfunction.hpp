@@ -26,7 +26,7 @@ namespace numpy
                    1> out(shape, __builtin__::None);
     long n = out.shape()[0];
 #ifdef _OPENMP
-    if (std::is_same<purity_tag, purity::pure_tag>::value and
+    if (std::is_same<purity_tag, purity::pure_tag>::value &&
         n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
       for (long i = 0; i < n; ++i)
@@ -53,7 +53,7 @@ namespace numpy
     long n = out_shape[0];
     long m = out_shape[1];
 #ifdef _OPENMP
-    if (std::is_same<purity_tag, purity::pure_tag>::value and
+    if (std::is_same<purity_tag, purity::pure_tag>::value &&
         (m * n) >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for collapse(2)
       for (long i = 0; i < n; ++i)

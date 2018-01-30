@@ -42,7 +42,7 @@ namespace numpy
   template <class E>
   long argmin(E const &expr)
   {
-    if (not expr.flat_size())
+    if (!expr.flat_size())
       throw types::ValueError("empty sequence");
     using elt_type = typename E::dtype;
     elt_type argmin_value = std::numeric_limits<elt_type>::max();

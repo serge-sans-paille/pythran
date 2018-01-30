@@ -20,7 +20,7 @@ namespace __builtin__
 
   template <class Iterable>
       /* this is far from perfect, but how to cope with the
-         difference between python tuples and c++ ones ? */
+         difference between python tuples && c++ ones ? */
       typename std::enable_if <
       types::len_of<typename std::remove_cv<
           typename std::remove_reference<Iterable>::type>::type>::

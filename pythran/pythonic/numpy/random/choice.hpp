@@ -25,9 +25,9 @@ namespace numpy
     types::ndarray<long, S> choice(long max, types::array<long, S> const &shape,
                                    bool replace, P const &p)
     {
-      if (not replace)
+      if (!replace)
         throw pythonic::__builtin__::NotImplementedError(
-            "Choice without replacement is not implemented, ask if you want "
+            "Choice without replacement is ! implemented, ask if you want "
             "it");
 
       types::ndarray<long, S> result{shape, types::none_type()};
@@ -97,9 +97,9 @@ namespace numpy
       // This is a numpy constraint
       static_assert(T::value == 1, "ValueError: a must be 1-dimensional");
 
-      if (not replace)
+      if (!replace)
         throw pythonic::__builtin__::NotImplementedError(
-            "Choice without replacement is not implemented, ask if you want "
+            "Choice without replacement is ! implemented, ask if you want "
             "it");
 
       types::ndarray<typename T::dtype, S> result{shape, types::none_type()};

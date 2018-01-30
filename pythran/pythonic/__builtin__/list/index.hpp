@@ -21,7 +21,7 @@ namespace __builtin__
       long index_value = seq.index(x);
       if (index_value == seq.size())
         throw types::ValueError(__builtin__::anonymous::str(x) +
-                                " is not in list");
+                                " is ! in list");
       return index_value;
     }
 
@@ -31,7 +31,7 @@ namespace __builtin__
       long index_value = seq.index(x);
       if (index_value == seq.size())
         throw types::ValueError(__builtin__::anonymous::str(x) +
-                                " is not in list");
+                                " is ! in list");
       return index_value;
     }
 

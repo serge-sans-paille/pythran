@@ -16,7 +16,7 @@ namespace numpy
 {
 
   template <class T, size_t N, class I, class F>
-  typename std::enable_if<types::is_iterable<I>::value and
+  typename std::enable_if<types::is_iterable<I>::value &&
                               types::is_iterable<F>::value,
                           types::ndarray<T, 1>>::type
   insert(types::ndarray<T, N> in, I const &indices, F const &data,
@@ -39,8 +39,8 @@ namespace numpy
   }
 
   template <class T, size_t N, class I, class F>
-  typename std::enable_if<types::is_iterable<I>::value and
-                              not types::is_iterable<F>::value,
+  typename std::enable_if<types::is_iterable<I>::value &&
+                              !types::is_iterable<F>::value,
                           types::ndarray<T, 1>>::type
   insert(types::ndarray<T, N> in, I const &indices, F const &data,
          types::none_type axis)
@@ -49,7 +49,7 @@ namespace numpy
   }
 
   template <class T, size_t N, class I, class F>
-  typename std::enable_if<not types::is_iterable<I>::value and
+  typename std::enable_if<!types::is_iterable<I>::value &&
                               types::is_iterable<F>::value,
                           types::ndarray<T, 1>>::type
   insert(types::ndarray<T, N> in, I const &indices, F const &data,
@@ -59,8 +59,8 @@ namespace numpy
   }
 
   template <class T, size_t N, class I, class F>
-  typename std::enable_if<not types::is_iterable<I>::value and
-                              not types::is_iterable<F>::value,
+  typename std::enable_if<!types::is_iterable<I>::value &&
+                              !types::is_iterable<F>::value,
                           types::ndarray<T, 1>>::type
   insert(types::ndarray<T, N> in, I const &indices, F const &data,
          types::none_type axis)

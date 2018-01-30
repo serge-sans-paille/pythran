@@ -22,7 +22,7 @@ namespace __builtin__
   len(T const &t);
 
   template <class T>
-  typename std::enable_if<not types::has_size<T>::value, long>::type
+  typename std::enable_if<!types::has_size<T>::value, long>::type
   len(T const &t);
 
   DECLARE_FUNCTOR(pythonic::__builtin__, len);

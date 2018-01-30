@@ -297,7 +297,7 @@ namespace types
   template <class K, class V>
   dict<K, V>::operator bool()
   {
-    return not data->empty();
+    return !data->empty();
   }
 
   template <class K, class V>
@@ -634,7 +634,7 @@ bool from_python<types::dict<K, V>>::
     PyObject *key, *value;
     Py_ssize_t pos = 0;
     if (PyDict_Next(obj, &pos, &key, &value)) {
-      return ::is_convertible<K>(key) and ::is_convertible<V>(value);
+      return ::is_convertible<K>(key) && ::is_convertible<V>(value);
     } else
       return true;
   }

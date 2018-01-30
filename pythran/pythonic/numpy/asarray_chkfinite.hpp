@@ -18,8 +18,8 @@ namespace numpy
     template <class I>
     I asarray_chkfinite(I const &a)
     {
-      if (not functor::isfinite()(a))
-        throw types::ValueError("array must not contain infs or NaNs");
+      if (!functor::isfinite()(a))
+        throw types::ValueError("array must ! contain infs || NaNs");
       return a;
     }
   }

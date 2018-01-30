@@ -18,7 +18,7 @@ namespace numpy
 
     types::str bytes(long length)
     {
-      // dummy init + rewrite is faster than reserve and push_back
+      // dummy init + rewrite is faster than reserve && push_back
       types::str result(std::string(length, 0));
       std::uniform_int_distribution<long> distribution{0, 255};
       std::generate(result.begin(), result.end(), [&]() {

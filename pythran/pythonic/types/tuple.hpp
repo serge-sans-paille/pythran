@@ -18,12 +18,12 @@ namespace std
   template <class F0, class S0, class F1, class S1>
   bool operator==(pair<F0, S0> const &self, tuple<F1, S1> const &other)
   {
-    return self.first == get<0>(other) and self.second == get<1>(other);
+    return self.first == get<0>(other) && self.second == get<1>(other);
   }
   template <class F0, class S0, class F1, class S1>
   bool operator==(pair<const F0, S0> const &self, tuple<F1, S1> const &other)
   {
-    return self.first == get<0>(other) and self.second == get<1>(other);
+    return self.first == get<0>(other) && self.second == get<1>(other);
   }
 }
 
@@ -61,22 +61,7 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  namespace details
-  {
-    template <class E, size_t Value>
-    void init_shape(array<long, Value> &res, E const &e, utils::int_<1>)
-    {
-      res[Value - 1] = e.size();
-    }
-    template <class E, size_t Value, size_t L>
-    void init_shape(array<long, Value> &res, E const &e, utils::int_<L>)
-    {
-      res[Value - L] = e.size();
-      init_shape(res, e[0], utils::int_<L - 1>{});
-    }
-  }
-
-  /* helper to extract the tail of a tuple, and pop the head
+  /* helper to extract the tail of a tuple, && pop the head
    */
   template <int Offset, class T, size_t... N>
   auto make_tuple_tail(T const &t, utils::index_sequence<N...>)
@@ -103,12 +88,6 @@ namespace types
                Stail)-count_trailing_long<Stail...>::value>{});
   }
 
-  template <class A, size_t... I, class... Types>
-  std::tuple<Types...> array_to_tuple(A const &a, utils::index_sequence<I...>,
-                                      utils::type_sequence<Types...>)
-  {
-    return std::tuple<Types...>(a[I]...);
-  }
   template <class T, size_t N, class A, size_t... I>
   array<T, N> array_to_array(A const &a, utils::index_sequence<I...>)
   {
@@ -339,7 +318,7 @@ namespace types
   template <size_t M>
   bool array<T, N>::operator==(array<T, M> const &other) const
   {
-    return N == M and std::equal(begin(), end(), other.begin());
+    return N == M && std::equal(begin(), end(), other.begin());
   }
 
   template <typename T, size_t N>
@@ -401,14 +380,6 @@ namespace types
       os << *iter;
     }
     return os << ')';
-  }
-
-  template <typename T, size_t N>
-  array<long, array<T, N>::value> array<T, N>::shape() const
-  {
-    array<long, value> res;
-    details::init_shape(res, *this, utils::int_<value>{});
-    return res;
   }
 
   template <bool Same, class... Types>
@@ -577,8 +548,8 @@ PyObject *to_python<std::tuple<Types...>>::
     do_convert(std::tuple<Types...> const &t, utils::index_sequence<S...>)
 {
   PyObject *out = PyTuple_New(sizeof...(Types));
-  std::initializer_list<bool> __attribute__((unused))
-  _ = {PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
+  std::initializer_list<void *> _ = {
+      PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
   return out;
 }
 
@@ -595,8 +566,8 @@ PyObject *to_python<types::array<T, N>>::do_convert(types::array<T, N> const &t,
                                                     utils::index_sequence<S...>)
 {
   PyObject *out = PyTuple_New(N);
-  std::initializer_list<bool> __attribute__((unused))
-  _ = {PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
+  std::initializer_list<void *> _ = {
+      PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
   return out;
 }
 

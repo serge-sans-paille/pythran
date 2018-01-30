@@ -12,7 +12,7 @@ namespace numpy
 {
   // list case
   template <class E>
-  typename std::enable_if<!types::is_array<E>::value and
+  typename std::enable_if<!types::is_array<E>::value &&
                               !types::is_dtype<E>::value,
                           types::ndarray<typename E::dtype, E::value>>::type
   copy(E const &v);

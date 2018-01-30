@@ -13,12 +13,6 @@ namespace types
 {
 
   template <class T>
-  types::array<long, broadcasted<T>::value> const &broadcasted<T>::shape() const
-  {
-    return _shape;
-  }
-
-  template <class T>
   broadcasted<T>::broadcasted(T const &ref)
       : ref(ref), _shape()
   {
@@ -52,7 +46,7 @@ namespace types
   template <class vectorizer>
   typename broadcasted<T>::simd_iterator broadcasted<T>::vend(vectorizer) const
   {
-    return {*this}; // should not happen anyway
+    return {*this}; // should ! happen anyway
   }
 
 #endif

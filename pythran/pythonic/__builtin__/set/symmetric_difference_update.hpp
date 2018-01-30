@@ -34,7 +34,7 @@ namespace __builtin__
     types::none_type symmetric_difference_update(types::empty_set const &set,
                                                  U const &other)
     {
-      // nothing otherwise empty_set have not its correct type.
+      // nothing otherwise empty_set have ! its correct type.
       return {};
     }
 

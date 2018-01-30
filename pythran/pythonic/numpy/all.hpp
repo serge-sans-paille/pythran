@@ -24,7 +24,7 @@ namespace numpy
   bool _all(E begin, E end, utils::int_<N>)
   {
     for (; begin != end; ++begin)
-      if (not _all((*begin).begin(), (*begin).end(), utils::int_<N - 1>()))
+      if (!_all((*begin).begin(), (*begin).end(), utils::int_<N - 1>()))
         return false;
     return true;
   }
@@ -38,7 +38,7 @@ namespace numpy
 
   template <class E>
   typename std::enable_if<
-      std::is_scalar<E>::value or types::is_complex<E>::value, bool>::type
+      std::is_scalar<E>::value || types::is_complex<E>::value, bool>::type
   all(E const &expr, types::none_type)
   {
     return expr;
@@ -46,7 +46,7 @@ namespace numpy
 
   template <class E>
   auto all(E const &array, long axis) ->
-      typename std::enable_if<std::is_scalar<E>::value or
+      typename std::enable_if<std::is_scalar<E>::value ||
                                   types::is_complex<E>::value,
                               decltype(all(array))>::type
   {

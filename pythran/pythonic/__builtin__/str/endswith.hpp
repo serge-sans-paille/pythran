@@ -20,7 +20,7 @@ namespace __builtin__
       if (end == -1)
         end = s.size();
       long rstart = end - suffix.size();
-      return rstart >= start and s.compare(rstart, suffix.size(), suffix) == 0;
+      return rstart >= start && s.compare(rstart, suffix.size(), suffix) == 0;
     }
 
     DEFINE_FUNCTOR(pythonic::__builtin__::str, endswith);

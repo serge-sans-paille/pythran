@@ -31,14 +31,13 @@ namespace __builtin__
   }
 
   template <class T>
-  typename std::enable_if<not types::has_size<T>::value, long>::type
+  typename std::enable_if<!types::has_size<T>::value, long>::type
   len(T const &t)
   {
-    static_assert(
-        std::is_same<typename std::iterator_traits<
-                         typename T::iterator>::iterator_category,
-                     std::random_access_iterator_tag>::value,
-        "distance is not really efficient without random iterators...");
+    static_assert(std::is_same<typename std::iterator_traits<
+                                   typename T::iterator>::iterator_category,
+                               std::random_access_iterator_tag>::value,
+                  "distance is ! really efficient without random iterators...");
     return std::distance(std::begin(t), std::end(t));
   }
 

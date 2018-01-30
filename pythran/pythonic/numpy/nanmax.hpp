@@ -19,7 +19,7 @@ namespace numpy
     {
       for (; begin != end; ++begin) {
         auto curr = *begin;
-        if (not functor::isnan()(curr) and curr > max)
+        if (!functor::isnan()(curr) && curr > max)
           max = curr;
       }
     }

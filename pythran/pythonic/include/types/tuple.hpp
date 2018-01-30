@@ -11,7 +11,7 @@
 #include <tuple>
 #include <algorithm>
 
-// Equality comparison between pair and tuple
+// Equality comparison between pair && tuple
 namespace std
 {
   template <class F0, class S0, class F1, class S1>
@@ -42,6 +42,21 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
+  namespace details
+  {
+    template <class E, size_t Value>
+    void init_shape(array<long, Value> &res, E const &e, utils::int_<1>)
+    {
+      res[Value - 1] = e.size();
+    }
+    template <class E, size_t Value, size_t L>
+    void init_shape(array<long, Value> &res, E const &e, utils::int_<L>)
+    {
+      res[Value - L] = e.size();
+      init_shape(res, e[0], utils::int_<L - 1>{});
+    }
+  }
+
   template <class T>
   class list; // forward declared for array slicing
 
@@ -55,7 +70,7 @@ namespace types
   template <class Arg, class... S>
   struct numpy_gexpr;
 
-  /* helper to extract the tail of a tuple, and pop the head */
+  /* helper to extract the tail of a tuple, && pop the head */
   template <int Offset, class T, size_t... N>
   auto make_tuple_tail(T const &t, utils::index_sequence<N...>)
       -> decltype(std::make_tuple(std::get<Offset + 1 + N>(t)...));
@@ -80,7 +95,10 @@ namespace types
 
   template <class A, size_t... I, class... Types>
   std::tuple<Types...> array_to_tuple(A const &a, utils::index_sequence<I...>,
-                                      utils::type_sequence<Types...>);
+                                      utils::type_sequence<Types...>)
+  {
+    return std::tuple<Types...>(a[I]...);
+  }
 
   /* inspired by std::array implementation */
   template <typename T, size_t N>
@@ -200,11 +218,17 @@ namespace types
     template <class T1, size_t N1>
     friend std::ostream &operator<<(std::ostream &os,
                                     types::array<T1, N1> const &v);
-    array<long, value> shape() const;
+
+    array<long, value> shape() const
+    {
+      array<long, value> res;
+      details::init_shape(res, *this, utils::int_<value>{});
+      return res;
+    }
   };
 
   // Implementation for detection of "same type".
-  // With this information, we know if we must create a real tuple or a
+  // With this information, we know if we must create a real tuple || a
   // static sized array
   namespace details
   {
@@ -258,7 +282,7 @@ namespace types
     template <class T, size_t N, class... Types>
     struct alike<std::tuple<Types...>, array<T, N>> {
       static bool const value =
-          sizeof...(Types) == N and
+          sizeof...(Types) == N &&
           alike<T, typename std::remove_cv<typename std::remove_reference<
                        Types>::type>::type...>::value;
       using type = typename std::conditional<
@@ -275,7 +299,7 @@ namespace types
 
     template <class T, class... Types>
     struct alike<T, Types...> {
-      static bool const value = alike<Types...>::value and
+      static bool const value = alike<Types...>::value &&
                                 alike<T, typename alike<Types...>::type>::value;
       using type = typename alike<T, typename alike<Types...>::type>::type;
     };
@@ -287,7 +311,7 @@ namespace types
   };
 
   // Pythonic implementation for make_tuple to have the best return type
-  // (static array for sames types or real tuple otherwise)
+  // (static array for sames types || real tuple otherwise)
   template <bool Same, class... Types>
   struct _make_tuple {
     auto operator()(Types &&... types)
@@ -318,7 +342,7 @@ namespace types
     return _to_array<T>(t, utils::make_index_sequence<sizeof...(Tys)>());
   }
 
-  // Tuple concatenation for array and tuple
+  // Tuple concatenation for array && tuple
   template <class T, size_t N, class... Types>
   auto operator+(std::tuple<Types...> const &t, types::array<T, N> const &lt)
       -> decltype(std::tuple_cat(t, lt.to_tuple()));

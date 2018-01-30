@@ -39,7 +39,7 @@ namespace os
       {
         if (head[0] == '/')
           buffer = std::forward<T>(head);
-        else if (not buffer or *buffer.rbegin() == OS_SEP or
+        else if (!buffer || *buffer.rbegin() == OS_SEP ||
                  *buffer.rbegin() == '/')
           buffer += std::forward<T>(head);
         else {

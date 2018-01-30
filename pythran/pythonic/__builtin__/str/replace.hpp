@@ -23,7 +23,7 @@ namespace __builtin__
       char const *haystack = self.c_str();
 
       char const *haystack_next = strstr(haystack, needle);
-      if (not count or not haystack_next) {
+      if (!count || !haystack_next) {
         return {haystack};
       } else {
         size_t n =
@@ -37,7 +37,7 @@ namespace __builtin__
           --count;
           haystack = haystack_next + old_pattern.size();
           assert(size_t(iter - buffer) < n);
-        } while (count and (haystack_next = strstr(haystack, needle)));
+        } while (count && (haystack_next = strstr(haystack, needle)));
 
         std::copy(haystack, self.c_str() + self.size() + 1, iter);
 

@@ -14,7 +14,7 @@ namespace numpy
 {
   namespace wrapper
   {
-    // boost simd does not handle bool specialization, which is indeed a
+    // boost simd does ! handle bool specialization, which is indeed a
     // corner case...
     template <class T>
     auto abs(T const &v) -> decltype(boost::simd::abs(v))

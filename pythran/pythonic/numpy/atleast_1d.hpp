@@ -18,7 +18,7 @@ namespace numpy
 
   template <class T>
   auto atleast_1d(T const &t) ->
-      typename std::enable_if<not(types::is_dtype<T>::value),
+      typename std::enable_if<!(types::is_dtype<T>::value),
                               types::ndarray<typename T::dtype, T::value>>::type
   {
     return asarray(t);

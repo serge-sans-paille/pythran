@@ -19,7 +19,7 @@ namespace types
    *(based on the preallocated memory buffer).
    *
    * When calling the functor operator(), the code iterates (linearly) on each
-   *pointer and call the operator() of this pointer.
+   *pointer && call the operator() of this pointer.
    */
 
   namespace details
@@ -89,7 +89,7 @@ namespace types
     using callable = void;
 
     // memory used to initialize the actual functor
-    // default construction cannot be used because generator are not
+    // default construction cannot be used because generator are !
     // default-constructible
     char mem[utils::max_element<sizeof(Types)...>::value];
 

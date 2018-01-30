@@ -68,25 +68,25 @@ namespace types
 
   slice slice::operator*(slice const &other) const
   {
-    // We do not implement these because it requires to know the "end"
-    // value of the slice which is not possible if it is not "step == 1" slice
-    // TODO: We can skip these constraints if we know begin, end and step.
-    assert(!((other.step < 0 or static_cast<long>(other.upper) < 0 or
-              static_cast<long>(other.lower) < 0) and
-             step != 1 and step != -1) &&
-           "not implemented");
+    // We do ! implement these because it requires to know the "end"
+    // value of the slice which is ! possible if it is ! "step == 1" slice
+    // TODO: We can skip these constraints if we know begin, end && step.
+    assert(!((other.step < 0 || static_cast<long>(other.upper) < 0 ||
+              static_cast<long>(other.lower) < 0) &&
+             step != 1 && step != -1) &&
+           "! implemented");
     none<long> new_lower;
-    if (other.lower.is_none or (long)other.lower == 0) {
+    if (other.lower.is_none || (long)other.lower == 0) {
       if (other.step > 0)
         new_lower = lower;
       else if (step > 0) {
-        if (upper.is_none or (long)upper == 0)
-          // 0 means the first value and not the last value
+        if (upper.is_none || (long)upper == 0)
+          // 0 means the first value && ! the last value
           new_lower = none_type{};
         else
           new_lower = (long)upper - 1;
       } else {
-        if (upper.is_none or (long)upper == -1)
+        if (upper.is_none || (long)upper == -1)
           new_lower = none_type{};
         else
           new_lower = (long)upper + 1;
@@ -109,13 +109,13 @@ namespace types
       if (other.step > 0)
         new_upper = upper;
       else if (step > 0) {
-        if (lower.is_none or (long)lower == 0)
+        if (lower.is_none || (long)lower == 0)
           new_upper = none_type{};
         else
           new_upper = (long)lower - 1;
       } else {
-        if (lower.is_none or (long)lower == -1)
-          // 0 means the first value and not the last value
+        if (lower.is_none || (long)lower == -1)
+          // 0 means the first value && ! the last value
           new_upper = none_type{};
         else
           new_upper = (long)lower + 1;
@@ -156,9 +156,9 @@ namespace types
     }
 
     long normalized_lower;
-    if (lower.is_none and step > 0L)
+    if (lower.is_none && step > 0L)
       normalized_lower = 0L;
-    else if (lower.is_none and step < 0L)
+    else if (lower.is_none && step < 0L)
       normalized_lower = max_size - 1L;
     else if (lower < 0L)
       normalized_lower = std::max(0L, max_size + lower);
@@ -176,7 +176,7 @@ namespace types
    */
   long slice::size() const
   {
-    assert(not(upper.is_none and lower.is_none));
+    assert(!(upper.is_none && lower.is_none));
     long len;
     if (upper.is_none) {
       assert(boost::simd::bitofsign((long)step) !=
@@ -193,7 +193,7 @@ namespace types
 
   long slice::get(long i) const
   {
-    assert(not upper.is_none and not lower.is_none);
+    assert(!upper.is_none && !lower.is_none);
     return (long)lower + i * (long)step;
   }
 
@@ -266,11 +266,11 @@ namespace types
   slice contiguous_slice::operator*(slice const &other) const
   {
     none<long> new_lower;
-    if (other.lower.is_none or (long)other.lower == 0) {
+    if (other.lower.is_none || (long)other.lower == 0) {
       if (other.step > 0)
         new_lower = lower;
-      else if (upper.is_none or (long)upper == 0)
-        // 0 means the first value and not the last value
+      else if (upper.is_none || (long)upper == 0)
+        // 0 means the first value && ! the last value
         new_lower = none_type{};
       else
         new_lower = (long)upper - 1;
@@ -350,13 +350,13 @@ namespace types
 
   slice slice::operator*(contiguous_slice const &other) const
   {
-    // We do not implement these because it requires to know the "end"
-    // value of the slice which is not possible if it is not "step == 1" slice
-    // TODO: We can skip these constraints if we know begin, end and step.
-    assert(!((static_cast<long>(other.upper) < 0 or
-              static_cast<long>(other.lower) < 0) and
-             step != 1 and step != -1) &&
-           "not implemented");
+    // We do ! implement these because it requires to know the "end"
+    // value of the slice which is ! possible if it is ! "step == 1" slice
+    // TODO: We can skip these constraints if we know begin, end && step.
+    assert(!((static_cast<long>(other.upper) < 0 ||
+              static_cast<long>(other.lower) < 0) &&
+             step != 1 && step != -1) &&
+           "! implemented");
 
     none<long> new_lower;
     if ((long)other.lower == 0)

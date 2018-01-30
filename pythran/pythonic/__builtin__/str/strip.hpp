@@ -15,7 +15,7 @@ namespace __builtin__
   {
     types::str strip(types::str const &self, types::str const &to_del)
     {
-      if (not self)
+      if (!self)
         return self;
       auto first = self.find_first_not_of(to_del);
       if (first == -1)

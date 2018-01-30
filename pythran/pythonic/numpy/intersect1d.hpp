@@ -29,7 +29,7 @@ namespace numpy
     lout.reserve(sae.size());
     for (auto iter = af.fbegin(), end = af.fend(); iter != end; ++iter) {
       auto curr = *iter;
-      if (sae.find(curr) != sae.end() and found.find(curr) == found.end()) {
+      if (sae.find(curr) != sae.end() && found.find(curr) == found.end()) {
         found.insert(curr);
         lout.push_back(curr);
       }

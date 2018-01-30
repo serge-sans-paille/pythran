@@ -38,7 +38,10 @@ namespace types
 
     typename assignable<typename std::remove_reference<Arg>::type>::type arg;
     array<long, value> _shape;
-    array<long, value> const &shape() const;
+    array<long, value> const &shape() const
+    {
+      return _shape;
+    }
     utils::shared_ref<raw_array<long>> indices;
     long *buffer;
 
@@ -60,7 +63,7 @@ namespace types
     operator=(E const &expr);
 
     template <class E>
-    typename std::enable_if<not is_iterable<E>::value, numpy_fexpr &>::type
+    typename std::enable_if<!is_iterable<E>::value, numpy_fexpr &>::type
     operator=(E const &expr);
 
     numpy_fexpr &operator=(numpy_fexpr const &expr);

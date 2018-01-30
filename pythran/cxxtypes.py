@@ -253,6 +253,22 @@ typename std::remove_reference<decltype(toto)>::type>::type
                 'decltype({0})>::type>::type'.format(self.srepr))
 
 
+class IteratorOfType(DependentType):
+    '''
+    Type of an Iterator of a container
+    >>> IteratorOfType(NamedType('some'))
+    typename some::iterator
+    >>> IteratorOfType(NamedType('typename some::stuff'))
+    typename some::stuff::iterator
+    '''
+    def generate(self, ctx):
+        container_type = ctx(self.of).generate(ctx)
+        if container_type.startswith('typename'):
+            return container_type + '::iterator'
+        else:
+            return 'typename ' + container_type + '::iterator'
+
+
 class IteratorContentType(DependentType):
     '''
     Type of an iterator over the content of a container

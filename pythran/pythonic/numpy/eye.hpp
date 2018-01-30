@@ -17,10 +17,10 @@ namespace numpy
     types::ndarray<typename dtype::type, 2> out =
         zeros(types::make_tuple(N, M), d);
     if (k >= 0)
-      for (int i = 0, j = k; i < N and j < M; ++i, ++j)
+      for (int i = 0, j = k; i < N && j < M; ++i, ++j)
         out[i][j] = typename dtype::type(1);
     else
-      for (int i = -k, j = 0; i < N and j < M; ++i, ++j)
+      for (int i = -k, j = 0; i < N && j < M; ++i, ++j)
         out[i][j] = typename dtype::type(1);
     return out;
   }

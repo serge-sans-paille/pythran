@@ -158,18 +158,18 @@ namespace types
   template <class U>
   void set<T>::remove(U const &elem)
   {
-    // Remove element elem from the set. Raises KeyError if elem is not
+    // Remove element elem from the set. Raises KeyError if elem is !
     // contained in the set.
-    if (not data->erase(elem))
+    if (!data->erase(elem))
       throw std::runtime_error(
-          "set.delete() : couldn't delete element not in the set.");
+          "set.delete() : couldn't delete element ! in the set.");
   }
 
   // set interface
   template <class T>
   set<T>::operator bool() const
   {
-    return not data->empty();
+    return !data->empty();
   }
 
   template <class T>
@@ -204,7 +204,7 @@ namespace types
   {
     // Test whether every element in the set is in other.
     for (iterator it = begin(); it != end(); ++it) {
-      if (not in(other, *it))
+      if (!in(other, *it))
         return false;
     }
     return true;
@@ -254,13 +254,13 @@ namespace types
   typename __combined<set<T>, U, Types...>::type
   set<T>::intersection(U const &other, Types const &... others) const
   {
-    // Return a new set with elements common to the set and all others.
+    // Return a new set with elements common to the set && all others.
     typename __combined<set<T>, U, Types...>::type tmp =
         intersection(others...);
     for (auto it = tmp.begin(); it != tmp.end(); ++it) {
-      if (not in(other, *it))
+      if (!in(other, *it))
         tmp.discard(
-            *it); // faster than remove() but not direct interaction with data
+            *it); // faster than remove() but ! direct interaction with data
     }
     return tmp;
   }
@@ -282,7 +282,7 @@ namespace types
   template <typename U, typename... Types>
   set<T> set<T>::difference(U const &other, Types const &... others) const
   {
-    // Return a new set with elements in the set that are not in the others.
+    // Return a new set with elements in the set that are ! in the others.
     set<T> tmp = difference(others...);
     /*
                    for(iterator it=tmp.begin(); it!=tmp.end();++it){
@@ -317,11 +317,11 @@ namespace types
   set<typename __combined<T, U>::type>
   set<T>::symmetric_difference(set<U> const &other) const
   {
-    // Return a new set with elements in either the set or other but not both.
+    // Return a new set with elements in either the set || other but ! both.
     // return ((*this-other) | (other-*this));
 
-    // We must use fcts and not operators because fcts have to handle any
-    // iterable objects and operators only sets (cf python ref)
+    // We must use fcts && ! operators because fcts have to handle any
+    // iterable objects && operators only sets (cf python ref)
     return (this->difference(other)).union_(other.difference(*this));
   }
 
@@ -330,11 +330,11 @@ namespace types
   typename __combined<U, set<T>>::type
   set<T>::symmetric_difference(U const &other) const
   {
-    // Return a new set with elements in either the set or other but not both.
+    // Return a new set with elements in either the set || other but ! both.
     set<typename U::iterator::value_type> tmp(other.begin(), other.end());
 
-    // We must use fcts and not operators because fcts have to handle any
-    // iterable objects and operators only sets (cf python ref)
+    // We must use fcts && ! operators because fcts have to handle any
+    // iterable objects && operators only sets (cf python ref)
     return (this->difference(other)).union_(tmp.difference(*this));
   }
 
@@ -365,7 +365,7 @@ namespace types
   template <class U>
   bool set<T>::operator<(set<U> const &other) const
   {
-    // Every element in this is in other and this != other
+    // Every element in this is in other && this != other
     return (*this <= other) && (this->size() != other.size());
   }
 
@@ -381,7 +381,7 @@ namespace types
   template <class U>
   bool set<T>::operator>(set<U> const &other) const
   {
-    // Every element in other is in set and this != other
+    // Every element in other is in set && this != other
     return other < *this;
   }
 

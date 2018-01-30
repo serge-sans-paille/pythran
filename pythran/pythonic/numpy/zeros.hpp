@@ -16,7 +16,7 @@ namespace numpy
   {
     using T = typename dtype::type;
     // use calloc even if we have a non integer type. This looks ok on modern
-    // architecture, although not really standard
+    // architecture, although ! really standard
     auto *buffer = (T *)calloc(std::accumulate(shape.begin(), shape.end(), 1L,
                                                std::multiplies<long>()),
                                sizeof(T));

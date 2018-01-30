@@ -31,7 +31,7 @@ namespace numpy
   template <class T>
   types::ndarray<T, 1> arange(T end)
   {
-    return arange(T(0), end);
+    return arange<T, T, T, types::dtype_t<T>>(T(0), end);
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, arange);

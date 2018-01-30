@@ -16,7 +16,7 @@ namespace numpy
 
   template <class E>
   typename std::enable_if<
-      not types::is_dtype<E>::value,
+      !types::is_dtype<E>::value,
       std::tuple<types::ndarray<typename E::dtype, E::value>,
                  types::ndarray<int, E::value>>>::type
   frexp(E const &arr);

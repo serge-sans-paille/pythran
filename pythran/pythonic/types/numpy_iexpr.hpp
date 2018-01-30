@@ -28,8 +28,8 @@ namespace types
   }
 
   template <class Arg>
-  template <class Argp> // not using the default one, to make it possible to
-  // accept reference and non reference version of Argp
+  template <class Argp> // ! using the default one, to make it possible to
+  // accept reference && non reference version of Argp
   numpy_iexpr<Arg>::numpy_iexpr(numpy_iexpr<Argp> const &other)
       : buffer(other.buffer), _shape(other.shape())
   {
@@ -80,9 +80,9 @@ namespace types
     utils::broadcast_update<
         Op, numpy_iexpr &, BExpr, value,
         value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
-        is_vectorizable and
+        is_vectorizable &&
             types::is_vectorizable<typename std::remove_cv<
-                typename std::remove_reference<BExpr>::type>::type>::value and
+                typename std::remove_reference<BExpr>::type>::type>::value &&
             std::is_same<dtype, typename dtype_of<typename std::decay<
                                     BExpr>::type>::type>::value>(*this, bexpr);
     return *this;
@@ -168,26 +168,26 @@ namespace types
   template <class Arg>
   typename numpy_iexpr<Arg>::const_iterator numpy_iexpr<Arg>::begin() const
   {
-    return make_const_nditerator < is_strided or value != 1 > ()(*this, 0);
+    return make_const_nditerator < is_strided || value != 1 > ()(*this, 0);
   }
 
   template <class Arg>
   typename numpy_iexpr<Arg>::const_iterator numpy_iexpr<Arg>::end() const
   {
-    return make_const_nditerator < is_strided or
+    return make_const_nditerator < is_strided ||
            value != 1 > ()(*this, _shape[0]);
   }
 
   template <class Arg>
   typename numpy_iexpr<Arg>::iterator numpy_iexpr<Arg>::begin()
   {
-    return make_nditerator < is_strided or value != 1 > ()(*this, 0);
+    return make_nditerator < is_strided || value != 1 > ()(*this, 0);
   }
 
   template <class Arg>
   typename numpy_iexpr<Arg>::iterator numpy_iexpr<Arg>::end()
   {
-    return make_nditerator < is_strided or value != 1 > ()(*this, _shape[0]);
+    return make_nditerator < is_strided || value != 1 > ()(*this, _shape[0]);
   }
 
   template <class Arg>
@@ -387,12 +387,6 @@ namespace types
   {
     return std::accumulate(_shape.begin() + 1, _shape.end(), *_shape.begin(),
                            std::multiplies<long>());
-  }
-
-  template <class Arg>
-  array<long, numpy_iexpr<Arg>::value> const &numpy_iexpr<Arg>::shape() const
-  {
-    return _shape;
   }
 
   template <class Arg>

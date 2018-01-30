@@ -12,20 +12,20 @@ namespace types
   template <class T0, class... Types>
   struct all_valid_arg {
     static constexpr bool value =
-        all_valid_arg<T0>::value and all_valid_arg<Types...>::value;
+        all_valid_arg<T0>::value && all_valid_arg<Types...>::value;
   };
 
   template <class T>
   struct all_valid_arg<T> {
     static constexpr bool value =
-        (is_numexpr_arg<T>::value or is_complex<T>::value or
+        (is_numexpr_arg<T>::value || is_complex<T>::value ||
          std::is_scalar<T>::value);
   };
 
   template <class T0, class... Types>
   struct any_numexpr_arg {
     static constexpr bool value =
-        any_numexpr_arg<T0>::value or any_numexpr_arg<Types...>::value;
+        any_numexpr_arg<T0>::value || any_numexpr_arg<Types...>::value;
   };
 
   template <class T>
@@ -35,7 +35,7 @@ namespace types
   template <class... Types>
   struct valid_numexpr_parameters {
     static constexpr bool value =
-        any_numexpr_arg<Types...>::value and all_valid_arg<Types...>::value;
+        any_numexpr_arg<Types...>::value && all_valid_arg<Types...>::value;
   };
 
   template <>
@@ -45,7 +45,7 @@ namespace types
   template <class T0, class... Types>
   struct any_numop_arg {
     static constexpr bool value =
-        any_numop_arg<T0>::value or any_numop_arg<Types...>::value;
+        any_numop_arg<T0>::value || any_numop_arg<Types...>::value;
   };
 
   template <class T>
@@ -61,7 +61,7 @@ namespace types
   template <class... Types>
   struct valid_numop_parameters {
     static constexpr bool value =
-        any_numop_arg<Types...>::value and all_valid_arg<Types...>::value;
+        any_numop_arg<Types...>::value && all_valid_arg<Types...>::value;
   };
 
   template <>
@@ -112,7 +112,7 @@ namespace types
                              typename common_type<Types...>::type>::type;
   };
 
-  /* An adapted type creates a type that has the same shape as C and the same
+  /* An adapted type creates a type that has the same shape as C && the same
    * dtype as T
    * to the exception of broadcasted constants that may take the dtype of C
    * instead
@@ -150,9 +150,9 @@ namespace types
     using type = broadcast<T, Tp>;
   };
 
-  /* A reshaped type create a type that has the same shape as C and the same
+  /* A reshaped type create a type that has the same shape as C && the same
    * dtype as T
-   * To the opposite of an adapted type, it does *not* changes constants type
+   * To the opposite of an adapted type, it does *!* changes constants type
    */
   template <class T, class C, bool same, bool scalar>
   struct reshaped_type;

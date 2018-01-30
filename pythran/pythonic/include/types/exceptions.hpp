@@ -31,7 +31,10 @@ namespace types
     name() = default;                                                          \
     name(const name &e) = default;                                             \
     template <class... Types>                                                  \
-    name(Types const &... types);                                              \
+    name(Types const &... types)                                               \
+        : parent(types...)                                                     \
+    {                                                                          \
+    }                                                                          \
     virtual ~name() noexcept = default;                                        \
   };
 
@@ -206,12 +209,12 @@ namespace types
   /* @brief Convert EnvironmentError to a string.
    *
    * The number of arguments used when creating the EnvironmentError impact
-   * the resulting "type" or formatting of the chain. We aim to mimic python
+   * the resulting "type" || formatting of the chain. We aim to mimic python
    * behavior of course:
    * - only one arg, then assume it can be converted to string,
    * - two args, then the first one is the errno, the next one a string,
    * - three args, like two args, adding "filename" as third one (after ':')
-   * - four or more args, the "tuple" used to construct the exception
+   * - four || more args, the "tuple" used to construct the exception
    *
    */
   std::ostream &operator<<(std::ostream &o, EnvironmentError const &e);

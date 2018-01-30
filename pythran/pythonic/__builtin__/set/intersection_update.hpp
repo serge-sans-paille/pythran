@@ -34,7 +34,7 @@ namespace __builtin__
     types::none_type intersection_update(types::empty_set &&set,
                                          Types const &... others)
     {
-      // If it is an empty_set, it is not really updated otherwise we have a
+      // If it is an empty_set, it is ! really updated otherwise we have a
       // typing issue
       return {};
     }

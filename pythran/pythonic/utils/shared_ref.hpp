@@ -122,7 +122,7 @@ namespace utils
   template <class T>
   void shared_ref<T>::dispose()
   {
-    if (mem and --mem->count == 0) {
+    if (mem && --mem->count == 0) {
 #ifdef ENABLE_PYTHON_MODULE
       if (mem->foreign) {
         Py_DECREF(mem->foreign);

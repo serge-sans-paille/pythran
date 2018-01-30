@@ -9,7 +9,7 @@
     return a op b;                                                             \
   }
 
-// workaround the fact that char and short computations are done using int in C,
+// workaround the fact that char && short computations are done using int in C,
 // while they are done at their respective type in numpy
 #define DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(opname, op)                         \
   PYTHONIC_OPERATOR_OVERLOAD_IMPL(bool, opname, op)                            \

@@ -16,7 +16,7 @@ namespace numpy
   template <class E>
   constexpr bool isscalar(E const &)
   {
-    return types::is_dtype<E>::value or std::is_same<E, types::str>::value;
+    return types::is_dtype<E>::value || std::is_same<E, types::str>::value;
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, isscalar);

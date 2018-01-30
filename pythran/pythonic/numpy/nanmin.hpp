@@ -19,7 +19,7 @@ namespace numpy
     {
       for (; begin != end; ++begin) {
         auto curr = *begin;
-        if (not functor::isnan()(curr) and curr < min)
+        if (!functor::isnan()(curr) && curr < min)
           min = curr;
       }
     }

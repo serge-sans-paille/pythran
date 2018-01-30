@@ -29,23 +29,6 @@ namespace __builtin__
     }
 
     template <class Iterator>
-    typename enumerate_iterator_base<Iterator>::value_type
-        enumerate_iterator<Iterator>::
-        operator*() const
-    {
-      return std::make_tuple(value, *iter);
-    }
-
-    template <class Iterator>
-    typename enumerate_iterator<Iterator>::enumerate_iterator &
-        enumerate_iterator<Iterator>::
-        operator++()
-    {
-      ++value, ++iter;
-      return *this;
-    }
-
-    template <class Iterator>
     typename enumerate_iterator<Iterator>::enumerate_iterator &
         enumerate_iterator<Iterator>::
         operator+=(long n)
@@ -57,14 +40,14 @@ namespace __builtin__
     // Comparison operators can't use value as end() doesn't have a valid
     // value content
     // du to the lake of size information for generator
-    // TODO : We could handle case with and without size if there is a
+    // TODO : We could handle case with && without size if there is a
     // performances benefits
     template <class Iterator>
     bool enumerate_iterator<Iterator>::operator!=(
         typename enumerate_iterator<Iterator>::enumerate_iterator const &other)
         const
     {
-      return not(*this == other);
+      return !(*this == other);
     }
 
     template <class Iterator>

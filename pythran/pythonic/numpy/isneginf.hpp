@@ -15,9 +15,9 @@ namespace numpy
   {
     template <class T>
     auto isneginf(T const &t)
-        -> decltype(boost::simd::is_inf(t) and boost::simd::is_negative(t))
+        -> decltype(boost::simd::is_inf(t) && boost::simd::is_negative(t))
     {
-      return boost::simd::is_inf(t) and boost::simd::is_negative(t);
+      return boost::simd::is_inf(t) && boost::simd::is_negative(t);
     }
   }
 

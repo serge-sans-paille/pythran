@@ -8,6 +8,7 @@
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/reserve.hpp"
+#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/types/slice.hpp"
 #include "pythonic/include/types/vectorizable_type.hpp"
 #include "pythonic/include/types/nditerator.hpp"
@@ -294,7 +295,12 @@ namespace types
     intptr_t id() const;
 
     long count(T const &x) const;
-    array<long, value> shape() const;
+    array<long, value> shape() const
+    {
+      array<long, value> res;
+      details::init_shape(res, *this, utils::int_<value>{});
+      return res;
+    }
   };
 
   /* empty list implementation */

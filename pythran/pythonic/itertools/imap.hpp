@@ -118,7 +118,7 @@ namespace itertools
     bool imap_iterator<Operator, Iters...>::equal(
         imap_iterator<Operator, Iters...> const &other, utils::int_<N>) const
     {
-      return std::get<N>(other.it) == std::get<N>(it) or
+      return std::get<N>(other.it) == std::get<N>(it) ||
              equal(other, utils::int_<N - 1>());
     }
 

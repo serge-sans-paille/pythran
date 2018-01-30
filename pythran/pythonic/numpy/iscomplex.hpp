@@ -23,9 +23,8 @@ namespace numpy
     }
 
     template <class I>
-    constexpr
-        typename std::enable_if<not types::is_complex<I>::value, bool>::type
-        iscomplex(I const &a)
+    constexpr typename std::enable_if<!types::is_complex<I>::value, bool>::type
+    iscomplex(I const &a)
     {
       return false;
     }

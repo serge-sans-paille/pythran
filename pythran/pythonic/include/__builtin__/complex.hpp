@@ -14,7 +14,7 @@ namespace __builtin__
     struct complex {
       using callable = void;
       using type = std::complex<double>;
-      // TODO: do not handle string as first argument
+      // TODO: do ! handle string as first argument
       type operator()(double v0 = 0, double v1 = 0) const;
     };
   }

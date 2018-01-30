@@ -533,7 +533,7 @@ class PythonModule(object):
                            objs=', '.join('&args_obj[%d]' % i
                                           for i in range(len(types))),
                            args=', '.join(args_unboxing),
-                           checks=' and '.join(args_checks),
+                           checks=' && '.join(args_checks),
                            wname=wrapper_name,
                            keywords=keywords,
                            )
@@ -643,8 +643,11 @@ class PythonModule(object):
             #endif
             PyMODINIT_FUNC
             PYTHRAN_MODULE_INIT({name})(void)
+            #ifndef _WIN32
             __attribute__ ((visibility("default")))
-            __attribute__ ((externally_visible));
+            __attribute__ ((externally_visible))
+            #endif
+            ;
             PyMODINIT_FUNC
             PYTHRAN_MODULE_INIT({name})(void) {{
                 #ifdef PYTHONIC_TYPES_NDARRAY_HPP
@@ -658,13 +661,13 @@ class PythonModule(object):
                                                      {moduledoc}
                 );
                 #endif
-                if(not theModule)
+                if(! theModule)
                     PYTHRAN_RETURN;
                 PyObject * theDoc = Py_BuildValue("(sss)",
                                                   "{version}",
                                                   "{date}",
                                                   "{hash}");
-                if(not theDoc)
+                if(! theDoc)
                     PYTHRAN_RETURN;
                 PyModule_AddObject(theModule,
                                    "__pythran__",

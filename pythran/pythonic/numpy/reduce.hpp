@@ -120,14 +120,14 @@ namespace numpy
   reduce(E const &expr, types::none_type)
   {
     bool constexpr is_vectorizable =
-        E::is_vectorizable and not std::is_same<typename E::dtype, bool>::value;
+        E::is_vectorizable && !std::is_same<typename E::dtype, bool>::value;
     reduce_result_type<E> p = utils::neutral<Op, typename E::dtype>::value;
     return reduce_helper<Op, E, is_vectorizable>{}(expr, p);
   }
 
   template <class Op, class E>
   typename std::enable_if<
-      std::is_scalar<E>::value or types::is_complex<E>::value, E>::type
+      std::is_scalar<E>::value || types::is_complex<E>::value, E>::type
   reduce(E const &expr, types::none_type)
   {
     return expr;
@@ -135,7 +135,7 @@ namespace numpy
 
   template <class Op, class E>
   auto reduce(E const &array, long axis) ->
-      typename std::enable_if<std::is_scalar<E>::value or
+      typename std::enable_if<std::is_scalar<E>::value ||
                                   types::is_complex<E>::value,
                               decltype(reduce<Op>(array))>::type
   {
@@ -165,7 +165,7 @@ namespace numpy
     if (axis == 0) {
       types::array<long, E::value - 1> shp;
       std::copy(shape.begin() + 1, shape.end(), shp.begin());
-      return _reduce<Op, 1, types::novectorize /* not on scalars*/>{}(
+      return _reduce<Op, 1, types::novectorize /* ! on scalars*/>{}(
           array,
           reduced_type<E>{shp, utils::neutral<Op, typename E::dtype>::value});
     } else {
@@ -191,8 +191,7 @@ namespace numpy
     if (axis == 0) {
       std::fill(out.begin(), out.end(),
                 utils::neutral<Op, typename E::dtype>::value);
-      return _reduce<Op, 1, types::novectorize /* not on scalars*/>{}(array,
-                                                                      out);
+      return _reduce<Op, 1, types::novectorize /* ! on scalars*/>{}(array, out);
     } else {
       std::transform(array.begin(), array.end(), out.begin(),
                      [axis](typename E::const_iterator::value_type other) {

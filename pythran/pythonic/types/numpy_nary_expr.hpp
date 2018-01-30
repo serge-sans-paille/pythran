@@ -20,7 +20,7 @@ namespace functor
   template <typename... T>
   auto NUMPY_NARY_FUNC_NAME::operator()(T &&... args) const ->
       typename std::enable_if<
-          utils::all_of<not types::is_numexpr_arg<typename std::remove_cv<
+          utils::all_of<!types::is_numexpr_arg<typename std::remove_cv<
               typename std::remove_reference<T>::type>::type>::value...>::value,
           decltype(NUMPY_NARY_FUNC_SYM(std::forward<T>(args)...))>::type
   {

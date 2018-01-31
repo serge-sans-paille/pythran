@@ -57,12 +57,14 @@ namespace types
   template <size_t C>
   struct extended_slice {
     template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>
-    operator()(ndarray<T, N> &&a, S const &... s);
+    auto operator()(ndarray<T, N> &&a, S const &... s)
+        -> decltype(std::declval<ndarray<T, N + C>>()(
+            std::declval<typename to_slice<S>::type>()...));
 
     template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>
-    operator()(ndarray<T, N> const &a, S const &... s);
+    auto operator()(ndarray<T, N> const &a, S const &... s)
+        -> decltype(std::declval<ndarray<T, N + C>>()(
+            std::declval<typename to_slice<S>::type>()...));
   };
 
   template <>

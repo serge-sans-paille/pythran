@@ -131,24 +131,24 @@ namespace types
    */
   template <size_t C>
   template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>
-      extended_slice<C>::operator()(ndarray<T, N> &&a, S const &... s)
+  auto extended_slice<C>::operator()(ndarray<T, N> &&a, S const &... s)
+      -> decltype(std::declval<ndarray<T, N + C>>()(
+          std::declval<typename to_slice<S>::type>()...))
   {
-    return {
-        std::move(a).reshape(make_reshape<N + C>(
-            a.shape(), array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...})),
-        to_slice<S>{}(s)...};
+    return std::move(a).reshape(make_reshape<N + C>(
+        a.shape(), array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...}))(
+        to_slice<S>{}(s)...);
   }
 
   template <size_t C>
   template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N + C>, typename to_slice<S>::type...>
-      extended_slice<C>::operator()(ndarray<T, N> const &a, S const &... s)
+  auto extended_slice<C>::operator()(ndarray<T, N> const &a, S const &... s)
+      -> decltype(std::declval<ndarray<T, N + C>>()(
+          std::declval<typename to_slice<S>::type>()...))
   {
-    return {a.reshape(make_reshape<N + C>(
-                a.shape(),
-                array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}})),
-            to_slice<S>{}(s)...};
+    return a.reshape(make_reshape<N + C>(
+        a.shape(), array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}}))(
+        to_slice<S>{}(s)...);
   }
 
   template <class T, size_t N, class... S>

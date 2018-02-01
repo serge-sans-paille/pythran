@@ -299,7 +299,7 @@ namespace types
   /* from a seed */
   template <class T, size_t N>
   ndarray<T, N>::ndarray(array<long, N> const &shape, none_type init)
-      : mem(std::accumulate(shape.begin(), shape.end(), 1,
+      : mem(std::accumulate(shape.begin(), shape.end(), 1L,
                             std::multiplies<long>())),
         buffer(mem->data), _shape(shape), _strides(make_strides(shape))
   {
@@ -758,7 +758,7 @@ namespace types
   template <class T, size_t N>
   long ndarray<T, N>::flat_size() const
   {
-    return std::accumulate(_shape.begin(), _shape.end(), 1,
+    return std::accumulate(_shape.begin(), _shape.end(), 1L,
                            std::multiplies<long>());
   }
   template <class T, size_t N>

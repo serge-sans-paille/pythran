@@ -80,7 +80,7 @@ Using `yaourt`::
 Windows
 =======
 
-Using WinPython (http://winpython.github.io), start the WinPython prompt and run::
+Windows support is on going and only targets Python 3.5+ with Visual Studio 2017.
 
     % pip install pythran
 

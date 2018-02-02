@@ -4,7 +4,7 @@
 #define PYTHONIC_OPERATOR_OVERLOAD_DECL(type, opname, op)                      \
   type opname(type a, type b);
 
-// workaround the fact that char and short computations are done using int in C,
+// workaround the fact that char && short computations are done using int in C,
 // while they are done at their respective type in numpy
 #define DEFINE_ALL_OPERATOR_OVERLOADS_DECL(opname, op)                         \
   PYTHONIC_OPERATOR_OVERLOAD_DECL(bool, opname, op)                            \

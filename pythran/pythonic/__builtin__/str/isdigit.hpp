@@ -16,7 +16,7 @@ namespace __builtin__
 
     bool isdigit(types::str const &s)
     {
-      return not s.empty() and
+      return !s.empty() &&
              std::all_of(s.begin(), s.end(), (int (*)(int))std::isdigit);
     }
 

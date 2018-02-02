@@ -21,11 +21,11 @@ namespace numpy
     types::array<long, 1> shape = {0};
     auto iter = buffer->data;
     if (k >= 0)
-      for (int i = 0, j = k; i < a_shape[0] and j < a_shape[1];
+      for (int i = 0, j = k; i < a_shape[0] && j < a_shape[1];
            ++i, ++j, ++shape[0])
         *iter++ = a[i][j];
     else
-      for (int i = -k, j = 0; i < a_shape[0] and j < a_shape[1];
+      for (int i = -k, j = 0; i < a_shape[0] && j < a_shape[1];
            ++i, ++j, ++shape[0])
         *iter++ = a[i][j];
     return types::ndarray<T, 1>(buffer, shape);
@@ -37,10 +37,10 @@ namespace numpy
     long n = a.flat_size() + std::abs(k);
     types::ndarray<T, 2> out(types::make_tuple(n, n), 0);
     if (k >= 0)
-      for (long i = 0, j = k; i < n and j < n; ++i, ++j)
+      for (long i = 0, j = k; i < n && j < n; ++i, ++j)
         out[i][j] = a[i];
     else
-      for (long i = -k, j = 0; i < n and j < n; ++i, ++j)
+      for (long i = -k, j = 0; i < n && j < n; ++i, ++j)
         out[i][j] = a[j];
     return out;
   }

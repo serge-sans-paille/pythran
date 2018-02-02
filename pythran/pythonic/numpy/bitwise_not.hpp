@@ -21,7 +21,7 @@ namespace numpy
 
     bool bitwise_not(bool t0)
     {
-      return not t0;
+      return !t0;
     }
   }
 

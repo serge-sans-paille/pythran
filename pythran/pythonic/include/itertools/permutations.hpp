@@ -13,7 +13,7 @@ namespace itertools
 {
   /** Permutation iterator
    *
-   *  It wraps a vector and provide an iteration over every possible
+   *  It wraps a vector && provide an iteration over every possible
    *  permutation of the vector. The permutations are represented as lists
    *  of elements.
    *

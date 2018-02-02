@@ -11,13 +11,6 @@ namespace types
 {
 
   template <class Arg, class F>
-  array<long, numpy_fexpr<Arg, F>::value> const &
-  numpy_fexpr<Arg, F>::shape() const
-  {
-    return _shape;
-  }
-
-  template <class Arg, class F>
   numpy_fexpr<Arg, F>::numpy_fexpr(Arg const &arg, F const &filter)
       : arg(arg), indices(arg.flat_size()), buffer(indices->data)
   {
@@ -27,7 +20,7 @@ namespace types
                utils::int_<std::remove_reference<
                    typename std::remove_cv<Arg>::type>::type::value>());
     // FIXME {iter - buffer} is a long long int? (Windows say that...
-    // and warn us)
+    // && warn us)
     _shape[0] = {iter - buffer};
   }
 
@@ -63,9 +56,9 @@ namespace types
 
   template <class Arg, class F>
   template <class E>
-  typename std::enable_if<not is_iterable<E>::value,
-                          numpy_fexpr<Arg, F> &>::type numpy_fexpr<Arg, F>::
-  operator=(E const &expr)
+  typename std::enable_if<!is_iterable<E>::value, numpy_fexpr<Arg, F> &>::type
+      numpy_fexpr<Arg, F>::
+      operator=(E const &expr)
   {
     std::fill(begin(), end(), expr);
     return *this;

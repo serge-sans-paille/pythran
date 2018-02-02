@@ -136,7 +136,7 @@ namespace types
       data->erase(data->begin() + slicing.lower, data->begin() + slicing.upper);
       data->insert(data->begin() + slicing.lower, seq.begin(), seq.end());
     } else
-      assert(!"not implemented yet");
+      assert(!"! implemented yet");
     return *this;
   }
   template <class T, class S>
@@ -371,16 +371,16 @@ namespace types
   {
     auto other_iter = other.begin();
     auto self_iter = begin();
-    for (; other_iter != other.end() and self_iter != end();
+    for (; other_iter != other.end() && self_iter != end();
          ++other_iter, ++self_iter) {
       if (*other_iter < *self_iter)
         return 1;
       if (*other_iter > *self_iter)
         return -1;
     }
-    if (other_iter != other.end() and self_iter == end())
+    if (other_iter != other.end() && self_iter == end())
       return 1;
-    if (other_iter == other.end() and self_iter != end())
+    if (other_iter == other.end() && self_iter != end())
       return -1;
     return 0;
   }
@@ -502,7 +502,7 @@ namespace types
   template <class T>
   list<T>::operator bool() const
   {
-    return not data->empty();
+    return !data->empty();
   }
 
   template <class T>
@@ -606,13 +606,6 @@ namespace types
   {
     return std::count(begin(), end(), x);
   }
-  template <class T>
-  array<long, list<T>::value> list<T>::shape() const
-  {
-    array<long, value> res;
-    details::init_shape(res, *this, utils::int_<value>{});
-    return res;
-  }
 
   /// Empty list
   template <class T>
@@ -655,7 +648,7 @@ namespace types
     return os << "[]";
   }
 
-  // declared here and not in list to avoid dependency hell
+  // declared here && ! in list to avoid dependency hell
   template <class T, size_t N>
   list<T> array<T, N>::operator[](types::slice const &s)
   {
@@ -755,8 +748,8 @@ PyObject *to_python<types::empty_list>::convert(types::empty_list const &)
 template <class T>
 bool from_python<types::list<T>>::is_convertible(PyObject *obj)
 {
-  return PyList_Check(obj) and
-         (PyObject_Not(obj) or
+  return PyList_Check(obj) &&
+         (PyObject_Not(obj) ||
           ::is_convertible<T>(PySequence_Fast_GET_ITEM(obj, 0)));
 }
 

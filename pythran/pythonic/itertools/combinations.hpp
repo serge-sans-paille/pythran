@@ -20,8 +20,8 @@ namespace itertools
         : pool(pool.begin(), pool.end()), indices(r), r(r),
           stopped(r > long(this->pool.size()))
     {
-      assert(r >= 0 and "r must be non-negative");
-      if (not stopped) {
+      assert(r >= 0 && "r must be non-negative");
+      if (!stopped) {
         std::iota(indices.begin(), indices.end(), 0);
         result = types::list<typename T::value_type>(this->pool.begin(),
                                                      this->pool.begin() + r);
@@ -38,25 +38,25 @@ namespace itertools
     types::list<typename T::value_type> combination_iterator<T>::
     operator*() const
     {
-      assert(not stopped && "not stopped");
+      assert(!stopped && "! stopped");
       return {result.begin(), result.end()};
     }
 
     template <class T>
     combination_iterator<T> &combination_iterator<T>::operator++()
     {
-      /* Scan indices right-to-left until finding one that is not
+      /* Scan indices right-to-left until finding one that is !
          at its maximum (i + n - r). */
       long i, n = pool.size();
       for (i = r - 1; i >= 0 && indices[i] == i + n - r; i--)
         ;
 
       /* If i is negative, then the indices are all at
-         their maximum value and we're done. */
+         their maximum value && we're done. */
       if (i < 0)
         stopped = true;
       else {
-        /* Increment the current index which we know is not at its
+        /* Increment the current index which we know is ! at its
            maximum.  Then move back to the right setting each index
            to its lowest possible value (one higher than the index
            to its left -- this maintains the sort order invariant). */
@@ -77,7 +77,7 @@ namespace itertools
     bool combination_iterator<T>::
     operator!=(combination_iterator const &other) const
     {
-      assert(stopped or other.stopped);
+      assert(stopped || other.stopped);
       return !(*this == other);
     }
 
@@ -85,7 +85,7 @@ namespace itertools
     bool combination_iterator<T>::
     operator==(combination_iterator const &other) const
     {
-      assert(stopped or other.stopped);
+      assert(stopped || other.stopped);
       return other.stopped == stopped;
     }
 

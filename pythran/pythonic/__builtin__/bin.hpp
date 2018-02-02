@@ -16,9 +16,9 @@ namespace __builtin__
   types::str bin(T const &v)
   {
     long unsigned int i = 1L << (8 * sizeof(T) - 1);
-    while (i and not(v & i))
+    while (i && !(v & i))
       i >>= 1;
-    if (not i)
+    if (!i)
       return "0b0";
     else {
       std::ostringstream oss;

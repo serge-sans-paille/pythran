@@ -16,7 +16,7 @@ namespace numpy
     bool _array_equiv(I0 vbegin, I0 vend, U const &uu)
     {
       for (; vbegin != vend; ++vbegin)
-        if (not array_equiv(uu, *vbegin))
+        if (!array_equiv(uu, *vbegin))
           return false;
       return true;
     }

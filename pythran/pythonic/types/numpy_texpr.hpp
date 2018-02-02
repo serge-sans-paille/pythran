@@ -11,12 +11,6 @@ namespace types
 {
 
   template <class E>
-  array<long, 2> const &numpy_texpr_2<E>::shape() const
-  {
-    return _shape;
-  }
-
-  template <class E>
   numpy_texpr_2<E>::numpy_texpr_2()
   {
   }
@@ -72,20 +66,6 @@ namespace types
                                 pythonic::__builtin__::None),
                i);
   }
-  template <class E>
-  auto numpy_texpr_2<E>::fast(
-      array<long, numpy_texpr_2<E>::value> const &indices)
-      -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}))
-  {
-    return arg.fast(array<long, 2>{{indices[1], indices[0]}});
-  }
-  template <class E>
-  auto numpy_texpr_2<E>::fast(
-      array<long, numpy_texpr_2<E>::value> const &indices) const
-      -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}))
-  {
-    return arg.fast(array<long, 2>{{indices[1], indices[0]}});
-  }
 
 #ifdef USE_BOOST_SIMD
   template <class E>
@@ -101,7 +81,7 @@ namespace types
   typename numpy_texpr_2<E>::simd_iterator
       numpy_texpr_2<E>::vend(vectorizer) const
   {
-    return {*this}; // not vectorizable anyway
+    return {*this}; // ! vectorizable anyway
   }
 #endif
 
@@ -121,21 +101,6 @@ namespace types
     return fast(i);
   }
 
-  template <class E>
-  auto numpy_texpr_2<E>::
-  operator[](array<long, numpy_texpr_2<E>::value> const &indices)
-      -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}])
-  {
-    return arg[array<long, 2>{{indices[1], indices[0]}}];
-  }
-
-  template <class E>
-  auto numpy_texpr_2<E>::
-  operator[](array<long, numpy_texpr_2<E>::value> const &indices) const
-      -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}])
-  {
-    return arg[array<long, 2>{{indices[1], indices[0]}}];
-  }
   template <class E>
   template <class... Tys>
   auto numpy_texpr_2<E>::operator[](std::tuple<Tys...> const &indices)
@@ -200,7 +165,7 @@ namespace types
   /* element filtering */
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value and
+  typename std::enable_if<is_numexpr_arg<F>::value &&
                               std::is_same<bool, typename F::dtype>::value,
                           numpy_fexpr<numpy_texpr_2<E>, F>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
@@ -210,7 +175,7 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value and
+  typename std::enable_if<is_numexpr_arg<F>::value &&
                               std::is_same<bool, typename F::dtype>::value,
                           numpy_fexpr<numpy_texpr_2<E>, F>>::type
       numpy_texpr_2<E>::
@@ -221,8 +186,8 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<is_numexpr_arg<F>::value and
-                              not std::is_same<bool, typename F::dtype>::value,
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              !std::is_same<bool, typename F::dtype>::value,
                           ndarray<typename numpy_texpr_2<E>::dtype, 2>>::type
       numpy_texpr_2<E>::
       operator[](F const &filter) const
@@ -240,8 +205,8 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<is_numexpr_arg<F>::value and
-                              not std::is_same<bool, typename F::dtype>::value,
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              !std::is_same<bool, typename F::dtype>::value,
                           ndarray<typename numpy_texpr_2<E>::dtype, 2>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
@@ -285,13 +250,6 @@ namespace types
   intptr_t numpy_texpr_2<E>::id() const
   {
     return arg.id();
-  }
-
-  template <class E>
-  ndarray<typename numpy_texpr_2<E>::dtype, numpy_texpr_2<E>::value>
-  numpy_texpr_2<E>::copy() const
-  {
-    return *this;
   }
 
   // only implemented for N = 2

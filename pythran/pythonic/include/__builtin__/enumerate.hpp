@@ -25,8 +25,15 @@ namespace __builtin__
       Iterator iter;
       enumerate_iterator();
       enumerate_iterator(Iterator const &iter, long first);
-      typename enumerate_iterator_base<Iterator>::value_type operator*() const;
-      enumerate_iterator &operator++();
+      typename enumerate_iterator_base<Iterator>::value_type operator*() const
+      {
+        return std::make_tuple(value, *iter);
+      }
+      enumerate_iterator &operator++()
+      {
+        ++value, ++iter;
+        return *this;
+      }
       enumerate_iterator &operator+=(long n);
       bool operator!=(enumerate_iterator const &other) const;
       bool operator<(enumerate_iterator const &other) const;

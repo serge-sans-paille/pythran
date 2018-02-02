@@ -15,12 +15,12 @@ namespace numpy
 
   template <class E>
   typename std::enable_if<
-      std::is_scalar<E>::value or types::is_complex<E>::value, bool>::type
+      std::is_scalar<E>::value || types::is_complex<E>::value, bool>::type
   all(E const &expr, types::none_type _ = types::none_type());
 
   template <class E>
   auto all(E const &array, long axis) ->
-      typename std::enable_if<std::is_scalar<E>::value or
+      typename std::enable_if<std::is_scalar<E>::value ||
                                   types::is_complex<E>::value,
                               decltype(all(array))>::type;
 

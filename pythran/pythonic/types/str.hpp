@@ -197,7 +197,7 @@ namespace types
   template <class S>
   bool sliced_str<S>::operator!() const
   {
-    return not bool();
+    return !bool();
   }
 
   template <class S>
@@ -244,7 +244,7 @@ namespace types
       data->erase(slicing.lower, slicing.upper);
       data->insert(slicing.lower, s.get_data());
     } else
-      assert("not implemented yet");
+      assert("! implemented yet");
     return *this;
   }
 
@@ -585,7 +585,7 @@ namespace types
 
   str::operator bool() const
   {
-    return not data->empty();
+    return !data->empty();
   }
 
   long str::count(types::str const &sub) const
@@ -627,22 +627,22 @@ namespace types
 
   bool operator==(char c, str const &s)
   {
-    return s.size() == 1 and s[0] == c;
+    return s.size() == 1 && s[0] == c;
   }
 
   bool operator==(str const &s, char c)
   {
-    return s.size() == 1 and s[0] == c;
+    return s.size() == 1 && s[0] == c;
   }
 
   bool operator!=(char c, str const &s)
   {
-    return s.size() != 1 or s[0] != c;
+    return s.size() != 1 || s[0] != c;
   }
 
   bool operator!=(str const &s, char c)
   {
-    return s.size() != 1 or s[0] != c;
+    return s.size() != 1 || s[0] != c;
   }
 
   std::ostream &operator<<(std::ostream &os, str const &s)

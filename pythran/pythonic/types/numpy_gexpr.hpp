@@ -40,12 +40,12 @@ namespace types
   template <class S>
   bool slices_may_overlap(S const &s, long const &i)
   {
-    return s.lower <= i and i < s.upper;
+    return s.lower <= i && i < s.upper;
   }
   template <class S>
   bool slices_may_overlap(long const &i, S const &s)
   {
-    return s.lower <= i and i < s.upper;
+    return s.lower <= i && i < s.upper;
   }
   template <class E0, class E1>
   bool may_overlap(E0 const &, E1 const &)
@@ -82,7 +82,7 @@ namespace types
   bool may_overlap(numpy_gexpr<ndarray<T, N> const &, S...> const &gexpr,
                    numpy_gexpr<ndarray<Tp, Np> const &, Sp...> const &expr)
   {
-    if (not std::is_same<T, Tp>::value) {
+    if (!std::is_same<T, Tp>::value) {
       return false;
     }
     if (N != Np) {
@@ -91,8 +91,8 @@ namespace types
     if (gexpr.arg.id() != expr.arg.id()) {
       return false;
     }
-    if (not slices_may_overlap(std::get<0>(gexpr.slices),
-                               std::get<0>(expr.slices)))
+    if (!slices_may_overlap(std::get<0>(gexpr.slices),
+                            std::get<0>(expr.slices)))
       return false;
     return true;
   }
@@ -108,7 +108,7 @@ namespace types
     return {none_type{}, none_type{}};
   }
 
-  /* helper to build a new shape out of a shape and a slice with new axis
+  /* helper to build a new shape out of a shape && a slice with new axis
    */
   template <size_t N, size_t M, size_t C>
   array<long, N> make_reshape(array<long, M> const &shape,
@@ -325,21 +325,14 @@ namespace types
   }
 
   template <class Arg, class... S>
-  array<long, numpy_gexpr<Arg, S...>::value> const &
-  numpy_gexpr<Arg, S...>::shape() const
-  {
-    return _shape;
-  }
-
-  template <class Arg, class... S>
   numpy_gexpr<Arg, S...>::numpy_gexpr()
       : buffer(nullptr)
   {
   }
 
   template <class Arg, class... S>
-  template <class Argp> // not using the default one, to make it possible to
-  // accept reference and non reference version of Argp
+  template <class Argp> // ! using the default one, to make it possible to
+  // accept reference && non reference version of Argp
   numpy_gexpr<Arg, S...>::numpy_gexpr(numpy_gexpr<Argp, S...> const &other)
       : arg(other.arg), slices(other.slices), buffer(other.buffer),
         _shape(other.shape())
@@ -352,7 +345,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t J, class Slice>
-  typename std::enable_if<std::is_same<Slice, slice>::value or
+  typename std::enable_if<std::is_same<Slice, slice>::value ||
                               std::is_same<Slice, contiguous_slice>::value,
                           void>::type
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<1>,
@@ -365,7 +358,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t I, size_t J, class Slice>
-  typename std::enable_if<std::is_same<Slice, slice>::value or
+  typename std::enable_if<std::is_same<Slice, slice>::value ||
                               std::is_same<Slice, contiguous_slice>::value,
                           void>::type
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<I>,
@@ -442,7 +435,7 @@ namespace types
   numpy_gexpr<Arg, S...>::_copy(E const &expr)
   {
     static_assert(value >= utils::dim_of<E>::value, "dimensions match");
-    /* at this point, we could not statically check that there is not an
+    /* at this point, we could ! statically check that there is ! an
      * aliasing issue that would require an extra copy because of the vector
      * assignment
      * perform a fuzzy alias check dynamically!
@@ -456,15 +449,15 @@ namespace types
       // 100% sure there's no overlap
       return utils::broadcast_copy < numpy_gexpr &, E, value,
              value - utils::dim_of<E>::value,
-             is_vectorizable and
-                 std::is_same<dtype, typename dtype_of<E>::type>::value and
+             is_vectorizable &&
+                 std::is_same<dtype, typename dtype_of<E>::type>::value &&
                  is_vectorizable_array<E>::value > (*this, expr);
     }
   }
 
   template <class Arg, class... S>
   template <class E>
-  typename std::enable_if<not may_overlap_gexpr<E>::value,
+  typename std::enable_if<!may_overlap_gexpr<E>::value,
                           numpy_gexpr<Arg, S...> &>::type
   numpy_gexpr<Arg, S...>::_copy(E const &expr)
   {
@@ -472,8 +465,8 @@ namespace types
     assert(buffer);
     return utils::broadcast_copy < numpy_gexpr &, E, value,
            value - utils::dim_of<E>::value,
-           is_vectorizable and
-               std::is_same<dtype, typename dtype_of<E>::type>::value and
+           is_vectorizable &&
+               std::is_same<dtype, typename dtype_of<E>::type>::value &&
                is_vectorizable_array<E>::value > (*this, expr);
   }
 
@@ -493,7 +486,7 @@ namespace types
 
   template <class Arg, class... S>
   template <class Op, class E>
-  typename std::enable_if<not may_overlap_gexpr<E>::value,
+  typename std::enable_if<!may_overlap_gexpr<E>::value,
                           numpy_gexpr<Arg, S...> &>::type
   numpy_gexpr<Arg, S...>::update_(E const &expr)
   {
@@ -504,10 +497,9 @@ namespace types
     // 100% sure there's no overlap
     return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
            value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
-           is_vectorizable and
+           is_vectorizable &&
                types::is_vectorizable<typename std::remove_cv<
-                   typename std::remove_reference<BExpr>::type>::type>::
-                   value and
+                   typename std::remove_reference<BExpr>::type>::type>::value &&
                std::is_same<dtype, typename dtype_of<typename std::decay<
                                        BExpr>::type>::type>::value >
                    (*this, bexpr);
@@ -529,7 +521,7 @@ namespace types
                              std::remove_reference<BExpr>::type::value>;
       return utils::broadcast_update < Op, numpy_gexpr &, NBExpr, value,
              value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
-             is_vectorizable and types::is_vectorizable<E>::value and
+             is_vectorizable && types::is_vectorizable<E>::value &&
                  std::is_same<dtype,
                               typename std::decay<BExpr>::type::dtype>::value >
                      (*this, NBExpr(bexpr));
@@ -537,7 +529,7 @@ namespace types
       // 100% sure there's no overlap
       return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
              value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
-             is_vectorizable and types::is_vectorizable<E>::value and
+             is_vectorizable && types::is_vectorizable<E>::value &&
                  std::is_same<dtype,
                               typename std::decay<BExpr>::type::dtype>::value >
                      (*this, bexpr);
@@ -604,10 +596,10 @@ namespace types
   typename numpy_gexpr<Arg, S...>::const_iterator
   numpy_gexpr<Arg, S...>::begin() const
   {
-    return make_const_nditerator < is_strided or
+    return make_const_nditerator < is_strided ||
            value !=
                1 > ()(*this,
-                      (is_strided or value != 1)
+                      (is_strided || value != 1)
                           ? 0
                           : (long)std::get<count_leading_long<S...>::value>(
                                 slices).lower);
@@ -617,10 +609,10 @@ namespace types
   typename numpy_gexpr<Arg, S...>::const_iterator
   numpy_gexpr<Arg, S...>::end() const
   {
-    return make_const_nditerator < is_strided or
+    return make_const_nditerator < is_strided ||
            value !=
                1 > ()(*this,
-                      ((is_strided or value != 1)
+                      ((is_strided || value != 1)
                            ? 0
                            : (long)std::get<count_leading_long<S...>::value>(
                                  slices).lower) +
@@ -630,10 +622,10 @@ namespace types
   template <class Arg, class... S>
   typename numpy_gexpr<Arg, S...>::iterator numpy_gexpr<Arg, S...>::begin()
   {
-    return make_nditerator < is_strided or
+    return make_nditerator < is_strided ||
            value !=
                1 > ()(*this,
-                      (is_strided or value != 1)
+                      (is_strided || value != 1)
                           ? 0
                           : (long)std::get<count_leading_long<S...>::value>(
                                 slices).lower);
@@ -642,10 +634,10 @@ namespace types
   template <class Arg, class... S>
   typename numpy_gexpr<Arg, S...>::iterator numpy_gexpr<Arg, S...>::end()
   {
-    return make_nditerator < is_strided or
+    return make_nditerator < is_strided ||
            value !=
                1 > ()(*this,
-                      ((is_strided or value != 1)
+                      ((is_strided || value != 1)
                            ? 0
                            : (long)std::get<count_leading_long<S...>::value>(
                                  slices).lower) +
@@ -840,8 +832,8 @@ namespace types
       return type(e, std::forward<F>(f));
     }
 
-    // We have a long index so it is not a gexpr but a iexpr.
-    // We declare a new iexpr and we continue looking for a new slice.
+    // We have a long index so it is ! a gexpr but a iexpr.
+    // We declare a new iexpr && we continue looking for a new slice.
     template <size_t N, class Arg, class... S>
     template <class E, class F>
     auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E const &e, F &&f)

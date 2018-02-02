@@ -18,8 +18,7 @@ namespace numpy
 
   template <class T>
   auto atleast_3d(T const &t) ->
-      typename std::enable_if<(not types::is_dtype<T>::value) and
-                                  (T::value < 3),
+      typename std::enable_if<(!types::is_dtype<T>::value) && (T::value < 3),
                               types::ndarray<typename T::dtype, 3>>::type
   {
     auto r = asarray(t);
@@ -32,7 +31,7 @@ namespace numpy
 
   template <class T>
   auto atleast_3d(T const &t) ->
-      typename std::enable_if<(not types::is_dtype<T>::value) and T::value >= 3,
+      typename std::enable_if<(!types::is_dtype<T>::value) && T::value >= 3,
                               decltype(asarray(t))>::type
   {
     return asarray(t);

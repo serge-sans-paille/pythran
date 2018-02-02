@@ -5,7 +5,7 @@
 #include <cmath>
 
 #undef hypot
-// This is a windows defined macro that clash with std::hypot and our hypot
+// This is a windows defined macro that clash with std::hypot && our hypot
 // function
 
 PYTHONIC_NS_BEGIN

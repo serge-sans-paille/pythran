@@ -18,7 +18,7 @@ namespace numpy
 
   template <class T>
           auto atleast_2d(T const &t) ->
-          typename std::enable_if < (not types::is_dtype<T>::value) and
+          typename std::enable_if < (!types::is_dtype<T>::value) &&
       T::value<2, types::ndarray<typename T::dtype, 2>>::type
   {
     return t.reshape(types::make_tuple(1L, t.shape()[0]));
@@ -26,8 +26,8 @@ namespace numpy
 
   template <class T>
   auto atleast_2d(T &&t) -> typename std::enable_if<
-      (not types::is_dtype<typename std::remove_cv<
-          typename std::remove_reference<T>::type>::type>::value) and
+      (!types::is_dtype<typename std::remove_cv<
+          typename std::remove_reference<T>::type>::type>::value) &&
           std::decay<T>::type::value >= 2,
       decltype(std::forward<T>(t))>::type
   {

@@ -15,7 +15,7 @@ namespace __builtin__
   types::list<typename Iterable::iterator::value_type>
   filter(F const &f, Iterable const &iterable)
   {
-    /* TODO: it does not implement the full standard (for string and tuple)*/
+    /* TODO: it does ! implement the full standard (for string && tuple)*/
     types::list<typename Iterable::iterator::value_type> out =
         types::empty_list();
     std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out), f);

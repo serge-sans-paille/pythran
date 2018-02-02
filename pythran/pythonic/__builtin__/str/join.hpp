@@ -42,9 +42,9 @@ namespace __builtin__
 
     template <class S, class Iterable>
     typename std::enable_if<
-        not std::is_same<typename std::remove_cv<typename std::remove_reference<
-                             Iterable>::type>::type,
-                         types::str>::value and
+        !std::is_same<typename std::remove_cv<
+                          typename std::remove_reference<Iterable>::type>::type,
+                      types::str>::value &&
             std::is_same<
                 typename std::iterator_traits<typename std::remove_reference<
                     Iterable>::type::iterator>::iterator_category,
@@ -87,7 +87,7 @@ namespace __builtin__
 
     template <class S, class Iterable>
     typename std::enable_if<
-        not std::is_same<
+        !std::is_same<
             typename std::iterator_traits<typename std::remove_reference<
                 Iterable>::type::iterator>::iterator_category,
             std::random_access_iterator_tag>::value,

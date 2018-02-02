@@ -16,7 +16,7 @@ namespace numpy
   {
     for (; begin != end; ++begin) {
       auto curr = *begin;
-      if (not functor::isnan()(curr))
+      if (!functor::isnan()(curr))
         sum += curr;
     }
   }

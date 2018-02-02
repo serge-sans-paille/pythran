@@ -15,8 +15,7 @@ namespace numpy
                                           long nb_split)
   {
     if (a.flat_size() % nb_split != 0)
-      throw types::ValueError(
-          "array split does not result in an equal division");
+      throw types::ValueError("array split does ! result in an equal division");
     return array_split(a, nb_split);
   }
 

@@ -51,8 +51,7 @@ class TestEnv(unittest.TestCase):
     # default options used for the c++ compiler
     PYTHRAN_CXX_FLAGS = ['-O0', '-Wall', '-Wno-unknown-pragmas',
                          '-Wno-mismatched-tags', '-Wno-unused-local-typedefs',
-                         '-Wno-unknown-warning-option'] +\
-        ([] if sys.platform != "win32" else ["-Werrror"])
+                         '-Wno-unknown-warning-option', '-Werror'] if sys.platform != "win32" else ['/w']
     # -Werror can't be use because of boost.Python warning for Windows version
 
     TEST_RETURNVAL = "TEST_RETURNVAL"

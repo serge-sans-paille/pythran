@@ -46,7 +46,7 @@ namespace types
     contiguous_slice operator()(none_type);
   };
 
-  /* helper to build a new shape out of a shape and a slice with new axis
+  /* helper to build a new shape out of a shape && a slice with new axis
    */
   template <size_t N, size_t M, size_t C>
   array<long, N> make_reshape(array<long, M> const &shape,
@@ -174,7 +174,7 @@ namespace types
   namespace details
   {
 
-    // this struct is specialized for every type combination and takes care of
+    // this struct is specialized for every type combination && takes care of
     // the slice merge
     template <class T, class Tp>
     struct merge_gexpr;
@@ -274,14 +274,13 @@ namespace types
    *
    * a[1:] = a[:-1]
    *
-   * because this is *not* equivalent to for i in range(0, n-1): a[i+1] = a[i]
+   * because this is *!* equivalent to for i in range(0, n-1): a[i+1] = a[i]
    *
    * to avoid the copy, we rely on the lhs type
    */
 
   template <class E>
-  struct may_overlap_gexpr
-      : std::integral_constant<bool, not is_dtype<E>::value> {
+  struct may_overlap_gexpr : std::integral_constant<bool, !is_dtype<E>::value> {
   };
 
   template <class T0, class T1>
@@ -314,7 +313,7 @@ namespace types
 
   template <class E>
   struct may_overlap_gexpr<list<E>>
-      : std::integral_constant<bool, not is_dtype<E>::value> {
+      : std::integral_constant<bool, !is_dtype<E>::value> {
   };
 
   template <class E, size_t N>
@@ -335,44 +334,44 @@ namespace types
   struct numpy_gexpr {
     // numpy_gexpr is a wrapper for extended sliced array around a numpy
     // expression.
-    // It contains compacted sorted slices value in lower, step and upper is
+    // It contains compacted sorted slices value in lower, step && upper is
     // the same as shape.
     // indices for long index are store in the indices array.
-    // position for slice and long value in the extended slice can be found
+    // position for slice && long value in the extended slice can be found
     // through the S... template
-    // and compacted values as we know that first S is a slice.
+    // && compacted values as we know that first S is a slice.
 
     using dtype = typename std::remove_reference<Arg>::type::dtype;
     static constexpr size_t value =
         std::remove_reference<Arg>::type::value - count_long<S...>::value;
 
-    // It is not possible to vectorize everything. We only vectorize if the
+    // It is ! possible to vectorize everything. We only vectorize if the
     // last dimension is contiguous, which happens if
     // 1. Arg is an ndarray (this is too strict)
-    // 2. the size of the gexpr is lower than the dim of arg, or it's the
+    // 2. the size of the gexpr is lower than the dim of arg, || it's the
     // same, but the last slice is contiguous
     static const bool is_vectorizable =
-        std::remove_reference<Arg>::type::is_vectorizable and
-        (sizeof...(S) < std::remove_reference<Arg>::type::value or
+        std::remove_reference<Arg>::type::is_vectorizable &&
+        (sizeof...(S) < std::remove_reference<Arg>::type::value ||
          std::is_same<contiguous_slice,
                       typename std::tuple_element<
                           sizeof...(S)-1, std::tuple<S...>>::type>::value);
     static const bool is_strided =
-        std::remove_reference<Arg>::type::is_strided or
-        (((sizeof...(S)-count_long<S...>::value) == value) and
-         not std::is_same<contiguous_slice,
-                          typename std::tuple_element<
-                              sizeof...(S)-1, std::tuple<S...>>::type>::value);
+        std::remove_reference<Arg>::type::is_strided ||
+        (((sizeof...(S)-count_long<S...>::value) == value) &&
+         !std::is_same<contiguous_slice,
+                       typename std::tuple_element<
+                           sizeof...(S)-1, std::tuple<S...>>::type>::value);
 
     using value_type = typename std::remove_reference<decltype(
         numpy_gexpr_helper<Arg, S...>::get(std::declval<numpy_gexpr>(),
                                            0L))>::type;
 
     using iterator =
-        typename std::conditional<is_strided or value != 1,
+        typename std::conditional<is_strided || value != 1,
                                   nditerator<numpy_gexpr>, dtype *>::type;
     using const_iterator =
-        typename std::conditional<is_strided or value != 1,
+        typename std::conditional<is_strided || value != 1,
                                   const_nditerator<numpy_gexpr>,
                                   dtype const *>::type;
 
@@ -384,25 +383,28 @@ namespace types
     std::tuple<S...> slices;
     dtype *buffer;
     array<long, value> _shape;
-    array<long, value> const &shape() const;
+    array<long, value> const &shape() const
+    {
+      return _shape;
+    }
 
     numpy_gexpr();
     numpy_gexpr(numpy_gexpr const &) = default;
     numpy_gexpr(numpy_gexpr &&) = default;
 
-    template <class Argp> // not using the default one, to make it possible to
-    // accept reference and non reference version of
+    template <class Argp> // ! using the default one, to make it possible to
+    // accept reference && non reference version of
     // Argp
     numpy_gexpr(numpy_gexpr<Argp, S...> const &other);
 
     template <size_t J, class Slice>
-    typename std::enable_if<std::is_same<Slice, slice>::value or
+    typename std::enable_if<std::is_same<Slice, slice>::value ||
                                 std::is_same<Slice, contiguous_slice>::value,
                             void>::type
     init_shape(Slice const &s, utils::int_<1>, utils::int_<J>);
 
     template <size_t I, size_t J, class Slice>
-    typename std::enable_if<std::is_same<Slice, slice>::value or
+    typename std::enable_if<std::is_same<Slice, slice>::value ||
                                 std::is_same<Slice, contiguous_slice>::value,
                             void>::type
     init_shape(Slice const &s, utils::int_<I>, utils::int_<J>);
@@ -426,14 +428,14 @@ namespace types
     friend struct pythonic::from_python;
 #endif
 
-    // When we create a new numpy_gexpr, we deduce step, lower and shape from
+    // When we create a new numpy_gexpr, we deduce step, lower && shape from
     // slices
-    // and indices from long value.
+    // && indices from long value.
     // Also, last shape information are set from origin array like in :
     // >>> a = numpy.arange(2*3*4).reshape(2,3,4)
     // >>> a[:, 1]
     // the last dimension (4) is missing from slice information
-    // Finally, if origin expression was already sliced, lower bound and step
+    // Finally, if origin expression was already sliced, lower bound && step
     // have to
     // be increased
     numpy_gexpr(Arg const &arg, std::tuple<S const &...> const &values);
@@ -451,8 +453,7 @@ namespace types
     _copy(E const &expr);
 
     template <class E>
-    typename std::enable_if<not may_overlap_gexpr<E>::value,
-                            numpy_gexpr &>::type
+    typename std::enable_if<!may_overlap_gexpr<E>::value, numpy_gexpr &>::type
     _copy(E const &expr);
 
     template <class E>
@@ -465,8 +466,7 @@ namespace types
     update_(E const &expr);
 
     template <class Op, class E>
-    typename std::enable_if<not may_overlap_gexpr<E>::value,
-                            numpy_gexpr &>::type
+    typename std::enable_if<!may_overlap_gexpr<E>::value, numpy_gexpr &>::type
     update_(E const &expr);
 
     template <class E>
@@ -584,8 +584,8 @@ namespace types
       static type get(E const &e, F &&f);
     };
 
-    // We have a long index so it is not a gexpr but a iexpr.
-    // We declare a new iexpr and we continue looking for a new slice.
+    // We have a long index so it is ! a gexpr but a iexpr.
+    // We declare a new iexpr && we continue looking for a new slice.
     template <size_t N, class Arg, class... S>
     struct finalize_numpy_gexpr_helper<N, Arg, long, S...> {
       template <class E, class F>

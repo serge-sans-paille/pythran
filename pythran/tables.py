@@ -95,7 +95,7 @@ operator_to_lambda = {
         "(pythonic::operator_::functor::floordiv{{}}({0}, {1}))".format,
     # unaryop
     ast.Invert: "(~{0})".format,
-    ast.Not: "(not {0})".format,
+    ast.Not: "(! {0})".format,
     ast.UAdd: "(+{0})".format,
     ast.USub: "(-{0})".format,
     # cmpop
@@ -110,7 +110,7 @@ operator_to_lambda = {
     ast.IsNot: ("(pythonic::__builtin__::id({0}) != "
                 "pythonic::__builtin__::id({1}))").format,
     ast.In: "(pythonic::in({1}, {0}))".format,
-    ast.NotIn: "(not pythonic::in({1}, {0}))".format,
+    ast.NotIn: "(! pythonic::in({1}, {0}))".format,
 }
 
 T0, T1, T2, T3 = TypeVar('T0'), TypeVar('T1'), TypeVar('T2'), TypeVar('T3')

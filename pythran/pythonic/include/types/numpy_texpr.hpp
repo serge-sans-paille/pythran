@@ -41,7 +41,10 @@ namespace types
 
     Arg arg;
     array<long, 2> _shape;
-    array<long, 2> const &shape() const;
+    array<long, 2> const &shape() const
+    {
+      return _shape;
+    }
 
     numpy_texpr_2();
     numpy_texpr_2(numpy_texpr_2 const &) = default;
@@ -64,9 +67,15 @@ namespace types
                                                pythonic::__builtin__::None),
                               i));
     auto fast(array<long, value> const &indices)
-        -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}));
+        -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}))
+    {
+      return arg.fast(array<long, 2>{{indices[1], indices[0]}});
+    }
     auto fast(array<long, value> const &indices) const
-        -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}));
+        -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}))
+    {
+      return arg.fast(array<long, 2>{{indices[1], indices[0]}});
+    }
 
 #ifdef USE_BOOST_SIMD
     using simd_iterator = const_simd_nditerator<numpy_texpr_2>;
@@ -79,36 +88,40 @@ namespace types
 
     /* element filtering */
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value and
+    typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
                             numpy_fexpr<numpy_texpr_2, F>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<
-        is_numexpr_arg<F>::value and
-            not std::is_same<bool, typename F::dtype>::value,
-        ndarray<dtype, 2>>::type
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value,
+                            ndarray<dtype, 2>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value and
+    typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
                             numpy_fexpr<numpy_texpr_2, F>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<
-        is_numexpr_arg<F>::value and
-            not std::is_same<bool, typename F::dtype>::value,
-        ndarray<dtype, 2>>::type
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value,
+                            ndarray<dtype, 2>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));
     auto operator[](array<long, value> const &indices)
-        -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}]);
+        -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}])
+    {
+      return arg[array<long, 2>{{indices[1], indices[0]}}];
+    }
     auto operator[](array<long, value> const &indices) const
-        -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}]);
+        -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}])
+    {
+      return arg[array<long, 2>{{indices[1], indices[0]}}];
+    }
     template <class... Tys>
     auto operator[](std::tuple<Tys...> const &indices) -> decltype(
         arg[array<long, 2>{{std::get<1>(indices), std::get<0>(indices)}}]);
@@ -145,7 +158,10 @@ namespace types
 
     long flat_size() const;
     intptr_t id() const;
-    ndarray<dtype, value> copy() const;
+    ndarray<dtype, value> copy() const
+    {
+      return *this;
+    }
   };
 
   // only implemented for N = 2

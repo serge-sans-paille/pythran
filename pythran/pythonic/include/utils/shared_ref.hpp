@@ -56,7 +56,7 @@ namespace utils
     // Uninitialized ctor (rvalue ref)
     shared_ref(no_memory &&) noexcept;
 
-    // Ctor allocate T and forward all arguments to T ctor
+    // Ctor allocate T && forward all arguments to T ctor
     template <class... Types>
     shared_ref(Types &&... args);
 

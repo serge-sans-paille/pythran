@@ -20,11 +20,11 @@ namespace types
       array<long, value> shape;
       for (size_t i = 0; i < value; ++i) {
         long max = 0;
-        std::initializer_list<long> __attribute__((unused))
-        _{(value <= std::remove_reference<Args>::type::value &&
-                   args.shape()[i] > max
-               ? max = args.shape()[i]
-               : max)...};
+        std::initializer_list<long> _{
+            (value <= std::remove_reference<Args>::type::value &&
+                     args.shape()[i] > max
+                 ? max = args.shape()[i]
+                 : max)...};
         shape[i] = max;
       }
       return shape;
@@ -90,15 +90,15 @@ namespace types
   bool numpy_expr<Op, Args...>::_no_broadcast(utils::index_sequence<I...>) const
   {
     bool child_broadcast = false;
-    std::initializer_list<bool> __attribute__((unused))
-    _0 = {(child_broadcast |= !utils::no_broadcast(std::get<I>(args)))...};
+    std::initializer_list<bool> _0 = {
+        (child_broadcast |= !utils::no_broadcast(std::get<I>(args)))...};
     if (child_broadcast)
       return false;
 
     bool same_shape = true;
-    std::initializer_list<bool> __attribute__((unused))
-    _1 = {(same_shape &= (std::get<I>(args).shape()[0] == size() ||
-                          std::get<I>(args).shape()[0] == 0))...};
+    std::initializer_list<bool> _1 = {
+        (same_shape &= (std::get<I>(args).shape()[0] == size() ||
+                        std::get<I>(args).shape()[0] == 0))...};
     return same_shape;
   }
   template <class Op, class... Args>
@@ -182,13 +182,6 @@ namespace types
     if (i < 0)
       i += _shape[0];
     return fast(i);
-  }
-
-  template <class Op, class... Args>
-  array<long, numpy_expr<Op, Args...>::value> const &
-  numpy_expr<Op, Args...>::shape() const
-  {
-    return _shape;
   }
 
 #ifdef USE_BOOST_SIMD
@@ -279,7 +272,7 @@ namespace types
   template <class S0, class... S>
   auto numpy_expr<Op, Args...>::operator()(S0 const &s0, S const &... s) const
       -> typename std::enable_if<
-          not std::is_scalar<S0>::value,
+          !std::is_scalar<S0>::value,
           decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{}, s0,
                               s...))>::type
   {

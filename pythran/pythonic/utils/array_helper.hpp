@@ -7,7 +7,7 @@ PYTHONIC_NS_BEGIN
 
 /* recursively return the value at the position given by `indices' in the
  * `self' "array like". It may be a sub array instead of real value.
- * indices[0] is the coordinate for the first dimension and indices[M-1] is
+ * indices[0] is the coordinate for the first dimension && indices[M-1] is
  * for the last one.
  */
 template <size_t L>

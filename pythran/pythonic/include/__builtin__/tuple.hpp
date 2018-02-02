@@ -13,9 +13,9 @@ namespace __builtin__
   template <class... Types>
   std::tuple<Types...> tuple(std::tuple<Types...> const &t);
 
-  template <
-      class Iterable> /* this is far from perfect, but how to cope with the
-                         difference between python tuples and c++ ones ? */
+  template <class Iterable> /* this is far from perfect, but how to cope with
+                               the
+                               difference between python tuples && c++ ones ? */
       typename std::enable_if <
       types::len_of<typename std::remove_cv<
           typename std::remove_reference<Iterable>::type>::type>::

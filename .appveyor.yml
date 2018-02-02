@@ -1,0 +1,23 @@
+image:
+- Visual Studio 2017
+
+platform:
+- x64
+
+environment:
+    matrix:
+        - PYTHON: C:\Python36
+
+install:
+  - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - python -m pip install -r requirements.txt
+  - python -m pip install numpy
+  - python -m pip install pytest pytest-pep8
+
+build_script:
+    - python setup.py build
+
+test_script:
+    - set PYTHONPATH=.
+    - python -m pytest pythran/tests/test_scipy.py -v
+    - python -m pytest pythran/tests/test_base.py -v

@@ -40,7 +40,7 @@ namespace utils
    *loop
    *       that may be vectorizable
    *
-   * ``D'' is the delta between the number of dimensions of E and F. When set
+   * ``D'' is the delta between the number of dimensions of E && F. When set
    *to a
    *       value greater than ``0'', some broadcasting is needed
    */
@@ -79,7 +79,7 @@ namespace utils
     }
   };
 
-  // ``D'' is not ``0'' so we should broadcast
+  // ``D'' is ! ``0'' so we should broadcast
   template <class vectorizer, size_t N, size_t D>
   struct _broadcast_copy {
     template <class E, class F>
@@ -204,7 +204,7 @@ namespace utils
 
   /* update
    */
-  // ``D'' is not ``0'' so we should broadcast
+  // ``D'' is ! ``0'' so we should broadcast
   template <class Op, typename vector_form, size_t N, size_t D>
   struct _broadcast_update {
 

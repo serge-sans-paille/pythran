@@ -31,7 +31,7 @@ namespace __builtin__
 
     int_::type int_::operator()(char t) const
     {
-      assert(t >= '0' and t <= '9');
+      assert(t >= '0' && t <= '9');
       return t - '0';
     }
 

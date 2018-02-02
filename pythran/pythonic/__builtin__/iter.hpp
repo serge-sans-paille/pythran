@@ -19,7 +19,7 @@ namespace __builtin__
     {
     }
 
-    // FIXME : There is a dangling reference as data.begin() is not the one
+    // FIXME : There is a dangling reference as data.begin() is ! the one
     // from data "saved" in the "iter" struct
     template <class T>
     iter<T>::iter(T data)

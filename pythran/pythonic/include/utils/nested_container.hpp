@@ -17,7 +17,7 @@ namespace types
 namespace utils
 {
 
-  /* compute nested container depth and memory size*/
+  /* compute nested container depth && memory size*/
   template <class T, bool IsArray>
   struct nested_container_depth_helper;
 
@@ -54,7 +54,7 @@ namespace utils
 
   /* Get the size of a container, using recursion on inner container if any
    * FIXME: should be a constexpr?
-   * FIXME: why a class and not a function?
+   * FIXME: why a class && ! a function?
    */
   template <class T>
   struct nested_container_size {

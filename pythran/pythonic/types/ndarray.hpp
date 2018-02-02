@@ -352,7 +352,7 @@ namespace types
   void ndarray<T, N>::initialize_from_expr(E const &expr)
   {
     utils::broadcast_copy<ndarray &, E, value, 0,
-                          is_vectorizable and E::is_vectorizable and
+                          is_vectorizable && E::is_vectorizable &&
                               std::is_same<dtype, typename E::dtype>::value>(
         *this, expr);
   }
@@ -424,9 +424,9 @@ namespace types
     utils::broadcast_update<
         Op, ndarray &, BExpr, value,
         value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
-        is_vectorizable and
+        is_vectorizable &&
             types::is_vectorizable<typename std::remove_cv<
-                typename std::remove_reference<BExpr>::type>::type>::value and
+                typename std::remove_reference<BExpr>::type>::type>::value &&
             std::is_same<dtype, typename dtype_of<typename std::decay<
                                     BExpr>::type>::type>::value>(*this, bexpr);
     return *this;
@@ -475,21 +475,8 @@ namespace types
   }
 
   /* element indexing
-   * differentiate const from non const, and r-value from l-value
+   * differentiate const from non const, && r-value from l-value
    * */
-  template <class T, size_t N>
-  auto ndarray<T, N>::fast(long i) const
-      & -> decltype(type_helper<ndarray const &>::get(*this, i))
-  {
-    return type_helper<ndarray const &>::get(*this, i);
-  }
-
-  template <class T, size_t N>
-      auto ndarray<T, N>::fast(long i) &&
-      -> decltype(type_helper<ndarray>::get(std::move(*this), i))
-  {
-    return type_helper<ndarray>::get(std::move(*this), i);
-  }
 
   template <class T, size_t N>
   T &ndarray<T, N>::fast(array<long, N> const &indices)
@@ -517,23 +504,6 @@ namespace types
       -> decltype(nget<M - 1>().fast(std::move(*this), indices))
   {
     return nget<M - 1>().fast(std::move(*this), indices);
-  }
-
-  template <class T, size_t N>
-  auto ndarray<T, N>::operator[](long i) const & -> decltype(this->fast(i))
-  {
-    if (i < 0)
-      i += _shape[0];
-    return fast(i);
-  }
-
-  template <class T, size_t N>
-      auto ndarray<T, N>::operator[](long i) &&
-      -> decltype(std::move(*this).fast(i))
-  {
-    if (i < 0)
-      i += _shape[0];
-    return std::move(*this).fast(i);
   }
 
   template <class T, size_t N>
@@ -631,8 +601,8 @@ namespace types
   template <class T, size_t N>
   template <class S0, class... S>
   auto ndarray<T, N>::operator()(S0 const &s0, S const &... s) const
-      -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0,
-                                                                    s...))
+      & -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}((*this),
+                                                                      s0, s...))
   {
     return extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...);
   }
@@ -650,7 +620,7 @@ namespace types
   /* element filtering */
   template <class T, size_t N>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value and
+  typename std::enable_if<is_numexpr_arg<F>::value &&
                               std::is_same<bool, typename F::dtype>::value,
                           numpy_fexpr<ndarray<T, N>, F>>::type
   ndarray<T, N>::fast(F const &filter) const
@@ -660,7 +630,7 @@ namespace types
 
   template <class T, size_t N>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value and
+  typename std::enable_if<is_numexpr_arg<F>::value &&
                               std::is_same<bool, typename F::dtype>::value,
                           numpy_fexpr<ndarray<T, N>, F>>::type ndarray<T, N>::
   operator[](F const &filter) const
@@ -670,9 +640,9 @@ namespace types
 
   template <class T, size_t N>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<is_numexpr_arg<F>::value and
-                              not is_array_index<F>::value and
-                              not std::is_same<bool, typename F::dtype>::value,
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              !is_array_index<F>::value &&
+                              !std::is_same<bool, typename F::dtype>::value,
                           ndarray<T, N>>::type ndarray<T, N>::
   operator[](F const &filter) const
   {
@@ -689,9 +659,9 @@ namespace types
 
   template <class T, size_t N>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<is_numexpr_arg<F>::value and
-                              not is_array_index<F>::value and
-                              not std::is_same<bool, typename F::dtype>::value,
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              !is_array_index<F>::value &&
+                              !std::is_same<bool, typename F::dtype>::value,
                           ndarray<T, N>>::type
   ndarray<T, N>::fast(F const &filter) const
   {
@@ -1017,7 +987,7 @@ namespace types
       using stype = typename types::is_complex<typename E::dtype>::type;
       auto new_shape = a.shape();
       new_shape[E::value - 1] *= 2;
-      // this is tricky and dangerous!
+      // this is tricky && dangerous!
       auto translated_mem =
           reinterpret_cast<utils::shared_ref<raw_array<stype>> const &>(a.mem);
       ndarray<stype, E::value> translated{translated_mem, new_shape};
@@ -1064,7 +1034,7 @@ namespace types
       using stype = typename types::is_complex<typename E::dtype>::type;
       auto new_shape = a.shape();
       new_shape[E::value - 1] *= 2;
-      // this is tricky and dangerous!
+      // this is tricky && dangerous!
       auto translated_mem =
           reinterpret_cast<utils::shared_ref<raw_array<stype>> const &>(a.mem);
       ndarray<stype, E::value> translated{translated_mem, new_shape};
@@ -1240,8 +1210,8 @@ struct c_type_to_numpy_type<boost::simd::logical<T>> {
 
 /* wrapper around Python array creation
  * its purpose is to hide the difference between the shape stored in pythran
- * (aka long) and the shape stored in numpy (aka npy_intp)
- * it should work (with an extra copy) on 32 bit architecture and without copy
+ * (aka long) && the shape stored in numpy (aka npy_intp)
+ * it should work (with an extra copy) on 32 bit architecture && without copy
  * on 64 bits architecture
  */
 template <class T, size_t N>
@@ -1347,15 +1317,6 @@ PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
                      types::numpy_gexpr<Arg, S...>::value>{v});
 }
 
-template <class T>
-PyObject *to_python<types::numpy_texpr<types::ndarray<T, 2>>>::convert(
-    types::numpy_texpr<types::ndarray<T, 2>> const &t)
-{
-  auto const &n = t.arg;
-  PyObject *result = to_python<types::ndarray<T, 2>>::convert(n, true);
-  return result;
-}
-
 namespace impl
 {
   template <typename T, size_t N>
@@ -1363,7 +1324,7 @@ namespace impl
   {
     if (!PyArray_Check(obj))
       return nullptr;
-    // the array must have the same dtype and the same number of dimensions
+    // the array must have the same dtype && the same number of dimensions
     PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
     if (PyArray_TYPE(arr) != c_type_to_numpy_type<T>::value)
       return nullptr;
@@ -1406,7 +1367,7 @@ template <typename T, size_t N>
 bool from_python<types::ndarray<T, N>>::is_convertible(PyObject *obj)
 {
   PyArrayObject *arr = impl::check_array_type_and_dims<T, N>(obj);
-  if (not arr)
+  if (!arr)
     return false;
   auto const *stride = PyArray_STRIDES(arr);
   auto const *dims = PyArray_DIMS(arr);
@@ -1437,11 +1398,11 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, N>,
                                     S...>>::is_convertible(PyObject *obj)
 {
   PyArrayObject *arr = impl::check_array_type_and_dims<T, N>(obj);
-  if (not arr)
+  if (!arr)
     return false;
 
   PyObject *base_obj = PyArray_BASE(arr);
-  if (!base_obj or !PyArray_Check(base_obj))
+  if (!base_obj || !PyArray_Check(base_obj))
     return false;
   PyArrayObject *base_arr = reinterpret_cast<PyArrayObject *>(base_obj);
 
@@ -1456,7 +1417,7 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, N>,
   bool at_least_one_stride = false;
   for (long i = N - 1; i >= 0; i--) {
     if (stride[i] < 0) {
-      std::cerr << "array with negative strides are not supported" << std::endl;
+      std::cerr << "array with negative strides are ! supported" << std::endl;
       return false;
     } else if (stride[i] != current_stride) {
       at_least_one_stride = true;
@@ -1466,7 +1427,7 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, N>,
   }
   if (at_least_one_stride) {
     if (PyArray_NDIM(base_arr) != N) {
-      std::cerr << "reshaped array are not supported" << std::endl;
+      std::cerr << "reshaped array are ! supported" << std::endl;
       return false;
     }
     return true;
@@ -1483,14 +1444,14 @@ from_python<types::numpy_gexpr<types::ndarray<T, N>, S...>>::convert(
   PyArrayObject *base_arr =
       reinterpret_cast<PyArrayObject *>(PyArray_BASE(arr));
 
-  /* from the base array pointer and this array pointer, we can recover the
+  /* from the base array pointer && this array pointer, we can recover the
    * full slice informations
    * unfortunately, the PyArray representation is different from our.
    * - PyArray_BYTES gives the start of the base pointer
    * - PyArray_Dims give the dimension array (the shape)
    * - PyArray_STRIDES gives the stride information, but relative to the
    * base
-   * pointer and not relative to the lower dimension
+   * pointer && ! relative to the lower dimension
    */
   long offsets[N];
   long strides[N];
@@ -1526,7 +1487,7 @@ bool from_python<types::numpy_texpr<E>>::
   constexpr auto N = E::value;
   PyArrayObject *arr =
       impl::check_array_type_and_dims<typename E::dtype, E::value>(obj);
-  if (not arr)
+  if (!arr)
     return false;
   // check strides. Note that because it's a texpr, the check is done in the
   // opposite direction compared to ndarrays

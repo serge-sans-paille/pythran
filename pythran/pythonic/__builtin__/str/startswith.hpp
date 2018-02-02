@@ -19,7 +19,7 @@ namespace __builtin__
     {
       if (end < 0)
         end = s.size();
-      return (end - start) >= prefix.size() and
+      return (end - start) >= prefix.size() &&
              s.compare(start, prefix.size(), prefix) == 0;
     }
 

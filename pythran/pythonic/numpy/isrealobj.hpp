@@ -14,7 +14,7 @@ namespace numpy
   template <class E>
   constexpr bool isrealobj(E const &expr)
   {
-    return not types::is_complex<typename E::dtype>::value;
+    return !types::is_complex<typename E::dtype>::value;
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, isrealobj);

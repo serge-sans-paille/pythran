@@ -1,13 +1,13 @@
 #ifndef OPERATOR_NAME
-#error OPERATOR_NAME not defined
+#error OPERATOR_NAME ! defined
 #endif
 
 #ifndef OPERATOR_SYMBOL
-#error OPERATOR_SYMBOL not defined
+#error OPERATOR_SYMBOL ! defined
 #endif
 
 #ifndef OPERATOR_ISYMBOL
-#error OPERATOR_ISYMBOL not defined
+#error OPERATOR_ISYMBOL ! defined
 #endif
 
 #include "pythonic/utils/functor.hpp"
@@ -23,7 +23,7 @@ namespace operator_
 
 #ifdef USE_BOOST_SIMD
 #if 0
-    // Theses overloads are needed because the proper && overloads are not
+    // Theses overloads are needed because the proper && overloads are !
     // defined in NT2
     template <class T0, class T1, class T2, class B>
     auto OPERATOR_NAME(boost::simd::native<T0, T1, T2> &a, B &&b)
@@ -59,12 +59,12 @@ namespace operator_
 
   template <class A, class B>
   auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
-      std::is_const<A>::value or not std::is_assignable<A, B>::value,
+      std::is_const<A>::value || !std::is_assignable<A, B>::value,
       decltype(std::forward<A>(a) OPERATOR_SYMBOL std::forward<B>(b))>::type;
 
   template <class A, class B>
   auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
-      not std::is_const<A>::value and std::is_assignable<A, B>::value,
+      !std::is_const<A>::value && std::is_assignable<A, B>::value,
       decltype(std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b))>::type;
 
   DECLARE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);

@@ -49,13 +49,13 @@ namespace types
   template <class O>
   bool none<T, false>::operator==(O const &t) const
   {
-    return not is_none and static_cast<const T &>(*this) == t;
+    return !is_none && static_cast<const T &>(*this) == t;
   }
 
   template <class T>
   none<T, false>::operator bool() const
   {
-    return not is_none and static_cast<const T &>(*this);
+    return !is_none && static_cast<const T &>(*this);
   }
 
   template <class T>
@@ -93,13 +93,13 @@ namespace types
   template <class O>
   bool none<T, true>::operator==(O const &t) const
   {
-    return not is_none and data == t;
+    return !is_none && data == t;
   }
 
   template <class T>
   none<T, true>::operator bool() const
   {
-    return not is_none and data;
+    return !is_none && data;
   }
 
   template <class T>
@@ -154,7 +154,7 @@ namespace types
   template <class T>
   none<T, true> operator+(none<T, true> const &t0, none<T, true> const &t1)
   {
-    if (t0.is_none and t1.is_none)
+    if (t0.is_none && t1.is_none)
       return none_type{};
     else
       return {t0.data + t1.data};
@@ -175,7 +175,7 @@ namespace types
   template <class T>
   none<bool> operator>(none<T, true> const &t0, none<T, true> const &t1)
   {
-    if (t0.is_none and t1.is_none)
+    if (t0.is_none && t1.is_none)
       return none_type{};
     else
       return {t0.data > t1.data};
@@ -196,7 +196,7 @@ namespace types
   template <class T>
   none<bool> operator>=(none<T, true> const &t0, none<T, true> const &t1)
   {
-    if (t0.is_none and t1.is_none)
+    if (t0.is_none && t1.is_none)
       return none_type{};
     else
       return {t0.data >= t1.data};
@@ -217,7 +217,7 @@ namespace types
   template <class T>
   none<bool> operator<(none<T, true> const &t0, none<T, true> const &t1)
   {
-    if (t0.is_none and t1.is_none)
+    if (t0.is_none && t1.is_none)
       return none_type{};
     else
       return {t0.data < t1.data};
@@ -238,7 +238,7 @@ namespace types
   template <class T>
   none<bool> operator<=(none<T, true> const &t0, none<T, true> const &t1)
   {
-    if (t0.is_none and t1.is_none)
+    if (t0.is_none && t1.is_none)
       return none_type{};
     else
       return {t0.data <= t1.data};
@@ -259,7 +259,7 @@ namespace types
   template <class T>
   none<T, true> operator-(none<T, true> const &t0, none<T, true> const &t1)
   {
-    if (t0.is_none and t1.is_none)
+    if (t0.is_none && t1.is_none)
       return none_type{};
     else
       return {t0.data - t1.data};
@@ -280,7 +280,7 @@ namespace types
   template <class T>
   none<T, true> operator*(none<T, true> const &t0, none<T, true> const &t1)
   {
-    if (t0.is_none and t1.is_none)
+    if (t0.is_none && t1.is_none)
       return none_type{};
     else
       return {t0.data * t1.data};
@@ -301,7 +301,7 @@ namespace types
   template <class T>
   none<T, true> operator/(none<T, true> const &t0, none<T, true> const &t1)
   {
-    if (t0.is_none and t1.is_none)
+    if (t0.is_none && t1.is_none)
       return none_type{};
     else
       return {t0.data / t1.data};

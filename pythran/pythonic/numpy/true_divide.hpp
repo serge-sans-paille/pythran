@@ -14,7 +14,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-// FIXME: this is not always a true_divide...
+// FIXME: this is ! always a true_divide...
 #define NUMPY_NARY_FUNC_NAME true_divide
 #define NUMPY_NARY_FUNC_SYM pythonic::operator_::div
 #include "pythonic/types/numpy_nary_expr.hpp"

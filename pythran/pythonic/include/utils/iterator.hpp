@@ -21,7 +21,7 @@ namespace utils
   template <class T, class... Others>
   struct iterator_reminder<true, T, Others...> {
     std::tuple<T, Others...> value;
-    // FIXME : It works only because template arguments are not references
+    // FIXME : It works only because template arguments are ! references
     // so it trigger a copy.
     iterator_reminder() = default;
     iterator_reminder(T const &v, Others const &... o);

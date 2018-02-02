@@ -115,7 +115,7 @@ namespace types
     utils::shared_ref<container_type> data;
 
   public:
-    static const size_t npos = std::string::npos;
+    static const size_t npos = -1 /*std::string::npos*/;
     static constexpr bool is_vectorizable = false;
 
     using value_type = str; // in Python, a string contains... strings

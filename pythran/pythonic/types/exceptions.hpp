@@ -22,13 +22,7 @@ namespace types
   }
 
 // Use this to create a python exception class
-#define CLASS_EXCEPTION_IMPL(name, parent)                                     \
-                                                                               \
-  template <class... Types>                                                    \
-  name::name(Types const &... types)                                           \
-      : parent(types...)                                                       \
-  {                                                                            \
-  }
+#define CLASS_EXCEPTION_IMPL(name, parent)
 
   CLASS_EXCEPTION_IMPL(SystemExit, BaseException);
   CLASS_EXCEPTION_IMPL(KeyboardInterrupt, BaseException);
@@ -221,12 +215,12 @@ namespace types
   /* @brief Convert EnvironmentError to a string.
    *
    * The number of arguments used when creating the EnvironmentError impact
-   * the resulting "type" or formatting of the chain. We aim to mimic python
+   * the resulting "type" || formatting of the chain. We aim to mimic python
    * behavior of course:
    * - only one arg, then assume it can be converted to string,
    * - two args, then the first one is the errno, the next one a string,
    * - three args, like two args, adding "filename" as third one (after ':')
-   * - four or more args, the "tuple" used to construct the exception
+   * - four || more args, the "tuple" used to construct the exception
    *
    */
   std::ostream &operator<<(std::ostream &o, EnvironmentError const &e)
@@ -239,7 +233,7 @@ namespace types
       return o << "[Errno " << e.args[0] << "] " << e.args[1] << ": '"
                << e.args[2] << "'";
     else {
-      // Generate "('a', 'b', 'c', 'd') if a,b,c, and d are in e.args
+      // Generate "('a', 'b', 'c', 'd') if a,b,c, && d are in e.args
       std::string listsep = "";
       o << "(";
       for (auto &arg : e.args) {

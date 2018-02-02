@@ -19,7 +19,7 @@ namespace numpy
     template <class T>
     bool isposinf(T const &t)
     {
-      return boost::simd::is_inf(t) and boost::simd::is_positive(t);
+      return boost::simd::is_inf(t) && boost::simd::is_positive(t);
     }
   }
 #define NUMPY_NARY_FUNC_NAME isposinf

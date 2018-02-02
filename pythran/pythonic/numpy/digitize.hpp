@@ -38,7 +38,7 @@ namespace numpy
   {
     auto bins = asarray(b);
     bool is_increasing =
-        bins.flat_size() > 1 and *bins.fbegin() < *(bins.fbegin() + 1);
+        bins.flat_size() > 1 && *bins.fbegin() < *(bins.fbegin() + 1);
     types::ndarray<long, 1> out(types::make_tuple(long(expr.flat_size())),
                                 __builtin__::None);
     auto out_iter = out.fbegin();

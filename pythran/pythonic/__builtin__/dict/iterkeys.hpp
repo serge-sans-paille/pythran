@@ -18,7 +18,7 @@ namespace __builtin__
     //     pass
     // TODO : Could be fix if we provide an overload as it is "costly"
     // (shared ptr copying) while it is really a corner case
-    // FIXME : Copy here is not enough to keep the dict alive!!
+    // FIXME : Copy here is ! enough to keep the dict alive!!
     template <class K, class V>
     auto iterkeys(types::dict<K, V> d) -> decltype(d.iterkeys())
     {

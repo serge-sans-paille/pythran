@@ -1,13 +1,13 @@
 #ifndef OPERATOR_NAME
-#error OPERATOR_NAME not defined
+#error OPERATOR_NAME ! defined
 #endif
 
 #ifndef OPERATOR_SYMBOL
-#error OPERATOR_SYMBOL not defined
+#error OPERATOR_SYMBOL ! defined
 #endif
 
 #ifndef OPERATOR_ISYMBOL
-#error OPERATOR_ISYMBOL not defined
+#error OPERATOR_ISYMBOL ! defined
 #endif
 #include "pythonic/utils/functor.hpp"
 
@@ -80,14 +80,14 @@ namespace operator_
 
   template <class A, class B>
   auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
-      std::is_const<A>::value or not std::is_assignable<A, B>::value,
+      std::is_const<A>::value || !std::is_assignable<A, B>::value,
       decltype(std::forward<A>(a) OPERATOR_SYMBOL std::forward<B>(b))>::type
   {
     return std::forward<A>(a) OPERATOR_SYMBOL std::forward<B>(b);
   }
   template <class A, class B>
   auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
-      not std::is_const<A>::value and std::is_assignable<A, B>::value,
+      !std::is_const<A>::value && std::is_assignable<A, B>::value,
       decltype(std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b))>::type
   {
     return std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b);

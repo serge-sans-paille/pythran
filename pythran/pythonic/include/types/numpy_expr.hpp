@@ -66,8 +66,8 @@ namespace types
     template <size_t... I>
     void _incr(utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> __attribute__((unused))
-      _{(std::get<I>(iters_) += steps_[I], true)...};
+      std::initializer_list<bool> _{
+          (std::get<I>(iters_) += steps_[I], true)...};
     }
     numpy_expr_iterator &operator++()
     {
@@ -84,8 +84,8 @@ namespace types
     template <size_t... I>
     void _update(long i, utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> __attribute__((unused))
-      _{(std::get<I>(iters_) += steps_[I] * i, true)...};
+      std::initializer_list<bool> _{
+          (std::get<I>(iters_) += steps_[I] * i, true)...};
     }
     numpy_expr_iterator &operator+=(long i)
     {
@@ -210,8 +210,8 @@ namespace types
     template <size_t... I>
     void _incr(utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> __attribute__((unused))
-      _{(std::get<I>(iters_) += steps_[I], true)...};
+      std::initializer_list<bool> _{
+          (std::get<I>(iters_) += steps_[I], true)...};
     }
     numpy_expr_simd_iterator &operator++()
     {
@@ -228,8 +228,8 @@ namespace types
     template <size_t... I>
     void _update(long i, utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> __attribute__((unused))
-      _{(std::get<I>(iters_) += steps_[I] * i, true)...};
+      std::initializer_list<bool> _{
+          (std::get<I>(iters_) += steps_[I] * i, true)...};
     }
     numpy_expr_simd_iterator &operator+=(long i)
     {
@@ -349,8 +349,7 @@ namespace types
     template <size_t... I>
     void _incr(utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> __attribute__((unused))
-      _{(++std::get<I>(iters_), true)...};
+      std::initializer_list<bool> _{(++std::get<I>(iters_), true)...};
     }
     numpy_expr_simd_iterator_nobroadcast &operator++()
     {
@@ -381,8 +380,7 @@ namespace types
     template <size_t... I>
     void _update(long i, utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> __attribute__((unused))
-      _{(std::get<I>(iters_) += i, true)...};
+      std::initializer_list<bool> _{(std::get<I>(iters_) += i, true)...};
     }
     numpy_expr_simd_iterator_nobroadcast &operator+=(long i)
     {
@@ -458,12 +456,12 @@ namespace types
     using first_arg = typename utils::front<Args...>::type;
     static const bool is_vectorizable =
         utils::all_of<
-            std::remove_reference<Args>::type::is_vectorizable...>::value and
+            std::remove_reference<Args>::type::is_vectorizable...>::value &&
         utils::all_of<
             std::is_same<typename std::remove_cv<typename std::remove_reference<
                              first_arg>::type>::type::dtype,
                          typename std::remove_cv<typename std::remove_reference<
-                             Args>::type>::type::dtype>::value...>::value and
+                             Args>::type>::type::dtype>::value...>::value &&
         types::is_vector_op<Op>::value;
     static const bool is_strided =
         utils::any_of<std::remove_reference<Args>::type::is_strided...>::value;
@@ -531,7 +529,10 @@ namespace types
                         utils::make_index_sequence<sizeof...(Args)>{}));
 
   public:
-    array<long, value> const &shape() const;
+    array<long, value> const &shape() const
+    {
+      return _shape;
+    }
     template <size_t... I>
     bool _no_broadcast(utils::index_sequence<I...>) const;
     bool no_broadcast() const;
@@ -568,7 +569,7 @@ namespace types
     template <class S0, class... S>
     auto operator()(S0 const &s0, S const &... s) const ->
         typename std::enable_if<
-            not std::is_scalar<S0>::value,
+            !std::is_scalar<S0>::value,
             decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{},
                                 s0, s...))>::type;
 
@@ -581,7 +582,7 @@ namespace types
     typename std::enable_if<is_numexpr_arg<F>::value,
                             numpy_fexpr<numpy_expr, F>>::type
     operator[](F const &filter) const;
-    // FIXME: this does not take into account bounds and broadcasting
+    // FIXME: this does ! take into account bounds && broadcasting
     auto operator[](long i) const -> decltype(this->fast(i));
 
     long flat_size() const;

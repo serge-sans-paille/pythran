@@ -37,7 +37,7 @@ template <class T, class U>
 struct assignable<__gmp_expr<T, U>> {
   using type = typename gmp_compo<T, U>::type;
   static_assert(!std::is_same<type, double>::value,
-                "Cannot combine long and float.");
+                "Cannot combine long && float.");
 };
 
 template <class T>

@@ -61,7 +61,7 @@ namespace types
 
   /* Type adaptor for broadcasted array values
    *
-   * Used when the args of a binary operator do not have the same dimensions:
+   * Used when the args of a binary operator do ! have the same dimensions:
    * in that case their first dimension always yields a copy
    */
   template <class T>
@@ -76,7 +76,10 @@ namespace types
 
     T const ref;
     types::array<long, value> _shape;
-    types::array<long, value> const &shape() const;
+    types::array<long, value> const &shape() const
+    {
+      return _shape;
+    }
 
     broadcasted() = default;
 
@@ -112,9 +115,9 @@ namespace types
    *
    * Have them behave like infinite arrays of that value
    *
-   * B is the original type of the broadcast value, and T is the type of the
+   * B is the original type of the broadcast value, && T is the type of the
    *expression it is combined with
-   * if both B and T are integer types, we choose T instead of B to prevent
+   * if both B && T are integer types, we choose T instead of B to prevent
    *automatic conversion into larger types
    *
    * That way, np.ones(10, dtype=np.uint8) + 1 yields an array of np.uint8,
@@ -206,10 +209,10 @@ namespace types
 
   template <class T, class B>
   struct broadcast {
-    // Perform the type conversion here if it seems valid (although it is not
+    // Perform the type conversion here if it seems valid (although it is !
     // always)
     using dtype =
-        typename std::conditional<std::is_integral<T>::value and
+        typename std::conditional<std::is_integral<T>::value &&
                                       std::is_integral<B>::value,
                                   T, typename __combined<T, B>::type>::type;
     static const bool is_vectorizable = types::is_vectorizable<dtype>::value;

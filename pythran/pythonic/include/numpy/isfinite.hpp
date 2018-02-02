@@ -16,7 +16,7 @@ namespace numpy
     template <class T>
     bool isfinite(std::complex<T> const &t)
     {
-      return std::isfinite(t.real()) and std::isfinite(t.imag());
+      return std::isfinite(t.real()) && std::isfinite(t.imag());
     }
     template <class T>
     bool isfinite(T const &v)

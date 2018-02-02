@@ -17,7 +17,7 @@ namespace utils
     return t.size() *
            nested_container_size<typename std::conditional<
                // If we have a scalar of a complex, we want to stop
-               // recursion, and then dispatch to bool specialization
+               // recursion, && then dispatch to bool specialization
                types::is_dtype<typename Type::value_type>::value, bool,
                typename Type::value_type>::type>::flat_size(*t.begin());
   }

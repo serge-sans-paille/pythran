@@ -14,7 +14,7 @@ namespace __builtin__
   {
     auto iend = s.end();
     for (auto iter = s.begin(); iter != iend; ++iter)
-      if (not*iter)
+      if (!*iter)
         return false;
     return true;
   }

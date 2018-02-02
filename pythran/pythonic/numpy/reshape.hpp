@@ -27,12 +27,12 @@ namespace numpy
   }
 
   template <class T, size_t N, class... S>
-  auto reshape(types::ndarray<T, N> const &expr, S &&... indices)
-      -> decltype(reshape(expr, types::array<long, sizeof...(S)>{
-                                    {std::forward<S>(indices)...}}))
+  auto reshape(types::ndarray<T, N> const &expr, S const &... indices)
+      -> decltype(reshape<T, N, sizeof...(S)>(
+          expr, types::array<long, sizeof...(S)>{{indices...}}))
   {
-    return reshape(
-        expr, types::array<long, sizeof...(S)>{{std::forward<S>(indices)...}});
+    return reshape<T, N, sizeof...(S)>(
+        expr, types::array<long, sizeof...(S)>{{indices...}});
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(reshape);

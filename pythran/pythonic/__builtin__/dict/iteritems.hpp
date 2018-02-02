@@ -14,7 +14,7 @@ namespace __builtin__
   namespace dict
   {
 
-    // See iterkeys for copy explication and TODOs
+    // See iterkeys for copy explication && TODOs
     template <class K, class V>
     auto iteritems(types::dict<K, V> d) -> decltype(d.iteritems())
     {

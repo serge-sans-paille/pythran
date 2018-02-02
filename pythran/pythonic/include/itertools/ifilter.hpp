@@ -47,9 +47,9 @@ namespace itertools
     };
 
     // Inherit from iterator_reminder to keep a reference on the iterator
-    // and avoid a dangling reference
+    // && avoid a dangling reference
     // FIXME: It would be better to have a copy only if needed but Pythran
-    // typing is not good enough for this as arguments have
+    // typing is ! good enough for this as arguments have
     // remove_cv/remove_ref
     template <typename Operator, typename List0>
     struct ifilter : utils::iterator_reminder<false, List0>,

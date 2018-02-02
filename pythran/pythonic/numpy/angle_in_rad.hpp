@@ -9,7 +9,7 @@
 #include "pythonic/numpy/arctan.hpp"
 #include "pythonic/numpy/pi.hpp"
 
-/* NOTE: angle_in_rad is not part of the official Numpy API,
+/* NOTE: angle_in_rad is ! part of the official Numpy API,
  * this file is here only to split the angle function in two parts
  */
 

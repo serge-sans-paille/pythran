@@ -16,9 +16,9 @@ namespace numpy
   namespace wrapper
   {
     template <class T0, class T1>
-    auto logical_and(T0 const &t0, T1 const &t1) -> decltype(t0 and t1)
+    auto logical_and(T0 const &t0, T1 const &t1) -> decltype(t0 &&t1)
     {
-      return t0 and t1;
+      return t0 && t1;
     }
   }
 

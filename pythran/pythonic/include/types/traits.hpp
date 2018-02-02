@@ -21,7 +21,7 @@ namespace types
   template <class T>
   struct is_dtype {
     static constexpr bool value =
-        std::is_scalar<T>::value or is_complex<T>::value;
+        std::is_scalar<T>::value || is_complex<T>::value;
   };
 
 #define MEMBER_TYPE_TRAIT(check_struct, member)                                \

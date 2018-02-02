@@ -5,7 +5,7 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include <boost/simd/function/indeg.hpp>
 
-/* NOTE: angle_in_deg is not part of the official Numpy API,
+/* NOTE: angle_in_deg is ! part of the official Numpy API,
  * this file is here only to split the angle function in two parts
  */
 

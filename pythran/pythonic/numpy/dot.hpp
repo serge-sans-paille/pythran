@@ -21,7 +21,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E, class F>
-  typename std::enable_if<types::is_dtype<E>::value and
+  typename std::enable_if<types::is_dtype<E>::value &&
                               types::is_dtype<F>::value,
                           decltype(std::declval<E>() * std::declval<F>())>::type
   dot(E const &e, F const &f)
@@ -31,9 +31,9 @@ namespace numpy
 
   template <class E, class F>
   typename std::enable_if<
-      types::is_numexpr_arg<E>::value and
-          types::is_numexpr_arg<F>::value      // Arguments are array_like
-          and E::value == 1 and F::value == 1, // It is a two vectors.
+      types::is_numexpr_arg<E>::value &&
+          types::is_numexpr_arg<F>::value    // Arguments are array_like
+          && E::value == 1 && F::value == 1, // It is a two vectors.
       typename __combined<typename E::dtype, typename F::dtype>::type>::type
   dot(E const &e, F const &f)
   {
@@ -75,7 +75,7 @@ namespace numpy
     return out;
   }
 
-// The trick is to not transpose the matrix so that MV become VM
+// The trick is to ! transpose the matrix so that MV become VM
 #define VM_DEF(T, L)                                                           \
   void vm(int m, int n, T *A, T *B, T *C)                                      \
   {                                                                            \
@@ -112,15 +112,14 @@ namespace numpy
   // on array for blas
   template <class E, class F>
   typename std::enable_if<
-      types::is_numexpr_arg<E>::value and
+      types::is_numexpr_arg<E>::value &&
           types::is_numexpr_arg<F>::value // It is an array_like
-          and
-          not(types::is_ndarray<E>::value and types::is_ndarray<F>::value) and
-          is_blas_type<typename E::dtype>::value and
+          && !(types::is_ndarray<E>::value && types::is_ndarray<F>::value) &&
+          is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          and
-          E::value == 2 and F::value == 1, // And it is matrix / vect
+          &&
+          E::value == 2 && F::value == 1, // And it is matrix / vect
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           1>>::type
@@ -139,15 +138,14 @@ namespace numpy
   // on array for blas
   template <class E, class F>
   typename std::enable_if<
-      types::is_numexpr_arg<E>::value and
+      types::is_numexpr_arg<E>::value &&
           types::is_numexpr_arg<F>::value // It is an array_like
-          and
-          not(types::is_ndarray<E>::value and types::is_ndarray<F>::value) and
-          is_blas_type<typename E::dtype>::value and
+          && !(types::is_ndarray<E>::value && types::is_ndarray<F>::value) &&
+          is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          and
-          E::value == 1 and F::value == 2, // And it is vect / matrix
+          &&
+          E::value == 1 && F::value == 2, // And it is vect / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           1>>::type
@@ -166,9 +164,9 @@ namespace numpy
   // matrix vector multiplication.
   template <class E, class F>
   typename std::enable_if<
-      (not is_blas_type<typename E::dtype>::value or
-       not is_blas_type<typename F::dtype>::value) and
-          E::value == 1 and F::value == 2, // And it is vect / matrix
+      (!is_blas_type<typename E::dtype>::value ||
+       !is_blas_type<typename F::dtype>::value) &&
+          E::value == 1 && F::value == 2, // And it is vect / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           1>>::type
@@ -187,9 +185,9 @@ namespace numpy
   // matrix vector multiplication.
   template <class E, class F>
   typename std::enable_if<
-      (not is_blas_type<typename E::dtype>::value or
-       not is_blas_type<typename F::dtype>::value) and
-          E::value == 2 and F::value == 1, // And it is vect / matrix
+      (!is_blas_type<typename E::dtype>::value ||
+       !is_blas_type<typename F::dtype>::value) &&
+          E::value == 2 && F::value == 1, // And it is vect / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           1>>::type
@@ -348,15 +346,14 @@ namespace numpy
   // on array for blas
   template <class E, class F>
   typename std::enable_if<
-      types::is_numexpr_arg<E>::value and
+      types::is_numexpr_arg<E>::value &&
           types::is_numexpr_arg<F>::value // It is an array_like
-          and
-          not(types::is_ndarray<E>::value and types::is_ndarray<F>::value) and
-          is_blas_type<typename E::dtype>::value and
+          && !(types::is_ndarray<E>::value && types::is_ndarray<F>::value) &&
+          is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          and
-          E::value == 2 and F::value == 2, // And both are matrix
+          &&
+          E::value == 2 && F::value == 2, // And both are matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           2>>::type
@@ -375,9 +372,9 @@ namespace numpy
   // matrix multiplication.
   template <class E, class F>
   typename std::enable_if<
-      (not is_blas_type<typename E::dtype>::value or
-       not is_blas_type<typename F::dtype>::value) and
-          E::value == 2 and F::value == 2, // And it is matrix / matrix
+      (!is_blas_type<typename E::dtype>::value ||
+       !is_blas_type<typename F::dtype>::value) &&
+          E::value == 2 && F::value == 2, // And it is matrix / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           2>>::type

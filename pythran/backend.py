@@ -13,7 +13,7 @@ from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Nop
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
-from pythran.cxxtypes import (Assignable, DeclType, NamedType,
+from pythran.cxxtypes import (Assignable, DeclType, NamedType, IteratorOfType,
                               ListType, CombinedTypes, Lazy)
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
@@ -442,7 +442,7 @@ class CxxFunction(Backend):
             )
         return self.process_omp_attachements(node, stmt)
 
-    def gen_for(self, node, target, local_iter, loop_body):
+    def gen_for(self, node, target, local_iter, local_iter_decl, loop_body):
         """
         Create For representation on iterator for Cxx generation.
 
@@ -465,8 +465,7 @@ class CxxFunction(Backend):
         """
         # Choose target variable for iterator (which is iterator type)
         local_target = "__target{0}".format(len(self.break_handlers))
-        local_target_decl = NamedType("typename decltype({0})::iterator".
-                                      format(local_iter))
+        local_target_decl = IteratorOfType(local_iter_decl)
 
         # If variable is local to the for body it's a ref to the iterator value
         # type
@@ -709,7 +708,7 @@ class CxxFunction(Backend):
             else:
                 # Iterator declaration
                 local_iter = "__iter{0}".format(len(self.break_handlers))
-                local_iter_decl = Assignable(DeclType(iterable))
+                local_iter_decl = Assignable(self.types[node.iter])
 
                 self.handle_omp_for(node, local_iter)
 
@@ -718,7 +717,8 @@ class CxxFunction(Backend):
                 # if the upper bound is assigned in the loop
                 asgnt = self.make_assign(local_iter_decl, local_iter, iterable)
                 header = [Statement(asgnt)]
-                loop = self.gen_for(node, target, local_iter, loop_body)
+                loop = self.gen_for(node, target, local_iter, local_iter_decl,
+                                    loop_body)
 
         # For xxxComprehension, it is replaced by a for loop. In this case,
         # pre-allocate size of container.

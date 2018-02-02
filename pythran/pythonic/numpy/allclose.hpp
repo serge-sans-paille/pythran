@@ -22,7 +22,7 @@ namespace numpy
         auto u = *begin;
         auto v = *ibegin;
         if (((!functor::isfinite()(u) || !functor::isfinite()(v)) &&
-             u != v) || // Infinite and NaN cases
+             u != v) || // Infinite && NaN cases
             functor::abs()(u - v) > (atol + rtol * functor::abs()(v))) {
           return false;
         }
@@ -35,8 +35,8 @@ namespace numpy
                    utils::int_<N>)
     {
       for (; begin != end; ++begin, ++ibegin)
-        if (not _allclose((*begin).begin(), (*begin).end(), (*ibegin).begin(),
-                          rtol, atol, utils::int_<N - 1>()))
+        if (!_allclose((*begin).begin(), (*begin).end(), (*ibegin).begin(),
+                       rtol, atol, utils::int_<N - 1>()))
           return false;
       return true;
     }

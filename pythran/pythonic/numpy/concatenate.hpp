@@ -52,10 +52,9 @@ namespace numpy
       {
         if (axis == 0) {
           auto out_iter = out.begin();
-          int __attribute__((unused))
-          _[] = {(out_iter = std::copy(std::get<I>(from).begin(),
-                                       std::get<I>(from).end(), out_iter),
-                  1)...};
+          int _[] = {(out_iter = std::copy(std::get<I>(from).begin(),
+                                           std::get<I>(from).end(), out_iter),
+                      1)...};
         } else {
           auto ifroms = std::make_tuple(std::get<I>(from).begin()...);
 
@@ -63,7 +62,7 @@ namespace numpy
             auto difroms = std::make_tuple(*std::get<I>(ifroms)...);
             concatenate_helper<N - 1>()(iout, difroms, axis - 1,
                                         utils::index_sequence<I...>{});
-            int __attribute__((unused)) _[] = {(++std::get<I>(ifroms), 0)...};
+            int _[] = {(++std::get<I>(ifroms), 0)...};
           }
         }
       }

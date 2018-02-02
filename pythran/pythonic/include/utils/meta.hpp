@@ -15,7 +15,7 @@ namespace utils
 
   template <bool V0, bool... V>
   struct all_of<V0, V...> {
-    static constexpr bool value = V0 and all_of<V...>::value;
+    static constexpr bool value = V0 && all_of<V...>::value;
   };
 
   template <bool V0>
@@ -32,7 +32,7 @@ namespace utils
 
   template <bool V0, bool... V>
   struct any_of<V0, V...> {
-    static constexpr bool value = V0 or any_of<V...>::value;
+    static constexpr bool value = V0 || any_of<V...>::value;
   };
 
   template <bool V0>

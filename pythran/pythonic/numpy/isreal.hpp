@@ -23,7 +23,7 @@ namespace numpy
     }
 
     template <class I>
-    typename std::enable_if<not types::is_complex<I>::value, bool>::type
+    typename std::enable_if<!types::is_complex<I>::value, bool>::type
     isreal(I const &a)
     {
       return true;

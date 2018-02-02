@@ -87,11 +87,11 @@ namespace types
    * Instead of specializing the whole ndarray class, the dimension-specific
    *behavior are stored here.
    * There are two specialization for this type:
-   * - a specialization depending on the dimensionality (==1 or > 1)
+   * - a specialization depending on the dimensionality (==1 || > 1)
    * - a specialization depending on the constness.
    *
    * The raw ndarray<T,N> specialization implies a *swallow copy* of the
-   *ndarray, and thus a refcount increase.
+   *ndarray, && thus a refcount increase.
    * It is meant to be used when indexing an rvalue, as in
    *``np.zeros(10)[i]``.
    *
@@ -197,7 +197,7 @@ namespace types
 
   /* Multidimensional array of values
    *
-   * An ndarray wraps a raw array pointers and manages multiple dimensions
+   * An ndarray wraps a raw array pointers && manages multiple dimensions
    * casted overt the raw data.
    * The number of dimensions is fixed as well as the type of the underlying
    * data.
@@ -268,8 +268,8 @@ namespace types
     template <
         class Iterable,
         class = typename std::enable_if<
-            !is_array<typename std::remove_cv<typename std::remove_reference<
-                Iterable>::type>::type>::value and
+            !is_array<typename std::remove_cv<
+                typename std::remove_reference<Iterable>::type>::type>::value &&
                 is_iterable<typename std::remove_cv<
                     typename std::remove_reference<Iterable>::type>::type>::
                     value,
@@ -320,13 +320,19 @@ namespace types
     ndarray &operator|=(Expr const &expr);
 
     /* element indexing
-     * differentiate const from non const, and r-value from l-value
+     * differentiate const from non const, && r-value from l-value
      * */
     auto fast(long i) const
-        & -> decltype(type_helper<ndarray const &>::get(*this, i));
+        & -> decltype(type_helper<ndarray const &>::get(*this, i))
+    {
+      return type_helper<ndarray const &>::get(*this, i);
+    }
 
     auto fast(long i) &&
-        -> decltype(type_helper<ndarray>::get(std::move(*this), i));
+        -> decltype(type_helper<ndarray>::get(std::move(*this), i))
+    {
+      return type_helper<ndarray>::get(std::move(*this), i);
+    }
 
     T &fast(array<long, N> const &indices);
     T fast(array<long, N> const &indices) const;
@@ -361,7 +367,7 @@ namespace types
 
     /* extended slice indexing */
     template <class S0, class... S>
-    auto operator()(S0 const &s0, S const &... s) const -> decltype(
+    auto operator()(S0 const &s0, S const &... s) const & -> decltype(
         extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...));
 
     template <class S0, class... S>
@@ -371,34 +377,44 @@ namespace types
 
     /* element filtering */
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value and
+    typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
                             numpy_fexpr<ndarray, F>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value and
+    typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
                             numpy_fexpr<ndarray, F>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<
-        is_numexpr_arg<F>::value and not is_array_index<F>::value and
-            not std::is_same<bool, typename F::dtype>::value,
-        ndarray<T, N>>::type
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value,
+                            ndarray<T, N>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<
-        is_numexpr_arg<F>::value and not is_array_index<F>::value and
-            not std::is_same<bool, typename F::dtype>::value,
-        ndarray<T, N>>::type
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value,
+                            ndarray<T, N>>::type
     fast(F const &filter) const;
 
-    auto operator[](long i) const & -> decltype(this->fast(i));
+    auto operator[](long i) const & -> decltype(this->fast(i))
+    {
+      if (i < 0)
+        i += _shape[0];
+      return fast(i);
+    }
 
-    auto operator[](long i) && -> decltype(std::move(*this).fast(i));
+    auto operator[](long i) && -> decltype(std::move(*this).fast(i))
+    {
+      if (i < 0)
+        i += _shape[0];
+      return std::move(*this).fast(i);
+    }
 
     T const &operator[](array<long, N> const &indices) const;
 
@@ -540,6 +556,11 @@ namespace types
     struct dtype_helper<int64_t> {
       using type = pythonic::numpy::functor::int64;
     };
+#ifdef _WIN32
+    template <>
+    struct dtype_helper<long> : dtype_helper<int64_t> {
+    };
+#endif
     template <>
     struct dtype_helper<float> {
       using type = pythonic::numpy::functor::float32;
@@ -761,7 +782,12 @@ struct to_python<types::numpy_gexpr<Arg, S...>> {
 
 template <class T>
 struct to_python<types::numpy_texpr<types::ndarray<T, 2>>> {
-  static PyObject *convert(types::numpy_texpr<types::ndarray<T, 2>> const &v);
+  static PyObject *convert(types::numpy_texpr<types::ndarray<T, 2>> const &t)
+  {
+    auto const &n = t.arg;
+    PyObject *result = to_python<types::ndarray<T, 2>>::convert(n, true);
+    return result;
+  }
 };
 
 template <typename T, size_t N>

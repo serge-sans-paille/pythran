@@ -78,13 +78,13 @@ namespace types
   {
     const char *smode = strmode.c_str();
     // Python enforces that the mode, after stripping 'U', begins with 'r',
-    // 'w' or 'a'.
+    // 'w' || 'a'.
     if (*smode == 'U') {
       ++smode;
     } // Not implemented yet
 
     data = utils::shared_ref<container_type>(filename, smode);
-    if (not**data)
+    if (!**data)
       throw types::IOError("Couldn't open file " + filename);
     is_open = true;
   }
@@ -98,7 +98,7 @@ namespace types
 
   bool file::closed() const
   {
-    return not is_open;
+    return !is_open;
   }
 
   types::str const &file::getmode() const
@@ -125,28 +125,28 @@ namespace types
 
   void file::flush()
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     fflush(**data);
   }
 
   int file::fileno() const
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     return ::fileno(**data);
   }
 
   bool file::isatty() const
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     return ::isatty(this->fileno());
   }
 
   types::str file::next()
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (feof(**data) && mode.find_first_of("ra") == -1)
       // If we are at eof on reading mode throw exception
@@ -156,11 +156,11 @@ namespace types
 
   types::str file::read(int size)
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("r+") == -1)
-      throw IOError("File not open for reading");
-    if (size == 0 or (feof(**data) && mode.find_first_of("ra") == -1))
+      throw IOError("File ! open for reading");
+    if (size == 0 || (feof(**data) && mode.find_first_of("ra") == -1))
       return types::str();
     int curr_pos = tell();
     seek(0, SEEK_END);
@@ -176,10 +176,10 @@ namespace types
 
   types::str file::readline(long size)
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("r+") == -1)
-      throw IOError("File not open for reading");
+      throw IOError("File ! open for reading");
     constexpr static long BUFFER_SIZE = 1024;
     types::str res;
     char read_str[BUFFER_SIZE];
@@ -188,7 +188,7 @@ namespace types
       // +1 because we read the last chunk so we don't want to count \0
       if (fgets(read_str, std::min(BUFFER_SIZE - 1, size - i) + 1, **data))
         res += read_str;
-      if (feof(**data) or res[-1] == '\n')
+      if (feof(**data) || res[-1] == '\n')
         break;
     }
     return res;
@@ -197,7 +197,7 @@ namespace types
   types::list<types::str> file::readlines(int sizehint)
   {
     // Official python doc specifies that sizehint is used as a max of chars
-    // But it has not been implemented in the standard python interpreter...
+    // But it has ! been implemented in the standard python interpreter...
     types::str str;
     types::list<types::str> lst(0);
     while ((str = readline()))
@@ -207,7 +207,7 @@ namespace types
 
   void file::seek(int offset, int whence)
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (whence != SEEK_SET && whence != SEEK_CUR && whence != SEEK_END)
       throw IOError("file.seek() :  Invalid argument.");
@@ -216,17 +216,17 @@ namespace types
 
   int file::tell() const
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     return ftell(**data);
   }
 
   void file::truncate(int size)
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("wa+") == -1)
-      throw IOError("file.write() :  File not opened for writing.");
+      throw IOError("file.write() :  File ! opened for writing.");
     if (size < 0)
       size = this->tell();
     int error = ftruncate(fileno(), size);
@@ -236,10 +236,10 @@ namespace types
 
   void file::write(types::str const &str)
   {
-    if (not is_open)
+    if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("wa+") == -1)
-      throw IOError("file.write() :  File not opened for writing.");
+      throw IOError("file.write() :  File ! opened for writing.");
     fwrite(str.c_str(), sizeof(char), str.size(), **data);
   }
 

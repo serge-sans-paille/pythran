@@ -42,7 +42,7 @@ namespace numpy
   namespace
   {
     template <class E>
-    using reduced_type = types::ndarray<typename E::dtype, E::value - 1>;
+    using reduced_type = types::ndarray<reduce_result_type<E>, E::value - 1>;
   }
 
   template <class Op, class E>

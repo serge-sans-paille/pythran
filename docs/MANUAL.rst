@@ -74,7 +74,7 @@ Making Sure Everything is working
 
 The ``setup.py`` scripts automates this. The ``test`` target, as in::
 
-    python setup.py test
+    $> python setup.py test
 
 runs a whole (and long) validation suite (you will need to install the
 ``pytest`` module first to use it).
@@ -390,10 +390,9 @@ back-end compiler. Be careful with the indentation. It has to be correct!
 
 Alternatively, one can run the great::
 
-    pythran -ppythran.analysis.ParallelMaps -e as.py
+    $> pythran -ppythran.analysis.ParallelMaps -e as.py
 
 which runs a code analyzer that displays extra information concerning parallel ``map`` found in the code.
-
 
 
 Getting Pure C++
@@ -403,6 +402,18 @@ Pythran can be used to generate raw templated C++ code, without any Python
 glue. To do so use the ``-e`` switch. It will turn the Python code into C++
 code you can call from a C++ program. In that case there is **no** need for a
 particular Pythran specification.
+
+
+Read the optimized Python code
+------------------------------
+
+Curious Python developers might want to study how Pythran transforms their
+codes.  With the ``-P`` switch, Pythran optimizes the Python code, prints the
+result and stops there.  Pythran does not care about PEP 8, so a Python
+formatter is often useful::
+
+    $> pythran -P arc_distance.py | yapf
+
 
 Customizing Your ``.pythranrc``
 -------------------------------

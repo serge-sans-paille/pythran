@@ -58,6 +58,10 @@ def run():
     parser.add_argument('-o', dest='output_file', type=str,
                         help='path to generated file')
 
+    parser.add_argument('-P', dest='optimize_only', action='store_true',
+                        help='only run the high-level optimizer, '
+                        'do not compile')
+
     parser.add_argument('-E', dest='translate_only', action='store_true',
                         help='only run the translator, do not compile')
 
@@ -125,6 +129,10 @@ def run():
             raise SyntaxError("Unsupported file extension: '{0}'".format(ext))
 
         if ext == '.cpp':
+            if args.optimize_only:
+                raise ValueError("Do you really ask for Python-to-Python "
+                                 "on this C++ input file: '{0}'?".format(
+                                     args.input_file))
             if args.translate_only:
                 raise ValueError("Do you really ask for Python-to-C++ "
                                  "on this C++ input file: '{0}'?".format(
@@ -138,6 +146,7 @@ def run():
             pythran.compile_pythranfile(args.input_file,
                                         output_file=args.output_file,
                                         cpponly=args.translate_only,
+                                        pyonly=args.optimize_only,
                                         **compile_flags(args))
 
     except IOError as e:

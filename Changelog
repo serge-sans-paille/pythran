@@ -1,3 +1,21 @@
+2018-02-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Slimmer generated binaries
+
+	* Preliminary native Windows support for Python3
+
+	* Several numpy-related function improvements
+
+	* @ operator support
+
+	* Better negative index support and range detection
+
+	* Glimpses of OpenMP4 support, min/max support in OpenMP reductions
+
+	* Python Capsule support
+
+	* Work around GCC-7 parsing bug
+
 2017-10-14 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Moving to networkx 2.0
@@ -8,7 +26,7 @@
 
 	* Minor cython integration fixes
 
-	* Memory leal removal
+	* Memory leak removal
 
 	* Support out field in numpy.sum
 

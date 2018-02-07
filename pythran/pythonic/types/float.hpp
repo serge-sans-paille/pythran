@@ -34,7 +34,7 @@ PyObject *to_python<float>::convert(float d)
 
 bool from_python<double>::is_convertible(PyObject *obj)
 {
-  return PyFloat_CheckExact(obj);
+  return PyFloat_Check(obj);
 }
 double from_python<double>::convert(PyObject *obj)
 {
@@ -46,7 +46,7 @@ double from_python<double>::convert(PyObject *obj)
 
 bool from_python<float>::is_convertible(PyObject *obj)
 {
-  return PyFloat_CheckExact(obj);
+  return PyFloat_Check(obj);
 }
 float from_python<float>::convert(PyObject *obj)
 {

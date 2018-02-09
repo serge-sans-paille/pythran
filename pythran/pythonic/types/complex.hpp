@@ -97,7 +97,7 @@ PyObject *to_python<std::complex<T>>::convert(std::complex<T> const &c)
 template <class T>
 bool from_python<std::complex<T>>::is_convertible(PyObject *obj)
 {
-  return PyComplex_CheckExact(obj);
+  return PyComplex_Check(obj);
 }
 template <class T>
 std::complex<T> from_python<std::complex<T>>::convert(PyObject *obj)

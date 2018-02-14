@@ -584,11 +584,8 @@ class PythonModule(object):
                 return pythonic::handle_python_exception([self, args, kw]()
                 -> PyObject* {{
                 {tryall}
-                PyErr_SetString(PyExc_TypeError,
-                "Invalid argument type for pythranized function `{name}'.\\n"
-                "Candidates are:\\n{candidates}\\n"
-                );
-                return nullptr;
+                return pythonic::python::raise_invalid_argument(
+                               "{name}", "{candidates}", args, kw);
                 }});
             }}
             '''.format(name=fname,

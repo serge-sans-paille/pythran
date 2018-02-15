@@ -266,9 +266,7 @@ namespace types
     explicit operator bool() const;
 
     template <class F>
-    list<decltype(std::declval<T>() +
-                  std::declval<typename list<F>::value_type>())>
-    operator+(list<F> const &s) const;
+    list<typename __combined<T, F>::type> operator+(list<F> const &s) const;
 
     template <class F, class S>
     list<decltype(std::declval<T>() +

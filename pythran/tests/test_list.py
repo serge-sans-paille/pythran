@@ -1,5 +1,6 @@
 from test_env import TestEnv
-from pythran.typing import List
+from pythran.typing import List, NDArray
+import numpy as np
 
 class TestList(TestEnv):
 
@@ -71,3 +72,8 @@ class TestList(TestEnv):
                       [[1,2,3],[1,4,1],[1,4,8,9]],
                       assigned_slice=[List[List[int]]])
 
+    def test_add_list_of_arrays(self):
+        self.run_test("def add_list_of_arrays(x, y): return x + y",
+                      [np.array([1,2])],
+                      [np.array([3,4])],
+                      add_list_of_arrays=[List[NDArray[int, :]], List[NDArray[int, :]]])

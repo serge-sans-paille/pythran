@@ -244,7 +244,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
                                        ', '.join(arguments)))])
                     ),
                     function_name,
-                    arguments_types
+                    arguments_types,
+                    signature
                 )
 
         for function_name, signature in specs.capsules.items():

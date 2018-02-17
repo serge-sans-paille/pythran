@@ -52,7 +52,7 @@ namespace python
                                         PyObject *args, PyObject *kwargs)
   {
     std::ostringstream oss;
-    oss << "Invalid argument type for pythranized function `" << name << '(';
+    oss << "Invalid call to pythranized function `" << name << '(';
     for (long n = PyTuple_GET_SIZE(args), i = 0; i < n; ++i) {
       PyObject *repr = PyObject_GetAttrString(
           (PyObject *)Py_TYPE(PyTuple_GET_ITEM(args, i)), "__name__");

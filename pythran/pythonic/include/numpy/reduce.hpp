@@ -14,9 +14,12 @@ namespace numpy
   namespace
   {
     template <class E>
-    using reduce_result_type =
-        typename std::conditional<std::is_same<typename E::dtype, bool>::value,
-                                  long, typename E::dtype>::type;
+    using reduce_result_type = typename std::conditional<
+        std::is_integral<typename E::dtype>::value &&
+            (sizeof(typename E::dtype) < sizeof(long)),
+        typename std::conditional<std::is_signed<typename E::dtype>::value,
+                                  long, unsigned long>::type,
+        typename E::dtype>::type;
   }
 
   template <class Op, class E>

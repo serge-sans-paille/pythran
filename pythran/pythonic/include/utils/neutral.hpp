@@ -15,27 +15,35 @@ namespace utils
 
   template <class T>
   struct neutral<operator_::functor::iadd, T> {
-    static const T value;
+    static T const value;
   };
-
-  // FIXME clang doesn't accept it as a static constexpr value for neutral
   template <class T>
   T const neutral<operator_::functor::iadd, T>::value = 0;
 
   template <class T>
   struct neutral<operator_::functor::imul, T> {
-    static constexpr T value = 1;
+    static T const value;
   };
+  template <class T>
+  T const neutral<operator_::functor::imul, T>::value = 1;
 
   template <class T>
   struct neutral<operator_::functor::imax, T> {
-    static constexpr T value = std::numeric_limits<T>::lowest();
+    static T const value;
   };
 
   template <class T>
+  T const neutral<operator_::functor::imax, T>::value =
+      std::numeric_limits<T>::lowest();
+
+  template <class T>
   struct neutral<operator_::functor::imin, T> {
-    static constexpr T value = std::numeric_limits<T>::max();
+    static T const value;
   };
+
+  template <class T>
+  T const neutral<operator_::functor::imin, T>::value =
+      std::numeric_limits<T>::max();
 }
 PYTHONIC_NS_END
 

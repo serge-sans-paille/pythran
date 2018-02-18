@@ -36,7 +36,13 @@ namespace numpy
                               decltype(reduce<Op>(array))>::type;
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis) ->
+  auto reduce(E const &array, long axis,
+              types::none_type dtype = types::none_type(),
+              types::none_type out = types::none_type()) ->
+      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type;
+
+  template <class Op, class E, class Out>
+  auto reduce(E const &array, long axis, types::none_type dtype, Out &&out) ->
       typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type;
 
   namespace
@@ -50,10 +56,9 @@ namespace numpy
   reduce(E const &array, long axis, types::none_type dtype = types::none_type(),
          types::none_type out = types::none_type());
 
-  template <class Op, class E>
+  template <class Op, class E, class Out>
   typename std::enable_if<E::value != 1, reduced_type<E>>::type
-  reduce(E const &array, long axis, types::none_type dtype,
-         reduced_type<E> out);
+  reduce(E const &array, long axis, types::none_type dtype, Out &&out);
 }
 PYTHONIC_NS_END
 

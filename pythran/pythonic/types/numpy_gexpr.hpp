@@ -746,6 +746,21 @@ namespace types
   {
     return (*this)[i](s...);
   }
+  template <class Arg, class... S>
+  template <size_t M>
+  auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices) const
+      & -> decltype(nget<M - 1>().fast(*this, indices))
+  {
+    return nget<M - 1>().fast(*this, indices);
+  }
+
+  template <class Arg, class... S>
+      template <size_t M>
+      auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices) &&
+      -> decltype(nget<M - 1>().fast(std::move(*this), indices))
+  {
+    return nget<M - 1>().fast(std::move(*this), indices);
+  }
 
   template <class Arg, class... S>
   template <size_t M>
@@ -765,7 +780,8 @@ namespace types
 
   template <class Arg, class... S>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value,
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              std::is_same<bool, typename F::dtype>::value,
                           numpy_fexpr<numpy_gexpr<Arg, S...>, F>>::type
   numpy_gexpr<Arg, S...>::fast(F const &filter) const
   {
@@ -774,7 +790,8 @@ namespace types
 
   template <class Arg, class... S>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value,
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              std::is_same<bool, typename F::dtype>::value,
                           numpy_fexpr<numpy_gexpr<Arg, S...>, F>>::type
       numpy_gexpr<Arg, S...>::
       operator[](F const &filter) const

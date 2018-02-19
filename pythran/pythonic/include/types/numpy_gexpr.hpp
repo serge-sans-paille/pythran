@@ -527,6 +527,14 @@ namespace types
         -> decltype(std::declval<value_type>()(s...));
 
     template <size_t M>
+    auto fast(array<long, M> const &indices) const
+        & -> decltype(nget<M - 1>().fast(*this, indices));
+
+    template <size_t M>
+        auto fast(array<long, M> const &indices) &&
+        -> decltype(nget<M - 1>().fast(std::move(*this), indices));
+
+    template <size_t M>
     auto operator[](array<long, M> const &indices) const
         & -> decltype(nget<M - 1>()(*this, indices));
 
@@ -535,12 +543,14 @@ namespace types
         -> decltype(nget<M - 1>()(std::move(*this), indices));
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                std::is_same<bool, typename F::dtype>::value,
                             numpy_fexpr<numpy_gexpr, F>>::type
     fast(F const &filter) const;
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                std::is_same<bool, typename F::dtype>::value,
                             numpy_fexpr<numpy_gexpr, F>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));

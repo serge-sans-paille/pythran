@@ -292,9 +292,9 @@ namespace types
     template <class T>
     set<T> operator|(set<T> const &s);
     template <class U>
-    empty_set operator&(U const &s);
+    U operator&(U const &s);
     template <class U>
-    empty_set operator-(U const &s);
+    U operator-(U const &s);
     empty_set operator^(empty_set const &);
     template <class T>
     set<T> operator^(set<T> const &s);

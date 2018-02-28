@@ -61,7 +61,6 @@ namespace python
       if (i != n - 1 || (kwargs && PyDict_Size(kwargs)))
         oss << ", ";
     }
-    printf("%p: %d\n", kwargs, PyDict_Size(kwargs));
 
     if (kwargs) {
       PyObject *key, *value;

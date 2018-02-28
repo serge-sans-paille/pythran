@@ -25,10 +25,11 @@ struct __combined<T> {
   using type = T;
 };
 
-template <class T0, class T1, class... Types>
-struct __combined<T0, T1, Types...> {
-  using type = typename __combined<typename __combined<T0, T1>::type,
-                                   typename __combined<Types...>::type>::type;
+template <class T0, class T1, class T2, class... Types>
+struct __combined<T0, T1, T2, Types...> {
+  using type =
+      typename __combined<typename __combined<T0, T1>::type,
+                          typename __combined<T2, Types...>::type>::type;
 };
 
 template <class T0, class T1>
@@ -76,7 +77,17 @@ struct __combined<T0 &, T1> {
 };
 
 template <class T0, class T1>
+struct __combined<T0 const &, T1> {
+  using type = typename __combined<T0, T1>::type;
+};
+
+template <class T0, class T1>
 struct __combined<T0, T1 &> {
+  using type = typename __combined<T0, T1>::type;
+};
+
+template <class T0, class T1>
+struct __combined<T0, T1 const &> {
   using type = typename __combined<T0, T1>::type;
 };
 

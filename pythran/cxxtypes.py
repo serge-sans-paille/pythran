@@ -3,6 +3,25 @@ This module defines classes needed to manipulate c++ types from pythran.
 '''
 
 from pythran.config import cfg
+from functools import reduce
+
+
+class ordered_set(object):
+
+    def __init__(self, elements=None):
+        self.values = list()
+        self.unique_values = set()
+        if elements is not None:
+            for elt in elements:
+                self.append(elt)
+
+    def append(self, value):
+        if value not in self.unique_values:
+            self.values.append(value)
+            self.unique_values.add(value)
+
+    def __iter__(self):
+        return iter(self.values)
 
 
 class Type(object):
@@ -13,27 +32,39 @@ class Type(object):
     one attribute per key with the associated value
     """
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
+        sorted_keys = sorted(kwargs.keys())
+        self.fields = ()
+        for k in sorted_keys:
+            v = kwargs[k]
             if isinstance(v, list):
                 v = tuple(v)
             setattr(self, k, v)
-        self.iscore = False
+            self.fields += v,
+        self.hash = hash(self.fields)
 
     def iscombined(self):
         return False
 
-    def all_types(self):
-        return {self}
-
     def __add__(self, other):
         if self == other:
             return self
-        if isinstance(other, CombinedTypes) and self in other.types:
-            return other
         return CombinedTypes(self, other)
 
     def __repr__(self):
         return self.generate(lambda x: x)
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        if type(self) is type(other):
+            # dangerous but overcomes large recursion
+            return self.hash == other.hash
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not (self == other)
 
 UnknownType = Type()
 
@@ -45,6 +76,7 @@ class NamedType(Type):
     >>> NamedType('long long')
     long long
     """
+
     def __init__(self, srepr):
         super(NamedType, self).__init__(srepr=srepr)
 
@@ -73,15 +105,15 @@ class PType(Type):
         if self.fun is caller:
             return UnknownType
         else:
-            return InstanciatedType(self.fun, self.name, arguments)
+            return InstantiatedType(self.fun, self.name, arguments)
 
 
-class InstanciatedType(Type):
+class InstantiatedType(Type):
     """
-    A type instanciated from a parametric type
+    A type instantiated from a parametric type
     """
     def __init__(self, fun, name, arguments):
-        super(InstanciatedType, self).__init__(fun=fun,
+        super(InstantiatedType, self).__init__(fun=fun,
                                                name=name,
                                                arguments=arguments)
 
@@ -104,60 +136,41 @@ class CombinedTypes(Type):
     >>> NamedType('long') + NamedType('long')
     long
     >>> NamedType('long') + NamedType('char')
-    typename __combined<char,long>::type
+    typename __combined<long,char>::type
     """
 
     def __init__(self, *types):
         super(CombinedTypes, self).__init__(types=types)
-        self._all_types = None  # cached, much faster
 
     def iscombined(self):
         return True
 
     def __add__(self, other):
-        if isinstance(other, CombinedTypes):
-            return CombinedTypes(self, other)
         if other in self.types:
             return self
-        if self == other:
-            return self
-        return CombinedTypes(self, other)
+        return Type.__add__(self, other)
 
-    def all_types(self):
-        if self._all_types is None:
-            self._all_types = set()
-            self._all_types.update(*[t.all_types() for t in self.types])
-            if UnknownType in self._all_types and len(self._all_types) > 1:
-                self._all_types.pop(UnknownType)
-        return self._all_types
+    def __radd__(self, other):
+        if other in self.types:
+            return self
+        return Type.__add__(self, other)
 
     def generate(self, ctx):
-        # gather all underlying types and make sure they do not appear twice
-        mct = cfg.getint('typing', 'max_container_type')
-        all_types = self.all_types()
-
-        def fot0(t):
-            return isinstance(t, IndexableType)
-
-        def fot1(t):
-            return isinstance(t, ContainerType)
-
-        def fit(t):
-            return not fot0(t) and not fot1(t)
-
-        it = [t for t in all_types if fit(t)]
-        it = sorted(it, key=lambda t: t.iscore, reverse=True)
-        ot0 = [t for t in all_types if fot0(t)]
-        ot1 = [t for t in all_types if fot1(t)]
-        icombined = sorted({ctx(t).generate(ctx) for t in it if t.iscore})
-        icombined += sorted({ctx(t).generate(ctx) for t in it if not t.iscore})
-        lcombined0 = sorted({ctx(t).generate(ctx) for t in ot0})[-mct:]
-        lcombined1 = sorted({ctx(t).generate(ctx) for t in ot1})[-mct:]
-        combined = icombined + lcombined0 + lcombined1
-        if len(combined) == 1:
-            return combined[0]
-        else:
-            return 'typename __combined<{0}>::type'.format(",".join(combined))
+        try:
+            return 'typename __combined<{}>::type'.format(
+                ','.join(ctx(t).generate(ctx) for t in self.types))
+        except RuntimeError as re:
+            # this is a situation where we accept to somehow extend
+            # the recursion limit, because of degenerated trees
+            import sys
+            current_recursion_limit = sys.getrecursionlimit()
+            try:
+                return self.generate(ctx)
+            except RuntimeError:
+                sys.setrecursionlimit(current_recursion_limit * 2)
+                return self.generate(ctx)
+            finally:
+                sys.setrecursionlimit(current_recursion_limit)
 
 
 class ArgumentType(Type):

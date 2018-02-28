@@ -12,7 +12,7 @@ from pythran.cxxtypes import ExpressionType, IteratorContentType, ReturnType
 from pythran.cxxtypes import GetAttr, DeclType, ElementType, IndexableType
 from pythran.cxxtypes import ListType, SetType, DictType, TupleType
 from pythran.cxxtypes import ArgumentType, Returnable, CombinedTypes
-from pythran.cxxtypes import UnknownType
+from pythran.cxxtypes import UnknownType, Type, ordered_set
 from pythran.intrinsic import UserFunction, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
@@ -183,7 +183,7 @@ class Types(ModuleAnalysis):
                         else:
                             return CombinedTypes(*types)
 
-                self.name_to_nodes.setdefault(node_id, set()).add(node)
+                self.name_to_nodes[node_id].append(node)
 
             # only perform inter procedural combination upon stage 0
             if register and self.isargument(node) and self.stage == 0:
@@ -246,7 +246,10 @@ class Types(ModuleAnalysis):
             node)
         self.current = node
         self.typedefs = list()
-        self.name_to_nodes = {arg.id: {arg} for arg in node.args.args}
+        self.name_to_nodes = defaultdict(ordered_set)
+        for arg in node.args.args:
+            self.name_to_nodes[arg.id].append(arg)
+
         self.yield_points = self.passmanager.gather(YieldPoints, node)
 
         # two stages, one for inter procedural propagation
@@ -261,11 +264,10 @@ class Types(ModuleAnalysis):
 
         # propagate type information through all aliases
         for name, nodes in self.name_to_nodes.items():
-            final_node = ast.Name("__fake__" + name, ast.Load(), None)
+            unique_types = ordered_set(self.result[n] for n in nodes)
+            final_node = reduce(Type.__add__, unique_types)
             for n in nodes:
-                self.combine(final_node, n)
-            for n in nodes:
-                self.result[n] = self.result[final_node]
+                self.result[n] = final_node
         self.current_global_declarations[node.name] = node
         # return type may be unset if the function always raises
         return_type = self.result.get(node,
@@ -305,8 +307,6 @@ class Types(ModuleAnalysis):
                     for alias in self.strict_aliases[t.value]:
                         fake = ast.Subscript(alias, t.value, ast.Store())
                         self.combine(fake, node.value, register=True)
-            else:
-                self.result[t].iscore = True
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
@@ -319,13 +319,13 @@ class Types(ModuleAnalysis):
                                  node.value,
                                  lambda x, y: x + ExpressionType(
                                      operator_to_lambda[type(node.op)],
-                                     [x, y]),
+                                     (x, y)),
                                  register=True)
         # We don't support aliasing on subscript
         self.combine(node.target, node.value,
                      lambda x, y: x + ExpressionType(
                          operator_to_lambda[type(node.op)],
-                         [x, y]),
+                         (x, y)),
                      register=True,
                      aliasing_type=isinstance(node.target, ast.Name))
 
@@ -353,7 +353,7 @@ class Types(ModuleAnalysis):
 
         def F(x, y):
             return ExpressionType(operator_to_lambda[type(node.op)],
-                                  [x, y])
+                                  (x, y))
 
         self.combine(node, node.left, F)
         self.combine(node, node.right, F)
@@ -362,7 +362,7 @@ class Types(ModuleAnalysis):
         self.generic_visit(node)
 
         def f(x):
-            return ExpressionType(operator_to_lambda[type(node.op)], [x])
+            return ExpressionType(operator_to_lambda[type(node.op)], (x,))
         self.combine(node, node.operand, unary_op=f)
 
     def visit_IfExp(self, node):
@@ -377,7 +377,7 @@ class Types(ModuleAnalysis):
         def unary_op(x, op=None):
             return ExpressionType(
                 operator_to_lambda[type(op)],
-                [self.result[node.left], x])
+                (self.result[node.left], x))
         for op, comp in all_compare:
             self.combine(node, comp,
                          unary_op=partial(unary_op, op=op))
@@ -482,8 +482,8 @@ class Types(ModuleAnalysis):
             def f(t):
                 def et(a, *b):
                     return "{0}({1})".format(a, ", ".join(b))
-                dim_types = [self.result[d] for d in node.slice.dims]
-                return ExpressionType(et, [t] + dim_types)
+                dim_types = tuple(self.result[d] for d in node.slice.dims)
+                return ExpressionType(et, (t,) + dim_types)
         elif (isinstance(node.slice, ast.Index) and
               isinstance(node.slice.value, ast.Num) and
               node.slice.value.n >= 0):
@@ -498,7 +498,7 @@ class Types(ModuleAnalysis):
 
             def f(x):
                 return ExpressionType("{0}[{1}]".format,
-                                      [x, self.result[node.slice]])
+                                      (x, self.result[node.slice]))
         f and self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):

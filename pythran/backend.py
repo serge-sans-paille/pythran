@@ -14,7 +14,7 @@ from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Nop
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
 from pythran.cxxtypes import (Assignable, DeclType, NamedType, IteratorOfType,
-                              ListType, CombinedTypes, Lazy)
+                              ListType, Lazy, Type)
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
@@ -844,8 +844,7 @@ class CxxFunction(Backend):
             return "pythonic::__builtin__::functor::list{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            elts_type = [DeclType(elt) for elt in elts]
-            elts_type = CombinedTypes(*elts_type)
+            elts_type = reduce(Type.__add__, {DeclType(elt) for elt in elts})
 
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:

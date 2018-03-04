@@ -3,52 +3,34 @@
 
 #include "pythonic/include/numpy/argmin.hpp"
 
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/asarray.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/numpy/argminmax.hpp"
 
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class I0, class T>
-  long _argmin(I0 begin, I0 end, T &min_elts, utils::int_<1>)
-  {
-    auto local_min_elts = std::min_element(begin, end);
-    if (*local_min_elts < min_elts) {
-      min_elts = *local_min_elts;
-      return local_min_elts - begin;
+  template <class E>
+  struct argmin_op {
+    static typename E::dtype constexpr limit()
+    {
+      return std::numeric_limits<typename E::dtype>::max();
     }
-
-    return -1;
-  }
-
-  template <class I0, size_t N, class T>
-  long _argmin(I0 begin, I0 end, T &min_elts, utils::int_<N>)
-  {
-    long current_pos = 0;
-    long current_minarg = 0;
-    for (; begin != end; ++begin) {
-      long v = _argmin((*begin).begin(), (*begin).end(), min_elts,
-                       utils::int_<N - 1>());
-      if (v >= 0)
-        current_minarg = current_pos + v;
-      current_pos += (*begin).flat_size();
+    template <class T>
+    static T elements(T first, T last)
+    {
+      return std::min_element(first, last);
     }
-    return current_minarg;
-  }
+    template <class T>
+    static T value(T self, T other)
+    {
+      return self < other;
+    }
+  };
 
   template <class E>
   long argmin(E const &expr)
   {
-    if (!expr.flat_size())
-      throw types::ValueError("empty sequence");
-    using elt_type = typename E::dtype;
-    elt_type argmin_value = std::numeric_limits<elt_type>::max();
-    ;
-    return _argmin(expr.begin(), expr.end(), argmin_value,
-                   utils::int_<E::value>());
+    return argminmax<argmin_op<E>>(expr);
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, argmin);

@@ -1,8 +1,6 @@
 from pythran.typing import List, Dict, Set, Fun, TypeVar, Set
 from pythran.typing import Union, Iterable
 
-from pythran import cxxtypes
-
 
 def type_dependencies(t):
 
@@ -23,12 +21,13 @@ def dep_builder(type_var, ppal_index, index, t, self, node):
                                 if index == ppal_index
                                 else self.result[node.args[index]])
     elif isinstance(t, (List, Set, Iterable, Dict)):
-        return lambda arg: cxxtypes.ElementType(0,
-                                                dep_builder(type_var,
-                                                            ppal_index,
-                                                            index,
-                                                            t.__args__[0],
-                                                            self, node)(arg))
+        return lambda arg: self.builder.cxxtypes.ElementType(
+            0,
+            dep_builder(type_var,
+                        ppal_index,
+                        index,
+                        t.__args__[0],
+                        self, node)(arg))
     assert False, t
 
 
@@ -36,7 +35,7 @@ class InfeasibleCombiner(Exception):
     pass
 
 
-def path_to(t, deps_builders, node):
+def path_to(self, t, deps_builders, node):
 
     if isinstance(t, TypeVar):
         if t in deps_builders:
@@ -44,15 +43,15 @@ def path_to(t, deps_builders, node):
         else:
             raise InfeasibleCombiner()
     if isinstance(t, List):
-        return lambda arg: cxxtypes.ListType(
-            path_to(t.__args__[0], deps_builders, node)(arg))
+        return lambda arg: self.builder.ListType(
+            path_to(self, t.__args__[0], deps_builders, node)(arg))
     if isinstance(t, Set):
-        return lambda arg: cxxtypes.SetType(
-            path_to(t.__args__[0], deps_builders, node)(arg))
+        return lambda arg: self.builder.SetType(
+            path_to(self, t.__args__[0], deps_builders, node)(arg))
     if isinstance(t, Dict):
-        return lambda arg: cxxtypes.DictType(
-            path_to(t.__args__[0], deps_builders, node)(arg),
-            path_to(t.__args__[1], deps_builders, node)(arg),
+        return lambda arg: self.builder.DictType(
+            path_to(self, t.__args__[0], deps_builders, node)(arg),
+            path_to(self, t.__args__[1], deps_builders, node)(arg),
         )
     if isinstance(t, Fun):
         raise InfeasibleCombiner()
@@ -73,7 +72,7 @@ def build_unary_op(deps, args, self, node):
                                       self=self,
                                       node=node)
                      for dep, src in deps.items()}
-    return path_to(args[0], deps_builders, node), ppal_index
+    return path_to(self, args[0], deps_builders, node), ppal_index
 
 
 def build_combiner(signature, deps):

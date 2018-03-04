@@ -665,11 +665,11 @@ def np_broadcast_dup():
     def test_sum_(self):
         self.run_test("def np_sum_(a): return a.sum()", numpy.arange(10), np_sum_=[NDArray[int,:]])
 
-    def test_sum_bool(self):
-        self.run_test("def np_sum_bool(a): return (a > 2).sum()", numpy.arange(10), np_sum_bool=[NDArray[int,:]])
+    def test_sum_of_bool(self):
+        self.run_test("def np_sum_of_bool(a): return (a > 2).sum()", numpy.arange(10), np_sum_of_bool=[NDArray[int,:]])
 
-    def test_sum_bool2(self):
-        self.run_test("def np_sum_bool2(a): return (a > 2).sum(axis=1)", numpy.arange(10).reshape(5,2), np_sum_bool2=[NDArray[int,:,:]])
+    def test_sum_of_bool2(self):
+        self.run_test("def np_sum_of_bool2(a): return (a > 2).sum(axis=1)", numpy.arange(10).reshape(5,2), np_sum_of_bool2=[NDArray[int,:,:]])
 
     def test_sum_scalar0(self):
         self.run_test("def np_sum_scalar0(a): return a.sum().sum()", numpy.arange(10), np_sum_scalar0=[NDArray[int,:]])

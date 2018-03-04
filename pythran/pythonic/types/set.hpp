@@ -487,15 +487,15 @@ namespace types
   }
 
   template <class U>
-  empty_set empty_set::operator&(U const &s)
+  U empty_set::operator&(U const &s)
   {
-    return empty_set();
+    return {};
   }
 
   template <class U>
-  empty_set empty_set::operator-(U const &s)
+  U empty_set::operator-(U const &s)
   {
-    return empty_set();
+    return {};
   }
 
   empty_set empty_set::operator^(empty_set const &) { return empty_set(); }

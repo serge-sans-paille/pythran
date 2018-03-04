@@ -13,8 +13,6 @@ from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Nop
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
-from pythran.cxxtypes import (Assignable, DeclType, NamedType, IteratorOfType,
-                              ListType, CombinedTypes, Lazy)
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
@@ -115,22 +113,16 @@ def cxx_loop(visit):
 
 
 class CachedTypeVisitor:
-    class CachedType:
-        def __init__(self, s):
-            self.s = s
-
-        def generate(self, _):
-            return self.s
 
     def __init__(self, other=None):
-        if other:
-            self.cache = other.cache.copy()
-            self.rcache = other.rcache.copy()
-            self.mapping = other.mapping.copy()
-        else:
+        if other is None:
             self.cache = dict()
             self.rcache = dict()
             self.mapping = dict()
+        else:
+            self.cache = other.cache.copy()
+            self.rcache = other.rcache.copy()
+            self.mapping = other.mapping.copy()
 
     def __call__(self, node):
         if node not in self.mapping:
@@ -142,8 +134,7 @@ class CachedTypeVisitor:
                 self.rcache[t] = node
                 self.mapping[node] = len(self.mapping)
                 self.cache[node] = t
-        return CachedTypeVisitor.CachedType(
-            "__type{0}".format(self.mapping[node]))
+        return "__type{0}".format(self.mapping[node])
 
     def typedefs(self):
         l = sorted(self.mapping.items(), key=lambda x: x[1])
@@ -412,14 +403,20 @@ class CxxFunction(Backend):
             if self.types[node.targets[0]].iscombined():
                 alltargets = '{} {}'.format(self.typeof(node.targets[0]),
                                             alltargets)
-            elif isinstance(self.types[node.targets[0]], Assignable):
+            elif isinstance(self.types[node.targets[0]],
+                            self.types.builder.Assignable):
                 alltargets = '{} {}'.format(
-                    Assignable(NamedType('decltype({})'.format(value))),
+                    self.types.builder.Assignable(
+                        self.types.builder.NamedType(
+                            'decltype({})'.format(value))),
                     alltargets)
             else:
-                assert isinstance(self.types[node.targets[0]], Lazy)
+                assert isinstance(self.types[node.targets[0]],
+                                  self.types.builder.Lazy)
                 alltargets = '{} {}'.format(
-                    Lazy(NamedType('decltype({})'.format(value))),
+                    self.types.builder.Lazy(
+                        self.types.builder.NamedType(
+                            'decltype({})'.format(value))),
                     alltargets)
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
@@ -465,7 +462,7 @@ class CxxFunction(Backend):
         """
         # Choose target variable for iterator (which is iterator type)
         local_target = "__target{0}".format(len(self.break_handlers))
-        local_target_decl = IteratorOfType(local_iter_decl)
+        local_target_decl = self.types.builder.IteratorOfType(local_iter_decl)
 
         # If variable is local to the for body it's a ref to the iterator value
         # type
@@ -708,7 +705,8 @@ class CxxFunction(Backend):
             else:
                 # Iterator declaration
                 local_iter = "__iter{0}".format(len(self.break_handlers))
-                local_iter_decl = Assignable(self.types[node.iter])
+                local_iter_decl = self.types.builder.Assignable(
+                    self.types[node.iter])
 
                 self.handle_omp_for(node, local_iter)
 
@@ -844,16 +842,17 @@ class CxxFunction(Backend):
             return "pythonic::__builtin__::functor::list{}()"
         else:
             elts = [self.visit(n) for n in node.elts]
-            elts_type = [DeclType(elt) for elt in elts]
-            elts_type = CombinedTypes(*elts_type)
+            elts_type = reduce(
+                self.types.builder.Type.__add__,
+                {self.types.builder.DeclType(elt) for elt in elts})
 
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
                 elts.append('pythonic::types::single_value()')
 
-            node_type = ListType(elts_type)
+            node_type = self.types.builder.ListType(elts_type)
             return "{0}({{{1}}})".format(
-                Assignable(node_type),
+                self.types.builder.Assignable(node_type),
                 ", ".join(elts))
 
     def visit_Set(self, node):
@@ -862,7 +861,7 @@ class CxxFunction(Backend):
         else:
             elts = [self.visit(n) for n in node.elts]
             return "{0}{{{{{1}}}}}".format(
-                Assignable(self.types[node]),
+                self.types.builder.Assignable(self.types[node]),
                 ", ".join(elts))
 
     def visit_Dict(self, node):
@@ -872,7 +871,7 @@ class CxxFunction(Backend):
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
             return "{0}{{{{{1}}}}}".format(
-                Assignable(self.types[node]),
+                self.types.builder.Assignable(self.types[node]),
                 ", ".join("{{ {0}, {1} }}".format(k, v)
                           for k, v in zip(keys, values)))
 

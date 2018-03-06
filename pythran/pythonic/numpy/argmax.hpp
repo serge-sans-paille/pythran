@@ -29,8 +29,13 @@ namespace numpy
   template <class E>
   long argmax(E const &expr)
   {
-
     return argminmax<argmax_op<E>>(expr);
+  }
+
+  template <class E>
+  types::ndarray<long, E::value - 1> argmax(E const &expr, long axis)
+  {
+    return argminmax<argmax_op<E>>(expr, axis);
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, argmax);

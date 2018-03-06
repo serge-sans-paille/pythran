@@ -33,6 +33,12 @@ namespace numpy
     return argminmax<argmin_op<E>>(expr);
   }
 
+  template <class E>
+  types::ndarray<long, E::value - 1> argmin(E const &expr, long axis)
+  {
+    return argminmax<argmin_op<E>>(expr, axis);
+  }
+
   DEFINE_FUNCTOR(pythonic::numpy, argmin);
 }
 PYTHONIC_NS_END

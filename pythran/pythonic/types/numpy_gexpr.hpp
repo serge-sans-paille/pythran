@@ -593,6 +593,34 @@ namespace types
   }
 
   template <class Arg, class... S>
+  template <class E>
+  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator|=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::ior>(expr);
+  }
+
+  template <class Arg, class... S>
+  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
+  operator|=(numpy_gexpr<Arg, S...> const &expr)
+  {
+    return update_<pythonic::operator_::functor::ior>(expr);
+  }
+
+  template <class Arg, class... S>
+  template <class E>
+  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator&=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::iand>(expr);
+  }
+
+  template <class Arg, class... S>
+  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
+  operator&=(numpy_gexpr<Arg, S...> const &expr)
+  {
+    return update_<pythonic::operator_::functor::iand>(expr);
+  }
+
+  template <class Arg, class... S>
   typename numpy_gexpr<Arg, S...>::const_iterator
   numpy_gexpr<Arg, S...>::begin() const
   {

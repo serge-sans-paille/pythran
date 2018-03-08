@@ -8,14 +8,11 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class I0, class T>
-  long _argmin(I0 begin, I0 end, T &min_elts, utils::int_<1>);
-
-  template <class I0, size_t N, class T>
-  long _argmin(I0 begin, I0 end, T &min_elts, utils::int_<N>);
-
   template <class E>
   long argmin(E const &expr);
+
+  template <class E>
+  types::ndarray<long, E::value - 1> argmin(E const &expr, long axis);
 
   DECLARE_FUNCTOR(pythonic::numpy, argmin);
 }

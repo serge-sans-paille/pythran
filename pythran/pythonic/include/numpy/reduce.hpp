@@ -14,9 +14,12 @@ namespace numpy
   namespace
   {
     template <class E>
-    using reduce_result_type =
-        typename std::conditional<std::is_same<typename E::dtype, bool>::value,
-                                  long, typename E::dtype>::type;
+    using reduce_result_type = typename std::conditional<
+        std::is_integral<typename E::dtype>::value &&
+            (sizeof(typename E::dtype) < sizeof(long)),
+        typename std::conditional<std::is_signed<typename E::dtype>::value,
+                                  long, unsigned long>::type,
+        typename E::dtype>::type;
   }
 
   template <class Op, class E>
@@ -36,7 +39,13 @@ namespace numpy
                               decltype(reduce<Op>(array))>::type;
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis) ->
+  auto reduce(E const &array, long axis,
+              types::none_type dtype = types::none_type(),
+              types::none_type out = types::none_type()) ->
+      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type;
+
+  template <class Op, class E, class Out>
+  auto reduce(E const &array, long axis, types::none_type dtype, Out &&out) ->
       typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type;
 
   namespace
@@ -50,10 +59,9 @@ namespace numpy
   reduce(E const &array, long axis, types::none_type dtype = types::none_type(),
          types::none_type out = types::none_type());
 
-  template <class Op, class E>
+  template <class Op, class E, class Out>
   typename std::enable_if<E::value != 1, reduced_type<E>>::type
-  reduce(E const &array, long axis, types::none_type dtype,
-         reduced_type<E> out);
+  reduce(E const &array, long axis, types::none_type dtype, Out &&out);
 }
 PYTHONIC_NS_END
 

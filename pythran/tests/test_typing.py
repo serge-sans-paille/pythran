@@ -400,3 +400,11 @@ def recursive_interprocedural_typing1():
                 return (1, 2, 3, 4)[l]'''
         return self.run_test(code, 0, valid_tuple_index=[int])
 
+    def test_exact_float_check(self):
+        code = 'def exact_float_check(i): return i'
+        return self.run_test(code, np.float64(1.1), exact_float_check=[float])
+
+    def test_exact_complex_check(self):
+        code = 'def exact_complex_check(i): return i'
+        return self.run_test(code, np.complex128(2), exact_complex_check=[complex])
+

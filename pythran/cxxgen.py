@@ -31,6 +31,7 @@ from __future__ import division
 
 from textwrap import dedent
 from pythran.tables import pythran_ward
+from pythran.types.conversion import pytype_to_pretty_type
 
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
@@ -470,17 +471,17 @@ class PythonModule(object):
     def add_to_includes(self, *incl):
         self.includes.extend(incl)
 
-    def add_pyfunction(self, func, name, types):
-        self.add_function_to(self.python_implems, func, name, types)
+    def add_pyfunction(self, func, name, types, signature):
+        self.add_function_to(self.python_implems, func, name, types, signature)
 
     def add_capsule(self, func, ptrname, sig):
         self.capsules.append((ptrname, sig))
         self.implems.append(func)
 
-    def add_function(self, func, name, types):
-        self.add_function_to(self.implems, fun, name, types)
+    def add_function(self, func, name, types, signature):
+        self.add_function_to(self.implems, fun, name, types, signature)
 
-    def add_function_to(self, to, func, name, types):
+    def add_function_to(self, to, func, name, ctypes, signature):
         """
         Add a function to be exposed. *func* is expected to be a
         :class:`cgen.FunctionBody`.
@@ -496,11 +497,11 @@ class PythonModule(object):
         args_checks = []  # check if the above conversion is valid
         wrapper_name = pythran_ward + 'wrap_' + func.fdecl.name
 
-        for i, t in enumerate(types):
+        for i, t in enumerate(ctypes):
             args_unboxing.append('from_python<{}>(args_obj[{}])'.format(t, i))
             args_checks.append('is_convertible<{}>(args_obj[{}])'.format(t, i))
-        if types:
-            arg_decls = func.fdecl.arg_decls[:len(types)]
+        if ctypes:
+            arg_decls = func.fdecl.arg_decls[:len(ctypes)]
             keywords = ",".join('"{}"'.format(arg.name) for arg in arg_decls)
             wrapper = dedent('''
                 static PyObject *
@@ -528,10 +529,10 @@ class PythonModule(object):
 
         self.wrappers.append(
             wrapper.format(name=func.fdecl.name,
-                           size=len(types),
-                           fmt="O" * len(types),
+                           size=len(ctypes),
+                           fmt="O" * len(ctypes),
                            objs=', '.join('&args_obj[%d]' % i
-                                          for i in range(len(types))),
+                                          for i in range(len(ctypes))),
                            args=', '.join(args_unboxing),
                            checks=' && '.join(args_checks),
                            wname=wrapper_name,
@@ -539,7 +540,7 @@ class PythonModule(object):
                            )
         )
 
-        func_descriptor = wrapper_name, types
+        func_descriptor = wrapper_name, ctypes, signature
         self.functions.setdefault(name, []).append(func_descriptor)
 
     def add_global_var(self, name, init):
@@ -561,18 +562,16 @@ class PythonModule(object):
         for fname, overloads in self.functions.items():
             tryall = []
             candidates = []
-            for overload, types in overloads:
+            for overload, ctypes, signature in overloads:
                 try_ = dedent("""
                     if(PyObject* obj = {name}(self, args, kw))
                         return obj;
                     PyErr_Clear();
                     """.format(name=overload))
                 tryall.append(try_)
-                theargs = (t.replace("pythonic::types::", "")
-                            .replace('::', '.')
-                           for t in types)
                 thecall = "{}({})".format(fname,
-                                          ",".join(theargs))
+                                          ",".join(pytype_to_pretty_type(t)
+                                                   for t in signature))
                 candidates.append(thecall)
 
             wrapper_name = pythran_ward + 'wrapall_' + fname
@@ -584,11 +583,8 @@ class PythonModule(object):
                 return pythonic::handle_python_exception([self, args, kw]()
                 -> PyObject* {{
                 {tryall}
-                PyErr_SetString(PyExc_TypeError,
-                "Invalid argument type for pythranized function `{name}'.\\n"
-                "Candidates are:\\n{candidates}\\n"
-                );
-                return nullptr;
+                return pythonic::python::raise_invalid_argument(
+                               "{name}", "{candidates}", args, kw);
                 }});
             }}
             '''.format(name=fname,

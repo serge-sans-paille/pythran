@@ -155,6 +155,23 @@ Praise, flame and cookies:
 
 The mailing list archive is available at http://www.freelists.org/archive/pythran/.
 
+Citing
+------
+
+If you need to cite a Pythran paper, feel free to use::
+
+    @article{guelton2015pythran,
+      title={Pythran: Enabling static optimization of scientific python programs},
+      author={Guelton, Serge and Brunet, Pierrick and Amini, Mehdi and Merlini,
+                      Adrien and Corbillon, Xavier and Raynaud, Alan},
+      journal={Computational Science \& Discovery},
+      volume={8},
+      number={1},
+      pages={014001},
+      year={2015},
+      publisher={IOP Publishing}
+    }
+
 
 Authors
 -------

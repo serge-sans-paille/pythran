@@ -145,12 +145,21 @@ namespace numpy
   }
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis) ->
+  auto reduce(E const &array, long axis, types::none_type, types::none_type) ->
       typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
     return reduce<Op>(array);
+  }
+
+  template <class Op, class E, class Out>
+  auto reduce(E const &array, long axis, types::none_type, Out &&out) ->
+      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type
+  {
+    if (axis != 0)
+      throw types::ValueError("axis out of bounds");
+    return std::forward<Out>(out) = reduce<Op>(array);
   }
 
   template <class Op, class E>
@@ -173,16 +182,18 @@ namespace numpy
       auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
       std::copy(shape.begin() + axis + 1, shape.end(), next);
       reduced_type<E> sumy{shp, __builtin__::None};
-      std::transform(array.begin(), array.end(), sumy.begin(),
-                     [axis](typename E::const_iterator::value_type other) {
-                       return reduce<Op>(other, axis - 1);
-                     });
+
+      auto sumy_iter = sumy.begin();
+      for (auto const &elem : array) {
+        reduce<Op>(elem, axis - 1, types::none_type{}, *sumy_iter);
+        ++sumy_iter;
+      }
       return sumy;
     }
   }
-  template <class Op, class E>
+  template <class Op, class E, class Out>
   typename std::enable_if<E::value != 1, reduced_type<E>>::type
-  reduce(E const &array, long axis, types::none_type, reduced_type<E> out)
+  reduce(E const &array, long axis, types::none_type, Out &&out)
   {
     if (axis < 0)
       axis += E::value;
@@ -191,13 +202,14 @@ namespace numpy
     if (axis == 0) {
       std::fill(out.begin(), out.end(),
                 utils::neutral<Op, typename E::dtype>::value);
-      return _reduce<Op, 1, types::novectorize /* ! on scalars*/>{}(array, out);
+      return _reduce<Op, 1, types::novectorize /* ! on scalars*/>{}(
+          array, std::forward<Out>(out));
     } else {
       std::transform(array.begin(), array.end(), out.begin(),
                      [axis](typename E::const_iterator::value_type other) {
                        return reduce<Op>(other, axis - 1);
                      });
-      return out;
+      return std::forward<Out>(out);
     }
   }
 }

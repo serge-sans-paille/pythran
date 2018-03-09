@@ -392,11 +392,23 @@ def test_copy0(x):
     def test_argmax1(self):
         self.run_test("def np_argmax1(a): from numpy import argmax ; return argmax(a+a)", numpy.arange(6).reshape(2,3), np_argmax1=[NDArray[int,:,:]])
 
+    def test_argmax2(self):
+        self.run_test("def np_argmax2(a): from numpy import argmax ; return argmax(a, 0)", numpy.arange(30).reshape(2,3,5), np_argmax2=[NDArray[int,:,:,:]])
+
     def test_argmin0(self):
         self.run_test("def np_argmin0(a): return a.argmin()", numpy.arange(6).reshape(2,3), np_argmin0=[NDArray[int,:,:]])
 
     def test_argmin1(self):
         self.run_test("def np_argmin1(a): from numpy import argmin ; return argmin(a)", [1,2,3], np_argmin1=[List[int]])
+
+    def test_argmin2(self):
+        self.run_test("def np_argmin2(a): from numpy import argmin ; return argmin(a, 0)", numpy.arange(30).reshape(2,3,5), np_argmin2=[NDArray[int,:,:,:]])
+
+    def test_argmin3(self):
+        self.run_test("def np_argmin3(a): from numpy import argmin ; return argmin(a, 1)", numpy.arange(30).reshape(2,3,5), np_argmin3=[NDArray[int,:,:,:]])
+
+    def test_argmin4(self):
+        self.run_test("def np_argmin4(a): from numpy import argmin ; return argmin(a, 2)", numpy.arange(30).reshape(2,3,5), np_argmin4=[NDArray[int,:,:,:]])
 
     def test_append0(self):
         self.run_test("def np_append0(a): from numpy import append ; b = [[4, 5, 6], [7, 8, 9]] ; return append(a,b)", [1, 2, 3], np_append0=[List[int]])
@@ -665,11 +677,11 @@ def np_broadcast_dup():
     def test_sum_(self):
         self.run_test("def np_sum_(a): return a.sum()", numpy.arange(10), np_sum_=[NDArray[int,:]])
 
-    def test_sum_bool(self):
-        self.run_test("def np_sum_bool(a): return (a > 2).sum()", numpy.arange(10), np_sum_bool=[NDArray[int,:]])
+    def test_sum_of_bool(self):
+        self.run_test("def np_sum_of_bool(a): return (a > 2).sum()", numpy.arange(10), np_sum_of_bool=[NDArray[int,:]])
 
-    def test_sum_bool2(self):
-        self.run_test("def np_sum_bool2(a): return (a > 2).sum(axis=1)", numpy.arange(10).reshape(5,2), np_sum_bool2=[NDArray[int,:,:]])
+    def test_sum_of_bool2(self):
+        self.run_test("def np_sum_of_bool2(a): return (a > 2).sum(axis=1)", numpy.arange(10).reshape(5,2), np_sum_of_bool2=[NDArray[int,:,:]])
 
     def test_sum_scalar0(self):
         self.run_test("def np_sum_scalar0(a): return a.sum().sum()", numpy.arange(10), np_sum_scalar0=[NDArray[int,:]])

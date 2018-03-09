@@ -24,6 +24,8 @@ except ImportError:
          UserWarning)
 
 from setuptools.command.build_py import build_py
+from setuptools.command.develop import develop
+
 from setuptools import setup
 from distutils import ccompiler
 from distutils.errors import CompileError, LinkError
@@ -69,17 +71,18 @@ class BuildWithThirdParty(build_py):
     * install boost dependencies
     """
 
-    def copy_boost(self):
+    def copy_boost(self, src_only=False):
         """ Install boos-simd and boost deps from the third_party directory """
 
         print('Copying boost.simd and its dependencies')
         for d in ('boost',):
             src = os.path.join('third_party', d)
 
-            # copy to the build tree
-            target = os.path.join(self.build_lib, 'pythran', d)
-            shutil.rmtree(target, True)
-            shutil.copytree(src, target)
+            if not src_only:
+                # copy to the build tree
+                target = os.path.join(self.build_lib, 'pythran', d)
+                shutil.rmtree(target, True)
+                shutil.copytree(src, target)
 
             # copy them to the source tree too, needed for sdist
             target = os.path.join('pythran', d)
@@ -150,6 +153,14 @@ class BuildWithThirdParty(build_py):
             self.detect_gmp()
 
 
+class DevelopWithThirdParty(develop, BuildWithThirdParty):
+
+    def run(self, *args, **kwargs):
+        if not self.dry_run:  # compatibility with the parent options
+            self.copy_boost(src_only=True)
+        develop.run(self, *args, **kwargs)
+
+
 # Cannot use glob here, as the files may not be generated yet
 boost_headers = (['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
 pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
@@ -204,4 +215,5 @@ setup(name='pythran',
       tests_require=['pytest', 'pytest-pep8'],
       extras_require={'deps': ['numpy']},
       test_suite="pythran/test",
-      cmdclass={'build_py': BuildWithThirdParty})
+      cmdclass={'build_py': BuildWithThirdParty,
+                'develop': DevelopWithThirdParty})

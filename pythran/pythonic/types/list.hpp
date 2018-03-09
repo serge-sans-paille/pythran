@@ -507,13 +507,10 @@ namespace types
 
   template <class T>
   template <class F>
-  list<decltype(std::declval<T>() +
-                std::declval<typename list<F>::value_type>())> list<T>::
+  list<typename __combined<T, F>::type> list<T>::
   operator+(list<F> const &s) const
   {
-    list<decltype(std::declval<T>() +
-                  std::declval<typename list<F>::value_type>())>
-        clone(data->size() + s.data->size());
+    list<typename __combined<T, F>::type> clone(data->size() + s.data->size());
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), clone.begin()));
     return clone;
   }

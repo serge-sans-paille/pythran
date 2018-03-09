@@ -10,10 +10,9 @@ PYTHONIC_NS_BEGIN
 namespace __builtin__
 {
 
-  template <class List0, class... Lists>
-  auto zip(List0 &&s0, Lists &&... lists)
-      -> types::list<decltype(types::make_tuple(*s0.begin(),
-                                                *lists.begin()...))>;
+  template <class... Lists>
+  auto zip(Lists &&... lists)
+      -> types::list<decltype(types::make_tuple(*lists.begin()...))>;
 
   types::empty_list zip();
 

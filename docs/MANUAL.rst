@@ -408,8 +408,9 @@ Read the optimized Python code
 ------------------------------
 
 Curious Python developers might want to study how Pythran transforms their
-codes.  With the ``-P`` switch, Pythran just print the optimized Python code.
-Pythran does not care about PEP 8, so a Python formatter is often useful::
+codes.  With the ``-P`` switch, Pythran optimizes the Python code, prints the
+result and stops there.  Pythran does not care about PEP 8, so a Python
+formatter is often useful::
 
   pythran -P arc_distance.py | yapf
 

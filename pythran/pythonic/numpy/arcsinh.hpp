@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME arcsinh
-#define NUMPY_NARY_FUNC_SYM boost::simd::asinh
+#define NUMPY_NARY_FUNC_SYM wrapper::asinh
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

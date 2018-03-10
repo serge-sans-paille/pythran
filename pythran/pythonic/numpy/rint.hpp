@@ -19,6 +19,12 @@ namespace numpy
     {
       return boost::simd::inearbyint(v);
     }
+    template <class T>
+    std::complex<T> rint(std::complex<T> const &v)
+    {
+      return {(T)boost::simd::inearbyint(v.real()),
+              (T)boost::simd::inearbyint(v.imag())};
+    }
   }
 #define NUMPY_NARY_FUNC_NAME rint
 #define NUMPY_NARY_FUNC_SYM wrapper::rint

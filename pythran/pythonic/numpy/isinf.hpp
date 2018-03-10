@@ -19,6 +19,11 @@ namespace numpy
     {
       return boost::simd::is_inf(v);
     }
+    template <class T>
+    bool isinf(std::complex<T> const &v)
+    {
+      return boost::simd::is_inf(v.real()) || boost::simd::is_inf(v.imag());
+    }
   }
 #define NUMPY_NARY_FUNC_NAME isinf
 #define NUMPY_NARY_FUNC_SYM wrapper::isinf

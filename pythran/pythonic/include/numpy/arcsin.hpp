@@ -17,6 +17,11 @@ namespace numpy
     double arcsin(long const &v);
     template <class T>
     auto arcsin(T const &v) -> decltype(boost::simd::asin(v));
+    template <class T>
+    std::complex<T> arcsin(std::complex<T> const &v)
+    {
+      return std::asin(v);
+    }
   }
 #define NUMPY_NARY_FUNC_NAME arcsin
 #define NUMPY_NARY_FUNC_SYM wrapper::arcsin

@@ -17,6 +17,20 @@ namespace std
   bool operator==(long self, std::complex<double> other);
   bool operator!=(std::complex<double> self, long other);
   bool operator!=(long self, std::complex<double> other);
+  template <class T>
+  bool operator<(std::complex<T> self, std::complex<T> other);
+  template <class T>
+  bool operator<=(std::complex<T> self, std::complex<T> other);
+  template <class T>
+  bool operator>(std::complex<T> self, std::complex<T> other);
+  template <class T>
+  bool operator>=(std::complex<T> self, std::complex<T> other);
+  template <class T>
+  bool operator&&(std::complex<T> self, std::complex<T> other);
+  template <class T>
+  bool operator||(std::complex<T> self, std::complex<T> other);
+  template <class T>
+  bool operator!(std::complex<T> self);
 }
 
 PYTHONIC_NS_BEGIN

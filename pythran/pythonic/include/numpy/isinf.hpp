@@ -13,6 +13,9 @@ namespace numpy
   {
     template <class T>
     bool isinf(T const &v);
+
+    template <class T>
+    bool isinf(std::complex<T> const &v);
   }
 #define NUMPY_NARY_FUNC_NAME isinf
 #define NUMPY_NARY_FUNC_SYM wrapper::isinf

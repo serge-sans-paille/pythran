@@ -15,6 +15,11 @@ namespace numpy
     template <class T0, class T1>
     auto logical_xor(T0 const &t0, T1 const &t1)
         -> decltype((t0 && !t1) || (t1 && !t0));
+    template <class T0, class T1>
+    bool logical_xor(std::complex<T0> const &t0, std::complex<T1> const &t1)
+    {
+      return (!!t0 && !t1) || (!!t1 && !t0);
+    }
   }
 
 #define NUMPY_NARY_FUNC_NAME logical_xor

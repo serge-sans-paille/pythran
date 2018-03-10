@@ -66,6 +66,51 @@ namespace std
   {
     return double(self) != other;
   }
+
+  template <class T>
+  bool operator<(std::complex<T> self, std::complex<T> other)
+  {
+    return self.real() == other.real() ? self.imag() < other.imag()
+                                       : self.real() < other.real();
+  }
+
+  template <class T>
+  bool operator<=(std::complex<T> self, std::complex<T> other)
+  {
+    return self.real() == other.real() ? self.imag() <= other.imag()
+                                       : self.real() <= other.real();
+  }
+
+  template <class T>
+  bool operator>(std::complex<T> self, std::complex<T> other)
+  {
+    return self.real() == other.real() ? self.imag() > other.imag()
+                                       : self.real() > other.real();
+  }
+
+  template <class T>
+  bool operator>=(std::complex<T> self, std::complex<T> other)
+  {
+    return self.real() == other.real() ? self.imag() >= other.imag()
+                                       : self.real() >= other.real();
+  }
+
+  template <class T>
+  bool operator&&(std::complex<T> self, std::complex<T> other)
+  {
+    return (self.real() || self.imag()) && (other.real() || other.imag());
+  }
+
+  template <class T>
+  bool operator||(std::complex<T> self, std::complex<T> other)
+  {
+    return (self.real() || self.imag()) || (other.real() || other.imag());
+  }
+  template <class T>
+  bool operator!(std::complex<T> self)
+  {
+    return !self.real() && !self.imag();
+  }
 }
 
 PYTHONIC_NS_BEGIN

@@ -4,7 +4,9 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
+
 #include <boost/simd/function/cos.hpp>
+#include <cmath>
 
 PYTHONIC_NS_BEGIN
 
@@ -15,6 +17,11 @@ namespace numpy
     double cos(long const &v);
     template <class T>
     auto cos(T const &v) -> decltype(boost::simd::cos(v));
+    template <class T>
+    std::complex<T> cos(std::complex<T> const &v)
+    {
+      return std::cos(v);
+    }
   }
 #define NUMPY_NARY_FUNC_NAME cos
 #define NUMPY_NARY_FUNC_SYM wrapper::cos

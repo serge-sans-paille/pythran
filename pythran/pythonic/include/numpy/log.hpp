@@ -11,8 +11,21 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+  namespace wrapper
+  {
+    template <class T>
+    std::complex<T> log(std::complex<T> const &val)
+    {
+      return std::log(val);
+    }
+    template <class T>
+    auto log(T const &val) -> decltype(boost::simd::log(val))
+    {
+      return boost::simd::log(val);
+    }
+  }
 #define NUMPY_NARY_FUNC_NAME log
-#define NUMPY_NARY_FUNC_SYM boost::simd::log
+#define NUMPY_NARY_FUNC_SYM wrapper::log
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

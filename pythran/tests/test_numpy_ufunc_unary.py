@@ -1,6 +1,6 @@
 import unittest
 from test_env import TestEnv
-import numpy
+import numpy, scipy
 from pythran.typing import NDArray
 
 
@@ -38,6 +38,11 @@ test_inputs_by_type = {
         '': ('numpy.ones(10)', '[NDArray[float,:]]'),
         '_matrix': ('numpy.ones((2,5))', '[NDArray[float,:,:]]')
     },
+    'complex': {
+        '_scalar': ('0.5j', '[complex]'),
+        '': ('numpy.ones(10)*1.j', '[NDArray[complex,:]]'),
+        '_matrix': ('numpy.ones((2,5))*1.j', '[NDArray[complex,:,:]]')
+    },
     'numpy.int32': {
         '_scalar': ('1', '[numpy.int32]'),
         '': ('numpy.ones(10, numpy.int32)', '[NDArray[numpy.int32,:]]'),
@@ -48,20 +53,26 @@ test_inputs_by_type = {
 
 for module, functions in unary_func_by_module.items():
     for f in functions:
-        if 'bitwise_' in f or 'invert' in f:
-            input_type = 'numpy.int32'
-        else:
-            input_type = 'float'
+        for input_type in ('float', 'complex'):
+            try:
+                eval('{}.{}({})'.format(module, f, test_inputs_by_type[input_type]['_scalar'][0]))
+            except TypeError:
+                if input_type == 'float':
+                    input_type = 'numpy.int32'
+                else:
+                    continue  # no need to test that, it does not work on numpy
 
-        for test_suffix, (input, pythran_input_type) \
-                in test_inputs_by_type[input_type].items():
-            func_name = "numpy_ufunc_unary_{}_{}{}".format(module.replace('.', '_'), f,
-                                         test_suffix)
-            setattr(
-                TestNumpyUFuncUnary,
-                'test_numpy_ufunc_unary_{}'.format(func_name),
-                eval(
-                    """
+            if input_type == 'complex' and 'gamma' in f:
+                continue  # skip
+
+
+            for test_suffix, (input, pythran_input_type) \
+                    in test_inputs_by_type[input_type].items():
+
+                func_name = "numpy_ufunc_unary_{}_{}{}_{}".format(module.replace('.', '_'), f,
+                                             test_suffix, input_type.replace('.','_'))
+
+                code = """
                     lambda self: self.run_test(
                         '''{func}''', 
                         {input}, 
@@ -77,5 +88,9 @@ for module, functions in unary_func_by_module.items():
                         input=input,
                         pythran_input_type=pythran_input_type,
                     )
+
+                setattr(
+                    TestNumpyUFuncUnary,
+                    'test_numpy_ufunc_unary_{}'.format(func_name),
+                    eval(code)
                 )
-            )

@@ -162,6 +162,23 @@ namespace types
     {
       return *this;
     }
+    template <class Expr>
+    numpy_texpr_2 &operator=(Expr const &expr);
+
+    template <class Op, class Expr>
+    numpy_texpr_2 &update_(Expr const &expr);
+    template <class Expr>
+    numpy_texpr_2 &operator+=(Expr const &expr);
+    template <class Expr>
+    numpy_texpr_2 &operator-=(Expr const &expr);
+    template <class Expr>
+    numpy_texpr_2 &operator*=(Expr const &expr);
+    template <class Expr>
+    numpy_texpr_2 &operator/=(Expr const &expr);
+    template <class Expr>
+    numpy_texpr_2 &operator&=(Expr const &expr);
+    template <class Expr>
+    numpy_texpr_2 &operator|=(Expr const &expr);
   };
 
   // only implemented for N = 2
@@ -170,8 +187,9 @@ namespace types
     numpy_texpr();
     numpy_texpr(numpy_texpr const &) = default;
     numpy_texpr(numpy_texpr &&) = default;
-
     numpy_texpr(ndarray<T, 2> const &arg);
+
+    using numpy_texpr_2<ndarray<T, 2>>::operator=;
   };
 
   template <class E, class... S>
@@ -180,19 +198,20 @@ namespace types
     numpy_texpr();
     numpy_texpr(numpy_texpr const &) = default;
     numpy_texpr(numpy_texpr &&) = default;
-
     numpy_texpr(numpy_gexpr<E, S...> const &arg);
+
+    using numpy_texpr_2<numpy_gexpr<E, S...>>::operator=;
   };
 }
 
 template <class Arg>
 struct assignable<types::numpy_texpr<Arg>> {
-  using type = types::ndarray<typename Arg::dtype, Arg::value>;
+  using type = types::numpy_texpr<typename assignable<Arg>::type>;
 };
 
-template <class T>
-struct returnable<types::numpy_texpr<types::ndarray<T, 2>>> {
-  using type = types::numpy_texpr<types::ndarray<T, 2>>;
+template <class Arg>
+struct returnable<types::numpy_texpr<Arg>> {
+  using type = types::numpy_texpr<typename returnable<Arg>::type>;
 };
 
 template <class Arg>

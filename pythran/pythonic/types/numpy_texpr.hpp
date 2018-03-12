@@ -5,6 +5,13 @@
 
 #include "pythonic/types/ndarray.hpp"
 
+#include "pythonic/operator_/iadd.hpp"
+#include "pythonic/operator_/iand.hpp"
+#include "pythonic/operator_/idiv.hpp"
+#include "pythonic/operator_/imul.hpp"
+#include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/isub.hpp"
+
 PYTHONIC_NS_BEGIN
 
 namespace types
@@ -250,6 +257,79 @@ namespace types
   intptr_t numpy_texpr_2<E>::id() const
   {
     return arg.id();
+  }
+
+  template <class Arg>
+  template <class Expr>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator=(Expr const &expr)
+  {
+    assert(buffer);
+    return utils::broadcast_copy < numpy_texpr_2 &, Expr, value,
+           value - utils::dim_of<Expr>::value,
+           is_vectorizable &&
+               std::is_same<dtype, typename dtype_of<Expr>::type>::value &&
+               types::is_vectorizable<Expr>::value > (*this, expr);
+  }
+
+  template <class Arg>
+  template <class Op, class Expr>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::update_(Expr const &expr)
+  {
+    using BExpr =
+        typename std::conditional<std::is_scalar<Expr>::value,
+                                  broadcast<Expr, dtype>, Expr const &>::type;
+    BExpr bexpr = expr;
+    utils::broadcast_update<
+        Op, numpy_texpr_2 &, BExpr, value,
+        value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
+        is_vectorizable &&
+            types::is_vectorizable<typename std::remove_cv<
+                typename std::remove_reference<BExpr>::type>::type>::value &&
+            std::is_same<dtype, typename dtype_of<typename std::decay<
+                                    BExpr>::type>::type>::value>(*this, bexpr);
+    return *this;
+  }
+
+  template <class Arg>
+  template <class Expr>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator+=(Expr const &expr)
+  {
+    return update_<pythonic::operator_::functor::iadd>(expr);
+  }
+
+  template <class Arg>
+  template <class E>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator-=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::isub>(expr);
+  }
+
+  template <class Arg>
+  template <class E>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator*=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::imul>(expr);
+  }
+
+  template <class Arg>
+  template <class E>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator/=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::idiv>(expr);
+  }
+
+  template <class Arg>
+  template <class E>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator&=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::iand>(expr);
+  }
+
+  template <class Arg>
+  template <class E>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator|=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::ior>(expr);
   }
 
   // only implemented for N = 2

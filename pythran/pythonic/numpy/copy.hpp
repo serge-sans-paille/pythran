@@ -46,6 +46,14 @@ namespace numpy
     return a.copy();
   }
 
+  // transposed ndarray case
+  template <class T, size_t N>
+  types::numpy_texpr<types::ndarray<T, N>>
+  copy(types::numpy_texpr<types::ndarray<T, N>> const &a)
+  {
+    return a.arg.copy();
+  }
+
   DEFINE_FUNCTOR(pythonic::numpy, copy);
 }
 PYTHONIC_NS_END

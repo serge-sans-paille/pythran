@@ -519,7 +519,7 @@ def np_rosen_der(x):
         self.run_test("def np_rot901(x): from numpy import rot90; return rot90(x)", numpy.arange(4).reshape(2,2), np_rot901=[NDArray[int,:,:]])
 
     def test_select2(self):
-        self.run_test("def np_select2(x): from numpy import select; condlist = [x<3, x>5]; choicelist = [x, x**2]; return select(condlist, choicelist)", numpy.arange(10).reshape(2,5), np_select2=[NDArray[int,:,:]])
+        self.run_test("def np_select2(x): from numpy import select; condlist = [x<3, x>5]; choicelist = [x**3, x**2]; return select(condlist, choicelist)", numpy.arange(10).reshape(2,5), np_select2=[NDArray[int,:,:]])
 
     def test_select1(self):
         self.run_test("def np_select1(x): from numpy import select; condlist = [x<3, x>5]; choicelist = [x+3, x**2]; return select(condlist, choicelist)", numpy.arange(10), np_select1=[NDArray[int,:]])

@@ -12,6 +12,7 @@
 #include "pythonic/numpy/mean.hpp"
 #include "pythonic/numpy/reshape.hpp"
 #include "pythonic/numpy/sum.hpp"
+#include "pythonic/numpy/empty_like.hpp"
 
 #include <algorithm>
 
@@ -69,7 +70,7 @@ namespace numpy
       shp[axis] = 1;
       auto mp = m.reshape(shp);
 
-      typename assignable<E>::type t{expr_shape, __builtin__::None};
+      auto t = empty_like(expr);
       _enlarge_copy_minus(t, expr, mp, axis, utils::int_<E::value>());
       return sum(t * t, axis) /= var_type<E>(expr_shape[axis] - ddof);
     }

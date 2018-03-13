@@ -116,6 +116,12 @@ namespace types
   }
 
   template <typename T, size_t N>
+  intptr_t array<T, N>::id() const
+  {
+    return reinterpret_cast<intptr_t>(&(buffer[0]));
+  }
+
+  template <typename T, size_t N>
   void array<T, N>::fill(const value_type &__u)
   {
     std::fill_n(begin(), size(), __u);

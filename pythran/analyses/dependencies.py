@@ -32,19 +32,17 @@ class Dependencies(ModuleAnalysis):
 
     def visit_Str(self, node):
         self.result.add(('types', 'str'))
-        self.generic_visit(node)
 
     def visit_Pow(self, node):
         self.result.add(('__builtin__', 'pow'))
-        self.generic_visit(node)
+        self.result.add(('operator_', 'ipow'))
 
     def visit_MatMult(self, node):
         self.result.add(('operator_', 'matmul'))
-        self.generic_visit(node)
+        self.result.add(('operator_', 'imatmul'))
 
     def visit_In(self, node):
         self.result.add(('__builtin__', 'in'))
-        self.generic_visit(node)
 
     visit_NotIn = visit_In
 
@@ -80,12 +78,15 @@ class Dependencies(ModuleAnalysis):
 
     def visit_Mod(self, _):
         self.result.add(('operator_', 'mod'))
+        self.result.add(('operator_', 'imod'))
 
     def visit_Div(self, _):
         self.result.add(('operator_', 'div'))
+        self.result.add(('operator_', 'idiv'))
 
     def visit_FloorDiv(self, _):
         self.result.add(('operator_', 'floordiv'))
+        self.result.add(('operator_', 'ifloordiv'))
 
     def visit_Num(self, node):
         if isinstance(node.n, complex):

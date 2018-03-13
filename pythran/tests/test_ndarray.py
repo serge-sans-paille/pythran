@@ -82,6 +82,11 @@ class TestNdarray(TestEnv):
                       numpy.arange(100).reshape((10, 10)),
                       numpy_augassign5=[NDArray[int, :, :]])
 
+    def test_numpy_augassign6(self):
+        self.run_test('def helper(x): x //= 2; x+=3\ndef numpy_augassign6(a): a&=2; helper(a); return a',
+                      numpy.arange(100).reshape((10, 10)),
+                      numpy_augassign6=[NDArray[int, :, :]])
+
     def test_numpy_faugassign0(self):
         self.run_test('def numpy_faugassign0(a): a[a>5]+=1; return a',
                       numpy.arange(100),

@@ -113,6 +113,25 @@ operator_to_lambda = {
     ast.NotIn: "(! pythonic::in({1}, {0}))".format,
 }
 
+update_operator_to_lambda = {
+    # operator
+    ast.Add: "({0} += {1})".format,
+    ast.Sub: "({0} -= {1})".format,
+    ast.Mult: "({0} *= {1})".format,
+    ast.Div: "(pythonic::operator_::idiv({0}, {1}))".format,
+    ast.Mod: "(pythonic::operator_::imod({0}, {1}))".format,
+    ast.Pow: "(pythonic::operator_::ipow({0}, {1}))".format,
+    ast.LShift: "({0} <<= {1})".format,
+    ast.RShift: "({0} >>= {1})".format,
+    ast.BitOr: "({0} |= {1})".format,
+    ast.BitXor: "({0} ^= {1})".format,
+    ast.BitAnd: "({0} &= {1})".format,
+    ast.MatMult: "pythonic::operator_::imatmul({0}, {1})".format,
+    # assume from __future__ import division
+    ast.FloorDiv:
+        "(pythonic::operator_::functor::ifloordiv{{}}({0}, {1}))".format,
+}
+
 T0, T1, T2, T3 = TypeVar('T0'), TypeVar('T1'), TypeVar('T2'), TypeVar('T3')
 T4, T5, T6, T7 = TypeVar('T4'), TypeVar('T5'), TypeVar('T6'), TypeVar('T7')
 

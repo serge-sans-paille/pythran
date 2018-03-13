@@ -58,14 +58,20 @@ namespace operator_
 #endif
 
   template <class A, class B>
-  auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
-      std::is_const<A>::value || !std::is_assignable<A, B>::value,
-      decltype(std::forward<A>(a) OPERATOR_SYMBOL std::forward<B>(b))>::type;
+  auto OPERATOR_NAME(bool, A &&a, B &&b, ...)
+      -> decltype(std::forward<A>(a) OPERATOR_SYMBOL std::forward<B>(b));
 
   template <class A, class B>
-  auto OPERATOR_NAME(A &&a, B &&b) -> typename std::enable_if<
-      !std::is_const<A>::value && std::is_assignable<A, B>::value,
-      decltype(std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b))>::type;
+  auto OPERATOR_NAME(bool, A &&a, B &&b, std::nullptr_t)
+      -> decltype(std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b));
+
+  template <class A, class B>
+  auto OPERATOR_NAME(A &&a, B &&b)
+      -> decltype(OPERATOR_NAME(true, std::forward<A>(a), std::forward<B>(b),
+                                nullptr))
+  {
+    return OPERATOR_NAME(true, std::forward<A>(a), std::forward<B>(b), nullptr);
+  }
 
   DECLARE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);
 }

@@ -395,7 +395,6 @@ Alternatively, one can run the great::
 which runs a code analyzer that displays extra information concerning parallel ``map`` found in the code.
 
 
-
 Getting Pure C++
 ----------------
 
@@ -403,6 +402,18 @@ Pythran can be used to generate raw templated C++ code, without any Python
 glue. To do so use the ``-e`` switch. It will turn the Python code into C++
 code you can call from a C++ program. In that case there is **no** need for a
 particular Pythran specification.
+
+
+Read the optimized Python code
+------------------------------
+
+Curious Python developers might want to study how Pythran transforms their
+codes.  With the ``-P`` switch, Pythran optimizes the Python code, prints the
+result and stops there.  Pythran does not care about PEP 8, so a Python
+formatter is often useful::
+
+  pythran -P arc_distance.py | yapf
+
 
 Customizing Your ``.pythranrc``
 -------------------------------

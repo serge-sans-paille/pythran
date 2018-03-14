@@ -3,7 +3,7 @@ This module contains all the stuff to make your way from python code to
 a dynamic library, see __init__.py for exported interfaces.
 '''
 
-from pythran.backend import Cxx
+from pythran.backend import Cxx, Python
 from pythran.config import cfg, make_extension
 from pythran.cxxgen import PythonModule, Define, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
@@ -114,7 +114,39 @@ class HasArgument(ast.NodeVisitor):
                 return [arg.id for arg in n.args.args]
         return []
 
+
+def front_middle_end(module_name, code, specs=None, optimizations=None):
+    """Front-end and middle-end compilation steps"""
+    pm = PassManager(module_name)
+
+    # front end
+    ir, renamings, docstrings = frontend.parse(pm, code)
+
+    # middle-end
+    optimizations = (optimizations or
+                     cfg.get('pythran', 'optimizations').split())
+    optimizations = [_parse_optimization(opt) for opt in optimizations]
+    refine(pm, ir, optimizations)
+
+    return ir, renamings, docstrings, pm, optimizations
+
+
 # PUBLIC INTERFACE STARTS HERE
+
+
+def generate_py(module_name, code, specs=None, optimizations=None):
+    '''python + pythran spec -> py code
+
+    Prints and returns the optimized python code.
+
+    '''
+
+    ir, renamings, docstrings, pm, optimizations = front_middle_end(
+        module_name, code, specs, optimizations)
+
+    content = pm.dump(Python, ir)
+    print(content)
+    return content
 
 
 def generate_cxx(module_name, code, specs=None, optimizations=None):
@@ -126,16 +158,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
     '''
 
-    pm = PassManager(module_name)
-
-    # front end
-    ir, renamings, docstrings = frontend.parse(pm, code)
-
-    # middle-end
-    optimizations = (optimizations or
-                     cfg.get('pythran', 'optimizations').split())
-    optimizations = [_parse_optimization(opt) for opt in optimizations]
-    refine(pm, ir, optimizations)
+    ir, renamings, docstrings, pm, optimizations = front_middle_end(
+        module_name, code, specs, optimizations)
 
     # back-end
     content = pm.dump(Cxx, ir)
@@ -309,8 +333,8 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
                            'build_ext',
                            '--build-lib', builddir,
                            '--build-temp', buildtmp,
-                           ]
-              )
+                          ]
+             )
     except SystemExit as e:
         raise CompileError(str(e))
 
@@ -349,8 +373,8 @@ def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
 
 
 def compile_pythrancode(module_name, pythrancode, specs=None,
-                        opts=None, cpponly=False, output_file=None,
-                        **kwargs):
+                        opts=None, cpponly=False, pyonly=False,
+                        output_file=None, **kwargs):
     '''Pythran code (string) -> c++ code -> native module
     Returns the generated .so (or .cpp if `cpponly` is set to true).
 
@@ -360,6 +384,10 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     from pythran.spec import spec_parser
     if specs is None:
         specs = spec_parser(pythrancode)
+
+    if pyonly:
+        # Only generate the optimized python code
+        return generate_py(module_name, pythrancode, specs, opts)
 
     # Generate C++, get a PythonModule object
     module, error_checker = generate_cxx(module_name, pythrancode, specs, opts)
@@ -391,7 +419,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
 
 def compile_pythranfile(file_path, output_file=None, module_name=None,
-                        cpponly=False, **kwargs):
+                        cpponly=False, pyonly=False, **kwargs):
     """
     Pythran file -> c++ file -> native module.
 
@@ -429,7 +457,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
 
     output_file = compile_pythrancode(module_name, open(file_path).read(),
                                       output_file=output_file,
-                                      cpponly=cpponly,
+                                      cpponly=cpponly, pyonly=pyonly,
                                       **kwargs)
 
     return output_file

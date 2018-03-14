@@ -292,9 +292,21 @@ class TestException(TestEnv):
         self.run_test("def no_msg_exception_register():\n raise IndexError()", no_msg_exception_register=[], check_exception=True)
 
 for exception in exceptions:
+
+    # FIXME: new py3 exceptions
+    incompatible_py3 = (
+        'BlockingIOError', 'BrokenPipeError', 'ChildProcessError',
+        'ConnectionAbortedError', 'ConnectionError', 'ConnectionRefusedError',
+        'ConnectionResetError', 'FileExistsError', 'FileNotFoundError',
+        'InterruptedError', 'IsADirectoryError', 'ModuleNotFoundError',
+        'NotADirectoryError', 'PermissionError', 'ProcessLookupError',
+        'RecursionError', 'ResourceWarning', 'StopAsyncIteration',
+        'TimeoutError')
+
     # This one is not compatible with pytest
-    if str(exception) in ("AssertionError", "UnicodeDecodeError",
-                          "UnicodeEncodeError", "UnicodeTranslateError"):
+    if str(exception) in (
+            "AssertionError", "UnicodeDecodeError",
+            "UnicodeEncodeError", "UnicodeTranslateError") + incompatible_py3:
         continue
     args = exception_args[exception]
     code = 'def {exception}_register(): raise {exception}{args}'.format(**locals())

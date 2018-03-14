@@ -160,6 +160,8 @@ namespace types
     constexpr size_type max_size() const noexcept;
     constexpr bool empty() const noexcept;
 
+    intptr_t id() const;
+
     // Element access.
     reference fast(long n);
     constexpr const_reference fast(long n) const noexcept;

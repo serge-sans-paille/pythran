@@ -14,6 +14,11 @@ namespace operator_
   {
     return !a;
   }
+  template <class T>
+  bool not_(std::complex<T> const &a)
+  {
+    return !a.real() && !a.imag();
+  }
 
   DEFINE_FUNCTOR(pythonic::operator_, not_);
 }

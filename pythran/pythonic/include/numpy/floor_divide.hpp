@@ -19,6 +19,14 @@ namespace numpy
   namespace wrapper
   {
     template <class Arg0, class Arg1>
+    std::complex<typename __combined<Arg0, Arg1>::type>
+    divfloor(std::complex<Arg0> const &arg0, std::complex<Arg1> const &arg1)
+    {
+      auto tmp = arg0 / arg1;
+      return {std::floor(tmp.real()), std::floor(tmp.imag())};
+    }
+
+    template <class Arg0, class Arg1>
     auto divfloor(Arg0 const &arg0, Arg1 const &arg1) ->
         typename std::enable_if<(std::is_integral<Arg0>::value &&
                                  std::is_floating_point<Arg1>::value),

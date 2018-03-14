@@ -17,6 +17,11 @@ namespace numpy
     double arccos(long const &v);
     template <class T>
     auto arccos(T const &v) -> decltype(boost::simd::acos(v));
+    template <class T>
+    std::complex<T> arccos(std::complex<T> const &v)
+    {
+      return std::acos(v);
+    }
   }
 
 #define NUMPY_NARY_FUNC_NAME arccos

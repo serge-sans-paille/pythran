@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME reciprocal
-#define NUMPY_NARY_FUNC_SYM boost::simd::rec
+#define NUMPY_NARY_FUNC_SYM wrapper::reciprocal
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

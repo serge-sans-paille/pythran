@@ -27,7 +27,7 @@ from numpy.distutils.core import setup
 from numpy.distutils.extension import Extension
 import numpy.distutils.ccompiler
 
-from tempfile import mkstemp, mkdtemp
+from tempfile import mkdtemp, NamedTemporaryFile
 import gast as ast
 import logging
 import os.path
@@ -94,13 +94,12 @@ def _parse_optimization(optimization):
     return reduce(getattr, splitted[1:], __import__(splitted[0]))
 
 
-def _get_temp(content, suffix=".cpp"):
-    '''Get a temporary file for given content, default extension is .cpp
-       It is user's responsability to delete when done.'''
-    fd, fdpath = mkstemp(suffix)
-    with os.fdopen(fd, "w") as cpp:
-        cpp.write(content)
-    return fd, fdpath
+def _write_temp(content, suffix):
+    '''write `content` to a temporary XXX`suffix` file and return the filename.
+       It is user's responsibility to delete when done.'''
+    with NamedTemporaryFile(mode='w', suffix=suffix, delete=False) as out:
+        out.write(content)
+        return out.name
 
 
 class HasArgument(ast.NodeVisitor):
@@ -115,7 +114,7 @@ class HasArgument(ast.NodeVisitor):
         return []
 
 
-def front_middle_end(module_name, code, specs=None, optimizations=None):
+def front_middle_end(module_name, code, optimizations=None):
     """Front-end and middle-end compilation steps"""
     pm = PassManager(module_name)
 
@@ -123,30 +122,27 @@ def front_middle_end(module_name, code, specs=None, optimizations=None):
     ir, renamings, docstrings = frontend.parse(pm, code)
 
     # middle-end
-    optimizations = (optimizations or
-                     cfg.get('pythran', 'optimizations').split())
+    if optimizations is None:
+        optimizations = cfg.get('pythran', 'optimizations').split()
     optimizations = [_parse_optimization(opt) for opt in optimizations]
     refine(pm, ir, optimizations)
 
-    return ir, renamings, docstrings, pm, optimizations
+    return pm, ir, renamings, docstrings
 
 
 # PUBLIC INTERFACE STARTS HERE
 
 
-def generate_py(module_name, code, specs=None, optimizations=None):
+def generate_py(module_name, code, optimizations=None):
     '''python + pythran spec -> py code
 
     Prints and returns the optimized python code.
 
     '''
 
-    ir, renamings, docstrings, pm, optimizations = front_middle_end(
-        module_name, code, specs, optimizations)
+    pm, ir, _, _ = front_middle_end(module_name, code, optimizations)
 
-    content = pm.dump(Python, ir)
-    print(content)
-    return content
+    return pm.dump(Python, ir)
 
 
 def generate_cxx(module_name, code, specs=None, optimizations=None):
@@ -158,8 +154,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
 
     '''
 
-    ir, renamings, docstrings, pm, optimizations = front_middle_end(
-        module_name, code, specs, optimizations)
+    pm, ir, renamings, docstrings = front_middle_end(module_name, code,
+                                                     optimizations)
 
     # back-end
     content = pm.dump(Cxx, ir)
@@ -332,13 +328,12 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
                            else '--quiet',
                            'build_ext',
                            '--build-lib', builddir,
-                           '--build-temp', buildtmp,
-                          ]
-             )
+                           '--build-temp', buildtmp]
+              )
     except SystemExit as e:
         raise CompileError(str(e))
 
-    [target] = glob.glob(os.path.join(builddir, module_name + "*"))
+    target, = glob.glob(os.path.join(builddir, module_name + "*"))
     if not output_binary:
         output_binary = os.path.join(os.getcwd(),
                                      module_name + os.path.splitext(target)[1])
@@ -360,7 +355,7 @@ def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
     '''
 
     # Get a temporary C++ file to compile
-    _, fdpath = _get_temp(cxxcode)
+    fdpath = _write_temp(cxxcode, '.cpp')
     output_binary = compile_cxxfile(module_name, fdpath,
                                     output_binary, **kwargs)
     if not keep_temp:
@@ -376,18 +371,26 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
                         opts=None, cpponly=False, pyonly=False,
                         output_file=None, **kwargs):
     '''Pythran code (string) -> c++ code -> native module
-    Returns the generated .so (or .cpp if `cpponly` is set to true).
 
+    if `cpponly` is set to true, return the generated C++ filename
+    if `pyonly` is set to true, prints the generated Python filename,
+       unless `output_file` is set
+    otherwise, return the generated native library filename
     '''
+
+    if pyonly:
+        # Only generate the optimized python code
+        content = generate_py(module_name, pythrancode, opts)
+        if output_file is None:
+            print(content)
+            return None
+        else:
+            return _write_temp(content, '.py')
 
     # Autodetect the Pythran spec if not given as parameter
     from pythran.spec import spec_parser
     if specs is None:
         specs = spec_parser(pythrancode)
-
-    if pyonly:
-        # Only generate the optimized python code
-        return generate_py(module_name, pythrancode, specs, opts)
 
     # Generate C++, get a PythonModule object
     module, error_checker = generate_cxx(module_name, pythrancode, specs, opts)
@@ -397,7 +400,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     if cpponly:
         # User wants only the C++ code
-        _, tmp_file = _get_temp(str(module))
+        tmp_file = _write_temp(str(module), '.cpp')
         if not output_file:
             output_file = module_name + ".cpp"
         shutil.move(tmp_file, output_file)

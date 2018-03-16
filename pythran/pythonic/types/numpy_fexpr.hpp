@@ -19,9 +19,7 @@ namespace types
     _copy_mask(filter.begin(), filter.end(), iter, index,
                utils::int_<std::remove_reference<
                    typename std::remove_cv<Arg>::type>::type::value>());
-    // FIXME {iter - buffer} is a long long int? (Windows say that...
-    // && warn us)
-    _shape[0] = {iter - buffer};
+    _shape[0] = {static_cast<long>(iter - buffer)};
   }
 
   template <class Arg, class F>

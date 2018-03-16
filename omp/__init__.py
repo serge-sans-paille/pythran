@@ -2,6 +2,7 @@
 
 from ctypes.util import find_library
 from subprocess import check_output
+from numpy.distutils.misc_util import msvc_runtime_major
 import ctypes
 import os
 import sys
@@ -25,6 +26,22 @@ class OpenMP(object):
     """
 
     def __init__(self):
+        ver = msvc_runtime_major()
+        if ver is None:
+            self.init_not_msvc()
+        else:
+            self.init_msvc(ver)
+
+    def init_msvc(self, ver):
+        vcomp_path = find_library('vcomp%d.dll' % ver)
+        if not vcomp_path:
+            raise ImportError("I can't find a shared library for vcomp.")
+        else:
+            # Load the library (shouldn't fail with an absolute path right?)
+            self.libomp = ctypes.CDLL(vcomp_path)
+            self.version = 20
+
+    def init_not_msvc(self):
         """ Find OpenMP library and try to load if using ctype interface. """
         # find_library() does not search automatically LD_LIBRARY_PATH
         paths = os.environ.get('LD_LIBRARY_PATH', '').split(':')
@@ -57,6 +74,7 @@ class OpenMP(object):
         else:
             # Load the library (shouldn't fail with an absolute path right?)
             self.libomp = ctypes.CDLL(libgomp_path)
+            self.version = 45
 
     def __getattr__(self, name):
         """
@@ -65,7 +83,10 @@ class OpenMP(object):
         __getattr__ is call only `name != libomp` as libomp is a real
         attribute.
         """
+        if name == 'VERSION':
+            return self.version
         return getattr(self.libomp, 'omp_' + name)
 
 # see http://mail.python.org/pipermail/python-ideas/2012-May/014969.html
 sys.modules[__name__] = OpenMP()
+

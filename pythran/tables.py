@@ -4246,16 +4246,6 @@ MODULES = {
         "test_nest_lock": FunctionIntr(global_effects=True),
         "get_wtime": FunctionIntr(global_effects=True),
         "get_wtick": FunctionIntr(global_effects=True),
-        "set_schedule": FunctionIntr(global_effects=True),
-        "get_schedule": FunctionIntr(global_effects=True),
-        "get_thread_limit": FunctionIntr(global_effects=True),
-        "set_max_active_levels": FunctionIntr(global_effects=True),
-        "get_max_active_levels": FunctionIntr(global_effects=True),
-        "get_level": FunctionIntr(global_effects=True),
-        "get_ancestor_thread_num": FunctionIntr(global_effects=True),
-        "get_team_size": FunctionIntr(global_effects=True),
-        "get_active_level": FunctionIntr(global_effects=True),
-        "in_final": FunctionIntr(global_effects=True),
     },
     "operator_": {
         "lt": ConstFunctionIntr(signature=_operator_eq_signature),
@@ -4445,6 +4435,27 @@ if sys.version_info.major == 3:
 else:
     del MODULES['operator_']['matmul']
     del MODULES['operator_']['__matmul__']
+
+# OMP version
+try:
+    import omp
+    omp_version = omp.VERSION
+except ImportError:
+    omp_version = 45 # Fallback on last version
+
+if omp_version >= 30:
+    MODULES['omp'].update({
+        "set_schedule": FunctionIntr(global_effects=True),
+        "get_schedule": FunctionIntr(global_effects=True),
+        "get_thread_limit": FunctionIntr(global_effects=True),
+        "set_max_active_levels": FunctionIntr(global_effects=True),
+        "get_max_active_levels": FunctionIntr(global_effects=True),
+        "get_level": FunctionIntr(global_effects=True),
+        "get_ancestor_thread_num": FunctionIntr(global_effects=True),
+        "get_team_size": FunctionIntr(global_effects=True),
+        "get_active_level": FunctionIntr(global_effects=True),
+        "in_final": FunctionIntr(global_effects=True),
+    })
 
 # VMSError is only available on VMS
 if 'VMSError' in sys.modules['__builtin__'].__dict__:

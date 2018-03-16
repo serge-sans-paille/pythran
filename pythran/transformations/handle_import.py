@@ -7,6 +7,7 @@ import gast as ast
 import importlib
 import inspect
 import logging
+import os
 
 logger = logging.getLogger('pythran')
 
@@ -87,11 +88,13 @@ class ImportFunction(ast.NodeTransformer):
 
         This is "wrong" because we add these import like if they were global.
         """
+        module_level = importfrom_node.level
         module_name = importfrom_node.module
         for alias in importfrom_node.names:
             func_name = alias.name
             asname = alias.asname or func_name
-            self.module.imported_functions[asname] = (module_name,
+            self.module.imported_functions[asname] = (module_level,
+                                                      module_name,
                                                       func_name,
                                                       None)
         if is_builtin_module_name(module_name):
@@ -159,7 +162,22 @@ class ImportedModule(object):
     automatically the import of all callees in the function.
     """
 
-    def __init__(self, name, module=None):
+    @staticmethod
+    def getsource(imported_module):
+        try:
+            return inspect.getsource(imported_module)
+        except IOError as e:
+            try:
+                # Try to load py file
+                module_name = '%s.py' % imported_module.__name__.split('.')[-1]
+                module_dir = os.path.dirname(imported_module.__file__)
+                module_file = os.path.join(module_dir, module_name)
+                with open(module_file, 'r') as fp:
+                    return fp.read()
+            except:
+                raise e
+
+    def __init__(self, name, module=None, level=0, package=None):
         """Parameters are the name for the module (mandatory), and the
         ast.Module node (optional) in the case the current module is the main
         one. This differentiation is needed to avoid mangling function name for
@@ -167,11 +185,14 @@ class ImportedModule(object):
         """
         self.is_main_module = True
         self.node = module
+        self.package = package
         if self.node is None:
             # Not main module, parse now the imported module
             self.is_main_module = False
-            imported_module = importlib.import_module(name)
-            self.node = ast.parse(inspect.getsource(imported_module))
+            if package is not None:
+                importlib.import_module(package)
+            imported_module = importlib.import_module(('.' * level) + name, package)
+            self.node = ast.parse(self.getsource(imported_module))
             assert isinstance(self.node, ast.Module)
 
         # Recursively add filename information to all nodes, for debug msg
@@ -201,17 +222,23 @@ class ImportedModule(object):
                     asname = alias.asname or alias.name
                     self.imported_modules[asname] = alias.name
             elif isinstance(decl, ast.ImportFrom):  # Function import
-                if decl.level:
-                    raise PythranSyntaxError("Specifying a level in an import",
-                                             decl)
+                #if decl.level:
+                #    raise PythranSyntaxError("Specifying a level in an import",
+                #                             decl)
                 module_name = decl.module
+                module_level = decl.level
                 for alias in decl.names:
                     func_name = alias.name
                     asname = alias.asname or func_name
-                    self.imported_functions[asname] = (module_name, func_name,
+                    self.imported_functions[asname] = (module_level,
+                                                       module_name,
+                                                       func_name,
                                                        None)
             elif isinstance(decl, ast.Assign):
                 # FIXME : We ignore import of globals
+                pass
+            elif isinstance(decl, ast.Expr):
+                # FIXME : We ignore expr ??
                 pass
             else:
                 raise PythranSyntaxError('Unsupported top-level statement',
@@ -225,12 +252,16 @@ class ImportedModule(object):
         Return the mangled name to be used at call site.
         """
         if func_name in self.imported_functions:
-            module_name, realName, decl = self.imported_functions[func_name]
+            module_level, module_name, realName, decl = \
+                self.imported_functions[func_name]
             if not decl:  # first time we call this function, import it.
-                decl = registry.import_module(module_name). \
+                decl = registry.import_module(module_name, module_level,
+                                              self.package). \
                     call_function(registry, realName)
                 # Cache the fact that it has been imported now
-                self.imported_functions[func_name] = (module_name, realName,
+                self.imported_functions[func_name] = (module_level,
+                                                      module_name,
+                                                      realName,
                                                       decl)
             if not registry.import_module(module_name).to_be_mangled:
                 # No mangling in the main module, nor in builtins
@@ -319,7 +350,7 @@ class ImportRegistry(object):
     def __init__(self):
         self.modules = dict()  # List of modules already imported
 
-    def import_module(self, name):
+    def import_module(self, name, level=0, package=None):
         """Keep track of imported modules. Pythran-supported builtin modules
         are handled using a dummy BuiltinModule() type, while user-defined
         modules rely on ImportedModule() to provide an interface to import
@@ -331,7 +362,7 @@ class ImportRegistry(object):
         if is_builtin_module_name(name):
             mod = BuiltinModule(name)
         else:
-            mod = ImportedModule(name)
+            mod = ImportedModule(name, level=level, package=package)
 
         self.modules[name] = mod
         return mod
@@ -339,10 +370,10 @@ class ImportRegistry(object):
     def generate_ImportList(self):
         """List of imported functions to be added to the main module.  """
         import_list = []
-        for mod in self.modules.values():
+        def import_fct(mod):
             if mod.is_main_module:
                 # don't need to import anything from the main module
-                continue
+                return
             for alias, module_name in mod.dependent_modules.items():
                 import_node = ast.Import(names=[ast.alias(name=module_name,
                                                           asname=alias)])
@@ -350,6 +381,15 @@ class ImportRegistry(object):
             # Here we import the function itself (FunctionDef node)
             # In case of builtin module, it is an ImportFrom node.
             import_list.extend(list(mod.exported_functions.values()))
+
+        for mod in self.modules.values():
+            if isinstance(mod, BuiltinModule):
+                import_fct(mod)
+
+        for mod in self.modules.values():
+            if not isinstance(mod, BuiltinModule):
+                import_fct(mod)
+
         return import_list
 
 
@@ -368,7 +408,8 @@ class HandleImport(Transformation):
         """Entry point for the module."""
         # Do not use registry.import_module because this is the main module and
         # ImportedModule takes an extra parameter in this case
-        self.module = ImportedModule(self.passmanager.module_name, module)
+        self.module = ImportedModule(self.passmanager.module_name, module,
+                                     package=self.passmanager.package)
         self.registry.modules[self.passmanager.module_name] = self.module
         self.generic_visit(module)
 

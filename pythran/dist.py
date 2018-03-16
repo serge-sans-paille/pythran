@@ -52,10 +52,13 @@ class PythranExtension(Extension):
                 # get the last name in the path
                 if '.' in name:
                     module_name = os.path.splitext(name)[-1][1:]
+                    package = os.path.splitext(name)[0]
                 else:
                     module_name = name
+                    package = None
                 tc.compile_pythranfile(source, output_file,
-                                       module_name, cpponly=True)
+                                       module_name, cpponly=True,
+                                       package=package)
             cxx_sources.append(output_file)
 
         kwargs.update(cfg.make_extension())

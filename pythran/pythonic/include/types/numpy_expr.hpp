@@ -97,8 +97,8 @@ namespace types
     long _difference(numpy_expr_iterator const &other,
                      utils::index_sequence<I...>) const
     {
-      std::initializer_list<long> distances{
-          (std::get<I>(iters_) - std::get<I>(other.iters_))...};
+      std::initializer_list<long> distances{(static_cast<long>(
+          std::get<I>(iters_) - std::get<I>(other.iters_)))...};
       return *std::max_element(distances.begin(), distances.end());
     }
 

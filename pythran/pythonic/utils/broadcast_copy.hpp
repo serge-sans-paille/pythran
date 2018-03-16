@@ -70,11 +70,11 @@ namespace utils
 #ifdef _OPENMP
       if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
 #pragma omp parallel for
-        for (size_t i = other_size; i < self_size; i += other_size)
+        for (unsigned long i = other_size; i < self_size; i += other_size)
           std::copy_n(self.begin(), other_size, self.begin() + i);
       else
 #endif
-        for (size_t i = other_size; i < self_size; i += other_size)
+        for (long i = other_size; i < self_size; i += other_size)
           std::copy_n(self.begin(), other_size, self.begin() + i);
     }
   };
@@ -143,11 +143,11 @@ namespace utils
 #ifdef _OPENMP
     if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
 #pragma omp parallel for
-      for (size_t i = other_size; i < self_size; i += other_size)
+      for (unsigned long i = other_size; i < self_size; i += other_size)
         std::copy_n(self.begin(), other_size, self.begin() + i);
     else
 #endif
-      for (size_t i = other_size; i < self_size; i += other_size)
+      for (long i = other_size; i < self_size; i += other_size)
         std::copy_n(self.begin(), other_size, self.begin() + i);
   }
 

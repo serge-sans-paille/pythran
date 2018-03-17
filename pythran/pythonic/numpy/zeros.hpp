@@ -10,10 +10,12 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <size_t N, class dtype>
+  template <class IntTy, size_t N, class dtype>
   types::ndarray<typename dtype::type, N>
-  zeros(types::array<long, N> const &shape, dtype d)
+  zeros(types::array<IntTy, N> const &shape, dtype d)
   {
+    static_assert(std::is_integral<IntTy>::value,
+                  "expected shape of integer type");
     using T = typename dtype::type;
     // use calloc even if we have a non integer type. This looks ok on modern
     // architecture, although ! really standard

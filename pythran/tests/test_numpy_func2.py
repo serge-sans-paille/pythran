@@ -497,6 +497,15 @@ def test_copy0(x):
     def test_empty_(self):
         self.run_test("def np_empty_(a):\n from numpy import empty\n a = empty(a)\n return a.strides, len(a)", (3, 2), np_empty_=[Tuple[int, int]])
 
+    def test_empty_uint_shape(self):
+        self.run_test("def np_empty_uint_shape(a):\n from numpy import empty, uint8\n a = empty((uint8(a), uint8(a)))\n return a.strides, len(a)", 3, np_empty_uint_shape=[int])
+
+    def test_ones_uint_shape(self):
+        self.run_test("def np_ones_uint_shape(a):\n from numpy import ones, uint32\n a = ones((uint32(a), uint32(a)))\n return a.strides, len(a)", 3, np_ones_uint_shape=[int])
+
+    def test_zeros_uint_shape(self):
+        self.run_test("def np_zeros_uint_shape(a):\n from numpy import zeros, int32\n a = zeros((int32(a), int32(a)))\n return a.strides, len(a)", 3, np_zeros_uint_shape=[int])
+
     def test_empty_kwargs(self):
         self.run_test("def np_empty_kwargs(a):\n from numpy import empty\n a = empty(a, dtype=int)\n return a.strides, len(a)", (3, 2), np_empty_kwargs=[Tuple[int, int]])
 

@@ -9,9 +9,9 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <size_t N, class dtype = functor::float64>
+  template <class IntTy, size_t N, class dtype = functor::float64>
   types::ndarray<typename dtype::type, N>
-  empty(types::array<long, N> const &shape, dtype d = dtype());
+  empty(types::array<IntTy, N> const &shape, dtype d = dtype());
 
   template <class dtype = functor::float64>
   types::ndarray<typename dtype::type, 1> empty(long size, dtype d = dtype());

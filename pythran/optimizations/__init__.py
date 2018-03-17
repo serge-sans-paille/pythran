@@ -22,7 +22,6 @@ from .pattern_transform import PatternTransform
 from .range_loop_unfolding import RangeLoopUnfolding
 from .range_based_simplify import RangeBasedSimplify
 from .square import Square
-from .binop_identities import BinOpIdentities
 from .inlining import Inlining
 from .inline_builtins import InlineBuiltins
 from .list_to_tuple import ListToTuple

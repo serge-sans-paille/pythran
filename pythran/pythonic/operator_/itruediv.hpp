@@ -11,11 +11,23 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto itruediv(A a, B const &b) -> decltype(truediv(a, b))
+  auto itruediv(A const &a, B const &b) -> decltype(truediv(a, b))
   {
-    auto tmp = a;
-    a = truediv(a, b);
-    return truediv(tmp, b);
+    return truediv(a, b);
+  }
+  template <class A, class B>
+  auto itruediv(A &a, B const &b) ->
+      typename std::enable_if<std::is_same<A, decltype(truediv(a, b))>::value,
+                              A &>::type
+  {
+    return a = truediv(a, b);
+  }
+  template <class A, class B>
+  auto itruediv(A &a, B const &b) ->
+      typename std::enable_if<!std::is_same<A, decltype(truediv(a, b))>::value,
+                              decltype(truediv(a, b))>::type
+  {
+    return truediv(a, b);
   }
 
   DEFINE_FUNCTOR(pythonic::operator_, itruediv);

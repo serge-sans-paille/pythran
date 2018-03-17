@@ -11,11 +11,16 @@ namespace operator_
 {
 
   template <class A, class B>
-  A ifloordiv(A a, B const &b)
+  A &ifloordiv(A &a, B const &b)
   {
-    A tmp = (a - (a % b)) / b;
-    a = tmp;
-    return tmp;
+    a -= a % b;
+    a /= b;
+    return a;
+  }
+  template <class A, class B>
+  A ifloordiv(A const &a, B const &b)
+  {
+    return (a - a % b) / b;
   }
 
   DEFINE_FUNCTOR(pythonic::operator_, ifloordiv);

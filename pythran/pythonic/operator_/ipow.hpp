@@ -12,7 +12,12 @@ namespace operator_
 {
 
   template <class A, class B>
-  A ipow(A a, B const &b)
+  A ipow(A const &a, B const &b)
+  {
+    return __builtin__::pow(a, b);
+  }
+  template <class A, class B>
+  A &ipow(A &a, B const &b)
   {
     return a = __builtin__::pow(a, b);
   }

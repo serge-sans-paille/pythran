@@ -16,7 +16,8 @@ from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
-from pythran.tables import operator_to_lambda, pythran_ward, make_lazy
+from pythran.tables import operator_to_lambda, update_operator_to_lambda
+from pythran.tables import pythran_ward, make_lazy
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
 from pythran.utils import attr_to_path, pushpop
@@ -424,11 +425,8 @@ class CxxFunction(Backend):
     def visit_AugAssign(self, node):
         value = self.visit(node.value)
         target = self.visit(node.target)
-        l = operator_to_lambda[type(node.op)]
-        if isinstance(node.op, (ast.FloorDiv, ast.Mod, ast.Pow, ast.Div)):
-            stmt = Assign(target, l(target, value))
-        else:
-            stmt = Statement(l(target, '')[1:-2] + '= {0}'.format(value))
+        l = update_operator_to_lambda[type(node.op)]
+        stmt = Statement(l(target, value)[1:-1])  # strip spurious parenthesis
         return self.process_omp_attachements(node, stmt)
 
     def visit_Print(self, node):

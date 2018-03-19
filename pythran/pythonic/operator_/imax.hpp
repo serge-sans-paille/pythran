@@ -11,15 +11,19 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto imax(A const &a, B &&b)
-      -> decltype(numpy::functor::maximum{}(a, std::forward<B>(b)))
+  auto imax(A &&a, B &&b) -> typename std::enable_if<
+      std::is_const<A>::value || !std::is_assignable<A, B>::value,
+      decltype(numpy::functor::maximum{}(std::forward<A>(a),
+                                         std::forward<B>(b)))>::type
   {
-    return numpy::functor::maximum{}(a, std::forward<B>(b));
+    return numpy::functor::maximum{}(std::forward<A>(a), std::forward<B>(b));
   }
 
   template <class A, class B>
-  auto imax(A &a, B &&b)
-      -> decltype(a = numpy::functor::maximum{}(a, std::forward<B>(b)))
+  auto imax(A &&a, B &&b) -> typename std::enable_if<
+      !std::is_const<A>::value && std::is_assignable<A, B>::value,
+      decltype(a = numpy::functor::maximum{}(std::forward<A>(a),
+                                             std::forward<B>(b)))>::type
   {
     return a = numpy::functor::maximum{}(a, std::forward<B>(b));
   }

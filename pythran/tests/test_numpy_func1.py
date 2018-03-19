@@ -130,6 +130,9 @@ class TestNumpyFunc1(TestEnv):
     def test_min7_(self):
         self.run_test("def np_min7_(a): return (a+a).min(1)", numpy.arange(30).reshape(2,5,3), np_min7_=[NDArray[int,:,:,:]])
 
+    def test_min8_(self):
+        self.run_test("def np_min8_(a): return a.min()", numpy.arange(4, dtype=numpy.int8), np_min8_=[NDArray[numpy.int8,:]])
+
     def test_max_(self):
         self.run_test("def np_max_(a): return a.max()", numpy.arange(10), np_max_=[NDArray[int,:]])
 
@@ -153,6 +156,9 @@ class TestNumpyFunc1(TestEnv):
 
     def test_max7_(self):
         self.run_test("def np_max7_(a): return (a+a).max(1)", numpy.arange(30).reshape(2,5,3), np_max7_=[NDArray[int,:,:,:]])
+
+    def test_max8_(self):
+        self.run_test("def np_max8_(a): return a.max()", numpy.arange(4, dtype=numpy.int8), np_max8_=[NDArray[numpy.int8,:]])
 
     def test_all_(self):
         self.run_test("def np_all_(a): return a.all()", numpy.arange(10), np_all_=[NDArray[int,:]])

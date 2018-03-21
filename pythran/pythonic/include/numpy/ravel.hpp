@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_RAVEL_HPP
 #define PYTHONIC_INCLUDE_NUMPY_RAVEL_HPP
 
-#include "pythonic/include/numpy/reshape.hpp"
+#include "pythonic/include/numpy/ndarray/reshape.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 
 PYTHONIC_NS_BEGIN

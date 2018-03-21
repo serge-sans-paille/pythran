@@ -10,7 +10,6 @@
 #include "pythonic/numpy/add.hpp"
 #include "pythonic/numpy/subtract.hpp"
 #include "pythonic/numpy/mean.hpp"
-#include "pythonic/numpy/reshape.hpp"
 #include "pythonic/numpy/sum.hpp"
 #include "pythonic/numpy/empty_like.hpp"
 

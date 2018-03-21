@@ -621,6 +621,9 @@ def np_reshape1(a):
     return a.reshape((2,-1))"""
         self.run_test(code, numpy.arange(10), np_reshape1=[NDArray[int,:]])
 
+    def test_reshape2(self):
+        self.run_test("def np_reshape2(a): return a.reshape(5, 2)", numpy.arange(10), np_reshape2=[NDArray[int,:]])
+
     def test_duplicate(self):
         """Check array forwarded twice doesn't double free. """
         code = """

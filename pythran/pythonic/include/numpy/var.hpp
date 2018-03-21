@@ -6,7 +6,6 @@
 #include "pythonic/include/__builtin__/None.hpp"
 #include "pythonic/include/numpy/add.hpp"
 #include "pythonic/include/numpy/mean.hpp"
-#include "pythonic/include/numpy/reshape.hpp"
 #include "pythonic/include/numpy/sum.hpp"
 
 #include <algorithm>

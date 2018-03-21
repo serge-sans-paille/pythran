@@ -747,6 +747,22 @@ CLASSES = {
         ),
         "ndim": AttributeIntr(signature=Fun[[NDArray[T0, :]], int],
                               return_range=interval.positive_values),
+        "reshape": ConstMethodIntr(
+            signature=Union[
+                Fun[[NDArray[T0, :], int], NDArray[T1, :]],
+                Fun[[NDArray[T0, :], Tuple[int]], NDArray[T1, :]],
+                Fun[[NDArray[T0, :], int, int], NDArray[T1, :, :]],
+                Fun[[NDArray[T0, :], Tuple[int, int]], NDArray[T1, :, :]],
+                Fun[[NDArray[T0, :], int, int, int],
+                    NDArray[T1, :, :, :]],
+                Fun[[NDArray[T0, :], Tuple[int, int, int]],
+                    NDArray[T1, :, :, :]],
+                Fun[[NDArray[T0, :], int, int, int, int],
+                    NDArray[T1, :, :, :, :]],
+                Fun[[NDArray[T0, :], Tuple[int, int, int, int]],
+                    NDArray[T1, :, :, :, :]],
+            ]
+        ),
         "shape": AttributeIntr(
             signature=Union[
                 # bool
@@ -3836,22 +3852,6 @@ MODULES = {
         "reciprocal": ConstFunctionIntr(),
         "remainder": UFunc(BINARY_UFUNC),
         "repeat": ConstMethodIntr(),
-        "reshape": ConstMethodIntr(
-            signature=Union[
-                Fun[[NDArray[T0, :], int], NDArray[T1, :]],
-                Fun[[NDArray[T0, :], Tuple[int]], NDArray[T1, :]],
-                Fun[[NDArray[T0, :], int, int], NDArray[T1, :, :]],
-                Fun[[NDArray[T0, :], Tuple[int, int]], NDArray[T1, :, :]],
-                Fun[[NDArray[T0, :], int, int, int],
-                    NDArray[T1, :, :, :]],
-                Fun[[NDArray[T0, :], Tuple[int, int, int]],
-                    NDArray[T1, :, :, :]],
-                Fun[[NDArray[T0, :], int, int, int, int],
-                    NDArray[T1, :, :, :, :]],
-                Fun[[NDArray[T0, :], Tuple[int, int, int, int]],
-                    NDArray[T1, :, :, :, :]],
-            ]
-        ),
         "resize": ConstMethodIntr(),
         "right_shift": UFunc(
             BINARY_UFUNC,

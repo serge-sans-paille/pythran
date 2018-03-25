@@ -10,6 +10,8 @@ namespace types
   };
   struct novectorize {
   };
+  struct novectorize_nobroadcast {
+  };
   struct vectorizer {
     template <class E>
     static auto vbegin(E &&expr)

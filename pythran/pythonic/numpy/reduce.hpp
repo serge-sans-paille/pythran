@@ -30,6 +30,7 @@ namespace numpy
       for (auto &&value : std::forward<E>(e))
         acc = _reduce<Op, N - 1, vector_form>{}(
             std::forward<decltype(value)>(value), acc);
+
       return acc;
     }
   };
@@ -41,6 +42,32 @@ namespace numpy
     {
       for (auto value : std::forward<E>(e)) {
         Op{}(acc, value);
+      }
+
+      return acc;
+    }
+  };
+
+  template <class Op, size_t N>
+  struct _reduce<Op, N, types::novectorize_nobroadcast> {
+    template <class E, class F>
+    F operator()(E &&e, F acc)
+    {
+      for (long i = 0, n = e.shape()[0]; i < n; ++i) {
+        acc = _reduce<Op, N - 1, types::novectorize_nobroadcast>{}(e.fast(i),
+                                                                   acc);
+      }
+      return acc;
+    }
+  };
+
+  template <class Op>
+  struct _reduce<Op, 1, types::novectorize_nobroadcast> {
+    template <class E, class F>
+    F operator()(E &&e, F acc)
+    {
+      for (long i = 0, n = e.shape()[0]; i < n; ++i) {
+        Op{}(acc, e.fast(i));
       }
       return acc;
     }
@@ -90,6 +117,15 @@ namespace numpy
                                                         acc);
     }
   };
+#else
+  template <class Op, size_t N>
+  struct _reduce<Op, N, types::vectorizer_nobroadcast>
+      : _reduce<Op, N, types::novectorize_nobroadcast> {
+  };
+  template <class Op>
+  struct _reduce<Op, 1, types::vectorizer_nobroadcast>
+      : _reduce<Op, 1, types::novectorize_nobroadcast> {
+  };
 #endif
   template <class Op, class E, bool vector_form>
   struct reduce_helper;
@@ -99,7 +135,10 @@ namespace numpy
     reduce_result_type<E> operator()(E const &expr,
                                      reduce_result_type<E> p) const
     {
-      return _reduce<Op, E::value, types::novectorize>{}(expr, p);
+      if (utils::no_broadcast(expr))
+        return _reduce<Op, E::value, types::novectorize_nobroadcast>{}(expr, p);
+      else
+        return _reduce<Op, E::value, types::novectorize>{}(expr, p);
     }
   };
   template <class Op, class E>

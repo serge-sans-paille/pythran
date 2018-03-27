@@ -40,7 +40,6 @@ class RemoveNamedArguments(Transformation):
 
         nargs = len(func.args.args) - offset
         defaults = func.args.defaults
-
         keywords = {func_argument_names[kw.arg]: kw.value
                     for kw in node.keywords}
         node.args.extend([None] * (1 + max(keywords.keys()) - len(node.args)))
@@ -88,7 +87,7 @@ class RemoveNamedArguments(Transformation):
                     node.keywords = []
 
             except KeyError as ve:
-                err = ("function uses an unkown (or unsupported) keyword "
+                err = ("function uses an unknown (or unsupported) keyword "
                        "argument `{}`".format(ve.args[0]))
                 raise PythranSyntaxError(err, node)
         return self.generic_visit(node)

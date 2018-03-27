@@ -4470,7 +4470,7 @@ def save_arguments(module_name, elements):
                 args = [ast.Name(arg, ast.Param(), None) for arg in spec.args]
                 defaults = spec.defaults
 
-                # Avoid use of comprehesion to fill "as much args/defauls" as
+                # Avoid use of comprehension to fill "as much args/defauls" as
                 # possible
                 signature.args.args = args[:-len(defaults)]
                 signature.args.defaults = []

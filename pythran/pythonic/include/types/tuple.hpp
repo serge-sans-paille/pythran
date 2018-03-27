@@ -175,10 +175,8 @@ namespace types
 #endif
 
     reference operator[](size_type __n);
-    reference fast(size_type __n);
 
     constexpr const_reference operator[](size_type __n) const noexcept;
-    constexpr const_reference fast(size_type __n) const noexcept;
 
     reference front();
     const_reference front() const;

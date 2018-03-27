@@ -37,6 +37,7 @@
 #include "pythonic/include/types/numpy_texpr.hpp"
 #include "pythonic/include/types/numpy_iexpr.hpp"
 #include "pythonic/include/types/numpy_gexpr.hpp"
+#include "pythonic/include/types/numpy_vexpr.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
 
@@ -298,6 +299,9 @@ namespace types
     template <class Arg, class F>
     ndarray(numpy_fexpr<Arg, F> const &expr);
 
+    template <class Arg, class F>
+    ndarray(numpy_vexpr<Arg, F> const &expr);
+
     /* update operators */
     template <class Op, class Expr>
     ndarray &update_(Expr const &expr);
@@ -392,14 +396,14 @@ namespace types
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value,
-                            ndarray<T, N>>::type
+                            numpy_vexpr<ndarray, F>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value,
-                            ndarray<T, N>>::type
+                            numpy_vexpr<ndarray, F>>::type
     fast(F const &filter) const;
 
     auto operator[](long i) const & -> decltype(this->fast(i))

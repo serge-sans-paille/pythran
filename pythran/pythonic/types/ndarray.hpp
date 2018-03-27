@@ -39,6 +39,7 @@
 #include "pythonic/types/numpy_texpr.hpp"
 #include "pythonic/types/numpy_iexpr.hpp"
 #include "pythonic/types/numpy_gexpr.hpp"
+#include "pythonic/types/numpy_vexpr.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/utils/array_helper.hpp"
 
@@ -411,6 +412,15 @@ namespace types
     initialize_from_expr(expr);
   }
 
+  template <class T, size_t N>
+  template <class Arg, class F>
+  ndarray<T, N>::ndarray(numpy_vexpr<Arg, F> const &expr)
+      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+        _strides(make_strides(_shape))
+  {
+    initialize_from_expr(expr);
+  }
+
   /* update operators */
 
   template <class T, size_t N>
@@ -643,18 +653,10 @@ namespace types
   typename std::enable_if<is_numexpr_arg<F>::value &&
                               !is_array_index<F>::value &&
                               !std::is_same<bool, typename F::dtype>::value,
-                          ndarray<T, N>>::type ndarray<T, N>::
+                          numpy_vexpr<ndarray<T, N>, F>>::type ndarray<T, N>::
   operator[](F const &filter) const
   {
-    static_assert(F::value == 1,
-                  "advanced indexing only supporint with 1D index");
-    array<long, N> shape = this->shape();
-    shape[0] = filter.flat_size();
-    ndarray<T, N> out(shape, none_type());
-    std::transform(
-        filter.begin(), filter.end(), out.begin(),
-        [this](typename F::dtype index) { return operator[](index); });
-    return out;
+    return {*this, filter};
   }
 
   template <class T, size_t N>
@@ -662,17 +664,10 @@ namespace types
   typename std::enable_if<is_numexpr_arg<F>::value &&
                               !is_array_index<F>::value &&
                               !std::is_same<bool, typename F::dtype>::value,
-                          ndarray<T, N>>::type
+                          numpy_vexpr<ndarray<T, N>, F>>::type
   ndarray<T, N>::fast(F const &filter) const
   {
-    static_assert(F::value == 1,
-                  "advanced indexing only supporint with 1D index");
-    array<long, N> shape = this->shape();
-    shape[0] = filter.flat_size();
-    ndarray<T, N> out(shape, none_type());
-    std::transform(filter.begin(), filter.end(), out.begin(),
-                   [this](typename F::dtype index) { return fast(index); });
-    return out;
+    return {*this, filter};
   }
 
   /* through iterators */

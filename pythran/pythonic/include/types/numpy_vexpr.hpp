@@ -10,7 +10,7 @@ namespace types
   template <class T, class F>
   struct numpy_vexpr {
 
-    static constexpr size_t value = value_of<T>::value;
+    static constexpr size_t value = T::value;
     static const bool is_vectorizable = false;
     using dtype = typename dtype_of<T>::type;
     using value_type = T;
@@ -31,6 +31,11 @@ namespace types
       auto data_shape = data_.shape();
       return std::accumulate(data_shape.begin() + 1, data_shape.end(),
                              view_.shape()[0], std::multiplies<long>());
+    }
+
+    long size() const
+    {
+      return view_.size();
     }
 
     template <class E>
@@ -71,8 +76,7 @@ namespace types
 
 template <class T, class F>
 struct assignable<types::numpy_vexpr<T, F>> {
-  using type = types::ndarray<typename types::dtype_of<T>::type,
-                              types::value_of<T>::value>;
+  using type = types::ndarray<typename types::dtype_of<T>::type, T::value>;
 };
 PYTHONIC_NS_END
 

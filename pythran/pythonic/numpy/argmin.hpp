@@ -4,6 +4,7 @@
 #include "pythonic/include/numpy/argmin.hpp"
 
 #include "pythonic/numpy/argminmax.hpp"
+#include "pythonic/numpy/minimum.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -11,6 +12,7 @@ namespace numpy
 {
   template <class E>
   struct argmin_op {
+    using op = functor::minimum;
     static typename E::dtype constexpr limit()
     {
       return std::numeric_limits<typename E::dtype>::max();

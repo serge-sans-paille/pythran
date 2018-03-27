@@ -19,7 +19,7 @@ namespace utils
                // If we have a scalar or a complex, we want to stop
                // recursion, && then dispatch to bool specialization
                types::is_dtype<typename Type::value_type>::value, bool,
-               typename Type::value_type>::type>::flat_size(t.fast(0));
+               typename Type::value_type>::type>::flat_size(*t.begin());
   }
 
   /* Recursion stops on bool */

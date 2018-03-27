@@ -10,29 +10,103 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class Op, class I0, class T>
-  long _argminmax(I0 begin, I0 end, T &minmax_elts, utils::int_<1>)
+  namespace details
   {
-    auto local_minmax_elts = Op::elements(begin, end);
+    template <class P, size_t... Is>
+    P iota(utils::index_sequence<Is...>)
+    {
+      return {static_cast<typename P::value_type>(Is)...};
+    }
+
+    template <class P>
+    P iota()
+    {
+      return iota<P>(utils::make_index_sequence<P::static_size>());
+    }
+  }
+  template <class Op, class E, class T>
+#ifdef USE_BOOST_SIMD
+  typename std::enable_if<!E::is_vectorizable ||
+                              std::is_same<typename E::dtype, bool>::value,
+                          long>::type
+#else
+  long
+#endif
+  _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
+  {
+    auto local_minmax_elts = Op::elements(elts.begin(), elts.end());
     if (Op::value(*local_minmax_elts, minmax_elts)) {
       minmax_elts = *local_minmax_elts;
-      return local_minmax_elts - begin;
+      return local_minmax_elts - elts.begin();
     }
 
     return -1;
   }
 
-  template <class Op, class I0, size_t N, class T>
-  long _argminmax(I0 begin, I0 end, T &minmax_elts, utils::int_<N>)
+#ifdef USE_BOOST_SIMD
+  template <class Op, class E, class T>
+  typename std::enable_if<E::is_vectorizable &&
+                              !std::is_same<typename E::dtype, bool>::value,
+                          long>::type
+  _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
+  {
+    using vT = boost::simd::pack<T>;
+    static const size_t vN = vT::static_size;
+    const long n = elts.size();
+    auto viter = types::vectorizer_nobroadcast::vbegin(elts),
+         vend = types::vectorizer_nobroadcast::vend(elts);
+
+    const long bound = std::distance(viter, vend);
+    long minmax_index = -1;
+    if (bound > 0) {
+      auto vacc = *viter;
+      boost::simd::pack<long> curr = details::iota<boost::simd::pack<long>>();
+      boost::simd::pack<long> indices = curr;
+      boost::simd::pack<long> step =
+          boost::simd::splat<boost::simd::pack<long>>(vT::static_size);
+
+      for (++viter; viter != vend; ++viter) {
+        curr += step;
+        auto m = typename Op::op{}(vacc, *viter);
+        auto mask = m != vacc;
+        indices =
+            boost::simd::max(boost::simd::if_else_zero(mask, curr), indices);
+        vacc = m;
+      }
+
+      alignas(sizeof(vT)) T stored[vN];
+      boost::simd::store(vacc, &stored[0]);
+      alignas(sizeof(vT)) long indexed[vN];
+      boost::simd::store(indices, &indexed[0]);
+      for (size_t j = 0; j < vN; ++j) {
+        if (Op::value(stored[j], minmax_elts)) {
+          minmax_elts = stored[j];
+          minmax_index = indexed[j];
+        }
+      }
+    }
+    auto iter = elts.begin() + bound * vN;
+
+    for (long i = bound * vN; i < n; ++i, ++iter) {
+      if (Op::value(*iter, minmax_elts)) {
+        minmax_elts = *iter;
+        minmax_index = i;
+      }
+    }
+    return minmax_index;
+  }
+#endif
+
+  template <class Op, class E, size_t N, class T>
+  long _argminmax(E const &elts, T &minmax_elts, utils::int_<N>)
   {
     long current_pos = 0;
     long current_minmaxarg = 0;
-    for (; begin != end; ++begin) {
-      long v = _argminmax<Op>((*begin).begin(), (*begin).end(), minmax_elts,
-                              utils::int_<N - 1>());
+    for (auto &&elt : elts) {
+      long v = _argminmax<Op>(elt, minmax_elts, utils::int_<N - 1>());
       if (v >= 0)
         current_minmaxarg = current_pos + v;
-      current_pos += (*begin).flat_size();
+      current_pos += elt.flat_size();
     }
     return current_minmaxarg;
   }
@@ -45,8 +119,7 @@ namespace numpy
     using elt_type = typename E::dtype;
     elt_type argminmax_value = Op::limit();
     ;
-    return _argminmax<Op>(expr.begin(), expr.end(), argminmax_value,
-                          utils::int_<E::value>());
+    return _argminmax<Op>(expr, argminmax_value, utils::int_<E::value>());
   }
 
   template <class Op, size_t Dim, size_t Axis, class T, class E, class V>

@@ -14,6 +14,9 @@ namespace types
   template <class A, class F>
   class numpy_fexpr;
 
+  template <class A, class F>
+  class numpy_vexpr;
+
   template <class A, class... S>
   class numpy_gexpr;
 
@@ -70,6 +73,11 @@ namespace types
 
   template <class A, class F>
   struct is_array<numpy_fexpr<A, F>> {
+    static constexpr bool value = true;
+  };
+
+  template <class A, class F>
+  struct is_array<numpy_vexpr<A, F>> {
     static constexpr bool value = true;
   };
 

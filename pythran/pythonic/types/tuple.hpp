@@ -264,22 +264,8 @@ namespace types
   }
 
   template <typename T, size_t N>
-  typename array<T, N>::reference
-  array<T, N>::fast(typename array<T, N>::size_type __n)
-  {
-    return buffer[__n];
-  }
-
-  template <typename T, size_t N>
   constexpr typename array<T, N>::const_reference array<T, N>::
   operator[](typename array<T, N>::size_type __n) const noexcept
-  {
-    return buffer[__n];
-  }
-
-  template <typename T, size_t N>
-  constexpr typename array<T, N>::const_reference
-  array<T, N>::fast(typename array<T, N>::size_type __n) const noexcept
   {
     return buffer[__n];
   }

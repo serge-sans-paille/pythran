@@ -109,20 +109,20 @@ namespace types
   }
 
   template <class E>
-  template <class... Tys>
-  auto numpy_texpr_2<E>::operator[](std::tuple<Tys...> const &indices)
+  template <class T0, class T1>
+  auto numpy_texpr_2<E>::operator[](std::tuple<T0, T1> const &indices)
       -> decltype(
-          arg[array<long, 2>{{std::get<1>(indices), std::get<0>(indices)}}])
+          arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
   {
-    return arg[array<long, 2>{{std::get<1>(indices), std::get<0>(indices)}}];
+    return arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}];
   }
   template <class E>
-  template <class... Tys>
-  auto numpy_texpr_2<E>::operator[](std::tuple<Tys...> const &indices) const
+  template <class T0, class T1>
+  auto numpy_texpr_2<E>::operator[](std::tuple<T0, T1> const &indices) const
       -> decltype(
-          arg[array<long, 2>{{std::get<1>(indices), std::get<0>(indices)}}])
+          arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
   {
-    return arg[array<long, 2>{{std::get<1>(indices), std::get<0>(indices)}}];
+    return arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}];
   }
 
   template <class E>

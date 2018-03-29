@@ -1,5 +1,5 @@
 from test_env import TestEnv
-from pythran.typing import NDArray
+from pythran.typing import NDArray, Tuple, List
 
 import numpy
 
@@ -693,4 +693,41 @@ def assign_ndarray(t):
             'def numpy_iexpr_3d_index(A): a = A[0]; return a[0, 1, 2], a[0, -1, -2]',
             numpy.arange(30).reshape((1, 2,3,5)),
             numpy_iexpr_3d_index=[NDArray[int, :, :,:, :]])
+
+
+    def test_numpy_indexing_ex0(self):
+        self.run_test(
+            'def numpy_indexing_ex0(x, y): return x[y]',
+            numpy.array([1,2,3,4]),
+            (0,),
+            numpy_indexing_ex0=[NDArray[int, :], Tuple[int]])
+
+    def test_numpy_indexing_ex1(self):
+        self.run_test(
+            'def numpy_indexing_ex1(x, y): return x[y]',
+            numpy.array([[1,2],[3,4]]),
+            (0, 1),
+            numpy_indexing_ex1=[NDArray[int, :, :], Tuple[int, int]])
+
+    def test_numpy_indexing_ex2(self):
+        self.run_test(
+            'def numpy_indexing_ex2(x, y): return x[y, :]',
+            numpy.array([[1,2],[3,4]]),
+            0,
+            numpy_indexing_ex2=[NDArray[int, :, :], int])
+
+    def test_numpy_indexing_ex3(self):
+        self.run_test(
+            'def numpy_indexing_ex3(x, y): return x[y]',
+            numpy.array([[1,2],[3,4]]),
+            [1],
+            numpy_indexing_ex3=[NDArray[int, :, :], List[int]])
+
+    def test_numpy_indexing_ex4(self):
+        self.run_test(
+            'def numpy_indexing_ex4(x, y): return x[:,:][y]',
+            numpy.array([[1,2],[3,4]]),
+            [1],
+            numpy_indexing_ex4=[NDArray[int, :, :], List[int]])
+
 

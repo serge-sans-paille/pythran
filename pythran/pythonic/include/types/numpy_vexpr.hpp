@@ -71,6 +71,9 @@ namespace types
     {
       return data_.fast(view_.fast(i));
     }
+    template <class... S>
+    auto operator()(S const &... slices) const
+        -> decltype(ndarray<dtype, value>{*this}(slices...));
   };
 }
 

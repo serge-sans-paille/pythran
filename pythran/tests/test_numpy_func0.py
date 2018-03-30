@@ -679,6 +679,9 @@ def np_rosen_der(x):
     def test_eye3(self):
         self.run_test("def np_eye3(x): from numpy import eye, int32 ; return eye(x, x, 1, int32)", 2, np_eye3=[int])
 
+    def test_eye4(self):
+        self.run_test("def np_eye4(x): from numpy import eye, uint32 ; return eye(x, dtype=uint32)", 2, np_eye4=[int])
+
     def test_ediff1d0(self):
         self.run_test("def np_ediff1d0(x): from numpy import ediff1d ; return ediff1d(x)", [1,2,4,7,0], np_ediff1d0=[List[int]])
 

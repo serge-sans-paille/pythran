@@ -58,7 +58,9 @@ def size_container_folding(value):
 
 def builtin_folding(value):
     """ Convert builtin function to ast expression. """
-    if value.__name__ in ("bool", "float", "int", "long"):
+    if isinstance(value, (type(None), bool)):
+        name = str(value)
+    elif value.__name__ in ("bool", "float", "int", "long"):
         name = value.__name__ + "_"
     else:
         name = value.__name__
@@ -78,8 +80,9 @@ def to_ast(value):
     List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())
     """
     if isinstance(value, (type(None), bool)):
-        return ast.Attribute(ast.Name('__builtin__', ast.Load(), None),
-                             str(value), ast.Load())
+        return builtin_folding(value)
+    if any(value is t for t in (bool, int, float)):
+        return builtin_folding(value)
     elif isinstance(value, numpy.generic):
         return to_ast(numpy.asscalar(value))
     elif isinstance(value, numbers.Number):

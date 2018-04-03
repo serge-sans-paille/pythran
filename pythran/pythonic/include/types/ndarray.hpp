@@ -70,13 +70,6 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  template <class T>
-  struct is_array_index : std::false_type {
-  };
-  template <size_t N>
-  struct is_array_index<array<long, N>> : std::true_type {
-  };
-
   template <class T, size_t N>
   struct ndarray;
 
@@ -432,9 +425,27 @@ namespace types
         auto operator[](array<long, M> const &indices) &&
         -> decltype(nget<M - 1>()(std::move(*this), indices));
 
-    template <class... Tys>
-    auto operator[](std::tuple<Tys...> const &indices) const
-        -> decltype((*this)[to_array<long>(indices)]);
+    template <class Ty>
+    auto operator[](std::tuple<Ty> const &indices) const
+        -> decltype((*this)[std::get<0>(indices)])
+    {
+      return (*this)[std::get<0>(indices)];
+    }
+
+    template <class Ty0, class Ty1, class... Tys>
+    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
+        typename std::enable_if<
+            !std::is_same<Ty0, long>::value && !is_numexpr_arg<Ty0>::value,
+            decltype((*this)[to_array<long>(indices)])>::type;
+
+    template <class Ty, class... Tys>
+    auto operator[](std::tuple<long, Ty, Tys...> const &indices) const
+        -> decltype((*this)[std::get<0>(indices)][tuple_tail(indices)]);
+
+    template <class L, class Ty, class... Tys>
+    auto operator[](std::tuple<L, Ty, Tys...> const &indices) const ->
+        typename std::enable_if<is_numexpr_arg<L>::value,
+                                decltype((*this)[tuple_tail(indices)])>::type;
 
     /* through iterators */
     iterator begin();

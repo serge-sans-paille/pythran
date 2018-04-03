@@ -122,12 +122,13 @@ namespace types
     {
       return arg[array<long, 2>{{indices[1], indices[0]}}];
     }
-    template <class... Tys>
-    auto operator[](std::tuple<Tys...> const &indices) -> decltype(
-        arg[array<long, 2>{{std::get<1>(indices), std::get<0>(indices)}}]);
-    template <class... Tys>
-    auto operator[](std::tuple<Tys...> const &indices) const -> decltype(
-        arg[array<long, 2>{{std::get<1>(indices), std::get<0>(indices)}}]);
+    template <class T0, class T1>
+    auto operator[](std::tuple<T0, T1> const &indices) -> decltype(
+        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}]);
+
+    template <class T0, class T1>
+    auto operator[](std::tuple<T0, T1> const &indices) const -> decltype(
+        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}]);
 
     auto operator[](contiguous_slice const &s0) const
         -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,

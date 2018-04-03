@@ -340,6 +340,11 @@ struct assignable<types::list<T>> {
   typedef types::list<typename assignable<T>::type> type;
 };
 
+template <class T, class S>
+struct assignable<types::sliced_list<T, S>> {
+  typedef types::list<typename assignable<T>::type> type;
+};
+
 // to cope with std::vector<bool> specialization
 template <>
 struct returnable<types::list<bool>::reference> {

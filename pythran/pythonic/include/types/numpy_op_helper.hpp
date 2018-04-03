@@ -183,6 +183,12 @@ namespace types
         T, ctype, std::is_same<typename std::decay<T>::type, ctype>::value,
         isdtype>::type;
   };
+  template <class T>
+  struct is_array_index : std::false_type {
+  };
+  template <size_t N>
+  struct is_array_index<array<long, N>> : std::true_type {
+  };
 }
 PYTHONIC_NS_END
 

@@ -258,7 +258,8 @@ namespace types
 
   template <class Arg>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value,
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              std::is_same<bool, typename F::dtype>::value,
                           numpy_fexpr<numpy_iexpr<Arg>, F>>::type
   numpy_iexpr<Arg>::fast(F const &filter) const
   {
@@ -350,7 +351,8 @@ namespace types
 
   template <class Arg>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value,
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              std::is_same<bool, typename F::dtype>::value,
                           numpy_fexpr<numpy_iexpr<Arg>, F>>::type
       numpy_iexpr<Arg>::
       operator[](F const &filter) const

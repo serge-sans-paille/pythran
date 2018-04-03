@@ -77,3 +77,9 @@ class TestList(TestEnv):
                       [np.array([1,2])],
                       [np.array([3,4])],
                       add_list_of_arrays=[List[NDArray[int, :]], List[NDArray[int, :]]])
+
+    def test_slice_get_item_assign(self):
+        self.run_test('def slice_get_item_assign(x): y = x[:]; y.remove(0); return x, y',
+                      [0, 1,2,3],
+                      slice_get_item_assign=[List[int]])
+

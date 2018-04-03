@@ -148,7 +148,8 @@ namespace types
     }
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                std::is_same<bool, typename F::dtype>::value,
                             numpy_fexpr<numpy_iexpr, F>>::type
     fast(F const &filter) const;
 
@@ -173,7 +174,8 @@ namespace types
         -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s...));
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                std::is_same<bool, typename F::dtype>::value,
                             numpy_fexpr<numpy_iexpr, F>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const & -> decltype(this->fast(i));
@@ -196,6 +198,23 @@ namespace types
     array<long, value> const &shape() const
     {
       return _shape;
+    }
+
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value,
+                            numpy_vexpr<numpy_iexpr, F>>::type
+    operator[](F const &filter) const
+    {
+      return {*this, filter};
+    }
+
+    template <class Ty>
+    auto operator[](std::tuple<Ty> const &index) const
+        -> decltype((*this)[std::get<0>(index)])
+    {
+      return (*this)[std::get<0>(index)];
     }
 
   private:

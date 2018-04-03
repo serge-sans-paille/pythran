@@ -545,11 +545,23 @@ namespace types
   }
 
   template <class T, size_t N>
-  template <class... Tys>
-  auto ndarray<T, N>::operator[](std::tuple<Tys...> const &indices) const
-      -> decltype((*this)[to_array<long>(indices)])
+  template <class Ty0, class Ty1, class... Tys>
+  auto ndarray<T, N>::
+  operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
+      typename std::enable_if<!std::is_same<Ty0, long>::value &&
+                                  !is_numexpr_arg<Ty0>::value,
+                              decltype((*this)[to_array<long>(indices)])>::type
   {
     return (*this)[to_array<long>(indices)];
+  }
+
+  template <class T, size_t N>
+  template <class Ty, class... Tys>
+  auto ndarray<T, N>::
+  operator[](std::tuple<long, Ty, Tys...> const &indices) const
+      -> decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])
+  {
+    return (*this)[std::get<0>(indices)][tuple_tail(indices)];
   }
 
 #ifdef USE_BOOST_SIMD
@@ -668,6 +680,19 @@ namespace types
   ndarray<T, N>::fast(F const &filter) const
   {
     return {*this, filter};
+  }
+
+  template <class T, size_t N>
+  template <class L, class Ty, class... Tys>
+  auto ndarray<T, N>::operator[](std::tuple<L, Ty, Tys...> const &indices) const
+      -> typename std::enable_if<is_numexpr_arg<L>::value,
+                                 decltype((*this)[tuple_tail(indices)])>::type
+  {
+    return ndarray<T, N>
+    {
+      (*this)[std::get<0>(indices)]
+    }
+    [tuple_tail(indices)];
   }
 
   /* through iterators */

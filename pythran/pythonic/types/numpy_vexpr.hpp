@@ -46,6 +46,13 @@ namespace types
   {
     return {*this, shape()[0]};
   }
+  template <class T, class F>
+  template <class... S>
+  auto numpy_vexpr<T, F>::operator()(S const &... slices) const
+      -> decltype(ndarray<dtype, value>{*this}(slices...))
+  {
+    return ndarray<dtype, value>{*this}(slices...);
+  }
 #ifdef USE_BOOST_SIMD
   template <class Arg, class F>
   template <class vectorizer>

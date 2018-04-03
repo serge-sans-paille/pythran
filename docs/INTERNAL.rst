@@ -259,9 +259,11 @@ Pythran preserves docstrings::
     $> pythran docstrings.py
     $> python -c 'import docstrings; print(docstrings.__doc__); print(docstrings.foo.__doc__)'
     top-level-docstring
-    Supported prototypes:
-        - foo()
     function-level-docstring
+    <BLANKLINE>
+        Supported prototypes:
+    <BLANKLINE>
+        - foo()
     $> rm -f docstrings.*
 
 Integration with Scipy LowLevelCallable

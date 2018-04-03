@@ -84,10 +84,17 @@ class Spec(object):
     def to_docstrings(self, docstrings):
         for func_name, signatures in self.functions.items():
             sigdocs = [spec_to_string(func_name, sig) for sig in signatures]
-            docstrings[func_name] = "Supported prototypes:{}\n{}".format(
-                "".join("\n    - " + sigdoc for sigdoc in sigdocs),
-                docstrings.get(func_name, '')
-            )
+            docstring_prototypes = 'Supported prototypes:\n{}'.format(
+                ''.join('\n    - ' + sigdoc for sigdoc in sigdocs))
+            docstring_py = docstrings.get(func_name, '')
+            if not docstring_py:
+                docstring = docstring_prototypes
+            else:
+                parts = docstring_py.split('\n\n', 1)
+                docstring = parts[0] + '\n\n    ' + docstring_prototypes
+                if len(parts) == 2:
+                    docstring += '\n\n' + parts[1]
+            docstrings[func_name] = docstring
 
     def _expand_specs(self):
         '''

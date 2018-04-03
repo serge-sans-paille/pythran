@@ -7,3 +7,14 @@ website/license.txt
 pythran/nt2
 pythran/boost
 parsetab.py
+
+.eggs/*
+pythran.egg-info/*
+
+docs/index.rst
+docs/LICENSE.rst
+docs/Changelog.rst
+docs/AUTHORS.rst
+docs/SUPPORT.rst
+
+docs/_build/*

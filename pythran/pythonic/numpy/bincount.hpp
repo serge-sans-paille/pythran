@@ -4,13 +4,14 @@
 #include "pythonic/include/numpy/bincount.hpp"
 
 #include "pythonic/numpy/max.hpp"
+#include "pythonic/utils/numpy_conversion.hpp"
 
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<long, 1> bincount(types::ndarray<T, N> const &expr,
+  template <class T>
+  types::ndarray<long, 1> bincount(types::ndarray<T, 1> const &expr,
                                    types::none_type weights,
                                    types::none<long> minlength)
   {
@@ -24,11 +25,11 @@ namespace numpy
     return out;
   }
 
-  template <class T, size_t N, class E>
+  template <class T, class E>
   types::ndarray<
       decltype(std::declval<long>() * std::declval<typename E::dtype>()), 1>
-  bincount(types::ndarray<T, N> const &expr, E const &weights,
-           types::none<long> minlength)
+      bincount(types::ndarray<T, 1> const &expr, E const &weights,
+               types::none<long> minlength)
   {
     long length = 0;
     if (minlength)
@@ -43,6 +44,8 @@ namespace numpy
       out[*iter] += *iweight;
     return out;
   }
+
+  NUMPY_EXPR_TO_NDARRAY0_IMPL(bincount);
 
   DEFINE_FUNCTOR(pythonic::numpy, bincount);
 }

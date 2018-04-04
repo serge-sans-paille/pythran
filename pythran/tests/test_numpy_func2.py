@@ -197,6 +197,8 @@ def test_copy0(x):
 
     def test_bincount1(self):
         self.run_test("def np_bincount1(a, w): from numpy import bincount; return bincount(a,w)", numpy.array([0, 1, 1, 2, 2, 2]), numpy.array([0.3, 0.5, 0.2, 0.7, 1., -0.6]), np_bincount1=[NDArray[int,:], NDArray[float,:]])
+    def test_bincount2(self):
+        self.run_test("def np_bincount2(a, w): from numpy import bincount; return bincount(a + 1,w)", numpy.array([0, 1, 1, 2, 2, 2]), numpy.array([0.3, 0.5, 0.2, 0.7, 1., -0.6]), np_bincount2=[NDArray[int,:], NDArray[float,:]])
 
     def test_binary_repr0(self):
         self.run_test("def np_binary_repr0(a): from numpy import binary_repr ; return binary_repr(a)", 3, np_binary_repr0=[int])

@@ -17,7 +17,11 @@ namespace numpy
     template <class T>
     T rint(T const &v)
     {
+#ifdef USE_BOOST_SIMD
       return boost::simd::inearbyint(v);
+#else
+      return std::nearbyint(v);
+#endif
     }
     template <class T>
     std::complex<T> rint(std::complex<T> const &v)

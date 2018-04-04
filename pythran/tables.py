@@ -4426,6 +4426,9 @@ if sys.version_info.major == 3:
                 CLASSES['file'], global_effects=True)
         }
     }
+    if sys.version_info.minor < 5:
+        del MODULES['operator_']['matmul']
+        del MODULES['operator_']['__matmul__']
 else:
     del MODULES['operator_']['matmul']
     del MODULES['operator_']['__matmul__']

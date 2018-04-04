@@ -628,18 +628,25 @@ class CxxFunction(Backend):
             - order have to be known at compile time
         """
         assert isinstance(node.target, ast.Name)
-        pattern = ast.Call(func=ast.Attribute(
+        pattern_range = ast.Call(func=ast.Attribute(
             value=ast.Name(id='__builtin__',
                            ctx=ast.Load(),
                            annotation=None),
-            attr=xrange.__name__, ctx=ast.Load()),
+            attr='range', ctx=ast.Load()),
+            args=AST_any(), keywords=[])
+        pattern_xrange = ast.Call(func=ast.Attribute(
+            value=ast.Name(id='__builtin__',
+                           ctx=ast.Load(),
+                           annotation=None),
+            attr='xrange', ctx=ast.Load()),
             args=AST_any(), keywords=[])
         is_assigned = {node.target.id: False}
         [is_assigned.update(self.passmanager.gather(IsAssigned, stmt))
          for stmt in node.body]
 
-        if (node.iter not in ASTMatcher(pattern).search(node.iter) or
-                is_assigned[node.target.id]):
+        nodes = ASTMatcher(pattern_range).search(node.iter)
+        nodes |= ASTMatcher(pattern_xrange).search(node.iter)
+        if (node.iter not in nodes or is_assigned[node.target.id]):
             return False
 
         args = node.iter.args

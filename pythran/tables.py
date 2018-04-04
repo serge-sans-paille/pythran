@@ -21,7 +21,6 @@ from functools import reduce
 
 if sys.version_info.major == 3:
     sys.modules['__builtin__'] = sys.modules['builtins']
-    sys.modules['__builtin__'].xrange = sys.modules['builtins'].range
 
     import functools
     sys.modules['__builtin__'].reduce = functools.reduce
@@ -4432,6 +4431,7 @@ if sys.version_info.major == 3:
     del MODULES['operator_']['__div__']
     del MODULES['__builtin__']['cmp']
     del MODULES['__builtin__']['file']
+    del MODULES['__builtin__']['xrange']
     del MODULES['__builtin__']['StandardError']
     MODULES['io'] = {
         '_io': {

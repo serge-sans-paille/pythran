@@ -586,10 +586,10 @@ def test_copy0(x):
         self.run_test("def np_e_():\n from numpy import e\n return e", np_e_=[])
 
     def test_ones_like_(self):
-        self.run_test("def np_ones_like_(a):\n from numpy import ones_like, array\n return ones_like(array(a))", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_ones_like_=[List[List[int]]])
+        self.run_test("def np_ones_like_(a):\n from numpy import ones_like, array\n return ones_like(array(a))", [[i,j,k,l] for i in range(5) for j in range(4) for k in range(6) for l in range(8)], np_ones_like_=[List[List[int]]])
 
     def test_zeros_like_(self):
-        self.run_test("def np_zeros_like_(a):\n from numpy import zeros_like, array\n return zeros_like(array(a))", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_zeros_like_=[List[List[int]]])
+        self.run_test("def np_zeros_like_(a):\n from numpy import zeros_like, array\n return zeros_like(array(a))", [[i,j,k,l] for i in range(5) for j in range(4) for k in range(6) for l in range(8)], np_zeros_like_=[List[List[int]]])
 
     def test_empty_like_1(self):
         """ Check empty_like numpy function without specified dtype. """
@@ -597,9 +597,9 @@ def test_copy0(x):
             def np_empty_like_1(a):
                 from numpy import empty_like
                 b = empty_like(a)
-                for i in xrange(2):
-                    for j in xrange(3):
-                        for k in xrange(4):
+                for i in range(2):
+                    for j in range(3):
+                        for k in range(4):
                             b[i, j, k] = i + j + k
                 return b"""
         self.run_test(code,
@@ -612,9 +612,9 @@ def test_copy0(x):
             def np_empty_like_2(a):
                 from numpy import empty_like
                 b = empty_like(a, dtype=float)
-                for i in xrange(2):
-                    for j in xrange(3):
-                        for k in xrange(4):
+                for i in range(2):
+                    for j in range(3):
+                        for k in range(4):
                             b[i, j, k] = i + j + k
                 return b"""
         self.run_test(code,

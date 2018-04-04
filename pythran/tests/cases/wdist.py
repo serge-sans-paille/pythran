@@ -10,8 +10,8 @@ def slow_wdist(A, B, W):
     _,n = B.shape
     D = np.zeros((m, n))
 
-    for ii in xrange(m):
-        for jj in xrange(n):
+    for ii in range(m):
+        for jj in range(n):
             wdiff = (A[:,ii] - B[:,jj]) / W[:,ii]
             D[ii,jj] = np.sqrt((wdiff**2).sum())
     return D

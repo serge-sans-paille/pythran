@@ -12,10 +12,10 @@ def timeloop(t, t_stop, dt, dx, dy, u, um, k):
     return u
 
 def calculate_u(dt, dx, dy, u, um, k):
-    up = [ [0.]*len(u[0]) for i in xrange(len(u)) ]
+    up = [ [0.]*len(u[0]) for i in range(len(u)) ]
     "omp parallel for"
-    for i in xrange(1, len(u)-1):
-        for j in xrange(1, len(u[0])-1):
+    for i in range(1, len(u)-1):
+        for j in range(1, len(u[0])-1):
             up[i][j] = 2*u[i][j] - um[i][j] + \
                 (dt/dx)**2*(
                         (0.5*(k[i+1][j] + k[i][j])*(u[i+1][j] - u[i][j]) -

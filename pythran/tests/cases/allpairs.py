@@ -9,8 +9,8 @@ def sqr_dists(X,Y):
 def sqr_dists_loops(X,Y):
   m,n = X.shape[0], Y.shape[0]
   D = np.zeros((m,n))
-  for i in xrange(m):
-    for j in xrange(n):
+  for i in range(m):
+    for j in range(n):
       D[i,j] = np.sum( (X[i] -Y[j]) ** 2)
   return D
 

@@ -20,19 +20,19 @@ class TestOptimization(TestEnv):
             self.check_ast(code, "syntax error anyway", ["pythran.optimizations.ConstantFolding"])
 
     def test_genexp(self):
-        self.run_test("def test_genexp(n): return sum((x*x for x in xrange(n)))", 5, test_genexp=[int])
+        self.run_test("def test_genexp(n): return sum((x*x for x in range(n)))", 5, test_genexp=[int])
 
     def test_genexp_2d(self):
-        self.run_test("def test_genexp_2d(n1, n2): return sum((x*y for x in xrange(n1) for y in xrange(n2)))", 2, 3, test_genexp_2d=[int, int])
+        self.run_test("def test_genexp_2d(n1, n2): return sum((x*y for x in range(n1) for y in range(n2)))", 2, 3, test_genexp_2d=[int, int])
 
     def test_genexp_if(self):
-        self.run_test("def test_genexp_if(n): return sum((x*x for x in xrange(n) if x < 4))", 5, test_genexp_if=[int])
+        self.run_test("def test_genexp_if(n): return sum((x*x for x in range(n) if x < 4))", 5, test_genexp_if=[int])
 
     def test_genexp_mixedif(self):
-        self.run_test("def test_genexp_mixedif(m, n): return sum((x*y for x in xrange(m) for y in xrange(n) if x < 4))", 2, 3, test_genexp_mixedif=[int, int])
+        self.run_test("def test_genexp_mixedif(m, n): return sum((x*y for x in range(m) for y in range(n) if x < 4))", 2, 3, test_genexp_mixedif=[int, int])
 
     def test_genexp_triangular(self):
-        self.run_test("def test_genexp_triangular(n): return sum((x*y for x in xrange(n) for y in xrange(x)))", 2, test_genexp_triangular=[int])
+        self.run_test("def test_genexp_triangular(n): return sum((x*y for x in range(n) for y in range(x)))", 2, test_genexp_triangular=[int])
 
     def test_aliased_readonce(self):
         self.run_test("""
@@ -40,14 +40,14 @@ def foo(f,l):
     return map(f,l[1:])
 def alias_readonce(n):
     map = foo
-    return map(lambda (x,y): x*y < 50, zip(xrange(n), xrange(n)))
+    return map(lambda (x,y): x*y < 50, zip(range(n), range(n)))
 """, 10, alias_readonce=[int])
 
     def test_replace_aliased_map(self):
         self.run_test("""
 def alias_replaced(n):
     map = filter
-    return list(map(lambda x : x < 5, xrange(n)))
+    return list(map(lambda x : x < 5, range(n)))
 """, 10, alias_replaced=[int])
 
     def test_listcomptomap_alias(self):
@@ -56,7 +56,7 @@ def foo(f,l):
     return map(f,l[3:])
 def listcomptomap_alias(n):
     map = foo
-    return list([x for x in xrange(n)])
+    return list([x for x in range(n)])
 """, 10, listcomptomap_alias=[int])
 
     def test_readonce_return(self):
@@ -90,7 +90,7 @@ def readonce_assignaug(n):
         self.run_test("""
 def foo(l):
     s = []
-    for x in xrange(10):
+    for x in range(10):
         s.extend(list(l))
     return s
 def readonce_for(n):
@@ -377,9 +377,13 @@ def foo(a):
     def test_patternmatching2(self):
         init = """
 def foo(a):
-    return reversed(xrange(len(set(a))))"""
+    return reversed(range(len(set(a))))"""
         ref = """def foo(a):
-    return __builtin__.xrange((__builtin__.pythran.len_set(a) - 1), (-1), (-1))"""
+    return __builtin__.range((__builtin__.pythran.len_set(a) - 1), (-1), (-1))"""
+        if sys.version_info.major == 2:
+            init = init.replace('range', 'xrange')
+            ref = ref.replace('range', 'xrange')
+
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
     def test_patternmatching3(self):
@@ -436,14 +440,14 @@ class TestAnalyses(TestEnv):
         self.run_test("def decl_shadow_intrinsic(l): len=lambda l:1 ; return len(l)", [1,2,3], decl_shadow_intrinsic=[List[int]])
 
     def test_used_def_chains(self):
-        self.run_test("def use_def_chain(a):\n i=a\n for i in xrange(4):\n  print(i)\n  i=5.4\n  print(i)\n  break\n  i = 4\n return i", 3, use_def_chain=[int])
+        self.run_test("def use_def_chain(a):\n i=a\n for i in range(4):\n  print(i)\n  i=5.4\n  print(i)\n  break\n  i = 4\n return i", 3, use_def_chain=[int])
 
     def test_used_def_chains2(self):
-        self.run_test("def use_def_chain2(a):\n i=a\n for i in xrange(4):\n  print(i)\n  i='lala'\n  print(i)\n  i = 4\n return i", 3, use_def_chain2=[int])
+        self.run_test("def use_def_chain2(a):\n i=a\n for i in range(4):\n  print(i)\n  i='lala'\n  print(i)\n  i = 4\n return i", 3, use_def_chain2=[int])
 
     @unittest.skip("Variable defined in a branch in loops are not accepted.")
     def test_importedids(self):
-        self.run_test("def importedids(a):\n i=a\n for i in xrange(4):\n  if i==0:\n   b = []\n  else:\n   b.append(i)\n return b", 3, importedids=[int])
+        self.run_test("def importedids(a):\n i=a\n for i in range(4):\n  if i==0:\n   b = []\n  else:\n   b.append(i)\n return b", 3, importedids=[int])
 
     def test_falsepoly(self):
         self.run_test("def falsepoly():\n i = 2\n if i:\n  i='ok'\n else:\n  i='lolo'\n return i", falsepoly=[])

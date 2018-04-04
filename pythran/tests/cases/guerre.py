@@ -2,8 +2,8 @@
 #runas guerre([complex(1,2),complex(3,4),complex(5,6),complex(7,8)],2,complex(5.6,4.3),-3.4,20)
 #bench guerre([complex(1,2),complex(3,4),complex(5,6),complex(7,8)],2,complex(5.6,4.3),-3.4,400000)
 def guerre(a,n,z,err,nter):
-    az = [complex(0,0) for i in xrange(50)]
-    azz = [complex(0,0) for i in xrange(50)]
+    az = [complex(0,0) for i in range(50)]
+    azz = [complex(0,0) for i in range(50)]
     ci=complex(0.0,1.0)
     eps=1.0e-20
 #  The coefficients of p'[z] and p''[z].

@@ -10,18 +10,18 @@
 
 def unoptimized():
     doors = [False] * 100
-    for i in xrange(100):
-        for j in xrange(i, 100, i+1):
+    for i in range(100):
+        for j in range(i, 100, i+1):
             doors[j] = not doors[j]
         print("Door %d:" % (i+1), 'open' if doors[i] else 'close')
 
 def optimized():
-    for i in xrange(1, 101):
+    for i in range(1, 101):
         root = i ** 0.5
         print("Door %d:" % i, 'open' if root == int(root) else 'close')
 
 def one_liner_list_comprehension():
-    print('\n'.join(['Door %s is %s' % (i, ['closed', 'open'][(i**0.5).is_integer()]) for i in xrange(1, 10001)]))
+    print('\n'.join(['Door %s is %s' % (i, ['closed', 'open'][(i**0.5).is_integer()]) for i in range(1, 10001)]))
 
 def one_liner_generator_comprehension():
     print('\n'.join('Door %s is %s' % (i, 'closed' if i**0.5 % 1 else 'open') for i in range(1, 101)))

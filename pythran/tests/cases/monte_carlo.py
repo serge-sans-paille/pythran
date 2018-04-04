@@ -15,7 +15,7 @@ def montecarlo_integration(xmin, xmax, numSteps,rand,randsize):
     # find ymin-ymax
     ymin = f(xmin)
     ymax = ymin
-    for i in xrange(numSteps):
+    for i in range(numSteps):
         x = xmin + (xmax - xmin) * float(i) / numSteps
         y = f(x)
         if y < ymin: ymin = y
@@ -25,7 +25,7 @@ def montecarlo_integration(xmin, xmax, numSteps,rand,randsize):
     rectArea = (xmax - xmin) * (ymax - ymin)
     numPoints = numSteps # bigger the better but slower!
     ctr = 0
-    for j in xrange(numPoints):
+    for j in range(numPoints):
         x = xmin + (xmax - xmin) * rand[j%randsize]
         y = ymin + (ymax - ymin) * rand[j%randsize]
         if math.fabs(y) <= math.fabs(f(x)):

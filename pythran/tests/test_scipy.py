@@ -67,10 +67,10 @@ def ramp(result, start, end):
     size=len(result)
     assert size > 1
     step = (end-start)//(size-1)
-    for i in xrange(size):
+    for i in range(size):
         result[i] = start + step*i
 """
-        self.run_test(code,[0. for x in xrange(10)], 1.5, 9.5, ramp=[List[float], float, float])
+        self.run_test(code,[0. for x in range(10)], 1.5, 9.5, ramp=[List[float], float, float])
 
     path = os.path.join(os.path.dirname(__file__), "scipy")
 

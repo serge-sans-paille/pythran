@@ -3,8 +3,8 @@
 #runas primes_below(1000)
 #bench primes_below(15000)
 def is_prime(n):
-      return all((n%j > 0) for j in xrange(2, n))
+      return all((n%j > 0) for j in range(2, n))
 
 def primes_below(x):
-        return [[j-6, j] for j in xrange(9, x+1) if is_prime(j) and is_prime(j-6)]
+        return [[j-6, j] for j in range(9, x+1) if is_prime(j) and is_prime(j-6)]
 

@@ -66,12 +66,12 @@ def relaxation_loc(m):
 def periodic_bc(f):
     nx, ny, ns = f.shape
 
-    for j in xrange(ny):
-        for k in xrange(ns):
+    for j in range(ny):
+        for k in range(ns):
             f[0, j, k] = f[nx-2, j, k]
             f[nx-1, j, k] = f[1, j, k]
-    for i in xrange(nx):
-        for k in xrange(ns):
+    for i in range(nx):
+        for k in range(ns):
             f[i, 0, k] = f[i, ny-2, k]
             f[i, ny-1, k] = f[i, 1, k]
 

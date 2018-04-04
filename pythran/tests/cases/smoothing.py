@@ -11,6 +11,6 @@ def smoothing(x, alpha):
   - Parakeet runtime: .01 seconds
   """
   s = x.copy()
-  for i in xrange(1, len(x)):
+  for i in range(1, len(x)):
     s[i] = alpha * x[i] + (1 - alpha) * s[i-1]
   return s

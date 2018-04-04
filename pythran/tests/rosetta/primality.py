@@ -4,12 +4,12 @@
 #FIXME unittest.skip
 
 def prime(a):
-    return not (a < 2 or any(a % x == 0 for x in xrange(2, int(a**0.5) + 1)))
+    return not (a < 2 or any(a % x == 0 for x in range(2, int(a**0.5) + 1)))
 
 def prime2(a):
     if a == 2: return True
     if a < 2 or a % 2 == 0: return False
-    return not any(a % x == 0 for x in xrange(3, int(a**0.5) + 1, 2))
+    return not any(a % x == 0 for x in range(3, int(a**0.5) + 1, 2))
 
 def prime3(a):
     if a < 2: return False

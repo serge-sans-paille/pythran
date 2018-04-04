@@ -932,9 +932,9 @@ class CxxFunction(Backend):
             value = 'pythonic::types::str({})'.format(value)
         # positive static index case
         if (isinstance(node.slice, ast.Index) and
-            isinstance(node.slice.value, ast.Num) and
-            (node.slice.value.n >= 0) and
-            isinstance(node.slice.value.n, int)):
+                isinstance(node.slice.value, ast.Num) and
+                (node.slice.value.n >= 0) and
+                isinstance(node.slice.value.n, int)):
             return "std::get<{0}>({1})".format(node.slice.value.n, value)
         # extended slice case
         elif isinstance(node.slice, ast.ExtSlice):

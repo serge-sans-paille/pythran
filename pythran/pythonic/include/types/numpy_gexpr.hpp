@@ -132,6 +132,7 @@ namespace types
 
   template <class T, class... Types>
   struct count_long<T, Types...> {
+    static_assert(!std::is_same<T, none_type>::value, "none-type should have been pruned");
     static constexpr size_t value =
         count_long<T>::value + count_long<Types...>::value;
   };

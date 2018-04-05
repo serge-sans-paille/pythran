@@ -9,6 +9,12 @@ import sys
 
 @TestEnv.module
 class TestNdarray(TestEnv):
+
+    def test_any_array_astype(self):
+        self.run_test('def any_array_astype(a): import numpy as np; return np.rint(a).astype(int)',
+                      4.2,
+                      any_array_astype=[float])
+
     def test_ndarray_real_attr_read(self):
         self.run_test('def ndarray_real_attr_read(a): return a.real + 1',
                       numpy.arange(100, dtype=numpy.complex128).reshape((10, 10)),

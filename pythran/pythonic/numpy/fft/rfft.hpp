@@ -12,7 +12,7 @@
 #include "pythonic/numpy/swapaxes.hpp"
 #include <string.h>
 #include <math.h>
-
+#include <vector>
 
 #include <stdio.h>
 #include "pythonic/numpy/fft/fftpack.c"
@@ -68,13 +68,7 @@ namespace numpy
             long to_copy            = (NFFT <= npts) ? NFFT : npts;
             for (i = 0; i < nrepeats; i++) {
                 rptr[2*out_size-1] = 0.0; // We didn't zero the array upon allocation. Make sure the last element is 0.
-                if(std::is_same<double, T>::value) {
-                    memcpy((char *)(rptr+1), dptr, to_copy*sizeof(double));
-                }
-                else {
-                    for (int j=0; j<to_copy; j++)
-                        rptr[j+1]=dptr[j];
-                }
+                std::copy(dptr,dptr+to_copy,rptr+1);
                 // Zero padding if the FFT size is > the number points
                 memset((char *)(rptr+1+to_copy),0,(NFFT-to_copy)*sizeof(double));
                 npy_rfftf(NFFT, rptr+1, twiddle_buffer);

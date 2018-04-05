@@ -59,13 +59,7 @@ namespace numpy
             long to_copy            = (NFFT/2+1 <= npts) ? (NFFT-1) : (2*npts-2);
             for (i = 0; i < nrepeats; i++) {
                 // By default npts = floor(NFFT/2)+1.
-                if(std::is_same<std::complex<double>, T>::value) {
-                    memcpy((char *)(rptr+1), (dptr+2), to_copy*sizeof(double));
-                }
-                else {
-                    for (int j=0; j<to_copy; j++)
-                        rptr[j+1]=dptr[j+2];
-               }
+                std::copy(dptr+2,dptr+2+to_copy,rptr+1);
                 rptr[0]=dptr[0];
                 // Zero padding if necessary
                 memset((char *)(rptr+1+to_copy),0,(NFFT-1-to_copy)*sizeof(double));

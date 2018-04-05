@@ -39,20 +39,13 @@ namespace numpy
             out_shape.back() = out_size;
             types::ndarray<std::complex<typename std::common_type<T, double>::type>, N> out_array(out_shape,__builtin__::None);
             
-//            printf("Shape %d %d N = %d -- Flat size: %d NFFT = %d npts = %d out_size %d\n",
-//                   shape[0],shape[1],N,in_array.flat_size(),NFFT,npts,out_size);
-//            for (i = 0; i < NFFT; i++)
-//                printf("in: %.4f\n",dptr[i]);
-            
             // Create the twiddle factors. These must be kept from call to call as it's very wasteful to recompute them.
             // This is from fftpack_litemodule.c
             static std::map<long, types::ndarray<double, 1>> all_twiddles;
             if (all_twiddles.find(NFFT) == all_twiddles.end()) {
 //                printf("CREATING TWIDDLE FOR %d\n",NFFT);
-                types::array<long, 1> twiddle_shape = {(long)(2*NFFT+15)};
-                // Insert a new twiddle array into our map
-                all_twiddles.insert(std::make_pair(NFFT,types::ndarray<double, 1>(twiddle_shape,__builtin__::None)));
-                // Then initialize it.
+                // Insert a new twiddle array into our map and initialize it
+                all_twiddles.insert(std::make_pair(NFFT,types::ndarray<double, 1>({(long)(2*NFFT+15)},__builtin__::None)));
                 npy_rffti(NFFT, (double *)all_twiddles[NFFT].buffer);
             }
             else {
@@ -70,7 +63,7 @@ namespace numpy
                 rptr[2*out_size-1] = 0.0; // We didn't zero the array upon allocation. Make sure the last element is 0.
                 std::copy(dptr,dptr+to_copy,rptr+1);
                 // Zero padding if the FFT size is > the number points
-                memset((char *)(rptr+1+to_copy),0,(NFFT-to_copy)*sizeof(double));
+                std::fill(rptr+1+to_copy,rptr+1+to_copy+(NFFT-to_copy),0);
                 npy_rfftf(NFFT, rptr+1, twiddle_buffer);
                 rptr[0] = rptr[1];
                 rptr[1] = 0.0;
@@ -87,9 +80,6 @@ namespace numpy
                 }
             }
             
-//            for (i = 0; i < out_size; i++) {
-//                printf("out_array: %.4f %.4f\n",out_array[i].real(),out_array[i].imag());
-//            }
             return out_array;
         }
         

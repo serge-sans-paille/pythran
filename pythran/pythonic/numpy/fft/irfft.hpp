@@ -42,10 +42,8 @@ namespace numpy
             // This is from fftpack_litemodule.c
             static std::map<long, types::ndarray<double, 1>> all_twiddles;
             if (all_twiddles.find(NFFT) == all_twiddles.end()) {
-                types::array<long, 1> twiddle_shape = {(long)(2*NFFT+15)};
-                // Insert a new twiddle array into our map
-                all_twiddles.insert(std::make_pair(NFFT,types::ndarray<double, 1>(twiddle_shape,__builtin__::None)));
-                // Then initialize it.
+                // Insert a new twiddle array into our map and initialize it
+                all_twiddles.insert(std::make_pair(NFFT,types::ndarray<double, 1>({(long)(2*NFFT+15)},__builtin__::None)));
                 npy_rffti(NFFT, (double *)all_twiddles[NFFT].buffer);
             }
             
@@ -62,7 +60,7 @@ namespace numpy
                 std::copy(dptr+2,dptr+2+to_copy,rptr+1);
                 rptr[0]=dptr[0];
                 // Zero padding if necessary
-                memset((char *)(rptr+1+to_copy),0,(NFFT-1-to_copy)*sizeof(double));
+                std::fill(rptr+1+to_copy,rptr+1+to_copy+(NFFT-1-to_copy),0);
                 npy_rfftb(NFFT, rptr, twiddle_buffer);
                 rptr += out_size;
                 dptr += 2*npts;     // These are comlex numbers.

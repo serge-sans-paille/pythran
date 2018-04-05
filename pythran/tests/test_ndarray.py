@@ -694,7 +694,6 @@ def assign_ndarray(t):
             numpy.arange(30).reshape((1, 2,3,5)),
             numpy_iexpr_3d_index=[NDArray[int, :, :,:, :]])
 
-
     def test_numpy_indexing_ex0(self):
         self.run_test(
             'def numpy_indexing_ex0(x, y): return x[y]',
@@ -730,4 +729,9 @@ def assign_ndarray(t):
             [1],
             numpy_indexing_ex4=[NDArray[int, :, :], List[int]])
 
+    def test_numpy_gexpr_new_axis0(self):
+        self.run_test(
+            'def numpy_gexpr_new_axis0(A): return A[:, 1][0, None]',
+            numpy.arange(30).reshape((1, 2,3,5)),
+            numpy_gexpr_new_axis0=[NDArray[int, :, :,:, :]])
 

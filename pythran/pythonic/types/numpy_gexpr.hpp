@@ -5,6 +5,8 @@
 
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/operator_/iadd.hpp"
+#include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/iand.hpp"
 #include "pythonic/operator_/isub.hpp"
 #include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/idiv.hpp"
@@ -47,6 +49,11 @@ namespace types
   {
     return s.lower <= i && i < s.upper;
   }
+
+  bool slices_may_overlap(long const &i, long const &j)
+  {
+    return i == j;
+  }
   template <class E0, class E1>
   bool may_overlap(E0 const &, E1 const &)
   {
@@ -78,11 +85,10 @@ namespace types
     return may_overlap_helper(gexpr, expr.args,
                               utils::make_index_sequence<sizeof...(E)-1>{});
   }
-  template <class T, size_t N, class Tp, size_t Np, class... S, class... Sp>
-  bool may_overlap(numpy_gexpr<ndarray<T, N> const &, S...> const &gexpr,
-                   numpy_gexpr<ndarray<Tp, Np> const &, Sp...> const &expr)
+  template <size_t N, size_t Np, class G, class Gp>
+  bool may_overlap_helper(G const &gexpr, Gp const &expr)
   {
-    if (!std::is_same<T, Tp>::value) {
+    if (!std::is_same<typename G::dtype, typename Gp::dtype>::value) {
       return false;
     }
     if (N != Np) {
@@ -95,6 +101,31 @@ namespace types
                             std::get<0>(expr.slices)))
       return false;
     return true;
+  }
+
+  template <class T, size_t N, class Tp, size_t Np, class... S, class... Sp>
+  bool may_overlap(numpy_gexpr<ndarray<T, N> const &, S...> const &gexpr,
+                   numpy_gexpr<ndarray<Tp, Np> const &, Sp...> const &expr)
+  {
+    return may_overlap_helper<N, Np>(gexpr, expr);
+  }
+  template <class T, size_t N, class Tp, size_t Np, class... S, class... Sp>
+  bool may_overlap(numpy_gexpr<ndarray<T, N>, S...> const &gexpr,
+                   numpy_gexpr<ndarray<Tp, Np>, Sp...> const &expr)
+  {
+    return may_overlap_helper<N, Np>(gexpr, expr);
+  }
+  template <class T, size_t N, class Tp, size_t Np, class... S, class... Sp>
+  bool may_overlap(numpy_gexpr<ndarray<T, N> const &, S...> const &gexpr,
+                   numpy_gexpr<ndarray<Tp, Np>, Sp...> const &expr)
+  {
+    return may_overlap_helper<N, Np>(gexpr, expr);
+  }
+  template <class T, size_t N, class Tp, size_t Np, class... S, class... Sp>
+  bool may_overlap(numpy_gexpr<ndarray<T, N>, S...> const &gexpr,
+                   numpy_gexpr<ndarray<Tp, Np> const &, Sp...> const &expr)
+  {
+    return may_overlap_helper<N, Np>(gexpr, expr);
   }
 
   template <class T>
@@ -129,9 +160,9 @@ namespace types
 
   /* helper to build an extended slice aka numpy_gexpr out of a subscript
    */
-  template <size_t C>
+  template <size_t C, bool Final>
   template <class T, size_t N, class... S>
-  auto extended_slice<C>::operator()(ndarray<T, N> &&a, S const &... s)
+  auto extended_slice<C, Final>::operator()(ndarray<T, N> &&a, S const &... s)
       -> decltype(std::declval<ndarray<T, N + C>>()(
           std::declval<typename to_slice<S>::type>()...))
   {
@@ -140,57 +171,16 @@ namespace types
         to_slice<S>{}(s)...);
   }
 
-  template <size_t C>
+  template <size_t C, bool Final>
   template <class T, size_t N, class... S>
-  auto extended_slice<C>::operator()(ndarray<T, N> const &a, S const &... s)
+  auto extended_slice<C, Final>::operator()(ndarray<T, N> const &a,
+                                            S const &... s)
       -> decltype(std::declval<ndarray<T, N + C>>()(
           std::declval<typename to_slice<S>::type>()...))
   {
     return a.reshape(make_reshape<N + C>(
         a.shape(), array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}}))(
         to_slice<S>{}(s)...);
-  }
-
-  template <class T, size_t N, class... S>
-  auto extended_slice<0>::operator()(ndarray<T, N> &&a, long s0, S const &... s)
-      -> decltype(std::declval<numpy_iexpr<ndarray<T, N>>>()(s...))
-  {
-    return std::move(a)[s0](s...);
-  }
-
-  template <class T, size_t N, class... S>
-  auto extended_slice<0>::operator()(ndarray<T, N> const &a, long s0,
-                                     S const &... s) -> decltype(a[s0](s...))
-  {
-    return a[s0](s...);
-  }
-
-  template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N>, slice, S...> extended_slice<0>::
-  operator()(ndarray<T, N> &&a, slice const &s0, S const &... s)
-  {
-    return numpy_gexpr<ndarray<T, N>, slice, S...>(std::move(a), s0, s...);
-  }
-
-  template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N> const &, slice, S...> extended_slice<0>::
-  operator()(ndarray<T, N> const &a, slice const &s0, S const &... s)
-  {
-    return numpy_gexpr<ndarray<T, N> const &, slice, S...>(a, s0, s...);
-  }
-
-  template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N>, contiguous_slice, S...> extended_slice<0>::
-  operator()(ndarray<T, N> &&a, contiguous_slice const &s0, S const &... s)
-  {
-    return make_gexpr(std::move(a), s0, s...);
-  }
-
-  template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N> const &, contiguous_slice, S...> extended_slice<0>::
-  operator()(ndarray<T, N> const &a, contiguous_slice const &s0, S const &... s)
-  {
-    return make_gexpr(a, s0, s...);
   }
 
   /* manually unrolled copy function
@@ -290,12 +280,6 @@ namespace types
               tuple_tail(t0), t1));
     }
 
-    template <class Arg, class... Sp>
-    numpy_gexpr<Arg, Sp...> _make_gexpr(Arg arg, std::tuple<Sp...> const &t)
-    {
-      return {arg, t};
-    }
-
     template <class Arg, class... S>
     numpy_gexpr<Arg, S...> make_gexpr<Arg, S...>::operator()(Arg arg,
                                                              S const &... s)
@@ -307,12 +291,11 @@ namespace types
     template <class Arg, class... S, class... Sp>
     auto make_gexpr<numpy_gexpr<Arg, S...> const &, Sp...>::
     operator()(numpy_gexpr<Arg, S...> const &arg, Sp const &... s) -> decltype(
-        _make_gexpr(std::declval<Arg>(),
-                    merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
-                        std::tuple<S...>(), std::tuple<Sp...>())))
+        std::declval<Arg>()[merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
+            std::tuple<S...>(), std::tuple<Sp...>())])
     {
-      return {arg.arg, merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
-                           arg.slices, std::make_tuple(s...))};
+      return arg.arg[merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
+          arg.slices, std::make_tuple(s...))];
     }
   }
 
@@ -351,9 +334,11 @@ namespace types
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<1>,
                                      utils::int_<J>)
   {
-    auto ns = s.normalize(arg.shape()[sizeof...(S)-1]);
+    auto ns = s.normalize(arg._shape[sizeof...(S)-1]);
     std::get<sizeof...(S)-1>(slices).lower = ns.lower;
     _shape[J] = ns.size();
+    buffer += ns.lower * arg._strides[sizeof...(S)-1];
+    ;
   }
 
   template <class Arg, class... S>
@@ -364,11 +349,12 @@ namespace types
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<I>,
                                      utils::int_<J>)
   {
-    auto ns = s.normalize(arg.shape()[sizeof...(S)-I]);
+    auto ns = s.normalize(arg._shape[sizeof...(S)-I]);
     std::get<sizeof...(S)-I>(slices).lower = ns.lower;
     _shape[J] = ns.size();
     init_shape(std::get<sizeof...(S)-I + 1>(slices), utils::int_<I - 1>(),
                utils::int_<J + 1>());
+    buffer += ns.lower * arg._strides[sizeof...(S)-I];
   }
 
   template <class Arg, class... S>
@@ -377,8 +363,9 @@ namespace types
                                           utils::int_<J>)
   {
     if (cs < 0)
-      cs += arg.shape()[sizeof...(S)-1];
+      cs += arg._shape[sizeof...(S)-1];
     std::get<sizeof...(S)-1>(slices) = cs;
+    buffer += cs * arg._strides[sizeof...(S)-1];
   }
 
   template <class Arg, class... S>
@@ -387,16 +374,17 @@ namespace types
                                           utils::int_<J>)
   {
     if (cs < 0)
-      cs += arg.shape()[sizeof...(S)-I];
+      cs += arg._shape[sizeof...(S)-I];
     std::get<sizeof...(S)-I>(slices) = cs;
     init_shape(std::get<sizeof...(S)-I + 1>(slices), utils::int_<I - 1>(),
                utils::int_<J>());
+    buffer += cs * arg._strides[sizeof...(S)-I];
   }
 
   template <class Arg, class... S>
   numpy_gexpr<Arg, S...>::numpy_gexpr(Arg const &arg,
                                       std::tuple<S const &...> const &values)
-      : arg(arg), slices(values), buffer(arg.buffer)
+      : arg(arg), slices(values), buffer(this->arg.buffer)
   {
     init_shape(std::get<0>(slices), utils::int_<sizeof...(S)>(),
                utils::int_<0>());
@@ -408,24 +396,6 @@ namespace types
   numpy_gexpr<Arg, S...>::numpy_gexpr(Arg const &arg, S const &... s)
       : numpy_gexpr(arg, std::tuple<S const &...>(s...))
   {
-  }
-
-  template <class Arg, class... S>
-  template <class Argp, class... Sp>
-  numpy_gexpr<Arg, S...>::numpy_gexpr(numpy_gexpr<Argp, Sp...> const &expr,
-                                      Arg arg)
-      : arg(arg), slices(tuple_pop(expr.slices)), buffer(arg.buffer)
-  {
-    flat_copy<value>()(&_shape[0], &expr.shape()[1]);
-  }
-
-  template <class Arg, class... S>
-  template <class G>
-  numpy_gexpr<Arg, S...>::numpy_gexpr(G const &expr, Arg &&arg)
-      : arg(std::forward<Arg>(arg)), slices(tuple_pop(expr.slices)),
-        buffer(arg.buffer)
-  {
-    flat_copy<value>()(&_shape[0], &expr.shape()[1]);
   }
 
   template <class Arg, class... S>
@@ -442,9 +412,10 @@ namespace types
      */
     assert(buffer);
     if (may_overlap(*this, expr)) {
+      ndarray<typename E::dtype, E::value> tmp = expr;
       return utils::broadcast_copy<
           numpy_gexpr &, ndarray<typename E::dtype, E::value>, value,
-          value - utils::dim_of<E>::value, is_vectorizable>(*this, expr);
+          value - utils::dim_of<E>::value, is_vectorizable>(*this, tmp);
     } else {
       // 100% sure there's no overlap
       return utils::broadcast_copy < numpy_gexpr &, E, value,
@@ -624,13 +595,8 @@ namespace types
   typename numpy_gexpr<Arg, S...>::const_iterator
   numpy_gexpr<Arg, S...>::begin() const
   {
-    return make_const_nditerator < is_strided ||
-           value !=
-               1 > ()(*this,
-                      (is_strided || value != 1)
-                          ? 0
-                          : (long)std::get<count_leading_long<S...>::value>(
-                                slices).lower);
+    constexpr bool is_flat = is_strided || value != 1;
+    return make_const_nditerator<is_flat>()(*this, 0);
   }
 
   template <class Arg, class... S>
@@ -638,62 +604,34 @@ namespace types
   numpy_gexpr<Arg, S...>::end() const
   {
     return make_const_nditerator < is_strided ||
-           value !=
-               1 > ()(*this,
-                      ((is_strided || value != 1)
-                           ? 0
-                           : (long)std::get<count_leading_long<S...>::value>(
-                                 slices).lower) +
-                          _shape[0]);
+           value != 1 > ()(*this, _shape[0]);
   }
 
   template <class Arg, class... S>
   typename numpy_gexpr<Arg, S...>::iterator numpy_gexpr<Arg, S...>::begin()
   {
-    return make_nditerator < is_strided ||
-           value !=
-               1 > ()(*this,
-                      (is_strided || value != 1)
-                          ? 0
-                          : (long)std::get<count_leading_long<S...>::value>(
-                                slices).lower);
+    constexpr bool is_flat = is_strided || value != 1;
+    return make_nditerator<is_flat>()(*this, 0);
   }
 
   template <class Arg, class... S>
   typename numpy_gexpr<Arg, S...>::iterator numpy_gexpr<Arg, S...>::end()
   {
-    return make_nditerator < is_strided ||
-           value !=
-               1 > ()(*this,
-                      ((is_strided || value != 1)
-                           ? 0
-                           : (long)std::get<count_leading_long<S...>::value>(
-                                 slices).lower) +
-                          _shape[0]);
+    return make_nditerator < is_strided || value != 1 > ()(*this, _shape[0]);
   }
 
   template <class Arg, class... S>
   auto numpy_gexpr<Arg, S...>::fast(long i) const
-      -> decltype(numpy_gexpr_helper<Arg, S...>::get(*this, i))
+      -> decltype(std::declval<Arg>()[typename index_once<S...>::type()])
   {
-    return numpy_gexpr_helper<Arg, S...>::get(
-        *this,
-        std::get<count_leading_long<S...>::value>(slices).lower +
-            (is_contiguous<S...>::value
-                 ? i
-                 : std::get<count_leading_long<S...>::value>(slices).step * i));
+    return arg[index_once<S...>::get(slices, i)];
   }
 
   template <class Arg, class... S>
   auto numpy_gexpr<Arg, S...>::fast(long i)
-      -> decltype(numpy_gexpr_helper<Arg, S...>::get(*this, i))
+      -> decltype(std::declval<Arg>()[typename index_once<S...>::type()])
   {
-    return numpy_gexpr_helper<Arg, S...>::get(
-        *this,
-        std::get<count_leading_long<S...>::value>(slices).lower +
-            (is_contiguous<S...>::value
-                 ? i
-                 : std::get<count_leading_long<S...>::value>(slices).step * i));
+    return arg[index_once<S...>::get(slices, i)];
   }
 
 #ifdef USE_BOOST_SIMD
@@ -768,13 +706,6 @@ namespace types
   }
 
   template <class Arg, class... S>
-  template <class... Sp>
-  auto numpy_gexpr<Arg, S...>::operator()(long i, Sp const &... s) const
-      -> decltype(std::declval<value_type>()(s...))
-  {
-    return (*this)[i](s...);
-  }
-  template <class Arg, class... S>
   template <size_t M>
   auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices) const
       & -> decltype(nget<M - 1>().fast(*this, indices))
@@ -832,156 +763,6 @@ namespace types
   {
     return std::accumulate(_shape.begin() + 1, _shape.end(), *_shape.begin(),
                            std::multiplies<long>());
-  }
-
-  // As gexpr has to begin with a slice. When we access it, we need to forward
-  // the firsts accessed information
-  // to an iexpr until the value in S... is a slice again.
-  template <class Arg, class S0, class S1, class... S>
-  typename numpy_gexpr_helper<Arg, S0, S1, S...>::type
-  numpy_gexpr_helper<Arg, S0, S1, S...>::get(
-      numpy_gexpr<Arg, S0, S1, S...> const &e, long i)
-  {
-    return type(e, numpy_iexpr<Arg const &>(e.arg, i));
-  }
-
-  template <class Arg, class S0, class S1, class... S>
-  typename numpy_gexpr_helper<Arg, S0, S1, S...>::type
-  numpy_gexpr_helper<Arg, S0, S1, S...>::get(numpy_gexpr<Arg, S0, S1, S...> &e,
-                                             long i)
-  {
-    return type(e, numpy_iexpr<Arg const &>(e.arg, i));
-  }
-
-  // Compute forwarding of "long" index to iexpr until we reach a new slice in
-  // S... parameters
-  namespace
-  {
-
-    // We reach a new slice so we have a new gexpr
-    template <size_t N, class Arg, class... S>
-    template <class E, class F>
-    typename finalize_numpy_gexpr_helper<N, Arg, contiguous_slice, S...>::type
-    finalize_numpy_gexpr_helper<N, Arg, contiguous_slice, S...>::get(E const &e,
-                                                                     F &&f)
-    {
-      return {e, std::forward<F>(f)};
-    }
-
-    // We reach a new slice so we have a new gexpr
-    template <size_t N, class Arg, class... S>
-    template <class E, class F>
-    typename finalize_numpy_gexpr_helper<N, Arg, slice, S...>::type
-    finalize_numpy_gexpr_helper<N, Arg, slice, S...>::get(E const &e, F &&f)
-    {
-      return type(e, std::forward<F>(f));
-    }
-
-    // We have a long index so it is ! a gexpr but a iexpr.
-    // We declare a new iexpr && we continue looking for a new slice.
-    template <size_t N, class Arg, class... S>
-    template <class E, class F>
-    auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E const &e, F &&f)
-        -> decltype(finalize_numpy_gexpr_helper<
-            N + 1, numpy_iexpr<Arg const &>,
-            S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
-    {
-      return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
-                                         S...>::get(e,
-                                                    numpy_iexpr<Arg const &>(
-                                                        std::forward<F>(f),
-                                                        std::get<N + 1>(
-                                                            e.slices)));
-    }
-
-    template <size_t N, class Arg, class... S>
-    template <class E, class F>
-    auto finalize_numpy_gexpr_helper<N, Arg, long, S...>::get(E &e, F &&f)
-        -> decltype(finalize_numpy_gexpr_helper<
-            N + 1, numpy_iexpr<Arg const &>,
-            S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
-    {
-      numpy_iexpr<Arg const &> iexpr(std::forward<F>(f),
-                                     std::get<N + 1>(e.slices));
-      return finalize_numpy_gexpr_helper<N + 1, numpy_iexpr<Arg const &>,
-                                         S...>::get(e, iexpr);
-    }
-
-    // If it was a single sliced array, we can return the matching iexpr.
-    template <size_t N, class Arg>
-    template <class E, class F>
-    auto finalize_numpy_gexpr_helper<N, Arg, long>::get(E const &e, F const &f)
-        -> decltype(numpy_iexpr_helper<F, Arg::value>::get(f, 0))
-    {
-      return numpy_iexpr_helper<F, Arg::value>::get(f,
-                                                    std::get<N + 1>(e.slices));
-    }
-
-    template <size_t N, class Arg>
-    template <class E, class F>
-    auto finalize_numpy_gexpr_helper<N, Arg, long>::get(E const &e, F &f)
-        -> decltype(numpy_iexpr_helper<F, Arg::value>::get(f, 0))
-    {
-      return numpy_iexpr_helper<F, Arg::value>::get(f,
-                                                    std::get<N + 1>(e.slices));
-    }
-  }
-
-  // forward new combination of gexpr/iexpr computation to
-  // finalize_numpy_gexpr_helper
-  template <class Arg, class S0, class... S>
-  auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
-      numpy_gexpr<Arg, S0, long, S...> const &e, long i)
-      -> decltype(finalize_numpy_gexpr_helper<
-          0, numpy_iexpr<Arg const &>, long,
-          S...>::get(e, std::declval<numpy_iexpr<Arg const &>>()))
-  {
-    return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
-                                       S...>::get(e,
-                                                  numpy_iexpr<Arg const &>(
-                                                      e.arg, i));
-  }
-
-  template <class Arg, class S0, class... S>
-  auto numpy_gexpr_helper<Arg, S0, long, S...>::get(
-      numpy_gexpr<Arg, S0, long, S...> &e, long i)
-      -> decltype(finalize_numpy_gexpr_helper<
-          0, numpy_iexpr<Arg const &>, long,
-          S...>::get(e, std::declval<numpy_iexpr<Arg const &> &>()))
-  {
-    return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
-                                       S...>::get(e,
-                                                  numpy_iexpr<Arg const &>(
-                                                      e.arg, i));
-  }
-
-  // If we have no more slice later, we can say it is an iexpr (We look only
-  // for one last long? Not many last long?)
-  template <class Arg, class S>
-  auto numpy_gexpr_helper<Arg, S, long>::get(numpy_gexpr<Arg, S, long> const &e,
-                                             long i)
-      -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg const &>,
-                                     numpy_iexpr<Arg const &>::value>::
-                      get(std::declval<numpy_iexpr<Arg const &>>(), 0))
-  {
-    return numpy_iexpr_helper<
-        numpy_iexpr<Arg const &>,
-        numpy_iexpr<Arg const &>::value>::get(numpy_iexpr<Arg const &>(e.arg,
-                                                                       i),
-                                              std::get<1>(e.slices));
-  }
-
-  template <class Arg, class S>
-  auto numpy_gexpr_helper<Arg, S, long>::get(numpy_gexpr<Arg, S, long> &e,
-                                             long i)
-      -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg const &>,
-                                     numpy_iexpr<Arg const &>::value>::
-                      get(std::declval<numpy_iexpr<Arg const &> &>(), 0))
-  {
-    numpy_iexpr<Arg const &> iexpr(e.arg, i);
-    return numpy_iexpr_helper<
-        numpy_iexpr<Arg const &>,
-        numpy_iexpr<Arg const &>::value>::get(iexpr, std::get<1>(e.slices));
   }
 }
 PYTHONIC_NS_END

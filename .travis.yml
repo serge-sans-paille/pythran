@@ -83,6 +83,11 @@ env:
     - MODE=vec TESTCASE=pythran/tests/test_numpy_func3.py
     - MODE=all TESTCASE=pythran/tests/test_numpy_func3.py
 
+    - MODE=seq TESTCASE=pythran/tests/test_numpy_fft.py
+    - MODE=omp TESTCASE=pythran/tests/test_numpy_fft.py
+    - MODE=vec TESTCASE=pythran/tests/test_numpy_fft.py
+    - MODE=all TESTCASE=pythran/tests/test_numpy_fft.py
+
     - TESTCASE=pythran/tests/test_numpy_random.py
 
     - MODE=seq TESTCASE=pythran/tests/test_numpy_ufunc_unary.py

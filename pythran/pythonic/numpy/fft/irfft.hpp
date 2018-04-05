@@ -12,7 +12,7 @@
 #include "pythonic/numpy/swapaxes.hpp"
 #include <string.h>
 #include <math.h>
-
+#include <mutex>
 
 #include <stdio.h>
 #include "pythonic/numpy/fft/fftpack.c"
@@ -24,6 +24,7 @@ namespace numpy
 {
     namespace fft
     {
+        std::mutex mtx_irfft;           // mutex for critical section
         
         // Aux function
         template<class T, size_t N>
@@ -39,19 +40,20 @@ namespace numpy
             types::ndarray<double, N> out_array(out_shape,__builtin__::None);
             
             // Create the twiddle factors. These must be kept from call to call as it's very wasteful to recompute them.
-            // This is from fftpack_litemodule.c
-            static std::map<long, types::ndarray<double, 1>> all_twiddles;
-            if (all_twiddles.find(NFFT) == all_twiddles.end()) {
+            mtx_irfft.lock();
+            static std::map<long, types::ndarray<double, 1>> all_twiddles_irfft;
+            if (all_twiddles_irfft.find(NFFT) == all_twiddles_irfft.end()) {
                 // Insert a new twiddle array into our map and initialize it
-                all_twiddles.insert(std::make_pair(NFFT,types::ndarray<double, 1>({(long)(2*NFFT+15)},__builtin__::None)));
-                npy_rffti(NFFT, (double *)all_twiddles[NFFT].buffer);
+                all_twiddles_irfft.insert(std::make_pair(NFFT,types::ndarray<double, 1>({(long)(2*NFFT+15)},__builtin__::None)));
+                npy_rffti(NFFT, (double *)all_twiddles_irfft[NFFT].buffer);
             }
+            mtx_irfft.unlock();
             
             // Call fft (fftpack.py) r = work_function(in_array, wsave)
             // This is translated from https://raw.githubusercontent.com/numpy/numpy/master/numpy/fft/fftpack_litemodule.c
             
             double* rptr            = (double*) out_array.buffer;
-            double* twiddle_buffer  = (double*) all_twiddles[NFFT].buffer;
+            double* twiddle_buffer  = (double*) all_twiddles_irfft[NFFT].buffer;
             typename T::value_type* dptr =  (typename T::value_type*) in_array.buffer;
             long nrepeats           = out_array.flat_size()/out_size;
             long to_copy            = (NFFT/2+1 <= npts) ? (NFFT-1) : (2*npts-2);

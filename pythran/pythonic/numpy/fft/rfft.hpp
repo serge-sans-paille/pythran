@@ -13,6 +13,7 @@
 #include <string.h>
 #include <math.h>
 #include <vector>
+#include <mutex>
 
 #include <stdio.h>
 #include "pythonic/numpy/fft/fftpack.c"
@@ -24,6 +25,8 @@ namespace numpy
 {
     namespace fft
     {
+        std::mutex mtx_rfft;           // mutex for critical section
+        
         // Aux function
         template<class T, size_t N>
         types::ndarray<std::complex<typename std::common_type<T, double>::type>, N> _rfft(types::ndarray<T, N> const &in_array, long NFFT, bool norm)
@@ -41,22 +44,20 @@ namespace numpy
             
             // Create the twiddle factors. These must be kept from call to call as it's very wasteful to recompute them.
             // This is from fftpack_litemodule.c
-            static std::map<long, types::ndarray<double, 1>> all_twiddles;
-            if (all_twiddles.find(NFFT) == all_twiddles.end()) {
-//                printf("CREATING TWIDDLE FOR %d\n",NFFT);
+            mtx_rfft.lock();
+            static std::map<long, types::ndarray<double, 1>> all_twiddles_rfft;
+            if (all_twiddles_rfft.find(NFFT) == all_twiddles_rfft.end()) {
                 // Insert a new twiddle array into our map and initialize it
-                all_twiddles.insert(std::make_pair(NFFT,types::ndarray<double, 1>({(long)(2*NFFT+15)},__builtin__::None)));
-                npy_rffti(NFFT, (double *)all_twiddles[NFFT].buffer);
+                all_twiddles_rfft.insert(std::make_pair(NFFT,types::ndarray<double, 1>({(long)(2*NFFT+15)},__builtin__::None)));
+                npy_rffti(NFFT, (double *)all_twiddles_rfft[NFFT].buffer);
             }
-            else {
-                //printf("RECALLING TWIDDLE FOR %d\n",NFFT);
-            }
+            mtx_rfft.unlock();
             
             // Call fft (fftpack.py) r = work_function(in_array, wsave)
             // This is translated from https://raw.githubusercontent.com/numpy/numpy/master/numpy/fft/fftpack_litemodule.c
             
             double* rptr            = (double*) out_array.buffer;
-            double* twiddle_buffer  = (double*) all_twiddles[NFFT].buffer;
+            double* twiddle_buffer  = (double*) all_twiddles_rfft[NFFT].buffer;
             long nrepeats           = in_array.flat_size()/npts;
             long to_copy            = (NFFT <= npts) ? NFFT : npts;
             for (i = 0; i < nrepeats; i++) {

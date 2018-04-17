@@ -39,7 +39,7 @@ namespace types
   numpy_iexpr<Arg>::numpy_iexpr(Arg const &arg, long index)
       : buffer(arg.buffer)
   {
-    buffer += buffer_offset(arg.shape(), index, utils::int_<value>());
+    buffer += buffer_offset(arg, index, utils::int_<value>());
   }
 
   template <class Arg>
@@ -392,20 +392,29 @@ namespace types
   }
 
   template <class Arg>
-  long numpy_iexpr<Arg>::buffer_offset(array<long, value + 1> const &shape,
-                                       long index, utils::int_<0>)
+  long numpy_iexpr<Arg>::buffer_offset(Arg const &arg, long index,
+                                       utils::int_<0>)
   {
     return index;
   }
 
   template <class Arg>
-  template <size_t N>
-  long numpy_iexpr<Arg>::buffer_offset(array<long, value + 1> const &shape,
-                                       long index, utils::int_<N>)
+  template <class T, size_t M, size_t N>
+  long numpy_iexpr<Arg>::buffer_offset(ndarray<T, M> const &arg, long index,
+                                       utils::int_<N>)
   {
-    _shape[value - N] = shape[value - N + 1];
-    return buffer_offset(shape, index * shape[value - N + 1],
-                         utils::int_<N - 1>());
+    _shape[value - N] = arg._shape[value - N + 1];
+    buffer_offset(arg, 0, utils::int_<N - 1>());
+    return index * arg._strides[0];
+  }
+
+  template <class Arg>
+  template <class E, size_t N>
+  long numpy_iexpr<Arg>::buffer_offset(E const &arg, long index, utils::int_<N>)
+  {
+    auto tmp = arg.shape()[value - N + 1];
+    _shape[value - N] = tmp;
+    return buffer_offset(arg, index * tmp, utils::int_<N - 1>());
   }
 
   template <class T, size_t N>

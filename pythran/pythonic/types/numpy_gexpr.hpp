@@ -751,9 +751,18 @@ namespace types
   {
     return (*this)[i](s...);
   }
+
   template <class Arg, class... S>
   template <size_t M>
   auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices) const
+      & -> decltype(nget<M - 1>().fast(*this, indices))
+  {
+    return nget<M - 1>().fast(*this, indices);
+  }
+
+  template <class Arg, class... S>
+  template <size_t M>
+  auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices)
       & -> decltype(nget<M - 1>().fast(*this, indices))
   {
     return nget<M - 1>().fast(*this, indices);

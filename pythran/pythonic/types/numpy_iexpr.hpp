@@ -41,6 +41,12 @@ namespace types
   {
     buffer += buffer_offset(arg, index, utils::int_<value>());
   }
+  template <class Arg>
+  numpy_iexpr<Arg>::numpy_iexpr(Arg const &arg, long index, dtype *b)
+      : buffer(b)
+  {
+    buffer += buffer_offset(arg, index, utils::int_<value>());
+  }
 
   template <class Arg>
   long numpy_iexpr<Arg>::size() const

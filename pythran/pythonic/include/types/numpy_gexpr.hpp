@@ -387,6 +387,12 @@ namespace types
     {
       return _shape;
     }
+    long buffer_offset(long n) const
+    {
+      auto tmp = arg.shape();
+      return std::accumulate(tmp.begin() + 1, tmp.end(), n,
+                             std::multiplies<long>());
+    }
 
     numpy_gexpr();
     numpy_gexpr(numpy_gexpr const &) = default;
@@ -577,6 +583,7 @@ namespace types
     auto operator[](long i) -> decltype(this->fast(i));
 
     long flat_size() const;
+    long size() const;
   };
 
   // As gexpr has to begin with a slice. When we access it, we need to forward

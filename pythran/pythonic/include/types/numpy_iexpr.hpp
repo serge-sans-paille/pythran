@@ -59,6 +59,7 @@ namespace types
     numpy_iexpr(numpy_iexpr<Argp> const &other);
 
     numpy_iexpr(Arg const &arg, long index);
+    numpy_iexpr(Arg const &arg, long index, dtype *b);
 
     long size() const;
 

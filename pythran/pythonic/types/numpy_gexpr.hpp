@@ -400,8 +400,8 @@ namespace types
   {
     init_shape(std::get<0>(slices), utils::int_<sizeof...(S)>(),
                utils::int_<0>());
-    buffer +=
-        buffer_offset(std::get<count_leading_long<S...>::value>(slices).lower);
+    buffer += buffer_offset(
+        arg, std::get<count_leading_long<S...>::value>(slices).lower);
     for (size_t i = sizeof...(S)-count_long<S...>::value; i < value; ++i)
       _shape[i] = arg.shape()[i + count_long<S...>::value];
   }
@@ -418,8 +418,8 @@ namespace types
                                       Arg arg)
       : arg(arg), slices(tuple_pop(expr.slices)), buffer(arg.buffer)
   {
-    buffer +=
-        buffer_offset(std::get<count_leading_long<S...>::value>(slices).lower);
+    buffer += buffer_offset(
+        arg, std::get<count_leading_long<S...>::value>(slices).lower);
     flat_copy<value>()(&_shape[0], &expr.shape()[1]);
   }
 
@@ -429,8 +429,8 @@ namespace types
       : arg(std::forward<Arg>(arg)), slices(tuple_pop(expr.slices)),
         buffer(arg.buffer)
   {
-    buffer +=
-        buffer_offset(std::get<count_leading_long<S...>::value>(slices).lower);
+    buffer += buffer_offset(
+        arg, std::get<count_leading_long<S...>::value>(slices).lower);
     flat_copy<value>()(&_shape[0], &expr.shape()[1]);
   }
 

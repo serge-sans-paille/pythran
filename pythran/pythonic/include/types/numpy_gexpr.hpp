@@ -387,11 +387,17 @@ namespace types
     {
       return _shape;
     }
-    long buffer_offset(long n) const
+    template <class E>
+    long buffer_offset(E const &e, long n) const
     {
-      auto tmp = arg.shape();
+      auto tmp = e.shape();
       return std::accumulate(tmp.begin() + 1, tmp.end(), n,
                              std::multiplies<long>());
+    }
+    template <class T, size_t N>
+    long buffer_offset(ndarray<T, N> const &e, long n) const
+    {
+      return n * e._strides[0];
     }
 
     numpy_gexpr();

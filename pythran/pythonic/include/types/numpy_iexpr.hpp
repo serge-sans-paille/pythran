@@ -59,6 +59,7 @@ namespace types
     numpy_iexpr(numpy_iexpr<Argp> const &other);
 
     numpy_iexpr(Arg const &arg, long index);
+    numpy_iexpr(Arg const &arg, long index, dtype *b);
 
     long size() const;
 
@@ -223,12 +224,13 @@ namespace types
      * This used to be a plain loop, but g++ fails to unroll it, while it
      * unrolls it with the template version...
      */
-    long buffer_offset(array<long, value + 1> const &shape, long index,
-                       utils::int_<0>);
+    long buffer_offset(Arg const &shape, long index, utils::int_<0>);
 
-    template <size_t N>
-    long buffer_offset(array<long, value + 1> const &shape, long index,
-                       utils::int_<N>);
+    template <class T, size_t M, size_t N>
+    long buffer_offset(ndarray<T, M> const &arg, long index, utils::int_<N>);
+
+    template <class E, size_t N>
+    long buffer_offset(E const &arg, long index, utils::int_<N>);
   };
 
   // Indexing an numpy_iexpr that has a dimension greater than one yields a

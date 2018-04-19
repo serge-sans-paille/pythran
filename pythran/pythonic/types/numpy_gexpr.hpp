@@ -400,6 +400,8 @@ namespace types
   {
     init_shape(std::get<0>(slices), utils::int_<sizeof...(S)>(),
                utils::int_<0>());
+    buffer += buffer_offset(
+        arg, std::get<count_leading_long<S...>::value>(slices).lower);
     for (size_t i = sizeof...(S)-count_long<S...>::value; i < value; ++i)
       _shape[i] = arg.shape()[i + count_long<S...>::value];
   }
@@ -416,6 +418,8 @@ namespace types
                                       Arg arg)
       : arg(arg), slices(tuple_pop(expr.slices)), buffer(arg.buffer)
   {
+    buffer += buffer_offset(
+        arg, std::get<count_leading_long<S...>::value>(slices).lower);
     flat_copy<value>()(&_shape[0], &expr.shape()[1]);
   }
 
@@ -425,6 +429,8 @@ namespace types
       : arg(std::forward<Arg>(arg)), slices(tuple_pop(expr.slices)),
         buffer(arg.buffer)
   {
+    buffer += buffer_offset(
+        arg, std::get<count_leading_long<S...>::value>(slices).lower);
     flat_copy<value>()(&_shape[0], &expr.shape()[1]);
   }
 
@@ -624,52 +630,26 @@ namespace types
   typename numpy_gexpr<Arg, S...>::const_iterator
   numpy_gexpr<Arg, S...>::begin() const
   {
-    return make_const_nditerator < is_strided ||
-           value !=
-               1 > ()(*this,
-                      (is_strided || value != 1)
-                          ? 0
-                          : (long)std::get<count_leading_long<S...>::value>(
-                                slices).lower);
+    return make_const_nditerator < is_strided || value != 1 > ()(*this, 0);
   }
 
   template <class Arg, class... S>
   typename numpy_gexpr<Arg, S...>::const_iterator
   numpy_gexpr<Arg, S...>::end() const
   {
-    return make_const_nditerator < is_strided ||
-           value !=
-               1 > ()(*this,
-                      ((is_strided || value != 1)
-                           ? 0
-                           : (long)std::get<count_leading_long<S...>::value>(
-                                 slices).lower) +
-                          _shape[0]);
+    return make_const_nditerator < is_strided || value != 1 > ()(*this, size());
   }
 
   template <class Arg, class... S>
   typename numpy_gexpr<Arg, S...>::iterator numpy_gexpr<Arg, S...>::begin()
   {
-    return make_nditerator < is_strided ||
-           value !=
-               1 > ()(*this,
-                      (is_strided || value != 1)
-                          ? 0
-                          : (long)std::get<count_leading_long<S...>::value>(
-                                slices).lower);
+    return make_nditerator < is_strided || value != 1 > ()(*this, 0);
   }
 
   template <class Arg, class... S>
   typename numpy_gexpr<Arg, S...>::iterator numpy_gexpr<Arg, S...>::end()
   {
-    return make_nditerator < is_strided ||
-           value !=
-               1 > ()(*this,
-                      ((is_strided || value != 1)
-                           ? 0
-                           : (long)std::get<count_leading_long<S...>::value>(
-                                 slices).lower) +
-                          _shape[0]);
+    return make_nditerator < is_strided || value != 1 > ()(*this, size());
   }
 
   template <class Arg, class... S>
@@ -678,10 +658,9 @@ namespace types
   {
     return numpy_gexpr_helper<Arg, S...>::get(
         *this,
-        std::get<count_leading_long<S...>::value>(slices).lower +
-            (is_contiguous<S...>::value
-                 ? i
-                 : std::get<count_leading_long<S...>::value>(slices).step * i));
+        (is_contiguous<S...>::value
+             ? i
+             : std::get<count_leading_long<S...>::value>(slices).step * i));
   }
 
   template <class Arg, class... S>
@@ -690,10 +669,9 @@ namespace types
   {
     return numpy_gexpr_helper<Arg, S...>::get(
         *this,
-        std::get<count_leading_long<S...>::value>(slices).lower +
-            (is_contiguous<S...>::value
-                 ? i
-                 : std::get<count_leading_long<S...>::value>(slices).step * i));
+        (is_contiguous<S...>::value
+             ? i
+             : std::get<count_leading_long<S...>::value>(slices).step * i));
   }
 
 #ifdef USE_BOOST_SIMD
@@ -702,7 +680,7 @@ namespace types
   typename numpy_gexpr<Arg, S...>::simd_iterator
       numpy_gexpr<Arg, S...>::vbegin(vectorizer) const
   {
-    return {buffer + std::get<count_leading_long<S...>::value>(slices).lower};
+    return {buffer};
   }
 
   template <class Arg, class... S>
@@ -712,8 +690,7 @@ namespace types
   {
     using vector_type = typename boost::simd::pack<dtype>;
     static const std::size_t vector_size = vector_type::static_size;
-    return {buffer + std::get<count_leading_long<S...>::value>(slices).lower +
-            long(_shape[0] / vector_size * vector_size)};
+    return {buffer + long(size() / vector_size * vector_size)};
   }
 
 #endif
@@ -833,6 +810,11 @@ namespace types
     return std::accumulate(_shape.begin() + 1, _shape.end(), *_shape.begin(),
                            std::multiplies<long>());
   }
+  template <class Arg, class... S>
+  long numpy_gexpr<Arg, S...>::size() const
+  {
+    return _shape[0];
+  }
 
   // As gexpr has to begin with a slice. When we access it, we need to forward
   // the firsts accessed information
@@ -842,7 +824,7 @@ namespace types
   numpy_gexpr_helper<Arg, S0, S1, S...>::get(
       numpy_gexpr<Arg, S0, S1, S...> const &e, long i)
   {
-    return type(e, numpy_iexpr<Arg const &>(e.arg, i));
+    return type(e, numpy_iexpr<Arg const &>(e.arg, i, e.buffer));
   }
 
   template <class Arg, class S0, class S1, class... S>
@@ -850,7 +832,7 @@ namespace types
   numpy_gexpr_helper<Arg, S0, S1, S...>::get(numpy_gexpr<Arg, S0, S1, S...> &e,
                                              long i)
   {
-    return type(e, numpy_iexpr<Arg const &>(e.arg, i));
+    return type(e, numpy_iexpr<Arg const &>(e.arg, i, e.buffer));
   }
 
   // Compute forwarding of "long" index to iexpr until we reach a new slice in
@@ -939,7 +921,7 @@ namespace types
     return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
                                        S...>::get(e,
                                                   numpy_iexpr<Arg const &>(
-                                                      e.arg, i));
+                                                      e.arg, i, e.buffer));
   }
 
   template <class Arg, class S0, class... S>
@@ -952,7 +934,7 @@ namespace types
     return finalize_numpy_gexpr_helper<0, numpy_iexpr<Arg const &>, long,
                                        S...>::get(e,
                                                   numpy_iexpr<Arg const &>(
-                                                      e.arg, i));
+                                                      e.arg, i, e.buffer));
   }
 
   // If we have no more slice later, we can say it is an iexpr (We look only
@@ -964,11 +946,10 @@ namespace types
                                      numpy_iexpr<Arg const &>::value>::
                       get(std::declval<numpy_iexpr<Arg const &>>(), 0))
   {
-    return numpy_iexpr_helper<
-        numpy_iexpr<Arg const &>,
-        numpy_iexpr<Arg const &>::value>::get(numpy_iexpr<Arg const &>(e.arg,
-                                                                       i),
-                                              std::get<1>(e.slices));
+    return numpy_iexpr_helper<numpy_iexpr<Arg const &>,
+                              numpy_iexpr<Arg const &>::value>::
+        get(numpy_iexpr<Arg const &>(e.arg, i, e.buffer),
+            std::get<1>(e.slices));
   }
 
   template <class Arg, class S>
@@ -978,7 +959,7 @@ namespace types
                                      numpy_iexpr<Arg const &>::value>::
                       get(std::declval<numpy_iexpr<Arg const &> &>(), 0))
   {
-    numpy_iexpr<Arg const &> iexpr(e.arg, i);
+    numpy_iexpr<Arg const &> iexpr(e.arg, i, e.buffer);
     return numpy_iexpr_helper<
         numpy_iexpr<Arg const &>,
         numpy_iexpr<Arg const &>::value>::get(iexpr, std::get<1>(e.slices));

@@ -387,6 +387,23 @@ namespace types
     {
       return _shape;
     }
+    template <class E>
+    long buffer_offset(E const &e, long n) const
+    {
+      auto tmp = e.shape();
+      return std::accumulate(tmp.begin() + 1, tmp.end(), n,
+                             std::multiplies<long>());
+    }
+    template <class T, size_t N>
+    long buffer_offset(ndarray<T, N> const &e, long n) const
+    {
+      return n * e._strides[0];
+    }
+    template <class T>
+    long buffer_offset(ndarray<T, 1> const &e, long n) const
+    {
+      return n;
+    }
 
     numpy_gexpr();
     numpy_gexpr(numpy_gexpr const &) = default;
@@ -577,6 +594,7 @@ namespace types
     auto operator[](long i) -> decltype(this->fast(i));
 
     long flat_size() const;
+    long size() const;
   };
 
   // As gexpr has to begin with a slice. When we access it, we need to forward

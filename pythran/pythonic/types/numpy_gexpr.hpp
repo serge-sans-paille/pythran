@@ -810,6 +810,7 @@ namespace types
     return std::accumulate(_shape.begin() + 1, _shape.end(), *_shape.begin(),
                            std::multiplies<long>());
   }
+
   template <class Arg, class... S>
   long numpy_gexpr<Arg, S...>::size() const
   {

@@ -399,6 +399,11 @@ namespace types
     {
       return n * e._strides[0];
     }
+    template <class T>
+    long buffer_offset(ndarray<T, 1> const &e, long n) const
+    {
+      return n;
+    }
 
     numpy_gexpr();
     numpy_gexpr(numpy_gexpr const &) = default;

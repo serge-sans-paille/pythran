@@ -8,9 +8,6 @@ namespace types
   template <class T, size_t N>
   class ndarray;
 
-  template <class A>
-  class numpy_iexpr;
-
   template <class A, class F>
   class numpy_fexpr;
 
@@ -63,11 +60,6 @@ namespace types
 
   template <class T, size_t N>
   struct is_array<ndarray<T, N>> {
-    static constexpr bool value = true;
-  };
-
-  template <class A>
-  struct is_array<numpy_iexpr<A>> {
     static constexpr bool value = true;
   };
 

@@ -3,6 +3,8 @@
 
 #include "pythonic/include/types/nditerator.hpp"
 
+#include <numeric>
+
 PYTHONIC_NS_BEGIN
 
 namespace types

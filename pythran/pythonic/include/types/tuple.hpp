@@ -78,21 +78,6 @@ namespace types
   template <class S, class... Stail>
   std::tuple<Stail...> tuple_tail(std::tuple<S, Stail...> const &t);
 
-  template <class... S>
-  struct count_trailing_long : std::integral_constant<size_t, 0> {
-  };
-
-  template <class... S>
-  struct count_trailing_long<long, S...>
-      : std::integral_constant<size_t, 1 + count_trailing_long<S...>::value> {
-  };
-
-  template <class S, class... Stail>
-  auto tuple_pop(std::tuple<S, Stail...> const &t)
-      -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(
-          t, utils::make_index_sequence<
-                 sizeof...(Stail)-count_trailing_long<Stail...>::value>{}));
-
   template <class A, size_t... I, class... Types>
   std::tuple<Types...> array_to_tuple(A const &a, utils::index_sequence<I...>,
                                       utils::type_sequence<Types...>)

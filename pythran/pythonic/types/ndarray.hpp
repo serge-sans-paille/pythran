@@ -37,7 +37,6 @@
 #include "pythonic/types/numpy_fexpr.hpp"
 #include "pythonic/types/numpy_expr.hpp"
 #include "pythonic/types/numpy_texpr.hpp"
-#include "pythonic/types/numpy_iexpr.hpp"
 #include "pythonic/types/numpy_gexpr.hpp"
 #include "pythonic/types/numpy_vexpr.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
@@ -97,7 +96,7 @@ namespace types
   }
 
   template <class T, size_t N>
-  numpy_iexpr<ndarray<T, N>>
+  numpy_gexpr<ndarray<T, N>, long>
   type_helper<ndarray<T, N>>::get(ndarray<T, N> &&self, long i)
   {
     return {std::move(self), i};
@@ -139,10 +138,10 @@ namespace types
   }
 
   template <class T, size_t N>
-  numpy_iexpr<ndarray<T, N> const &>
+  numpy_gexpr<ndarray<T, N> const &, long>
   type_helper<ndarray<T, N> const &>::get(ndarray<T, N> const &self, long i)
   {
-    return numpy_iexpr<ndarray<T, N> const &>(self, i);
+    return {self, i};
   }
 
   template <class T, size_t N>
@@ -395,15 +394,6 @@ namespace types
   }
 
   template <class T, size_t N>
-  template <class Arg>
-  ndarray<T, N>::ndarray(numpy_iexpr<Arg> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
-  {
-    initialize_from_expr(expr);
-  }
-
-  template <class T, size_t N>
   template <class Arg, class F>
   ndarray<T, N>::ndarray(numpy_fexpr<Arg, F> const &expr)
       : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
@@ -544,26 +534,6 @@ namespace types
     return nget<M - 1>()(std::move(*this), indices);
   }
 
-  template <class T, size_t N>
-  template <class Ty0, class Ty1, class... Tys>
-  auto ndarray<T, N>::
-  operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
-      typename std::enable_if<!std::is_same<Ty0, long>::value &&
-                                  !is_numexpr_arg<Ty0>::value,
-                              decltype((*this)[to_array<long>(indices)])>::type
-  {
-    return (*this)[to_array<long>(indices)];
-  }
-
-  template <class T, size_t N>
-  template <class Ty, class... Tys>
-  auto ndarray<T, N>::
-  operator[](std::tuple<long, Ty, Tys...> const &indices) const
-      -> decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])
-  {
-    return (*this)[std::get<0>(indices)][tuple_tail(indices)];
-  }
-
 #ifdef USE_BOOST_SIMD
   template <class T, size_t N>
   template <class vectorizer>
@@ -623,20 +593,24 @@ namespace types
   template <class T, size_t N>
   template <class S0, class... S>
   auto ndarray<T, N>::operator()(S0 const &s0, S const &... s) const
-      & -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}((*this),
-                                                                      s0, s...))
+      & -> decltype(extended_slice<count_new_axis<S0, S...>::value,
+                                   sizeof...(S) + 1 == value>{}((*this), s0,
+                                                                s...))
   {
-    return extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...);
+    return extended_slice<count_new_axis<S0, S...>::value,
+                          sizeof...(S) + 1 == value>{}((*this), s0, s...);
   }
 
   template <class T, size_t N>
       template <class S0, class... S>
       auto ndarray<T, N>::operator()(S0 const &s0, S const &... s) &&
-      -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}(
-          std::move(*this), s0, s...))
+      -> decltype(extended_slice<count_new_axis<S0, S...>::value,
+                                 sizeof...(S) + 1 == value>{}(std::move(*this),
+                                                              s0, s...))
   {
-    return extended_slice<count_new_axis<S0, S...>::value>{}(std::move(*this),
-                                                             s0, s...);
+    return extended_slice<count_new_axis<S0, S...>::value,
+                          sizeof...(S) + 1 == value>{}(std::move(*this), s0,
+                                                       s...);
   }
 
   /* element filtering */
@@ -1113,13 +1087,6 @@ namespace __builtin__
   }
 
   template <int I, class A>
-  auto getattr(types::numpy_iexpr<A> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_iexpr<A>>()(f))
-  {
-    return types::__ndarray::getattr<I, types::numpy_iexpr<A>>()(f);
-  }
-
-  template <int I, class A>
   auto getattr(types::numpy_texpr<A> const &f)
       -> decltype(types::__ndarray::getattr<I, types::numpy_texpr<A>>()(f))
   {
@@ -1318,14 +1285,6 @@ to_python<types::ndarray<T, N>>::convert(types::ndarray<T, N> const &cn,
     else
       return result;
   }
-}
-
-template <class Arg>
-PyObject *
-to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v)
-{
-  return ::to_python(types::ndarray<typename types::numpy_iexpr<Arg>::dtype,
-                                    types::numpy_iexpr<Arg>::value>(v));
 }
 
 template <class Arg, class... S>

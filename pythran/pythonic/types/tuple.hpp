@@ -77,17 +77,6 @@ namespace types
                               utils::make_index_sequence<sizeof...(Stail)>{});
   }
 
-  template <class S, class... Stail>
-  auto tuple_pop(std::tuple<S, Stail...> const &t)
-      -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(
-          t, utils::make_index_sequence<
-                 sizeof...(Stail)-count_trailing_long<Stail...>::value>{}))
-  {
-    return make_tuple_tail<count_trailing_long<Stail...>::value>(
-        t, utils::make_index_sequence<sizeof...(
-               Stail)-count_trailing_long<Stail...>::value>{});
-  }
-
   template <class T, size_t N, class A, size_t... I>
   array<T, N> array_to_array(A const &a, utils::index_sequence<I...>)
   {

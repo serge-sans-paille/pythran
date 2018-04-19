@@ -22,7 +22,34 @@ namespace numpy
   }
   namespace
   {
-    template <class T, unsigned long N, class... C>
+    template <class T, size_t N, class O, class Indices, class S, class Perm>
+    O const *_transpose(types::ndarray<T, N> &expr, O const *iter,
+                        Indices &indices, S const &shape, Perm const &perm,
+                        utils::int_<N - 1>)
+    {
+      for (long i = 0, n = shape[N - 1]; i < n; ++i) {
+        indices[perm[N - 1]] = i;
+        expr.fast(indices) = *iter++;
+      }
+      indices[perm[N - 1]] = 0;
+      return iter;
+    }
+
+    template <class T, size_t N, class O, class Indices, class S, class Perm,
+              size_t I>
+    typename std::enable_if<N - 1 != I, O const *>::type
+    _transpose(types::ndarray<T, N> &expr, O const *iter, Indices &indices,
+               S const &shape, Perm const &perm, utils::int_<I>)
+    {
+      for (long i = 0, n = shape[I]; i < n; ++i) {
+        indices[perm[I]] = i;
+        iter =
+            _transpose(expr, iter, indices, shape, perm, utils::int_<I + 1>());
+      }
+      indices[perm[I]] = 0;
+      return iter;
+    }
+    template <class T, unsigned long N>
     types::ndarray<T, N> _transpose(types::ndarray<T, N> const &a,
                                     long const l[N])
     {
@@ -31,26 +58,15 @@ namespace numpy
       for (unsigned long i = 0; i < N; ++i)
         shp[i] = shape[l[i]];
 
+      types::array<long, N> perm;
+      for (long i = 0; i < N; ++i)
+        perm[l[i]] = i;
+
       types::ndarray<T, N> new_array(shp, __builtin__::None);
 
-      types::array<long, N> new_strides;
-      new_strides[N - 1] = 1;
-      std::transform(new_strides.rbegin(), new_strides.rend() - 1, shp.rbegin(),
-                     new_strides.rbegin() + 1, std::multiplies<long>());
-
-      types::array<long, N> old_strides;
-      old_strides[N - 1] = 1;
-      std::transform(old_strides.rbegin(), old_strides.rend() - 1,
-                     shape.rbegin(), old_strides.rbegin() + 1,
-                     std::multiplies<long>());
-
-      auto iter = a.buffer, iter_end = a.buffer + a.flat_size();
-      for (long i = 0; iter != iter_end; ++iter, ++i) {
-        long offset = 0;
-        for (unsigned long s = 0; s < N; s++)
-          offset += ((i / old_strides[l[s]]) % shape[l[s]]) * new_strides[s];
-        new_array.buffer[offset] = *iter;
-      }
+      auto const *iter = a.buffer;
+      types::array<long, N> indices;
+      _transpose(new_array, iter, indices, shape, perm, utils::int_<0>{});
 
       return new_array;
     }

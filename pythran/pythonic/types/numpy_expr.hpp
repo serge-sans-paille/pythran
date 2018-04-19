@@ -14,18 +14,50 @@ namespace types
   namespace details
   {
 
-    template <size_t value, class... Args>
-    array<long, value> init_shape(Args const &... args)
+    template <size_t value, class Args, size_t N, size_t... Is>
+    struct all_valid_indices;
+
+    template <size_t value, class Args, size_t... Is>
+    struct all_valid_indices<value, Args, 0, Is...> {
+      using type = utils::index_sequence<Is...>;
+    };
+    template <size_t value, class Args, size_t N, size_t... Is>
+    struct all_valid_indices
+        : std::conditional<(value <=
+                            std::remove_reference<typename std::tuple_element<
+                                N - 1, Args>::type>::type::value),
+                           all_valid_indices<value, Args, N - 1, Is..., N - 1>,
+                           all_valid_indices<value, Args, N - 1, Is...>>::type {
+    };
+
+    template <size_t value, class Args>
+    using valid_indices =
+        typename all_valid_indices<value, Args,
+                                   std::tuple_size<Args>::value>::type;
+
+    template <class V>
+    long max_of(V v)
+    {
+      return v;
+    }
+    template <class V0, class V1, class... Vs>
+    long max_of(V0 v0, V1 v1, Vs... vs)
+    {
+      return std::max((long)v0, max_of(v1, vs...));
+    }
+
+    template <size_t value, class Args, size_t... Is>
+    long init_shape(long i, Args const &args, utils::index_sequence<Is...>)
+    {
+      return max_of(std::get<Is>(args).shape()[i]...);
+    }
+
+    template <size_t value, class Args>
+    array<long, value> init_shape(Args const &args)
     {
       array<long, value> shape;
       for (size_t i = 0; i < value; ++i) {
-        long max = 0;
-        std::initializer_list<long> _{
-            (value <= std::remove_reference<Args>::type::value &&
-                     args.shape()[i] > max
-                 ? max = args.shape()[i]
-                 : max)...};
-        shape[i] = max;
+        shape[i] = init_shape<value>(i, args, valid_indices<value, Args>{});
       }
       return shape;
     }
@@ -33,7 +65,7 @@ namespace types
 
   template <class Op, class... Args>
   numpy_expr<Op, Args...>::numpy_expr(Args const &... args)
-      : args(args...), _shape(details::init_shape<value>(args...))
+      : args(args...), _shape(details::init_shape<value>(this->args))
   {
   }
 

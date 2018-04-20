@@ -9,6 +9,7 @@
 
 #include "pythonic/include/types/vectorizable_type.hpp"
 #include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/types/slice.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -94,6 +95,14 @@ namespace types
     }
 
     T const &operator[](long i) const;
+    auto operator[](slice s) const -> broadcasted<decltype(ref[s])>
+    {
+      return {ref[s]};
+    }
+    auto operator[](contiguous_slice s) const -> broadcasted<decltype(ref[s])>
+    {
+      return {ref[s]};
+    }
     T const &fast(long i) const;
 #ifdef USE_BOOST_SIMD
     using simd_iterator = const_simd_nditerator_nostep<broadcasted>;
@@ -233,6 +242,14 @@ namespace types
     broadcast(V v);
 
     dtype operator[](long) const;
+    broadcast operator[](slice) const
+    {
+      return *this;
+    }
+    broadcast operator[](contiguous_slice) const
+    {
+      return *this;
+    }
     dtype fast(long) const;
     template <class I>
     auto load(I i) const -> decltype(this->_base.load(i));

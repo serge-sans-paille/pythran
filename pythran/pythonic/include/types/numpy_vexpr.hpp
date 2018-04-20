@@ -74,6 +74,20 @@ namespace types
     template <class... S>
     auto operator()(S const &... slices) const
         -> decltype(ndarray<dtype, value>{*this}(slices...));
+
+    auto operator[](long i) const -> decltype(data_[i])
+    {
+      return data_.fast(view_[i]);
+    }
+    numpy_gexpr<numpy_vexpr, slice> operator[](slice s) const
+    {
+      return {*this, s};
+    }
+    numpy_gexpr<numpy_vexpr, contiguous_slice>
+    operator[](contiguous_slice s) const
+    {
+      return {*this, s};
+    }
   };
 }
 

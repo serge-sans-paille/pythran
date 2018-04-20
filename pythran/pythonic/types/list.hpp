@@ -166,6 +166,27 @@ namespace types
   {
     return l * n;
   }
+#ifdef USE_BOOST_SIMD
+  template <class T, class S>
+  template <class vectorizer>
+  typename sliced_list<T, S>::simd_iterator
+      sliced_list<T, S>::vbegin(vectorizer) const
+  {
+    return {data->data() + slicing.lower};
+  }
+
+  template <class T, class S>
+  template <class vectorizer>
+  typename sliced_list<T, S>::simd_iterator
+      sliced_list<T, S>::vend(vectorizer) const
+  {
+    using vector_type = typename boost::simd::pack<dtype>;
+    static const std::size_t vector_size = vector_type::static_size;
+    return {data->data() + slicing.lower +
+            long(size() / vector_size * vector_size)};
+  }
+
+#endif
 
   /// List
 
@@ -661,17 +682,6 @@ namespace types
   std::ostream &operator<<(std::ostream &os, empty_list const &)
   {
     return os << "[]";
-  }
-
-  // declared here && ! in list to avoid dependency hell
-  template <class T, size_t N>
-  list<T> array<T, N>::operator[](types::slice const &s)
-  {
-    types::slice norm = s.normalize(size());
-    list<T> out(norm.size());
-    for (long i = 0; i < out.size(); i++)
-      out[i] = buffer[norm.get(i)];
-    return out;
   }
 }
 

@@ -30,6 +30,10 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('__builtin__', 'dict'))
         self.generic_visit(node)
 
+    def visit_Slice(self, node):
+        self.result.add(('types', 'slice'))
+        self.generic_visit(node)
+
     def visit_Str(self, node):
         self.result.add(('types', 'str'))
 

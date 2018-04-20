@@ -3812,6 +3812,12 @@ MODULES = {
         "radians": ConstFunctionIntr(
             signature=_numpy_float_unary_op_float_signature
         ),
+        "fft": {
+            "rfft": FunctionIntr(args=(),
+                                  global_effects=True),
+            "irfft": FunctionIntr(args=(),
+                                  global_effects=True),
+        },
         "random": {
             "binomial": FunctionIntr(args=('n', 'p', 'size'),
                                      global_effects=True),

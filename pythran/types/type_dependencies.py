@@ -252,21 +252,42 @@ class TypeDependencies(ModuleAnalysis):
         Compute correct dependencies on a value as both branch are possible
         path.
         """
-        naming = {k: list(v) for k, v in self.naming.items()}
-        for expr in node1:
-            self.visit(expr)
 
-        self.naming, naming = naming, self.naming
-        for expr in node2:
-            self.visit(expr)
+        true_naming = false_naming = None
 
-        for k, v in naming.items():
-            if k not in self.naming:
-                self.naming[k] = v
-            else:
-                for dep in v:
-                    if dep not in self.naming[k]:
-                        self.naming[k].append(dep)
+        try:
+            tmp = self.naming.copy()
+            for expr in node1:
+                self.visit(expr)
+            true_naming = self.naming
+            self.naming = tmp
+        except KeyError:
+            pass
+
+        try:
+            tmp = self.naming.copy()
+            for expr in node2:
+                self.visit(expr)
+            false_naming = self.naming
+            self.naming = tmp
+        except KeyError:
+            pass
+
+        if true_naming and not false_naming:
+            self.naming = true_naming
+
+        elif false_naming and not true_naming:
+            self.naming = false_naming
+
+        elif true_naming and false_naming:
+            self.naming = false_naming
+            for k, v in true_naming.items():
+                if k not in self.naming:
+                    self.naming[k] = v
+                else:
+                    for dep in v:
+                        if dep not in self.naming[k]:
+                            self.naming[k].append(dep)
 
     def visit_FunctionDef(self, node):
         """
@@ -275,7 +296,7 @@ class TypeDependencies(ModuleAnalysis):
         We compute variable to call dependencies and add edges when returns
         are reach.
         """
-        # Insure there are no nested functions.
+        # Ensure there are no nested functions.
         assert self.current_function is None
         self.current_function = node
         self.naming = dict()

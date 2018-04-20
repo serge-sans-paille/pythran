@@ -655,11 +655,9 @@ class Aliases(ModuleAnalysis):
 
         self.add(node.target, target_aliases)
         self.aliases[node.target.id] = self.result[node.target]
-        # Error may come from false branch evaluation so we have to try again
-        try:
-            self.generic_visit(node)
-        except PythranSyntaxError:
-            self.generic_visit(node)
+
+        self.generic_visit(node)
+        self.generic_visit(node)
 
     def visit_While(self, node):
         '''
@@ -678,11 +676,7 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse(fun)
         >>> result = pm.gather(Aliases, module)
         '''
-        # Error may come from false branch evaluation so we have to try again
-        try:
-            self.generic_visit(node)
-        except PythranSyntaxError:
-            self.generic_visit(node)
+        self.generic_visit(node)
         self.generic_visit(node)
 
     def visit_If(self, node):
@@ -705,28 +699,54 @@ class Aliases(ModuleAnalysis):
 
         md.visit(self, node)
         self.visit(node.test)
-        false_aliases = self.aliases.copy()
-        try:  # first try the true branch
+        true_aliases = false_aliases = None
+
+        # first try the true branch
+        try:
+            tmp = self.aliases.copy()
             for stmt in node.body:
                 self.visit(stmt)
-            true_aliases, self.aliases = self.aliases, false_aliases
-        except PythranSyntaxError:  # it failed, try the false branch
+            true_aliases = self.aliases
+            self.aliases = tmp
+        except PythranSyntaxError:
+            pass
+
+        # then try the false branch
+        try:
             for stmt in node.orelse:
                 self.visit(stmt)
-            raise  # but still throw the exception, maybe we are in a For
-        try:  # then try the false branch
-            for stmt in node.orelse:
-                self.visit(stmt)
-        except PythranSyntaxError:  # it failed
-            # we still get some info from the true branch, validate them
+            false_aliases = self.aliases
+        except PythranSyntaxError:
+            pass
+
+        if true_aliases and not false_aliases:
             self.aliases = true_aliases
-            raise  # and let other visit_ handle the issue
-        for k, v in true_aliases.items():
-            if k in self.aliases:
-                self.aliases[k] = self.aliases[k].union(v)
-            else:
-                assert isinstance(v, (frozenset, set))
-                self.aliases[k] = v
+            try:
+                for stmt in node.orelse:
+                    self.visit(stmt)
+                false_aliases = self.aliases
+            except PythranSyntaxError:
+                pass
+
+        if false_aliases and not true_aliases:
+            self.aliases = false_aliases
+            try:
+                for stmt in node.body:
+                    self.visit(stmt)
+                true_aliases = self.aliases
+            except PythranSyntaxError:
+                pass
+
+        # merge the results from true and false branches
+        if false_aliases and true_aliases:
+            for k, v in true_aliases.items():
+                if k in self.aliases:
+                    self.aliases[k] = self.aliases[k].union(v)
+                else:
+                    assert isinstance(v, (frozenset, set))
+                    self.aliases[k] = v
+        elif true_aliases:
+            self.aliases = true_aliases
 
     def visit_ExceptHandler(self, node):
         if node.name:

@@ -91,7 +91,9 @@ namespace types
         typename utils::nested_container_value_type<sliced_list>::type dtype;
     static const size_t value =
         utils::nested_container_depth<sliced_list>::value;
-    static const bool is_vectorizable = false; // overly cautious \simeq lazy
+    static const bool is_vectorizable =
+        types::is_vectorizable<dtype>::value &&
+        std::is_same<S, contiguous_slice>::value;
 
     // constructor
     sliced_list();
@@ -128,6 +130,15 @@ namespace types
     template <class K>
     bool operator==(list<K> const &other) const;
     bool operator==(empty_list const &other) const;
+
+#ifdef USE_BOOST_SIMD
+    using simd_iterator = const_simd_nditerator<sliced_list>;
+    using simd_iterator_nobroadcast = simd_iterator;
+    template <class vectorizer>
+    simd_iterator vbegin(vectorizer) const;
+    template <class vectorizer>
+    simd_iterator vend(vectorizer) const;
+#endif
   };
 
   /* list */

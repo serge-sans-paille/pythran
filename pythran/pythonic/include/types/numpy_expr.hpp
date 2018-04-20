@@ -582,8 +582,26 @@ namespace types
     typename std::enable_if<is_numexpr_arg<F>::value,
                             numpy_fexpr<numpy_expr, F>>::type
     operator[](F const &filter) const;
+
     // FIXME: this does ! take into account bounds && broadcasting
     auto operator[](long i) const -> decltype(this->fast(i));
+
+    template <size_t... I, class S>
+    auto _index(S s, utils::index_sequence<I...>) const
+        -> decltype(Op{}(std::get<I>(args)[s]...))
+    {
+      return Op{}(std::get<I>(args)[s]...);
+    }
+    auto operator[](slice s) const -> decltype(
+        (*this)._index(s, utils::make_index_sequence<sizeof...(Args)>{}))
+    {
+      return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
+    }
+    auto operator[](contiguous_slice s) const -> decltype(
+        (*this)._index(s, utils::make_index_sequence<sizeof...(Args)>{}))
+    {
+      return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
+    }
 
     long flat_size() const;
 

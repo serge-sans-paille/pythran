@@ -147,6 +147,14 @@ namespace types
     return out;
   }
   template <class T, class S>
+  template <size_t N>
+  list<T> sliced_list<T, S>::operator+(array<T, N> const &s)
+  {
+    list<T> out(size() + s.size());
+    std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
+    return out;
+  }
+  template <class T, class S>
   list<T> sliced_list<T, S>::operator+(sliced_list<T, S> const &s)
   {
     list<T> out(size() + s.size());
@@ -276,6 +284,16 @@ namespace types
   template <class T>
   template <class S>
   list<T> list<T>::operator+(sliced_list<T, S> const &other) const
+  {
+    list<T> new_list(begin(), end());
+    new_list.reserve(data->size() + other.size());
+    std::copy(other.begin(), other.end(), std::back_inserter(new_list));
+    return new_list;
+  }
+
+  template <class T>
+  template <size_t N>
+  list<T> list<T>::operator+(array<T, N> const &other) const
   {
     list<T> new_list(begin(), end());
     new_list.reserve(data->size() + other.size());

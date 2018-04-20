@@ -104,6 +104,8 @@ namespace types
     sliced_list &operator=(list<T> const &);
     sliced_list &operator=(sliced_list<T, S> const &);
     list<T> operator+(list<T> const &);
+    template <size_t N>
+    list<T> operator+(array<T, N> const &);
     list<T> operator+(sliced_list<T, S> const &);
 
     // iterators
@@ -198,6 +200,8 @@ namespace types
     list<T> &operator+=(sliced_list<T, S> const &other);
     template <class S>
     list<T> operator+(sliced_list<T, S> const &other) const;
+    template <size_t N>
+    list<T> operator+(array<T, N> const &other) const;
 
     // io
     template <class S>

@@ -150,6 +150,14 @@ def test_copy0(x):
         code="def test_copy4(n): import numpy as np ; r = n; g = np.copy(r) ; return g"
         self.run_test(code, 10, test_copy4=[int])
 
+    def test_copy5(self):
+        code="def test_copy5(n): return n[:-1].copy()"
+        self.run_test(code, numpy.array([1,2,3]), test_copy5=[NDArray[int,:]])
+
+    def test_copy6(self):
+        code="def test_copy6(n): return n[-1].copy()"
+        self.run_test(code, numpy.array([[1],[2],]), test_copy6=[NDArray[int,:,:]])
+
     def test_clip0(self):
         self.run_test("def np_clip0(a): return a.clip(1,8)", numpy.arange(10), np_clip0=[NDArray[int,:]])
 

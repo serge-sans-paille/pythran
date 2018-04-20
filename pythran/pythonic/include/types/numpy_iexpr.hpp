@@ -201,6 +201,11 @@ namespace types
       return _shape;
     }
 
+    ndarray<dtype, value> copy() const
+    {
+      return {*this};
+    }
+
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&

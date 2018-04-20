@@ -595,6 +595,10 @@ namespace types
 
     long flat_size() const;
     long size() const;
+    ndarray<dtype, value> copy() const
+    {
+      return {*this};
+    }
   };
 
   // As gexpr has to begin with a slice. When we access it, we need to forward

@@ -408,3 +408,43 @@ def recursive_interprocedural_typing1():
         code = 'def exact_complex_check(i): return i'
         return self.run_test(code, np.complex128(2), exact_complex_check=[complex])
 
+    def test_alias_update_in_loop_and_test(self):
+        code = '''
+            def alias_update_in_loop_and_test(X,f):
+                for i in range(2):
+                    if i==0: A = f*X[:,i]
+                    else: A+=f*X[:,i]
+                return A'''
+        return self.run_test(code, np.arange(9).reshape(3,3), 3, alias_update_in_loop_and_test=[NDArray[int,:,:], int])
+
+    def test_alias_update_in_multiple_opaque_tests(self):
+        code = '''
+            def alias_update_in_multiple_opaque_tests(X,f):
+                if f > 3:
+                    A = (f * X[:, 0])
+                else:
+                    A += (f * X[:, 0])
+                pass
+                if f <= 3:
+                    A = (f * X[:, 1])
+                else:
+                    A += (f * X[:, 1])'''
+
+        return self.run_test(code, np.arange(9).reshape(3,3), 9, alias_update_in_multiple_opaque_tests=[NDArray[int,:,:], int])
+
+    def test_alias_update_in_multiple_different_opaque_tests(self):
+        code = '''
+            def alias_update_in_multiple_different_opaque_tests(f):
+                if f > 3:
+                    A = 1
+                else:
+                    A = 2
+
+                if f <= 3:
+                    A = "e" * A
+                else:
+                    A = "f" * A
+                return A'''
+
+        return self.run_test(code, 9, alias_update_in_multiple_different_opaque_tests=[int])
+

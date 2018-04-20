@@ -655,5 +655,11 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>,
   using type = pythonic::types::numpy_iexpr<E>;
 };
 
+template <class T, size_t N, class Op, class... Args>
+struct __combined<pythonic::types::numpy_expr<Op, Args...>,
+                  pythonic::types::ndarray<T, N>> {
+  using type = pythonic::types::ndarray<T, N>;
+};
+
 /*}*/
 #endif

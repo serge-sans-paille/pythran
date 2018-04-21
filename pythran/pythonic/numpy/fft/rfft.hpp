@@ -4,19 +4,15 @@
 #include "pythonic/include/numpy/fft/rfft.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
-#include <array>
-#include <map>
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/numpy/swapaxes.hpp"
-#include <string.h>
-#include <math.h>
-#include <vector>
-#include <mutex>
 
-#include <stdio.h>
-#include "pythonic/numpy/fft/fftpack.c"
+#include <mutex>
+#include <map>
+
+#include "pythonic/numpy/fft/fftpack.hpp"
 
 PYTHONIC_NS_BEGIN
 

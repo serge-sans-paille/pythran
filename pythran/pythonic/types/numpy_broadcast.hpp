@@ -5,6 +5,7 @@
 
 #include "pythonic/types/vectorizable_type.hpp"
 #include "pythonic/types/nditerator.hpp"
+#include "pythonic/types/slice.hpp"
 #include "pythonic/types/tuple.hpp"
 
 PYTHONIC_NS_BEGIN

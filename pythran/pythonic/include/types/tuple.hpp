@@ -66,6 +66,7 @@ namespace types
   struct str;
 
   struct slice;
+  struct contiguous_slice;
 
   template <class Arg, class... S>
   struct numpy_gexpr;
@@ -212,7 +213,15 @@ namespace types
 
                                    utils::make_repeated_type<T, N>()));
 
-    list<T> operator[](slice const &s); // definition in list.hpp
+    numpy_gexpr<array, slice> operator[](slice const &s) const
+    {
+      return {*this, s};
+    }
+    numpy_gexpr<array, contiguous_slice>
+    operator[](contiguous_slice const &s) const
+    {
+      return {*this, s};
+    }
 
     /* array */
     template <class T1, size_t N1>

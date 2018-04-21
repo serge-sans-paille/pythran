@@ -730,4 +730,30 @@ def assign_ndarray(t):
             [1],
             numpy_indexing_ex4=[NDArray[int, :, :], List[int]])
 
+    def test_numpy_expr_combiner(self):
+        code = '''
+            import numpy as np
+
+            def abcd(x, y):
+                return np.linspace(0, x, y)
+
+            def ops(a, b, o):
+                return 4.0 * np.pi / a * np.sin(0.5 * np.arctan(o / b))
+
+            def efgh(x, y):
+                a = abcd(x, y)
+                if x == 2:
+                    c = ops(2.0, 3.0, a * 3.0) # Comment here
+                    #c = a # decoment here
+                else:
+                    c = a # And here
+                    #c = ops(2.0, 3.0, a * 3.0) # and here
+                return c[:-1]
+
+            def numpy_expr_combiner(x, y):
+                b = efgh(x, y)
+                return b'''
+        self.run_test(code,
+                      10, 10,
+                      numpy_expr_combiner=[int, int])
 

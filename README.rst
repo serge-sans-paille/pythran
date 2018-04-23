@@ -6,9 +6,9 @@ http://pythran.readthedocs.io
 What is it?
 -----------
 
-Pythran is a Python to c++ compiler for a subset of the Python language, with a
+Pythran is an ahead of time compiler for a subset of the Python language, with a
 focus on scientific computing. It takes a Python module annotated with a few
-interface description and turns it into a native python module with the same
+interface description and turns it into a native Python module with the same
 interface, but (hopefully) faster.
 
 It is meant to efficiently compile **scientific programs**, and takes advantage

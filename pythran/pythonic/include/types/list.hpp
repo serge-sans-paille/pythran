@@ -318,7 +318,12 @@ namespace types
 
   /* empty list implementation */
   struct empty_list {
-    typedef void value_type;
+    // minimal ndarray interface
+    typedef double dtype;
+    static const size_t value = 1;
+    static const bool is_vectorizable = false;
+    typedef double value_type;
+
     typedef empty_iterator iterator;
     typedef empty_iterator const_iterator;
     template <class T>
@@ -332,6 +337,15 @@ namespace types
     template <class T>
     operator list<T>() const;
     static constexpr long size();
+
+    empty_iterator begin() const
+    {
+      return {};
+    }
+    empty_iterator end() const
+    {
+      return {};
+    }
   };
 
   std::ostream &operator<<(std::ostream &os, empty_list const &);

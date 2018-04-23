@@ -17,7 +17,7 @@ namespace types
     bool operator<(empty_iterator const &) const;
     empty_iterator &operator++();
     empty_iterator &operator++(int);
-    void operator*() const;
+    double operator*() const;
     void operator->() const;
   };
 }

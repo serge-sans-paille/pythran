@@ -207,8 +207,8 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
                   | argument_type:argument_type dict    # this is a dictionary
 
     basic_type = bool | int | long | float | str | None
-               | uint8 | uint16 | uint32 | uint64
-               | int8 | int16 | int32 | int64
+               | uint8 | uint16 | uint32 | uint64 | uintp
+               | int8 | int16 | int32 | int64 | intp
                | float32 | float64
                | complex64 | complex128
 

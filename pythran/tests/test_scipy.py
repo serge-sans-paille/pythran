@@ -74,5 +74,9 @@ def ramp(result, start, end):
 
     path = os.path.join(os.path.dirname(__file__), "scipy")
 
-
 TestScipy.populate(TestScipy)
+
+class TestPyData(TestFromDir):
+    path = os.path.join(os.path.dirname(__file__), "pydata")
+
+TestPyData.populate(TestPyData)

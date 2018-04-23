@@ -3704,6 +3704,7 @@ MODULES = {
         "int32": ConstFunctionIntr(signature=_int_signature),
         "int64": ConstFunctionIntr(signature=_int_signature),
         "int8": ConstFunctionIntr(signature=_int_signature),
+        "intp": ConstFunctionIntr(signature=_int_signature),
         "invert": ConstFunctionIntr(),
         "isclose": ConstFunctionIntr(),
         "iscomplex": ConstFunctionIntr(),
@@ -3813,10 +3814,8 @@ MODULES = {
             signature=_numpy_float_unary_op_float_signature
         ),
         "fft": {
-            "rfft": FunctionIntr(args=(),
-                                  global_effects=True),
-            "irfft": FunctionIntr(args=(),
-                                  global_effects=True),
+            "rfft": FunctionIntr(args=(), global_effects=True),
+            "irfft": FunctionIntr(args=(), global_effects=True),
         },
         "random": {
             "binomial": FunctionIntr(args=('n', 'p', 'size'),
@@ -3908,6 +3907,7 @@ MODULES = {
         "uint16": ConstFunctionIntr(signature=_int_signature),
         "uint32": ConstFunctionIntr(signature=_int_signature),
         "uint64": ConstFunctionIntr(signature=_int_signature),
+        "uintp": ConstFunctionIntr(signature=_int_signature),
         "uint8": ConstFunctionIntr(signature=_int_signature),
         "union1d": ConstFunctionIntr(),
         "unique": ConstFunctionIntr(),

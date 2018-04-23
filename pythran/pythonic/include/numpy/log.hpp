@@ -18,8 +18,18 @@ namespace numpy
     {
       return std::log(val);
     }
+
     template <class T>
-    auto log(T const &val) -> decltype(boost::simd::log(val))
+    typename std::enable_if<std::is_integral<T>::value, double>::type
+    log(T const &val)
+    {
+      return std::log(val);
+    }
+
+    template <class T>
+    auto log(T const &val) ->
+        typename std::enable_if<!std::is_integral<T>::value,
+                                decltype(boost::simd::log(val))>::type
     {
       return boost::simd::log(val);
     }

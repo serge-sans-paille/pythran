@@ -35,6 +35,8 @@ namespace types
   template <class T, class S>
   class sliced_list;
 
+  class empty_list;
+
   template <class T, size_t N>
   struct array;
 
@@ -115,6 +117,11 @@ namespace types
 
   template <class T, class S>
   struct is_numexpr_arg<sliced_list<T, S>> {
+    static constexpr bool value = true;
+  };
+
+  template <>
+  struct is_numexpr_arg<empty_list> {
     static constexpr bool value = true;
   };
 

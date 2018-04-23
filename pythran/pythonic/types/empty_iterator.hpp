@@ -41,9 +41,9 @@ namespace types
     return *this;
   }
 
-  void empty_iterator::operator*() const
+  double empty_iterator::operator*() const
   {
-    return;
+    return {};
   }
 
   void empty_iterator::operator->() const

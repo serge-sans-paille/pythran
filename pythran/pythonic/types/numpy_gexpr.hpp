@@ -487,7 +487,15 @@ namespace types
   numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
   operator=(numpy_gexpr<Arg, S...> const &expr)
   {
-    return _copy(expr);
+    if (buffer == nullptr) {
+      arg = expr.arg;
+      slices = expr.slices;
+      buffer = arg.buffer;
+      _shape = expr.shape();
+      return *this;
+    } else {
+      return _copy(expr);
+    }
   }
 
   template <class Arg, class... S>

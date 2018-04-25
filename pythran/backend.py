@@ -138,10 +138,10 @@ class CachedTypeVisitor:
         return "__type{0}".format(self.mapping[node])
 
     def typedefs(self):
-        l = sorted(self.mapping.items(), key=lambda x: x[1])
+        kv = sorted(self.mapping.items(), key=lambda x: x[1])
         L = list()
         visited = set()  # the same value must not be typedefed twice
-        for k, v in l:
+        for k, v in kv:
             if v not in visited:
                 typename = "__type" + str(v)
                 L.append(Typedef(Value(self.cache[k], typename)))
@@ -425,8 +425,8 @@ class CxxFunction(Backend):
     def visit_AugAssign(self, node):
         value = self.visit(node.value)
         target = self.visit(node.target)
-        l = update_operator_to_lambda[type(node.op)]
-        stmt = Statement(l(target, value)[1:-1])  # strip spurious parenthesis
+        op = update_operator_to_lambda[type(node.op)]
+        stmt = Statement(op(target, value)[1:-1])  # strip spurious parenthesis
         return self.process_omp_attachements(node, stmt)
 
     def visit_Print(self, node):

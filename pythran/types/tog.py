@@ -173,6 +173,7 @@ class Collection(TypeOperator):
 def TupleTrait(of_types):
     return TypeOperator('tuple', of_types)
 
+
 ListTrait = TypeOperator('list', [])
 SetTrait = TypeOperator('set', [])
 DictTrait = TypeOperator('dict', [])
@@ -309,6 +310,7 @@ def OptionType(of_type):
 
 def Traits(of_types):
     return TypeOperator("traits", of_types)
+
 
 ExceptionType = TypeOperator("exception", [])
 
@@ -881,7 +883,6 @@ def analyse(node, env, non_generic=None):
     elif isinstance(node, gast.FunctionDef):
         ftypes = []
         for i in range(1 + len(node.args.defaults)):
-            old_type = env[node.name]
             new_env = env.copy()
             new_non_generic = non_generic.copy()
 

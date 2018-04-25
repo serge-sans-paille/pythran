@@ -4,8 +4,7 @@ import sys
 
 from numpy import int8, int16, int32, int64, uint8, uint16, uint32
 from numpy import float64, float32, complex64, complex128, uint64
-from pythran.typing import List, Dict, Set, Tuple, NDArray, NDArray, Pointer
-from pythran.typing import Fun
+from pythran.typing import List, Dict, Set, Tuple, NDArray, Pointer, Fun
 
 PYTYPE_TO_CTYPE_TABLE = {
     complex: 'std::complex<double>',

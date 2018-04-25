@@ -1,4 +1,4 @@
-from pythran.typing import List, Dict, Set, Fun, TypeVar, Set
+from pythran.typing import List, Dict, Set, Fun, TypeVar
 from pythran.typing import Union, Iterable
 
 
@@ -80,7 +80,6 @@ def build_combiner(signature, deps):
 
     def combiner(self, node):
         if deps and len(node.args) == len(sig_args):
-            ideps = list(deps.items())
             try:
 
                 unary_op, main_index = build_unary_op(deps,

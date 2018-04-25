@@ -100,6 +100,7 @@ def to_ast(value):
             return to_ast(list(value))
     raise ToNotEval()
 
+
 PYTHRAN_IMPORT_MANGLING = '__pythran_import_'
 
 

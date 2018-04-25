@@ -108,20 +108,6 @@ class Interval(object):
                itertools.product(self.bounds(), other.bounds())]
         return Interval(numpy.min(res), numpy.max(res))
 
-    def __mod__(self, other):
-        """
-        Combiner for Modulo operation.
-
-        >>> Interval(2, 5) % Interval(0, 3)
-        Interval(low=0, high=2)
-        >>> Interval(2, 5) % Interval(-3, 3)
-        Interval(low=-2, high=2)
-        """
-        if other.low < 0:
-            return Interval(other.low + 1, other.high - 1)
-        else:
-            return Interval(0, other.high - 1)
-
     def __rshift__(range1, range2):
         """
         Combiner for Right shift operation.

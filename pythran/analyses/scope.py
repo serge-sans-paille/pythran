@@ -5,7 +5,6 @@ Scope computes scope information
 from pythran.analyses.ancestors import Ancestors
 from pythran.analyses.use_def_chain import UseDefChain
 from pythran.passmanager import FunctionAnalysis
-import pythran.openmp as openmp
 
 from collections import defaultdict
 import gast as ast

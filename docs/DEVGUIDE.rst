@@ -16,7 +16,7 @@ Additional packages may be needed to use pythran to its fullest: colored logs,
 tests on several cores, doc generation ::
 
     $> sudo apt-get install python-setuptools python-pytest-xdist python-docutils
-    $> sudo pip install colorlog pytest-pep8
+    $> sudo pip install colorlog flake8
 
 Configuration
 -------------
@@ -41,9 +41,11 @@ is to install Pythran once and to add
 Coding Style
 ------------
 
-All Python code must be conform to the PEP 8, and the ``pep8`` command must not
+All Python code must be conform to the PEP 8, and the ``flake8`` command must not
 yield any message when run on our database. Additionally, avoid backslashes,
 and try to make your code as concise as possible.
+
+    $> flake8 pythran/*.py pythran/*/*.py --exclude="pythran/tests/test*.py,__init__.py"
 
 C++ code use spaces (no tabs) and a tab width of 4.
 
@@ -99,11 +101,6 @@ To run it faster we use the `pytest` extension `xdist` from debian package
 `python-pytest-xdist` , the test suite will run using all
 available cores. Otherwise it might run **very** slowly, something like four
 hours on a decent laptop :'(.
-
-``pep8`` is checked using the `pytest` extension ``pytest-pep8``. It can be
-installed using::
-
-    $> sudo pip install pytest-pep8
 
 Note that it is still possible to use the ``pytest`` module directly, for
 instance to pass a subset of the test suite::

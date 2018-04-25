@@ -268,13 +268,8 @@ class SpecParser(object):
 
     def p_dtype(self, p):
         'dtype : '
-        # these imports are used indirectly by the eval
-        from numpy import complex64, complex128
-        from numpy import float32, float64
-        from numpy import int8, int16, int32, int64
-        from numpy import uint8, uint16, uint32, uint64
-
-        p[0] = eval(p[1]),
+        import numpy
+        p[0] = eval(p[1], numpy.__dict__),
 
     p_dtype.__doc__ += '\n| '.join(dtypes.values())
 

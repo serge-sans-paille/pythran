@@ -217,6 +217,16 @@ namespace types
                   tuple_tail(t0), t1)));
     };
 
+    template <class... T0, class S1, class... T1>
+    struct merge_gexpr<std::tuple<const long, T0...>, std::tuple<S1, T1...>> {
+      auto operator()(std::tuple<long const, T0...> const &t0,
+                      std::tuple<S1, T1...> const &t1)
+          -> decltype(std::tuple_cat(
+              std::make_tuple(std::get<0>(t0)),
+              merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
+                  tuple_tail(t0), t1)));
+    };
+
     template <class S0, class... T0, class... T1>
     struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<long, T1...>> {
       auto operator()(std::tuple<S0, T0...> const &t0,
@@ -340,6 +350,11 @@ namespace types
     // position for slice && long value in the extended slice can be found
     // through the S... template
     // && compacted values as we know that first S is a slice.
+
+    static_assert(
+        utils::all_of<
+            std::is_same<S, typename std::decay<S>::type>::value...>::value,
+        "no modifiers on slices");
 
     using dtype = typename std::remove_reference<Arg>::type::dtype;
     static constexpr size_t value =

@@ -12,7 +12,7 @@ install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - python -m pip install -r requirements.txt
   - python -m pip install numpy
-  - python -m pip install pytest pytest-pep8
+  - python -m pip install pytest pytest-flake8
 
 build_script:
     - python setup.py build

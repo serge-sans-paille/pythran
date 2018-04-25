@@ -54,7 +54,7 @@ class DeadCodeElimination(Transformation):
 
             def is_use(x):
                 return udc.node[x]['action'] in ("U", "UD")
-            use_count = len([node for node in udc.nodes() if is_use(node)])
+            use_count = len([n for n in udc.nodes() if is_use(n)])
             return use_count != 0
         return True
 

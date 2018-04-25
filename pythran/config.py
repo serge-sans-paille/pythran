@@ -1,7 +1,7 @@
 try:
     # python3 vs. python2
     import configparser
-except:
+except ImportError:
     import ConfigParser as configparser
 import logging
 import numpy.distutils.system_info as numpy_sys
@@ -108,6 +108,7 @@ def have_gmp_support(**extra):
             any("USE_GMP" == name
                 for name, _ in make_extension(**extra)["define_macros"]))
 
+
 # load platform specific configuration then user configuration
 cfg = init_cfg('pythran.cfg',
                'pythran-{}.cfg'.format(sys.platform),
@@ -173,6 +174,7 @@ def run():
 
     if output:
         print(' '.join(output))
+
 
 if __name__ == '__main__':
     run()

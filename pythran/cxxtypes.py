@@ -2,8 +2,6 @@
 This module defines classes needed to manipulate c++ types from pythran.
 '''
 
-from pythran.config import cfg
-from functools import reduce
 from inspect import isclass
 
 
@@ -230,7 +228,7 @@ std::declval<bool>()))
                 try:
                     return 'typename __combined<{}>::type'.format(
                         ','.join(ctx(t) for t in self.types))
-                except RuntimeError as re:
+                except RuntimeError:
                     # this is a situation where we accept to somehow extend
                     # the recursion limit, because of degenerated trees
                     import sys

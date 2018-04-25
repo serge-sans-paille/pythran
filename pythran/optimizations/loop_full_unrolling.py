@@ -89,7 +89,7 @@ class LoopFullUnrolling(Transformation):
         try:
             values = list(eval(code,
                                {'__builtin__': __import__('__builtin__')}))
-        except Exception as e:
+        except Exception:
             return node
 
         total_count = node_count * len(values)
@@ -99,6 +99,6 @@ class LoopFullUnrolling(Transformation):
                 new_node = sum([unroll(to_ast(elt)) for elt in values], [])
                 self.update = True
                 return new_node
-            except Exception as e:
+            except Exception:
                 return node
         return node

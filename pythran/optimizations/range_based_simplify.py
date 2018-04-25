@@ -1,7 +1,6 @@
 ''' Simplify expressions based on range information when possible'''
 
 from pythran.analyses import RangeValues
-from pythran.interval import Interval, UNKNOWN_RANGE
 from pythran.passmanager import Transformation
 
 import gast as ast

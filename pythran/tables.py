@@ -73,6 +73,7 @@ def make_or(x, y):
     lx, ly = make_lazy(x), make_lazy(y)
     return 'pythonic::__builtin__::pythran::or_({0}, {1})'.format(lx, ly)
 
+
 operator_to_lambda = {
     # boolop
     ast.And: make_and,
@@ -171,6 +172,7 @@ def update_effects(self, node):
     return [self.combine(node.args[0], node_args_k, register=True,
                          aliasing_type=True)
             for node_args_k in node.args[1:]]
+
 
 BINARY_UFUNC = {"accumulate": FunctionIntr()}
 
@@ -2176,6 +2178,7 @@ def partialsum(seq):
     for elt in seq:
         s += elt,
         yield s
+
 
 _operator_add_signature = Union[
     _numpy_binary_op_signature.__args__ +
@@ -4486,6 +4489,7 @@ def save_arguments(module_name, elements):
             except (AttributeError, ImportError, TypeError, ToNotEval):
                 pass
 
+
 save_arguments((), MODULES)
 
 
@@ -4500,7 +4504,10 @@ def fill_constants_types(module_name, elements):
             cst = getattr(__import__(".".join(module_name)), elem)
             intrinsic.signature = type(cst)
 
+
 fill_constants_types((), MODULES)
+
+
 # a method name to module binding
 # {method_name : ((full module path), signature)}
 methods = {}
@@ -4523,6 +4530,7 @@ def save_method(elements, module_path):
             else:
                 methods[elem] = (module_path, signature)
 
+
 save_method(MODULES, ())
 
 # a function name to module binding
@@ -4540,7 +4548,9 @@ def save_function(elements, module_path):
         elif isinstance(signature, Class):
             save_function(signature.fields, module_path + (elem,))
 
+
 save_function(MODULES, ())
+
 
 # a attribute name to module binding
 # {attribute_name : ((full module path), signature)}
@@ -4557,5 +4567,6 @@ def save_attribute(elements, module_path):
             attributes[elem] = (module_path, signature,)
         elif isinstance(signature, Class):
             save_attribute(signature.fields, module_path + (elem,))
+
 
 save_attribute(MODULES, ())

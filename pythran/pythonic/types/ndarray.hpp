@@ -974,20 +974,19 @@ namespace types
     {
       template <size_t N>
       template <class E, class... S>
-      auto _build_gexpr<N>::operator()(E const &a, S &&... slices)
-          -> decltype(_build_gexpr<N - 1>{}(a, contiguous_slice(),
-                                            std::forward<S>(slices)...))
+      auto _build_gexpr<N>::operator()(E const &a, S const &... slices)
+          -> decltype(_build_gexpr<N - 1>{}(a, contiguous_slice(), slices...))
       {
         return _build_gexpr<N - 1>{}(
             a, contiguous_slice(__builtin__::None, __builtin__::None),
-            std::forward<S>(slices)...);
+            slices...);
       }
 
       template <class E, class... S>
       numpy_gexpr<E, S...> _build_gexpr<1>::operator()(E const &a,
-                                                       S &&... slices)
+                                                       S const &... slices)
       {
-        return a(std::forward<S>(slices)...);
+        return a(slices...);
       }
     }
 

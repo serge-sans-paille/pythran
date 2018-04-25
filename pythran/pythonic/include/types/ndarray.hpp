@@ -654,15 +654,15 @@ namespace types
       template <size_t N>
       struct _build_gexpr {
         template <class E, class... S>
-        auto operator()(E const &a, S &&... slices)
+        auto operator()(E const &a, S const &... slices)
             -> decltype(_build_gexpr<N - 1>{}(a, contiguous_slice(),
-                                              std::forward<S>(slices)...));
+                                              slices...));
       };
 
       template <>
       struct _build_gexpr<1> {
         template <class E, class... S>
-        numpy_gexpr<E, S...> operator()(E const &a, S &&... slices);
+        numpy_gexpr<E, S...> operator()(E const &a, S const &... slices);
       };
     }
 

@@ -174,6 +174,16 @@ namespace types
   namespace details
   {
 
+    template<class T, class Ts, size_t... Is>
+    std::tuple<T, typename std::tuple_element<Is, Ts>::type...> tuple_push_head(T const& val, Ts const& vals, utils::index_sequence<Is...>) {
+      return {val, std::get<Is>(vals)...};
+    }
+
+    template<class T, class Ts>
+    auto tuple_push_head(T const& val, Ts const& vals) -> decltype(tuple_push_head(val, vals, utils::make_index_sequence<std::tuple_size<Ts>::value>())) {
+      return tuple_push_head(val, vals, utils::make_index_sequence<std::tuple_size<Ts>::value>());
+    }
+
     // this struct is specialized for every type combination && takes care of
     // the slice merge
     template <class T, class Tp>
@@ -181,19 +191,19 @@ namespace types
 
     template <>
     struct merge_gexpr<std::tuple<>, std::tuple<>> {
-      std::tuple<> const &operator()(std::tuple<> const &t0,
+      std::tuple<> operator()(std::tuple<> const &t0,
                                      std::tuple<> const &);
     };
 
     template <class... T0>
     struct merge_gexpr<std::tuple<T0...>, std::tuple<>> {
-      std::tuple<T0...> const &operator()(std::tuple<T0...> const &t0,
+      std::tuple<T0...> operator()(std::tuple<T0...> const &t0,
                                           std::tuple<>);
     };
 
     template <class... T1>
     struct merge_gexpr<std::tuple<>, std::tuple<T1...>> {
-      std::tuple<T1...> const &operator()(std::tuple<>,
+      std::tuple<T1...> operator()(std::tuple<>,
                                           std::tuple<T1...> const &t1);
     };
 
@@ -201,8 +211,7 @@ namespace types
     struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<S1, T1...>> {
       auto operator()(std::tuple<S0, T0...> const &t0,
                       std::tuple<S1, T1...> const &t1)
-          -> decltype(std::tuple_cat(
-              std::make_tuple(std::get<0>(t0) * std::get<0>(t1)),
+          -> decltype(tuple_push_head(std::get<0>(t0) * std::get<0>(t1),
               merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
                   tuple_tail(t0), tuple_tail(t1))));
     };
@@ -211,18 +220,7 @@ namespace types
     struct merge_gexpr<std::tuple<long, T0...>, std::tuple<S1, T1...>> {
       auto operator()(std::tuple<long, T0...> const &t0,
                       std::tuple<S1, T1...> const &t1)
-          -> decltype(std::tuple_cat(
-              std::make_tuple(std::get<0>(t0)),
-              merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
-                  tuple_tail(t0), t1)));
-    };
-
-    template <class... T0, class S1, class... T1>
-    struct merge_gexpr<std::tuple<const long, T0...>, std::tuple<S1, T1...>> {
-      auto operator()(std::tuple<long const, T0...> const &t0,
-                      std::tuple<S1, T1...> const &t1)
-          -> decltype(std::tuple_cat(
-              std::make_tuple(std::get<0>(t0)),
+          -> decltype(tuple_push_head(std::get<0>(t0),
               merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
                   tuple_tail(t0), t1)));
     };
@@ -231,9 +229,7 @@ namespace types
     struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<long, T1...>> {
       auto operator()(std::tuple<S0, T0...> const &t0,
                       std::tuple<long, T1...> const &t1)
-          -> decltype(std::tuple_cat(
-              std::make_tuple(std::get<0>(t1) * std::get<0>(t0).step +
-                              std::get<0>(t0).lower),
+          -> decltype(tuple_push_head(std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower,
               merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
                   tuple_tail(t0), tuple_tail(t1))));
     };
@@ -242,8 +238,7 @@ namespace types
     struct merge_gexpr<std::tuple<long, T0...>, std::tuple<long, T1...>> {
       auto operator()(std::tuple<long, T0...> const &t0,
                       std::tuple<long, T1...> const &t1)
-          -> decltype(std::tuple_cat(
-              std::make_tuple(std::get<0>(t0)),
+          -> decltype(tuple_push_head(std::get<0>(t0),
               merge_gexpr<std::tuple<T0...>, std::tuple<long, T1...>>{}(
                   tuple_tail(t0), t1)));
     };

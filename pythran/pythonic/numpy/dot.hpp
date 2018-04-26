@@ -8,7 +8,7 @@
 #include "pythonic/types/numpy_expr.hpp"
 #include "pythonic/types/traits.hpp"
 
-#if defined(PYTHRAN_BLAS_ATLAS)
+#if defined(PYTHRAN_BLAS_ATLAS) || defined(PYTHRAN_BLAS_SATLAS)
 extern "C" {
 #endif
 #include <cblas.h>

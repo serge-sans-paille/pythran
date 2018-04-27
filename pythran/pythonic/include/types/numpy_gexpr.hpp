@@ -554,6 +554,10 @@ namespace types
         -> decltype(std::declval<value_type>()(s...));
 
     template <size_t M>
+    auto fast(array<long, M> const &indices)
+        & -> decltype(nget<M - 1>().fast(*this, indices));
+
+    template <size_t M>
     auto fast(array<long, M> const &indices) const
         & -> decltype(nget<M - 1>().fast(*this, indices));
 

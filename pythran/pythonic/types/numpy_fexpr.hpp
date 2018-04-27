@@ -15,8 +15,9 @@ namespace types
       : arg(arg), indices(arg.flat_size()), buffer(indices->data)
   {
     auto iter = buffer;
-    long index = 0;
-    _copy_mask(filter.begin(), filter.end(), iter, index,
+    array<long, Arg::value> index;
+    index.fill(0);
+    _copy_mask(filter.begin(), filter.end(), iter, index, 0,
                utils::int_<std::remove_reference<
                    typename std::remove_cv<Arg>::type>::type::value>());
     _shape[0] = {static_cast<long>(iter - buffer)};
@@ -25,9 +26,10 @@ namespace types
   template <class Arg, class F>
   template <class FIter, class O>
   void numpy_fexpr<Arg, F>::_copy_mask(FIter fiter, FIter fend, O &out,
-                                       long &index, utils::int_<1>)
+                                       array<long, Arg::value> &index,
+                                       int column, utils::int_<1>)
   {
-    for (; fiter != fend; ++fiter, ++index)
+    for (; fiter != fend; ++fiter, ++index[column])
       if (*fiter)
         *out++ = index;
   }
@@ -35,11 +37,15 @@ namespace types
   template <class Arg, class F>
   template <class FIter, class O, size_t N>
   void numpy_fexpr<Arg, F>::_copy_mask(FIter fiter, FIter fend, O &out,
-                                       long &index, utils::int_<N>)
+                                       array<long, Arg::value> &index,
+                                       int column, utils::int_<N>)
   {
-    for (; fiter != fend; ++fiter)
-      _copy_mask((*fiter).begin(), (*fiter).end(), out, index,
+    for (; fiter != fend; ++fiter) {
+      index[column + 1] = 0;
+      _copy_mask((*fiter).begin(), (*fiter).end(), out, index, column + 1,
                  utils::int_<N - 1>());
+      ++index[column];
+    }
   }
 
   template <class Arg, class F>
@@ -151,15 +157,17 @@ namespace types
   }
 
   template <class Arg, class F>
-  typename numpy_fexpr<Arg, F>::dtype numpy_fexpr<Arg, F>::fast(long i) const
+  auto numpy_fexpr<Arg, F>::fast(long i) const
+      -> decltype(arg.fast(buffer[i]))
   {
-    return *(arg.fbegin() + buffer[i]);
+    return arg.fast(buffer[i]);
   }
 
   template <class Arg, class F>
-  typename numpy_fexpr<Arg, F>::dtype &numpy_fexpr<Arg, F>::fast(long i)
+  auto numpy_fexpr<Arg, F>::fast(long i)
+      -> decltype(arg.fast(buffer[i]))
   {
-    return *(arg.fbegin() + buffer[i]);
+    return arg.fast(buffer[i]);
   }
 
 #ifdef USE_BOOST_SIMD

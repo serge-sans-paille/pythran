@@ -757,3 +757,19 @@ def assign_ndarray(t):
                       10, 10,
                       numpy_expr_combiner=[int, int])
 
+    def test_numpy_fexpr_assign(self):
+        code = '''
+            import numpy as np
+
+            def yy(x):
+                a = np.zeros(x, np.float32)
+                return a[:-1]
+            
+            def numpy_fexpr_assign(x):
+                c = yy(x)
+                d = yy(x)
+                c[d == 0] = np.nan
+                return c'''
+        self.run_test(code,
+                      10,
+                      numpy_fexpr_assign=[int])

@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 #include <cblas.h>
-#if defined(PYTHRAN_BLAS_ATLAS)
+#if defined(PYTHRAN_BLAS_ATLAS) || defined(PYTHRAN_BLAS_SATLAS)
 }
 #endif
 

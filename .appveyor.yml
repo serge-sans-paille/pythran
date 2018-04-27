@@ -12,7 +12,8 @@ install:
   - "set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - python -m pip install -r requirements.txt
   - python -m pip install numpy
-  - python -m pip install pytest pytest-pep8
+  - python -m pip install pytest
+  - python -m pip install flake8
 
 build_script:
     - python setup.py build
@@ -21,3 +22,4 @@ test_script:
     - set PYTHONPATH=.
     - python -m pytest pythran/tests/test_scipy.py -v
     - python -m pytest pythran/tests/test_base.py -v
+    - flake8 pythran/*.py pythran/*/*.py --exclude="pythran/tests/test*.py,__init__.py"

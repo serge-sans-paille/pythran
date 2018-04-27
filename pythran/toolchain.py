@@ -54,6 +54,7 @@ def CCompiler_customize(self, _, need_cxx=0):
         except (AttributeError, ValueError):
             pass
 
+
 numpy.distutils.ccompiler.replace_method(numpy.distutils.ccompiler.CCompiler,
                                          'customize', CCompiler_customize)
 
@@ -412,7 +413,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
                                           str(module),
                                           output_binary=output_file,
                                           **kwargs)
-        except CompileError as ce:
+        except CompileError:
             logger.warn("Compilation error, trying hard to find its origin...")
             error_checker()
             logger.warn("Nop, I'm going to flood you with C++ errors!")

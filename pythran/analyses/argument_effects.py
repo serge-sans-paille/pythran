@@ -26,6 +26,7 @@ class FunctionEffects(object):
         else:
             raise NotImplementedError
 
+
 # Compute the intrinsic effects only once
 IntrinsicArgumentEffects = {}
 
@@ -40,6 +41,7 @@ def save_function_effect(module):
             IntrinsicArgumentEffects[intr] = fe
             if isinstance(intr, intrinsic.Class):
                 save_function_effect(intr.fields)
+
 
 for module in MODULES.values():
     save_function_effect(module)

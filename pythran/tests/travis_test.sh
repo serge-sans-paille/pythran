@@ -1,8 +1,4 @@
 run_tests() {
-    if [ -n "$PEP8" ]
-    then
-        PYTHONPATH=$PWD:$PYTHONPATH py.test pythran --pep8 -m pep8
-    fi
     if [ "$PYTHON_VERSION" = 2 -a "$TRAVIS_PYTHON_VERSION" = 3.5 ]
     then
         exit

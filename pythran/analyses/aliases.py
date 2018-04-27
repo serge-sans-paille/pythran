@@ -59,6 +59,7 @@ def save_intrinsic_alias(module):
             if isinstance(v, Class):
                 save_intrinsic_alias(v.fields)
 
+
 for module in MODULES.values():
     save_intrinsic_alias(module)
 

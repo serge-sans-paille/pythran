@@ -5,7 +5,6 @@ from pythran.tables import MODULES
 from pythran.passmanager import Transformation
 
 import gast as ast
-import copy
 
 patterns = (MODULES['numpy']['ones'],
             MODULES['numpy']['zeros'],

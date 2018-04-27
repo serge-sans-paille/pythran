@@ -479,7 +479,7 @@ class PythonModule(object):
         self.implems.append(func)
 
     def add_function(self, func, name, types, signature):
-        self.add_function_to(self.implems, fun, name, types, signature)
+        self.add_function_to(self.implems, func, name, types, signature)
 
     def add_function_to(self, to, func, name, ctypes, signature):
         """

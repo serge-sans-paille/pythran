@@ -6,7 +6,6 @@ from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 
 import gast as ast
-from math import isinf
 from copy import deepcopy
 
 

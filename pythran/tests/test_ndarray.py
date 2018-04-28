@@ -757,3 +757,22 @@ def assign_ndarray(t):
                       10, 10,
                       numpy_expr_combiner=[int, int])
 
+    def test_numpy_lazy_gexpr(self):
+        code = '''
+            import numpy as np
+
+            def efgh2(s, m, x, y):
+                if x == 0: # Without the if it doesn't compile
+                    return np.zeros(10)[:-1]
+                return np.zeros(10)[:-1]
+
+            def numpy_lazy_gexpr(s, m, x, y):
+                if m == 'a':
+                    b = efgh2(s, m, x, y + 1)
+                else:
+                    b = efgh2(s, m, x, y)
+                return b'''
+        self.run_test(code,
+                      10, "b", 10, 10,
+                      numpy_lazy_gexpr=[int, str, int, int])
+

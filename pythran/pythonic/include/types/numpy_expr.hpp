@@ -603,6 +603,13 @@ namespace types
       return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
     }
 
+    dtype operator[](array<long, value> const &indices) const
+    {
+      return _index(indices, utils::make_index_sequence<sizeof...(Args)>{});
+    }
+
+    explicit operator bool() const;
+
     long flat_size() const;
 
     long size() const;

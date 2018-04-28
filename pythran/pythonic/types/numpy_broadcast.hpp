@@ -98,10 +98,19 @@ namespace types
   }
 
   template <class T, class B>
+  template <size_t N>
+  typename broadcast<T, B>::dtype broadcast<T, B>::
+  operator[](array<long, N>) const
+  {
+    return _base._value;
+  }
+
+  template <class T, class B>
   typename broadcast<T, B>::dtype broadcast<T, B>::fast(long) const
   {
     return _base._value;
   }
+
   template <class T, class B>
   template <class... Args>
   typename broadcast<T, B>::dtype broadcast<T, B>::

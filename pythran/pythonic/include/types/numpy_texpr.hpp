@@ -157,6 +157,7 @@ namespace types
             std::tuple<S0 const &, S const &...>{s0, s...},
             utils::make_reversed_index_sequence<1 + sizeof...(S)>()));
 
+    explicit operator bool() const;
     long flat_size() const;
     intptr_t id() const;
     ndarray<dtype, value> copy() const

@@ -757,3 +757,34 @@ def assign_ndarray(t):
                       10, 10,
                       numpy_expr_combiner=[int, int])
 
+    def test_bool_conversion_0(self):
+        code = 'def bool_conversion_0(x): return bool(x)'
+        self.run_test(code,
+                      numpy.array([[1]]),
+                      bool_conversion_0=[NDArray[int, :,:]])
+
+    def test_bool_conversion_1(self):
+        code = 'def bool_conversion_1(x): return bool(x > 1)'
+        self.run_test(code,
+                      numpy.array([1]),
+                      bool_conversion_1=[NDArray[int, :]])
+
+    def test_bool_conversion_2(self):
+        code = 'def bool_conversion_2(x): return bool(x[1:,1,1:])'
+        self.run_test(code,
+                      numpy.array([[[1,1],[1,1]],
+                                   [[1,0],[1,1]]]
+                                   ),
+                                   bool_conversion_2=[NDArray[int, :,:,:]])
+
+    def test_bool_conversion_3(self):
+        code = 'def bool_conversion_3(x): return bool(x[1])'
+        self.run_test(code,
+                      numpy.array([[1],[0]]),
+                      bool_conversion_3=[NDArray[int, :,:]])
+
+    def test_bool_conversion_4(self):
+        code = 'def bool_conversion_4(x): return bool(x.T)'
+        self.run_test(code,
+                      numpy.array([[1]]),
+                      bool_conversion_4=[NDArray[int, :,:]])

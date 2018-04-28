@@ -7,6 +7,8 @@
 #include "pythonic/types/empty_iterator.hpp"
 #include "pythonic/types/attr.hpp"
 
+#include "pythonic/__builtin__/ValueError.hpp"
+
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/reserve.hpp"
@@ -769,6 +771,16 @@ namespace types
   ndarray<T, M> ndarray<T, N>::reshape(array<long, M> const &shape) &&
   {
     return {std::move(mem), shape};
+  }
+
+  template <class T, size_t N>
+  ndarray<T, N>::operator bool() const
+  {
+    if (std::any_of(_shape.begin(), _shape.end(),
+                    [](long n) { return n != 1; }))
+      throw ValueError("The truth value of an array with more than one element "
+                       "is ambiguous. Use a.any() or a.all()");
+    return *buffer;
   }
 
   template <class T, size_t N>

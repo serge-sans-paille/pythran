@@ -49,6 +49,7 @@ namespace types
     numpy_texpr_2();
     numpy_texpr_2(numpy_texpr_2 const &) = default;
     numpy_texpr_2(numpy_texpr_2 &&) = default;
+    numpy_texpr_2 &operator=(numpy_texpr_2 const &) = default;
 
     numpy_texpr_2(Arg const &arg);
     const_iterator begin() const;
@@ -189,6 +190,8 @@ namespace types
     numpy_texpr(numpy_texpr const &) = default;
     numpy_texpr(numpy_texpr &&) = default;
     numpy_texpr(ndarray<T, 2> const &arg);
+
+    numpy_texpr &operator=(numpy_texpr const &) = default;
 
     using numpy_texpr_2<ndarray<T, 2>>::operator=;
   };

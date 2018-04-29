@@ -6,6 +6,8 @@
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/types/nditerator.hpp"
 
+#include "pythonic/__builtin__/ValueError.hpp"
+
 PYTHONIC_NS_BEGIN
 
 namespace types
@@ -328,6 +330,17 @@ namespace types
       operator[](F const &filter) const
   {
     return fast(filter);
+  }
+
+  template <class Op, class... Args>
+  numpy_expr<Op, Args...>::operator bool() const
+  {
+    if (std::any_of(_shape.begin(), _shape.end(),
+                    [](long n) { return n != 1; }))
+      throw ValueError("The truth value of an array with more than one element "
+                       "is ambiguous. Use a.any() or a.all()");
+    array<long, value> first = {0};
+    return operator[](first);
   }
 
   template <class Op, class... Args>

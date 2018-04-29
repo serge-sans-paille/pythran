@@ -242,6 +242,8 @@ namespace types
     broadcast(V v);
 
     dtype operator[](long) const;
+    template <size_t N>
+    dtype operator[](array<long, N>) const;
     broadcast operator[](slice) const
     {
       return *this;

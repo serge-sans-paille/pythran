@@ -248,6 +248,12 @@ namespace types
   }
 
   template <class E>
+  numpy_texpr_2<E>::operator bool() const
+  {
+    return (bool)arg;
+  }
+
+  template <class E>
   long numpy_texpr_2<E>::flat_size() const
   {
     return arg.flat_size();

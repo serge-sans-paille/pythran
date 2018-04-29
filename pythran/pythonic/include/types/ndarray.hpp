@@ -468,6 +468,8 @@ namespace types
         ndarray<T, M> reshape(array<long, M> const &shape) &&
         ;
 
+    explicit operator bool() const;
+
     ndarray<T, 1> flat() const;
     ndarray<T, N> copy() const;
     intptr_t id() const;

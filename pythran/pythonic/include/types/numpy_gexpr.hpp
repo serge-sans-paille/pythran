@@ -593,6 +593,8 @@ namespace types
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));
 
+    explicit operator bool() const;
+
     long flat_size() const;
     long size() const;
     ndarray<dtype, value> copy() const

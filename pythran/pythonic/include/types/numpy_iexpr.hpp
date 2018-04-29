@@ -195,6 +195,7 @@ namespace types
       return nget<M - 1>()(*this, indices);
     }
 
+    explicit operator bool() const;
     long flat_size() const;
     array<long, value> const &shape() const
     {

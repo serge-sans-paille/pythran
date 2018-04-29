@@ -3,6 +3,8 @@
 
 #include "pythonic/include/types/numpy_gexpr.hpp"
 
+#include "pythonic/__builtin__/ValueError.hpp"
+
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/operator_/isub.hpp"
@@ -811,6 +813,16 @@ namespace types
       operator[](F const &filter) const
   {
     return fast(filter);
+  }
+
+  template <class Arg, class... S>
+  numpy_gexpr<Arg, S...>::operator bool() const
+  {
+    if (std::any_of(_shape.begin(), _shape.end(),
+                    [](long n) { return n != 1; }))
+      throw ValueError("The truth value of an array with more than one element "
+                       "is ambiguous. Use a.any() or a.all()");
+    return *buffer;
   }
 
   template <class Arg, class... S>

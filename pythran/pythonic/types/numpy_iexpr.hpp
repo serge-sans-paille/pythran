@@ -374,9 +374,11 @@ namespace types
                         ? indices[value - 1] + _shape[value - 1]
                         : indices[value - 1];
     long mult = _shape[value - 1];
-    for (size_t i = value - 2; i > 0; --i) {
-      offset += (indices[i] < 0 ? indices[i] + _shape[i] : indices[i]) * mult;
-      mult *= _shape[i];
+    if (value > 1) {
+      for (size_t i = value - 2; i > 0; --i) {
+        offset += (indices[i] < 0 ? indices[i] + _shape[i] : indices[i]) * mult;
+        mult *= _shape[i];
+      }
     }
     return buffer[offset +
                   (indices[0] < 0 ? indices[0] + _shape[0] : indices[0]) *
@@ -388,6 +390,16 @@ namespace types
   operator[](array<long, value> const &indices)
   {
     return const_cast<dtype &>(const_cast<numpy_iexpr const &>(*this)[indices]);
+  }
+
+  template <class Arg>
+  numpy_iexpr<Arg>::operator bool() const
+  {
+    if (std::any_of(_shape.begin(), _shape.end(),
+                    [](long n) { return n != 1; }))
+      throw ValueError("The truth value of an array with more than one element "
+                       "is ambiguous. Use a.any() or a.all()");
+    return *buffer;
   }
 
   template <class Arg>

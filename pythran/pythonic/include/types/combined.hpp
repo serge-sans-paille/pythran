@@ -4,16 +4,6 @@
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/types/variant_functor.hpp"
 
-/* specialize remove_cv */
-namespace std
-{
-  template <class K, class V>
-  struct remove_cv<std::pair<const K, V>> {
-    using type = std::pair<K, V>;
-  };
-}
-/* specialize remove_cv */
-
 /* type inference stuff
 */
 

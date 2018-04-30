@@ -53,6 +53,10 @@ def CCompiler_customize(self, _, need_cxx=0):
             self.compiler_so.remove('-Wstrict-prototypes')
         except (AttributeError, ValueError):
             pass
+    # Remove -arch i386 if 'x86_64' is specified.
+    if 'x86_64' in ' '.join(self.compiler_so):
+        # Ugly shortcut to remove '-arch', 'i386' from the list of arguments:
+        self.compiler_so=('PRETTY_UNIQUE_STRING_#$%*&^'.join(self.compiler_so)).replace('-archPRETTY_UNIQUE_STRING_#$%*&^i386','').split('PRETTY_UNIQUE_STRING_#$%*&^')
 
 numpy.distutils.ccompiler.replace_method(numpy.distutils.ccompiler.CCompiler,
                                          'customize', CCompiler_customize)

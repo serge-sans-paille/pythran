@@ -28,6 +28,18 @@ namespace types
   struct empty_dict;
 
   template <class I>
+  struct item_iterator_adaptator : public I {
+    using value_type = std::pair<
+        typename std::remove_cv<typename I::value_type::first_type>::type,
+        typename I::value_type::second_type>;
+    using pointer = value_type *;
+    using reference = value_type &;
+    item_iterator_adaptator() = default;
+    item_iterator_adaptator(I const &i);
+    value_type operator*();
+  };
+
+  template <class I>
   struct key_iterator_adaptator : public I {
     using value_type = typename I::value_type::first_type;
     using pointer = typename I::value_type::first_type *;
@@ -108,10 +120,10 @@ namespace types
         key_iterator_adaptator<typename container_type::iterator>>;
     using const_iterator = utils::comparable_iterator<
         key_iterator_adaptator<typename container_type::const_iterator>>;
-    using item_iterator =
-        utils::comparable_iterator<typename container_type::iterator>;
-    using item_const_iterator =
-        utils::comparable_iterator<typename container_type::const_iterator>;
+    using item_iterator = utils::comparable_iterator<
+        item_iterator_adaptator<typename container_type::iterator>>;
+    using item_const_iterator = utils::comparable_iterator<
+        item_iterator_adaptator<typename container_type::const_iterator>>;
     using key_iterator = utils::comparable_iterator<
         key_iterator_adaptator<typename container_type::iterator>>;
     using key_const_iterator = utils::comparable_iterator<

@@ -20,6 +20,20 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
+  /// item implementation
+
+  template <class I>
+  item_iterator_adaptator<I>::item_iterator_adaptator(I const &i)
+      : I(i)
+  {
+  }
+
+  template <class I>
+  typename item_iterator_adaptator<I>::value_type item_iterator_adaptator<I>::
+  operator*()
+  {
+    return I::operator*();
+  }
 
   /// key_iterator_adaptator implementation
   template <class I>
@@ -216,25 +230,29 @@ namespace types
   template <class K, class V>
   typename dict<K, V>::item_iterator dict<K, V>::item_begin()
   {
-    return typename dict<K, V>::item_iterator(data->begin());
+    return item_iterator_adaptator<
+        typename dict<K, V>::container_type::iterator>(data->begin());
   }
 
   template <class K, class V>
   typename dict<K, V>::item_const_iterator dict<K, V>::item_begin() const
   {
-    return typename dict<K, V>::item_const_iterator(data->begin());
+    return item_iterator_adaptator<
+        typename dict<K, V>::container_type::const_iterator>(data->begin());
   }
 
   template <class K, class V>
   typename dict<K, V>::item_iterator dict<K, V>::item_end()
   {
-    return typename dict<K, V>::item_iterator(data->end());
+    return item_iterator_adaptator<
+        typename dict<K, V>::container_type::iterator>(data->end());
   }
 
   template <class K, class V>
   typename dict<K, V>::item_const_iterator dict<K, V>::item_end() const
   {
-    return typename dict<K, V>::item_const_iterator(data->end());
+    return item_iterator_adaptator<
+        typename dict<K, V>::container_type::const_iterator>(data->end());
   }
 
   template <class K, class V>
@@ -327,7 +345,8 @@ namespace types
   template <class K, class V>
   typename dict<K, V>::item_const_iterator dict<K, V>::find(K const &key) const
   {
-    return typename dict<K, V>::item_const_iterator(data->find(key));
+    return item_iterator_adaptator<
+        typename dict<K, V>::container_type::const_iterator>(data->find(key));
   }
 
   template <class K, class V>

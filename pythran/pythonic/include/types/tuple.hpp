@@ -213,14 +213,14 @@ namespace types
 
                                    utils::make_repeated_type<T, N>()));
 
-    numpy_gexpr<array, slice> operator[](slice const &s) const
+    numpy_gexpr<array, normalized_slice> operator[](slice const &s) const
     {
-      return {*this, s};
+      return {*this, s.normalize(size())};
     }
-    numpy_gexpr<array, contiguous_slice>
+    numpy_gexpr<array, contiguous_normalized_slice>
     operator[](contiguous_slice const &s) const
     {
-      return {*this, s};
+      return {*this, s.normalize(size())};
     }
 
     /* array */

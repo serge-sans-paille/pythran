@@ -79,14 +79,14 @@ namespace types
     {
       return data_.fast(view_[i]);
     }
-    numpy_gexpr<numpy_vexpr, slice> operator[](slice s) const
+    numpy_gexpr<numpy_vexpr, normalized_slice> operator[](slice s) const
     {
-      return {*this, s};
+      return {*this, s.normalize(size())};
     }
-    numpy_gexpr<numpy_vexpr, contiguous_slice>
+    numpy_gexpr<numpy_vexpr, contiguous_normalized_slice>
     operator[](contiguous_slice s) const
     {
-      return {*this, s};
+      return {*this, s.normalize(size())};
     }
   };
 }

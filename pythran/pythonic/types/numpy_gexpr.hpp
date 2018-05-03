@@ -105,7 +105,7 @@ namespace types
 
   contiguous_slice to_slice<none_type>::operator()(none_type)
   {
-    return {none_type{}, none_type{}};
+    return {0, 1};
   }
 
   /* helper to build a new shape out of a shape && a slice with new axis
@@ -166,28 +166,35 @@ namespace types
   }
 
   template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N>, slice, S...> extended_slice<0>::
-  operator()(ndarray<T, N> &&a, slice const &s0, S const &... s)
+  numpy_gexpr<ndarray<T, N>, normalized_slice, normalize_t<S>...>
+      extended_slice<0>::operator()(ndarray<T, N> &&a, slice const &s0,
+                                    S const &... s)
   {
-    return numpy_gexpr<ndarray<T, N>, slice, S...>(std::move(a), s0, s...);
+    int i = 0;
+    return {std::move(a), s0.normalize(a.shape()[i++]),
+            normalize(s, a.shape()[i++])...};
   }
 
   template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N> const &, slice, S...> extended_slice<0>::
-  operator()(ndarray<T, N> const &a, slice const &s0, S const &... s)
+  numpy_gexpr<ndarray<T, N> const &, normalized_slice, normalize_t<S>...>
+      extended_slice<0>::operator()(ndarray<T, N> const &a, slice const &s0,
+                                    S const &... s)
   {
-    return numpy_gexpr<ndarray<T, N> const &, slice, S...>(a, s0, s...);
+    int i = 0;
+    return {a, s0.normalize(a.shape()[i++]), normalize(s, a.shape()[i++])...};
   }
 
   template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N>, contiguous_slice, S...> extended_slice<0>::
-  operator()(ndarray<T, N> &&a, contiguous_slice const &s0, S const &... s)
+  numpy_gexpr<ndarray<T, N>, contiguous_normalized_slice, normalize_t<S>...>
+      extended_slice<0>::operator()(ndarray<T, N> &&a,
+                                    contiguous_slice const &s0, S const &... s)
   {
     return make_gexpr(std::move(a), s0, s...);
   }
 
   template <class T, size_t N, class... S>
-  numpy_gexpr<ndarray<T, N> const &, contiguous_slice, S...> extended_slice<0>::
+  numpy_gexpr<ndarray<T, N> const &, contiguous_normalized_slice,
+              normalize_t<S>...> extended_slice<0>::
   operator()(ndarray<T, N> const &a, contiguous_slice const &s0, S const &... s)
   {
     return make_gexpr(a, s0, s...);
@@ -211,82 +218,91 @@ namespace types
   {
 
     std::tuple<> merge_gexpr<std::tuple<>, std::tuple<>>::
-    operator()(std::tuple<> const &t0, std::tuple<> const &)
+    operator()(long const *, std::tuple<> const &t0, std::tuple<> const &)
     {
       return t0;
     }
 
     template <class... T0>
     std::tuple<T0...> merge_gexpr<std::tuple<T0...>, std::tuple<>>::
-    operator()(std::tuple<T0...> const &t0, std::tuple<>)
+    operator()(long const *, std::tuple<T0...> const &t0, std::tuple<>)
     {
       return t0;
     }
 
-    template <class... T1>
-    std::tuple<T1...> merge_gexpr<std::tuple<>, std::tuple<T1...>>::
-    operator()(std::tuple<>, std::tuple<T1...> const &t1)
+    template <class T, size_t... Is>
+    auto normalize_all(long const *s, T const &t, utils::index_sequence<Is...>)
+        -> decltype(std::make_tuple(normalize(std::get<Is>(t), s[Is])...))
     {
-      return t1;
+      return std::make_tuple(normalize(std::get<Is>(t), s[Is])...);
+    }
+
+    template <class... T1>
+    std::tuple<normalize_t<T1>...>
+        merge_gexpr<std::tuple<>, std::tuple<T1...>>::
+        operator()(long const *s, std::tuple<>, std::tuple<T1...> const &t1)
+    {
+      return normalize_all(s, t1, utils::make_index_sequence<sizeof...(T1)>());
     }
 
     template <class S0, class... T0, class S1, class... T1>
     auto merge_gexpr<std::tuple<S0, T0...>, std::tuple<S1, T1...>>::
-    operator()(std::tuple<S0, T0...> const &t0, std::tuple<S1, T1...> const &t1)
+    operator()(long const *s, std::tuple<S0, T0...> const &t0,
+               std::tuple<S1, T1...> const &t1)
         -> decltype(
             tuple_push_head(std::get<0>(t0) * std::get<0>(t1),
                             merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                                tuple_tail(t0), tuple_tail(t1))))
+                                s + 1, tuple_tail(t0), tuple_tail(t1))))
     {
       return tuple_push_head(
           std::get<0>(t0) * std::get<0>(t1),
-          merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(tuple_tail(t0),
-                                                              tuple_tail(t1)));
+          merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
+              s + 1, tuple_tail(t0), tuple_tail(t1)));
     }
 
     template <class... T0, class S1, class... T1>
     auto merge_gexpr<std::tuple<long, T0...>, std::tuple<S1, T1...>>::
-    operator()(std::tuple<long, T0...> const &t0,
+    operator()(long const *s, std::tuple<long, T0...> const &t0,
                std::tuple<S1, T1...> const &t1)
         -> decltype(tuple_push_head(
             std::get<0>(t0),
             merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
-                tuple_tail(t0), t1)))
+                s, tuple_tail(t0), t1)))
     {
       return tuple_push_head(
           std::get<0>(t0),
           merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
-              tuple_tail(t0), t1));
+              s, tuple_tail(t0), t1));
     }
 
     template <class S0, class... T0, class... T1>
     auto merge_gexpr<std::tuple<S0, T0...>, std::tuple<long, T1...>>::
-    operator()(std::tuple<S0, T0...> const &t0,
+    operator()(long const *s, std::tuple<S0, T0...> const &t0,
                std::tuple<long, T1...> const &t1)
         -> decltype(tuple_push_head(
             std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower,
             merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                tuple_tail(t0), tuple_tail(t1))))
+                s + 1, tuple_tail(t0), tuple_tail(t1))))
     {
       return tuple_push_head(
           std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower,
-          merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(tuple_tail(t0),
-                                                              tuple_tail(t1)));
+          merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
+              s + 1, tuple_tail(t0), tuple_tail(t1)));
     }
 
     template <class... T0, class... T1>
     auto merge_gexpr<std::tuple<long, T0...>, std::tuple<long, T1...>>::
-    operator()(std::tuple<long, T0...> const &t0,
+    operator()(long const *s, std::tuple<long, T0...> const &t0,
                std::tuple<long, T1...> const &t1)
         -> decltype(tuple_push_head(
             std::get<0>(t0),
             merge_gexpr<std::tuple<T0...>, std::tuple<long, T1...>>{}(
-                tuple_tail(t0), t1)))
+                s, tuple_tail(t0), t1)))
     {
       return tuple_push_head(
           std::get<0>(t0),
           merge_gexpr<std::tuple<T0...>, std::tuple<long, T1...>>{}(
-              tuple_tail(t0), t1));
+              s, tuple_tail(t0), t1));
     }
 
     template <class Arg, class... Sp>
@@ -296,10 +312,11 @@ namespace types
     }
 
     template <class Arg, class... S>
-    numpy_gexpr<Arg, S...> make_gexpr<Arg, S...>::operator()(Arg arg,
-                                                             S const &... s)
+    numpy_gexpr<Arg, normalize_t<S>...> make_gexpr<Arg, S...>::
+    operator()(Arg arg, S const &... s)
     {
-      return {arg, s...};
+      int i = 0;
+      return {arg, normalize(s, arg.shape()[i++])...};
     }
 
     // this specialization is in charge of merging gexpr
@@ -308,10 +325,12 @@ namespace types
     operator()(numpy_gexpr<Arg, S...> const &arg, Sp const &... s) -> decltype(
         _make_gexpr(std::declval<Arg>(),
                     merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
-                        std::tuple<S...>(), std::tuple<Sp...>())))
+                        std::declval<long const *>(), std::tuple<S...>(),
+                        std::tuple<Sp...>())))
     {
-      return {arg.arg, merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
-                           arg.slices, std::make_tuple(s...))};
+      return {arg.arg,
+              merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
+                  arg.shape().data(), arg.slices, std::make_tuple(s...))};
     }
   }
 
@@ -344,28 +363,26 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t J, class Slice>
-  typename std::enable_if<std::is_same<Slice, slice>::value ||
-                              std::is_same<Slice, contiguous_slice>::value,
-                          void>::type
+  typename std::enable_if<
+      std::is_same<Slice, normalized_slice>::value ||
+          std::is_same<Slice, contiguous_normalized_slice>::value,
+      void>::type
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<1>,
                                      utils::int_<J>)
   {
-    auto ns = s.normalize(arg.shape()[sizeof...(S)-1]);
-    std::get<sizeof...(S)-1>(slices).lower = ns.lower;
-    _shape[J] = ns.size();
+    _shape[J] = std::get<sizeof...(S)-1>(slices).size();
   }
 
   template <class Arg, class... S>
   template <size_t I, size_t J, class Slice>
-  typename std::enable_if<std::is_same<Slice, slice>::value ||
-                              std::is_same<Slice, contiguous_slice>::value,
-                          void>::type
+  typename std::enable_if<
+      std::is_same<Slice, normalized_slice>::value ||
+          std::is_same<Slice, contiguous_normalized_slice>::value,
+      void>::type
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<I>,
                                      utils::int_<J>)
   {
-    auto ns = s.normalize(arg.shape()[sizeof...(S)-I]);
-    std::get<sizeof...(S)-I>(slices).lower = ns.lower;
-    _shape[J] = ns.size();
+    _shape[J] = std::get<sizeof...(S)-I>(slices).size();
     init_shape(std::get<sizeof...(S)-I + 1>(slices), utils::int_<I - 1>(),
                utils::int_<J + 1>());
   }
@@ -375,9 +392,7 @@ namespace types
   void numpy_gexpr<Arg, S...>::init_shape(long cs, utils::int_<1>,
                                           utils::int_<J>)
   {
-    if (cs < 0)
-      cs += arg.shape()[sizeof...(S)-1];
-    std::get<sizeof...(S)-1>(slices) = cs;
+    assert(cs >= 0 && "normalized");
   }
 
   template <class Arg, class... S>
@@ -385,9 +400,7 @@ namespace types
   void numpy_gexpr<Arg, S...>::init_shape(long cs, utils::int_<I>,
                                           utils::int_<J>)
   {
-    if (cs < 0)
-      cs += arg.shape()[sizeof...(S)-I];
-    std::get<sizeof...(S)-I>(slices) = cs;
+    assert(cs >= 0 && "normalized");
     init_shape(std::get<sizeof...(S)-I + 1>(slices), utils::int_<I - 1>(),
                utils::int_<J>());
   }
@@ -401,6 +414,7 @@ namespace types
                utils::int_<0>());
     buffer += buffer_offset(
         arg, std::get<count_leading_long<S...>::value>(slices).lower);
+
     for (size_t i = sizeof...(S)-count_long<S...>::value; i < value; ++i)
       _shape[i] = arg.shape()[i + count_long<S...>::value];
   }
@@ -852,9 +866,10 @@ namespace types
     // We reach a new slice so we have a new gexpr
     template <size_t N, class Arg, class... S>
     template <class E, class F>
-    typename finalize_numpy_gexpr_helper<N, Arg, contiguous_slice, S...>::type
-    finalize_numpy_gexpr_helper<N, Arg, contiguous_slice, S...>::get(E const &e,
-                                                                     F &&f)
+    typename finalize_numpy_gexpr_helper<N, Arg, contiguous_normalized_slice,
+                                         S...>::type
+    finalize_numpy_gexpr_helper<N, Arg, contiguous_normalized_slice, S...>::get(
+        E const &e, F &&f)
     {
       return {e, std::forward<F>(f)};
     }
@@ -862,8 +877,9 @@ namespace types
     // We reach a new slice so we have a new gexpr
     template <size_t N, class Arg, class... S>
     template <class E, class F>
-    typename finalize_numpy_gexpr_helper<N, Arg, slice, S...>::type
-    finalize_numpy_gexpr_helper<N, Arg, slice, S...>::get(E const &e, F &&f)
+    typename finalize_numpy_gexpr_helper<N, Arg, normalized_slice, S...>::type
+    finalize_numpy_gexpr_helper<N, Arg, normalized_slice, S...>::get(E const &e,
+                                                                     F &&f)
     {
       return type(e, std::forward<F>(f));
     }

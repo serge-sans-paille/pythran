@@ -12,6 +12,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <ostream>
+#include <algorithm>
 
 PYTHONIC_NS_BEGIN
 
@@ -40,11 +41,26 @@ namespace types
   {
   }
 
-  template <class S>
-  normalized_slice normalized_slice::operator*(S const &other) const
+  normalized_slice normalized_slice::
+  operator*(normalized_slice const &other) const
   {
-    return S(lower + step * other.lower, lower + step * other.upper,
-             step * other.step);
+    return {lower + step * other.lower, lower + step * other.upper,
+            step * other.step};
+  }
+  normalized_slice normalized_slice::
+  operator*(contiguous_normalized_slice const &other) const
+  {
+    return {lower + step * other.lower, lower + step * other.upper,
+            step * other.step};
+  }
+  normalized_slice normalized_slice::operator*(slice const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
+  normalized_slice normalized_slice::
+  operator*(contiguous_slice const &other) const
+  {
+    return (*this) * other.normalize(size());
   }
 
   long normalized_slice::size() const
@@ -213,12 +229,23 @@ namespace types
     return contiguous_normalized_slice(lower + other.lower,
                                        lower + other.upper);
   }
+  contiguous_normalized_slice contiguous_normalized_slice::
+  operator*(contiguous_slice const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
 
   normalized_slice contiguous_normalized_slice::
   operator*(normalized_slice const &other) const
   {
     return normalized_slice(lower + step * other.lower,
                             lower + step * other.upper, step * other.step);
+  }
+
+  normalized_slice contiguous_normalized_slice::
+  operator*(slice const &other) const
+  {
+    return (*this) * other.normalize(size());
   }
 
   long contiguous_normalized_slice::size() const

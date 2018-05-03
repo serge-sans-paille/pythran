@@ -2,13 +2,13 @@
 #define PYTHONIC_TYPES_TUPLE_HPP
 
 #include "pythonic/include/types/tuple.hpp"
-#include "pythonic/include/types/list.hpp"
-#include "pythonic/types/nditerator.hpp"
 
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/traits.hpp"
+#include "pythonic/types/nditerator.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/seq.hpp"
+#include "pythonic/utils/nested_container.hpp"
 
 #include <tuple>
 #include <algorithm>

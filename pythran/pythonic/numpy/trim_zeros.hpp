@@ -11,7 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T>
-  types::numpy_gexpr<T, types::contiguous_slice>
+  types::numpy_gexpr<T, types::contiguous_normalized_slice>
   trim_zeros(T const &expr, types::str const &trim)
   {
     static_assert(T::value == 1,

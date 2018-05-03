@@ -352,6 +352,7 @@ namespace types
   template <class E>
   void ndarray<T, N>::initialize_from_expr(E const &expr)
   {
+    assert(buffer);
     utils::broadcast_copy<ndarray &, E, value, 0,
                           is_vectorizable && E::is_vectorizable &&
                               std::is_same<dtype, typename E::dtype>::value>(
@@ -594,21 +595,22 @@ namespace types
   }
 
   template <class T, size_t N>
-  numpy_gexpr<ndarray<T, N> const &, slice> ndarray<T, N>::
+  numpy_gexpr<ndarray<T, N> const &, normalized_slice> ndarray<T, N>::
   operator[](slice const &s) const &
   {
     return make_gexpr(*this, s);
   }
 
   template <class T, size_t N>
-  numpy_gexpr<ndarray<T, N>, slice> ndarray<T, N>::operator[](slice const &s) &&
+  numpy_gexpr<ndarray<T, N>, normalized_slice> ndarray<T, N>::
+  operator[](slice const &s) &&
   {
     return make_gexpr(std::move(*this), s);
   }
 
   template <class T, size_t N>
-  numpy_gexpr<ndarray<T, N> const &, contiguous_slice> ndarray<T, N>::
-  operator[](contiguous_slice const &s) const
+  numpy_gexpr<ndarray<T, N> const &, contiguous_normalized_slice>
+      ndarray<T, N>::operator[](contiguous_slice const &s) const
   {
     return make_gexpr(*this, s);
   }
@@ -977,14 +979,13 @@ namespace types
       auto _build_gexpr<N>::operator()(E const &a, S const &... slices)
           -> decltype(_build_gexpr<N - 1>{}(a, contiguous_slice(), slices...))
       {
-        return _build_gexpr<N - 1>{}(
-            a, contiguous_slice(__builtin__::None, __builtin__::None),
-            slices...);
+        return _build_gexpr<N - 1>{}(a, contiguous_slice(0, a.size()),
+                                     slices...);
       }
 
       template <class E, class... S>
-      numpy_gexpr<E, S...> _build_gexpr<1>::operator()(E const &a,
-                                                       S const &... slices)
+      numpy_gexpr<E, normalize_t<S>...> _build_gexpr<1>::
+      operator()(E const &a, S const &... slices)
       {
         return a(slices...);
       }
@@ -1001,7 +1002,7 @@ namespace types
         -> decltype(_build_gexpr<E::value>{}(
             ndarray<typename types::is_complex<typename E::dtype>::type,
                     E::value>{},
-            slice{0, 0, 2}))
+            slice()))
     {
       using stype = typename types::is_complex<typename E::dtype>::type;
       auto new_shape = a.shape();
@@ -1048,7 +1049,7 @@ namespace types
         -> decltype(_build_gexpr<E::value>{}(
             ndarray<typename types::is_complex<typename E::dtype>::type,
                     E::value>{},
-            slice{0, 0, 2}))
+            slice()))
     {
       using stype = typename types::is_complex<typename E::dtype>::type;
       auto new_shape = a.shape();
@@ -1358,13 +1359,14 @@ namespace impl
   {
   }
 
-  void set_slice(types::contiguous_slice &cs, long lower, long upper, long step)
+  void set_slice(types::contiguous_normalized_slice &cs, long lower, long upper,
+                 long step)
   {
     cs.lower = lower;
     cs.upper = upper;
     assert(cs.step == step && "consistent steps");
   }
-  void set_slice(types::slice &s, long lower, long upper, long step)
+  void set_slice(types::normalized_slice &s, long lower, long upper, long step)
   {
     s.lower = lower;
     s.upper = upper;

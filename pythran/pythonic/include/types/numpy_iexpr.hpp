@@ -163,11 +163,11 @@ namespace types
     simd_iterator vend(vectorizer) const;
 #endif
     template <class... S>
-    numpy_gexpr<numpy_iexpr, slice, S...> operator()(slice const &s0,
-                                                     S const &... s) const;
+    numpy_gexpr<numpy_iexpr, normalized_slice, normalize_t<S>...>
+    operator()(slice const &s0, S const &... s) const;
 
     template <class... S>
-    numpy_gexpr<numpy_iexpr, contiguous_slice, S...>
+    numpy_gexpr<numpy_iexpr, contiguous_normalized_slice, normalize_t<S>...>
     operator()(contiguous_slice const &s0, S const &... s) const;
 
     template <class... S>
@@ -182,8 +182,9 @@ namespace types
     auto operator[](long i) const & -> decltype(this->fast(i));
     auto operator[](long i) & -> decltype(this->fast(i));
     auto operator[](long i) && -> decltype(std::move(*this).fast(i));
-    numpy_gexpr<numpy_iexpr, slice> operator[](slice const &s0) const;
-    numpy_gexpr<numpy_iexpr, contiguous_slice>
+    numpy_gexpr<numpy_iexpr, normalized_slice>
+    operator[](slice const &s0) const;
+    numpy_gexpr<numpy_iexpr, contiguous_normalized_slice>
     operator[](contiguous_slice const &s0) const;
 
     dtype const &operator[](array<long, value> const &indices) const;

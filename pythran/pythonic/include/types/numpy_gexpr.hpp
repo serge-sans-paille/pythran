@@ -78,19 +78,20 @@ namespace types
         -> decltype(a[s0](s...));
 
     template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N>, slice, S...>
+    numpy_gexpr<ndarray<T, N>, normalized_slice, normalize_t<S>...>
     operator()(ndarray<T, N> &&a, slice const &s0, S const &... s);
 
     template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N> const &, slice, S...>
+    numpy_gexpr<ndarray<T, N> const &, normalized_slice, normalize_t<S>...>
     operator()(ndarray<T, N> const &a, slice const &s0, S const &... s);
 
     template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N>, contiguous_slice, S...>
+    numpy_gexpr<ndarray<T, N>, contiguous_normalized_slice, normalize_t<S>...>
     operator()(ndarray<T, N> &&a, contiguous_slice const &s0, S const &... s);
 
     template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N> const &, contiguous_slice, S...>
+    numpy_gexpr<ndarray<T, N> const &, contiguous_normalized_slice,
+                normalize_t<S>...>
     operator()(ndarray<T, N> const &a, contiguous_slice const &s0,
                S const &... s);
   };
@@ -121,12 +122,12 @@ namespace types
   };
 
   template <>
-  struct count_long<slice> {
+  struct count_long<normalized_slice> {
     static constexpr size_t value = 0;
   };
 
   template <>
-  struct count_long<contiguous_slice> {
+  struct count_long<contiguous_normalized_slice> {
     static constexpr size_t value = 0;
   };
 
@@ -162,7 +163,7 @@ namespace types
   };
 
   template <class... S>
-  struct is_contiguous<contiguous_slice, S...> {
+  struct is_contiguous<contiguous_normalized_slice, S...> {
     static const bool value = true;
   };
 
@@ -199,57 +200,68 @@ namespace types
 
     template <>
     struct merge_gexpr<std::tuple<>, std::tuple<>> {
-      std::tuple<> operator()(std::tuple<> const &t0, std::tuple<> const &);
+      std::tuple<> operator()(long const *, std::tuple<> const &t0,
+                              std::tuple<> const &);
     };
 
     template <class... T0>
     struct merge_gexpr<std::tuple<T0...>, std::tuple<>> {
-      std::tuple<T0...> operator()(std::tuple<T0...> const &t0, std::tuple<>);
+      std::tuple<T0...> operator()(long const *, std::tuple<T0...> const &t0,
+                                   std::tuple<>);
+      static_assert(
+          utils::all_of<std::is_same<T0, normalize_t<T0>>::value...>::value,
+          "all slices are normalized");
     };
 
     template <class... T1>
     struct merge_gexpr<std::tuple<>, std::tuple<T1...>> {
-      std::tuple<T1...> operator()(std::tuple<>, std::tuple<T1...> const &t1);
+      std::tuple<normalize_t<T1>...> operator()(long const *, std::tuple<>,
+                                                std::tuple<T1...> const &t1);
     };
 
     template <class S0, class... T0, class S1, class... T1>
     struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<S1, T1...>> {
-      auto operator()(std::tuple<S0, T0...> const &t0,
+      auto operator()(long const *s, std::tuple<S0, T0...> const &t0,
                       std::tuple<S1, T1...> const &t1)
           -> decltype(tuple_push_head(
               std::get<0>(t0) * std::get<0>(t1),
               merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                  tuple_tail(t0), tuple_tail(t1))));
+                  s + 1, tuple_tail(t0), tuple_tail(t1))));
+      static_assert(
+          std::is_same<decltype(std::declval<S0>() * std::declval<S1>()),
+                       normalize_t<decltype(std::declval<S0>() *
+                                            std::declval<S1>())>>::value,
+          "all slices are normalized");
     };
 
     template <class... T0, class S1, class... T1>
     struct merge_gexpr<std::tuple<long, T0...>, std::tuple<S1, T1...>> {
-      auto operator()(std::tuple<long, T0...> const &t0,
+      auto operator()(long const *s, std::tuple<long, T0...> const &t0,
                       std::tuple<S1, T1...> const &t1)
           -> decltype(tuple_push_head(
               std::get<0>(t0),
               merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
-                  tuple_tail(t0), t1)));
+                  s, tuple_tail(t0), t1)));
     };
 
     template <class S0, class... T0, class... T1>
     struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<long, T1...>> {
-      auto operator()(std::tuple<S0, T0...> const &t0,
+      auto operator()(long const *s, std::tuple<S0, T0...> const &t0,
                       std::tuple<long, T1...> const &t1)
           -> decltype(tuple_push_head(
               std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower,
               merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                  tuple_tail(t0), tuple_tail(t1))));
+                  s + 1, tuple_tail(t0), tuple_tail(t1))));
     };
 
     template <class... T0, class... T1>
     struct merge_gexpr<std::tuple<long, T0...>, std::tuple<long, T1...>> {
-      auto operator()(std::tuple<long, T0...> const &t0,
+      auto operator()(long const *s, std::tuple<long, T0...> const &t0,
                       std::tuple<long, T1...> const &t1)
           -> decltype(tuple_push_head(
               std::get<0>(t0),
               merge_gexpr<std::tuple<T0...>, std::tuple<long, T1...>>{}(
-                  tuple_tail(t0), t1)));
+                  s, tuple_tail(t0), t1)));
     };
 
     template <class Arg, class... Sp>
@@ -257,7 +269,7 @@ namespace types
 
     template <class Arg, class... S>
     struct make_gexpr {
-      numpy_gexpr<Arg, S...> operator()(Arg arg, S const &... s);
+      numpy_gexpr<Arg, normalize_t<S>...> operator()(Arg arg, S const &... s);
     };
 
     // this specialization is in charge of merging gexpr
@@ -267,7 +279,8 @@ namespace types
           -> decltype(
               _make_gexpr(std::declval<Arg>(),
                           merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
-                              std::tuple<S...>(), std::tuple<Sp...>())));
+                              std::declval<long const *>(), std::tuple<S...>(),
+                              std::tuple<Sp...>())));
     };
   }
 
@@ -346,6 +359,10 @@ namespace types
    */
   template <class Arg, class... S>
   struct numpy_gexpr {
+    static_assert(
+        utils::all_of<std::is_same<S, normalize_t<S>>::value...>::value,
+        "all slices are normalized");
+
     // numpy_gexpr is a wrapper for extended sliced array around a numpy
     // expression.
     // It contains compacted sorted slices value in lower, step && upper is
@@ -372,13 +389,13 @@ namespace types
     static const bool is_vectorizable =
         std::remove_reference<Arg>::type::is_vectorizable &&
         (sizeof...(S) < std::remove_reference<Arg>::type::value ||
-         std::is_same<contiguous_slice,
+         std::is_same<contiguous_normalized_slice,
                       typename std::tuple_element<
                           sizeof...(S)-1, std::tuple<S...>>::type>::value);
     static const bool is_strided =
         std::remove_reference<Arg>::type::is_strided ||
         (((sizeof...(S)-count_long<S...>::value) == value) &&
-         !std::is_same<contiguous_slice,
+         !std::is_same<contiguous_normalized_slice,
                        typename std::tuple_element<
                            sizeof...(S)-1, std::tuple<S...>>::type>::value);
 
@@ -434,15 +451,17 @@ namespace types
     numpy_gexpr(numpy_gexpr<Argp, S...> const &other);
 
     template <size_t J, class Slice>
-    typename std::enable_if<std::is_same<Slice, slice>::value ||
-                                std::is_same<Slice, contiguous_slice>::value,
-                            void>::type
+    typename std::enable_if<
+        std::is_same<Slice, normalized_slice>::value ||
+            std::is_same<Slice, contiguous_normalized_slice>::value,
+        void>::type
     init_shape(Slice const &s, utils::int_<1>, utils::int_<J>);
 
     template <size_t I, size_t J, class Slice>
-    typename std::enable_if<std::is_same<Slice, slice>::value ||
-                                std::is_same<Slice, contiguous_slice>::value,
-                            void>::type
+    typename std::enable_if<
+        std::is_same<Slice, normalized_slice>::value ||
+            std::is_same<Slice, contiguous_normalized_slice>::value,
+        void>::type
     init_shape(Slice const &s, utils::int_<I>, utils::int_<J>);
 
     template <size_t J>
@@ -640,17 +659,18 @@ namespace types
 
     // We reach a new slice so we have a new gexpr
     template <size_t N, class Arg, class... S>
-    struct finalize_numpy_gexpr_helper<N, Arg, contiguous_slice, S...> {
-      using type = numpy_gexpr<Arg, contiguous_slice, S...>;
+    struct finalize_numpy_gexpr_helper<N, Arg, contiguous_normalized_slice,
+                                       S...> {
+      using type = numpy_gexpr<Arg, contiguous_normalized_slice, S...>;
       template <class E, class F>
       static type get(E const &e, F &&f);
     };
 
     // We reach a new slice so we have a new gexpr
     template <size_t N, class Arg, class... S>
-    struct finalize_numpy_gexpr_helper<N, Arg, slice, S...> {
+    struct finalize_numpy_gexpr_helper<N, Arg, normalized_slice, S...> {
 
-      using type = numpy_gexpr<Arg, slice, S...>;
+      using type = numpy_gexpr<Arg, normalized_slice, S...>;
       template <class E, class F>
       static type get(E const &e, F &&f);
     };

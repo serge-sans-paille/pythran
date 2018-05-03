@@ -47,15 +47,19 @@ namespace types
     }
   };
 
+  struct slice;
   struct contiguous_slice;
+  struct contiguous_normalized_slice;
 
   struct normalized_slice {
     long lower, upper, step;
     normalized_slice();
     normalized_slice(long lower, long upper, long step = 1);
 
-    template <class S>
-    normalized_slice operator*(S const &other) const;
+    normalized_slice operator*(normalized_slice const &other) const;
+    normalized_slice operator*(contiguous_normalized_slice const &other) const;
+    normalized_slice operator*(slice const &other) const;
+    normalized_slice operator*(contiguous_slice const &other) const;
 
     long size() const;
     inline long get(long i) const;
@@ -97,7 +101,9 @@ namespace types
 
     contiguous_normalized_slice
     operator*(contiguous_normalized_slice const &other) const;
+    contiguous_normalized_slice operator*(contiguous_slice const &other) const;
     normalized_slice operator*(normalized_slice const &other) const;
+    normalized_slice operator*(slice const &other) const;
 
     long size() const;
 
@@ -127,6 +133,40 @@ namespace types
 
     inline long get(long i) const;
   };
+
+  template <class T>
+  struct normalized {
+    using type = T;
+  };
+
+  template <>
+  struct normalized<slice> {
+    using type = normalized_slice;
+  };
+
+  template <>
+  struct normalized<contiguous_slice> {
+    using type = contiguous_normalized_slice;
+  };
+
+  template <class S>
+  using normalize_t = typename normalized<S>::type;
+
+  template <class S>
+  S normalize(S s, long n)
+  {
+    if (s < 0)
+      s += n;
+    return s;
+  }
+  normalized_slice normalize(slice s, long n)
+  {
+    return s.normalize(n);
+  }
+  contiguous_normalized_slice normalize(contiguous_slice s, long n)
+  {
+    return s.normalize(n);
+  }
 }
 PYTHONIC_NS_END
 

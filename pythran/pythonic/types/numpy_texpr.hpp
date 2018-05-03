@@ -263,7 +263,6 @@ namespace types
   template <class Expr>
   numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator=(Expr const &expr)
   {
-    assert(buffer);
     return utils::broadcast_copy < numpy_texpr_2 &, Expr, value,
            value - utils::dim_of<Expr>::value,
            is_vectorizable &&

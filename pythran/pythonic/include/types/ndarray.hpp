@@ -354,10 +354,11 @@ namespace types
     /* slice indexing */
     ndarray<T, N + 1> operator[](none_type) const;
 
-    numpy_gexpr<ndarray const &, slice> operator[](slice const &s) const &;
-    numpy_gexpr<ndarray, slice> operator[](slice const &s) && ;
+    numpy_gexpr<ndarray const &, normalized_slice>
+    operator[](slice const &s) const &;
+    numpy_gexpr<ndarray, normalized_slice> operator[](slice const &s) && ;
 
-    numpy_gexpr<ndarray const &, contiguous_slice>
+    numpy_gexpr<ndarray const &, contiguous_normalized_slice>
     operator[](contiguous_slice const &s) const;
 
     long size() const;
@@ -662,7 +663,8 @@ namespace types
       template <>
       struct _build_gexpr<1> {
         template <class E, class... S>
-        numpy_gexpr<E, S...> operator()(E const &a, S const &... slices);
+        numpy_gexpr<E, normalize_t<S>...> operator()(E const &a,
+                                                     S const &... slices);
       };
     }
 
@@ -675,7 +677,7 @@ namespace types
           -> decltype(_build_gexpr<E::value>{}(
               ndarray<typename types::is_complex<typename E::dtype>::type,
                       E::value>{},
-              slice{0, 0, 2}));
+              slice()));
 
       auto operator()(E const &a) -> decltype(this->make_real(
           a, utils::int_<types::is_complex<typename E::dtype>::value>{}));
@@ -699,7 +701,7 @@ namespace types
           -> decltype(_build_gexpr<E::value>{}(
               ndarray<typename types::is_complex<typename E::dtype>::type,
                       E::value>{},
-              slice{0, 0, 2}));
+              slice()));
 
       auto operator()(E const &a) -> decltype(this->make_imag(
           a, utils::int_<types::is_complex<typename E::dtype>::value>{}));

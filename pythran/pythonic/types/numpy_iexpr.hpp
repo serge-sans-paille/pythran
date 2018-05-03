@@ -33,6 +33,7 @@ namespace types
   numpy_iexpr<Arg>::numpy_iexpr(numpy_iexpr<Argp> const &other)
       : buffer(other.buffer), _shape(other.shape())
   {
+    assert(buffer);
   }
 
   template <class Arg>
@@ -82,6 +83,7 @@ namespace types
     using BExpr =
         typename std::conditional<std::is_scalar<Expr>::value,
                                   broadcast<Expr, dtype>, Expr const &>::type;
+    assert(buffer);
     BExpr bexpr = expr;
     utils::broadcast_update<
         Op, numpy_iexpr &, BExpr, value,
@@ -318,14 +320,14 @@ namespace types
   }
 
   template <class Arg>
-  numpy_gexpr<numpy_iexpr<Arg>, slice> numpy_iexpr<Arg>::
+  numpy_gexpr<numpy_iexpr<Arg>, normalized_slice> numpy_iexpr<Arg>::
   operator[](slice const &s0) const
   {
     return make_gexpr(*this, s0);
   }
 
   template <class Arg>
-  numpy_gexpr<numpy_iexpr<Arg>, contiguous_slice> numpy_iexpr<Arg>::
+  numpy_gexpr<numpy_iexpr<Arg>, contiguous_normalized_slice> numpy_iexpr<Arg>::
   operator[](contiguous_slice const &s0) const
   {
     return make_gexpr(*this, s0);
@@ -333,16 +335,17 @@ namespace types
 
   template <class Arg>
   template <class... S>
-  numpy_gexpr<numpy_iexpr<Arg>, slice, S...> numpy_iexpr<Arg>::
-  operator()(slice const &s0, S const &... s) const
+  numpy_gexpr<numpy_iexpr<Arg>, normalized_slice, normalize_t<S>...>
+      numpy_iexpr<Arg>::operator()(slice const &s0, S const &... s) const
   {
     return make_gexpr(*this, s0, s...);
   }
 
   template <class Arg>
   template <class... S>
-  numpy_gexpr<numpy_iexpr<Arg>, contiguous_slice, S...> numpy_iexpr<Arg>::
-  operator()(contiguous_slice const &s0, S const &... s) const
+  numpy_gexpr<numpy_iexpr<Arg>, contiguous_normalized_slice, normalize_t<S>...>
+      numpy_iexpr<Arg>::operator()(contiguous_slice const &s0,
+                                   S const &... s) const
   {
     return make_gexpr(*this, s0, s...);
   }

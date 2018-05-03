@@ -120,14 +120,14 @@ namespace types
     operator[](E const &expr) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));
-    numpy_gexpr<numpy_fexpr, slice> operator[](slice s) const
+    numpy_gexpr<numpy_fexpr, normalized_slice> operator[](slice s) const
     {
-      return {*this, s};
+      return {*this, s.normalize(_shape[0])};
     }
-    numpy_gexpr<numpy_fexpr, contiguous_slice>
+    numpy_gexpr<numpy_fexpr, contiguous_normalized_slice>
     operator[](contiguous_slice s) const
     {
-      return {*this, s};
+      return {*this, s.normalize(_shape[0])};
     }
 
     long flat_size() const;

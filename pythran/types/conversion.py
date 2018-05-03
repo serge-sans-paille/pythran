@@ -62,7 +62,7 @@ def pytype_to_ctype(t):
         if t.__args__[1].start == -1:
             return 'pythonic::types::numpy_texpr<{0}>'.format(arr)
         elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):
-            slices = ", ".join(['pythonic::types::slice'] * ndim)
+            slices = ", ".join(['pythonic::types::normalized_slice'] * ndim)
             return 'pythonic::types::numpy_gexpr<{0},{1}>'.format(arr, slices)
         else:
             return arr

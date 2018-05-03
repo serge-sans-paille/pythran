@@ -1,3 +1,4 @@
+
 #ifndef PYTHONIC_CORE_HPP
 #define PYTHONIC_CORE_HPP
 
@@ -20,5 +21,6 @@
 
 #include "pythonic/types/int.hpp"
 #include "pythonic/types/float.hpp"
+#include "pythonic/types/slice.hpp"
 
 #endif

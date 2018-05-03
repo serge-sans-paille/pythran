@@ -92,7 +92,7 @@ namespace types
     static const size_t value =
         utils::nested_container_depth<sliced_list>::value;
     static const bool is_vectorizable =
-        types::is_vectorizable<dtype>::value &&
+        types::is_vectorizable_dtype<dtype>::value &&
         std::is_same<S, contiguous_slice>::value;
 
     // constructor

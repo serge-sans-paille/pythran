@@ -21,6 +21,7 @@ namespace operator_
   namespace functor
   {
     struct mod;
+    struct div;
   }
 }
 
@@ -46,13 +47,17 @@ namespace numpy
 }
 namespace types
 {
-  template <class O>
+  template <class O, class... Args>
   struct is_vector_op {
 
     // vectorize everything but these ops. They require special handling for
     // vectorization, && SG did ! invest enough time in those
     static const bool value =
         !std::is_same<O, operator_::functor::mod>::value &&
+        (!std::is_same<O, operator_::functor::div>::value ||
+         utils::all_of<std::is_same<
+             Args, decltype(std::declval<O>()(
+                       std::declval<Args>()...))>::value...>::value) &&
         !std::is_same<O, numpy::functor::logaddexp2>::value &&
         // Return type for generic function should be generic
         !std::is_same<O, numpy::functor::angle_in_rad>::value &&

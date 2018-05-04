@@ -462,7 +462,8 @@ namespace types
                              first_arg>::type>::type::dtype,
                          typename std::remove_cv<typename std::remove_reference<
                              Args>::type>::type::dtype>::value...>::value &&
-        types::is_vector_op<Op>::value;
+        types::is_vector_op<
+            Op, typename std::remove_reference<Args>::type::dtype...>::value;
     static const bool is_strided =
         utils::any_of<std::remove_reference<Args>::type::is_strided...>::value;
     using const_iterator = numpy_expr_iterator<

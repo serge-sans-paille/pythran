@@ -72,7 +72,7 @@ namespace types
                          is_vectorizable_array<T>>::type::value;
   };
 
-  template <class O>
+  template <class O, class... Args>
   struct is_vector_op;
 
   template <class Op, class... Args>

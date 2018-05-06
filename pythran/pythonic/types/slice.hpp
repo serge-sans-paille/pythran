@@ -12,6 +12,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <ostream>
+#include <algorithm>
 
 PYTHONIC_NS_BEGIN
 
@@ -40,11 +41,26 @@ namespace types
   {
   }
 
-  template <class S>
-  normalized_slice normalized_slice::operator*(S const &other) const
+  normalized_slice normalized_slice::
+  operator*(normalized_slice const &other) const
   {
-    return S(lower + step * other.lower, lower + step * other.upper,
-             step * other.step);
+    return {lower + step * other.lower, lower + step * other.upper,
+            step * other.step};
+  }
+  normalized_slice normalized_slice::
+  operator*(contiguous_normalized_slice const &other) const
+  {
+    return {lower + step * other.lower, lower + step * other.upper,
+            step * other.step};
+  }
+  normalized_slice normalized_slice::operator*(slice const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
+  normalized_slice normalized_slice::
+  operator*(contiguous_slice const &other) const
+  {
+    return (*this) * other.normalize(size());
   }
 
   long normalized_slice::size() const
@@ -75,18 +91,18 @@ namespace types
               static_cast<long>(other.lower) < 0) &&
              step != 1 && step != -1) &&
            "! implemented");
-    none<long> new_lower;
-    if (other.lower.is_none || (long)other.lower == 0) {
+    bound<long> new_lower;
+    if (other.lower.is_none() || (long)other.lower == 0) {
       if (other.step > 0)
         new_lower = lower;
       else if (step > 0) {
-        if (upper.is_none || (long)upper == 0)
+        if (upper.is_none() || (long)upper == 0)
           // 0 means the first value && ! the last value
           new_lower = none_type{};
         else
           new_lower = (long)upper - 1;
       } else {
-        if (upper.is_none || (long)upper == -1)
+        if (upper.is_none() || (long)upper == -1)
           new_lower = none_type{};
         else
           new_lower = (long)upper + 1;
@@ -104,17 +120,17 @@ namespace types
 
     long new_step = step * other.step;
 
-    none<long> new_upper;
-    if (other.upper.is_none) {
+    bound<long> new_upper;
+    if (other.upper.is_none()) {
       if (other.step > 0)
         new_upper = upper;
       else if (step > 0) {
-        if (lower.is_none || (long)lower == 0)
+        if (lower.is_none() || (long)lower == 0)
           new_upper = none_type{};
         else
           new_upper = (long)lower - 1;
       } else {
-        if (lower.is_none || (long)lower == -1)
+        if (lower.is_none() || (long)lower == -1)
           // 0 means the first value && ! the last value
           new_upper = none_type{};
         else
@@ -141,7 +157,7 @@ namespace types
   normalized_slice slice::normalize(long max_size) const
   {
     long normalized_upper;
-    if (upper.is_none) {
+    if (upper.is_none()) {
       if (step > 0L)
         normalized_upper = max_size;
       else
@@ -156,9 +172,9 @@ namespace types
     }
 
     long normalized_lower;
-    if (lower.is_none && step > 0L)
+    if (lower.is_none() && step > 0L)
       normalized_lower = 0L;
-    else if (lower.is_none && step < 0L)
+    else if (lower.is_none() && step < 0L)
       normalized_lower = max_size - 1L;
     else if (lower < 0L)
       normalized_lower = std::max(0L, max_size + lower);
@@ -176,13 +192,13 @@ namespace types
    */
   long slice::size() const
   {
-    assert(!(upper.is_none && lower.is_none));
+    assert(!(upper.is_none() && lower.is_none()));
     long len;
-    if (upper.is_none) {
+    if (upper.is_none()) {
       assert(boost::simd::bitofsign((long)step) !=
              boost::simd::bitofsign((long)lower));
       len = -(long)lower;
-    } else if (lower.is_none) {
+    } else if (lower.is_none()) {
       assert(boost::simd::bitofsign((long)step) ==
              boost::simd::bitofsign((long)upper));
       len = upper;
@@ -193,7 +209,7 @@ namespace types
 
   long slice::get(long i) const
   {
-    assert(!upper.is_none && !lower.is_none);
+    assert(!upper.is_none() && !lower.is_none());
     return (long)lower + i * (long)step;
   }
 
@@ -213,12 +229,23 @@ namespace types
     return contiguous_normalized_slice(lower + other.lower,
                                        lower + other.upper);
   }
+  contiguous_normalized_slice contiguous_normalized_slice::
+  operator*(contiguous_slice const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
 
   normalized_slice contiguous_normalized_slice::
   operator*(normalized_slice const &other) const
   {
     return normalized_slice(lower + step * other.lower,
                             lower + step * other.upper, step * other.step);
+  }
+
+  normalized_slice contiguous_normalized_slice::
+  operator*(slice const &other) const
+  {
+    return (*this) * other.normalize(size());
   }
 
   long contiguous_normalized_slice::size() const
@@ -249,11 +276,11 @@ namespace types
     else
       new_lower = lower + other.lower * step;
 
-    none<long> new_upper;
-    if (other.upper.is_none)
+    bound<long> new_upper;
+    if (other.upper.is_none())
       new_upper = upper;
     else if ((long)other.upper < 0) {
-      if (upper.is_none)
+      if (upper.is_none())
         new_upper = (long)other.upper * step;
       else
         new_upper = upper + (long)other.upper * step;
@@ -266,10 +293,10 @@ namespace types
   slice contiguous_slice::operator*(slice const &other) const
   {
     none<long> new_lower;
-    if (other.lower.is_none || (long)other.lower == 0) {
+    if (other.lower.is_none() || (long)other.lower == 0) {
       if (other.step > 0)
         new_lower = lower;
-      else if (upper.is_none || (long)upper == 0)
+      else if (upper.is_none() || (long)upper == 0)
         // 0 means the first value && ! the last value
         new_lower = none_type{};
       else
@@ -277,7 +304,7 @@ namespace types
     } else {
       if ((long)other.lower > 0)
         new_lower = lower + (long)other.lower * step;
-      else if (upper.is_none)
+      else if (upper.is_none())
         new_lower = (long)other.lower * step;
       else
         new_lower = (long)upper + (long)other.lower * step;
@@ -285,8 +312,8 @@ namespace types
 
     long new_step = other.step;
 
-    none<long> new_upper;
-    if (other.upper.is_none) {
+    bound<long> new_upper;
+    if (other.upper.is_none()) {
       if (other.step > 0)
         new_upper = upper;
       else if ((long)lower == 0)
@@ -296,7 +323,7 @@ namespace types
     } else {
       if ((long)other.upper > 0)
         new_upper = lower + (long)other.upper * step;
-      else if (upper.is_none)
+      else if (upper.is_none())
         new_upper = (long)other.upper * step;
       else
         new_upper = (long)upper + (long)other.upper * step;
@@ -312,7 +339,7 @@ namespace types
   contiguous_normalized_slice contiguous_slice::normalize(long max_size) const
   {
     long normalized_upper;
-    if (upper.is_none)
+    if (upper.is_none())
       normalized_upper = max_size;
     else if (upper < 0L)
       normalized_upper = std::max(-1L, max_size + upper);
@@ -335,7 +362,7 @@ namespace types
   long contiguous_slice::size() const
   {
     long len;
-    if (upper.is_none) {
+    if (upper.is_none()) {
       assert(lower < 0);
       len = -lower;
     } else
@@ -358,12 +385,12 @@ namespace types
              step != 1 && step != -1) &&
            "! implemented");
 
-    none<long> new_lower;
-    if ((long)other.lower == 0)
+    bound<long> new_lower;
+    if (other.lower == 0)
       new_lower = lower;
     else {
-      none<long> ref = ((long)other.lower > 0) ? lower : upper;
-      if (ref.is_none) {
+      bound<long> ref = ((long)other.lower > 0) ? lower : upper;
+      if (ref.is_none()) {
         if (step > 0)
           new_lower = (long)other.lower * step;
         else
@@ -374,12 +401,12 @@ namespace types
 
     long new_step = step;
 
-    none<long> new_upper;
-    if (other.upper.is_none)
+    bound<long> new_upper;
+    if (other.upper.is_none())
       new_upper = upper;
     else {
-      none<long> ref = ((long)other.upper > 0) ? lower : upper;
-      if (ref.is_none) {
+      bound<long> ref = ((long)other.upper > 0) ? lower : upper;
+      if (ref.is_none()) {
         if (step > 0)
           new_upper = (long)other.upper * step;
         else

@@ -36,7 +36,7 @@ namespace types
     using const_iterator = const_nditerator<numpy_texpr_2<Arg>>;
 
     static constexpr size_t value = Arg::value;
-    using value_type = numpy_gexpr<Arg, contiguous_slice, long>;
+    using value_type = numpy_gexpr<Arg, contiguous_normalized_slice, long>;
     using dtype = typename E::dtype;
 
     Arg arg;

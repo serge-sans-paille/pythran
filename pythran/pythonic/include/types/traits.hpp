@@ -67,7 +67,7 @@ namespace types
   MEMBER_TYPE_TRAIT(has_fast_iterator, const_fast_iterator);
 
   /* trait to check if a type has a fast vectorizable type field */
-  MEMBER_TYPE_TRAIT(has_vectorizable, vectorizable);
+  MEMBER_ATTR_TRAIT(has_vectorizable, is_vectorizable);
 
   /* trait to check if the type has a contains member */
   template <typename T, class V>

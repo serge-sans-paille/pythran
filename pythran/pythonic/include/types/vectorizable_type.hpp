@@ -61,8 +61,8 @@ namespace types
   };
 
   template <class T>
-  struct is_vectorizable_array<T, true>
-      : std::integral_constant<bool, T::is_vectorizable> {
+  struct is_vectorizable_array<T, true> {
+    static const bool value = T::is_vectorizable;
   };
 
   template <class T>
@@ -72,7 +72,7 @@ namespace types
                          is_vectorizable_array<T>>::type::value;
   };
 
-  template <class O>
+  template <class O, class... Args>
   struct is_vector_op;
 
   template <class Op, class... Args>

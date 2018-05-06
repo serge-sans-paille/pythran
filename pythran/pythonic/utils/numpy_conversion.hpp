@@ -2,6 +2,7 @@
 #define PYTHONIC_UTILS_NUMPY_CONVERSION_HPP
 
 #include "pythonic/include/utils/numpy_conversion.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 
 #define NUMPY_EXPR_TO_NDARRAY0_IMPL(fname)                                     \
   template <class E, class... Types>                                           \

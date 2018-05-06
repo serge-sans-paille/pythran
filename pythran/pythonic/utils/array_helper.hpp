@@ -2,6 +2,7 @@
 #define PYTHONIC_UTILS_ARRAY_HELPER_HPP
 
 #include "pythonic/include/utils/array_helper.hpp"
+#include "pythonic/types/tuple.hpp"
 
 PYTHONIC_NS_BEGIN
 

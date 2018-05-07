@@ -1,3 +1,5 @@
+import unittest
+
 unittest.skip
 #segfault ....
 def omp_parallel_num_threads():

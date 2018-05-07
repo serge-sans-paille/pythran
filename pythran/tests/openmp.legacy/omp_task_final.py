@@ -1,3 +1,5 @@
+import unittest
+
 unittest.skip
 #final semble ne pas fonctionner
 def omp_task_final():

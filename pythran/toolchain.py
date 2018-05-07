@@ -36,6 +36,7 @@ import sys
 import glob
 import hashlib
 from functools import reduce
+from collections import defaultdict
 
 logger = logging.getLogger('pythran')
 
@@ -53,11 +54,15 @@ def CCompiler_customize(self, _, need_cxx=0):
             self.compiler_so.remove('-Wstrict-prototypes')
         except (AttributeError, ValueError):
             pass
-    # Remove -arch i386 if 'x86_64' is specified.
     try:
-        if 'x86_64' in ' '.join(self.compiler_so):
-            # Ugly shortcut to remove '-arch', 'i386' from the list of arguments:
-            self.compiler_so=('PRETTY_UNIQUE_STRING_#$%*&^'.join(self.compiler_so)).replace('-archPRETTY_UNIQUE_STRING_#$%*&^i386','').split('PRETTY_UNIQUE_STRING_#$%*&^')
+        # Remove -arch i386 if 'x86_64' is specified.
+        archs = defaultdict(list)
+        for i, flag in enumerate(self.compiler_so[1:]):
+            if self.compiler_so[i] == '-arch':
+                archs[flag].append(i)
+        if 'x86_64' in archs and 'i386' in archs:
+            for i in archs['i386']:
+                self.compiler_so[i+1] = 'x86_64'
     except (AttributeError, ValueError):
         pass
 

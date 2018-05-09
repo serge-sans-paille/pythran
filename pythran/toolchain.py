@@ -127,9 +127,9 @@ class HasArgument(ast.NodeVisitor):
         return []
 
 
-def front_middle_end(module_name, code, optimizations=None):
+def front_middle_end(module_name, code, optimizations=None, package=None):
     """Front-end and middle-end compilation steps"""
-    pm = PassManager(module_name)
+    pm = PassManager(module_name, package=package)
 
     # front end
     ir, renamings, docstrings = frontend.parse(pm, code)
@@ -158,7 +158,8 @@ def generate_py(module_name, code, optimizations=None):
     return pm.dump(Python, ir)
 
 
-def generate_cxx(module_name, code, specs=None, optimizations=None):
+def generate_cxx(module_name, code, specs=None, optimizations=None,
+                 package=None):
     '''python + pythran spec -> c++ code
     returns a PythonModule object and an error checker
 
@@ -168,7 +169,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     '''
 
     pm, ir, renamings, docstrings = front_middle_end(module_name, code,
-                                                     optimizations)
+                                                     optimizations,
+                                                     package=package)
 
     # back-end
     content = pm.dump(Cxx, ir)
@@ -382,7 +384,7 @@ def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
 
 def compile_pythrancode(module_name, pythrancode, specs=None,
                         opts=None, cpponly=False, pyonly=False,
-                        output_file=None, **kwargs):
+                        output_file=None, package=None, **kwargs):
     '''Pythran code (string) -> c++ code -> native module
 
     if `cpponly` is set to true, return the generated C++ filename
@@ -406,7 +408,8 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
         specs = spec_parser(pythrancode)
 
     # Generate C++, get a PythonModule object
-    module, error_checker = generate_cxx(module_name, pythrancode, specs, opts)
+    module, error_checker = generate_cxx(module_name, pythrancode, specs, opts,
+                                         package=package)
 
     if 'ENABLE_PYTHON_MODULE' in kwargs.get('undef_macros', []):
         module.preamble.insert(0, Line('#undef ENABLE_PYTHON_MODULE'))
@@ -435,7 +438,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
 
 def compile_pythranfile(file_path, output_file=None, module_name=None,
-                        cpponly=False, pyonly=False, **kwargs):
+                        cpponly=False, pyonly=False, package=None, **kwargs):
     """
     Pythran file -> c++ file -> native module.
 
@@ -464,6 +467,8 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
 
     # Add compiled module path to search for imported modules
     sys.path.append(os.path.dirname(file_path))
+    if package is not None:
+        sys.path.append(os.getcwd())
 
     # Look for an extra spec file
     spec_file = os.path.splitext(file_path)[0] + '.pythran'
@@ -474,6 +479,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     output_file = compile_pythrancode(module_name, open(file_path).read(),
                                       output_file=output_file,
                                       cpponly=cpponly, pyonly=pyonly,
+                                      package=package,
                                       **kwargs)
 
     return output_file

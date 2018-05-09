@@ -38,6 +38,8 @@ def compile_flags(args):
         'library_dirs': args.libraries_dir,
         'extra_link_args': args.extra_flags,
     }
+    if args.package:
+        compiler_options['package'] = args.package
     if args.opts:
         compiler_options['opts'] = args.opts
 
@@ -81,6 +83,9 @@ def run():
                         help='any pythran optimization to apply before code '
                         'generation',
                         default=list())
+
+    parser.add_argument('-C', dest='package', type=str,
+                        help='package')
 
     parser.add_argument('-I', dest='include_dirs', metavar='include_dir',
                         action='append',

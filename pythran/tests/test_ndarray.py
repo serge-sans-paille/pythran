@@ -808,3 +808,15 @@ def assign_ndarray(t):
                       10, "b", 10, 10,
                       numpy_lazy_gexpr=[int, str, int, int])
 
+    def test_fexpr0(self):
+        code = '''
+            import numpy as np
+            def test_fexpr0(peaks):
+                peaks = peaks[peaks>30] # <- does not compiles
+                lastBin = 0
+                for peak in peaks:
+                    lastBin = peak
+                return lastBin'''
+        self.run_test(code, numpy.array([1,32,33,4]), test_fexpr0=[NDArray[int, :]])
+
+

@@ -9,6 +9,13 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
+  template <class Arg, class F>
+  template <class Arg0, class F0>
+  numpy_fexpr<Arg, F>::numpy_fexpr(numpy_fexpr<Arg0, F0> const &other)
+      : arg(other.arg), _shape(other._shape), indices(other.indices),
+        buffer(indices->data)
+  {
+  }
 
   template <class Arg, class F>
   numpy_fexpr<Arg, F>::numpy_fexpr(Arg const &arg, F const &filter)

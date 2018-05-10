@@ -47,6 +47,8 @@ namespace types
 
     numpy_fexpr() = default;
     numpy_fexpr(numpy_fexpr const &) = default;
+    template <class Arg0, class F0>
+    numpy_fexpr(numpy_fexpr<Arg0, F0> const &other);
     numpy_fexpr(numpy_fexpr &&) = default;
     numpy_fexpr(Arg const &arg, F const &filter);
 

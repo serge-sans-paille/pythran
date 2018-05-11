@@ -281,7 +281,8 @@ class Aliases(ModuleAnalysis):
             args = call.args
             if isinstance(func, ast.FunctionDef):
                 extra = len(func.args.args) - len(args)
-                args = args + func.args.defaults[extra:]
+                if extra:
+                    args = args + func.args.defaults[extra:]
             return args
 
         func = node.func

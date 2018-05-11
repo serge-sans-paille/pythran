@@ -93,3 +93,13 @@ def aliasing_functions_with_different_structural_types(n):
         my = numpy.zeros
     return my(n, dtype=numpy.uint8).nbytes''',
             4, aliasing_functions_with_different_structural_types=[int])
+
+    def test_default_argument_all_filled(self):
+        code = '''
+            def default_argument_all_filled(x):
+                return test2(x,2)
+
+            def test2(a, b=3):
+                return a, b'''
+        self.run_test(code, 10, default_argument_all_filled=[int])
+

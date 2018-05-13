@@ -239,3 +239,22 @@ def ifilter_with_nested_lambdas(N):
                       "  return arange(10).reshape((5,2))[t]",
                       3,
                       imap_over_several_arrays=[int])
+
+    def test_itertools_repeat0(self):
+        code = 'def itertools_repeat0(n): import itertools; return list(itertools.repeat(n, n))'
+        self.run_test(code, 3, itertools_repeat0=[int])
+
+    def test_itertools_repeat1(self):
+        code = '''
+        def itertools_repeat1(n):
+            import itertools
+            s = []
+            i = 0
+            for l in itertools.repeat([n]):
+                s.append(l)
+                i += 1
+                if i < n:
+                    break
+            return s'''
+        self.run_test(code, 3, itertools_repeat1=[int])
+

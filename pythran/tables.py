@@ -4160,6 +4160,12 @@ MODULES = {
                 Fun[[Iterable[T0], int], Generator[List[T0]]],
             ],
         ),
+        "repeat": ConstFunctionIntr(
+            signature=Union[
+                Fun[[T0], Iterable[T0]],
+                Fun[[T0, int], Iterable[T0]],
+            ],
+        ),
     },
     "random": {
         "seed": FunctionIntr(

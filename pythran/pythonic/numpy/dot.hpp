@@ -40,6 +40,18 @@ namespace numpy
     return sum(types::numpy_expr<operator_::functor::mul, E, F>(e, f));
   }
 
+  float dot(types::ndarray<float, 1> const &e,
+            types::ndarray<float, 1> const &f)
+  {
+    return cblas_sdot(e.size(), e.buffer, 1, f.buffer, 1);
+  }
+
+  double dot(types::ndarray<double, 1> const &e,
+             types::ndarray<double, 1> const &f)
+  {
+    return cblas_ddot(e.size(), e.buffer, 1, f.buffer, 1);
+  }
+
 /// Matrice / Vector multiplication
 
 #define MV_DEF(T, L)                                                           \

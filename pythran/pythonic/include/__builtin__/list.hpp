@@ -19,8 +19,9 @@ namespace __builtin__
     inline types::empty_list list(types::empty_list);
 
     template <class Iterable>
-    types::list<typename std::iterator_traits<
-        typename std::remove_reference<Iterable>::type::iterator>::value_type>
+    types::list<typename std::decay<typename std::iterator_traits<
+        typename std::remove_reference<Iterable>::type::iterator>::value_type>::
+                    type>
     list(Iterable &&t);
   }
 

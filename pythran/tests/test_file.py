@@ -1,6 +1,9 @@
 from tempfile import mkstemp
 from test_env import TestEnv
 
+import unittest
+import sys
+
 from pythran.typing import List
 
 
@@ -40,6 +43,7 @@ class TestFile(TestEnv):
         self.run_test("""def _open_append(filename):\n f=open(filename,"a")\n f.write("azert")""", filename, _open_append=[str])
         self.assertEqual(open(filename).read(), "azert"*2)
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_open_bit(self):
         filename=mkstemp()[1]
         self.tempfile()
@@ -112,6 +116,7 @@ def file_close(filename):
         self.tempfile()
         self.run_test("""def _offset_write(filename):\n f=open(filename, "a")\n f.seek(5)\n f.write("aze")\n f.close()\n return open(filename,"r").read()""", self.filename, prelude = self.reinit_file, _offset_write=[str])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_next(self):
         self.tempfile()
         self.run_test("""def _next(filename):\n f=open(filename)\n return [f.next(),f.next()]""", self.filename, _next=[str])
@@ -197,6 +202,7 @@ def file_close(filename):
         self.tempfile()
         self.run_test("def _rvalue_readlines(filename):\n return open(filename).readlines()", self.filename, _rvalue_readlines=[str])
 
+    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_rvalue_next(self):
         self.tempfile()
         self.run_test("""def _rvalue_next(filename):\n return open(filename).next()""", self.filename, _rvalue_next=[str])

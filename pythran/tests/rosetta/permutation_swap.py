@@ -23,6 +23,6 @@ def s_permutations(seq):
 
 def test():
     for n in (3, 4):
-        print '\nPermutations and sign of %i items' % n
+        print('\nPermutations and sign of %i items' % n)
         for i in s_permutations(range(n)):
-            print 'Perm: ', i
+            print('Perm: ', i)

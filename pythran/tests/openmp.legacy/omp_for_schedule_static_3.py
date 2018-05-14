@@ -15,7 +15,7 @@ def omp_for_schedule_static_3():
             threads = omp.get_num_threads()
 
     if threads < 2:
-        print "E: This test only works with at least two threads"
+        print("E: This test only works with at least two threads")
         return True
 
     tids[1000] = -1
@@ -54,16 +54,16 @@ def omp_for_schedule_static_3():
                     if i == 1000:
                         break;
                     else:
-                        print "E: Last thread (thread with number -1) was\
-found before the end.\n"
+                        print("E: Last thread (thread with number -1) was " +
+                              "found before the end.\n")
                         result = False
                 else:
-                    print "ERROR: chunk size was " + str(tmp_count) +\
-                    ". (assigned was " + str(chunk_size) + ")\n"
+                    print("ERROR: chunk size was " + str(tmp_count) +
+                    ". (assigned was " + str(chunk_size) + ")\n")
                     result = False
         else:
-            print "ERROR: Found thread with number " + str(tids[i]) +\
-            " (should be inbetween 0 and " + str(threads - 1) + ").\n"
+            print("ERROR: Found thread with number " + str(tids[i]) +
+            " (should be inbetween 0 and " + str(threads - 1) + ").\n")
             result = False
 
     tids = range(1000)
@@ -81,7 +81,7 @@ found before the end.\n"
 
     for i in range(1000):
         if tids[i] != tids2[i]:
-            print "E: Chunk no. " + str(i) + " was assigned once to thread " +\
-            str(tids[i]) + " and later to thread " + str(tids2[i]) + ".\n"
+            print("E: Chunk no. " + str(i) + " was assigned once to thread " +
+            str(tids[i]) + " and later to thread " + str(tids2[i]) + ".\n")
             result = False
     return result

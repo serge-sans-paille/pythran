@@ -225,49 +225,55 @@ def readonce_cycle2(n):
 
     def test_omp_forwarding(self):
         init = """
+from __future__ import print_function
 def foo():
     a = 2
     #omp parallel
     if 1:
-        print(a)
+        __builtin__.print(a)
 """
-        ref = """def foo():
+        ref = """\
+def foo():
     a = 2
     'omp parallel'
     if 1:
-        print(a)
+        __builtin__.print(a)
     return __builtin__.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding2(self):
         init = """
+from __future__ import print_function
 def foo():
     #omp parallel
     if 1:
         a = 2
-        print(a)
+        __builtin__.print(a)
 """
-        ref = """def foo():
+        ref = """\
+def foo():
     'omp parallel'
     if 1:
         pass
-        print(2)
+        __builtin__.print(2)
     return __builtin__.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding3(self):
         init = """
+from __future__ import print_function
 def foo():
     #omp parallel
     if 1:
         a = 2
-    print(a)
+    __builtin__.print(a)
 """
-        ref = """def foo():
+        ref = """\
+def foo():
     'omp parallel'
     if 1:
         a = 2
-    print(a)
+    __builtin__.print(a)
     return __builtin__.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
@@ -304,21 +310,22 @@ def full_unroll1():
         for j in range(3):
             for k in range(3):
                 for l in range(3):
-                    for m in range(3):
-                        c += 1
+                    c += 1
     return c""", full_unroll1=[])
 
     def test_deadcodeelimination(self):
         init = """
+from __future__ import print_function
 def bar(a):
-    print(a)
+    __builtin__.print(a)
     return 10
 def foo(a):
     if 1 < bar(a):
         b = 2
     return b"""
-        ref = """def bar(a):
-    print(a)
+        ref = """\
+def bar(a):
+    __builtin__.print(a)
     return 10
 def foo(a):
     (1 < bar(a))
@@ -429,10 +436,10 @@ class TestAnalyses(TestEnv):
         self.run_test("def decl_shadow_intrinsic(l): len=lambda l:1 ; return len(l)", [1,2,3], decl_shadow_intrinsic=[List[int]])
 
     def test_used_def_chains(self):
-        self.run_test("def use_def_chain(a):\n i=a\n for i in xrange(4):\n  print i\n  i=5.4\n  print i\n  break\n  i = 4\n return i", 3, use_def_chain=[int])
+        self.run_test("def use_def_chain(a):\n i=a\n for i in xrange(4):\n  print(i)\n  i=5.4\n  print(i)\n  break\n  i = 4\n return i", 3, use_def_chain=[int])
 
     def test_used_def_chains2(self):
-        self.run_test("def use_def_chain2(a):\n i=a\n for i in xrange(4):\n  print i\n  i='lala'\n  print i\n  i = 4\n return i", 3, use_def_chain2=[int])
+        self.run_test("def use_def_chain2(a):\n i=a\n for i in xrange(4):\n  print(i)\n  i='lala'\n  print(i)\n  i = 4\n return i", 3, use_def_chain2=[int])
 
     @unittest.skip("Variable defined in a branch in loops are not accepted.")
     def test_importedids(self):

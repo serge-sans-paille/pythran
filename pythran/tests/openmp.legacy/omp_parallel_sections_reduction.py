@@ -29,7 +29,7 @@ def omp_parallel_sections_reduction():
                 sum += i
 
     if known_sum != sum:
-        print "E: reduction(+:sum)"
+        print("E: reduction(+:sum)")
         result = False
 
     diff = (1000 * 999) / 2
@@ -46,7 +46,7 @@ def omp_parallel_sections_reduction():
                 diff -= i
 
     if diff != 0:
-        print "E: reduction(-:diff)"
+        print("E: reduction(-:diff)")
         result = False
 
     dsum = 0
@@ -67,7 +67,7 @@ def omp_parallel_sections_reduction():
                 dsum += math.pow(dt, i)
 
     if abs(dsum-dknown_sum) > rounding_error:
-        print "E: reduction(+:dsum)"
+        print("E: reduction(+:dsum)")
         result = False
 
     dsum = 0
@@ -88,7 +88,7 @@ def omp_parallel_sections_reduction():
                 ddiff -= math.pow(dt, i)
 
     if abs(ddiff) > rounding_error:
-        print "E: reduction(-:ddiff)"
+        print("E: reduction(-:ddiff)")
         result = False
 
     if 'omp parallel sections private(i) reduction(*:product)':
@@ -105,7 +105,7 @@ def omp_parallel_sections_reduction():
     known_product = 3628800
 
     if known_product != product:
-        print "E: reduction(*:product)"
+        print("E: reduction(*:product)")
         result = False
 
     logics = [1 for i in range(0,1000)]
@@ -122,7 +122,7 @@ def omp_parallel_sections_reduction():
                 logic_and = (logic_and and logics[i])
 
     if not logic_and:
-        print "E: reduction(&&:logic_and)"
+        print("E: reduction(&&:logic_and)")
         result = False
 
     logic_and = 1;
@@ -140,7 +140,7 @@ def omp_parallel_sections_reduction():
                 logic_and = (logic_and and logics[i])
 
     if logic_and:
-        print "E: reduction(&&:logic_and) with logics[1000/2]=0"
+        print("E: reduction(&&:logic_and) with logics[1000/2]=0")
         result = False
 
     logics = [0 for i in range(0,1000)]
@@ -157,7 +157,7 @@ def omp_parallel_sections_reduction():
                 logic_or = (logic_or or logics[i])
 
     if logic_or:
-        print "E: reduction(||:logic_or)"
+        print("E: reduction(||:logic_or)")
         result = False
 
     logic_or = 0;
@@ -175,7 +175,7 @@ def omp_parallel_sections_reduction():
                 logic_or = (logic_or or logics[i])
 
     if not logic_or:
-        print "E: reduction(||:logic_or) with logics[1000/2]=1"
+        print("E: reduction(||:logic_or) with logics[1000/2]=1")
         result = False
 
     logics = [1 for i in range(0,1000)]
@@ -192,7 +192,7 @@ def omp_parallel_sections_reduction():
                 bit_and = (bit_and & logics[i])
 
     if not bit_and:
-        print "E: reduction(&:bit_and)"
+        print("E: reduction(&:bit_and)")
         result = False
 
     bit_and = 1;
@@ -210,7 +210,7 @@ def omp_parallel_sections_reduction():
                 bit_and = (bit_and & logics[i])
 
     if bit_and:
-        print "E: reduction(&:bit_and) with logics[1000/2]=0"
+        print("E: reduction(&:bit_and) with logics[1000/2]=0")
         result = False
 
     logics = [0 for i in range(0,1000)]
@@ -227,7 +227,7 @@ def omp_parallel_sections_reduction():
                 bit_or = (bit_or | logics[i])
 
     if bit_or:
-        print "E: reduction(|:bit_or)"
+        print("E: reduction(|:bit_or)")
         result = False
 
     bit_or = 0;
@@ -245,7 +245,7 @@ def omp_parallel_sections_reduction():
                 bit_or = (bit_or | logics[i])
 
     if not bit_or:
-        print "E: reduction(|:bit_or) with logics[1000/2]=1"
+        print("E: reduction(|:bit_or) with logics[1000/2]=1")
         result = False
 
     logics = [0 for i in range(0,1000)]
@@ -262,7 +262,7 @@ def omp_parallel_sections_reduction():
                 exclusiv_bit_or = (exclusiv_bit_or ^ logics[i])
 
     if exclusiv_bit_or:
-        print "E: reduction(^:exclusiv_bit_or)"
+        print("E: reduction(^:exclusiv_bit_or)")
         result = False
 
     exclusiv_bit_or = 0;
@@ -280,6 +280,6 @@ def omp_parallel_sections_reduction():
                 exclusiv_bit_or = (exclusiv_bit_or ^ logics[i])
 
     if not exclusiv_bit_or:
-        print "E: reduction(^:exclusiv_bit_or) with logics[1000/2]=1"
+        print("E: reduction(^:exclusiv_bit_or) with logics[1000/2]=1")
         result = False
     return result

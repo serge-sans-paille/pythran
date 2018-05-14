@@ -18,7 +18,7 @@ def is_palindrome_r(s):
 
 def test_(f, good, bad):
     if all(f(x) for x in good) and not any(f(x) for x in bad):
-        print 'function passed all %d tests' % (len(good)+len(bad))
+        print('function passed all %d tests' % (len(good)+len(bad)))
 
 def test():
     pals = ['', 'a', 'aa', 'aba', 'abba']

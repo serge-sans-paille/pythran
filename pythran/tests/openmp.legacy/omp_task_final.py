@@ -20,8 +20,8 @@ def omp_task_final():
 
     for i in range(10, NUM_TASKS):
         if tids[10] != tids[i]:
-            print i, tids[10], tids[i]
+            print(i, tids[10], tids[i])
             error += 1
 
-    print error
+    print(error)
     return error == 0

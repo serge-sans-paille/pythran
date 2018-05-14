@@ -55,12 +55,12 @@ def tester(func=probchoice, items='good bad ugly'.split(),
             counter[k] += 1
         else:
             counter[k] = 1
-    print "\n##\n##\n##"
-    print "Trials:              ", trials
-    print "Items:               ", ' '.join(items)
-    print "Target probability:  ", problist2string(probs)
-    print "Attained probability:", problist2string(
-        counter[x]/float(trials) for x in items)
+    print("\n##\n##\n##")
+    print("Trials:              ", trials)
+    print("Items:               ", ' '.join(items))
+    print("Target probability:  ", problist2string(probs))
+    print("Attained probability:", problist2string(
+        counter[x]/float(trials) for x in items))
 
 def test():
     items = 'aleph beth gimel daleth he waw zayin heth'.split()

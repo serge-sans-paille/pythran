@@ -24,7 +24,7 @@ def omp_for_reduction():
         sum = sum + j
     if known_sum != sum:
         result+=1
-        print 'Error in sum with integers'
+        print('Error in sum with integers')
 
     # testing integer substaction
     diff = (LOOPCOUNT * (LOOPCOUNT + 1)) / 2
@@ -33,7 +33,7 @@ def omp_for_reduction():
         diff = diff - j
     if diff != 0:
         result+=1
-        print 'Error in difference with integers'
+        print('Error in difference with integers')
 
     # testing integer multiplication
     'omp parallel for schedule(dynamic,1) reduction(*:product)'
@@ -42,7 +42,7 @@ def omp_for_reduction():
     known_product = KNOWN_PRODUCT
     if known_product != product:
         result+=1
-        print 'Error in product with integers'
+        print('Error in product with integers')
 
     # testing bit and
     logics = [1] * LOOPCOUNT
@@ -51,7 +51,7 @@ def omp_for_reduction():
         logic_and = logic_and & logic
     if not logic_and:
         result+=1
-        print 'Error in bit and part 1'
+        print('Error in bit and part 1')
 
     logics[LOOPCOUNT//2]=0
     'omp parallel for schedule(dynamic,1) reduction(&:logic_and)'
@@ -59,7 +59,7 @@ def omp_for_reduction():
         logic_and = logic_and & logic
     if logic_and:
         result+=1
-        print 'Error in bit and part 2'
+        print('Error in bit and part 2')
 
     # testing bit or
     logics = [0] * LOOPCOUNT
@@ -68,7 +68,7 @@ def omp_for_reduction():
         logic_or = logic_or | logic
     if logic_or:
         result+=1
-        print 'Error in logic or part 1'
+        print('Error in logic or part 1')
 
     logics[LOOPCOUNT//2]=1
     'omp parallel for schedule(dynamic,1) reduction(|:logic_or)'
@@ -76,7 +76,7 @@ def omp_for_reduction():
         logic_or = logic_or | logic
     if not logic_or:
         result+=1
-        print 'Error in logic or part 2'
+        print('Error in logic or part 2')
 
     # testing exclusive bit or
     logics = [0] * LOOPCOUNT
@@ -85,7 +85,7 @@ def omp_for_reduction():
         exclusiv_bit_or = exclusiv_bit_or ^ logic
     if exclusiv_bit_or:
         result+=1
-        print 'Error in exclusive bit or part 1'
+        print('Error in exclusive bit or part 1')
 
     logics[LOOPCOUNT//2]=1
     'omp parallel for schedule(dynamic,1) reduction(^:exclusiv_bit_or)'
@@ -93,6 +93,6 @@ def omp_for_reduction():
         exclusiv_bit_or = exclusiv_bit_or ^ logic
     if not logic_or:
         result+=1
-        print 'Error in exclusive bit or part 2'
+        print('Error in exclusive bit or part 2')
 
     return result == 0

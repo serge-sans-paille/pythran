@@ -219,7 +219,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_normal
             from numpy import var, mean
             a = [standard_normal() for x in range(size)]
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_standard_normal0=[int])
@@ -231,7 +231,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_normal
             from numpy import var, mean
             a = standard_normal(size)
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_standard_normal1=[int])
@@ -243,7 +243,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_normal
             from numpy import mean, var
             a = standard_normal((size, size))
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_standard_normal2=[int])
@@ -259,7 +259,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import normal
             from numpy import var, mean
             a = [normal() for x in range(size)]
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_normal0=[int])
@@ -271,7 +271,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import normal
             from numpy import var, mean
             a = [normal(3.) for x in range(size)]
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < 3.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_normal0a=[int])
@@ -284,7 +284,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean, sqrt
             mu, sigma = 0, 0.1
             a = normal(mu, sigma, size)
-            print mean(a)
+            print(mean(a))
             return (abs(mu - mean(a)) < 0.01 and abs(sigma - sqrt(var(a,ddof=1))) < .01)
         """
         self.run_test(code, 10 ** 5, numpy_normal0b=[int])
@@ -298,7 +298,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import normal
             from numpy import var, mean
             a = normal(size=size)
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_normal1=[int])
@@ -310,7 +310,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import normal
             from numpy import mean, var
             a = normal(size=(size, size))
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_normal2=[int])
@@ -326,7 +326,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import poisson
             from numpy import var, mean
             a = [poisson() for x in range(size)]
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0=[int])
@@ -338,7 +338,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import poisson
             from numpy import var, mean
             a = [poisson(3.) for x in range(size)]
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < 3.05 and abs(var(a) - 3) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0a=[int])
@@ -351,7 +351,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean, sqrt
             lam = 10
             a = poisson(lam, size)
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < (lam + 0.05) and abs(sqrt(lam) - sqrt(var(a,ddof=1))) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0b=[int])
@@ -365,7 +365,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import poisson
             from numpy import var, mean
             a = poisson(size=size)
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson1=[int])
@@ -377,7 +377,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import poisson
             from numpy import mean, var
             a = poisson(size=(size, size))
-            print mean(a)
+            print(mean(a))
             return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_poisson2=[int])

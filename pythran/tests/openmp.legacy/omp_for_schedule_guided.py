@@ -13,7 +13,7 @@ def omp_for_schedule_guided():
             threads = omp.get_num_threads()
 
     if threads<2:
-        print "This test only works with at least two threads"
+        print("This test only works with at least two threads")
         result = False
 
     if 'omp parallel shared(tids, maxiter) num_threads(4)':

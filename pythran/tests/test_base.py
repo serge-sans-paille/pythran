@@ -187,7 +187,7 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def multixrange(i): return map(lambda x,y:y*x//2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
 
     def test_print(self):
-        self.run_test("def print_(a,b,c,d): print a,b,c,d,'e',1.5", [1.,2.,3.1],3,True, "d", print_=[List[float], int, bool, str])
+        self.run_test("def print_(a,b,c,d): print(a,b,c,d,'e',1.5)", [1.,2.,3.1],3,True, "d", print_=[List[float], int, bool, str])
 
     def test_print_tuple(self):
         self.run_test("def print_tuple(a,b,c,d): t = (a,b,c,d,'e',1.5,); print(t)", [1.,2.,3.1],3,True, "d", print_tuple=[List[float], int, bool, str])

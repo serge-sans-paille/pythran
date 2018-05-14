@@ -561,7 +561,7 @@ def np_rosen_der(x):
         self.run_test("def np_split0(a): from numpy import split,array2string ; return map(array2string,split(a, 3))", numpy.arange(12), np_split0=[NDArray[int,:]])
 
     def test_split1(self):
-        self.run_test("def np_split1(a):\n from numpy import split\n try:\n  print split(a, 5)\n  return False\n except ValueError:\n  return True", numpy.arange(12), np_split1=[NDArray[int,:]])
+        self.run_test("def np_split1(a):\n from numpy import split\n try:\n  print(split(a, 5))\n  return False\n except ValueError:\n  return True", numpy.arange(12), np_split1=[NDArray[int,:]])
 
     def test_split2(self):
         self.run_test("def np_split2(a): from numpy import split, array2string; return map(array2string,split(a, [0,1,5]))", numpy.arange(12).reshape(6,2), np_split2=[NDArray[int,:,:]])
@@ -689,7 +689,7 @@ def np_rosen_der(x):
         self.run_test("def np_ediff1d1(x): from numpy import ediff1d ; return ediff1d(x)", [[1,2,4],[1,6,24]], np_ediff1d1=[List[List[int]]])
 
     def test_print_slice(self):
-        self.run_test("def np_print_slice(a): print a[:-1]", numpy.arange(12), np_print_slice=[NDArray[int,:]])
+        self.run_test("def np_print_slice(a): print(a[:-1])", numpy.arange(12), np_print_slice=[NDArray[int,:]])
 
     def test_print_expr(self):
-        self.run_test("def np_print_expr(a): print a * 2", numpy.arange(12), np_print_expr=[NDArray[int,:]])
+        self.run_test("def np_print_expr(a): print(a * 2)", numpy.arange(12), np_print_expr=[NDArray[int,:]])

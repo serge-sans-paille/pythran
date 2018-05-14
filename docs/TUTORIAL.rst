@@ -141,7 +141,7 @@ There are many other passes in Pythran. For instance one can prevent clashes wit
 More complex ones rely on introspection to implement constant folding::
 
   >>> from __future__ import print_function
-  >>> code = [fib_src, 'def foo(): print(__builtin__.map(fib, [1,2,3]))']
+  >>> code = [fib_src, 'def foo(): return __builtin__.map(fib, [1,2,3])']
   >>> fib_call = '\n'.join(code)
   >>> tree = ast.parse(fib_call)
   >>> from pythran import optimizations as optim
@@ -150,17 +150,15 @@ More complex ones rely on introspection to implement constant folding::
   def fib(n):
       return (n if (n < 2) else (fib((n - 1)) + fib((n - 2))))
   def foo():
-      print([1, 1, 2])
+      return [1, 1, 2]
 
 One can also detect some common generator expression patterns to call the itertool module::
 
   >>> norm = 'def norm(l): return sum(n*n for n in l)'
   >>> tree = ast.parse(norm)
   >>> _ = pm.apply(optim.ComprehensionPatterns, tree)
-  >>> print(pm.dump(backend.Python, tree))
-  import itertools as __pythran_import_itertools
-  def norm(l):
-      return sum(__pythran_import_itertools.imap((lambda n: (n * n)), l))
+  >>> 'map' in pm.dump(backend.Python, tree)
+  True
 
 
 Analysis
@@ -184,8 +182,8 @@ module. It can be used, for instance, to generate new unique identifiers::
   >>> from pythran import analyses
   >>> code = 'a = b = 1'
   >>> tree = ast.parse(code)
-  >>> pm.gather(analyses.Identifiers, tree)
-  set(['a', 'b'])
+  >>> sorted(pm.gather(analyses.Identifiers, tree))
+  ['a', 'b']
 
 One can also computes the state of ``globals()``::
 
@@ -200,8 +198,8 @@ One can also compute the state of ``locals()`` at any point of the program::
   >>> l = pm.gather(analyses.Locals, tree)
   >>> fdef = tree.body[-1]
   >>> freturn = fdef.body[-1]
-  >>> l[freturn]
-  set(['a', 'b', 'math'])
+  >>> sorted(l[freturn])
+  ['a', 'b', 'math']
 
 The ``ConstantFolding`` pass relies on the eponymous analyse that flags all
 constant expressions. In the previous code, there is only two constant
@@ -239,14 +237,14 @@ are updated, for instance using an augmented assign, or the ``append`` method::
 From this analyse and the ``GlobalEffects`` analyse, one can compute the set of
 pure functions, i.e. functions that have no side effects::
 
-  >>> code = 'def foo():pass\ndef bar(l): print(l)'
+  >>> code = 'def f():pass\ndef b(l): random.seed(0)'
   >>> tree = ast.parse(code)
   >>> pf = pm.gather(analyses.PureExpressions, tree)
-  >>> foo = tree.body[0]
-  >>> bar = tree.body[1]
-  >>> foo in pf
+  >>> f = tree.body[0]
+  >>> b = tree.body[1]
+  >>> f in pf
   True
-  >>> bar in pf
+  >>> b in pf
   False
 
 Pure functions are also interesting in the context of ``map``, as the

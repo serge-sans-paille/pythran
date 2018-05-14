@@ -54,8 +54,8 @@ class LocalNameDeclarations(NodeAnalysis):
     ... def foo(a):
     ...     b = a + 1''')
     >>> pm = passmanager.PassManager("test")
-    >>> pm.gather(LocalNameDeclarations, node)
-    set(['a', 'foo', 'b'])
+    >>> sorted(pm.gather(LocalNameDeclarations, node))
+    ['a', 'b', 'foo']
     """
 
     def __init__(self):

@@ -25,7 +25,7 @@ class ExpandGlobals(Transformation):
     ...     return a''')
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ExpandGlobals, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def a():
         return 1
     def foo():

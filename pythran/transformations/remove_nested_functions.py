@@ -90,7 +90,7 @@ class RemoveNestedFunctions(Transformation):
     >>> node = ast.parse("def foo(x):\\n def bar(y): return x+y\\n bar(12)")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RemoveNestedFunctions, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     import functools as __pythran_import_functools
     def foo(x):
         bar = __pythran_import_functools.partial(pythran_bar0, x)

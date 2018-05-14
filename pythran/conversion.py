@@ -73,10 +73,10 @@ def to_ast(value):
     Turn a value into ast expression.
 
     >>> a = 1
-    >>> print ast.dump(to_ast(a))
+    >>> print(ast.dump(to_ast(a)))
     Num(n=1)
     >>> a = [1, 2, 3]
-    >>> print ast.dump(to_ast(a))
+    >>> print(ast.dump(to_ast(a)))
     List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())
     """
     if isinstance(value, (type(None), bool)):

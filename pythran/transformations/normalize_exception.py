@@ -11,10 +11,11 @@ class NormalizeException(Transformation):
 
     >>> import gast as ast
     >>> from pythran import passmanager, backend
-    >>> node = ast.parse("try:print 't'\\nexcept: print 'x'\\nelse: print 'e'")
+    >>> node = ast.parse("try:print('t')\\nexcept: print('x')\\n\
+else: print('e')")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeException, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     try:
         print('t')
         try:

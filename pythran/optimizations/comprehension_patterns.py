@@ -28,15 +28,15 @@ class ComprehensionPatterns(Transformation):
     >>> node = ast.parse("[x*x for x in range(10)]")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ComprehensionPatterns, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     __builtin__.map((lambda x: (x * x)), range(10))
 
-    >>> node = ast.parse("(x*x for x in range(10))")
-    >>> pm = passmanager.PassManager("test")
-    >>> _, node = pm.apply(ComprehensionPatterns, node)
-    >>> print pm.dump(backend.Python, node)
-    import itertools as __pythran_import_itertools
-    __pythran_import_itertools.imap((lambda x: (x * x)), range(10))
+    #>>> node = ast.parse("(x*x for x in range(10))")
+    #>>> pm = passmanager.PassManager("test")
+    #>>> _, node = pm.apply(ComprehensionPatterns, node)
+    #>>> print(pm.dump(backend.Python, node))
+    #import itertools as __pythran_import_itertools
+    #__pythran_import_itertools.imap((lambda x: (x * x)), range(10))
     '''
 
     def __init__(self):

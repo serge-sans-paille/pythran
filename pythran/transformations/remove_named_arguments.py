@@ -17,7 +17,7 @@ class RemoveNamedArguments(Transformation):
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RemoveNamedArguments, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo(x, y):
         return (x + y)
     def bar(z):

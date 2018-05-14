@@ -48,18 +48,22 @@ class ForwardSubstitution(Transformation):
     >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> pm = passmanager.PassManager("test")
-    >>> node = ast.parse("def foo(): a = [2, 3]; print a")
+    >>> node = ast.parse("from __future__ import print_function\\n\
+def foo(): a = [2, 3]; __builtin__.print(a)")
     >>> _, node = pm.apply(ForwardSubstitution, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
+    from __future__ import print_function
     def foo():
         pass
-        print([2, 3])
-    >>> node = ast.parse("def foo(): a = 2; print a + a")
+        __builtin__.print([2, 3])
+    >>> node = ast.parse("from __future__ import print_function\\n\
+def foo(): a = 2; __builtin__.print(a + a)")
     >>> _, node = pm.apply(ForwardSubstitution, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
+    from __future__ import print_function
     def foo():
         pass
-        print((2 + 2))
+        __builtin__.print((2 + 2))
     """
 
     def __init__(self):

@@ -104,9 +104,11 @@ class Interval(object):
             return UNKNOWN_RANGE
         if other.low == 0:
             return UNKNOWN_RANGE
-        res = [v1 / v2 for v1, v2 in
+        res = [v1 // v2 for v1, v2 in
                itertools.product(self.bounds(), other.bounds())]
         return Interval(numpy.min(res), numpy.max(res))
+
+    __truediv__ = __div__
 
     def __rshift__(range1, range2):
         """

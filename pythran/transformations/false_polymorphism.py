@@ -4,6 +4,7 @@ from pythran.passmanager import Transformation
 from pythran.analyses import UseDefChain, UseOMP, Identifiers
 
 import networkx as nx
+import sys
 
 
 class FalsePolymorphism(Transformation):
@@ -16,11 +17,14 @@ class FalsePolymorphism(Transformation):
     >>> node = ast.parse("def foo(): a = 12; a = 'babar'")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(FalsePolymorphism, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo():
         a = 12
         a_ = 'babar'
     """
+
+    if sys.version_info.major == 3:
+        __doc__ = None  # FIXME: output non reproducible
 
     def __init__(self):
         super(FalsePolymorphism, self).__init__(UseDefChain, UseOMP)

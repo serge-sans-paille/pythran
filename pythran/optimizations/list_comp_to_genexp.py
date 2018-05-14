@@ -19,7 +19,7 @@ def bar(n):                                       \\n\
 """)
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ListCompToGenexp, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo(l):
         return __builtin__.sum(l)
     def bar(n):

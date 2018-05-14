@@ -28,8 +28,9 @@ namespace __builtin__
     }
 
     template <class Iterable>
-    types::list<typename std::iterator_traits<
-        typename std::remove_reference<Iterable>::type::iterator>::value_type>
+    types::list<typename std::decay<typename std::iterator_traits<
+        typename std::remove_reference<Iterable>::type::iterator>::value_type>::
+                    type>
     list(Iterable &&t)
     {
       return {t.begin(), t.end()};

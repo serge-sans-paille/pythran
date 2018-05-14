@@ -33,23 +33,25 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> res['a'], res['b'], res['c']
     (inf, 1, 2)
     >>> code = '''
+    ... from __future__ import print_function
     ... def foo():
     ...     k = 2
     ...     for i in [1, 2]:
-    ...         print k
+    ...         __builtin__.print(k)
     ...         k = i
-    ...     print k'''
+    ...     __builtin__.print(k)'''
     >>> node = ast.parse(code)
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> (res['i'], res['k']) == (sys.maxsize, 1)
     True
     >>> code = '''
+    ... from __future__ import print_function
     ... def foo():
     ...     k = 2
     ...     for i in [1, 2]:
-    ...         print k
+    ...         __builtin__.print(k)
     ...         k = i
-    ...         print k'''
+    ...         __builtin__.print(k)'''
     >>> node = ast.parse(code)
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> (res['i'], res['k']) == (sys.maxsize, 2)
@@ -67,18 +69,20 @@ class LazynessAnalysis(FunctionAnalysis):
     >>> res['k']
     1
     >>> code = '''
+    ... from __future__ import print_function
     ... def foo():
     ...     k = 2
     ...     for i in [1, 2]:
-    ...         print k'''
+    ...         __builtin__.print(k)'''
     >>> node = ast.parse(code)
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['k'] == sys.maxsize
     True
     >>> code = '''
+    ... from __future__ import print_function
     ... def foo():
     ...     k = __builtin__.sum
-    ...     print k([1, 2])'''
+    ...     __builtin__.print(k([1, 2]))'''
     >>> node = ast.parse(code)
     >>> res = pm.gather(LazynessAnalysis, node)
     >>> res['k']

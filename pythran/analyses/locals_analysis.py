@@ -27,10 +27,10 @@ class Locals(ModuleAnalysis):
     ...     return b(m)'''
     >>> tree = ast.parse(code)
     >>> l = pm.gather(Locals, tree)
-    >>> l[tree.body[0].body[0]]
-    set(['n'])
-    >>> l[tree.body[0].body[1]]
-    set(['b', 'm', 'n'])
+    >>> sorted(l[tree.body[0].body[0]])
+    ['n']
+    >>> sorted(l[tree.body[0].body[1]])
+    ['b', 'm', 'n']
     """
 
     def __init__(self):

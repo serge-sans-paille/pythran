@@ -198,6 +198,9 @@ class Unparser:
             self.write(", ")
             self.dispatch(t.locals)
 
+    def _NameConstant(self, t):
+        self.write('{}'.format(t.value))
+
     def _Print(self, t):
         # Assume from __future__ import print_function
         self.fill("print")

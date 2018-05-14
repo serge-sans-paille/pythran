@@ -444,12 +444,12 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     Usage without an existing spec file
 
     >>> with open('pythran_test.py', 'w') as fd:
-    ...    fd.write('def foo(i): return i ** 2')
+    ...    _ = fd.write('def foo(i): return i ** 2')
     >>> cpp_path = compile_pythranfile('pythran_test.py', cpponly=True)
 
     Usage with an existing spec file:
     >>> with open('pythran_test.pythran', 'w') as fd:
-    ...    fd.write('export foo(int)')
+    ...    _ = fd.write('export foo(int)')
     >>> so_path = compile_pythranfile('pythran_test.py')
     """
     if not output_file:

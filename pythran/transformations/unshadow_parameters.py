@@ -17,7 +17,7 @@ class UnshadowParameters(Transformation):
     >>> node = ast.parse("def foo(a): a=None")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(UnshadowParameters, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo(a):
         a_ = a
         a_ = None

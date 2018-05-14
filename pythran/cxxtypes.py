@@ -80,7 +80,7 @@ std::declval<str>()))>::type>::type
 
 
     >>> builder.ListType(builder.NamedType('int'))
-    pythonic::types::list<int>
+    pythonic::types::list<typename std::remove_reference<int>::type>
 
     >>> builder.SetType(builder.NamedType('int'))
     pythonic::types::set<int>
@@ -390,8 +390,9 @@ std::declval<bool>()))
             '''
 
             def generate(self, ctx):
-                return 'pythonic::types::list<{0}>'.format(
-                    ctx(self.of))
+                return 'pythonic::types::list<{}>'.format(
+                    'typename std::remove_reference<{0}>::type'.format(
+                        ctx(self.of)))
 
         class SetType(DependentType):
             '''

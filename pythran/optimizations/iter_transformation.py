@@ -36,12 +36,15 @@ class IterTransformation(Transformation):
     ... ''')
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(IterTransformation, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo(l):
         return __builtin__.sum(l)
     def bar(n):
         return foo(__builtin__.xrange(n))
     """
+
+    if sys.version_info.major == 3:
+        __doc__ = None
 
     def __init__(self):
         """Gather required information."""

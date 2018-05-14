@@ -15,7 +15,7 @@ class NormalizeCompare(Transformation):
     >>> node = ast.parse("def foo(a): return 0 < a + 1 < 3")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeCompare, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo(a):
         return foo_compare0(a)
     def foo_compare0(a):

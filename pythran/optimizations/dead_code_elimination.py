@@ -20,13 +20,13 @@ class DeadCodeElimination(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> node = ast.parse("def foo(): a = [2, 3]; return 1")
     >>> _, node = pm.apply(DeadCodeElimination, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo():
         pass
         return 1
     >>> node = ast.parse("def foo(): 'a simple string'; return 1")
     >>> _, node = pm.apply(DeadCodeElimination, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo():
         pass
         return 1
@@ -37,7 +37,7 @@ class DeadCodeElimination(Transformation):
     ...    bar(a)
     ...    return 1''')
     >>> _, node = pm.apply(DeadCodeElimination, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def bar(a):
         return a
     def foo(a):

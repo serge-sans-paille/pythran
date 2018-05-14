@@ -296,6 +296,8 @@ for exception in exceptions:
     if str(exception) in ("AssertionError", "UnicodeDecodeError",
                           "UnicodeEncodeError", "UnicodeTranslateError"):
         continue
+    if exception not in exception_args:
+        continue
     args = exception_args[exception]
     code = 'def {exception}_register(): raise {exception}{args}'.format(**locals())
     setattr(TestException, 'test_' + str(exception) + "_register",

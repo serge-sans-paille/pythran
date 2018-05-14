@@ -94,6 +94,8 @@ namespace types
     static const bool is_vectorizable =
         types::is_vectorizable_dtype<dtype>::value &&
         std::is_same<S, contiguous_slice>::value;
+    static const bool is_strided =
+        !std::is_same<contiguous_normalized_slice, S>::value;
 
     // constructor
     sliced_list();

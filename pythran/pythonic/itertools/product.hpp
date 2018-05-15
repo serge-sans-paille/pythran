@@ -2,6 +2,8 @@
 #define PYTHONIC_ITERTOOLS_PRODUCT_HPP
 
 #include "pythonic/include/itertools/product.hpp"
+#include "pythonic/utils/int_.hpp"
+#include "pythonic/utils/seq.hpp"
 #include "pythonic/utils/iterator.hpp"
 #include "pythonic/itertools/common.hpp"
 #include "pythonic/utils/functor.hpp"

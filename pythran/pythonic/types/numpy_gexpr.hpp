@@ -107,6 +107,17 @@ namespace types
   {
     return {0, 1};
   }
+  template <class T>
+  T to_normalized_slice<T>::operator()(T value)
+  {
+    return value;
+  }
+
+  contiguous_normalized_slice to_normalized_slice<none_type>::
+  operator()(none_type)
+  {
+    return {0, 1};
+  }
 
   /* helper to build a new shape out of a shape && a slice with new axis
    */
@@ -260,6 +271,23 @@ namespace types
               s + 1, tuple_tail(t0), tuple_tail(t1)));
     }
 
+    template <class S0, class... T0, class... T1>
+    auto merge_gexpr<std::tuple<S0, T0...>, std::tuple<none_type, T1...>>::
+    operator()(long const *s, std::tuple<S0, T0...> const &t0,
+               std::tuple<none_type, T1...> const &t1)
+        -> decltype(tuple_push_head(
+            std::get<0>(t0),
+            tuple_push_head(std::get<0>(t1),
+                            merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
+                                s + 1, tuple_tail(t0), tuple_tail(t1)))))
+    {
+      return tuple_push_head(
+          std::get<0>(t0),
+          tuple_push_head(std::get<0>(t1),
+                          merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
+                              s + 1, tuple_tail(t0), tuple_tail(t1))));
+    }
+
     template <class... T0, class S1, class... T1>
     auto merge_gexpr<std::tuple<long, T0...>, std::tuple<S1, T1...>>::
     operator()(long const *s, std::tuple<long, T0...> const &t0,
@@ -272,6 +300,21 @@ namespace types
       return tuple_push_head(
           std::get<0>(t0),
           merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
+              s, tuple_tail(t0), t1));
+    }
+
+    template <class... T0, class... T1>
+    auto merge_gexpr<std::tuple<long, T0...>, std::tuple<none_type, T1...>>::
+    operator()(long const *s, std::tuple<long, T0...> const &t0,
+               std::tuple<none_type, T1...> const &t1)
+        -> decltype(tuple_push_head(
+            std::get<0>(t0),
+            merge_gexpr<std::tuple<T0...>, std::tuple<none_type, T1...>>{}(
+                s, tuple_tail(t0), t1)))
+    {
+      return tuple_push_head(
+          std::get<0>(t0),
+          merge_gexpr<std::tuple<T0...>, std::tuple<none_type, T1...>>{}(
               s, tuple_tail(t0), t1));
     }
 
@@ -306,9 +349,39 @@ namespace types
     }
 
     template <class Arg, class... Sp>
-    numpy_gexpr<Arg, Sp...> _make_gexpr(Arg arg, std::tuple<Sp...> const &t)
+    typename std::enable_if<count_new_axis<Sp...>::value == 0,
+                            numpy_gexpr<Arg, Sp...>>::type
+    _make_gexpr(Arg arg, std::tuple<Sp...> const &t)
     {
       return {arg, t};
+    }
+
+    template <class Arg, class S, size_t... Is>
+    numpy_gexpr<Arg, typename to_normalized_slice<
+                         typename std::tuple_element<Is, S>::type>::type...>
+    _make_gexpr_helper(Arg arg, S const &s, utils::index_sequence<Is...>)
+    {
+      return {arg,
+              to_normalized_slice<typename std::tuple_element<Is, S>::type>{}(
+                  std::get<Is>(s))...};
+    }
+
+    template <class Arg, class... Sp>
+    auto _make_gexpr(Arg arg, std::tuple<Sp...> const &s) ->
+        typename std::enable_if<
+            count_new_axis<Sp...>::value != 0,
+            decltype(_make_gexpr_helper(
+                arg.reshape(make_reshape<Arg::value +
+                                         count_new_axis<Sp...>::value>(
+                    arg.shape(),
+                    array<bool, sizeof...(Sp)>{to_slice<Sp>::is_new_axis...})),
+                s, utils::make_index_sequence<sizeof...(Sp)>()))>::type
+    {
+      return _make_gexpr_helper(
+          arg.reshape(make_reshape<Arg::value + count_new_axis<Sp...>::value>(
+              arg.shape(),
+              array<bool, sizeof...(Sp)>{to_slice<Sp>::is_new_axis...})),
+          s, utils::make_index_sequence<sizeof...(Sp)>());
     }
 
     template <class Arg, class... S>
@@ -328,9 +401,9 @@ namespace types
                         std::declval<long const *>(), std::tuple<S...>(),
                         std::tuple<Sp...>())))
     {
-      return {arg.arg,
-              merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
-                  arg.shape().data(), arg.slices, std::make_tuple(s...))};
+      return _make_gexpr(
+          arg.arg, merge_gexpr<std::tuple<S...>, std::tuple<Sp...>>{}(
+                       arg.shape().data(), arg.slices, std::make_tuple(s...)));
     }
   }
 

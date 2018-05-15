@@ -53,6 +53,11 @@ namespace types
     numpy_iexpr(numpy_iexpr const &) = default;
     numpy_iexpr(numpy_iexpr &&) = default;
 
+    numpy_iexpr(dtype *buffer, array<long, value> const &shape)
+        : buffer(buffer), _shape(shape)
+    {
+    }
+
     template <class Argp> // ! using the default one, to make it possible to
     // accept reference && non reference version of
     // Argp
@@ -201,6 +206,13 @@ namespace types
     array<long, value> const &shape() const
     {
       return _shape;
+    }
+
+    template <size_t M>
+    auto reshape(array<long, M> const &new_shape) const -> numpy_iexpr<decltype(
+        std::declval<Arg>().reshape(std::declval<array<long, M + 1>>()))>
+    {
+      return {buffer, new_shape};
     }
 
     ndarray<dtype, value> copy() const

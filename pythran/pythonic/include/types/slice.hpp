@@ -159,6 +159,10 @@ namespace types
       s += n;
     return s;
   }
+  none_type normalize(none_type s, long n)
+  {
+    return {};
+  }
   normalized_slice normalize(slice s, long n)
   {
     return s.normalize(n);

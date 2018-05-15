@@ -599,6 +599,22 @@ def assign_ndarray(t):
                       numpy.arange(16).reshape(1,4,4),
                       gexpr_composition15=[NDArray[int, :,:,:]])
 
+    def test_gexpr_composition16(self):
+        self.run_test("def gexpr_composition16(a): return a[:,None][:,:,None]",
+                      numpy.arange(16).reshape(4,4),
+                      gexpr_composition16=[NDArray[int, :,:]])
+
+    def test_gexpr_composition17(self):
+        self.run_test("def gexpr_composition17(a): return a[:,None][:,None]",
+                      numpy.arange(16).reshape(1,4,4),
+                      gexpr_composition17=[NDArray[int, :,:,:]])
+
+    def test_gexpr_composition18(self):
+        self.run_test("def gexpr_composition18(a): return a[0,:,None][:,None]",
+                      numpy.arange(24).reshape(2,3,4),
+                      gexpr_composition18=[NDArray[int, :,:,:]])
+
+
     def test_gexpr_copy0(self):
         self.run_test("def gexpr_copy0(a,b): a[:,0] = b[:,0]; return a",
                       numpy.arange(16).reshape(8,2), numpy.arange(16).reshape(8,2),

@@ -28,12 +28,12 @@ class ExpandImports(Transformation):
     >>> node = ast.parse("from math import cos ; cos(2)")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ExpandImports, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     import math as __pythran_import_math
     __pythran_import_math.cos(2)
     >>> node = ast.parse("from os.path import join ; join('a', 'b')")
     >>> _, node = pm.apply(ExpandImports, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     import os as __pythran_import_os
     __pythran_import_os.path.join('a', 'b')
     """
@@ -91,7 +91,7 @@ class ExpandImports(Transformation):
         >> import foo
         >> import bar
         >> def foo(bar):
-        >>     print bar
+        >>     print(bar)
 
         In this case, neither bar nor foo can be used in the foo function and
         in future function, foo will not be usable.
@@ -112,7 +112,7 @@ class ExpandImports(Transformation):
         >> import foo
         >> def bar():
         >>     foo = 2
-        >>     print foo
+        >>     print(foo)
 
         In this case, foo can't be used after assign.
         """

@@ -17,7 +17,7 @@ class ExtractDocStrings(Transformation):
     >>> node = ast.parse("def foo(): 'my doc is cool' ; pass")
     >>> pm = passmanager.PassManager("test")
     >>> _ = pm.apply(ExtractDocStrings, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo():
         pass
     '''

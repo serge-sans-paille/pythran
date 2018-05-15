@@ -229,7 +229,7 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse('def foo(a, b): return a')
         >>> result = pm.gather(Aliases, module)
         >>> module.body[0].return_alias # doctest: +ELLIPSIS
-        <function merge_return_aliases at...>
+        <function ...merge_return_aliases at...>
 
         This field is a function that takes as many nodes as the function
         argument count as input and returns an expression based on
@@ -281,7 +281,8 @@ class Aliases(ModuleAnalysis):
             args = call.args
             if isinstance(func, ast.FunctionDef):
                 extra = len(func.args.args) - len(args)
-                args = args + func.args.defaults[extra:]
+                if extra:
+                    args = args + func.args.defaults[extra:]
             return args
 
         func = node.func
@@ -672,7 +673,7 @@ class Aliases(ModuleAnalysis):
         >>> fun = """
         ... def foo(a):
         ...     while(a):
-        ...         if a==1: print b
+        ...         if a==1: print(b)
         ...         else: b=a"""
         >>> module = ast.parse(fun)
         >>> result = pm.gather(Aliases, module)

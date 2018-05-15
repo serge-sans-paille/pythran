@@ -39,7 +39,7 @@ class Python(Backend):
     '''
     Produces a Python representation of the AST.
 
-    >>> import gast as ast, passmanager
+    >>> import gast as ast, pythran.passmanager as passmanager
     >>> node = ast.parse("print('hello world')")
     >>> pm = passmanager.PassManager('test')
     >>> print(pm.dump(Python, node))
@@ -1206,32 +1206,30 @@ class Cxx(Backend):
     """
     Produces a C++ representation of the AST.
 
-    >>> import gast as ast, passmanager, os
-    >>> node = ast.parse("def foo(): print('hello world')")
+    >>> import gast as ast, pythran.passmanager as passmanager, os
+    >>> node = ast.parse("def foo(): return 'hello world'")
     >>> pm = passmanager.PassManager('test')
     >>> r = pm.dump(Cxx, node)
     >>> print(str(r).replace(os.sep, '/'))
-    #include <pythonic/include/__builtin__/print.hpp>
     #include <pythonic/include/types/str.hpp>
-    #include <pythonic/__builtin__/print.hpp>
     #include <pythonic/types/str.hpp>
     namespace __pythran_test
     {
       struct foo
       {
         typedef void callable;
-        ;
+        typedef void pure;
         struct type
         {
-          typedef typename pythonic::returnable<pythonic::types::none_type>\
-::type result_type;
+          typedef typename pythonic::returnable<pythonic::types::str>::type \
+result_type;
         }  ;
         typename type::result_type operator()() const;
         ;
       }  ;
       typename foo::type::result_type foo::operator()() const
       {
-        pythonic::__builtin__::print("hello world");
+        return "hello world";
       }
     }
     """

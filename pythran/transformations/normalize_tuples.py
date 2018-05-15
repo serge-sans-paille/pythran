@@ -38,7 +38,7 @@ class NormalizeTuples(Transformation):
     >>> node = ast.parse("def foo(): a=(1,2.) ; i,j = a")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeTuples, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo():
         a = (1, 2.0)
         i = a[0]

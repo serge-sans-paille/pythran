@@ -18,13 +18,13 @@ class Square(Transformation):
     >>> node = ast.parse('a**2')
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(Square, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     import numpy as __pythran_import_numpy
     __pythran_import_numpy.square(a)
     >>> node = ast.parse('__pythran_import_numpy.power(a,2)')
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(Square, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     import numpy as __pythran_import_numpy
     __pythran_import_numpy.square(a)
     """

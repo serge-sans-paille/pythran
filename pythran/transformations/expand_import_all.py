@@ -15,11 +15,11 @@ class ExpandImportAll(Transformation):
     >>> node = ast.parse("from math import *")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ExpandImportAll, node)
-    >>> print pm.dump(backend.Python, node)
-    from math import asinh, atan2, fmod, atan, isnan, factorial, pow, \
-copysign, cos, cosh, ldexp, hypot, isinf, floor, sinh, acosh, tan, ceil, exp, \
-trunc, asin, expm1, e, log, fabs, tanh, log10, atanh, radians, sqrt, frexp, \
-lgamma, erf, erfc, modf, degrees, acos, pi, log1p, sin, gamma
+    >>> print(pm.dump(backend.Python, node))
+    from math import acos, acosh, asin, asinh, atan, atan2, atanh, ceil, \
+copysign, cos, cosh, degrees, e, erf, erfc, exp, expm1, fabs, factorial, \
+floor, fmod, frexp, gamma, hypot, isinf, isnan, ldexp, lgamma, log, log10, \
+log1p, modf, pi, pow, radians, sin, sinh, sqrt, tan, tanh, trunc
     '''
 
     def visit_ImportFrom(self, node):
@@ -28,5 +28,5 @@ lgamma, erf, erfc, modf, degrees, acos, pi, log1p, sin, gamma
                 self.update = True
                 node.names.pop()
                 node.names.extend(ast.alias(fname, None)
-                                  for fname in MODULES[node.module])
+                                  for fname in sorted(MODULES[node.module]))
         return node

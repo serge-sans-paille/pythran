@@ -70,7 +70,7 @@ class RemoveLambdas(Transformation):
     >>> node = ast.parse("def foo(y): lambda x:y+x")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RemoveLambdas, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     import functools as __pythran_import_functools
     def foo(y):
         __pythran_import_functools.partial(foo_lambda0, y)

@@ -2768,6 +2768,7 @@ MODULES = {
             ],
             global_effects=True
         ),
+        "print": FunctionIntr(global_effects=True),
         "pow": ConstFunctionIntr(
             signature=Union[
                 Fun[[int, int], int],
@@ -4422,7 +4423,6 @@ if sys.version_info.major == 3:
     del MODULES['__builtin__']['file']
     del MODULES['__builtin__']['long_']
     del MODULES['__builtin__']['StandardError']
-    MODULES['__builtin__']['print'] = FunctionIntr(global_effects=True)
     MODULES['io'] = {
         '_io': {
             "TextIOWrapper": ClassWithConstConstructor(

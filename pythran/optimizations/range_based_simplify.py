@@ -18,7 +18,7 @@ class RangeBasedSimplify(Transformation):
     >>> node = ast.parse("def any():\\n for x in __builtin__.range(10): y=x%8")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RangeBasedSimplify, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def any():
         for x in __builtin__.range(10):
             y = (x if (x < 8) else (x - 8))
@@ -26,7 +26,7 @@ class RangeBasedSimplify(Transformation):
     >>> node = ast.parse("def any(): x = 1 or 2; return 3 == x")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RangeBasedSimplify, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def any():
         x = (1 or 2)
         return 0

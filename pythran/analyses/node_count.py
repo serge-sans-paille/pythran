@@ -16,7 +16,7 @@ class NodeCount(NodeAnalysis):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse("if 1: return 3")
     >>> pm = passmanager.PassManager("test")
-    >>> print pm.gather(NodeCount, node)
+    >>> print(pm.gather(NodeCount, node))
     5
     """
 

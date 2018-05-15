@@ -35,7 +35,7 @@ class TestNoGil(TestEnv):
         def ndarray_param(l):
             return np.array([i*j for i in l for j in l]), l
         """
-        self.run_test(code, np.ones(10000, dtype=int),
+        self.run_test(code, np.ones(100, dtype=int),
                       ndarray_param=[NDArray[int, :]],
                       thread_count=4)
 

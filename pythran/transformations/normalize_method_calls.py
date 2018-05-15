@@ -19,7 +19,7 @@ class NormalizeMethodCalls(Transformation):
     >>> node = ast.parse("l.append(12)")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeMethodCalls, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     __builtin__.list.append(l, 12)
     '''
 

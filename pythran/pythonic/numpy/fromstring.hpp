@@ -6,6 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/list.hpp"
+#include "pythonic/types/str.hpp"
 
 #include <limits>
 #include <sstream>

@@ -7,6 +7,7 @@ import gast as ast
 import importlib
 import inspect
 import logging
+from collections import OrderedDict
 
 logger = logging.getLogger('pythran')
 
@@ -317,7 +318,7 @@ class ImportRegistry(object):
     """
 
     def __init__(self):
-        self.modules = dict()  # List of modules already imported
+        self.modules = OrderedDict()  # List of modules already imported
 
     def import_module(self, name):
         """Keep track of imported modules. Pythran-supported builtin modules
@@ -339,7 +340,7 @@ class ImportRegistry(object):
     def generate_ImportList(self):
         """List of imported functions to be added to the main module.  """
         import_list = []
-        for mod in self.modules.values():
+        for mod in reversed(self.modules.values()):
             if mod.is_main_module:
                 # don't need to import anything from the main module
                 continue

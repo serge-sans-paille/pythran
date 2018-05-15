@@ -21,7 +21,7 @@ class Inlining(Transformation):
     ... def bar(b):
     ...     return foo(2 * b, b) * foo(b, b)''')
     >>> _, node = pm.apply(Inlining, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def foo(a, b):
         return (b + (b * a))
     def bar(b):

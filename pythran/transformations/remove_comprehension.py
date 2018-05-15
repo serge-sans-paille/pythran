@@ -17,7 +17,7 @@ class RemoveComprehension(Transformation):
     >>> node = ast.parse("[x*x for x in (1,2,3)]")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RemoveComprehension, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     list_comprehension0()
     def list_comprehension0():
         __target = __builtin__.list()

@@ -15,7 +15,7 @@ class NormalizeIdentifiers(Transformation):
     >>> node = ast.parse("def namespace(union):pass")
     >>> pm = passmanager.PassManager("test")
     >>> _ = pm.apply(NormalizeIdentifiers, node)
-    >>> print pm.dump(backend.Python, node)
+    >>> print(pm.dump(backend.Python, node))
     def namespace_(union_):
         pass
     '''

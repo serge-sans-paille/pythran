@@ -28,6 +28,7 @@ namespace numpy
                           decltype(std::declval<E>() * std::declval<F>())>::type
   dot(E const &e, F const &f);
 
+  /// Vector / Vector multiplication
   template <class E, class F>
   typename std::enable_if<
       types::is_numexpr_arg<E>::value &&
@@ -35,6 +36,11 @@ namespace numpy
           && E::value == 1 && F::value == 1, // It is a two vectors.
       typename __combined<typename E::dtype, typename F::dtype>::type>::type
   dot(E const &e, F const &f);
+
+  float dot(types::ndarray<float, 1> const &e,
+            types::ndarray<float, 1> const &f);
+  double dot(types::ndarray<double, 1> const &e,
+             types::ndarray<double, 1> const &f);
 
   /// Matrice / Vector multiplication
 

@@ -46,6 +46,18 @@ namespace types
     contiguous_slice operator()(none_type);
   };
 
+  template <class T>
+  struct to_normalized_slice {
+    using type = T;
+    T operator()(T value);
+  };
+
+  template <>
+  struct to_normalized_slice<none_type> {
+    using type = contiguous_normalized_slice;
+    contiguous_normalized_slice operator()(none_type);
+  };
+
   /* helper to build a new shape out of a shape && a slice with new axis
    */
   template <size_t N, size_t M, size_t C>
@@ -234,6 +246,18 @@ namespace types
           "all slices are normalized");
     };
 
+    template <class S0, class... T0, class... T1>
+    struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<none_type, T1...>> {
+      auto operator()(long const *s, std::tuple<S0, T0...> const &t0,
+                      std::tuple<none_type, T1...> const &t1)
+          -> decltype(tuple_push_head(
+              std::get<0>(t0),
+              tuple_push_head(
+                  std::get<0>(t1),
+                  merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
+                      s + 1, tuple_tail(t0), tuple_tail(t1)))));
+    };
+
     template <class... T0, class S1, class... T1>
     struct merge_gexpr<std::tuple<long, T0...>, std::tuple<S1, T1...>> {
       auto operator()(long const *s, std::tuple<long, T0...> const &t0,
@@ -241,6 +265,15 @@ namespace types
           -> decltype(tuple_push_head(
               std::get<0>(t0),
               merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
+                  s, tuple_tail(t0), t1)));
+    };
+    template <class... T0, class... T1>
+    struct merge_gexpr<std::tuple<long, T0...>, std::tuple<none_type, T1...>> {
+      auto operator()(long const *s, std::tuple<long, T0...> const &t0,
+                      std::tuple<none_type, T1...> const &t1)
+          -> decltype(tuple_push_head(
+              std::get<0>(t0),
+              merge_gexpr<std::tuple<T0...>, std::tuple<none_type, T1...>>{}(
                   s, tuple_tail(t0), t1)));
     };
 
@@ -265,7 +298,25 @@ namespace types
     };
 
     template <class Arg, class... Sp>
-    numpy_gexpr<Arg, Sp...> _make_gexpr(Arg arg, std::tuple<Sp...> const &t);
+    typename std::enable_if<count_new_axis<Sp...>::value == 0,
+                            numpy_gexpr<Arg, Sp...>>::type
+    _make_gexpr(Arg arg, std::tuple<Sp...> const &t);
+
+    template <class Arg, class S, size_t... Is>
+    numpy_gexpr<Arg, typename to_normalized_slice<
+                         typename std::tuple_element<Is, S>::type>::type...>
+    _make_gexpr_helper(Arg arg, S const &s, utils::index_sequence<Is...>);
+
+    template <class Arg, class... Sp>
+    auto _make_gexpr(Arg arg, std::tuple<Sp...> const &s) ->
+        typename std::enable_if<
+            count_new_axis<Sp...>::value != 0,
+            decltype(_make_gexpr_helper(
+                arg.reshape(make_reshape<Arg::value +
+                                         count_new_axis<Sp...>::value>(
+                    arg.shape(),
+                    array<bool, sizeof...(Sp)>{to_slice<Sp>::is_new_axis...})),
+                s, utils::make_index_sequence<sizeof...(Sp)>()))>::type;
 
     template <class Arg, class... S>
     struct make_gexpr {
@@ -423,6 +474,13 @@ namespace types
     {
       return _shape;
     }
+
+    template <size_t M>
+    numpy_gexpr reshape(array<long, M> const &shape) const
+    {
+      static_assert(M == 0, "should never be instanciated");
+    }
+
     template <class E>
     long buffer_offset(E const &e, long n) const
     {
@@ -474,6 +532,16 @@ namespace types
   private:
     template <class _Arg, class... _S>
     friend struct details::make_gexpr;
+    template <class _Arg, class... _S>
+    friend typename std::enable_if<count_new_axis<_S...>::value == 0,
+                                   numpy_gexpr<_Arg, _S...>>::type
+    details::_make_gexpr(_Arg arg, std::tuple<_S...> const &t);
+    template <class _Arg, class _S, size_t... Is>
+    friend numpy_gexpr<_Arg,
+                       typename to_normalized_slice<
+                           typename std::tuple_element<Is, _S>::type>::type...>
+    details::_make_gexpr_helper(_Arg arg, _S const &s,
+                                utils::index_sequence<Is...>);
 
     template <size_t C>
     friend struct extended_slice;

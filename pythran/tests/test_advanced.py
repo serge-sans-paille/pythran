@@ -249,3 +249,24 @@ def combiner_on_empty_list():
             numpy.array([[1., 1.], [2., 2.]]),
             numpy.array([[0., 2.], [1., 3.]]),
             matmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])
+
+    def test_generator_handler_name(self):
+        code = '''
+            def foo(x):
+                if x > 2:
+                    for i in range(x):
+                        if i > 1:
+                            break
+                        yield i
+                else:
+                    for i in ["1"] * x:
+                        if len(i) == 1:
+                            break
+                        yield i
+
+            def generator_handler_name(n):
+                return list(foo(n))'''
+        self.run_test(code,
+                      3,
+                      generator_handler_name=[int])
+                    

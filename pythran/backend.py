@@ -102,7 +102,7 @@ def cxx_loop(visit):
                 res = visit(self, node)
             return res
 
-        break_handler = "__no_breaking{0}".format(len(self.break_handlers))
+        break_handler = "__no_breaking{0}".format(id(node))
         with pushpop(self.break_handlers, break_handler):
             res = visit(self, node)
 
@@ -459,7 +459,7 @@ class CxxFunction(Backend):
         is removed for iterator in case of yields statement in function.
         """
         # Choose target variable for iterator (which is iterator type)
-        local_target = "__target{0}".format(len(self.break_handlers))
+        local_target = "__target{0}".format(id(node))
         local_target_decl = self.types.builder.IteratorOfType(local_iter_decl)
 
         # If variable is local to the for body it's a ref to the iterator value
@@ -541,7 +541,7 @@ class CxxFunction(Backend):
             lower_bound = self.visit(args[0])
             upper_value = self.visit(args[1])
 
-        upper_bound = "__target{0}".format(len(self.break_handlers))
+        upper_bound = "__target{0}".format(id(node))
 
         upper_type = iter_type = "long "
 
@@ -702,7 +702,7 @@ class CxxFunction(Backend):
                 loop = [self.process_omp_attachements(node, autofor)]
             else:
                 # Iterator declaration
-                local_iter = "__iter{0}".format(len(self.break_handlers))
+                local_iter = "__iter{0}".format(id(node))
                 local_iter_decl = self.types.builder.Assignable(
                     self.types[node.iter])
 

@@ -190,7 +190,7 @@ class TestEnv(unittest.TestCase):
             if sys.platform != "win32":
                 os.remove(module_path)
 
-    def run_test_case(self, code, module_name, runas, **interface):
+    def run_test_case(self, code, module_name, runas, module_dir=None, **interface):
         """
         Test if a function call return value is equal for Pythran and Pythran.
 
@@ -231,7 +231,7 @@ class TestEnv(unittest.TestCase):
 
             # Compile the code using pythran
             cxx_compiled = compile_pythrancode(
-                modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
+                modname, code, interface, module_dir=module_dir, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
 
             if not runas:
                 continue
@@ -409,11 +409,12 @@ class TestFromDir(TestEnv):
         for a straightforward dispatch to TestEnv.run_test()
         """
 
-        def __init__(self, test_env, module_name, module_code, runas=None,
-                     **specs):
+        def __init__(self, test_env, module_name, module_code, module_dir,
+                     runas=None, **specs):
             self.test_env = test_env
             self.module_name = module_name
             self.module_code = module_code
+            self.module_dir = module_dir
             self.runas = runas
             self.specs = specs
 
@@ -439,7 +440,8 @@ class TestFromDir(TestEnv):
             sys.path.insert(0, self.test_env.path)
 
             self.test_env.run_test_case(self.module_code, self.module_name,
-                                        self.runas, **self.specs)
+                                        self.runas, module_dir=self.module_dir,
+                                        **self.specs)
             # restore import path
             sys.path.pop(0)
 
@@ -485,5 +487,6 @@ class TestFromDir(TestEnv):
                     with open(filepath) as fd:
                         func = TestFromDir.TestFunctor(
                             target, name + suffix + str(n), fd.read(),
+                            os.path.dirname(filepath),
                             runas=runas, **specs)
                 setattr(target, "test_" + name + suffix + str(n), func)

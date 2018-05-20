@@ -38,8 +38,10 @@ def compile_flags(args):
         'library_dirs': args.libraries_dir,
         'extra_link_args': args.extra_flags,
     }
-    if args.opts:
-        compiler_options['opts'] = args.opts
+    for param in ('opts', ):
+        val = getattr(args, param, None)
+        if val:
+            compiler_options[param] = val
 
     return compiler_options
 

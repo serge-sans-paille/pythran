@@ -32,7 +32,6 @@ import gast as ast
 import logging
 import os.path
 import shutil
-import sys
 import glob
 import hashlib
 from functools import reduce
@@ -127,9 +126,9 @@ class HasArgument(ast.NodeVisitor):
         return []
 
 
-def front_middle_end(module_name, code, optimizations=None):
+def front_middle_end(module_name, code, optimizations=None, module_dir=None):
     """Front-end and middle-end compilation steps"""
-    pm = PassManager(module_name)
+    pm = PassManager(module_name, module_dir)
 
     # front end
     ir, renamings, docstrings = frontend.parse(pm, code)
@@ -146,19 +145,21 @@ def front_middle_end(module_name, code, optimizations=None):
 # PUBLIC INTERFACE STARTS HERE
 
 
-def generate_py(module_name, code, optimizations=None):
+def generate_py(module_name, code, optimizations=None, module_dir=None):
     '''python + pythran spec -> py code
 
     Prints and returns the optimized python code.
 
     '''
 
-    pm, ir, _, _ = front_middle_end(module_name, code, optimizations)
+    pm, ir, _, _ = front_middle_end(module_name, code, optimizations,
+                                    module_dir)
 
     return pm.dump(Python, ir)
 
 
-def generate_cxx(module_name, code, specs=None, optimizations=None):
+def generate_cxx(module_name, code, specs=None, optimizations=None,
+                 module_dir=None):
     '''python + pythran spec -> c++ code
     returns a PythonModule object and an error checker
 
@@ -168,7 +169,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None):
     '''
 
     pm, ir, renamings, docstrings = front_middle_end(module_name, code,
-                                                     optimizations)
+                                                     optimizations, module_dir)
 
     # back-end
     content = pm.dump(Cxx, ir)
@@ -382,7 +383,7 @@ def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
 
 def compile_pythrancode(module_name, pythrancode, specs=None,
                         opts=None, cpponly=False, pyonly=False,
-                        output_file=None, **kwargs):
+                        output_file=None, module_dir=None, **kwargs):
     '''Pythran code (string) -> c++ code -> native module
 
     if `cpponly` is set to true, return the generated C++ filename
@@ -393,7 +394,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     if pyonly:
         # Only generate the optimized python code
-        content = generate_py(module_name, pythrancode, opts)
+        content = generate_py(module_name, pythrancode, opts, module_dir)
         if output_file is None:
             print(content)
             return None
@@ -406,7 +407,8 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
         specs = spec_parser(pythrancode)
 
     # Generate C++, get a PythonModule object
-    module, error_checker = generate_cxx(module_name, pythrancode, specs, opts)
+    module, error_checker = generate_cxx(module_name, pythrancode, specs, opts,
+                                         module_dir)
 
     if 'ENABLE_PYTHON_MODULE' in kwargs.get('undef_macros', []):
         module.preamble.insert(0, Line('#undef ENABLE_PYTHON_MODULE'))
@@ -462,8 +464,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
         _, basename = os.path.split(output_file)
         module_name = module_name or os.path.splitext(basename)[0]
 
-    # Add compiled module path to search for imported modules
-    sys.path.append(os.path.dirname(file_path))
+    module_dir = os.path.dirname(file_path)
 
     # Look for an extra spec file
     spec_file = os.path.splitext(file_path)[0] + '.pythran'
@@ -474,6 +475,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     output_file = compile_pythrancode(module_name, open(file_path).read(),
                                       output_file=output_file,
                                       cpponly=cpponly, pyonly=pyonly,
+                                      module_dir=module_dir,
                                       **kwargs)
 
     return output_file

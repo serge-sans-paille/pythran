@@ -189,9 +189,10 @@ class ImportedModule(object):
         self.node = module
         self.module_dir = module_dir
         if self.node is None:
+            from pythran.frontend import raw_parse
             # Not main module, parse now the imported module
             self.is_main_module = False
-            self.node = ast.parse(self.getsource(name, module_dir, level))
+            self.node = raw_parse(self.getsource(name, module_dir, level))
             assert isinstance(self.node, ast.Module)
 
         # Recursively add filename information to all nodes, for debug msg

@@ -98,6 +98,6 @@ class PythranExtension(Extension):
                                        module_name, cpponly=True)
             cxx_sources.append(output_file)
 
-        cfg_ext = cfg.make_extension(**kwargs)
+        cfg_ext = cfg.make_extension(python=True, **kwargs)
         self.cxx = cfg_ext.pop('cxx')
         Extension.__init__(self, name, cxx_sources, *args, **cfg_ext)

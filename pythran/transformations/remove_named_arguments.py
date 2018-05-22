@@ -3,8 +3,15 @@
 from pythran.analyses import Aliases
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
+from pythran.tables import MODULES
 
 import gast as ast
+
+
+def handle_special_calls(func_alias, node):
+    if func_alias is MODULES['numpy']['arange']:
+        if len(node.args) == 1:
+            node.args.insert(0, ast.Num(0))
 
 
 class RemoveNamedArguments(Transformation):
@@ -65,6 +72,8 @@ class RemoveNamedArguments(Transformation):
             try:
                 replacements = {}
                 for func_alias in aliases:
+                    handle_special_calls(func_alias, node)
+
                     if func_alias is None:  # aliasing computation failed
                         pass
                     elif isinstance(func_alias, ast.Call):  # nested function

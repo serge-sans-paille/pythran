@@ -71,23 +71,35 @@ class BuildWithThirdParty(build_py):
     * install boost dependencies
     """
 
+    user_options = build_py.user_options + [
+        ('no-boost', None, 'Do not distribute boost headers')]
+
+    def initialize_options(self):
+        build_py.initialize_options(self)
+        self.no_boost = None
+
     def copy_boost(self, src_only=False):
-        """ Install boos-simd and boost deps from the third_party directory """
+        "Install boost-simd and boost deps from the third_party directory"
 
-        print('Copying boost.simd and its dependencies')
-        for d in ('boost',):
-            src = os.path.join('third_party', d)
+        if self.no_boost is None:
+            print('Copying boost.simd and its dependencies')
+            to_copy = 'boost',
+        else:
+            print('Copying boost.simd')
+            to_copy = 'boost', 'simd'
 
-            if not src_only:
-                # copy to the build tree
-                target = os.path.join(self.build_lib, 'pythran', d)
-                shutil.rmtree(target, True)
-                shutil.copytree(src, target)
+        src = os.path.join('third_party', *to_copy)
 
-            # copy them to the source tree too, needed for sdist
-            target = os.path.join('pythran', d)
+        # copy to the build tree
+        if not src_only:
+            target = os.path.join(self.build_lib, 'pythran', *to_copy)
             shutil.rmtree(target, True)
             shutil.copytree(src, target)
+
+        # copy them to the source tree too, needed for sdist
+        target = os.path.join('pythran', *to_copy)
+        shutil.rmtree(target, True)
+        shutil.copytree(src, target)
 
     def detect_gmp(self):
         # It's far from perfect, but we try to compile a code that uses

@@ -321,13 +321,18 @@ namespace types
   /* empty list implementation */
   struct empty_list {
     // minimal ndarray interface
-    typedef double dtype;
+    typedef char dtype;
     static const size_t value = 1;
     static const bool is_vectorizable = false;
-    typedef double value_type;
+    static const bool is_strided = false;
+    typedef char value_type;
 
     typedef empty_iterator iterator;
     typedef empty_iterator const_iterator;
+#ifdef USE_BOOST_SIMD
+    typedef empty_iterator simd_iterator;
+    typedef empty_iterator simd_iterator_nobroadcast;
+#endif
     template <class T>
     list<T> operator+(list<T> const &s) const;
     template <class T, class S>
@@ -339,6 +344,23 @@ namespace types
     template <class T>
     operator list<T>() const;
     static constexpr long size();
+
+    char fast(long) const
+    {
+      return {};
+    }
+    char operator[](long) const
+    {
+      return {};
+    }
+    empty_list operator[](slice) const
+    {
+      return {};
+    }
+    empty_list operator[](contiguous_slice) const
+    {
+      return {};
+    }
 
     empty_iterator begin() const
     {

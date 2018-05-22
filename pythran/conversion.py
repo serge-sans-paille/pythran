@@ -48,7 +48,11 @@ def size_container_folding(value):
                 ast.Name(mangle('numpy'), ast.Load(), None),
                 'array',
                 ast.Load()),
-                args=[to_ast(value.tolist())],
+                args=[to_ast(value.tolist()),
+                      ast.Attribute(
+                          ast.Name(mangle('numpy'), ast.Load(), None),
+                          value.dtype.name,
+                          ast.Load())],
                 keywords=[])
         else:
             raise ConversionError()

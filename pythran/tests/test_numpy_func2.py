@@ -523,7 +523,7 @@ def test_copy0(x):
         self.run_test("def np_empty_kwargs2(a):\n from numpy import empty, float\n a = empty(a, dtype=float)\n return a.strides, a.shape", 3, np_empty_kwargs2=[int])
 
     def test_arange(self):
-        self.run_test("def np_arange_(a):\n from numpy import arange\n return arange(a)", 10, np_arange_=[int])
+        self.run_test("def np_arange_(a):\n from numpy import arange\n return arange(a, dtype=float)", 10, np_arange_=[int])
 
     def test_arange1(self):
         self.run_test("def np_arange1_(a):\n from numpy import arange\n return arange(a, 10)", 1, np_arange1_=[int])

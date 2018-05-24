@@ -32,6 +32,7 @@ namespace functools
                                                    // const
 
       task();
+      task(task const &) = default;
       task(ClosureTypes const &... types);
 
       template <std::size_t... S, typename... Types>

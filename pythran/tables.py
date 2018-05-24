@@ -3701,6 +3701,7 @@ MODULES = {
         "imag": FunctionIntr(),
         "indices": ConstFunctionIntr(),
         "inf": ConstantIntr(),
+        "Inf": ConstantIntr(),
         "inner": ConstFunctionIntr(),
         "insert": ConstFunctionIntr(),
         "intersect1d": ConstFunctionIntr(),

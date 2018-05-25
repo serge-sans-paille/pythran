@@ -1,8 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_VARIANT_FUNCTOR_HPP
 #define PYTHONIC_INCLUDE_TYPES_VARIANT_FUNCTOR_HPP
 
-#include <utility>
 #include "pythonic/include/utils/meta.hpp"
+
+#include <utility>
 
 PYTHONIC_NS_BEGIN
 
@@ -22,6 +23,9 @@ namespace types
    *pointer && call the operator() of this pointer.
    */
 
+  template <class... Types>
+  struct variant_functor;
+
   namespace details
   {
 
@@ -30,7 +34,7 @@ namespace types
 
     template <class Type>
     struct variant_functor_impl<Type> {
-      Type *head;
+      Type *fun = nullptr;
 
       variant_functor_impl() = default;
       variant_functor_impl(variant_functor_impl const &) = delete;
@@ -48,6 +52,29 @@ namespace types
 
       template <class OtherType>
       variant_functor_impl(char mem[], OtherType const &t);
+
+      variant_functor_impl &operator=(variant_functor_impl const &) = delete;
+
+      void assign(char mem[], variant_functor_impl const &);
+      void assign(char mem[], variant_functor<Type> const &);
+
+      void assign(char mem[], Type const &);
+
+      template <class OtherType>
+      void assign(char mem[], OtherType const &);
+
+      template <class OT0, class OT1, class... OtherTypes>
+      void assign(char mem[],
+                  variant_functor_impl<OT0, OT1, OtherTypes...> const &);
+
+      template <class OT0, class OT1, class... OtherTypes>
+      void assign(char mem[], variant_functor<OT0, OT1, OtherTypes...> const &);
+
+      template <class OtherType>
+      void assign(char mem[], variant_functor_impl<OtherType> const &);
+
+      template <class OtherType>
+      void assign(char mem[], variant_functor<OtherType> const &);
 
       template <class... Args>
       auto operator()(Args &&... args)
@@ -74,6 +101,13 @@ namespace types
       variant_functor_impl(char mem[],
                            variant_functor_impl<OtherTypes...> const &t);
 
+      variant_functor_impl &operator=(variant_functor_impl const &) = delete;
+
+      void assign(char mem[], variant_functor_impl const &);
+
+      template <class OtherType>
+      void assign(char mem[], OtherType const &);
+
       template <class... Args>
       auto operator()(Args &&... args)
           -> decltype(std::declval<Type>()(args...));
@@ -89,12 +123,20 @@ namespace types
     using callable = void;
 
     // memory used to initialize the actual functor
-    // default construction cannot be used because generator are !
+    // default construction cannot be used because generator are not
     // default-constructible
     char mem[utils::max_element<sizeof(Types)...>::value];
 
     variant_functor() = default;
     variant_functor(variant_functor const &);
+
+    variant_functor &operator=(variant_functor const &);
+
+    template <class OtherType>
+    variant_functor &operator=(OtherType const &);
+
+    template <class... OtherTypes>
+    variant_functor &operator=(variant_functor<OtherTypes...> const &);
 
     template <class... OtherTypes>
     variant_functor(OtherTypes const &... t);

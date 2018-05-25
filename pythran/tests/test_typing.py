@@ -153,6 +153,30 @@ def typing_aliasing_and_update_and_multiple_aliasing1(i):
         self.run_test(code, 1, typing_aliasing_and_update_and_multiple_aliasing1=[int])
 
 
+    def test_functional_variant_assign0(self):
+        code='''
+def functional_variant_assign0(n):
+    if n > 3:
+        x = "e" * n
+        f = lambda y: x + y
+    else:
+        x = "g" * n
+        f = lambda y: x + "er"
+    return f("re")'''
+        self.run_test(code, 12, functional_variant_assign0=[int])
+
+    def test_functional_variant_assign1(self):
+        code='''
+def functional_variant_assign1(n):
+    if n > 3:
+        x = "e" * n
+        f = lambda y: x + y
+    else:
+        x = "g" * n
+        f = lambda y: x + "er"
+    return f("re")'''
+        self.run_test(code, 1, functional_variant_assign1=[int])
+
     def test_functional_variant_container0(self):
         code='''
 import math

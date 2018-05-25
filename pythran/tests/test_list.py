@@ -83,3 +83,16 @@ class TestList(TestEnv):
                       [0, 1,2,3],
                       slice_get_item_assign=[List[int]])
 
+    def test_init_array_empty_list(self):
+        code = '''
+def init_array_empty_list(X,f):
+    A = []
+    for i in range(int(f)):
+        if i==0: A = f*X[:,i]
+        else: A+=f*X[:,i]
+    return A'''
+        self.run_test(
+            code,
+            np.array([[2,3],[4,5]]), 1.,
+            init_array_empty_list=[NDArray[int, :,:], float])
+

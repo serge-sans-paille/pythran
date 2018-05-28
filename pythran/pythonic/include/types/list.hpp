@@ -524,6 +524,21 @@ struct __combined<pythonic::types::empty_list, pythonic::types::array<T, N>> {
 #ifdef ENABLE_PYTHON_MODULE
 
 PYTHONIC_NS_BEGIN
+
+template <>
+struct to_python<typename std::vector<bool>::reference> {
+  static PyObject *convert(typename std::vector<bool>::reference const &v);
+};
+
+struct phantom_type; // ghost don't exist
+template <>
+struct to_python<typename std::conditional<
+    std::is_same<bool, typename std::vector<bool>::const_reference>::value,
+    phantom_type, typename std::vector<bool>::const_reference>::type> {
+  static PyObject *
+  convert(typename std::vector<bool>::const_reference const &v);
+};
+
 template <typename T>
 struct to_python<types::list<T>> {
   static PyObject *convert(types::list<T> const &v);

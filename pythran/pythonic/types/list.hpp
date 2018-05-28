@@ -745,6 +745,21 @@ namespace std
 #ifdef ENABLE_PYTHON_MODULE
 
 PYTHONIC_NS_BEGIN
+
+PyObject *to_python<typename std::vector<bool>::reference>::convert(
+    typename std::vector<bool>::reference const &v)
+{
+  return ::to_python((bool)v);
+}
+
+PyObject *to_python<typename std::conditional<
+    std::is_same<bool, typename std::vector<bool>::const_reference>::value,
+    phantom_type, typename std::vector<bool>::const_reference>::type>::
+    convert(typename std::vector<bool>::const_reference const &v)
+{
+  return ::to_python((bool)v);
+}
+
 template <class T>
 PyObject *to_python<types::list<T>>::convert(types::list<T> const &v)
 {

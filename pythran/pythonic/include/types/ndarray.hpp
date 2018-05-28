@@ -572,7 +572,7 @@ namespace types
     struct dtype_helper<int64_t> {
       using type = pythonic::numpy::functor::int64;
     };
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
     template <>
     struct dtype_helper<long> : dtype_helper<int64_t> {
     };

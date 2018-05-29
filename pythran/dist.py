@@ -58,5 +58,5 @@ class PythranExtension(Extension):
                                        module_name, cpponly=True)
             cxx_sources.append(output_file)
 
-        kwargs.update(cfg.make_extension())
-        Extension.__init__(self, name, cxx_sources, *args, **kwargs)
+        cfg_ext = cfg.make_extension(**kwargs)
+        Extension.__init__(self, name, cxx_sources, *args, **cfg_ext)

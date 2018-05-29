@@ -21,6 +21,12 @@ namespace numpy
              types::ndarray<long, 1>>
   unique(E const &expr, bool return_index, bool return_inverse);
 
+  template <class E>
+  std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>,
+             types::ndarray<long, 1>, types::ndarray<long, 1>>
+  unique(E const &expr, bool return_index, bool return_inverse,
+         bool return_counts);
+
   DECLARE_FUNCTOR(pythonic::numpy, unique)
 }
 PYTHONIC_NS_END

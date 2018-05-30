@@ -175,12 +175,12 @@ namespace types
 
     numpy_expr_simd_iterator(std::array<long, sizeof...(Iters)> steps,
                              SIters const &siters, Iters... iters)
-        : steps_(steps), siters_(siters), iters_(iters...)
+        : steps_(steps), iters_(iters...), siters_(siters)
     {
     }
 
     numpy_expr_simd_iterator(numpy_expr_simd_iterator const &other)
-        : steps_(other.steps_), siters_(other.siters_), iters_(other.iters_)
+        : steps_(other.steps_), iters_(other.iters_), siters_(other.siters_)
     {
     }
 

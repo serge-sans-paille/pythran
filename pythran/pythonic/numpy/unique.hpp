@@ -8,6 +8,7 @@
 #include "pythonic/types/tuple.hpp"
 
 #include <set>
+#include <map>
 
 PYTHONIC_NS_BEGIN
 
@@ -64,6 +65,30 @@ namespace numpy
         _unique3((*begin).begin(), (*begin).end(), out0, out1, out2, i,
                  utils::int_<N - 1>());
     }
+
+    template <class I, class O0, class O1, class O2, class O3>
+    void _unique4(I begin, I end, O0 &out0, O1 &out1, O2 &out2, O3 &out3,
+                  long &i, utils::int_<1>)
+    {
+      for (; begin != end; ++begin, ++i) {
+        auto pair = out0.insert(*begin);
+        out2[i] = std::distance(out0.begin(), pair.first);
+        if (pair.second) {
+          out1.push_back(i);
+          out3[*begin] = 1;
+        } else {
+          out3[*begin]++;
+        }
+      }
+    }
+    template <class I, class O0, class O1, class O2, class O3, size_t N>
+    void _unique4(I begin, I end, O0 &out0, O1 &out1, O2 &out2, O3 &out3,
+                  long &i, utils::int_<N>)
+    {
+      for (; begin != end; ++begin)
+        _unique4((*begin).begin(), (*begin).end(), out0, out1, out2, out3, i,
+                 utils::int_<N - 1>());
+    }
   }
   template <class E>
   types::ndarray<typename E::dtype, 1> unique(E const &expr)
@@ -101,6 +126,30 @@ namespace numpy
     return std::make_tuple(types::ndarray<typename E::dtype, 1>(res),
                            types::ndarray<long, 1>(return_index_res),
                            return_inverse_res);
+  }
+
+  template <class E>
+  std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>,
+             types::ndarray<long, 1>, types::ndarray<long, 1>>
+  unique(E const &expr, bool return_index, bool return_inverse, bool return_counts)
+  {
+    std::set<typename E::dtype> res;
+    std::vector<long> return_index_res;
+    types::ndarray<long, 1> return_inverse_res(
+        types::array<long, 1>{{expr.flat_size()}}, __builtin__::None);
+    std::map<typename E::dtype, long> return_counts_map;
+    long i = 0;
+    _unique4(expr.begin(), expr.end(), res, return_index_res,
+             return_inverse_res, return_counts_map, i, utils::int_<E::value>());
+    types::ndarray<long, 1> return_counts_res(
+        types::array<long, 1>{{(long)res.size()}}, __builtin__::None);
+    i = 0;
+    for(auto it = res.begin(); it != res.end(); ++i, ++it) {
+        return_counts_res[i] = return_counts_map[*it];
+    }
+    return std::make_tuple(types::ndarray<typename E::dtype, 1>(res),
+                           types::ndarray<long, 1>(return_index_res),
+                           return_inverse_res, return_counts_res);
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, unique)

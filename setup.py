@@ -28,6 +28,7 @@ from setuptools.command.develop import develop
 
 from setuptools import setup
 from distutils import ccompiler
+from distutils.sysconfig import customize_compiler
 from distutils.errors import CompileError, LinkError
 
 import logging
@@ -102,11 +103,14 @@ class BuildWithThirdParty(build_py):
         shutil.copytree(src, target)
 
     def detect_gmp(self):
+        if os.name == 'nt':
+            return
         # It's far from perfect, but we try to compile a code that uses
         # Python long. If it fails, _whatever the reason_ we just disable gmp
         print('Trying to compile GMP dependencies.')
 
         cc = ccompiler.new_compiler("posix", verbose=False)
+        customize_compiler(cc)
         # try to compile a code that requires gmp support
         with NamedTemporaryFile(suffix='.c', delete=False) as temp:
             temp.write('''

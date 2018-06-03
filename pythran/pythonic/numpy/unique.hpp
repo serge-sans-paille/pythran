@@ -66,27 +66,25 @@ namespace numpy
                  utils::int_<N - 1>());
     }
 
-    template <class I, class O0, class O1, class O2, class O3>
-    void _unique4(I begin, I end, O0 &out0, O1 &out1, O2 &out2, O3 &out3,
-                  long &i, utils::int_<1>)
+    template <class I, class O1, class O2, class O3>
+    void _unique4(I begin, I end, O1 &out1, O2 &out2, O3 &out3, long &i,
+                  utils::int_<1>)
     {
       for (; begin != end; ++begin, ++i) {
-        auto pair = out0.insert(*begin);
-        out2[i] = std::distance(out0.begin(), pair.first);
-        if (pair.second) {
+        auto res = out3.insert(std::make_pair(*begin, 0));
+        res.first->second += 1;
+        out2[i] = std::distance(out3.begin(), res.first);
+        if (res.second) {
           out1.push_back(i);
-          out3[*begin] = 1;
-        } else {
-          out3[*begin]++;
         }
       }
     }
-    template <class I, class O0, class O1, class O2, class O3, size_t N>
-    void _unique4(I begin, I end, O0 &out0, O1 &out1, O2 &out2, O3 &out3,
-                  long &i, utils::int_<N>)
+    template <class I, class O1, class O2, class O3, size_t N>
+    void _unique4(I begin, I end, O1 &out1, O2 &out2, O3 &out3, long &i,
+                  utils::int_<N>)
     {
       for (; begin != end; ++begin)
-        _unique4((*begin).begin(), (*begin).end(), out0, out1, out2, out3, i,
+        _unique4((*begin).begin(), (*begin).end(), out1, out2, out3, i,
                  utils::int_<N - 1>());
     }
   }
@@ -116,6 +114,8 @@ namespace numpy
              types::ndarray<long, 1>>
   unique(E const &expr, bool return_index, bool return_inverse)
   {
+    assert(return_inverse && "invalid signature otherwise");
+
     std::set<typename E::dtype> res;
     std::vector<long> return_index_res;
     types::ndarray<long, 1> return_inverse_res(
@@ -131,25 +131,39 @@ namespace numpy
   template <class E>
   std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>,
              types::ndarray<long, 1>, types::ndarray<long, 1>>
-  unique(E const &expr, bool return_index, bool return_inverse, bool return_counts)
+  unique(E const &expr, bool return_index, bool return_inverse,
+         bool return_counts)
   {
-    std::set<typename E::dtype> res;
+    assert(return_counts && "invalid signature otherwise");
+
     std::vector<long> return_index_res;
     types::ndarray<long, 1> return_inverse_res(
         types::array<long, 1>{{expr.flat_size()}}, __builtin__::None);
+
     std::map<typename E::dtype, long> return_counts_map;
-    long i = 0;
-    _unique4(expr.begin(), expr.end(), res, return_index_res,
-             return_inverse_res, return_counts_map, i, utils::int_<E::value>());
-    types::ndarray<long, 1> return_counts_res(
-        types::array<long, 1>{{(long)res.size()}}, __builtin__::None);
-    i = 0;
-    for(auto it = res.begin(); it != res.end(); ++i, ++it) {
-        return_counts_res[i] = return_counts_map[*it];
+    {
+      long i = 0;
+      _unique4(expr.begin(), expr.end(), return_index_res, return_inverse_res,
+               return_counts_map, i, utils::int_<E::value>());
     }
-    return std::make_tuple(types::ndarray<typename E::dtype, 1>(res),
+
+    types::array<long, 1> shp{{(long)return_counts_map.size()}};
+
+    types::ndarray<long, 1> unique_array(shp, __builtin__::None);
+    types::ndarray<long, 1> return_counts_array(shp, __builtin__::None);
+
+    {
+      long i = 0;
+      for (auto it = return_counts_map.begin(); it != return_counts_map.end();
+           ++i, ++it) {
+        unique_array.fast(i) = it->first;
+        return_counts_array.fast(i) = it->second;
+      }
+    }
+
+    return std::make_tuple(unique_array,
                            types::ndarray<long, 1>(return_index_res),
-                           return_inverse_res, return_counts_res);
+                           return_inverse_res, return_counts_array);
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, unique)

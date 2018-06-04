@@ -300,6 +300,9 @@ def np_trim_zeros2(x):
     def test_unique3(self):
         self.run_test("def np_unique3(x): from numpy import unique ; return unique(x, True, True)", numpy.array([1,1,2,2,2,1,5]), np_unique3=[NDArray[int,:]])
 
+    def test_unique4(self):
+        self.run_test("def np_unique4(x): from numpy import unique ; return unique(x, True, True, True)", numpy.array([1,1,2,2,2,1,5]), np_unique4=[NDArray[int,:]])
+
     def test_unwrap0(self):
         self.run_test("def np_unwrap0(x): from numpy import unwrap, pi ; x[:3] += 2*pi; return unwrap(x)", numpy.arange(6, dtype=float), np_unwrap0=[NDArray[float,:]])
 

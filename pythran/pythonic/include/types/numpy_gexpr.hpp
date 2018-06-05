@@ -688,13 +688,13 @@ namespace types
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_fexpr<numpy_gexpr, F>>::type
+                            numpy_vexpr<numpy_gexpr, ndarray<long, 1>>>::type
     fast(F const &filter) const;
 
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_fexpr<numpy_gexpr, F>>::type
+                            numpy_vexpr<numpy_gexpr, ndarray<long, 1>>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));

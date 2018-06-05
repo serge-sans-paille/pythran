@@ -174,17 +174,25 @@ namespace types
   template <class F> // indexing through an array of boolean -- a mask
   typename std::enable_if<is_numexpr_arg<F>::value &&
                               std::is_same<bool, typename F::dtype>::value,
-                          numpy_fexpr<numpy_texpr_2<E>, F>>::type
+                          numpy_vexpr<numpy_texpr_2<E>, ndarray<long, 1>>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
-    return {*this, filter};
+    long sz = filter.shape()[0];
+    long *raw = (long *)malloc(sz * sizeof(long));
+    long n = 0;
+    for (long i = 0; i < sz; ++i)
+      if (filter.fast(i))
+        raw[n++] = i;
+    // realloc(raw, n * sizeof(long));
+    long shp[1] = {n};
+    return this->fast(ndarray<long, 1>(raw, shp, types::ownership::owned));
   }
 
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
   typename std::enable_if<is_numexpr_arg<F>::value &&
                               std::is_same<bool, typename F::dtype>::value,
-                          numpy_fexpr<numpy_texpr_2<E>, F>>::type
+                          numpy_vexpr<numpy_texpr_2<E>, ndarray<long, 1>>>::type
       numpy_texpr_2<E>::
       operator[](F const &filter) const
   {

@@ -575,14 +575,30 @@ namespace types
                                 s0, s...))>::type;
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
-                            numpy_fexpr<numpy_expr, F>>::type
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                std::is_same<bool, typename F::dtype>::value,
+                            numpy_vexpr<numpy_expr, ndarray<long, 1>>>::type
     fast(F const &filter) const;
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
-                            numpy_fexpr<numpy_expr, F>>::type
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                std::is_same<bool, typename F::dtype>::value,
+                            numpy_vexpr<numpy_expr, ndarray<long, 1>>>::type
     operator[](F const &filter) const;
+
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value,
+                            numpy_vexpr<numpy_expr, F>>::type
+    operator[](F const &filter) const;
+
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value,
+                            numpy_vexpr<numpy_expr, F>>::type
+    fast(F const &filter) const;
 
     // FIXME: this does ! take into account bounds && broadcasting
     auto operator[](long i) const -> decltype(this->fast(i));

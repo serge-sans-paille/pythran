@@ -22,6 +22,8 @@ namespace types
     T data_;
     F view_;
 
+    numpy_vexpr() = default;
+
     numpy_vexpr(T const &data, F const &view) : data_{data}, view_{view}
     {
     }
@@ -39,7 +41,12 @@ namespace types
     }
 
     template <class E>
-    numpy_vexpr &operator=(E const &);
+    typename std::enable_if<is_iterable<E>::value, numpy_vexpr &>::type
+    operator=(E const &);
+    template <class E>
+    typename std::enable_if<!is_iterable<E>::value, numpy_vexpr &>::type
+    operator=(E const &expr);
+
     numpy_vexpr &operator=(numpy_vexpr const &);
 
     array<long, value> shape() const
@@ -88,6 +95,53 @@ namespace types
     {
       return {*this, s.normalize(size())};
     }
+    /* element filtering */
+    template <class E> // indexing through an array of boolean -- a mask
+    typename std::enable_if<is_numexpr_arg<E>::value &&
+                                std::is_same<bool, typename E::dtype>::value,
+                            numpy_vexpr<numpy_vexpr, ndarray<long, 1>>>::type
+    fast(E const &filter) const;
+
+    template <class E> // indexing through an array of boolean -- a mask
+    typename std::enable_if<is_numexpr_arg<E>::value &&
+                                std::is_same<bool, typename E::dtype>::value,
+                            numpy_vexpr<numpy_vexpr, ndarray<long, 1>>>::type
+    operator[](E const &filter) const;
+
+    template <class E> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<E>::value &&
+                                !is_array_index<E>::value &&
+                                !std::is_same<bool, typename E::dtype>::value,
+                            numpy_vexpr<numpy_vexpr, E>>::type
+    operator[](E const &filter) const;
+
+    template <class E> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<E>::value &&
+                                !is_array_index<E>::value &&
+                                !std::is_same<bool, typename E::dtype>::value,
+                            numpy_vexpr<numpy_vexpr, E>>::type
+    fast(E const &filter) const;
+
+    template <class Op, class Expr>
+    numpy_vexpr &update_(Expr const &expr);
+
+    template <class E>
+    numpy_vexpr &operator+=(E const &expr);
+
+    template <class E>
+    numpy_vexpr &operator-=(E const &expr);
+
+    template <class E>
+    numpy_vexpr &operator*=(E const &expr);
+
+    template <class E>
+    numpy_vexpr &operator/=(E const &expr);
+
+    template <class E>
+    numpy_vexpr &operator&=(E const &expr);
+
+    template <class E>
+    numpy_vexpr &operator|=(E const &expr);
   };
 }
 
@@ -95,6 +149,13 @@ template <class T, class F>
 struct assignable<types::numpy_vexpr<T, F>> {
   using type = types::ndarray<typename types::dtype_of<T>::type, T::value>;
 };
+
+template <class T, class F>
+struct lazy<types::numpy_vexpr<T, F>> {
+  using type =
+      types::numpy_vexpr<typename lazy<T>::type, typename lazy<F>::type>;
+};
+
 PYTHONIC_NS_END
 
 #endif

@@ -3,19 +3,15 @@
 
 #include "pythonic/include/numpy/take.hpp"
 
-#include "pythonic/types/numpy_fexpr.hpp"
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
   template <class F, class T>
   auto take(T &&expr, F &&indices)
-      -> decltype(types::numpy_fexpr<T, F>(std::forward<T>(expr),
-                                           std::forward<F>(indices)))
+      -> decltype(std::forward<T>(expr)[std::forward<T>(indices)])
   {
-    return types::numpy_fexpr<T, F>(std::forward<T>(expr),
-                                    std::forward<F>(indices));
+    return expr[indices];
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, take);

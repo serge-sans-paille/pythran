@@ -835,4 +835,18 @@ def assign_ndarray(t):
                 return lastBin'''
         self.run_test(code, numpy.array([1,32,33,4]), test_fexpr0=[NDArray[int, :]])
 
+    def test_fexpr1(self):
+        code = '''
+            import numpy as np
+            def yy(x):
+                a = np.zeros(x, np.float32)
+                return a[:-1]
+
+            def test_fexpr1(x):
+                c = yy(x)
+                d = yy(x)
+                c[d == 0] = np.nan
+                return c'''
+        self.run_test(code, 10, test_fexpr1=[int])
+
 

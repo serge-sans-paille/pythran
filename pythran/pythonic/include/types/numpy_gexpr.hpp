@@ -684,6 +684,15 @@ namespace types
     {
       return {*this, filter};
     }
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value,
+                            numpy_vexpr<numpy_gexpr, F>>::type
+    fast(F const &filter) const
+    {
+      return {*this, filter};
+    }
 
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&

@@ -90,7 +90,7 @@ operator_to_lambda = {
     ast.BitOr: "({0} | {1})".format,
     ast.BitXor: "({0} ^ {1})".format,
     ast.BitAnd: "({0} & {1})".format,
-    ast.MatMult: "pythonic::operator_::matmul({0}, {1})".format,
+    ast.MatMult: "(pythonic::operator_::matmul({0}, {1}))".format,
     # assume from __future__ import division
     ast.FloorDiv:
         "(pythonic::operator_::functor::floordiv{{}}({0}, {1}))".format,
@@ -100,8 +100,8 @@ operator_to_lambda = {
     ast.UAdd: "(+{0})".format,
     ast.USub: "(-{0})".format,
     # cmpop
-    ast.Eq: "({0} == {1})".format,
-    ast.NotEq: "({0} != {1})".format,
+    ast.Eq: "(pythonic::operator_::eq({0}, {1}))".format,
+    ast.NotEq: "(pythonic::operator_::ne({0}, {1}))".format,
     ast.Lt: "({0} < {1})".format,
     ast.LtE: "({0} <= {1})".format,
     ast.Gt: "({0} > {1})".format,
@@ -127,7 +127,7 @@ update_operator_to_lambda = {
     ast.BitOr: "({0} |= {1})".format,
     ast.BitXor: "({0} ^= {1})".format,
     ast.BitAnd: "({0} &= {1})".format,
-    ast.MatMult: "pythonic::operator_::imatmul({0}, {1})".format,
+    ast.MatMult: "(pythonic::operator_::imatmul({0}, {1}))".format,
     # assume from __future__ import division
     ast.FloorDiv:
         "(pythonic::operator_::functor::ifloordiv{{}}({0}, {1}))".format,

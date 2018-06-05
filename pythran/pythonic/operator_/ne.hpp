@@ -16,6 +16,11 @@ namespace operator_
     return a != b;
   }
 
+  bool ne(char const *a, char const *b)
+  {
+    return strcmp(a, b) != 0;
+  }
+
   DEFINE_FUNCTOR(pythonic::operator_, ne);
 }
 PYTHONIC_NS_END

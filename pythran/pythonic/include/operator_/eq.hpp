@@ -10,6 +10,8 @@ namespace operator_
   template <class A, class B>
   auto eq(A const &a, B const &b) -> decltype(a == b);
 
+  bool eq(char const *a, char const *b);
+
   DECLARE_FUNCTOR(pythonic::operator_, eq);
 }
 PYTHONIC_NS_END

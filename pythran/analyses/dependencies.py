@@ -45,6 +45,12 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('operator_', 'matmul'))
         self.result.add(('operator_', 'imatmul'))
 
+    def visit_Eq(self, node):
+        self.result.add(('operator_', 'eq'))
+
+    def visit_NotEq(self, node):
+        self.result.add(('operator_', 'ne'))
+
     def visit_In(self, node):
         self.result.add(('__builtin__', 'in'))
 

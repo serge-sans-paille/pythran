@@ -15,6 +15,11 @@ namespace operator_
     return a == b;
   }
 
+  bool eq(char const *a, char const *b)
+  {
+    return strcmp(a, b) == 0;
+  }
+
   DEFINE_FUNCTOR(pythonic::operator_, eq);
 }
 PYTHONIC_NS_END

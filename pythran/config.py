@@ -78,18 +78,25 @@ def make_extension(**extra):
         # the patch is *not* portable
         extension["include_dirs"].append(here + '/pythran/pythonic/patch')
 
-    # numpy specific
-    extension['include_dirs'].append(numpy.get_include())
+    # Numpy can poluate the stdout with warning message which should be on stderr
+    old_stdout = sys.stdout
+    try:
+        sys.stdout = sys.stderr
 
-    # blas dependency
-    user_blas = cfg.get('compiler', 'blas')
-    numpy_blas = numpy_sys.get_info(user_blas)
-    # required to cope with atlas missing ectern "C"
-    extension['define_macros'].append('PYTHRAN_BLAS_{}'
-                                      .format(user_blas.upper()))
-    extension['libraries'].extend(numpy_blas.get('libraries', []))
-    extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
-    extension['include_dirs'].extend(numpy_blas.get('include_dirs', []))
+        # numpy specific
+        extension['include_dirs'].append(numpy.get_include())
+
+        # blas dependency
+        user_blas = cfg.get('compiler', 'blas')
+        numpy_blas = numpy_sys.get_info(user_blas)
+        # required to cope with atlas missing ectern "C"
+        extension['define_macros'].append('PYTHRAN_BLAS_{}'
+                                          .format(user_blas.upper()))
+        extension['libraries'].extend(numpy_blas.get('libraries', []))
+        extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
+        extension['include_dirs'].extend(numpy_blas.get('include_dirs', []))
+    finally:
+        sys.stdout = old_stdout
 
     # final macro normalization
     extension["define_macros"] = [parse_define(dm) for dm in

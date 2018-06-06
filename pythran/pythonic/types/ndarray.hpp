@@ -36,7 +36,6 @@
 
 #include "pythonic/types/vectorizable_type.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
-#include "pythonic/types/numpy_fexpr.hpp"
 #include "pythonic/types/numpy_expr.hpp"
 #include "pythonic/types/numpy_texpr.hpp"
 #include "pythonic/types/numpy_iexpr.hpp"
@@ -408,15 +407,6 @@ namespace types
 
   template <class T, size_t N>
   template <class Arg, class F>
-  ndarray<T, N>::ndarray(numpy_fexpr<Arg, F> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
-  {
-    initialize_from_expr(expr);
-  }
-
-  template <class T, size_t N>
-  template <class Arg, class F>
   ndarray<T, N>::ndarray(numpy_vexpr<Arg, F> const &expr)
       : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
         _strides(make_strides(_shape))
@@ -647,19 +637,52 @@ namespace types
   template <class T, size_t N>
   template <class F> // indexing through an array of boolean -- a mask
   typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_fexpr<ndarray<T, N>, F>>::type
+                              std::is_same<bool, typename F::dtype>::value &&
+                              F::value == 1,
+                          numpy_vexpr<ndarray<T, N>, ndarray<long, 1>>>::type
   ndarray<T, N>::fast(F const &filter) const
   {
-    return numpy_fexpr<ndarray, F>(*this, filter);
+    long sz = filter.shape()[0];
+    long *raw = (long *)malloc(sz * sizeof(long));
+    long n = 0;
+    for (long i = 0; i < sz; ++i)
+      if (filter.fast(i))
+        raw[n++] = i;
+    // realloc(raw, n * sizeof(long));
+    long shp[1] = {n};
+    return this->fast(ndarray<long, 1>(raw, shp, types::ownership::owned));
   }
 
   template <class T, size_t N>
   template <class F> // indexing through an array of boolean -- a mask
   typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_fexpr<ndarray<T, N>, F>>::type ndarray<T, N>::
-  operator[](F const &filter) const
+                              std::is_same<bool, typename F::dtype>::value &&
+                              F::value == 1,
+                          numpy_vexpr<ndarray<T, N>, ndarray<long, 1>>>::type
+      ndarray<T, N>::
+      operator[](F const &filter) const
+  {
+    return fast(filter);
+  }
+  template <class T, size_t N>
+  template <class F> // indexing through an array of boolean -- a mask
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              std::is_same<bool, typename F::dtype>::value &&
+                              F::value != 1,
+                          numpy_vexpr<ndarray<T, 1>, ndarray<long, 1>>>::type
+  ndarray<T, N>::fast(F const &filter) const
+  {
+    return flat()[ndarray<typename F::dtype, F::value>(filter).flat()];
+  }
+
+  template <class T, size_t N>
+  template <class F> // indexing through an array of boolean -- a mask
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              std::is_same<bool, typename F::dtype>::value &&
+                              F::value != 1,
+                          numpy_vexpr<ndarray<T, 1>, ndarray<long, 1>>>::type
+      ndarray<T, N>::
+      operator[](F const &filter) const
   {
     return fast(filter);
   }
@@ -1110,13 +1133,6 @@ namespace __builtin__
     return types::__ndarray::getattr<I, types::numpy_expr<O, Args...>>()(f);
   }
 
-  template <int I, class A, class F>
-  auto getattr(types::numpy_fexpr<A, F> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_fexpr<A, F>>()(f))
-  {
-    return types::__ndarray::getattr<I, types::numpy_fexpr<A, F>>()(f);
-  }
-
   template <int I, class A, class... S>
   auto getattr(types::numpy_gexpr<A, S...> const &f) -> decltype(
       types::__ndarray::getattr<I, types::numpy_gexpr<A, S...>>()(f))
@@ -1136,6 +1152,13 @@ namespace __builtin__
       -> decltype(types::__ndarray::getattr<I, types::numpy_texpr<A>>()(f))
   {
     return types::__ndarray::getattr<I, types::numpy_texpr<A>>()(f);
+  }
+
+  template <int I, class T, class F>
+  auto getattr(types::numpy_vexpr<T, F> const &f)
+      -> decltype(types::__ndarray::getattr<I, types::numpy_vexpr<T, F>>()(f))
+  {
+    return types::__ndarray::getattr<I, types::numpy_vexpr<T, F>>()(f);
   }
 }
 PYTHONIC_NS_END

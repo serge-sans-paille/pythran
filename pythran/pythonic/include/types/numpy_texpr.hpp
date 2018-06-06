@@ -11,8 +11,6 @@ namespace types
 
   template <class Arg, class... S>
   struct numpy_gexpr;
-  template <class Arg, class F>
-  struct numpy_fexpr;
 
   /* expression template for Transposed matrix */
   template <class Arg>
@@ -91,7 +89,7 @@ namespace types
     template <class F> // indexing through an array of boolean -- a mask
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_fexpr<numpy_texpr_2, F>>::type
+                            numpy_vexpr<numpy_texpr_2, ndarray<long, 1>>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
@@ -103,7 +101,7 @@ namespace types
     template <class F> // indexing through an array of boolean -- a mask
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_fexpr<numpy_texpr_2, F>>::type
+                            numpy_vexpr<numpy_texpr_2, ndarray<long, 1>>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view

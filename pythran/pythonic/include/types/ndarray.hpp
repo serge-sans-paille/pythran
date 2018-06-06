@@ -32,7 +32,6 @@
 
 #include "pythonic/include/types/vectorizable_type.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
-#include "pythonic/include/types/numpy_fexpr.hpp"
 #include "pythonic/include/types/numpy_expr.hpp"
 #include "pythonic/include/types/numpy_texpr.hpp"
 #include "pythonic/include/types/numpy_iexpr.hpp"
@@ -290,9 +289,6 @@ namespace types
     ndarray(numpy_iexpr<Arg> const &expr);
 
     template <class Arg, class F>
-    ndarray(numpy_fexpr<Arg, F> const &expr);
-
-    template <class Arg, class F>
     ndarray(numpy_vexpr<Arg, F> const &expr);
 
     /* update operators */
@@ -376,14 +372,30 @@ namespace types
     /* element filtering */
     template <class F> // indexing through an array of boolean -- a mask
     typename std::enable_if<is_numexpr_arg<F>::value &&
-                                std::is_same<bool, typename F::dtype>::value,
-                            numpy_fexpr<ndarray, F>>::type
+                                std::is_same<bool, typename F::dtype>::value &&
+                                F::value == 1,
+                            numpy_vexpr<ndarray, ndarray<long, 1>>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
     typename std::enable_if<is_numexpr_arg<F>::value &&
-                                std::is_same<bool, typename F::dtype>::value,
-                            numpy_fexpr<ndarray, F>>::type
+                                std::is_same<bool, typename F::dtype>::value &&
+                                F::value == 1,
+                            numpy_vexpr<ndarray, ndarray<long, 1>>>::type
+    operator[](F const &filter) const;
+
+    template <class F> // indexing through an array of boolean -- a mask
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                std::is_same<bool, typename F::dtype>::value &&
+                                F::value != 1,
+                            numpy_vexpr<ndarray<T, 1>, ndarray<long, 1>>>::type
+    fast(F const &filter) const;
+
+    template <class F> // indexing through an array of boolean -- a mask
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                std::is_same<bool, typename F::dtype>::value &&
+                                F::value != 1,
+                            numpy_vexpr<ndarray<T, 1>, ndarray<long, 1>>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
@@ -725,10 +737,6 @@ namespace __builtin__
   auto getattr(types::numpy_expr<O, Args...> const &f) -> decltype(
       types::__ndarray::getattr<I, types::numpy_expr<O, Args...>>()(f));
 
-  template <int I, class A, class F>
-  auto getattr(types::numpy_fexpr<A, F> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_fexpr<A, F>>()(f));
-
   template <int I, class A, class... S>
   auto getattr(types::numpy_gexpr<A, S...> const &f) -> decltype(
       types::__ndarray::getattr<I, types::numpy_gexpr<A, S...>>()(f));
@@ -740,6 +748,10 @@ namespace __builtin__
   template <int I, class A>
   auto getattr(types::numpy_texpr<A> const &f)
       -> decltype(types::__ndarray::getattr<I, types::numpy_texpr<A>>()(f));
+
+  template <int I, class T, class F>
+  auto getattr(types::numpy_vexpr<T, F> const &f)
+      -> decltype(types::__ndarray::getattr<I, types::numpy_vexpr<T, F>>()(f));
 }
 PYTHONIC_NS_END
 

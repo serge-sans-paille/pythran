@@ -14,8 +14,6 @@ namespace types
 
   template <class Arg, class... S>
   struct numpy_gexpr;
-  template <class Arg, class F>
-  struct numpy_fexpr;
 
   /* Expression template for numpy expressions - indexing
    */
@@ -156,7 +154,7 @@ namespace types
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_fexpr<numpy_iexpr, F>>::type
+                            numpy_vexpr<numpy_iexpr, ndarray<long, 1>>>::type
     fast(F const &filter) const;
 
 #ifdef USE_BOOST_SIMD
@@ -182,7 +180,7 @@ namespace types
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_fexpr<numpy_iexpr, F>>::type
+                            numpy_vexpr<numpy_iexpr, ndarray<long, 1>>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const & -> decltype(this->fast(i));
     auto operator[](long i) & -> decltype(this->fast(i));

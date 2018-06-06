@@ -882,19 +882,27 @@ namespace types
 
   template <class Arg, class... S>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_fexpr<numpy_gexpr<Arg, S...>, F>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_gexpr<Arg, S...>, ndarray<long, 1>>>::type
   numpy_gexpr<Arg, S...>::fast(F const &filter) const
   {
-    return numpy_fexpr<numpy_gexpr, F>(*this, filter);
+    long sz = filter.shape()[0];
+    long *raw = (long *)malloc(sz * sizeof(long));
+    long n = 0;
+    for (long i = 0; i < sz; ++i)
+      if (filter.fast(i))
+        raw[n++] = i;
+    // realloc(raw, n * sizeof(long));
+    long shp[1] = {n};
+    return this->fast(ndarray<long, 1>(raw, shp, types::ownership::owned));
   }
 
   template <class Arg, class... S>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_fexpr<numpy_gexpr<Arg, S...>, F>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_gexpr<Arg, S...>, ndarray<long, 1>>>::type
       numpy_gexpr<Arg, S...>::
       operator[](F const &filter) const
   {

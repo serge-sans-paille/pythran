@@ -315,21 +315,53 @@ namespace types
 
   template <class Op, class... Args>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value,
-                          numpy_fexpr<numpy_expr<Op, Args...>, F>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, 1>>>::type
   numpy_expr<Op, Args...>::fast(F const &filter) const
   {
-    return numpy_fexpr<numpy_expr, F>(*this, filter);
+    long sz = filter.shape()[0];
+    long *raw = (long *)malloc(sz * sizeof(long));
+    long n = 0;
+    for (long i = 0; i < sz; ++i)
+      if (filter.fast(i))
+        raw[n++] = i;
+    // realloc(raw, n * sizeof(long));
+    long shp[1] = {n};
+    return this->fast(ndarray<long, 1>(raw, shp, types::ownership::owned));
   }
 
   template <class Op, class... Args>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value,
-                          numpy_fexpr<numpy_expr<Op, Args...>, F>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, 1>>>::type
       numpy_expr<Op, Args...>::
       operator[](F const &filter) const
   {
     return fast(filter);
+  }
+  template <class Op, class... Args>
+  template <class F> // indexing through an array of indices -- a view
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              !is_array_index<F>::value &&
+                              !std::is_same<bool, typename F::dtype>::value,
+                          numpy_vexpr<numpy_expr<Op, Args...>, F>>::type
+      numpy_expr<Op, Args...>::
+      operator[](F const &filter) const
+  {
+    return {*this, filter};
+  }
+
+  template <class Op, class... Args>
+  template <class F> // indexing through an array of indices -- a view
+  typename std::enable_if<is_numexpr_arg<F>::value &&
+                              !is_array_index<F>::value &&
+                              !std::is_same<bool, typename F::dtype>::value,
+                          numpy_vexpr<numpy_expr<Op, Args...>, F>>::type
+  numpy_expr<Op, Args...>::fast(F const &filter) const
+  {
+    return {*this, filter};
   }
 
   template <class Op, class... Args>

@@ -114,3 +114,19 @@ class TestStr(TestEnv):
         self.run_test("def str_count(s, t, u, v): return s.count(t), s.count(u), s.count(v)",
                       "pythran is good for health", "py", "niet", "t",
                       str_count=[str, str, str, str])
+
+    def test_str_literal_cmp(self):
+        code = '''
+            def eee(a, i):
+                if a == "ABCD":
+                    return 2 * i
+                elif a != "ZDSD":
+                    return 1 * i
+                return 3 * i
+
+            def str_literal_cmp(a, i):
+                if a == "EEE":
+                   return eee("ZZZ", i), eee("ABCD", i)
+                else:
+                   return eee("YYY", i), 3'''
+        self.run_test(code, "EEE", 2, str_literal_cmp=[str, int])

@@ -14,7 +14,7 @@ interface, but (hopefully) faster.
 It is meant to efficiently compile **scientific programs**, and takes advantage
 of multi-cores and SIMD instruction units.
 
-Pythran supports Python **2.7** and also has a beta Python **3** support.
+Pythran supports Python **2.7** and also has a decent Python **3** support.
 
 Installation
 ------------
@@ -23,7 +23,7 @@ Pythran sources are hosted on https://github.com/serge-sans-paille/pythran.
 
 Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
 
-Pythran is available through Conda on https://conda.anaconda.org/serge-sans-paille.
+Pythran is available through Conda on https://anaconda.org/conda-forge/pythran.
 
 Debian/Ubuntu
 =============
@@ -50,7 +50,7 @@ Using ``conda``
 
 2. Run::
 
-       $> conda install -c serge-sans-paille pythran
+       $> conda install -c conda-forge pythran
 
 Mac OSX
 =======

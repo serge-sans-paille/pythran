@@ -7,19 +7,28 @@ import pythran.config as cfg
 import pythran.toolchain as tc
 
 from distutils.command.build_ext import build_ext as _build_ext
+from distutils.sysconfig import customize_compiler
 from numpy.distutils.extension import Extension
 
 import os.path
 import os
 
 
+
 class build_ext(_build_ext):
+    '''
+    Build PythranExtension within a contextmanager for handling the environment
+    variables. Subclasses `distutils.command.build_ext.build_ext`.
+    '''
     def build_extension(self, ext):
         if isinstance(ext, PythranExtension):
-            # with cfg.compiler_cfg():
-            os.environ['CC'] = "clang"
-            os.environ['CXX'] = "clang++"
-            super(build_ext, self).build_extension(ext)
+            with cfg.compiler_cfg():
+                # Use configured environment variables CC and CXX
+                customize_compiler(self.compiler)
+                super(build_ext, self).build_extension(ext)
+
+            # Restore environment variables CC and CXX
+            customize_compiler(self.compiler)
         else:
             super(build_ext, self).build_extension(ext)
 

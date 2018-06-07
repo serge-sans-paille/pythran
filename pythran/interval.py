@@ -76,7 +76,7 @@ class Interval(object):
         """
         res = [v1 * v2 for v1, v2 in
                itertools.product(self.bounds(), other.bounds())]
-        return Interval(numpy.min(res), numpy.max(res))
+        return Interval(min(res), max(res))
 
     __mult__ = __mul__
 
@@ -106,7 +106,7 @@ class Interval(object):
             return UNKNOWN_RANGE
         res = [v1 // v2 for v1, v2 in
                itertools.product(self.bounds(), other.bounds())]
-        return Interval(numpy.min(res), numpy.max(res))
+        return Interval(min(res), max(res))
 
     __truediv__ = __div__
 

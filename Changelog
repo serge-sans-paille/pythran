@@ -1,3 +1,21 @@
+2018-06-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Much better support of fancy indexing, still not 100% support though
+
+	* Better distutils integration (extra_compile_args)
+
+	* Better support for np.unique, functor, np.Inf, np.arange, it.repeat
+
+	* Better support of user import from pythranized module (still no globals)
+
+	* Better OSX support (fix compiler-specific bugs)
+
+	* Most tests now work on Python 2 and Python 3
+
+	* Many bugfixes triggered by the bug report of Yann Diorcet, Jean Laroche
+	and David Menéndez Hurtado, Fabien Rozar, C. Claus
+
+
 2018-04-23 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* numpy.fft support (thanks to Jean Laroche)

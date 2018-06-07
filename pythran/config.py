@@ -8,6 +8,8 @@ import numpy.distutils.system_info as numpy_sys
 import numpy
 import os
 import sys
+from contextlib import contextmanager
+
 
 logger = logging.getLogger('pythran')
 
@@ -27,17 +29,32 @@ def init_cfg(sys_file, platform_file, user_file):
         cfgp.readfp(open(required))
     cfgp.read([user_config_path])
 
-    for key in ('CC', 'CXX'):
-        value = cfgp.get('compiler', key)
-        if value:
-            os.environ[key] = str(value)
-
     for obsolete_section in ('user', 'sys'):
         if cfgp.has_section(obsolete_section):
             logger.warn("Your pythranrc has an obsolete `%s' section",
                         obsolete_section)
 
     return cfgp
+
+
+@contextmanager
+def compiler_cfg():
+    """Configure CC and CXX environment variables."""
+    original_env = {}
+    try:
+        for key in ('CC', 'CXX'):
+            original_env[key] = os.getenv(key)
+            value = cfg.get('compiler', key)
+            if value:
+                os.environ[key] = str(value)
+        yield
+    finally:
+        for key, value in original_env.items():
+            if key in os.environ:
+                if value is None:
+                    del os.environ[key]
+                else:
+                    os.environ[key] = value
 
 
 def make_extension(**extra):
@@ -106,7 +123,10 @@ def make_extension(**extra):
 
 def compiler():
     """Get compiler to use for C++ to binary process."""
-    return os.environ.get('CXX', 'c++')
+    with compiler_cfg():
+        cxx = os.environ.get('CXX', 'c++')
+
+    return cxx
 
 
 def have_gmp_support(**extra):
@@ -150,10 +170,11 @@ def run():
 
     output = []
 
-    extension = pythran.config.make_extension()
+    with compiler_cfg():
+        extension = pythran.config.make_extension()
 
-    if args.compiler:
-        output.append(os.environ.get('CXX', 'c++'))
+        if args.compiler:
+            output.append(os.environ.get('CXX', 'c++'))
 
     if args.cflags:
         def fmt_define(define):

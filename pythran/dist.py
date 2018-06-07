@@ -6,10 +6,22 @@ This modules contains a distutils extension mechanism for Pythran
 import pythran.config as cfg
 import pythran.toolchain as tc
 
+from distutils.command.build_ext import build_ext as _build_ext
 from numpy.distutils.extension import Extension
 
 import os.path
 import os
+
+
+class build_ext(_build_ext):
+    def build_extension(self, ext):
+        if isinstance(ext, PythranExtension):
+            # with cfg.compiler_cfg():
+            os.environ['CC'] = "clang"
+            os.environ['CXX'] = "clang++"
+            super(build_ext, self).build_extension(ext)
+        else:
+            super(build_ext, self).build_extension(ext)
 
 
 class PythranExtension(Extension):

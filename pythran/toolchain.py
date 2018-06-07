@@ -4,7 +4,7 @@ a dynamic library, see __init__.py for exported interfaces.
 '''
 
 from pythran.backend import Cxx, Python
-from pythran.config import cfg, make_extension
+from pythran.config import cfg, make_extension, compiler_cfg
 from pythran.cxxgen import PythonModule, Define, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.cxxgen import ReturnStatement
@@ -333,17 +333,18 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
                           **extension_args)
 
     try:
-        setup(name=module_name,
-              ext_modules=[extension],
-              # fake CLI call
-              script_name='setup.py',
-              script_args=['--verbose'
-                           if logger.isEnabledFor(logging.INFO)
-                           else '--quiet',
-                           'build_ext',
-                           '--build-lib', builddir,
-                           '--build-temp', buildtmp]
-              )
+        with compiler_cfg():
+            setup(name=module_name,
+                  ext_modules=[extension],
+                  # fake CLI call
+                  script_name='setup.py',
+                  script_args=['--verbose'
+                               if logger.isEnabledFor(logging.INFO)
+                               else '--quiet',
+                               'build_ext',
+                               '--build-lib', builddir,
+                               '--build-temp', buildtmp]
+            )
     except SystemExit as e:
         raise CompileError(str(e))
 

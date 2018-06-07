@@ -167,6 +167,10 @@ class BuildWithThirdParty(build_py):
 
 class DevelopWithThirdParty(develop, BuildWithThirdParty):
 
+    def initialize_options(self):
+        develop.initialize_options(self)
+        self.no_boost = None
+
     def run(self, *args, **kwargs):
         if not self.dry_run:  # compatibility with the parent options
             self.copy_boost(src_only=True)

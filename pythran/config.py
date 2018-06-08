@@ -27,11 +27,6 @@ def init_cfg(sys_file, platform_file, user_file):
         cfgp.readfp(open(required))
     cfgp.read([user_config_path])
 
-    for key in ('CC', 'CXX'):
-        value = cfgp.get('compiler', key)
-        if value:
-            os.environ[key] = str(value)
-
     for obsolete_section in ('user', 'sys'):
         if cfgp.has_section(obsolete_section):
             logger.warn("Your pythranrc has an obsolete `%s' section",
@@ -41,13 +36,16 @@ def init_cfg(sys_file, platform_file, user_file):
 
 
 def make_extension(**extra):
+
     def parse_define(define):
         index = define.find('=')
         if index < 0:
             return (define, None)
         else:
             return define[:index], define[index + 1:]
+
     extension = {
+        "language": "c++",
         # forcing str conversion to handle Unicode case (the default on MS)
         "define_macros": [str(x) for x in
                           cfg.get('compiler', 'defines').split()],
@@ -72,13 +70,21 @@ def make_extension(**extra):
     here = os.path.dirname(os.path.dirname(__file__)) or '.'
     # using / as separator as advised in the distutils doc
     extension["include_dirs"].append(here + '/pythran')
+
+    extra.pop('language', None)  # forced to c++ anyway
+    cxx = extra.pop('cxx', None)
+    if cxx is not None:
+        extension['cxx'] = cxx
+    elif cfg.get('compiler', 'CXX'):
+        extension['cxx'] = str(cfg.get('compiler', 'CXX'))
+
     for k, w in extra.items():
         extension[k].extend(w)
     if cfg.getboolean('pythran', 'complex_hook'):
         # the patch is *not* portable
         extension["include_dirs"].append(here + '/pythran/pythonic/patch')
 
-    # Numpy can poluate the stdout with warning message which should be on stderr
+    # Numpy can pollute stdout with warning message which should be on stderr
     old_stdout = sys.stdout
     try:
         sys.stdout = sys.stderr
@@ -99,8 +105,9 @@ def make_extension(**extra):
         sys.stdout = old_stdout
 
     # final macro normalization
-    extension["define_macros"] = [parse_define(dm) for dm in
-                                  extension["define_macros"]]
+    extension["define_macros"] = [
+        dm if isinstance(dm, tuple) else parse_define(dm)
+        for dm in extension["define_macros"]]
     return extension
 
 

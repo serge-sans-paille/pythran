@@ -21,8 +21,10 @@ from .handle_import import HandleImport
 from .normalize_compare import NormalizeCompare
 from .normalize_exception import NormalizeException
 from .normalize_identifiers import NormalizeIdentifiers
+from .normalize_is_none import NormalizeIsNone
 from .normalize_method_calls import NormalizeMethodCalls
 from .normalize_return import NormalizeReturn
+from .normalize_static_if import NormalizeStaticIf
 from .normalize_tuples import NormalizeTuples
 from .remove_comprehension import RemoveComprehension
 from .remove_lambdas import RemoveLambdas

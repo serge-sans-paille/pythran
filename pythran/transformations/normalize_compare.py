@@ -5,6 +5,16 @@ from pythran.passmanager import Transformation
 
 import gast as ast
 
+def is_trivially_copied(node):
+    try:
+        ast.literal_eval(node)
+        return True
+    except ValueError:
+        pass
+    if isinstance(node, (ast.Name, ast.Attribute)):
+        return True
+    return False
+
 
 class NormalizeCompare(Transformation):
     '''
@@ -19,14 +29,12 @@ class NormalizeCompare(Transformation):
     def foo(a):
         return foo_compare0(a)
     def foo_compare0(a):
-        $0 = 0
         $1 = (a + 1)
-        if ($0 < $1):
+        if (0 < $1):
             pass
         else:
             return 0
-        $2 = 3
-        if ($1 < $2):
+        if ($1 < 3):
             pass
         else:
             return 0
@@ -70,19 +78,30 @@ class NormalizeCompare(Transformation):
             args = ast.arguments(arg_names, None, [], [], None, [])
 
             body = []  # iteratively fill the body (yeah, feel your body!)
-            body.append(ast.Assign([ast.Name('$0', ast.Store(), None)],
-                                   node.left))
+
+            if is_trivially_copied(node.left):
+                prev_holder = node.left
+            else:
+                body.append(ast.Assign([ast.Name('$0', ast.Store(), None)],
+                                       node.left))
+                prev_holder = ast.Name('$0', ast.Load(), None)
+
             for i, exp in enumerate(node.comparators):
-                body.append(ast.Assign([ast.Name('${}'.format(i+1),
-                                                 ast.Store(), None)],
-                                       exp))
-                cond = ast.Compare(ast.Name('${}'.format(i), ast.Load(), None),
+                if is_trivially_copied(exp):
+                    holder = exp
+                else:
+                    body.append(ast.Assign([ast.Name('${}'.format(i+1),
+                                                     ast.Store(), None)],
+                                           exp))
+                    holder = ast.Name('${}'.format(i+1), ast.Load(), None)
+                cond = ast.Compare(prev_holder,
                                    [node.ops[i]],
-                                   [ast.Name('${}'.format(i+1),
-                                             ast.Load(), None)])
+                                   [holder])
                 body.append(ast.If(cond,
                                    [ast.Pass()],
                                    [ast.Return(ast.Num(0))]))
+                prev_holder = holder
+
             body.append(ast.Return(ast.Num(1)))
 
             forged_fdef = ast.FunctionDef(forged_name, args, body, [], None)

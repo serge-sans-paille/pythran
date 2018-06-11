@@ -23,6 +23,7 @@ from .global_effects import GlobalEffects
 from .globals_analysis import Globals
 from .has_break import HasBreak
 from .has_continue import HasContinue
+from .has_return import HasReturn
 from .identifiers import Identifiers
 from .imported_ids import ImportedIds
 from .inlinable import Inlinable
@@ -39,6 +40,7 @@ from .range_values import RangeValues
 from .potential_iterator import PotentialIterator
 from .pure_expressions import PureExpressions
 from .scope import Scope
+from .static_expressions import StaticExpressions
 from .use_def_chain import UseDefChain
 from .use_omp import UseOMP
 from .yield_points import YieldPoints

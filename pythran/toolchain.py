@@ -8,6 +8,7 @@ from pythran.config import cfg, make_extension
 from pythran.cxxgen import PythonModule, Define, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.cxxgen import ReturnStatement
+from pythran.dist import PythranExtension
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
@@ -24,7 +25,6 @@ import pythran.frontend as frontend
 from datetime import datetime
 from distutils.errors import CompileError
 from numpy.distutils.core import setup
-from numpy.distutils.extension import Extension
 import numpy.distutils.ccompiler
 
 from tempfile import mkdtemp, NamedTemporaryFile
@@ -327,10 +327,9 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
 
     extension_args = make_extension(**kwargs)
 
-    extension = Extension(module_name,
-                          [cxxfile],
-                          language="c++",
-                          **extension_args)
+    extension = PythranExtension(module_name,
+                                 [cxxfile],
+                                 **extension_args)
 
     try:
         setup(name=module_name,

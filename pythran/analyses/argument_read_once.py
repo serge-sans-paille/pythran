@@ -202,6 +202,8 @@ class ArgumentReadOnce(ModuleAnalysis):
                     if isinstance(func_alias, ast.Call):
                         bound_name = func_alias.args[0].id
                         func_alias = self.global_declarations[bound_name]
+                    if func_alias is intrinsic.UnboundValue:
+                        continue
                     func_alias = self.node_to_functioneffect[func_alias]
                     index_corres[n] = i
                     func = func_alias

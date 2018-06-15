@@ -233,14 +233,11 @@ class Unparser:
 
     def _Raise(self, t):
         self.fill('raise ')
-        if t.type:
-            self.dispatch(t.type)
-        if t.inst:
-            self.write(", ")
-            self.dispatch(t.inst)
-        if t.tback:
-            self.write(", ")
-            self.dispatch(t.tback)
+        if t.exc:
+            self.dispatch(t.exc)
+        if t.cause:
+            self.write("from ")
+            self.dispatch(t.cause)
 
     def _Try(self, t):
         self.fill("try")

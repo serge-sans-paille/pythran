@@ -117,10 +117,12 @@ def compiler():
 
       1. `CXX` environment variable
       2. User configuration (~/.pythranrc)
-      3. Platform specific configuration
+      3. Default to `c++`
 
     """
     cfg_cxx = str(cfg.get('compiler', 'CXX'))
+    if cfg_cxx == '':
+        cfg_cxx = 'c++'
     return os.environ.get('CXX', cfg_cxx)
 
 

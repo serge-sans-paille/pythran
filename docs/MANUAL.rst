@@ -315,9 +315,13 @@ When distributing a Python application with Pythran modules, you can either:
     import setuptools
     setuptools.dist.Distribution(dict(setup_requires='pythran'))
 
-    from pythran.dist import PythranExtension
+    from pythran.dist import PythranExtension, PythranBuildExt
     setup(...,
-          ext_modules=[PythranExtension("mymodule", ["mymodule.py"])])
+          ext_modules=[PythranExtension("mymodule", ["mymodule.py"])],
+          cmdclass={"build_ext": PythranBuildExt})
+
+``PythranBuildExt`` is optional, but necessary to build extensions with
+different C++ compilers.
 
 Capsule Corp
 ------------

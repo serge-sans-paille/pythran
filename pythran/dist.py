@@ -7,44 +7,40 @@ import pythran.config as cfg
 
 import os.path
 import os
+from warnings import warn
+
+from distutils.command.build_ext import build_ext as LegacyBuildExt
 
 from numpy.distutils.extension import Extension
 
-from numpy.distutils.command import build_ext as build_ext0
-from distutils.command import build_ext as build_ext1
 
-for build_ext in (build_ext0, build_ext1):
+class PythranBuildExt(LegacyBuildExt):
+    """Subclass of `distutils.command.build_ext.build_ext` which is required to build
+    `PythranExtension` with the configured C++ compiler. It may also be
+    subclassed if you want to combine with another build_ext class (NumPy,
+    Cython implementations).
 
-    LegacyBuildExt = build_ext.build_ext
+    """
+    def build_extension(self, ext):
+        prev = {'preprocessor': None,
+                'compiler_cxx': None,
+                'compiler_so': None,
+                'compiler': None,
+                'linker_exe': None,
+                'linker_so': None}
 
-    class PythranBuildExt(LegacyBuildExt):
+        if hasattr(ext, 'cxx'):
+            for key in prev.keys():
+                prev[key] = getattr(self.compiler, key)[0]
+                getattr(self.compiler, key)[0] = ext.cxx
 
-        # workaround mismatch between distutils and numpy
-        # implementation
-        def swig_sources(self, sources, *args):
-            return sources
-
-        def build_extension(self, ext):
-            prev = {'preprocessor': None,
-                    'compiler_cxx': None,
-                    'compiler_so': None,
-                    'compiler': None,
-                    'linker_exe': None,
-                    'linker_so': None}
-            if getattr(ext, 'cxx', None) and 'CXX' not in os.environ:
-                for attr in prev.keys():
-                    prev[attr] = getattr(self.compiler, attr)[0]
-                    getattr(self.compiler, attr)[0] = ext.cxx
-
-                try:
-                    return LegacyBuildExt.build_extension(self, ext)
-                finally:
-                    for attr in prev.keys():
-                        getattr(self.compiler, attr)[0] = prev[attr]
-            else:
-                return LegacyBuildExt.build_extension(self, ext)
-
-    build_ext.build_ext = PythranBuildExt
+            try:
+                return super(PythranBuildExt, self).build_extension(ext)
+            finally:
+                for key in prev.keys():
+                    getattr(self.compiler, key)[0] = prev[key]
+        else:
+            return super(PythranBuildExt, self).build_extension(ext)
 
 
 class PythranExtension(Extension):
@@ -71,6 +67,7 @@ class PythranExtension(Extension):
         # and only the .cpp is distributed. That's stage 1
 
         import pythran.toolchain as tc
+
 
         cxx_sources = []
         for source in sources:
@@ -102,7 +99,9 @@ class PythranExtension(Extension):
             cxx_sources.append(output_file)
 
         cfg_ext = cfg.make_extension(**kwargs)
-
-        self.cc = cfg_ext.pop('cc', None)
-        self.cxx = cfg_ext.pop('cxx', None)
+        self.cxx = cfg_ext.pop('cxx')
+        warn('Requires pythran.dist.PythranBuildExt or a subclass of it '
+             'to build this extension with configured C++ compiler.',
+             UserWarning)
+        # TODO: Change to DeprecationWarning (ignored by default) in later releases.
         Extension.__init__(self, name, cxx_sources, *args, **cfg_ext)

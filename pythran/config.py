@@ -75,8 +75,8 @@ def make_extension(**extra):
     cxx = extra.pop('cxx', None)
     if cxx is not None:
         extension['cxx'] = cxx
-    elif cfg.get('compiler', 'CXX'):
-        extension['cxx'] = str(cfg.get('compiler', 'CXX'))
+    else:
+        extension['cxx'] = compiler()
 
     for k, w in extra.items():
         extension[k].extend(w)
@@ -112,8 +112,16 @@ def make_extension(**extra):
 
 
 def compiler():
-    """Get compiler to use for C++ to binary process."""
-    return os.environ.get('CXX', 'c++')
+    """Get compiler to use for C++ to binary process. The precedence for
+    choosing the compiler is as follows::
+
+      1. `CXX` environment variable
+      2. User configuration (~/.pythranrc)
+      3. Platform specific configuration
+
+    """
+    cfg_cxx = str(cfg.get('compiler', 'CXX'))
+    return os.environ.get('CXX', cfg_cxx)
 
 
 def have_gmp_support(**extra):
@@ -160,7 +168,7 @@ def run():
     extension = pythran.config.make_extension()
 
     if args.compiler:
-        output.append(os.environ.get('CXX', 'c++'))
+        output.append(compiler())
 
     if args.cflags:
         def fmt_define(define):

@@ -7,11 +7,14 @@ import pythran.config as cfg
 
 import os.path
 import os
-from warnings import warn
+import logging
 
 from distutils.command.build_ext import build_ext as LegacyBuildExt
 
 from numpy.distutils.extension import Extension
+
+
+logger = logging.getLogger('pythran')
 
 
 class PythranBuildExt(LegacyBuildExt):
@@ -30,6 +33,7 @@ class PythranBuildExt(LegacyBuildExt):
                 'linker_so': None}
 
         if hasattr(ext, 'cxx'):
+            # Backup compiler settings
             for key in prev.keys():
                 prev[key] = getattr(self.compiler, key)[0]
                 getattr(self.compiler, key)[0] = ext.cxx
@@ -37,6 +41,7 @@ class PythranBuildExt(LegacyBuildExt):
             try:
                 return super(PythranBuildExt, self).build_extension(ext)
             finally:
+                # Revert compiler settings
                 for key in prev.keys():
                     getattr(self.compiler, key)[0] = prev[key]
         else:
@@ -67,7 +72,6 @@ class PythranExtension(Extension):
         # and only the .cpp is distributed. That's stage 1
 
         import pythran.toolchain as tc
-
 
         cxx_sources = []
         for source in sources:
@@ -100,8 +104,7 @@ class PythranExtension(Extension):
 
         cfg_ext = cfg.make_extension(**kwargs)
         self.cxx = cfg_ext.pop('cxx')
-        warn('Requires pythran.dist.PythranBuildExt or a subclass of it '
-             'to build this extension with configured C++ compiler.',
-             UserWarning)
-        # TODO: Change to DeprecationWarning (ignored by default) in later releases.
+        logger.warn('Requires pythran.dist.PythranBuildExt or a subclass of it '
+                    'to build this extension with configured C++ compiler.')
+        # TODO: Change to logger.info in later releases.
         Extension.__init__(self, name, cxx_sources, *args, **cfg_ext)

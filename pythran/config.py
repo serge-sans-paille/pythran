@@ -121,7 +121,7 @@ def compiler():
 
     """
     cfg_cxx = str(cfg.get('compiler', 'CXX'))
-    if cfg_cxx == '':
+    if not cfg_cxx:
         cfg_cxx = 'c++'
     return os.environ.get('CXX', cfg_cxx)
 

@@ -72,7 +72,10 @@ def run():
                              'but does not generate python glue')
 
     parser.add_argument('-v', dest='verbose', action='store_true',
-                        help='be verbose')
+                        help='be more verbose')
+
+    parser.add_argument('-w', dest='warn_off', action='store_true',
+                        help='be less verbose')
 
     parser.add_argument('-V', '--version',
                         action='version',
@@ -116,8 +119,15 @@ def run():
         args.translate_only = True
         args.undefs.append('ENABLE_PYTHON_MODULE')
 
+    if args.verbose and args.warn_off:
+        logger.critical("Unexpected combination: -w and -v? Daoubennek?")
+        sys.exit(1)
+
     if args.verbose:
         logger.setLevel(logging.INFO)
+
+    if args.warn_off:
+        logger.setLevel(logging.ERROR)
 
     try:
         if not os.path.exists(args.input_file):

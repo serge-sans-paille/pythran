@@ -130,3 +130,65 @@ class TestStr(TestEnv):
                 else:
                    return eee("YYY", i), 3'''
         self.run_test(code, "EEE", 2, str_literal_cmp=[str, int])
+
+    def test_str_literal_cmp1(self):
+        code = '''
+            def eee(a, i):
+                if a > "ABCD":
+                    return 2 * i
+                elif a <= "ZDSD":
+                    return 1 * i
+                return 3 * i
+
+            def str_literal_cmp1(a, i):
+                if a == "EEE":
+                   return eee("ZZZ", i), eee("ABCD", i)
+                else:
+                   return eee("YYY", i), 3'''
+        self.run_test(code, "EEE", 2, str_literal_cmp1=[str, int])
+
+    def test_str_literal_cmp2(self):
+        code = '''
+            def eee(a, i):
+                if a < "ABCD":
+                    return 2 * i
+                elif a >= "ZDSD":
+                    return 1 * i
+                return 3 * i
+
+            def str_literal_cmp2(a, i):
+                if a == "EEE":
+                   return eee("ZZZ", i), eee("ABCD", i)
+                else:
+                   return eee("YYY", i), 3'''
+        self.run_test(code, "EEE", 2, str_literal_cmp2=[str, int])
+
+    def test_str_literal_add(self):
+        code = '''
+            def eee(a, i):
+                if i > 0:
+                    return a + "ABCD"
+                else:
+                    return a + "BCD"
+
+            def str_literal_add(a, i):
+                if a == "EEE":
+                   return eee("ZZZ", i), eee("ABCD", i)
+                else:
+                   return eee("YYY", i), "3"'''
+        self.run_test(code, "EEE", 2, str_literal_add=[str, int])
+
+    def test_str_literal_mult(self):
+        code = '''
+            def eee(a, i):
+                if i > 0:
+                    return a * i
+                else:
+                    return a * 3
+
+            def str_literal_mult(a, i):
+                if a == "EEE":
+                   return eee("ZZZ", i), eee("ABCD", i)
+                else:
+                   return eee("YYY", i), "3"'''
+        self.run_test(code, "EEE", 2, str_literal_mult=[str, int])

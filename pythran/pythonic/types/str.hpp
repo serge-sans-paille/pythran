@@ -665,6 +665,23 @@ namespace operator_
   {
     return types::str(fmt) % std::forward<Arg>(arg);
   }
+
+  pythonic::types::str add(char const *self, char const *other)
+  {
+    pythonic::types::str res{self};
+    res += other;
+    return res;
+  }
+
+  pythonic::types::str mul(long self, char const *other)
+  {
+    return pythonic::types::str{other} * self;
+  }
+
+  pythonic::types::str mul(char const *self, long other)
+  {
+    return pythonic::types::str{self} * other;
+  }
 }
 PYTHONIC_NS_END
 

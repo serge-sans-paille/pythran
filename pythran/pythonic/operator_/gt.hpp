@@ -5,6 +5,8 @@
 
 #include "pythonic/utils/functor.hpp"
 
+#include <cstring>
+
 PYTHONIC_NS_BEGIN
 
 namespace operator_
@@ -13,6 +15,11 @@ namespace operator_
   auto gt(A const &a, B const &b) -> decltype(a > b)
   {
     return a > b;
+  }
+
+  bool gt(char const *self, char const *other)
+  {
+    return strcmp(self, other) > 0;
   }
 
   DEFINE_FUNCTOR(pythonic::operator_, gt);

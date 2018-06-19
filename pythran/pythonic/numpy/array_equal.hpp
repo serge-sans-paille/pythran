@@ -6,6 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/all.hpp"
+#include "pythonic/numpy/equal.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -15,7 +16,7 @@ namespace numpy
   bool array_equal(U const &u, V const &v)
   {
     if (u.shape() == v.shape())
-      return all(types::numpy_expr<operator_::functor::eq, U, V>(u, v));
+      return all(functor::equal{}(u, v));
     return false;
   }
 

@@ -79,9 +79,9 @@ operator_to_lambda = {
     ast.And: make_and,
     ast.Or: make_or,
     # operator
-    ast.Add: "({0} + {1})".format,
+    ast.Add: "(pythonic::operator_::add({0}, {1}))".format,
     ast.Sub: "({0} - {1})".format,
-    ast.Mult: "({0} * {1})".format,
+    ast.Mult: "(pythonic::operator_::mul({0}, {1}))".format,
     ast.Div: "(pythonic::operator_::div({0}, {1}))".format,
     ast.Mod: "(pythonic::operator_::mod({0}, {1}))".format,
     ast.Pow: "(pythonic::__builtin__::pow({0}, {1}))".format,
@@ -102,10 +102,10 @@ operator_to_lambda = {
     # cmpop
     ast.Eq: "(pythonic::operator_::eq({0}, {1}))".format,
     ast.NotEq: "(pythonic::operator_::ne({0}, {1}))".format,
-    ast.Lt: "({0} < {1})".format,
-    ast.LtE: "({0} <= {1})".format,
-    ast.Gt: "({0} > {1})".format,
-    ast.GtE: "({0} >= {1})".format,
+    ast.Lt: "(pythonic::operator_::lt({0}, {1}))".format,
+    ast.LtE: "(pythonic::operator_::le({0}, {1}))".format,
+    ast.Gt: "(pythonic::operator_::gt({0}, {1}))".format,
+    ast.GtE: "(pythonic::operator_::ge({0}, {1}))".format,
     ast.Is: ("(pythonic::__builtin__::id({0}) == "
              "pythonic::__builtin__::id({1}))").format,
     ast.IsNot: ("(pythonic::__builtin__::id({0}) != "

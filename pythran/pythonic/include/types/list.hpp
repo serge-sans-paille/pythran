@@ -107,10 +107,12 @@ namespace types
     // assignment
     sliced_list &operator=(list<T> const &);
     sliced_list &operator=(sliced_list<T, S> const &);
-    list<T> operator+(list<T> const &);
+    list<T> operator+(list<T> const &) const;
     template <size_t N>
-    list<T> operator+(array<T, N> const &);
-    list<T> operator+(sliced_list<T, S> const &);
+    list<T> operator+(array<T, N> const &) const;
+    template <class Tp, class Sp>
+    list<typename __combined<T, Tp>::type>
+    operator+(sliced_list<Tp, Sp> const &) const;
 
     // iterators
     iterator begin();
@@ -120,7 +122,7 @@ namespace types
 
     // size
     long size() const;
-    operator bool() const;
+    explicit operator bool() const;
 
     // accessor
     T const &fast(long i) const;
@@ -340,7 +342,7 @@ namespace types
     template <class T, size_t N>
     array<T, N> operator+(array<T, N> const &s) const;
     empty_list operator+(empty_list const &) const;
-    operator bool() const;
+    explicit operator bool() const;
     template <class T>
     operator list<T>() const;
     static constexpr long size();

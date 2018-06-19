@@ -5,7 +5,7 @@
 
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/sum.hpp"
-#include "pythonic/types/numpy_expr.hpp"
+#include "pythonic/numpy/multiply.hpp"
 #include "pythonic/types/traits.hpp"
 
 #if defined(PYTHRAN_BLAS_ATLAS) || defined(PYTHRAN_BLAS_SATLAS)
@@ -37,7 +37,7 @@ namespace numpy
       typename __combined<typename E::dtype, typename F::dtype>::type>::type
   dot(E const &e, F const &f)
   {
-    return sum(types::numpy_expr<operator_::functor::mul, E, F>(e, f));
+    return sum(functor::multiply{}(e, f));
   }
 
   float dot(types::ndarray<float, 1> const &e,

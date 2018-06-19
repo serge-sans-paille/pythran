@@ -27,11 +27,6 @@ def init_cfg(sys_file, platform_file, user_file):
         cfgp.readfp(open(required))
     cfgp.read([user_config_path])
 
-    for key in ('CC', 'CXX'):
-        value = cfgp.get('compiler', key)
-        if value:
-            os.environ[key] = str(value)
-
     for obsolete_section in ('user', 'sys'):
         if cfgp.has_section(obsolete_section):
             logger.warn("Your pythranrc has an obsolete `%s' section",
@@ -41,13 +36,16 @@ def init_cfg(sys_file, platform_file, user_file):
 
 
 def make_extension(**extra):
+
     def parse_define(define):
         index = define.find('=')
         if index < 0:
             return (define, None)
         else:
             return define[:index], define[index + 1:]
+
     extension = {
+        "language": "c++",
         # forcing str conversion to handle Unicode case (the default on MS)
         "define_macros": [str(x) for x in
                           cfg.get('compiler', 'defines').split()],
@@ -72,13 +70,21 @@ def make_extension(**extra):
     here = os.path.dirname(os.path.dirname(__file__)) or '.'
     # using / as separator as advised in the distutils doc
     extension["include_dirs"].append(here + '/pythran')
+
+    extra.pop('language', None)  # forced to c++ anyway
+    cxx = extra.pop('cxx', None)
+    if cxx is not None:
+        extension['cxx'] = cxx
+    else:
+        extension['cxx'] = compiler()
+
     for k, w in extra.items():
         extension[k].extend(w)
     if cfg.getboolean('pythran', 'complex_hook'):
         # the patch is *not* portable
         extension["include_dirs"].append(here + '/pythran/pythonic/patch')
 
-    # Numpy can poluate the stdout with warning message which should be on stderr
+    # Numpy can pollute stdout with warning message which should be on stderr
     old_stdout = sys.stdout
     try:
         sys.stdout = sys.stderr
@@ -99,14 +105,25 @@ def make_extension(**extra):
         sys.stdout = old_stdout
 
     # final macro normalization
-    extension["define_macros"] = [parse_define(dm) for dm in
-                                  extension["define_macros"]]
+    extension["define_macros"] = [
+        dm if isinstance(dm, tuple) else parse_define(dm)
+        for dm in extension["define_macros"]]
     return extension
 
 
 def compiler():
-    """Get compiler to use for C++ to binary process."""
-    return os.environ.get('CXX', 'c++')
+    """Get compiler to use for C++ to binary process. The precedence for
+    choosing the compiler is as follows::
+
+      1. `CXX` environment variable
+      2. User configuration (~/.pythranrc)
+      3. Default to `c++`
+
+    """
+    cfg_cxx = str(cfg.get('compiler', 'CXX'))
+    if not cfg_cxx:
+        cfg_cxx = 'c++'
+    return os.environ.get('CXX', cfg_cxx)
 
 
 def have_gmp_support(**extra):
@@ -153,7 +170,7 @@ def run():
     extension = pythran.config.make_extension()
 
     if args.compiler:
-        output.append(os.environ.get('CXX', 'c++'))
+        output.append(compiler())
 
     if args.cflags:
         def fmt_define(define):

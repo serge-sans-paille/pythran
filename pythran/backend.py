@@ -1244,10 +1244,11 @@ result_type;
     def visit_Module(self, node):
         """ Build a compilation unit. """
         # build all types
+        deps = sorted(self.dependencies)
         headers = [Include(os.path.join("pythonic", "include",  *t) + ".hpp")
-                   for t in self.dependencies]
+                   for t in deps]
         headers += [Include(os.path.join("pythonic", *t) + ".hpp")
-                    for t in self.dependencies]
+                    for t in deps]
 
         decls_n_defns = [self.visit(stmt) for stmt in node.body]
         decls, defns = zip(*[s for s in decls_n_defns if s])

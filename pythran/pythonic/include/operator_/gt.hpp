@@ -10,6 +10,8 @@ namespace operator_
   template <class A, class B>
   auto gt(A const &a, B const &b) -> decltype(a > b);
 
+  bool gt(char const *, char const *);
+
   DECLARE_FUNCTOR(pythonic::operator_, gt);
 }
 PYTHONIC_NS_END

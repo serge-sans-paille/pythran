@@ -140,7 +140,7 @@ namespace types
     return *this;
   }
   template <class T, class S>
-  list<T> sliced_list<T, S>::operator+(list<T> const &s)
+  list<T> sliced_list<T, S>::operator+(list<T> const &s) const
   {
     list<T> out(size() + s.size());
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
@@ -148,16 +148,18 @@ namespace types
   }
   template <class T, class S>
   template <size_t N>
-  list<T> sliced_list<T, S>::operator+(array<T, N> const &s)
+  list<T> sliced_list<T, S>::operator+(array<T, N> const &s) const
   {
     list<T> out(size() + s.size());
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
     return out;
   }
   template <class T, class S>
-  list<T> sliced_list<T, S>::operator+(sliced_list<T, S> const &s)
+  template <class Tp, class Sp>
+  list<typename __combined<T, Tp>::type> sliced_list<T, S>::
+  operator+(sliced_list<Tp, Sp> const &s) const
   {
-    list<T> out(size() + s.size());
+    list<typename __combined<T, Tp>::type> out(size() + s.size());
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
     return out;
   }

@@ -4,6 +4,7 @@
 #include "pythonic/include/operator_/le.hpp"
 
 #include "pythonic/utils/functor.hpp"
+#include <cstring>
 
 PYTHONIC_NS_BEGIN
 
@@ -13,6 +14,10 @@ namespace operator_
   auto le(A const &a, B const &b) -> decltype(a <= b)
   {
     return a <= b;
+  }
+  bool le(char const *self, char const *other)
+  {
+    return strcmp(self, other) <= 0;
   }
 
   DEFINE_FUNCTOR(pythonic::operator_, le);

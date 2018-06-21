@@ -10,6 +10,7 @@ namespace operator_
 
   template <class A, class B>
   auto lt(A const &a, B const &b) -> decltype(a < b);
+  bool lt(char const *self, char const *other);
 
   DECLARE_FUNCTOR(pythonic::operator_, lt);
 }

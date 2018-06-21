@@ -223,6 +223,11 @@ namespace operator_
   template <size_t N, class Arg>
   auto mod(const char(&fmt)[N], Arg &&arg)
       -> decltype(pythonic::types::str(fmt) % std::forward<Arg>(arg));
+
+  pythonic::types::str add(char const *self, char const *other);
+
+  pythonic::types::str mul(char const *self, long other);
+  pythonic::types::str mul(long self, char const *other);
 }
 
 template <>

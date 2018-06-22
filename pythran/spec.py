@@ -20,8 +20,8 @@ from pythran.syntax import PythranSyntaxError
 def ambiguous_types(ty0, ty1):
     from numpy import complex64, complex128
     from numpy import float32, float64
-    from numpy import int8, int16, int32, int64, intp
-    from numpy import uint8, uint16, uint32, uint64, uintp
+    from numpy import int8, int16, int32, int64, intp, intc
+    from numpy import uint8, uint16, uint32, uint64, uintp, uintc
 
     if isinstance(ty0, tuple):
         if len(ty0) != len(ty1):
@@ -36,8 +36,8 @@ def ambiguous_types(ty0, ty1):
     if ty0 in ambiguous_cplx_types and ty1 in ambiguous_cplx_types:
         return True
 
-    ambiguous_int_types = (int8, int16, int32, int64, intp,
-                           uint8, uint16, uint32, uint64, uintp,
+    ambiguous_int_types = (int8, int16, int32, int64, intp, intc,
+                           uint8, uint16, uint32, uint64, uintp, uintc,
                            int,)
     if ty0 in ambiguous_int_types and ty1 in ambiguous_int_types:
         return True
@@ -152,11 +152,13 @@ class SpecParser(object):
         'uint16': 'UINT16',
         'uint32': 'UINT32',
         'uint64': 'UINT64',
+        'uintc': 'UINTC',
         'uintp': 'UINTP',
         'int8': 'INT8',
         'int16': 'INT16',
         'int32': 'INT32',
         'int64': 'INT64',
+        'intc': 'INTC',
         'intp': 'INTP',
         'float32': 'FLOAT32',
         'float64': 'FLOAT64',

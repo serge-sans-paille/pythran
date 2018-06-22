@@ -646,9 +646,7 @@ class PythonModule(object):
             ;
             PyMODINIT_FUNC
             PYTHRAN_MODULE_INIT({name})(void) {{
-                #ifdef PYTHONIC_TYPES_NDARRAY_HPP
-                    import_array()
-                #endif
+                import_array()
                 #if PY_MAJOR_VERSION >= 3
                 PyObject* theModule = PyModule_Create(&moduledef);
                 #else

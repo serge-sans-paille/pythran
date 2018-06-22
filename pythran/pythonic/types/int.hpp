@@ -6,6 +6,7 @@
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"
+#include "numpy/arrayobject.h"
 
 PYTHONIC_NS_BEGIN
 
@@ -40,26 +41,27 @@ PYTHONIC_INT_TO_PYTHON(signed long long)
 
 #undef PYTHONIC_INT_TO_PYTHON
 
-#define PYTHONIC_INT_FROM_PYTHON(TYPE)                                         \
+#define PYTHONIC_INT_FROM_PYTHON(TYPE, NTYPE)                                  \
   bool from_python<TYPE>::is_convertible(PyObject *obj)                        \
   {                                                                            \
-    return PyInt_CheckExact(obj);                                              \
+    return PyObject_TypeCheck(obj, &Py##NTYPE##ArrType_Type) ||                \
+           PyInt_CheckExact(obj);                                              \
   }                                                                            \
   TYPE from_python<TYPE>::convert(PyObject *obj)                               \
   {                                                                            \
     return PyInt_AsLong(obj);                                                  \
   }
 
-PYTHONIC_INT_FROM_PYTHON(unsigned char)
-PYTHONIC_INT_FROM_PYTHON(signed char)
-PYTHONIC_INT_FROM_PYTHON(unsigned short)
-PYTHONIC_INT_FROM_PYTHON(signed short)
-PYTHONIC_INT_FROM_PYTHON(unsigned int)
-PYTHONIC_INT_FROM_PYTHON(signed int)
-PYTHONIC_INT_FROM_PYTHON(unsigned long)
-PYTHONIC_INT_FROM_PYTHON(signed long)
-PYTHONIC_INT_FROM_PYTHON(unsigned long long)
-PYTHONIC_INT_FROM_PYTHON(signed long long)
+PYTHONIC_INT_FROM_PYTHON(unsigned char, UByte)
+PYTHONIC_INT_FROM_PYTHON(signed char, Byte)
+PYTHONIC_INT_FROM_PYTHON(unsigned short, UShort)
+PYTHONIC_INT_FROM_PYTHON(signed short, Short)
+PYTHONIC_INT_FROM_PYTHON(unsigned int, UInt)
+PYTHONIC_INT_FROM_PYTHON(signed int, Int)
+PYTHONIC_INT_FROM_PYTHON(unsigned long, ULong)
+PYTHONIC_INT_FROM_PYTHON(signed long, Long)
+PYTHONIC_INT_FROM_PYTHON(unsigned long long, ULongLong)
+PYTHONIC_INT_FROM_PYTHON(signed long long, LongLong)
 
 #undef PYTHONIC_INT_FROM_PYTHON
 PYTHONIC_NS_END

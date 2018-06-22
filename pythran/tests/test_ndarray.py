@@ -9,6 +9,27 @@ import sys
 
 @TestEnv.module
 class TestNdarray(TestEnv):
+
+    def test_ndarray_intc(self):
+        self.run_test('def ndarray_intc(a): import numpy as np; return np.intc(a), np.array([a, a], dtype=np.intc)',
+                      numpy.intc(5),
+                      ndarray_intc=[numpy.intc])
+
+    def test_ndarray_uintc(self):
+        self.run_test('def ndarray_uintc(a): import numpy as np; return np.uintc(a), np.array([a, a], dtype=np.uintc)',
+                      5,
+                      ndarray_uintc=[numpy.uintc])
+
+    def test_ndarray_intp(self):
+        self.run_test('def ndarray_intp(a): import numpy as np; return np.intp(a), np.array([a, a], dtype=np.intp)',
+                      numpy.intp(5),
+                      ndarray_intp=[numpy.intp])
+
+    def test_ndarray_uintp(self):
+        self.run_test('def ndarray_uintp(a): import numpy as np; return np.uintp(a), np.array([a, a], dtype=np.uintp)',
+                      5,
+                      ndarray_uintp=[numpy.uintp])
+
     def test_ndarray_real_attr_read(self):
         self.run_test('def ndarray_real_attr_read(a): return a.real + 1',
                       numpy.arange(100, dtype=numpy.complex128).reshape((10, 10)),

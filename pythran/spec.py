@@ -181,13 +181,13 @@ class SpecParser(object):
     reserved.update(dtypes)
 
     tokens = ('IDENTIFIER', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP',
-              'LARRAY', 'RARRAY', 'STAR') + tuple(reserved.values())
+              'LARRAY', 'RARRAY', 'STAR', 'NUM') + tuple(reserved.values())
 
     crap = [tok for tok in tokens if tok != 'PYTHRAN']
     some_crap = [tok for tok in crap if tok not in ('LPAREN', 'COMMA')]
 
     # token <> regexp binding
-    t_CRAP = r'[^,:\(\)\[\]*]'
+    t_CRAP = r'[^,:\(\)\[\]*0-9]'
     t_COMMA = r','
     t_COLUMN = r':'
     t_LPAREN = r'\('
@@ -195,6 +195,7 @@ class SpecParser(object):
     t_RARRAY = r'\]'
     t_LARRAY = r'\['
     t_STAR = r'\*'
+    t_NUM = r'[1-9][0-9]*'
 
     precedence = (
         ('left', 'OR'),
@@ -351,12 +352,15 @@ class SpecParser(object):
 
     def p_array_index(self, p):
         '''array_index :
+                       | NUM
                        | COLUMN
                        | COLUMN COLUMN'''
         if len(p) == 3:
             p[0] = slice(0, -1, -1)
-        else:
+        elif len(p) == 1 or p[1] == ':':
             p[0] = slice(0, -1, 1)
+        else:
+            p[0] = slice(0, int(p[1]), 1)
 
     def p_term(self, p):
         '''term : STR

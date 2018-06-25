@@ -10,7 +10,7 @@ namespace numpy
   {
     template <class E>
     auto matrix_power(E const &expr, int n)
-        -> decltype(numpy::functor::asarray{}(expr));
+        -> decltype(numpy::functor::array{}(expr));
 
     DECLARE_FUNCTOR(pythonic::numpy::linalg, matrix_power);
   }

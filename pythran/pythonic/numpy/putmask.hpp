@@ -12,8 +12,8 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N, class E, class F>
-  types::none_type putmask(types::ndarray<T, N> &expr, E const &mask,
+  template <class T, class pS, class E, class F>
+  types::none_type putmask(types::ndarray<T, pS> &expr, E const &mask,
                            F const &values)
   {
     auto amask = asarray(mask);

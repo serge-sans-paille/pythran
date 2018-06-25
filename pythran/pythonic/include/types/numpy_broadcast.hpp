@@ -76,8 +76,9 @@ namespace types
     using iterator = const_iterator;
 
     T const ref;
-    types::array<long, value> _shape;
-    types::array<long, value> const &shape() const
+    using shape_t = types::array<long, value>;
+    shape_t _shape;
+    shape_t const &shape() const
     {
       return _shape;
     }
@@ -257,7 +258,8 @@ namespace types
     auto load(I i) const -> decltype(this->_base.load(i));
     template <class... Args>
     dtype operator()(Args &&...) const;
-    array<long, 1> shape() const;
+    using shape_t = types::pshape<std::integral_constant<long, 0>>;
+    shape_t shape() const;
     long flat_size() const;
     const_iterator begin() const
     {

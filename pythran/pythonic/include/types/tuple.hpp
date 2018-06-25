@@ -42,6 +42,11 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
+  template <class T>
+  struct iterator {
+    using type = T;
+  };
+
   namespace details
   {
     template <class E, size_t Value>
@@ -100,6 +105,133 @@ namespace types
   {
     return std::tuple<Types...>(a[I]...);
   }
+
+  template <class... Tys>
+  struct pshape;
+
+  template <class... Tys>
+  struct iterator<pshape<Tys...>> {
+    using type = array<long, sizeof...(Tys)>;
+  };
+
+  template <long N>
+  std::integral_constant<long, N> check_type(long value,
+                                             std::integral_constant<long, N>)
+  {
+    assert(N == value && "consistent init");
+    return {};
+  }
+  long check_type(long value, long)
+  {
+    return value;
+  }
+  template <long N>
+  std::integral_constant<long, N> check_type(std::integral_constant<long, N>,
+                                             std::integral_constant<long, N>)
+  {
+    return {};
+  }
+  template <long N>
+  std::integral_constant<long, N> check_type(std::integral_constant<long, N>,
+                                             long v)
+  {
+    assert(N == v && "consistent init");
+    return {};
+  }
+
+  template <class T>
+  struct is_pshape_element : std::false_type {
+  };
+  template <>
+  struct is_pshape_element<long> : std::true_type {
+  };
+  template <long N>
+  struct is_pshape_element<std::integral_constant<long, N>> : std::true_type {
+  };
+
+  template <class... Tys>
+  struct pshape {
+    static_assert(utils::all_of<is_pshape_element<Tys>::value...>::value,
+                  "valid pshape");
+    struct checked {
+    };
+
+    std::tuple<Tys...> values;
+
+    template <class... Args, size_t... Is>
+    pshape(std::tuple<Args...> const &v, utils::index_sequence<Is...>)
+        : values{check_type(std::get<Is>(v), std::get<Is>(values))...}
+    {
+    }
+
+    template <class... Args>
+    pshape(long arg, Args... args)
+        : pshape(std::make_tuple(arg, args...),
+                 utils::make_index_sequence<1 + sizeof...(args)>())
+    {
+    }
+    template <class T, T N, class... Args>
+    pshape(std::integral_constant<T, N> arg, Args... args)
+        : pshape(std::make_tuple(arg, args...),
+                 utils::make_index_sequence<1 + sizeof...(args)>())
+    {
+    }
+
+    template <class S, size_t... Is>
+    pshape(S const *buffer, utils::index_sequence<Is...>)
+        : values{check_type(buffer[Is], std::get<Is>(values))...}
+    {
+    }
+    template <class S>
+    pshape(S const *buffer)
+        : pshape(buffer, utils::make_index_sequence<sizeof...(Tys)>())
+    {
+    }
+    template <class... TyOs>
+    pshape(pshape<TyOs...> other)
+        : pshape(other.values, utils::make_index_sequence<sizeof...(TyOs)>())
+    {
+      static_assert(sizeof...(TyOs) == sizeof...(Tys), "compatible sizes");
+    }
+
+    template <class S>
+    pshape(array<S, sizeof...(Tys)> data)
+        : pshape(data.data())
+    {
+    }
+
+    pshape() = default;
+    pshape(pshape const &) = default;
+    pshape(pshape &&) = default;
+    pshape &operator=(pshape const &) = default;
+    pshape &operator=(pshape &&) = default;
+
+    template <size_t... Is>
+    types::array<long, sizeof...(Tys)> array(utils::index_sequence<Is...>) const
+    {
+      return {{get<Is>()...}};
+    }
+
+    types::array<long, sizeof...(Tys)> array() const
+    {
+      return array(utils::make_index_sequence<sizeof...(Tys)>());
+    }
+    operator types::array<long, sizeof...(Tys)>() const
+    {
+      return array();
+    }
+
+    template <size_t I>
+    long get() const
+    {
+      return std::get<I>(values);
+    }
+    template <size_t I>
+    auto get() -> decltype(std::get<I>(values))
+    {
+      return std::get<I>(values);
+    }
+  };
 
   /* inspired by std::array implementation */
   template <typename T, size_t N>
@@ -228,7 +360,8 @@ namespace types
     friend std::ostream &operator<<(std::ostream &os,
                                     types::array<T1, N1> const &v);
 
-    array<long, value> shape() const
+    using shape_t = array<long, value>;
+    shape_t shape() const
     {
       array<long, value> res;
       details::init_shape(res, *this, utils::int_<value>{});
@@ -544,7 +677,448 @@ namespace std
 {
   template <class... Args>
   ostream &operator<<(ostream &os, tuple<Args...> const &t);
+  template <size_t I, class... Tys>
+  long get(pythonic::types::pshape<Tys...> const &s)
+  {
+    return s.template get<I>();
+  }
+  template <size_t I, class... Tys>
+  auto get(pythonic::types::pshape<Tys...> &s) -> decltype(s.template get<I>())
+  {
+    return s.template get<I>();
+  }
+  template <size_t I, class T>
+  auto get(T *s) -> decltype(s[I])
+  {
+    return s[I];
+  }
+  template <size_t I, class T>
+  long get(T const *s)
+  {
+    return s[I];
+  }
+
+  template <class... Tys>
+  class tuple_size<pythonic::types::pshape<Tys...>>
+      : public std::integral_constant<std::size_t, sizeof...(Tys)>
+  {
+  };
+
+  template <size_t I, class... Tys>
+  struct tuple_element<I, pythonic::types::pshape<Tys...>> {
+    using type = typename std::tuple_element < I < sizeof...(Tys) ? I : 0,
+          std::tuple<Tys...>> ::type;
+  };
 }
+PYTHONIC_NS_BEGIN
+namespace sutils
+{
+
+  template <class T>
+  struct make_shape {
+    using type = T;
+  };
+
+  template <class T, size_t N>
+  struct make_shape<types::array<T, N>> {
+    using type = types::array<long, N>;
+  };
+
+  template <class T>
+  using shape_t = typename make_shape<T>::type;
+
+  template <class Curr, class... Ss>
+  struct shape_merger;
+  template <class Curr>
+  struct shape_merger<Curr> {
+    using type = Curr;
+  };
+
+  template <class Curr, class... Ss>
+  struct shape_merger<Curr, long, Ss...> {
+    using type = long;
+  };
+  template <long N0, long N1, class... Ss>
+  struct shape_merger<std::integral_constant<long, N0>,
+                      std::integral_constant<long, N1>, Ss...>
+      : shape_merger<std::integral_constant<long, (N0 > N1 ? N0 : N1)>, Ss...> {
+  };
+  template <long N, class... Ss>
+  struct shape_merger<long, std::integral_constant<long, N>, Ss...> {
+    using type = long;
+  };
+
+  template <size_t I, class Ss>
+  struct merge_shape;
+  template <size_t I, class... Ss>
+  struct merge_shape<I, std::tuple<Ss...>> {
+    using type = typename shape_merger<typename std::conditional<
+        (I < std::tuple_size<Ss>::value),
+        typename std::tuple_element<(I < std::tuple_size<Ss>::value ? I : 0L),
+                                    Ss>::type,
+        std::integral_constant<long, 1>>::type...>::type;
+  };
+  template <class Ss, class T>
+  struct merged_shapes;
+
+  template <class Ss, size_t... Is>
+  struct merged_shapes<Ss, utils::index_sequence<Is...>> {
+    using type = types::pshape<typename merge_shape<Is, Ss>::type...>;
+  };
+
+  template <size_t N, class... Ss>
+  using merged_shapes_t =
+      typename merged_shapes<std::tuple<Ss...>,
+                             utils::make_index_sequence<N>>::type;
+
+  template <class T>
+  struct transpose;
+  template <class T>
+  struct transpose<types::array<T, 2>> {
+    using type = types::array<T, 2>;
+  };
+
+  template <class T0, class T1>
+  struct transpose<types::pshape<T0, T1>> {
+    using type = types::pshape<T1, T0>;
+  };
+  template <class T>
+  using transpose_t = typename transpose<T>::type;
+
+  template <class T0, class T1>
+  void assign(T0 &t0, T1 t1)
+  {
+    t0 = (T0)t1;
+  }
+  template <class T0, T0 N, class T1>
+  void assign(std::integral_constant<T0, N> &t0, T1 t1)
+  {
+    assert(t0 == t1 && "consistent");
+  }
+
+  template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
+  void copy_shape(T0 &shape0, T1 const &shape1, utils::index_sequence<Is...>)
+  {
+    std::initializer_list<int> _ = {
+        (assign(std::get<Start + Is>(shape0),
+                std::get<Is + Start + Offset>(shape1)),
+         1)...};
+  }
+  template <class P, class... Tys>
+  struct pop_type;
+
+  template <class... Ps, class Ty>
+  struct pop_type<types::pshape<Ps...>, Ty> {
+    using type = types::pshape<Ps...>;
+  };
+  template <class... Ps, class Ty, class... Tys>
+  struct pop_type<types::pshape<Ps...>, Ty, Tys...>
+      : pop_type<types::pshape<Ps..., Ty>, Tys...> {
+  };
+
+  template <class T>
+  struct pop_tail;
+
+  template <class... Tys>
+  struct pop_tail<types::pshape<Tys...>> {
+    using type = typename pop_type<types::pshape<>, Tys...>::type;
+  };
+  template <class T, size_t N>
+  struct pop_tail<types::array<T, N>> {
+    using type = types::array<T, N - 1>;
+  };
+
+  template <class T>
+  struct pop_head;
+
+  template <class Ty, class... Tys>
+  struct pop_head<types::pshape<Ty, Tys...>> {
+    using type = types::pshape<Tys...>;
+  };
+  template <class T, size_t N>
+  struct pop_head<types::array<T, N>> {
+    using type = types::array<T, N - 1>;
+  };
+
+  template <class T>
+  using pop_head_t = typename pop_head<T>::type;
+
+  template <class T>
+  using pop_tail_t = typename pop_tail<T>::type;
+
+  template <class... Tys>
+  types::array<long, sizeof...(Tys)> array(types::pshape<Tys...> const &pS)
+  {
+    return pS.array();
+  }
+
+  template <class T, size_t N>
+  types::array<T, N> array(types::array<T, N> const &pS)
+  {
+    return pS;
+  }
+
+  template <class pS0, class pS1>
+  struct concat;
+
+  template <class... Ty0s, class... Ty1s>
+  struct concat<types::pshape<Ty0s...>, types::pshape<Ty1s...>> {
+    using type = types::pshape<Ty0s..., Ty1s...>;
+  };
+
+  template <class... Tys>
+  struct concat<types::pshape<Tys...>, types::array<long, 0>> {
+    using type = types::pshape<Tys...>;
+  };
+  template <class... Tys, size_t N>
+  struct concat<types::pshape<Tys...>, types::array<long, N>>
+      : concat<types::pshape<Tys..., long>, types::array<long, N - 1>> {
+  };
+
+  template <class... Ty1s>
+  struct concat<types::array<long, 0>, types::pshape<Ty1s...>> {
+    using type = types::pshape<Ty1s...>;
+  };
+
+  template <size_t N, class... Ty1s>
+  struct concat<types::array<long, N>, types::pshape<Ty1s...>>
+      : concat<types::array<long, N - 1>, types::pshape<long, Ty1s...>> {
+  };
+
+  template <class... Tys>
+  using concat_t = typename concat<Tys...>::type;
+
+  template <class P, class T>
+  using push_front_t = concat_t<types::pshape<T>, P>;
+
+  template <class S>
+  long *find(S &s, long v, std::integral_constant<size_t, 0>)
+  {
+    return v == std::get<0>(s) ? &std::get<0>(s) : nullptr;
+  }
+  template <class S, size_t I>
+  long *find(S &s, long v, std::integral_constant<size_t, I>)
+  {
+    return v == std::get<I>(s)
+               ? (&std::get<I>(s))
+               : find(s, v, std::integral_constant<size_t, I - 1>());
+  }
+
+  template <class S>
+  long *find(S &s, long v)
+  {
+    return find(
+        s, v, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+
+  template <class S, class B>
+  bool equals(S const &s, B const &other, std::integral_constant<size_t, 0>)
+  {
+    return std::get<0>(other) == std::get<0>(s);
+  }
+  template <class S, class B, size_t I>
+  bool equals(S const &s, B const &other, std::integral_constant<size_t, I>)
+  {
+    return std::get<I>(other) == std::get<I>(s) &&
+           equals(s, other, std::integral_constant<size_t, I - 1>());
+  }
+
+  template <class S, class B>
+  bool equals(S const &s, B const &other)
+  {
+    return equals(
+        s, other,
+        std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+  template <class S, class B>
+  bool requals(S const &s, B const *other, std::integral_constant<size_t, 0>)
+  {
+    return other[std::tuple_size<S>::value - 1] == std::get<0>(s);
+  }
+  template <class S, class B, size_t I>
+  bool requals(S const &s, B const *other, std::integral_constant<size_t, I>)
+  {
+    return other[std::tuple_size<S>::value - I - 1] == std::get<I>(s) &&
+           requals(s, other, std::integral_constant<size_t, I - 1>());
+  }
+  template <class S, class B>
+  bool requals(S const &s, B const *other)
+  {
+    return requals(
+        s, other,
+        std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+
+  template <class S, class P>
+  bool any_of(S const &s, P pred, std::integral_constant<size_t, 0>)
+  {
+    return pred(std::get<0>(s));
+  }
+  template <class S, class P, size_t I>
+  bool any_of(S const &s, P pred, std::integral_constant<size_t, I>)
+  {
+    return pred(std::get<I>(s)) ||
+           any_of(s, pred, std::integral_constant<size_t, I - 1>());
+  }
+  template <class S, class Pred>
+  bool any_of(S const &s, Pred pred)
+  {
+    return any_of(
+        s, pred,
+        std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+
+  template <class S>
+  long min(long curr, S const &s, std::integral_constant<size_t, 0>)
+  {
+    return std::min(curr, std::get<0>(s));
+  }
+  template <class S, size_t I>
+  long min(long curr, S const &s, std::integral_constant<size_t, I>)
+  {
+    return min(std::min(curr, std::get<I>(s)), s,
+               std::integral_constant<size_t, I - 1>());
+  }
+  template <class S>
+  long min(S const &s)
+  {
+    return min(std::get<std::tuple_size<S>::value - 1>(s), s,
+               std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+
+  template <class S>
+  long prod(S const &s, std::integral_constant<size_t, 0>)
+  {
+    return std::get<0>(s);
+  }
+  template <class S, size_t I>
+  long prod(S const &s, std::integral_constant<size_t, I>)
+  {
+    return std::get<I>(s) * prod(s, std::integral_constant<size_t, I - 1>());
+  }
+  template <class S>
+  long prod(S const &s)
+  {
+    return prod(
+        s, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+
+  template <class S>
+  long prod_tail(S, std::integral_constant<size_t, 0>)
+  {
+    return 1;
+  }
+  template <class S, size_t I>
+  long prod_tail(S const &s, std::integral_constant<size_t, I>)
+  {
+    return std::get<I>(s) *
+           prod_tail(s, std::integral_constant<size_t, I - 1>());
+  }
+  template <class S>
+  long prod_tail(S const &s)
+  {
+    return prod_tail(
+        s, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+
+  template <class S0, class S1, class S2, size_t J>
+  typename std::enable_if<(0 < std::tuple_size<S2>::value), void>::type
+  copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis,
+                std::integral_constant<size_t, J>,
+                std::integral_constant<size_t, 0>)
+  {
+    if (std::get<0>(new_axis)) {
+      std::get<0>(s) = 1;
+    } else {
+      std::get<0>(s) = std::get<0>(shape);
+    }
+  }
+
+  template <class S0, class S1, class S2, size_t J>
+  typename std::enable_if<(0 >= std::tuple_size<S2>::value), void>::type
+  copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis,
+                std::integral_constant<size_t, J>,
+                std::integral_constant<size_t, 0>)
+  {
+    std::get<0>(s) = std::get<J>(shape);
+  }
+
+  template <class S0, class S1, class S2, size_t J, size_t I>
+  typename std::enable_if<(I < std::tuple_size<S2>::value), void>::type
+  copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis,
+                std::integral_constant<size_t, J>,
+                std::integral_constant<size_t, I>)
+  {
+    if (std::get<I>(new_axis)) {
+      std::get<I>(s) = 1;
+      copy_new_axis(s, shape, new_axis, std::integral_constant<size_t, J>(),
+                    std::integral_constant<size_t, I - 1>());
+    } else {
+      std::get<I>(s) = std::get<J>(shape);
+      copy_new_axis(s, shape, new_axis, std::integral_constant < size_t,
+                    J == 0 ? J : J - 1 > (),
+                    std::integral_constant<size_t, I - 1>());
+    }
+  }
+
+  template <class S0, class S1, class S2, size_t J, size_t I>
+  typename std::enable_if<(I >= std::tuple_size<S2>::value), void>::type
+  copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis,
+                std::integral_constant<size_t, J>,
+                std::integral_constant<size_t, I>)
+  {
+    std::get<I>(s) = std::get<J>(shape);
+    copy_new_axis(s, shape, new_axis, std::integral_constant<size_t, J - 1>(),
+                  std::integral_constant<size_t, I - 1>());
+  }
+
+  template <class S0, class S1, class S2>
+  S0 copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis)
+  {
+    copy_new_axis(
+        s, shape, new_axis,
+        std::integral_constant<size_t, std::tuple_size<S1>::value - 1>(),
+        std::integral_constant<size_t, std::tuple_size<S0>::value - 1>());
+    return s;
+  }
+}
+
+namespace types
+{
+  template <class T, class... Tys>
+  bool operator==(T const &self, pshape<Tys...> const &other)
+  {
+    return sutils::equals(self, other);
+  }
+  template <class T, class... Tys>
+  bool operator==(pshape<Tys...> const &self, T const &other)
+  {
+    return sutils::equals(self, other);
+  }
+  template <class... Ty0s, class... Ty1s>
+  bool operator==(pshape<Ty0s...> const &self, pshape<Ty1s...> const &other)
+  {
+    return sutils::equals(self, other);
+  }
+  template <class T, class... Tys>
+  bool operator!=(T const &self, pshape<Tys...> const &other)
+  {
+    return !sutils::equals(self, other);
+  }
+  template <class T, class... Tys>
+  bool operator!=(pshape<Tys...> const &self, T const &other)
+  {
+    return !sutils::equals(self, other);
+  }
+  template <class... Ty0s, class... Ty1s>
+  bool operator!=(pshape<Ty0s...> const &self, pshape<Ty1s...> const &other)
+  {
+    return !sutils::equals(self, other);
+  }
+}
+
+PYTHONIC_NS_END
+
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/include/utils/seq.hpp"
@@ -556,6 +1130,11 @@ PYTHONIC_NS_BEGIN
 template <typename K, typename V>
 struct to_python<std::pair<K, V>> {
   static PyObject *convert(std::pair<K, V> const &t);
+};
+
+template <typename... Tys>
+struct to_python<types::pshape<Tys...>> {
+  static PyObject *convert(types::pshape<Tys...> const &t);
 };
 
 template <typename... Types>

@@ -92,7 +92,7 @@ namespace utils
         auto siter = sfirst;
         *sfirst = other;
 #ifdef _OPENMP
-        long n = self.shape()[0];
+        long n = std::get<0>(self.shape());
         if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
           for (long i = 1; i < n; ++i)
@@ -211,7 +211,7 @@ namespace utils
     template <class E, class F>
     void operator()(E &&self, F const &other)
     {
-      long n = self.shape()[0];
+      long n = std::get<0>(self.shape());
       auto siter = self.begin();
 #ifdef _OPENMP
       if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)

@@ -12,7 +12,7 @@ namespace utils
 {
 
   template <class T>
-  size_t nested_container_size<T>::flat_size(T const &t)
+  long nested_container_size<T>::flat_size(T const &t)
   {
     return t.size() *
            nested_container_size<typename std::conditional<
@@ -24,7 +24,7 @@ namespace utils
 
   /* Recursion stops on bool */
   template <class F>
-  constexpr size_t nested_container_size<bool>::flat_size(F)
+  constexpr long nested_container_size<bool>::flat_size(F)
   {
     return 1;
   }

@@ -110,6 +110,11 @@ namespace numpy
   {
     return {args};
   }
+  template <class... Tys>
+  _ndindex<sizeof...(Tys)> ndindex(types::pshape<Tys...> const &args)
+  {
+    return {args};
+  }
 
   DEFINE_FUNCTOR(pythonic::numpy, ndindex);
 }

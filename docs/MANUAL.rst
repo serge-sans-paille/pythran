@@ -203,7 +203,8 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
                   | argument_type set    # this is a set
                   | argument_type []+    # this is a ndarray, C-style
                   | argument_type [::]+    # this is a strided ndarray
-                  | argument_type [:,...,:]+ # this is a ndarray, Cython
+                  | argument_type [:,...,:]+ # this is a ndarray, Cython style
+                  | argument_type [:,...,3]+ # this is a ndarray, some dimension fixed
                   | argument_type:argument_type dict    # this is a dictionary
 
     basic_type = bool | int | long | float | str | None

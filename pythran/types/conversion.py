@@ -58,7 +58,16 @@ def pytype_to_ctype(t):
     elif isinstance(t, NDArray):
         dtype = pytype_to_ctype(t.__args__[0])
         ndim = len(t.__args__) - 1
-        arr = 'pythonic::types::ndarray<{0},{1}>'.format(dtype, ndim)
+        arr = 'pythonic::types::ndarray<{0},{1}>'.format(
+            dtype,
+            'pythonic::types::pshape<{0}>'.format(
+                ','.join(('long'
+                          if s.stop == -1 or s.stop is None
+                          else 'std::integral_constant<long, {}>'.format(
+                              s.stop)
+                         ) for s in t.__args__[1:])
+            )
+        )
         if t.__args__[1].start == -1:
             return 'pythonic::types::numpy_texpr<{0}>'.format(arr)
         elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):
@@ -98,7 +107,10 @@ def pytype_to_pretty_type(t):
     elif isinstance(t, NDArray):
         dtype = pytype_to_pretty_type(t.__args__[0])
         ndim = len(t.__args__) - 1
-        arr = '{0}[{1}]'.format(dtype, ','.join([':'] * ndim))
+        arr = '{0}[{1}]'.format(
+            dtype,
+            ','.join(':' if s.stop in (-1, None) else str(s.stop)
+                     for s in t.__args__[1:]))
         # it's a transpose!
         if t.__args__[1].start == -1:
             return '{}.T'.format(arr)

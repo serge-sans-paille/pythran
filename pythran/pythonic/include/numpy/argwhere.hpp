@@ -9,7 +9,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  typename types::ndarray<long, 2> argwhere(E const &expr);
+  typename types::ndarray<long, types::array<long, 2>> argwhere(E const &expr);
 
   DECLARE_FUNCTOR(pythonic::numpy, argwhere);
 }

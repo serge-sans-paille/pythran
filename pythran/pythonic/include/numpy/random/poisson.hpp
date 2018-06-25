@@ -11,9 +11,8 @@ namespace numpy
 {
   namespace random
   {
-    template <size_t N>
-    types::ndarray<double, N> poisson(double lam,
-                                      types::array<long, N> const &shape);
+    template <class pS>
+    types::ndarray<double, pS> poisson(double lam, pS const &shape);
 
     auto poisson(double lam, long size)
         -> decltype(poisson(lam, types::array<long, 1>{{size}}));

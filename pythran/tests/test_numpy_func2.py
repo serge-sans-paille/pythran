@@ -168,11 +168,11 @@ def test_copy0(x):
         self.run_test("def np_concatenate0(a): from numpy import array, concatenate ; b = array([[5, 6]]) ; return concatenate((a,b))", numpy.array([[1, 2], [3, 4]]), np_concatenate0=[NDArray[int,:,:]])
 
     def test_concatenate1(self):
-        self.run_test("def np_concatenate1(a): from numpy import array, concatenate ; b = array([[5, 6]]) ; return concatenate([a,b])", numpy.array([[1, 2], [3, 4]]), np_concatenate1=[NDArray[int,:,:]])
+        self.run_test("def np_concatenate1(a): from numpy import array, concatenate ; return concatenate([a,a])", numpy.array([[1, 2], [3, 4]]), np_concatenate1=[NDArray[int,:,:]])
 
     def test_concatenate2(self):
         self.run_test(
-            "def np_concatenate2(a): from numpy import array, concatenate ; b = array([[5, 6]]).T ; return concatenate([a,b, b], axis=1)",
+            "def np_concatenate2(a): from numpy import array, concatenate ; b = array([[5, 6]]).T ; return concatenate((a,b, b), axis=1)",
             numpy.array([[1, 2], [3, 4]]),
             np_concatenate2=[NDArray[int,:,:]])
 
@@ -633,6 +633,9 @@ def np_reshape1(a):
 
     def test_reshape2(self):
         self.run_test("def np_reshape2(a): return a.reshape(5, 2)", numpy.arange(10), np_reshape2=[NDArray[int,:]])
+
+    def test_reshape3(self):
+        self.run_test("def np_reshape3(a): return (1 + a.reshape(1, a.size)), (1 + a[None])", numpy.arange(10), np_reshape3=[NDArray[int,:]])
 
     def test_duplicate(self):
         """Check array forwarded twice doesn't double free. """

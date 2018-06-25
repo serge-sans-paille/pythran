@@ -50,6 +50,7 @@ namespace types
     E const &container_;
 
     using dtype = typename E::dtype;
+    using shape_t = typename E::shape_t;
     static constexpr auto value = E::value;
     static constexpr auto is_vectorizable = E::is_vectorizable;
 

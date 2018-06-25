@@ -91,7 +91,7 @@ namespace types
   template <class T, size_t N, class A, size_t... I>
   array<T, N> array_to_array(A const &a, utils::index_sequence<I...>)
   {
-    return {a[I]...};
+    return {std::get<I>(a)...};
   }
 
   /* inspired by std::array implementation */
@@ -531,6 +531,13 @@ PyObject *to_python<std::pair<K, V>>::convert(std::pair<K, V> const &t)
   PyTuple_SET_ITEM(out, 0, ::to_python(std::get<0>(t)));
   PyTuple_SET_ITEM(out, 1, ::to_python(std::get<1>(t)));
   return out;
+}
+
+template <typename... Tys>
+PyObject *
+to_python<types::pshape<Tys...>>::convert(types::pshape<Tys...> const &t)
+{
+  return ::to_python(t.array());
 }
 
 template <typename... Types>

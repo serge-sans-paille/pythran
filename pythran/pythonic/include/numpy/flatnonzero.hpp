@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  types::ndarray<long, 1> flatnonzero(E const &expr);
+  types::ndarray<long, types::pshape<long>> flatnonzero(E const &expr);
 
   DECLARE_FUNCTOR(pythonic::numpy, flatnonzero);
 }

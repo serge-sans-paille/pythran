@@ -30,9 +30,7 @@ namespace types
 
     long flat_size() const
     {
-      auto data_shape = data_.shape();
-      return std::accumulate(data_shape.begin() + 1, data_shape.end(),
-                             view_.shape()[0], std::multiplies<long>());
+      return sutils::prod_tail(data_.shape()) * std::get<0>(view_.shape());
     }
 
     long size() const
@@ -49,10 +47,11 @@ namespace types
 
     numpy_vexpr &operator=(numpy_vexpr const &);
 
-    array<long, value> shape() const
+    using shape_t = array<long, value>;
+    shape_t shape() const
     {
-      array<long, value> res = data_.shape();
-      res.fast(0) = view_.shape()[0];
+      auto res = data_.shape();
+      std::get<0>(res) = std::get<0>(view_.shape());
       return res;
     }
 
@@ -80,7 +79,7 @@ namespace types
     }
     template <class... S>
     auto operator()(S const &... slices) const
-        -> decltype(ndarray<dtype, value>{*this}(slices...));
+        -> decltype(ndarray<dtype, array<long, value>>{*this}(slices...));
 
     auto operator[](long i) const -> decltype(data_[i])
     {
@@ -97,15 +96,17 @@ namespace types
     }
     /* element filtering */
     template <class E> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<E>::value &&
-                                std::is_same<bool, typename E::dtype>::value,
-                            numpy_vexpr<numpy_vexpr, ndarray<long, 1>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<E>::value &&
+            std::is_same<bool, typename E::dtype>::value,
+        numpy_vexpr<numpy_vexpr, ndarray<long, pshape<long>>>>::type
     fast(E const &filter) const;
 
     template <class E> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<E>::value &&
-                                std::is_same<bool, typename E::dtype>::value,
-                            numpy_vexpr<numpy_vexpr, ndarray<long, 1>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<E>::value &&
+            std::is_same<bool, typename E::dtype>::value,
+        numpy_vexpr<numpy_vexpr, ndarray<long, pshape<long>>>>::type
     operator[](E const &filter) const;
 
     template <class E> // indexing through an array of indices -- a view
@@ -147,7 +148,8 @@ namespace types
 
 template <class T, class F>
 struct assignable<types::numpy_vexpr<T, F>> {
-  using type = types::ndarray<typename types::dtype_of<T>::type, T::value>;
+  using type = types::ndarray<typename types::dtype_of<T>::type,
+                              typename types::numpy_vexpr<T, F>::shape_t>;
 };
 
 template <class T, class F>

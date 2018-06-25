@@ -41,10 +41,12 @@ namespace numpy
   }
 
   template <class E>
-  types::ndarray<double, E::value> unwrap(E const &expr, double discont)
+  types::ndarray<double, typename E::shape_t> unwrap(E const &expr,
+                                                     double discont)
   {
     discont = boost::simd::max(discont, pi);
-    types::ndarray<double, E::value> out(expr.shape(), __builtin__::None);
+    types::ndarray<double, typename E::shape_t> out(expr.shape(),
+                                                    __builtin__::None);
     _unwrap(expr.begin(), expr.end(), out.begin(), discont,
             utils::int_<E::value>());
     return out;

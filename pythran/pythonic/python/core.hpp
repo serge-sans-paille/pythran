@@ -71,7 +71,7 @@ namespace python
             PyObject_GetAttrString((PyObject *)Py_TYPE(value), "__name__");
         oss << PyString_AS_STRING(key) << '=' << PyString_AS_STRING(vrepr);
         Py_DECREF(vrepr);
-        if (next = PyDict_Next(kwargs, &pos, &key, &value))
+        if ((next = PyDict_Next(kwargs, &pos, &key, &value)))
           oss << ", ";
       }
     }

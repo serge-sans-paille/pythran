@@ -18,10 +18,10 @@ namespace numpy
   namespace random
   {
 
-    template <size_t N>
-    types::ndarray<double, N> random(types::array<long, N> const &shape)
+    template <class pS>
+    types::ndarray<double, pS> random(pS const &shape)
     {
-      types::ndarray<double, N> result{shape, types::none_type()};
+      types::ndarray<double, pS> result{shape, types::none_type()};
       std::uniform_real_distribution<double> distribution{0., 1.};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });

@@ -49,7 +49,7 @@ namespace utils
 
   template <class T, class sP>
   struct nested_container_depth<types::ndarray<T, sP>> {
-    static const int value = sP::value;
+    static const int value = std::tuple_size<sP>::value;
   };
 
   /* Get the size of a container, using recursion on inner container if any

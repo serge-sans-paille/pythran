@@ -495,17 +495,16 @@ namespace types
     template <class E>
     long buffer_offset(E const &e, long n) const
     {
-      auto tmp = e.shape();
-      return std::accumulate(tmp.begin() + 1, tmp.end(), n,
-                             std::multiplies<long>());
+      return sutils::prod_tail(e.shape()) * n;
     }
+
     template <class T, class pS>
-    long buffer_offset(ndarray<T, pS> const &e, long n) const
+    typename std::enable_if<(std::tuple<pS>::value > 1), long>::type buffer_offset(ndarray<T, pS> const &e, long n) const
     {
       return n * e._strides[0];
     }
     template <class T, class pS>
-    long buffer_offset(ndarray<T, pshape<pS>> const &e, long n) const
+    typename std::enable_if<std::tuple<pS>::value == 1, long>::type buffer_offset(ndarray<T, pS> const &e, long n) const
     {
       return n;
     }

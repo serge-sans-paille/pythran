@@ -18,8 +18,7 @@ namespace numpy
     // use calloc even if we have a non integer type. This looks ok on modern
     // architecture, although ! really standard
     auto *buffer = (T *)calloc(sutils::prod(shape), sizeof(T));
-    auto shp = shape.array();
-    return {buffer, shp.data(), types::ownership::owned};
+    return {buffer, shape, types::ownership::owned};
   }
 
   template <class dtype>

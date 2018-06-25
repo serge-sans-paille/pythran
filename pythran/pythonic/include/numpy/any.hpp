@@ -30,7 +30,7 @@ namespace numpy
 
   template <class E>
   typename std::enable_if<E::value != 1,
-                          types::ndarray<typename E::dtype, E::value - 1>>::type
+                          types::ndarray<typename E::dtype, types::array<long, E::value - 1>>>::type
   any(E const &array, long axis);
 
   DECLARE_FUNCTOR(pythonic::numpy, any);

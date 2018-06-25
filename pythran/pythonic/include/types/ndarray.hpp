@@ -94,6 +94,7 @@ namespace types
 
   template <class T, class pS>
   struct type_helper<ndarray<T, pS>> {
+    static_assert(std::tuple_size<pS>::value != 1, "matching ok");
     using type = numpy_iexpr<ndarray<T, pS>>;
     using iterator = nditerator<ndarray<T, pS>>;
     using const_iterator = const_nditerator<ndarray<T, pS>>;
@@ -112,6 +113,7 @@ namespace types
 
   template <class T, class pS>
   struct type_helper<ndarray<T, pS> const &> {
+    static_assert(std::tuple_size<pS>::value != 1, "matching ok");
     using type = numpy_iexpr<ndarray<T, pS> const &>;
 
     using iterator = nditerator<ndarray<T, pS>>;
@@ -167,6 +169,43 @@ namespace types
     static constexpr long step(ndarray<T, pshape<pS>> const &);
   };
 
+  template <class T, class pS>
+  struct type_helper<ndarray<T, array<pS, 1>>> {
+    using type = T;
+
+    using iterator = T *;
+    using const_iterator = T const *;
+
+    type_helper() = delete; // Not intended to be instantiated
+
+    static iterator make_iterator(ndarray<T, array<pS, 1>> &n, long i);
+    static const_iterator make_iterator(ndarray<T, array<pS, 1>> const &n, long i);
+
+    template <class S, class Iter>
+    static T *initialize_from_iterable(S &shape, T *from, Iter &&iter);
+
+    static type get(ndarray<T, array<pS, 1>> &&self, long i);
+    static constexpr long step(ndarray<T, array<pS, 1>> const &);
+  };
+
+  template <class T, class pS>
+  struct type_helper<ndarray<T, array<pS, 1>> const &> {
+    using type = T;
+
+    using iterator = T *;
+    using const_iterator = T const *;
+
+    type_helper() = delete; // Not intended to be instantiated
+
+    static iterator make_iterator(ndarray<T, array<pS, 1>> &n, long i);
+    static const_iterator make_iterator(ndarray<T, array<pS, 1>> const &n, long i);
+
+    template <class S, class Iter>
+    static T *initialize_from_iterable(S &shape, T *from, Iter &&iter);
+    static type &get(ndarray<T, array<pS, 1>> const &self, long i);
+    static constexpr long step(ndarray<T, array<pS, 1>> const &);
+  };
+
   template <size_t L>
   struct noffset {
     template <size_t M>
@@ -203,7 +242,7 @@ namespace types
     static const bool is_strided = false;
 
     /* types */
-    static constexpr size_t value = pS::value;
+    static constexpr size_t value = std::tuple_size<pS>::value;
     using dtype = T;
     using value_type = typename type_helper<ndarray>::type;
     using reference = value_type &;
@@ -252,6 +291,7 @@ namespace types
     /* from a foreign pointer */
     template <class S>
     ndarray(T *data, S const *pshape, ownership o);
+    ndarray(T *data, pS const &pshape, ownership o);
 
 #ifdef ENABLE_PYTHON_MODULE
     template <class S>
@@ -415,14 +455,14 @@ namespace types
     auto operator[](long i) const & -> decltype(this->fast(i))
     {
       if (i < 0)
-        i += _shape.template get<0>();
+        i += std::get<0>(_shape);
       return fast(i);
     }
 
     auto operator[](long i) && -> decltype(std::move(*this).fast(i))
     {
       if (i < 0)
-        i += _shape.template get<0>();
+        i += std::get<0>(_shape);
       return std::move(*this).fast(i);
     }
 

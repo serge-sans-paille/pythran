@@ -87,7 +87,7 @@ namespace types
     if (!std::is_same<T, Tp>::value) {
       return false;
     }
-    if (pS::value != pSp::value) {
+    if (std::tuple_size<pS>::value != std::tuple_size<pSp>::value) {
       return false;
     }
     if (gexpr.arg.id() != expr.arg.id()) {
@@ -151,7 +151,7 @@ namespace types
       -> decltype(std::declval<ndarray<T, sutils::concat_t<pS, make_pshape_t<C>>>>()(
           std::declval<typename to_slice<S>::type>()...))
   {
-    return std::move(a).reshape(make_reshape<pS::value + C>(
+    return std::move(a).reshape(make_reshape<std::tuple_size<pS>::value + C>(
         a.shape(), array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...}))(
         to_slice<S>{}(s)...);
   }
@@ -162,7 +162,7 @@ namespace types
       -> decltype(std::declval<ndarray<T, sutils::concat_t<pS,make_pshape_t<C>>>>()(
           std::declval<typename to_slice<S>::type>()...))
   {
-    return a.reshape(make_reshape<pS::value + C>(
+    return a.reshape(make_reshape<std::tuple_size<pS>::value + C>(
         a.shape(), array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}}))(
         to_slice<S>{}(s)...);
   }

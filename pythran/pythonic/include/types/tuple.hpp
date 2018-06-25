@@ -129,8 +129,6 @@ namespace types
 
     pshape(Tys... args) : values{std::make_tuple(args...)} {}
 
-    static constexpr size_t value = sizeof...(Tys);
-
     template<class S, size_t... Is>
     pshape(S const* buffer, utils::index_sequence<Is...>) : pshape(check_type(buffer[Is], std::get<Is>(values))...) {}
 
@@ -141,21 +139,21 @@ namespace types
     pshape& operator=(pshape &&) = default;
 
     template<class S>
-    pshape(S const* buffer) : pshape(buffer, utils::make_index_sequence<value>()) {}
+    pshape(S const* buffer) : pshape(buffer, utils::make_index_sequence<sizeof...(Tys)>()) {}
     template<class S>
-    pshape(array<S, value> data) : pshape(data.data()) {}
+    pshape(array<S, sizeof...(Tys)> data) : pshape(data.data()) {}
 
 
 
     template<size_t... Is>
-    types::array<long, value> array(utils::index_sequence<Is...>) const {
+    types::array<long, sizeof...(Tys)> array(utils::index_sequence<Is...>) const {
       return {{get<Is>()...}};
     }
 
-    types::array<long, value> array() const {
-      return array(utils::make_index_sequence<value>());
+    types::array<long, sizeof...(Tys)> array() const {
+      return array(utils::make_index_sequence<sizeof...(Tys)>());
     }
-    operator types::array<long, value> () const {
+    operator types::array<long, sizeof...(Tys)> () const {
       return array();
     }
 
@@ -653,6 +651,11 @@ namespace std
 
   template<class... Tys>
     class tuple_size<pythonic::types::pshape<Tys...>> : public std::integral_constant<std::size_t, sizeof...(Tys)> {};
+
+  template<size_t I, class... Tys>
+    struct tuple_element<I, pythonic::types::pshape<Tys...>> {
+      using type = long;
+    };
 }
 PYTHONIC_NS_BEGIN
 namespace types {
@@ -667,6 +670,12 @@ namespace types {
   template<class P, class T>
     struct push_front;
 
+  template<class... Tys>
+  types::array<long, sizeof...(Tys)> array(types::pshape<Tys...> const& pS) { return pS.array(); }
+
+  template<class T, size_t N>
+  types::array<T, N> array(types::array<T, N> const& pS) { return pS; }
+
   template<class... Tys, class T>
     struct push_front<types::pshape<Tys...>, T> {
       using type = types::pshape<Tys..., T>;
@@ -677,9 +686,14 @@ namespace types {
 
     template<class pS0, class pS1>
     struct concat;
+
     template<class... Ty0s, class... Ty1s>
     struct concat<types::pshape<Ty0s...>, types::pshape<Ty1s...>> {
       using type = types::pshape<Ty0s..., Ty1s...>;
+    };
+
+    template<class T, size_t N, class... Ty1s>
+    struct concat<types::array<T, N>, types::pshape<Ty1s...>> : concat<types::make_pshape_t<N>, types::pshape<Ty1s...>> {
     };
 
     template<class... Tys>

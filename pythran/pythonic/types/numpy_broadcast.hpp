@@ -20,7 +20,7 @@ namespace types
     _shape[0] = 1;
     auto &&ref_shape = ref.shape();
     long * data = _shape.data() + 1;
-    copy_shape<0, 0>(data, ref_shape, utils::make_index_sequence<std::remove_reference<decltype(ref_shape)>::type::value>());
+    copy_shape<0, 0>(data, ref_shape, utils::make_index_sequence<std::tuple_size<typename std::decay<decltype(ref_shape)>::type>::value>());
     //std::copy(ref_shape.begin(), ref_shape.end(), _shape.begin() + 1);
   }
 

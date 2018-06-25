@@ -160,7 +160,7 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, N>)
   {
     static_assert(N > 1, "specialization ok");
-    types::ndarray<typename E::dtype, N - 1> val{out.shape(), Op::limit()};
+    types::ndarray<typename E::dtype, types::array<long, N - 1>> val{out.shape(), Op::limit()};
     for (long i = 0, n = expr.shape()[0]; i < n; ++i)
       _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr.fast(i), i, val,
                                      std::integral_constant<size_t, N - 1>());
@@ -187,7 +187,7 @@ namespace numpy
   }
 
   template <class Op, class E>
-  types::ndarray<long, E::value - 1> argminmax(E const &array, long axis)
+  types::ndarray<long, types::array<long, E::value - 1>> argminmax(E const &array, long axis)
   {
     if (axis < 0)
       axis += E::value;
@@ -197,7 +197,7 @@ namespace numpy
     types::array<long, E::value - 1> shp;
     auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
     std::copy(shape.begin() + axis + 1, shape.end(), next);
-    types::ndarray<long, E::value - 1> out{shp, __builtin__::None};
+    types::ndarray<long, types::array<long, E::value - 1>> out{shp, __builtin__::None};
     typename E::dtype curr_minmax;
     _argminmax_pick_axis<Op, E::value>(axis, out, array,
                                        utils::make_index_sequence<E::value>());

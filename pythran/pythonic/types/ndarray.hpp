@@ -64,17 +64,17 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
   template <class pS, size_t... Is>
-  array<long, pS::value> make_strides(pS const &shape, utils::index_sequence<Is...>) {
-    array<long, pS::value> out;
-    out[pS::value - 1] = 1;
-    std::initializer_list<long> _ = {(out[pS::value - Is - 2] = out[pS::value - Is - 1] * std::get<pS::value - Is - 1>(shape))...};
+  array<long, std::tuple_size<pS>::value> make_strides(pS const &shape, utils::index_sequence<Is...>) {
+    array<long, std::tuple_size<pS>::value> out;
+    out[std::tuple_size<pS>::value - 1] = 1;
+    std::initializer_list<long> _ = {(out[std::tuple_size<pS>::value - Is - 2] = out[std::tuple_size<pS>::value - Is - 1] * std::get<std::tuple_size<pS>::value - Is - 1>(shape))...};
     return out;
   }
 
   template <class pS>
-  array<long, pS::value> make_strides(pS const &shape)
+  array<long, std::tuple_size<pS>::value> make_strides(pS const &shape)
   {
-    return make_strides(shape, utils::make_index_sequence<pS::value - 1>());
+    return make_strides(shape, utils::make_index_sequence<std::tuple_size<pS>::value - 1>());
   }
 
   template <class T, class pS>
@@ -135,7 +135,7 @@ namespace types
                                                                   T *from,
                                                                   Iter &&iter)
   {
-    std::get<std::tuple_size<S>::value - pS::value>(shape) = iter.size();
+    std::get<std::tuple_size<S>::value - std::tuple_size<pS>::value>(shape) = iter.size();
     for (auto content : iter)
       from = type_helper<ndarray<T, typename pS::pop_tail_t> const &>::initialize_from_iterable(
           shape, from, content);
@@ -230,6 +230,81 @@ namespace types
     return 1;
   }
 
+
+  template <class T, class pS>
+  typename type_helper<ndarray<T, array<pS, 1>>>::iterator
+      type_helper<ndarray<T, array<pS, 1>>>::make_iterator(ndarray<T, array<pS, 1>> &n, long i)
+  {
+    return n.buffer + i;
+  }
+
+  template <class T, class pS>
+  typename type_helper<ndarray<T, array<pS, 1>>>::const_iterator
+      type_helper<ndarray<T, array<pS, 1>>>::make_iterator(ndarray<T, array<pS, 1>> const &n, long i)
+  {
+    return n.buffer + i;
+  }
+
+  template <class T, class pS>
+  template <class S, class Iter>
+  T *type_helper<ndarray<T, array<pS, 1>>>::initialize_from_iterable(S &shape, T *from,
+                                                          Iter &&iter)
+  {
+    std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
+    return std::copy(iter.begin(), iter.end(), from);
+  }
+
+  template <class T, class pS>
+  typename type_helper<ndarray<T, array<pS, 1>>>::type
+      type_helper<ndarray<T, array<pS, 1>>>::get(ndarray<T, array<pS, 1>> &&self, long i)
+  {
+    return self.buffer[i];
+  }
+
+  template <class T, class pS>
+  constexpr long type_helper<ndarray<T, array<pS, 1>>>::step(ndarray<T, array<pS, 1>> const &)
+  {
+    return 1;
+  }
+
+  template <class T, class pS>
+  typename type_helper<ndarray<T, array<pS, 1>> const &>::iterator
+      type_helper<ndarray<T, array<pS, 1>> const &>::make_iterator(ndarray<T, array<pS, 1>> &n,
+                                                        long i)
+  {
+    return n.buffer + i;
+  }
+
+  template <class T, class pS>
+  typename type_helper<ndarray<T, array<pS, 1>> const &>::const_iterator
+      make_iterator(ndarray<T, array<pS, 1>> const &n, long i)
+  {
+    return n.buffer + i;
+  }
+
+  template <class T, class pS>
+  template <class S, class Iter>
+  T *type_helper<ndarray<T, array<pS, 1>> const &>::initialize_from_iterable(S &shape,
+                                                                  T *from,
+                                                                  Iter &&iter)
+  {
+    std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
+    return std::copy(iter.begin(), iter.end(), from);
+  }
+
+  template <class T, class pS>
+  typename type_helper<ndarray<T, array<pS, 1>> const &>::type &
+      type_helper<ndarray<T, array<pS, 1>> const &>::get(ndarray<T, array<pS, 1>> const &self, long i)
+  {
+    return self.buffer[i];
+  }
+
+  template <class T, class pS>
+  constexpr long type_helper<ndarray<T, array<pS, 1>> const &>::step(ndarray<T, array<pS, 1>> const &)
+  {
+    return 1;
+  }
+
   template <size_t L>
   template <size_t M>
   long noffset<L>::operator()(array<long, M> const &strides,
@@ -320,6 +395,12 @@ namespace types
   template <class T, class pS>
   template <class S>
   ndarray<T, pS>::ndarray(T *data, S const *pshape, ownership o)
+      : mem(data, o), buffer(mem->data), _shape(pshape)
+  {
+    _strides = make_strides(_shape);
+  }
+  template <class T, class pS>
+  ndarray<T, pS>::ndarray(T *data, pS const & pshape, ownership o)
       : mem(data, o), buffer(mem->data), _shape(pshape)
   {
     _strides = make_strides(_shape);
@@ -485,13 +566,13 @@ namespace types
   template <class T, class pS>
   T &ndarray<T, pS>::fast(array<long, value> const &indices)
   {
-    return *(buffer + noffset<pS::value>{}(_strides, indices));
+    return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
   }
 
   template <class T, class pS>
   T ndarray<T, pS>::fast(array<long, value> const &indices) const
   {
-    return *(buffer + noffset<pS::value>{}(_strides, indices));
+    return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
   }
 
   template <class T, class pS>
@@ -513,13 +594,13 @@ namespace types
   template <class T, class pS>
   T const &ndarray<T, pS>::operator[](array<long, value> const &indices) const
   {
-    return *(buffer + noffset<pS::value>{}(_strides, indices, _shape));
+    return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
   }
 
   template <class T, class pS>
   T &ndarray<T, pS>::operator[](array<long, value> const &indices)
   {
-    return *(buffer + noffset<pS::value>{}(_strides, indices, _shape));
+    return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
   }
 
   template <class T, class pS>
@@ -644,7 +725,7 @@ namespace types
                           numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>::type
   ndarray<T, pS>::fast(F const &filter) const
   {
-    long sz = filter.shape()[0];
+    long sz = std::get<0>(filter.shape());
     long *raw = (long *)malloc(sz * sizeof(long));
     long n = 0;
     for (long i = 0; i < sz; ++i)
@@ -859,14 +940,14 @@ namespace types
   template <class T, class pS>
   std::ostream &operator<<(std::ostream &os, ndarray<T, pS> const &e)
   {
-    std::array<long, pS::value> strides;
+    std::array<long, std::tuple_size<pS>::value> strides;
     auto shape = e.shape();
-    strides[pS::value - 1] = shape[pS::value - 1];
-    if (strides[pS::value - 1] == 0)
+    strides[std::tuple_size<pS>::value - 1] = shape[std::tuple_size<pS>::value - 1];
+    if (strides[std::tuple_size<pS>::value - 1] == 0)
       return os << "[]";
     std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin() + 1,
                    strides.rbegin() + 1, std::multiplies<long>());
-    size_t depth = pS::value;
+    size_t depth = std::tuple_size<pS>::value;
     int step = -1;
     int size = impl::get_spacing(e);
     auto iter = e.fbegin();
@@ -878,7 +959,7 @@ namespace types
         if (depth == 1) {
           os.width(size);
           os << *iter++;
-          for (int i = 1; i < shape[pS::value - 1]; i++) {
+          for (int i = 1; i < shape[std::tuple_size<pS>::value - 1]; i++) {
             os.width(size + 1);
             os << *iter++;
           }
@@ -888,13 +969,13 @@ namespace types
                            strides.begin(), strides.end(), iter - e.buffer,
                            [](int comp, int val) { return val % comp != 0; }) -
                        strides.begin();
-        } else if (max_modulo + depth == pS::value + 1) {
+        } else if (max_modulo + depth == std::tuple_size<pS>::value + 1) {
           depth--;
           step = -1;
           os << "]";
           for (size_t i = 0; i < depth; i++)
             os << std::endl;
-          for (size_t i = 0; i < pS::value - depth; i++)
+          for (size_t i = 0; i < std::tuple_size<pS>::value - depth; i++)
             os << " ";
           os << "[";
         } else {
@@ -904,7 +985,7 @@ namespace types
           else
             os << "[";
         }
-      } while (depth != pS::value + 1);
+      } while (depth != std::tuple_size<pS>::value + 1);
 
     return os << "]";
   }
@@ -1331,8 +1412,9 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
         return PyArray_Transpose(arr, nullptr);
     } else {
       Py_INCREF(PyArray_DESCR(arr));
-      auto *res = pyarray_new<long, pS::value>{}.from_descr(
-          Py_TYPE(arr), PyArray_DESCR(arr), n._shape.array().data(), PyArray_DATA(arr),
+      auto array = sutils::array(n._shape);
+      auto *res = pyarray_new<long, std::tuple_size<pS>::value>{}.from_descr(
+          Py_TYPE(arr), PyArray_DESCR(arr), array.data(), PyArray_DATA(arr),
           PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
       if (transpose && (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS))
         return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(arr),
@@ -1341,8 +1423,9 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
         return res;
     }
   } else {
-    PyObject *result = pyarray_new<long, pS::value>{}.from_data(
-        n._shape.array().data(), c_type_to_numpy_type<T>::value, n.buffer);
+    auto array = sutils::array(n._shape);
+    PyObject *result = pyarray_new<long, std::tuple_size<pS>::value>{}.from_data(
+        array.data(), c_type_to_numpy_type<T>::value, n.buffer);
     n.mark_memory_external(result);
     Py_INCREF(result);
     if (!result)
@@ -1385,7 +1468,7 @@ namespace impl
     PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
     if (PyArray_TYPE(arr) != c_type_to_numpy_type<T>::value)
       return nullptr;
-    if (PyArray_NDIM(arr) != pS::value)
+    if (PyArray_NDIM(arr) != std::tuple_size<pS>::value)
       return nullptr;
     return arr;
   }
@@ -1430,14 +1513,14 @@ bool from_python<types::ndarray<T, pS>>::is_convertible(PyObject *obj)
   auto const *stride = PyArray_STRIDES(arr);
   auto const *dims = PyArray_DIMS(arr);
   long current_stride = PyArray_ITEMSIZE(arr);
-  for (long i = pS::value - 1; i >= 0; i--) {
+  for (long i = std::tuple_size<pS>::value - 1; i >= 0; i--) {
     if (stride[i] != current_stride)
       return false;
     current_stride *= dims[i];
   }
   // this is supposed to be a texpr
   if ((PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS) &&
-      ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) && (pS::value > 1))
+      ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) && (std::tuple_size<pS>::value > 1))
     return false;
   else
     return true;
@@ -1473,7 +1556,7 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>,
    */
   long current_stride = PyArray_ITEMSIZE(arr);
   bool at_least_one_stride = false;
-  for (long i = pS::value - 1; i >= 0; i--) {
+  for (long i = std::tuple_size<pS>::value - 1; i >= 0; i--) {
     if (stride[i] < 0) {
       std::cerr << "array with negative strides are ! supported" << std::endl;
       return false;
@@ -1484,7 +1567,7 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>,
     current_stride *= dims[i];
   }
   if (at_least_one_stride) {
-    if (PyArray_NDIM(base_arr) != pS::value) {
+    if (PyArray_NDIM(base_arr) != std::tuple_size<pS>::value) {
       std::cerr << "reshaped array are ! supported" << std::endl;
       return false;
     }
@@ -1511,16 +1594,16 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(
    * base
    * pointer && ! relative to the lower dimension
    */
-  long offsets[pS::value];
-  long strides[pS::value];
+  long offsets[std::tuple_size<pS>::value];
+  long strides[std::tuple_size<pS>::value];
   auto const *base_dims = PyArray_DIMS(base_arr);
 
   auto full_offset = PyArray_BYTES(arr) - PyArray_BYTES(base_arr);
   auto const *arr_strides = PyArray_STRIDES(arr);
   long accumulated_dim = 1;
-  offsets[pS::value - 1] = full_offset % base_dims[pS::value - 1];
-  strides[pS::value - 1] = arr_strides[pS::value - 1];
-  for (ssize_t i = pS::value - 2; i >= 0; --i) {
+  offsets[std::tuple_size<pS>::value - 1] = full_offset % base_dims[std::tuple_size<pS>::value - 1];
+  strides[std::tuple_size<pS>::value - 1] = arr_strides[std::tuple_size<pS>::value - 1];
+  for (ssize_t i = std::tuple_size<pS>::value - 2; i >= 0; --i) {
     accumulated_dim *= base_dims[i + 1];
     offsets[i] = full_offset / accumulated_dim;
     strides[i] = arr_strides[i] / accumulated_dim;

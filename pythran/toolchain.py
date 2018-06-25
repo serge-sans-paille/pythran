@@ -24,6 +24,7 @@ import pythran.frontend as frontend
 
 from datetime import datetime
 from distutils.errors import CompileError
+from distutils import sysconfig
 from numpy.distutils.core import setup
 
 from tempfile import mkdtemp, NamedTemporaryFile
@@ -314,17 +315,25 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
               )
     except SystemExit as e:
         raise CompileError(str(e))
+    def copy(src_file, dest_file):
+        # not using shutil.copy because it fails to copy stat across devices
+        with open(src_file, 'rb') as src:
+            with open(dest_file, 'wb') as dest:
+                dest.write(src.read())
 
-    target, = glob.glob(os.path.join(builddir, module_name + "*"))
-    if not output_binary:
-        output_binary = os.path.join(os.getcwd(),
-                                     module_name + os.path.splitext(target)[1])
-
-    # not using shutil.copy because it fails to copy stat across devices
-    with open(target, 'rb') as src:
-        with open(output_binary, 'wb') as dest:
-            dest.write(src.read())
-
+    ext = sysconfig.get_config_var('SO')
+    # Copy all generated files including the module name prefix (.pdb, ...)
+    for f in glob.glob(os.path.join(builddir, module_name + "*")):
+        if f.endswith(ext):
+            if not output_binary:
+                output_binary = os.path.join(os.getcwd(), module_name + ext)
+            copy(f, output_binary)
+        else:
+            if not output_binary:
+                output_directory = os.getcwd()
+            else:
+                output_directory = os.path.dirname(output_binary)
+            copy(f, os.path.join(output_directory, os.path.basename(f)))
     shutil.rmtree(builddir)
     shutil.rmtree(buildtmp)
 

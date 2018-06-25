@@ -12,8 +12,8 @@ namespace numpy
   namespace ndarray
   {
 
-    template <class T, size_t N>
-    T item(types::ndarray<T, N> const &expr, long i);
+    template <class T, class pS>
+    T item(types::ndarray<T, pS> const &expr, long i);
 
     template <class E, size_t N>
     auto item(E &&expr, types::array<long, N> const &i) -> decltype(expr[i]);

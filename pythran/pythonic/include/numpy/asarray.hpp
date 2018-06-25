@@ -16,8 +16,8 @@ namespace numpy
         -> decltype(array(std::forward<Types>(args)...));
   };
 
-  template <class T, size_t N>
-  struct _asarray<types::ndarray<T, N>, T> {
+  template <class T, class pS>
+  struct _asarray<types::ndarray<T, pS>, T> {
     template <class F, class dtype>
     F &&operator()(F &&a, dtype);
   };

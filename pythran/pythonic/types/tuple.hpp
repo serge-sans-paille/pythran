@@ -533,6 +533,12 @@ PyObject *to_python<std::pair<K, V>>::convert(std::pair<K, V> const &t)
   return out;
 }
 
+template <typename... Tys>
+PyObject *to_python<types::pshape<Tys...>>::convert(types::pshape<Tys...> const &t)
+{
+  return ::to_python(t.array());
+}
+
 template <typename... Types>
 template <size_t... S>
 PyObject *to_python<std::tuple<Types...>>::

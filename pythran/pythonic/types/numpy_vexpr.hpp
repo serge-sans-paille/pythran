@@ -61,9 +61,9 @@ namespace types
   template <class T, class F>
   template <class... S>
   auto numpy_vexpr<T, F>::operator()(S const &... slices) const
-      -> decltype(ndarray<dtype, value>{*this}(slices...))
+      -> decltype(ndarray<dtype, make_pshape_t<value>>{*this}(slices...))
   {
-    return ndarray<dtype, value>{*this}(slices...);
+    return ndarray<dtype, make_pshape_t<value>>{*this}(slices...);
   }
 #ifdef USE_BOOST_SIMD
   template <class T, class F>
@@ -90,7 +90,7 @@ namespace types
   template <class E> // indexing through an array of boolean -- a mask
   typename std::enable_if<
       is_numexpr_arg<E>::value && std::is_same<bool, typename E::dtype>::value,
-      numpy_vexpr<numpy_vexpr<T, F>, ndarray<long, 1>>>::type
+      numpy_vexpr<numpy_vexpr<T, F>, ndarray<long, pshape<long>>>>::type
   numpy_vexpr<T, F>::fast(E const &filter) const
   {
     long sz = filter.shape()[0];
@@ -101,14 +101,14 @@ namespace types
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
     long shp[1] = {n};
-    return this->fast(ndarray<long, 1>(raw, shp, types::ownership::owned));
+    return this->fast(ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
   template <class T, class F>
   template <class E> // indexing through an array of boolean -- a mask
   typename std::enable_if<
       is_numexpr_arg<E>::value && std::is_same<bool, typename E::dtype>::value,
-      numpy_vexpr<numpy_vexpr<T, F>, ndarray<long, 1>>>::type
+      numpy_vexpr<numpy_vexpr<T, F>, ndarray<long, pshape<long>>>>::type
       numpy_vexpr<T, F>::
       operator[](E const &filter) const
   {

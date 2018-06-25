@@ -34,8 +34,10 @@ namespace types
   class list;
   template <class T, class S>
   class sliced_list;
-  template <class T, size_t N>
+  template <class T, class pS>
   struct ndarray;
+  template<class... Tys>
+    struct pshape;
   template <class T>
   struct is_list {
     static const bool value = false;
@@ -209,7 +211,8 @@ namespace types
     template <class S>
     list<T> &operator=(sliced_list<T, S> const &other);
 
-    list &operator=(ndarray<T, 1> const &); // implemented in ndarray.hpp
+    template<class pS>
+    list & operator=(ndarray<T, pshape<pS>> const &); // implemented in ndarray.hpp
 
     template <class S>
     list<T> &operator+=(sliced_list<T, S> const &other);

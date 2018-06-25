@@ -89,25 +89,25 @@ namespace types
     template <class F> // indexing through an array of boolean -- a mask
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_texpr_2, ndarray<long, 1>>>::type
+                            numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value,
-                            ndarray<dtype, 2>>::type
+                            ndarray<dtype, pshape<long, long>>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_texpr_2, ndarray<long, 1>>>::type
+                            numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value,
-                            ndarray<dtype, 2>>::type
+                            ndarray<dtype, pshape<long, long>>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));
@@ -159,7 +159,7 @@ namespace types
     explicit operator bool() const;
     long flat_size() const;
     intptr_t id() const;
-    ndarray<dtype, value> copy() const
+    ndarray<dtype, make_pshape_t<value>> copy() const
     {
       return *this;
     }
@@ -184,15 +184,15 @@ namespace types
 
   // only implemented for N = 2
   template <class T>
-  struct numpy_texpr<ndarray<T, 2>> : numpy_texpr_2<ndarray<T, 2>> {
+  struct numpy_texpr<ndarray<T, pshape<long, long>>> : numpy_texpr_2<ndarray<T, pshape<long, long>>> {
     numpy_texpr();
     numpy_texpr(numpy_texpr const &) = default;
     numpy_texpr(numpy_texpr &&) = default;
-    numpy_texpr(ndarray<T, 2> const &arg);
+    numpy_texpr(ndarray<T, pshape<long, long>> const &arg);
 
     numpy_texpr &operator=(numpy_texpr const &) = default;
 
-    using numpy_texpr_2<ndarray<T, 2>>::operator=;
+    using numpy_texpr_2<ndarray<T, pshape<long, long>>>::operator=;
   };
 
   template <class E, class... S>

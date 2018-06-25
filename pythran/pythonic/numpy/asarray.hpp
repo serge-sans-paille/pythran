@@ -20,9 +20,9 @@ namespace numpy
     return array(std::forward<Types>(args)...);
   }
 
-  template <class T, size_t N>
+  template <class T, class pS>
   template <class F, class dtype>
-  F &&_asarray<types::ndarray<T, N>, T>::operator()(F &&a, dtype)
+  F &&_asarray<types::ndarray<T, pS>, T>::operator()(F &&a, dtype)
   {
     return std::forward<F>(a);
   }

@@ -11,19 +11,17 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-  template <class IntTy, size_t N, class dtype>
-  types::ndarray<typename dtype::type, N>
-  ones(types::array<IntTy, N> const &shape, dtype d)
+  template <class pS, class dtype>
+  types::ndarray<typename dtype::type, pS>
+  ones(pS const &shape, dtype d)
   {
-    static_assert(std::is_integral<IntTy>::value,
-                  "expected shape of integer type");
     return {shape, typename dtype::type(1)};
   }
 
   template <class dtype>
-  types::ndarray<typename dtype::type, 1> ones(long size, dtype d)
+  types::ndarray<typename dtype::type, types::pshape<long>> ones(long size, dtype d)
   {
-    return ones(types::make_tuple(size), d);
+    return ones(types::pshape<long>(size), d);
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, ones);

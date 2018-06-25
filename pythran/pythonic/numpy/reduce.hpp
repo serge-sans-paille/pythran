@@ -53,7 +53,7 @@ namespace numpy
     template <class E, class F>
     F operator()(E &&e, F acc)
     {
-      for (long i = 0, n = e.shape()[0]; i < n; ++i) {
+      for (long i = 0, n = std::get<0>(e.shape()); i < n; ++i) {
         acc = _reduce<Op, N - 1, types::novectorize_nobroadcast>{}(e.fast(i),
                                                                    acc);
       }
@@ -66,7 +66,7 @@ namespace numpy
     template <class E, class F>
     F operator()(E &&e, F acc)
     {
-      for (long i = 0, n = e.shape()[0]; i < n; ++i) {
+      for (long i = 0, n = std::get<0>(e.shape()); i < n; ++i) {
         Op{}(acc, e.fast(i));
       }
       return acc;

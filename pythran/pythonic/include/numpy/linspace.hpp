@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-  types::ndarray<double, 1> linspace(double start, double stop, long num = 50,
+  types::ndarray<double, types::pshape<long>> linspace(double start, double stop, long num = 50,
                                      bool endpoint = true);
 
   DECLARE_FUNCTOR(pythonic::numpy, linspace);

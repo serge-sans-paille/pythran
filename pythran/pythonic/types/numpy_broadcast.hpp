@@ -19,7 +19,9 @@ namespace types
   {
     _shape[0] = 1;
     auto &&ref_shape = ref.shape();
-    std::copy(ref_shape.begin(), ref_shape.end(), _shape.begin() + 1);
+    long * data = _shape.data() + 1;
+    copy_shape<0, 0>(data, ref_shape, utils::make_index_sequence<std::remove_reference<decltype(ref_shape)>::type::value>());
+    //std::copy(ref_shape.begin(), ref_shape.end(), _shape.begin() + 1);
   }
 
   template <class T>

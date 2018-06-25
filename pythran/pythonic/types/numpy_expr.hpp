@@ -48,20 +48,22 @@ namespace types
       return std::max((long)v0, max_of(v1, vs...));
     }
 
-    template <size_t value, class Args, size_t... Is>
-    long init_shape(long i, Args const &args, utils::index_sequence<Is...>)
+    template <size_t value, size_t I, class Args, size_t... Is>
+    long init_shape(Args const &args, utils::index_sequence<Is...>)
     {
-      return max_of(std::get<Is>(args).shape()[i]...);
+      return max_of(std::get<I>(std::get<Is>(args).shape())...);
+    }
+
+    template <size_t value, class Args, size_t... Is>
+    array<long, value> init_shape(Args const &args, utils::index_sequence<Is...>)
+    {
+      return {{init_shape<value, Is>(args, valid_indices<value, Args>{})...}};
     }
 
     template <size_t value, class Args>
     array<long, value> init_shape(Args const &args)
     {
-      array<long, value> shape;
-      for (size_t i = 0; i < value; ++i) {
-        shape[i] = init_shape<value>(i, args, valid_indices<value, Args>{});
-      }
-      return shape;
+      return init_shape<value>(args, utils::make_index_sequence<value>());
     }
   }
 
@@ -76,7 +78,7 @@ namespace types
   typename numpy_expr<Op, Args...>::const_iterator
       numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>) const
   {
-    return {{(size() == std::get<I>(args).shape()[0])...},
+    return {{(size() == std::get<0>(std::get<I>(args).shape()))...},
             const_cast<typename std::decay<Args>::type const &>(
                 std::get<I>(args)).begin()...};
   }
@@ -93,7 +95,7 @@ namespace types
   typename numpy_expr<Op, Args...>::const_iterator
       numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>) const
   {
-    return {{(size() == std::get<I>(args).shape()[0])...},
+    return {{(size() == std::get<0>(std::get<I>(args).shape()))...},
             const_cast<typename std::decay<Args>::type const &>(
                 std::get<I>(args)).end()...};
   }
@@ -131,8 +133,8 @@ namespace types
 
     bool same_shape = true;
     std::initializer_list<bool> _1 = {
-        (same_shape &= (std::get<I>(args).shape()[0] == size() ||
-                        std::get<I>(args).shape()[0] == 0))...};
+        (same_shape &= (std::get<0>(std::get<I>(args).shape()) == size() ||
+                        std::get<0>(std::get<I>(args).shape()) == 0))...};
     return same_shape;
   }
   template <class Op, class... Args>
@@ -317,7 +319,7 @@ namespace types
   template <class F>
   typename std::enable_if<
       is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
-      numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, 1>>>::type
+      numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, pshape<long>>>>::type
   numpy_expr<Op, Args...>::fast(F const &filter) const
   {
     long sz = filter.shape()[0];
@@ -328,14 +330,14 @@ namespace types
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
     long shp[1] = {n};
-    return this->fast(ndarray<long, 1>(raw, shp, types::ownership::owned));
+    return this->fast(ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
   template <class Op, class... Args>
   template <class F>
   typename std::enable_if<
       is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
-      numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, 1>>>::type
+      numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, pshape<long>>>>::type
       numpy_expr<Op, Args...>::
       operator[](F const &filter) const
   {

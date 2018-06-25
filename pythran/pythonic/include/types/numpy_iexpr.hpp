@@ -154,7 +154,7 @@ namespace types
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_iexpr, ndarray<long, 1>>>::type
+                            numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
 #ifdef USE_BOOST_SIMD
@@ -180,7 +180,7 @@ namespace types
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_iexpr, ndarray<long, 1>>>::type
+                            numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const & -> decltype(this->fast(i));
     auto operator[](long i) & -> decltype(this->fast(i));
@@ -206,14 +206,14 @@ namespace types
       return _shape;
     }
 
-    template <size_t M>
-    auto reshape(array<long, M> const &new_shape) const -> numpy_iexpr<decltype(
-        std::declval<Arg>().reshape(std::declval<array<long, M + 1>>()))>
+    template <class pS>
+    auto reshape(pS const &new_shape) const -> numpy_iexpr<decltype(
+        std::declval<Arg>().reshape(std::declval<sutils::push_front_t<pS, long>>()))>
     {
       return {buffer, new_shape};
     }
 
-    ndarray<dtype, value> copy() const
+    ndarray<dtype, make_pshape_t<value>> copy() const
     {
       return {*this};
     }
@@ -243,8 +243,8 @@ namespace types
      */
     long buffer_offset(Arg const &shape, long index, utils::int_<0>);
 
-    template <class T, size_t M, size_t N>
-    long buffer_offset(ndarray<T, M> const &arg, long index, utils::int_<N>);
+    template <class T, class pS, size_t N>
+    long buffer_offset(ndarray<T, pS> const &arg, long index, utils::int_<N>);
 
     template <class E, size_t N>
     long buffer_offset(E const &arg, long index, utils::int_<N>);
@@ -277,14 +277,14 @@ struct assignable<types::numpy_iexpr<Arg>> {
   using type = types::numpy_iexpr<typename assignable<Arg>::type>;
 };
 
-template <class T, size_t N>
-struct assignable<types::numpy_iexpr<types::ndarray<T, N> &>> {
-  using type = types::numpy_iexpr<types::ndarray<T, N> &>;
+template <class T, class pS>
+struct assignable<types::numpy_iexpr<types::ndarray<T, pS> &>> {
+  using type = types::numpy_iexpr<types::ndarray<T, pS> &>;
 };
 
-template <class T, size_t N>
-struct assignable<types::numpy_iexpr<types::ndarray<T, N> const &>> {
-  using type = types::numpy_iexpr<types::ndarray<T, N> const &>;
+template <class T, class pS>
+struct assignable<types::numpy_iexpr<types::ndarray<T, pS> const &>> {
+  using type = types::numpy_iexpr<types::ndarray<T, pS> const &>;
 };
 
 template <class Arg>

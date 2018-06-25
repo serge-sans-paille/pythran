@@ -60,51 +60,60 @@ namespace types
 
   /* helper to build a new shape out of a shape && a slice with new axis
    */
-  template <size_t N, size_t M, size_t C>
-  array<long, N> make_reshape(array<long, M> const &shape,
+  template <size_t N, class pS, size_t C>
+  make_pshape_t<N> make_reshape(pS const &shape,
                               array<bool, C> const &is_new_axis);
 
   /* helper to build an extended slice aka numpy_gexpr out of a subscript
    */
   template <size_t C>
   struct extended_slice {
-    template <class T, size_t N, class... S>
-    auto operator()(ndarray<T, N> &&a, S const &... s)
-        -> decltype(std::declval<ndarray<T, N + C>>()(
+    template <class T, class pS, class... S>
+    auto operator()(ndarray<T, pS> &&a, S const &... s)
+        -> decltype(std::declval<ndarray<T, sutils::concat_t<pS, make_pshape_t<C>>>>()(
             std::declval<typename to_slice<S>::type>()...));
 
-    template <class T, size_t N, class... S>
-    auto operator()(ndarray<T, N> const &a, S const &... s)
-        -> decltype(std::declval<ndarray<T, N + C>>()(
+    template <class T, class pS, class... S>
+    auto operator()(ndarray<T, pS> const &a, S const &... s)
+        -> decltype(std::declval<ndarray<T, sutils::concat_t<pS, make_pshape_t<C>>>>()(
             std::declval<typename to_slice<S>::type>()...));
   };
 
   template <>
   struct extended_slice<0> {
-    template <class T, size_t N, class... S>
-    auto operator()(ndarray<T, N> &&a, long s0, S const &... s)
-        -> decltype(std::declval<numpy_iexpr<ndarray<T, N>>>()(s...));
+    template <class T, class pS, class... S>
+    auto operator()(ndarray<T, pS> &&a, long s0, S const &... s)
+        -> decltype(std::declval<numpy_iexpr<ndarray<T, pS>>>()(s...));
 
-    template <class T, size_t N, class... S>
-    auto operator()(ndarray<T, N> const &a, long s0, S const &... s)
+    template <class T, class pS, class... S>
+    auto operator()(ndarray<T, pS> const &a, long s0, S const &... s)
         -> decltype(a[s0](s...));
 
-    template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N>, normalized_slice, normalize_t<S>...>
-    operator()(ndarray<T, N> &&a, slice const &s0, S const &... s);
+    template <class T, class pS, class... S, size_t... Is>
+    numpy_gexpr<ndarray<T, pS>, normalize_t<S>...>
+    operator()(ndarray<T, pS> &&a, std::tuple<S...> const & s, utils::index_sequence<Is...>);
 
-    template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N> const &, normalized_slice, normalize_t<S>...>
-    operator()(ndarray<T, N> const &a, slice const &s0, S const &... s);
+    template <class T, class pS, class... S, size_t... Is>
+    numpy_gexpr<ndarray<T, pS>, normalize_t<S>...>
+    operator()(ndarray<T, pS> const &a, std::tuple<S...> const& s, utils::index_sequence<Is...>);
 
-    template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N>, contiguous_normalized_slice, normalize_t<S>...>
-    operator()(ndarray<T, N> &&a, contiguous_slice const &s0, S const &... s);
 
-    template <class T, size_t N, class... S>
-    numpy_gexpr<ndarray<T, N> const &, contiguous_normalized_slice,
+    template <class T, class pS, class... S>
+    numpy_gexpr<ndarray<T, pS>, normalized_slice, normalize_t<S>...>
+    operator()(ndarray<T, pS> &&a, slice const &s0, S const &... s);
+
+    template <class T, class pS, class... S>
+    numpy_gexpr<ndarray<T, pS> const &, normalized_slice, normalize_t<S>...>
+    operator()(ndarray<T, pS> const &a, slice const &s0, S const &... s);
+
+    template <class T, class pS, class... S>
+    numpy_gexpr<ndarray<T, pS>, contiguous_normalized_slice, normalize_t<S>...>
+    operator()(ndarray<T, pS> &&a, contiguous_slice const &s0, S const &... s);
+
+    template <class T, class pS, class... S>
+    numpy_gexpr<ndarray<T, pS> const &, contiguous_normalized_slice,
                 normalize_t<S>...>
-    operator()(ndarray<T, N> const &a, contiguous_slice const &s0,
+    operator()(ndarray<T, pS> const &a, contiguous_slice const &s0,
                S const &... s);
   };
 
@@ -320,6 +329,8 @@ namespace types
 
     template <class Arg, class... S>
     struct make_gexpr {
+      template<size_t... Is>
+      numpy_gexpr<Arg, normalize_t<S>...> operator()(Arg arg, std::tuple<S...>, utils::index_sequence<Is...>);
       numpy_gexpr<Arg, normalize_t<S>...> operator()(Arg arg, S const &... s);
     };
 
@@ -377,8 +388,8 @@ namespace types
   struct may_overlap_gexpr<E const &> : may_overlap_gexpr<E> {
   };
 
-  template <class T, size_t N>
-  struct may_overlap_gexpr<ndarray<T, N>> : std::false_type {
+  template <class T, class pS>
+  struct may_overlap_gexpr<ndarray<T, pS>> : std::false_type {
   };
 
   template <class E>
@@ -488,13 +499,13 @@ namespace types
       return std::accumulate(tmp.begin() + 1, tmp.end(), n,
                              std::multiplies<long>());
     }
-    template <class T, size_t N>
-    long buffer_offset(ndarray<T, N> const &e, long n) const
+    template <class T, class pS>
+    long buffer_offset(ndarray<T, pS> const &e, long n) const
     {
       return n * e._strides[0];
     }
-    template <class T>
-    long buffer_offset(ndarray<T, 1> const &e, long n) const
+    template <class T, class pS>
+    long buffer_offset(ndarray<T, pshape<pS>> const &e, long n) const
     {
       return n;
     }
@@ -697,13 +708,13 @@ namespace types
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_gexpr, ndarray<long, 1>>>::type
+                            numpy_vexpr<numpy_gexpr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
     template <class F>
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_gexpr, ndarray<long, 1>>>::type
+                            numpy_vexpr<numpy_gexpr, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));
@@ -712,7 +723,7 @@ namespace types
 
     long flat_size() const;
     long size() const;
-    ndarray<dtype, value> copy() const
+    ndarray<dtype, make_pshape_t<value>> copy() const
     {
       return {*this};
     }
@@ -824,14 +835,14 @@ struct returnable<types::numpy_gexpr<Arg, S...>> {
   using type = types::numpy_gexpr<typename returnable<Arg>::type, S...>;
 };
 
-template <class T, size_t N, class... S>
-struct assignable<types::numpy_gexpr<types::ndarray<T, N> const &, S...>> {
-  using type = types::numpy_gexpr<types::ndarray<T, N> const &, S...>;
+template <class T, class pS, class... S>
+struct assignable<types::numpy_gexpr<types::ndarray<T, pS> const &, S...>> {
+  using type = types::numpy_gexpr<types::ndarray<T, pS> const &, S...>;
 };
 
-template <class T, size_t N, class... S>
-struct assignable<types::numpy_gexpr<types::ndarray<T, N> &, S...>> {
-  using type = types::numpy_gexpr<types::ndarray<T, N> &, S...>;
+template <class T, class pS, class... S>
+struct assignable<types::numpy_gexpr<types::ndarray<T, pS> &, S...>> {
+  using type = types::numpy_gexpr<types::ndarray<T, pS> &, S...>;
 };
 
 template <class Arg, class... S>
@@ -877,16 +888,16 @@ struct __combined<O, pythonic::types::numpy_gexpr<Arg, S...>> {
 };
 
 /* combined are sorted such that the assigned type comes first */
-template <class Arg, class... S, class T, size_t N>
+template <class Arg, class... S, class T, class pS>
 struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
-                  pythonic::types::ndarray<T, N>> {
+                  pythonic::types::ndarray<T, pS>> {
   using type = pythonic::types::numpy_gexpr<Arg, S...>;
 };
 
-template <class Arg, class... S, class T, size_t N>
-struct __combined<pythonic::types::ndarray<T, N>,
+template <class Arg, class... S, class T, class pS>
+struct __combined<pythonic::types::ndarray<T, pS>,
                   pythonic::types::numpy_gexpr<Arg, S...>> {
-  using type = pythonic::types::ndarray<T, N>;
+  using type = pythonic::types::ndarray<T, pS>;
 };
 
 #endif

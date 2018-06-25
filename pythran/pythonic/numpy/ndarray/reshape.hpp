@@ -13,29 +13,26 @@ namespace numpy
 {
   namespace ndarray
   {
-    template <class T, size_t N, size_t M>
-    types::ndarray<T, M> reshape(types::ndarray<T, N> const &expr,
-                                 types::array<long, M> const &new_shape)
+    template <class T, class pS, class NpS>
+    types::ndarray<T, NpS> reshape(types::ndarray<T, pS> const &expr,
+                                 NpS const &new_shape)
     {
-      auto where = std::find(new_shape.begin(), new_shape.end(), -1);
-      if (where != new_shape.end()) {
-        auto auto_shape = new_shape;
-        auto_shape[where - new_shape.begin()] =
-            expr.flat_size() / std::accumulate(new_shape.begin(),
-                                               new_shape.end(), -1L,
-                                               std::multiplies<long>());
+      auto auto_shape = new_shape;
+      auto where = sutils::find(auto_shape, -1);
+      if (where) {
+        *where = expr.flat_size() / - sutils::prod(new_shape);
         return expr.reshape(auto_shape);
       } else
         return expr.reshape(new_shape);
     }
 
-    template <class T, size_t N, class... S>
-    auto reshape(types::ndarray<T, N> const &expr, S const &... indices)
-        -> decltype(reshape<T, N, sizeof...(S)>(
-            expr, types::array<long, sizeof...(S)>{{indices...}}))
+    template <class T, class pS , class... S>
+    auto reshape(types::ndarray<T, pS> const &expr, S const &... indices)
+        -> decltype(reshape(
+            expr, types::pshape<S...>{indices...}))
     {
-      return reshape<T, N, sizeof...(S)>(
-          expr, types::array<long, sizeof...(S)>{{indices...}});
+      return reshape(
+          expr, types::pshape<S...>{indices...});
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(reshape);

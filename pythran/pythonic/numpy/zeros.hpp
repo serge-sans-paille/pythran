@@ -11,8 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class pS, class dtype>
-  types::ndarray<typename dtype::type, pS>
-  zeros(pS const &shape, dtype d)
+  types::ndarray<typename dtype::type, pS> zeros(pS const &shape, dtype d)
   {
     using T = typename dtype::type;
     // use calloc even if we have a non integer type. This looks ok on modern
@@ -22,7 +21,8 @@ namespace numpy
   }
 
   template <class dtype>
-  types::ndarray<typename dtype::type, types::pshape<long>> zeros(long size, dtype d)
+  types::ndarray<typename dtype::type, types::pshape<long>> zeros(long size,
+                                                                  dtype d)
   {
     return zeros(types::pshape<long>(size), d);
   }

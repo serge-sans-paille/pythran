@@ -91,7 +91,7 @@ namespace types
   template <class T, size_t N, class A, size_t... I>
   array<T, N> array_to_array(A const &a, utils::index_sequence<I...>)
   {
-    return {a[I]...};
+    return {std::get<I>(a)...};
   }
 
   /* inspired by std::array implementation */
@@ -534,7 +534,8 @@ PyObject *to_python<std::pair<K, V>>::convert(std::pair<K, V> const &t)
 }
 
 template <typename... Tys>
-PyObject *to_python<types::pshape<Tys...>>::convert(types::pshape<Tys...> const &t)
+PyObject *
+to_python<types::pshape<Tys...>>::convert(types::pshape<Tys...> const &t)
 {
   return ::to_python(t.array());
 }

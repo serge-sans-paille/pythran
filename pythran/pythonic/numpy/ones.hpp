@@ -12,14 +12,14 @@ namespace numpy
 {
 
   template <class pS, class dtype>
-  types::ndarray<typename dtype::type, pS>
-  ones(pS const &shape, dtype d)
+  types::ndarray<typename dtype::type, pS> ones(pS const &shape, dtype d)
   {
     return {shape, typename dtype::type(1)};
   }
 
   template <class dtype>
-  types::ndarray<typename dtype::type, types::pshape<long>> ones(long size, dtype d)
+  types::ndarray<typename dtype::type, types::pshape<long>> ones(long size,
+                                                                 dtype d)
   {
     return ones(types::pshape<long>(size), d);
   }

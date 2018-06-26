@@ -73,10 +73,11 @@ namespace numpy
   }
 
   template <class Op, class E, class dtype>
-  types::ndarray<typename dtype::type, 1> partial_sum(E const &expr, dtype d)
+  types::ndarray<typename dtype::type, types::pshape<long>>
+  partial_sum(E const &expr, dtype d)
   {
     const long count = expr.flat_size();
-    types::ndarray<typename dtype::type, 1> the_partial_sum{
+    types::ndarray<typename dtype::type, types::pshape<long>> the_partial_sum{
         types::make_tuple(count), __builtin__::None};
     auto begin_it = the_partial_sum.begin();
     _partial_sum<Op, E::value, typename dtype::type>{}(expr, begin_it);

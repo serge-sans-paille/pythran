@@ -101,7 +101,8 @@ namespace types
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
     long shp[1] = {n};
-    return this->fast(ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
+    return this->fast(
+        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
   template <class T, class F>

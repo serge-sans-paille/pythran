@@ -65,8 +65,9 @@ namespace numpy
   }
 
   template <class E>
-  typename std::enable_if<E::value != 1,
-                          types::ndarray<typename E::dtype, types::array<long, E::value - 1>>>::type
+  typename std::enable_if<
+      E::value != 1,
+      types::ndarray<typename E::dtype, types::array<long, E::value - 1>>>::type
   any(E const &array, long axis)
   {
     constexpr long N = E::value;
@@ -84,11 +85,13 @@ namespace numpy
     } else {
       types::array<long, N - 1> shp;
       std::copy(shape.begin(), shape.end() - 1, shp.begin());
-      types::ndarray<bool, types::array<long, N - 1>> anyy(shp, __builtin__::None);
-      std::transform(array.begin(), array.end(), anyy.begin(),
-                     [=](types::ndarray<T, types::array<long, N - 1>> const &other) {
-                       return any(other, axis - 1);
-                     });
+      types::ndarray<bool, types::array<long, N - 1>> anyy(shp,
+                                                           __builtin__::None);
+      std::transform(
+          array.begin(), array.end(), anyy.begin(),
+          [=](types::ndarray<T, types::array<long, N - 1>> const &other) {
+            return any(other, axis - 1);
+          });
       return anyy;
     }
   }

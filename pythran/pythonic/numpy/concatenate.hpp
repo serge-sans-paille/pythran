@@ -87,7 +87,7 @@ namespace numpy
     long concatenate_axis_size(A const &from, long axis,
                                utils::index_sequence<I...>)
     {
-      long sizes[] = {std::get<I>(from).shape()[axis]...};
+      long sizes[] = {sutils::array(std::get<I>(from).shape())[axis]...};
       return std::accumulate(std::begin(sizes), std::end(sizes), 0L,
                              std::plus<long>());
     }
@@ -97,18 +97,20 @@ namespace numpy
   auto concatenate(std::tuple<Types...> const &args, long axis)
       -> types::ndarray<
           typename __combined<typename std::decay<Types>::type::dtype...>::type,
-          std::decay<decltype(std::get<0>(args))>::type::value>
+          types::array<
+              long, std::tuple_element<0, std::tuple<Types...>>::type::value>>
   {
     using T =
         typename __combined<typename std::decay<Types>::type::dtype...>::type;
     auto constexpr N = std::decay<decltype(std::get<0>(args))>::type::value;
-    auto shape = std::get<0>(args).shape();
+    auto shape = sutils::array(std::get<0>(args).shape());
     shape[axis] = details::concatenate_axis_size(
         args, axis, utils::make_index_sequence<sizeof...(Types)>{});
 
     types::ndarray<
         typename __combined<typename std::decay<Types>::type::dtype...>::type,
-        std::decay<decltype(std::get<0>(args))>::type::value> result{
+        types::array<
+            long, std::decay<decltype(std::get<0>(args))>::type::value>> result{
         shape, types::none_type{}};
     details::concatenate_helper<N>()(
         result, args, axis, utils::make_index_sequence<sizeof...(Types)>{});
@@ -121,7 +123,7 @@ namespace numpy
   {
     using T = typename E::dtype;
     auto constexpr N = E::value;
-    auto shape = std::get<0>(args).shape();
+    auto shape = sutils::array(std::get<0>(args).shape());
     shape[axis] = details::concatenate_axis_size(
         args, axis, utils::make_index_sequence<M>{});
     decltype(asarray(std::get<0>(args))) out(shape, types::none_type{});

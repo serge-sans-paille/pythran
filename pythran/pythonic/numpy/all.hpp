@@ -65,8 +65,9 @@ namespace numpy
   }
 
   template <class E>
-  typename std::enable_if<E::value != 1,
-                          types::ndarray<typename E::dtype, types::array<long, E::value - 1>>>::type
+  typename std::enable_if<
+      E::value != 1,
+      types::ndarray<typename E::dtype, types::array<long, E::value - 1>>>::type
   all(E const &array, long axis)
   {
     constexpr long N = E::value;
@@ -77,17 +78,19 @@ namespace numpy
     if (axis == 0) {
       types::array<long, N - 1> shp;
       std::copy(shape.begin() + 1, shape.end(), shp.begin());
-      types::ndarray<bool, types::array<long,N - 1>> out(shp, true);
+      types::ndarray<bool, types::array<long, N - 1>> out(shp, true);
       return std::accumulate(array.begin(), array.end(), out,
                              functor::multiply());
     } else {
       types::array<long, N - 1> shp;
       std::copy(shape.begin(), shape.end() - 1, shp.begin());
-      types::ndarray<bool, types::array<long,N - 1>> ally(shp, __builtin__::None);
-      std::transform(array.begin(), array.end(), ally.begin(),
-                     [=](types::ndarray<T, types::array<long,N - 1>> const &other) {
-                       return all(other, axis - 1);
-                     });
+      types::ndarray<bool, types::array<long, N - 1>> ally(shp,
+                                                           __builtin__::None);
+      std::transform(
+          array.begin(), array.end(), ally.begin(),
+          [=](types::ndarray<T, types::array<long, N - 1>> const &other) {
+            return all(other, axis - 1);
+          });
       return ally;
     }
   }

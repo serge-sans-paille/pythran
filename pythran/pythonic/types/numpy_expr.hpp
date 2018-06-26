@@ -55,7 +55,8 @@ namespace types
     }
 
     template <size_t value, class Args, size_t... Is>
-    array<long, value> init_shape(Args const &args, utils::index_sequence<Is...>)
+    array<long, value> init_shape(Args const &args,
+                                  utils::index_sequence<Is...>)
     {
       return {{init_shape<value, Is>(args, valid_indices<value, Args>{})...}};
     }
@@ -330,7 +331,8 @@ namespace types
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
     long shp[1] = {n};
-    return this->fast(ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
+    return this->fast(
+        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
   template <class Op, class... Args>

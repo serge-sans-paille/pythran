@@ -172,9 +172,9 @@ namespace types
   /* element filtering */
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
     long sz = filter.shape()[0];
@@ -185,14 +185,15 @@ namespace types
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
     long shp[1] = {n};
-    return this->fast(ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
+    return this->fast(
+        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
       numpy_texpr_2<E>::
       operator[](F const &filter) const
   {
@@ -201,9 +202,9 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              !std::is_same<bool, typename F::dtype>::value,
-                          ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && !std::is_same<bool, typename F::dtype>::value,
+      ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>>>::type
       numpy_texpr_2<E>::
       operator[](F const &filter) const
   {
@@ -220,9 +221,9 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              !std::is_same<bool, typename F::dtype>::value,
-                          ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && !std::is_same<bool, typename F::dtype>::value,
+      ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
     static_assert(F::value == 1,
@@ -352,7 +353,8 @@ namespace types
   }
 
   template <class T>
-  numpy_texpr<ndarray<T, pshape<long, long>>>::numpy_texpr(ndarray<T, pshape<long, long>> const &arg)
+  numpy_texpr<ndarray<T, pshape<long, long>>>::numpy_texpr(
+      ndarray<T, pshape<long, long>> const &arg)
       : numpy_texpr_2<ndarray<T, pshape<long, long>>>{arg}
   {
   }

@@ -35,7 +35,7 @@ namespace numpy
     {
       if (i < 0)
         i += expr.flat_size();
-      return  asarray(std::forward<E>(expr)).flat()[i];
+      return asarray(std::forward<E>(expr)).flat()[i];
     }
 
     DEFINE_FUNCTOR(pythonic::numpy::ndarray, item);

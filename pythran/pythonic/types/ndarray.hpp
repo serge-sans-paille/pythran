@@ -64,17 +64,23 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
   template <class pS, size_t... Is>
-  array<long, std::tuple_size<pS>::value> make_strides(pS const &shape, utils::index_sequence<Is...>) {
+  array<long, std::tuple_size<pS>::value>
+  make_strides(pS const &shape, utils::index_sequence<Is...>)
+  {
     array<long, std::tuple_size<pS>::value> out;
     out[std::tuple_size<pS>::value - 1] = 1;
-    std::initializer_list<long> _ = {(out[std::tuple_size<pS>::value - Is - 2] = out[std::tuple_size<pS>::value - Is - 1] * std::get<std::tuple_size<pS>::value - Is - 1>(shape))...};
+    std::initializer_list<long> _ = {
+        (out[std::tuple_size<pS>::value - Is - 2] =
+             out[std::tuple_size<pS>::value - Is - 1] *
+             std::get<std::tuple_size<pS>::value - Is - 1>(shape))...};
     return out;
   }
 
   template <class pS>
   array<long, std::tuple_size<pS>::value> make_strides(pS const &shape)
   {
-    return make_strides(shape, utils::make_index_sequence<std::tuple_size<pS>::value - 1>());
+    return make_strides(
+        shape, utils::make_index_sequence<std::tuple_size<pS>::value - 1>());
   }
 
   template <class T, class pS>
@@ -94,7 +100,7 @@ namespace types
   template <class T, class pS>
   template <class S, class Iter>
   T *type_helper<ndarray<T, pS>>::initialize_from_iterable(S &shape, T *from,
-                                                          Iter &&iter)
+                                                           Iter &&iter)
   {
     return type_helper<ndarray<T, pS> const &>::initialize_from_iterable(
         shape, from, std::forward<Iter>(iter));
@@ -124,7 +130,7 @@ namespace types
   template <class T, class pS>
   typename type_helper<ndarray<T, pS> const &>::const_iterator
   type_helper<ndarray<T, pS> const &>::make_iterator(ndarray<T, pS> const &n,
-                                                    long i)
+                                                     long i)
   {
     return {n, i};
   }
@@ -132,13 +138,14 @@ namespace types
   template <class T, class pS>
   template <class S, class Iter>
   T *type_helper<ndarray<T, pS> const &>::initialize_from_iterable(S &shape,
-                                                                  T *from,
-                                                                  Iter &&iter)
+                                                                   T *from,
+                                                                   Iter &&iter)
   {
-    std::get<std::tuple_size<S>::value - std::tuple_size<pS>::value>(shape) = iter.size();
+    std::get<std::tuple_size<S>::value - std::tuple_size<pS>::value>(shape) =
+        iter.size();
     for (auto content : iter)
-      from = type_helper<ndarray<T, typename pS::pop_tail_t> const &>::initialize_from_iterable(
-          shape, from, content);
+      from = type_helper<ndarray<T, sutils::pop_tail_t<pS>> const &>::
+          initialize_from_iterable(shape, from, content);
     return from;
   }
 
@@ -158,22 +165,25 @@ namespace types
 
   template <class T, class pS>
   typename type_helper<ndarray<T, pshape<pS>>>::iterator
-      type_helper<ndarray<T, pshape<pS>>>::make_iterator(ndarray<T, pshape<pS>> &n, long i)
+  type_helper<ndarray<T, pshape<pS>>>::make_iterator(ndarray<T, pshape<pS>> &n,
+                                                     long i)
   {
     return n.buffer + i;
   }
 
   template <class T, class pS>
   typename type_helper<ndarray<T, pshape<pS>>>::const_iterator
-      type_helper<ndarray<T, pshape<pS>>>::make_iterator(ndarray<T, pshape<pS>> const &n, long i)
+  type_helper<ndarray<T, pshape<pS>>>::make_iterator(
+      ndarray<T, pshape<pS>> const &n, long i)
   {
     return n.buffer + i;
   }
 
   template <class T, class pS>
   template <class S, class Iter>
-  T *type_helper<ndarray<T, pshape<pS>>>::initialize_from_iterable(S &shape, T *from,
-                                                          Iter &&iter)
+  T *type_helper<ndarray<T, pshape<pS>>>::initialize_from_iterable(S &shape,
+                                                                   T *from,
+                                                                   Iter &&iter)
   {
     std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
     return std::copy(iter.begin(), iter.end(), from);
@@ -181,37 +191,38 @@ namespace types
 
   template <class T, class pS>
   typename type_helper<ndarray<T, pshape<pS>>>::type
-      type_helper<ndarray<T, pshape<pS>>>::get(ndarray<T, pshape<pS>> &&self, long i)
+  type_helper<ndarray<T, pshape<pS>>>::get(ndarray<T, pshape<pS>> &&self,
+                                           long i)
   {
     return self.buffer[i];
   }
 
   template <class T, class pS>
-  constexpr long type_helper<ndarray<T, pshape<pS>>>::step(ndarray<T, pshape<pS>> const &)
+  constexpr long
+  type_helper<ndarray<T, pshape<pS>>>::step(ndarray<T, pshape<pS>> const &)
   {
     return 1;
   }
 
   template <class T, class pS>
   typename type_helper<ndarray<T, pshape<pS>> const &>::iterator
-      type_helper<ndarray<T, pshape<pS>> const &>::make_iterator(ndarray<T, pshape<pS>> &n,
-                                                        long i)
+  type_helper<ndarray<T, pshape<pS>> const &>::make_iterator(
+      ndarray<T, pshape<pS>> &n, long i)
   {
     return n.buffer + i;
   }
 
   template <class T, class pS>
   typename type_helper<ndarray<T, pshape<pS>> const &>::const_iterator
-      make_iterator(ndarray<T, pshape<pS>> const &n, long i)
+  make_iterator(ndarray<T, pshape<pS>> const &n, long i)
   {
     return n.buffer + i;
   }
 
   template <class T, class pS>
   template <class S, class Iter>
-  T *type_helper<ndarray<T, pshape<pS>> const &>::initialize_from_iterable(S &shape,
-                                                                  T *from,
-                                                                  Iter &&iter)
+  T *type_helper<ndarray<T, pshape<pS>> const &>::initialize_from_iterable(
+      S &shape, T *from, Iter &&iter)
   {
     std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
     return std::copy(iter.begin(), iter.end(), from);
@@ -219,36 +230,39 @@ namespace types
 
   template <class T, class pS>
   typename type_helper<ndarray<T, pshape<pS>> const &>::type &
-      type_helper<ndarray<T, pshape<pS>> const &>::get(ndarray<T, pshape<pS>> const &self, long i)
+  type_helper<ndarray<T, pshape<pS>> const &>::get(
+      ndarray<T, pshape<pS>> const &self, long i)
   {
     return self.buffer[i];
   }
 
   template <class T, class pS>
-  constexpr long type_helper<ndarray<T, pshape<pS>> const &>::step(ndarray<T, pshape<pS>> const &)
+  constexpr long type_helper<ndarray<T, pshape<pS>> const &>::step(
+      ndarray<T, pshape<pS>> const &)
   {
     return 1;
   }
 
-
   template <class T, class pS>
   typename type_helper<ndarray<T, array<pS, 1>>>::iterator
-      type_helper<ndarray<T, array<pS, 1>>>::make_iterator(ndarray<T, array<pS, 1>> &n, long i)
+      type_helper<ndarray<T, array<pS, 1>>>::make_iterator(
+          ndarray<T, array<pS, 1>> &n, long i)
   {
     return n.buffer + i;
   }
 
   template <class T, class pS>
   typename type_helper<ndarray<T, array<pS, 1>>>::const_iterator
-      type_helper<ndarray<T, array<pS, 1>>>::make_iterator(ndarray<T, array<pS, 1>> const &n, long i)
+      type_helper<ndarray<T, array<pS, 1>>>::make_iterator(
+          ndarray<T, array<pS, 1>> const &n, long i)
   {
     return n.buffer + i;
   }
 
   template <class T, class pS>
   template <class S, class Iter>
-  T *type_helper<ndarray<T, array<pS, 1>>>::initialize_from_iterable(S &shape, T *from,
-                                                          Iter &&iter)
+  T *type_helper<ndarray<T, array<pS, 1>>>::initialize_from_iterable(
+      S &shape, T *from, Iter &&iter)
   {
     std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
     return std::copy(iter.begin(), iter.end(), from);
@@ -256,21 +270,23 @@ namespace types
 
   template <class T, class pS>
   typename type_helper<ndarray<T, array<pS, 1>>>::type
-      type_helper<ndarray<T, array<pS, 1>>>::get(ndarray<T, array<pS, 1>> &&self, long i)
+      type_helper<ndarray<T, array<pS, 1>>>::get(
+          ndarray<T, array<pS, 1>> &&self, long i)
   {
     return self.buffer[i];
   }
 
   template <class T, class pS>
-  constexpr long type_helper<ndarray<T, array<pS, 1>>>::step(ndarray<T, array<pS, 1>> const &)
+  constexpr long type_helper<ndarray<T, array<pS, 1>>>::step(
+      ndarray<T, array<pS, 1>> const &)
   {
     return 1;
   }
 
   template <class T, class pS>
   typename type_helper<ndarray<T, array<pS, 1>> const &>::iterator
-      type_helper<ndarray<T, array<pS, 1>> const &>::make_iterator(ndarray<T, array<pS, 1>> &n,
-                                                        long i)
+      type_helper<ndarray<T, array<pS, 1>> const &>::make_iterator(
+          ndarray<T, array<pS, 1>> &n, long i)
   {
     return n.buffer + i;
   }
@@ -284,9 +300,8 @@ namespace types
 
   template <class T, class pS>
   template <class S, class Iter>
-  T *type_helper<ndarray<T, array<pS, 1>> const &>::initialize_from_iterable(S &shape,
-                                                                  T *from,
-                                                                  Iter &&iter)
+  T *type_helper<ndarray<T, array<pS, 1>> const &>::initialize_from_iterable(
+      S &shape, T *from, Iter &&iter)
   {
     std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
     return std::copy(iter.begin(), iter.end(), from);
@@ -294,13 +309,15 @@ namespace types
 
   template <class T, class pS>
   typename type_helper<ndarray<T, array<pS, 1>> const &>::type &
-      type_helper<ndarray<T, array<pS, 1>> const &>::get(ndarray<T, array<pS, 1>> const &self, long i)
+      type_helper<ndarray<T, array<pS, 1>> const &>::get(
+          ndarray<T, array<pS, 1>> const &self, long i)
   {
     return self.buffer[i];
   }
 
   template <class T, class pS>
-  constexpr long type_helper<ndarray<T, array<pS, 1>> const &>::step(ndarray<T, array<pS, 1>> const &)
+  constexpr long type_helper<ndarray<T, array<pS, 1>> const &>::step(
+      ndarray<T, array<pS, 1>> const &)
   {
     return 1;
   }
@@ -321,7 +338,7 @@ namespace types
   {
     return noffset<L - 1>{}(strides, indices, shape) +
            strides[M - L] * ((indices[M - L] < 0)
-                                 ? indices[M - L] + std::get<M-L>(shape)
+                                 ? indices[M - L] + std::get<M - L>(shape)
                                  : indices[M - L]);
   }
 
@@ -339,7 +356,7 @@ namespace types
                               array<long, M> const &indices,
                               pS const &shape) const
   {
-    return (indices[M - 1] < 0) ? indices[M - 1] + std::get<M-1>(shape)
+    return (indices[M - 1] < 0) ? indices[M - 1] + std::get<M - 1>(shape)
                                 : indices[M - 1];
   }
 
@@ -353,14 +370,14 @@ namespace types
   /* from other memory */
   template <class T, class pS>
   ndarray<T, pS>::ndarray(utils::shared_ref<raw_array<T>> const &mem,
-                         pS const &shape)
+                          pS const &shape)
       : mem(mem), buffer(mem->data), _shape(shape),
         _strides(make_strides(shape))
   {
   }
   template <class T, class pS>
   ndarray<T, pS>::ndarray(utils::shared_ref<raw_array<T>> &&mem,
-                         pS const &shape)
+                          pS const &shape)
       : mem(std::move(mem)), buffer(this->mem->data), _shape(shape),
         _strides(make_strides(shape))
   {
@@ -379,8 +396,8 @@ namespace types
   /* from a seed */
   template <class T, class pS>
   ndarray<T, pS>::ndarray(pS const &shape, none_type init)
-      : mem(sutils::prod(shape)),
-        buffer(mem->data), _shape(shape), _strides(make_strides(shape))
+      : mem(sutils::prod(shape)), buffer(mem->data), _shape(shape),
+        _strides(make_strides(shape))
   {
   }
 
@@ -400,7 +417,7 @@ namespace types
     _strides = make_strides(_shape);
   }
   template <class T, class pS>
-  ndarray<T, pS>::ndarray(T *data, pS const & pshape, ownership o)
+  ndarray<T, pS>::ndarray(T *data, pS const &pshape, ownership o)
       : mem(data, o), buffer(mem->data), _shape(pshape)
   {
     _strides = make_strides(_shape);
@@ -594,13 +611,15 @@ namespace types
   template <class T, class pS>
   T const &ndarray<T, pS>::operator[](array<long, value> const &indices) const
   {
-    return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
+    return *(buffer +
+             noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
   }
 
   template <class T, class pS>
   T &ndarray<T, pS>::operator[](array<long, value> const &indices)
   {
-    return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
+    return *(buffer +
+             noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
   }
 
   template <class T, class pS>
@@ -642,7 +661,8 @@ namespace types
 #ifdef USE_BOOST_SIMD
   template <class T, class pS>
   template <class vectorizer>
-  typename ndarray<T, pS>::simd_iterator ndarray<T, pS>::vbegin(vectorizer) const
+  typename ndarray<T, pS>::simd_iterator
+      ndarray<T, pS>::vbegin(vectorizer) const
   {
     return {buffer};
   }
@@ -660,12 +680,17 @@ namespace types
 
   /* slice indexing */
   template <class T, class pS>
-  ndarray<T, typename pS::template push_front_t<std::integral_constant<size_t, 1>>> ndarray<T, pS>::operator[](none_type) const
+  ndarray<T,
+          typename pS::template push_front_t<std::integral_constant<size_t, 1>>>
+      ndarray<T, pS>::operator[](none_type) const
   {
-    typename pS::template push_front_t<std::integral_constant<size_t, 1>> new_shape;
-    //new_shape[0] = 1;
-    copy_shape<1, -1>(new_shape, _shape, utils::make_index_sequence<std::tuple_size<pS>::value>());
-    //std::copy(_shape.begin(), _shape.end(), new_shape.begin() + 1);
+    typename pS::template push_front_t<std::integral_constant<size_t, 1>>
+        new_shape;
+    // new_shape[0] = 1;
+    sutils::copy_shape<1, -1>(
+        new_shape, _shape,
+        utils::make_index_sequence<std::tuple_size<pS>::value>());
+    // std::copy(_shape.begin(), _shape.end(), new_shape.begin() + 1);
     return reshape(new_shape);
   }
 
@@ -719,10 +744,10 @@ namespace types
   /* element filtering */
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value &&
-                              F::value == 1,
-                          numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value &&
+          std::is_same<bool, typename F::dtype>::value && F::value == 1,
+      numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>::type
   ndarray<T, pS>::fast(F const &filter) const
   {
     long sz = std::get<0>(filter.shape());
@@ -733,15 +758,16 @@ namespace types
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
     long shp[1] = {n};
-    return this->fast(ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
+    return this->fast(
+        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value &&
-                              F::value == 1,
-                          numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value &&
+          std::is_same<bool, typename F::dtype>::value && F::value == 1,
+      numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>::type
       ndarray<T, pS>::
       operator[](F const &filter) const
   {
@@ -749,21 +775,22 @@ namespace types
   }
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value &&
-                              F::value != 1,
-                          numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value &&
+          std::is_same<bool, typename F::dtype>::value && F::value != 1,
+      numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>::type
   ndarray<T, pS>::fast(F const &filter) const
   {
-    return flat()[ndarray<typename F::dtype, make_pshape_t<F::value>>(filter).flat()];
+    return flat()[ndarray<typename F::dtype, make_pshape_t<F::value>>(filter)
+                      .flat()];
   }
 
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value &&
-                              F::value != 1,
-                          numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value &&
+          std::is_same<bool, typename F::dtype>::value && F::value != 1,
+      numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>::type
       ndarray<T, pS>::
       operator[](F const &filter) const
   {
@@ -794,9 +821,10 @@ namespace types
 
   template <class T, class pS>
   template <class L, class Ty, class... Tys>
-  auto ndarray<T, pS>::operator[](std::tuple<L, Ty, Tys...> const &indices) const
-      -> typename std::enable_if<is_numexpr_arg<L>::value,
-                                 decltype((*this)[tuple_tail(indices)])>::type
+  auto ndarray<T, pS>::
+  operator[](std::tuple<L, Ty, Tys...> const &indices) const ->
+      typename std::enable_if<is_numexpr_arg<L>::value,
+                              decltype((*this)[tuple_tail(indices)])>::type
   {
     return ndarray<T, pS>
     {
@@ -883,8 +911,7 @@ namespace types
   template <class T, class pS>
   ndarray<T, pS>::operator bool() const
   {
-    if (sutils::any_of(_shape,
-                    [](long n) { return n != 1; }))
+    if (sutils::any_of(_shape, [](long n) { return n != 1; }))
       throw ValueError("The truth value of an array with more than one element "
                        "is ambiguous. Use a.any() or a.all()");
     return *buffer;
@@ -942,7 +969,8 @@ namespace types
   {
     std::array<long, std::tuple_size<pS>::value> strides;
     auto shape = e.shape();
-    strides[std::tuple_size<pS>::value - 1] = shape[std::tuple_size<pS>::value - 1];
+    strides[std::tuple_size<pS>::value - 1] =
+        shape[std::tuple_size<pS>::value - 1];
     if (strides[std::tuple_size<pS>::value - 1] == 0)
       return os << "[]";
     std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin() + 1,
@@ -999,7 +1027,7 @@ namespace types
 
   /* } */
   template <class T>
-    template<class pS>
+  template <class pS>
   list<T> &list<T>::operator=(ndarray<T, pshape<pS>> const &other)
   {
     data = utils::shared_ref<T>(other.begin(), other.end());
@@ -1128,9 +1156,10 @@ namespace types
       // this is tricky && dangerous!
       auto translated_mem =
           reinterpret_cast<utils::shared_ref<raw_array<stype>> const &>(a.mem);
-      ndarray<stype, make_pshape_t<E::value>> translated{translated_mem, new_shape};
-      return _build_gexpr<E::value>{}(translated,
-                                      slice{0, std::get<E::value -1>(new_shape), 2});
+      ndarray<stype, make_pshape_t<E::value>> translated{translated_mem,
+                                                         new_shape};
+      return _build_gexpr<E::value>{}(
+          translated, slice{0, std::get<E::value - 1>(new_shape), 2});
     }
 
     template <class E>
@@ -1159,7 +1188,7 @@ namespace types
       // cannot use numpy.zero: forward declaration issue
       return E(
           (typename E::dtype *)calloc(a.flat_size(), sizeof(typename E::dtype)),
-          a.shape().data(), types::ownership::owned);
+          a.shape(), types::ownership::owned);
     }
 
     template <class E>
@@ -1175,9 +1204,10 @@ namespace types
       // this is tricky && dangerous!
       auto translated_mem =
           reinterpret_cast<utils::shared_ref<raw_array<stype>> const &>(a.mem);
-      ndarray<stype, make_pshape_t<E::value>> translated{translated_mem, new_shape};
-      return _build_gexpr<E::value>{}(translated,
-                                      slice{1, std::get<E::value -1>(new_shape), 2});
+      ndarray<stype, make_pshape_t<E::value>> translated{translated_mem,
+                                                         new_shape};
+      return _build_gexpr<E::value>{}(
+          translated, slice{1, std::get<E::value - 1>(new_shape), 2});
     }
 
     template <class E>
@@ -1393,7 +1423,7 @@ struct pyarray_new<npy_intp, N> {
 template <class T, class pS>
 PyObject *
 to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
-                                         bool transpose)
+                                          bool transpose)
 {
   types::ndarray<T, pS> &n = const_cast<types::ndarray<T, pS> &>(cn);
   if (PyObject *p = n.mem.get_foreign()) {
@@ -1424,8 +1454,9 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
     }
   } else {
     auto array = sutils::array(n._shape);
-    PyObject *result = pyarray_new<long, std::tuple_size<pS>::value>{}.from_data(
-        array.data(), c_type_to_numpy_type<T>::value, n.buffer);
+    PyObject *result =
+        pyarray_new<long, std::tuple_size<pS>::value>{}.from_data(
+            array.data(), c_type_to_numpy_type<T>::value, n.buffer);
     n.mark_memory_external(result);
     Py_INCREF(result);
     if (!result)
@@ -1444,17 +1475,18 @@ template <class Arg>
 PyObject *
 to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v)
 {
-  return ::to_python(types::ndarray<typename types::numpy_iexpr<Arg>::dtype,
-                                    types::make_pshape_t<types::numpy_iexpr<Arg>::value>>(v));
+  return ::to_python(
+      types::ndarray<typename types::numpy_iexpr<Arg>::dtype,
+                     types::make_pshape_t<types::numpy_iexpr<Arg>::value>>(v));
 }
 
 template <class Arg, class... S>
 PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
     types::numpy_gexpr<Arg, S...> const &v)
 {
-  return ::to_python(
-      types::ndarray<typename types::numpy_gexpr<Arg, S...>::dtype,
-                     types::make_pshape_t<types::numpy_gexpr<Arg, S...>::value>>{v});
+  return ::to_python(types::ndarray<
+      typename types::numpy_gexpr<Arg, S...>::dtype,
+      types::make_pshape_t<types::numpy_gexpr<Arg, S...>::value>>{v});
 }
 
 namespace impl
@@ -1520,7 +1552,8 @@ bool from_python<types::ndarray<T, pS>>::is_convertible(PyObject *obj)
   }
   // this is supposed to be a texpr
   if ((PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS) &&
-      ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) && (std::tuple_size<pS>::value > 1))
+      ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) &&
+      (std::tuple_size<pS>::value > 1))
     return false;
   else
     return true;
@@ -1601,8 +1634,10 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(
   auto full_offset = PyArray_BYTES(arr) - PyArray_BYTES(base_arr);
   auto const *arr_strides = PyArray_STRIDES(arr);
   long accumulated_dim = 1;
-  offsets[std::tuple_size<pS>::value - 1] = full_offset % base_dims[std::tuple_size<pS>::value - 1];
-  strides[std::tuple_size<pS>::value - 1] = arr_strides[std::tuple_size<pS>::value - 1];
+  offsets[std::tuple_size<pS>::value - 1] =
+      full_offset % base_dims[std::tuple_size<pS>::value - 1];
+  strides[std::tuple_size<pS>::value - 1] =
+      arr_strides[std::tuple_size<pS>::value - 1];
   for (ssize_t i = std::tuple_size<pS>::value - 2; i >= 0; --i) {
     accumulated_dim *= base_dims[i + 1];
     offsets[i] = full_offset / accumulated_dim;
@@ -1610,7 +1645,7 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(
   }
 
   types::ndarray<T, pS> base_array((T *)PyArray_BYTES(base_arr),
-                                  PyArray_DIMS(base_arr), obj);
+                                   PyArray_DIMS(base_arr), obj);
   std::tuple<S...> slices;
   impl::fill_slice<T>(slices, strides, offsets, PyArray_DIMS(arr),
                       utils::int_<sizeof...(S)>());
@@ -1627,7 +1662,8 @@ bool from_python<types::numpy_texpr<E>>::
 {
   constexpr auto N = E::value;
   PyArrayObject *arr =
-      impl::check_array_type_and_dims<typename E::dtype, typename std::remove_reference<decltype(std::declval<E>().shape())>::type>(obj);
+      impl::check_array_type_and_dims<typename E::dtype, typename E::shape_t>(
+          obj);
   if (!arr)
     return false;
   // check strides. Note that because it's a texpr, the check is done in the
@@ -1654,7 +1690,8 @@ types::numpy_texpr<E> from_python<types::numpy_texpr<E>>::convert(PyObject *obj)
   auto const *dims = PyArray_DIMS(arr);
   for (size_t i = 0; i < N; ++i)
     shape[i] = dims[N - 1 - i];
-  types::ndarray<T, types::make_pshape_t<N>> base_array((T *)PyArray_BYTES(arr), shape.data(), obj);
+  types::ndarray<T, types::make_pshape_t<N>> base_array((T *)PyArray_BYTES(arr),
+                                                        shape.data(), obj);
   types::numpy_texpr<types::ndarray<T, types::make_pshape_t<N>>> r(base_array);
   Py_INCREF(obj);
   return r;

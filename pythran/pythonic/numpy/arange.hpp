@@ -11,12 +11,13 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class U, class S, class dtype>
-  types::ndarray<typename dtype::type, types::pshape<long>> arange(T begin, U end, S step,
-                                                 dtype d)
+  types::ndarray<typename dtype::type, types::pshape<long>>
+  arange(T begin, U end, S step, dtype d)
   {
     using R = typename dtype::type;
     size_t size = std::max(R(0), R(std::ceil((end - begin) / step)));
-    types::ndarray<R, types::pshape<long>> a(types::pshape<long>((long)size), __builtin__::None);
+    types::ndarray<R, types::pshape<long>> a(types::pshape<long>((long)size),
+                                             __builtin__::None);
     if (size) {
       auto prev = a.fbegin(), end = a.fend();
       *prev = begin;

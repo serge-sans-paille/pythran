@@ -575,15 +575,17 @@ namespace types
                                 s0, s...))>::type;
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value &&
-                                std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            std::is_same<bool, typename F::dtype>::value,
+        numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value &&
-                                std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            std::is_same<bool, typename F::dtype>::value,
+        numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
@@ -637,7 +639,8 @@ template <class Op, class... Args>
 struct assignable<types::numpy_expr<Op, Args...>> {
   using type =
       types::ndarray<typename pythonic::types::numpy_expr<Op, Args...>::dtype,
-                     pythonic::types::make_pshape_t<pythonic::types::numpy_expr<Op, Args...>::value>>;
+                     pythonic::types::make_pshape_t<
+                         pythonic::types::numpy_expr<Op, Args...>::value>>;
 };
 
 template <class Op, class... Arg>
@@ -684,7 +687,8 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>,
                   pythonic::types::numpy_expr<Op2, Args2...>> {
   using type = pythonic::types::ndarray<
       typename pythonic::types::numpy_expr<Op, Args...>::dtype,
-      pythonic::types::make_pshape_t<pythonic::types::numpy_expr<Op, Args...>::value>>;
+      pythonic::types::make_pshape_t<
+          pythonic::types::numpy_expr<Op, Args...>::value>>;
 };
 template <class E, class Op, class... Args>
 struct __combined<pythonic::types::numpy_iexpr<E>,

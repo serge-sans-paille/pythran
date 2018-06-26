@@ -152,9 +152,10 @@ namespace types
     }
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value &&
-                                std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            std::is_same<bool, typename F::dtype>::value,
+        numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
 #ifdef USE_BOOST_SIMD
@@ -178,9 +179,10 @@ namespace types
         -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s...));
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value &&
-                                std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            std::is_same<bool, typename F::dtype>::value,
+        numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const & -> decltype(this->fast(i));
     auto operator[](long i) & -> decltype(this->fast(i));
@@ -207,8 +209,9 @@ namespace types
     }
 
     template <class pS>
-    auto reshape(pS const &new_shape) const -> numpy_iexpr<decltype(
-        std::declval<Arg>().reshape(std::declval<sutils::push_front_t<pS, long>>()))>
+    auto reshape(pS const &new_shape) const
+        -> numpy_iexpr<decltype(std::declval<Arg>().reshape(
+            std::declval<sutils::push_front_t<pS, long>>()))>
     {
       return {buffer, new_shape};
     }

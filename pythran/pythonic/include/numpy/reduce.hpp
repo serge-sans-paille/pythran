@@ -51,7 +51,8 @@ namespace numpy
   namespace
   {
     template <class E>
-    using reduced_type = types::ndarray<reduce_result_type<E>, typename decltype(std::declval<E>().shape())::pop_tail_t>;
+    using reduced_type =
+        types::ndarray<reduce_result_type<E>, types::array<long, E::value - 1>>;
   }
 
   template <class Op, class E>

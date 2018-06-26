@@ -13,9 +13,9 @@ namespace numpy
 {
   // list case
   template <class E>
-  typename std::enable_if<!types::is_array<E>::value &&
-                              !types::is_dtype<E>::value,
-                          types::ndarray<typename E::dtype, types::array<long, E::value>>>::type
+  typename std::enable_if<
+      !types::is_array<E>::value && !types::is_dtype<E>::value,
+      types::ndarray<typename E::dtype, types::array<long, E::value>>>::type
   copy(E const &v)
   {
     return {v};

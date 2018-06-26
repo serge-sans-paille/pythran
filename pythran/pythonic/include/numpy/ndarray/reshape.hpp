@@ -13,12 +13,12 @@ namespace numpy
   {
     template <class T, class pS, class NpS>
     types::ndarray<T, NpS> reshape(types::ndarray<T, pS> const &expr,
-                                 NpS const &new_shape);
+                                   NpS const &new_shape);
 
     template <class T, class pS, class... S>
-    auto reshape(types::ndarray<T, types::pshape<S...>> const &expr, S const &... indices)
-        -> decltype(reshape(
-            expr, types::pshape<S...>{indices...}));
+    auto reshape(types::ndarray<T, types::pshape<S...>> const &expr,
+                 S const &... indices)
+        -> decltype(reshape(expr, types::pshape<S...>{indices...}));
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(reshape);
 

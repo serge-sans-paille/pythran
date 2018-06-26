@@ -125,22 +125,22 @@ namespace types
    */
   template <size_t N, class pS, size_t C>
   make_pshape_t<N> make_reshape(pS const &shape,
-                              array<bool, C> const &is_new_axis)
+                                array<bool, C> const &is_new_axis)
   {
     array<long, N> new_shape;
     return sutils::copy_new_axis(new_shape, shape, is_new_axis);
-/*
-    size_t j = 0;
-    for (size_t i = 0; i < C; ++i)
-      if (is_new_axis[i])
-        new_shape[i] = 1;
-      else
-        new_shape[i] = shape[j++];
+    /*
+        size_t j = 0;
+        for (size_t i = 0; i < C; ++i)
+          if (is_new_axis[i])
+            new_shape[i] = 1;
+          else
+            new_shape[i] = shape[j++];
 
-    for (size_t i = C; i < N; ++i)
-      new_shape[i] = shape[i + j - C];
-    return new_shape;
-    */
+        for (size_t i = C; i < N; ++i)
+          new_shape[i] = shape[i + j - C];
+        return new_shape;
+        */
   }
 
   /* helper to build an extended slice aka numpy_gexpr out of a subscript
@@ -148,8 +148,9 @@ namespace types
   template <size_t C>
   template <class T, class pS, class... S>
   auto extended_slice<C>::operator()(ndarray<T, pS> &&a, S const &... s)
-      -> decltype(std::declval<ndarray<T, sutils::concat_t<pS, make_pshape_t<C>>>>()(
-          std::declval<typename to_slice<S>::type>()...))
+      -> decltype(
+          std::declval<ndarray<T, sutils::concat_t<pS, make_pshape_t<C>>>>()(
+              std::declval<typename to_slice<S>::type>()...))
   {
     return std::move(a).reshape(make_reshape<std::tuple_size<pS>::value + C>(
         a.shape(), array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...}))(
@@ -159,8 +160,9 @@ namespace types
   template <size_t C>
   template <class T, class pS, class... S>
   auto extended_slice<C>::operator()(ndarray<T, pS> const &a, S const &... s)
-      -> decltype(std::declval<ndarray<T, sutils::concat_t<pS,make_pshape_t<C>>>>()(
-          std::declval<typename to_slice<S>::type>()...))
+      -> decltype(
+          std::declval<ndarray<T, sutils::concat_t<pS, make_pshape_t<C>>>>()(
+              std::declval<typename to_slice<S>::type>()...))
   {
     return a.reshape(make_reshape<std::tuple_size<pS>::value + C>(
         a.shape(), array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}}))(
@@ -168,7 +170,8 @@ namespace types
   }
 
   template <class T, class pS, class... S>
-  auto extended_slice<0>::operator()(ndarray<T, pS> &&a, long s0, S const &... s)
+  auto extended_slice<0>::operator()(ndarray<T, pS> &&a, long s0,
+                                     S const &... s)
       -> decltype(std::declval<numpy_iexpr<ndarray<T, pS>>>()(s...))
   {
     return std::move(a)[s0](s...);
@@ -182,15 +185,18 @@ namespace types
   }
 
   template <class T, class pS, class... S, size_t... Is>
-  numpy_gexpr<ndarray<T, pS>, normalize_t<S>...>
-      extended_slice<0>::operator()(ndarray<T, pS> &&a, std::tuple<S...> const& s, utils::index_sequence<Is...>)
+  numpy_gexpr<ndarray<T, pS>, normalize_t<S>...> extended_slice<0>::
+  operator()(ndarray<T, pS> &&a, std::tuple<S...> const &s,
+             utils::index_sequence<Is...>)
   {
-    return {std::move(a), std::get<Is>(s).normalize(std::get<Is>(a.shape()))...};
+    return {std::move(a),
+            std::get<Is>(s).normalize(std::get<Is>(a.shape()))...};
   }
 
   template <class T, class pS, class... S, size_t... Is>
-  numpy_gexpr<ndarray<T, pS>, normalize_t<S>...>
-      extended_slice<0>::operator()(ndarray<T, pS> const &a, std::tuple<S...> const& s, utils::index_sequence<Is...>)
+  numpy_gexpr<ndarray<T, pS>, normalize_t<S>...> extended_slice<0>::
+  operator()(ndarray<T, pS> const &a, std::tuple<S...> const &s,
+             utils::index_sequence<Is...>)
   {
     return {a, std::get<Is>(s).normalize(std::get<Is>(a.shape()))...};
   }
@@ -200,7 +206,8 @@ namespace types
       extended_slice<0>::operator()(ndarray<T, pS> &&a, slice const &s0,
                                     S const &... s)
   {
-    return operator()(std::move(a), std::make_tuple(s0, s...), utils::make_index_sequence<sizeof...(S)+1>());
+    return operator()(std::move(a), std::make_tuple(s0, s...),
+                      utils::make_index_sequence<sizeof...(S) + 1>());
   }
 
   template <class T, class pS, class... S>
@@ -208,7 +215,8 @@ namespace types
       extended_slice<0>::operator()(ndarray<T, pS> const &a, slice const &s0,
                                     S const &... s)
   {
-    return operator()(a, std::make_tuple(s0, s...), utils::make_index_sequence<sizeof...(S)+1>());
+    return operator()(a, std::make_tuple(s0, s...),
+                      utils::make_index_sequence<sizeof...(S) + 1>());
   }
 
   template <class T, class pS, class... S>
@@ -222,7 +230,8 @@ namespace types
   template <class T, class pS, class... S>
   numpy_gexpr<ndarray<T, pS> const &, contiguous_normalized_slice,
               normalize_t<S>...> extended_slice<0>::
-  operator()(ndarray<T, pS> const &a, contiguous_slice const &s0, S const &... s)
+  operator()(ndarray<T, pS> const &a, contiguous_slice const &s0,
+             S const &... s)
   {
     return make_gexpr(a, s0, s...);
   }
@@ -401,9 +410,9 @@ namespace types
     }
 
     template <class Arg, class... S>
-      template<size_t... Is>
+    template <size_t... Is>
     numpy_gexpr<Arg, normalize_t<S>...> make_gexpr<Arg, S...>::
-    operator()(Arg arg, std::tuple<S...>s, utils::index_sequence<Is...>)
+    operator()(Arg arg, std::tuple<S...> s, utils::index_sequence<Is...>)
     {
       return {arg, normalize(std::get<Is>(s), std::get<Is>(arg.shape()))...};
     }
@@ -412,7 +421,8 @@ namespace types
     numpy_gexpr<Arg, normalize_t<S>...> make_gexpr<Arg, S...>::
     operator()(Arg arg, S const &... s)
     {
-      return operator()(arg, std::tuple<S...>(s...), utils::make_index_sequence<sizeof...(S)>());
+      return operator()(arg, std::tuple<S...>(s...),
+                        utils::make_index_sequence<sizeof...(S)>());
     }
 
     // this specialization is in charge of merging gexpr
@@ -511,8 +521,12 @@ namespace types
     buffer += buffer_offset(
         arg, std::get<count_leading_long<S...>::value>(slices).lower);
 
-    copy_shape<sizeof...(S)-count_long<S...>::value, count_long<S...>::value>(_shape, arg.shape(), utils::make_index_sequence<value - (sizeof...(S)-count_long<S...>::value)>());
-    //for (size_t i = sizeof...(S)-count_long<S...>::value; i < value; ++i)
+    sutils::copy_shape<sizeof...(S)-count_long<S...>::value,
+                       count_long<S...>::value>(
+        _shape, arg.shape(),
+        utils::make_index_sequence<value -
+                                   (sizeof...(S)-count_long<S...>::value)>());
+    // for (size_t i = sizeof...(S)-count_long<S...>::value; i < value; ++i)
     //  _shape[i] = arg.shape()[i + count_long<S...>::value];
   }
 
@@ -559,8 +573,8 @@ namespace types
     assert(buffer);
     if (may_overlap(*this, expr)) {
       return utils::broadcast_copy<
-          numpy_gexpr &, ndarray<typename E::dtype, make_pshape_t<E::value>>, value,
-          value - utils::dim_of<E>::value, is_vectorizable>(*this, expr);
+          numpy_gexpr &, ndarray<typename E::dtype, make_pshape_t<E::value>>,
+          value, value - utils::dim_of<E>::value, is_vectorizable>(*this, expr);
     } else {
       // 100% sure there's no overlap
       return utils::broadcast_copy < numpy_gexpr &, E, value,
@@ -642,8 +656,9 @@ namespace types
     BExpr bexpr = expr;
 
     if (may_overlap(*this, expr)) {
-      using NBExpr = ndarray<typename std::remove_reference<BExpr>::type::dtype,
-                             make_pshape_t<std::remove_reference<BExpr>::type::value>>;
+      using NBExpr =
+          ndarray<typename std::remove_reference<BExpr>::type::dtype,
+                  make_pshape_t<std::remove_reference<BExpr>::type::value>>;
       return utils::broadcast_update < Op, numpy_gexpr &, NBExpr, value,
              value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
              is_vectorizable && types::is_vectorizable<E>::value &&
@@ -917,7 +932,8 @@ namespace types
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
     long shp[1] = {n};
-    return this->fast(ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
+    return this->fast(
+        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
   template <class Arg, class... S>

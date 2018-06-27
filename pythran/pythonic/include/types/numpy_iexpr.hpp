@@ -45,7 +45,8 @@ namespace types
                                   dtype const *>::type;
 
     dtype *buffer;
-    array<long, value> _shape;
+    using shape_t = array<long, value>;
+    shape_t _shape;
 
     numpy_iexpr();
     numpy_iexpr(numpy_iexpr const &) = default;
@@ -203,7 +204,7 @@ namespace types
 
     explicit operator bool() const;
     long flat_size() const;
-    array<long, value> const &shape() const
+    shape_t const &shape() const
     {
       return _shape;
     }

@@ -53,14 +53,16 @@ namespace numpy
   }
 
   template <class E, class T>
-  typename std::enable_if<types::is_numexpr_arg<E>::value,
-                          types::ndarray<long, E::value>>::type
+  typename std::enable_if<
+      types::is_numexpr_arg<E>::value,
+      types::ndarray<long, types::array<long, E::value>>>::type
   searchsorted(T const &a, E const &v, types::str const &side)
   {
     static_assert(T::value == 1,
                   "Not Implemented : searchsorted for dimension != 1");
 
-    types::ndarray<long, E::value> out(asarray(v).shape(), __builtin__::None);
+    types::ndarray<long, types::array<long, E::value>> out(asarray(v).shape(),
+                                                           __builtin__::None);
     _search_sorted(a, v.begin(), v.end(), out.begin(), side,
                    utils::int_<E::value>());
     return out;

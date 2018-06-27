@@ -432,6 +432,13 @@ namespace types
     mem.external(obj_ptr); // mark memory as external to decref at the end of
                            // its lifetime
   }
+  template <class T, class pS>
+  ndarray<T, pS>::ndarray(T *data, pS const &pshape, PyObject *obj_ptr)
+      : ndarray(data, pshape, ownership::external)
+  {
+    mem.external(obj_ptr); // mark memory as external to decref at the end of
+                           // its lifetime
+  }
 
 #endif
 
@@ -1686,13 +1693,14 @@ types::numpy_texpr<E> from_python<types::numpy_texpr<E>>::convert(PyObject *obj)
   constexpr size_t N = E::value;
   using T = typename E::dtype;
   PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
-  std::array<long, N> shape;
+  typename E::shape_t shape;
   auto const *dims = PyArray_DIMS(arr);
-  for (size_t i = 0; i < N; ++i)
-    shape[i] = dims[N - 1 - i];
-  types::ndarray<T, types::make_pshape_t<N>> base_array((T *)PyArray_BYTES(arr),
-                                                        shape.data(), obj);
-  types::numpy_texpr<types::ndarray<T, types::make_pshape_t<N>>> r(base_array);
+  static_assert(N == 2, "only support texpr of matrices");
+  sutils::assign(std::get<0>(shape), std::get<1>(dims));
+  sutils::assign(std::get<1>(shape), std::get<0>(dims));
+  types::ndarray<T, typename E::shape_t> base_array((T *)PyArray_BYTES(arr),
+                                                    shape, obj);
+  types::numpy_texpr<types::ndarray<T, typename E::shape_t>> r(base_array);
   Py_INCREF(obj);
   return r;
 }

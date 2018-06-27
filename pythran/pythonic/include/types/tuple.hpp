@@ -123,18 +123,47 @@ namespace types
   {
     return value;
   }
+  template <class S>
+  S check_type(S, S)
+  {
+    return {};
+  }
+  template <class S>
+  S check_type(S s, long v)
+  {
+    assert((long)s == v && "consistent init");
+    return {};
+  }
 
   template <class... Tys>
   struct pshape {
+    struct checked {
+    };
+
     std::tuple<Tys...> values;
 
-    pshape(Tys... args) : values{std::make_tuple(args...)}
+    template <class... Args, size_t... Is>
+    pshape(std::tuple<Args...> const &v, utils::index_sequence<Is...>)
+        : values{check_type(std::get<Is>(v), std::get<Is>(values))...}
+    {
+    }
+
+    template <class... Args>
+    pshape(long arg, Args... args)
+        : pshape(std::make_tuple(arg, args...),
+                 utils::make_index_sequence<1 + sizeof...(args)>())
+    {
+    }
+    template <class T, T N, class... Args>
+    pshape(std::integral_constant<T, N> arg, Args... args)
+        : pshape(std::make_tuple(arg, args...),
+                 utils::make_index_sequence<1 + sizeof...(args)>())
     {
     }
 
     template <class S, size_t... Is>
     pshape(S const *buffer, utils::index_sequence<Is...>)
-        : pshape(check_type(buffer[Is], std::get<Is>(values))...)
+        : values{check_type(buffer[Is], std::get<Is>(values))...}
     {
     }
 
@@ -330,7 +359,8 @@ namespace types
     friend std::ostream &operator<<(std::ostream &os,
                                     types::array<T1, N1> const &v);
 
-    array<long, value> shape() const
+    using shape_t = array<long, value>;
+    shape_t shape() const
     {
       array<long, value> res;
       details::init_shape(res, *this, utils::int_<value>{});
@@ -652,12 +682,12 @@ namespace std
     return s.template get<I>();
   }
   template <size_t I, class... Tys>
-  long &get(pythonic::types::pshape<Tys...> &s)
+  auto get(pythonic::types::pshape<Tys...> &s) -> decltype(s.template get<I>())
   {
     return s.template get<I>();
   }
   template <size_t I, class T>
-  long &get(T *s)
+  auto get(T *s) -> decltype(s[I])
   {
     return s[I];
   }
@@ -681,6 +711,31 @@ namespace std
 PYTHONIC_NS_BEGIN
 namespace sutils
 {
+  template <class T>
+  struct transpose;
+  template <class T>
+  struct transpose<types::array<T, 2>> {
+    using type = types::array<T, 2>;
+  };
+
+  template <class T0, class T1>
+  struct transpose<types::pshape<T0, T1>> {
+    using type = types::pshape<T1, T0>;
+  };
+  template <class T>
+  using transpose_t = typename transpose<T>::type;
+
+  template <class T0, class T1>
+  void assign(T0 &t0, T1 t1)
+  {
+    t0 = (T0)t1;
+  }
+  template <class T0, T0 N, class T1>
+  void assign(std::integral_constant<T0, N> &t0, T1 t1)
+  {
+    assert(t0 == t1 && "consistent");
+  }
+
   template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
   void copy_shape(T0 &shape0, T1 const &shape1, utils::index_sequence<Is...>)
   {
@@ -775,19 +830,19 @@ namespace sutils
   }
 
   template <class S, class B>
-  bool equals(S const &s, B const *other, std::integral_constant<size_t, 0>)
+  bool equals(S const &s, B const &other, std::integral_constant<size_t, 0>)
   {
-    return other[0] == std::get<0>(s);
+    return std::get<0>(other) == std::get<0>(s);
   }
   template <class S, class B, size_t I>
-  bool equals(S const &s, B const *other, std::integral_constant<size_t, I>)
+  bool equals(S const &s, B const &other, std::integral_constant<size_t, I>)
   {
-    return other[I] == std::get<I>(s) &&
+    return std::get<I>(other) == std::get<I>(s) &&
            equals(s, other, std::integral_constant<size_t, I - 1>());
   }
 
   template <class S, class B>
-  bool equals(S const &s, B const *other)
+  bool equals(S const &s, B const &other)
   {
     return equals(
         s, other,
@@ -927,6 +982,41 @@ namespace sutils
     return s;
   }
 }
+
+namespace types
+{
+  template <class T, class... Tys>
+  bool operator==(T const &self, pshape<Tys...> const &other)
+  {
+    return sutils::equals(self, other);
+  }
+  template <class T, class... Tys>
+  bool operator==(pshape<Tys...> const &self, T const &other)
+  {
+    return sutils::equals(self, other);
+  }
+  template <class... Ty0s, class... Ty1s>
+  bool operator==(pshape<Ty0s...> const &self, pshape<Ty1s...> const &other)
+  {
+    return sutils::equals(self, other);
+  }
+  template <class T, class... Tys>
+  bool operator!=(T const &self, pshape<Tys...> const &other)
+  {
+    return !sutils::equals(self, other);
+  }
+  template <class T, class... Tys>
+  bool operator!=(pshape<Tys...> const &self, T const &other)
+  {
+    return !sutils::equals(self, other);
+  }
+  template <class... Ty0s, class... Ty1s>
+  bool operator!=(pshape<Ty0s...> const &self, pshape<Ty1s...> const &other)
+  {
+    return !sutils::equals(self, other);
+  }
+}
+
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE

@@ -299,6 +299,7 @@ namespace types
 #ifdef ENABLE_PYTHON_MODULE
     template <class S>
     ndarray(T *data, S const *pshape, PyObject *obj);
+    ndarray(T *data, pS const &pshape, PyObject *obj);
 #endif
 
     template <

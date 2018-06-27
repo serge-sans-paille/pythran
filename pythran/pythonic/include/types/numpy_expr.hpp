@@ -484,7 +484,8 @@ namespace types
 #else
     std::tuple<Args...> args;
 #endif
-    array<long, value> _shape;
+    using shape_t = array<long, value>;
+    shape_t _shape;
 
     numpy_expr() = default;
     numpy_expr(numpy_expr const &) = default;
@@ -530,7 +531,7 @@ namespace types
                         utils::make_index_sequence<sizeof...(Args)>{}));
 
   public:
-    array<long, value> const &shape() const
+    shape_t const &shape() const
     {
       return _shape;
     }

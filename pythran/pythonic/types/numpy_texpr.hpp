@@ -24,7 +24,7 @@ namespace types
 
   template <class E>
   numpy_texpr_2<E>::numpy_texpr_2(Arg const &arg)
-      : arg(arg), _shape{{std::get<1>(arg.shape()), std::get<0>(arg.shape())}}
+      : arg(arg), _shape{std::get<1>(arg.shape()), std::get<0>(arg.shape())}
   {
   }
 
@@ -37,7 +37,7 @@ namespace types
   template <class E>
   typename numpy_texpr_2<E>::const_iterator numpy_texpr_2<E>::end() const
   {
-    return {*this, _shape[0]};
+    return {*this, std::get<0>(_shape)};
   }
 
   template <class E>
@@ -49,7 +49,7 @@ namespace types
   template <class E>
   typename numpy_texpr_2<E>::iterator numpy_texpr_2<E>::end()
   {
-    return {*this, _shape[0]};
+    return {*this, std::get<0>(_shape)};
   }
 
   template <class E>
@@ -96,7 +96,7 @@ namespace types
   auto numpy_texpr_2<E>::operator[](long i) const -> decltype(this->fast(i))
   {
     if (i < 0)
-      i += _shape[0];
+      i += std::get<0>(_shape);
     return fast(i);
   }
 
@@ -104,7 +104,7 @@ namespace types
   auto numpy_texpr_2<E>::operator[](long i) -> decltype(this->fast(i))
   {
     if (i < 0)
-      i += _shape[0];
+      i += std::get<0>(_shape);
     return fast(i);
   }
 
@@ -212,7 +212,8 @@ namespace types
                   "advanced indexing only supporint with 1D index");
 
     ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>> out(
-        array<long, 2>{{filter.flat_size(), shape()[1]}}, none_type());
+        array<long, 2>{{filter.flat_size(), std::get<1>(shape())}},
+        none_type());
     std::transform(
         filter.begin(), filter.end(), out.begin(),
         [this](typename F::dtype index) { return operator[](index); });
@@ -229,7 +230,8 @@ namespace types
     static_assert(F::value == 1,
                   "advanced indexing only supporint with 1D index");
     ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>> out(
-        array<long, 2>{{filter.flat_size(), shape()[1]}}, none_type());
+        array<long, 2>{{filter.flat_size(), std::get<1>(shape())}},
+        none_type());
     std::transform(filter.begin(), filter.end(), out.begin(),
                    [this](typename F::dtype index) { return fast(index); });
     return out;
@@ -347,15 +349,15 @@ namespace types
   }
 
   // only implemented for N = 2
-  template <class T>
-  numpy_texpr<ndarray<T, pshape<long, long>>>::numpy_texpr()
+  template <class T, class S0, class S1>
+  numpy_texpr<ndarray<T, pshape<S0, S1>>>::numpy_texpr()
   {
   }
 
-  template <class T>
-  numpy_texpr<ndarray<T, pshape<long, long>>>::numpy_texpr(
-      ndarray<T, pshape<long, long>> const &arg)
-      : numpy_texpr_2<ndarray<T, pshape<long, long>>>{arg}
+  template <class T, class S0, class S1>
+  numpy_texpr<ndarray<T, pshape<S0, S1>>>::numpy_texpr(
+      ndarray<T, pshape<S0, S1>> const &arg)
+      : numpy_texpr_2<ndarray<T, pshape<S0, S1>>>{arg}
   {
   }
 

@@ -482,8 +482,10 @@ namespace types
 #endif
     std::tuple<S...> slices;
     dtype *buffer;
-    array<long, value> _shape;
-    array<long, value> const &shape() const
+
+    using shape_t = array<long, value>;
+    shape_t _shape;
+    shape_t const &shape() const
     {
       return _shape;
     }

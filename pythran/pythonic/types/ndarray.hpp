@@ -680,7 +680,7 @@ namespace types
   {
     using vector_type = typename boost::simd::pack<dtype>;
     static const std::size_t vector_size = vector_type::static_size;
-    return {buffer + long(_shape[0] / vector_size * vector_size)};
+    return {buffer + long(std::get<0>(_shape) / vector_size * vector_size)};
   }
 
 #endif
@@ -977,10 +977,11 @@ namespace types
     std::array<long, std::tuple_size<pS>::value> strides;
     auto shape = e.shape();
     strides[std::tuple_size<pS>::value - 1] =
-        shape[std::tuple_size<pS>::value - 1];
+        std::get<std::tuple_size<pS>::value - 1>(shape);
     if (strides[std::tuple_size<pS>::value - 1] == 0)
       return os << "[]";
-    std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin() + 1,
+    auto ashape = sutils::array(shape);
+    std::transform(strides.rbegin(), strides.rend() - 1, ashape.rbegin() + 1,
                    strides.rbegin() + 1, std::multiplies<long>());
     size_t depth = std::tuple_size<pS>::value;
     int step = -1;
@@ -989,12 +990,13 @@ namespace types
     int max_modulo = 1000;
 
     os << "[";
-    if (shape[0] != 0)
+    if (std::get<0>(shape) != 0)
       do {
         if (depth == 1) {
           os.width(size);
           os << *iter++;
-          for (int i = 1; i < shape[std::tuple_size<pS>::value - 1]; i++) {
+          for (int i = 1; i < std::get<std::tuple_size<pS>::value - 1>(shape);
+               i++) {
             os.width(size + 1);
             os << *iter++;
           }

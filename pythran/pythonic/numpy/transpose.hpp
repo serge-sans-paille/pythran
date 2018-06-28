@@ -55,7 +55,7 @@ namespace numpy
     _transpose(types::ndarray<T, pS> const &a,
                long const l[std::tuple_size<pS>::value])
     {
-      auto shape = a.shape();
+      auto shape = sutils::array(a.shape());
       types::array<long, std::tuple_size<pS>::value> shp;
       for (unsigned long i = 0; i < std::tuple_size<pS>::value; ++i)
         shp[i] = shape[l[i]];

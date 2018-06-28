@@ -21,8 +21,8 @@ namespace numpy
       return __builtin__::None;
     }
 
-    template <class T, size_t N, class F>
-    types::none_type fill(types::ndarray<T, N> &e, F f)
+    template <class T, class pS, class F>
+    types::none_type fill(types::ndarray<T, pS> &e, F f)
     {
       std::fill(e.fbegin(), e.fend(), f);
       return __builtin__::None;

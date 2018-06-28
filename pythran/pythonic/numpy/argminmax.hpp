@@ -162,7 +162,7 @@ namespace numpy
     static_assert(N > 1, "specialization ok");
     types::ndarray<typename E::dtype, types::array<long, N - 1>> val{
         out.shape(), Op::limit()};
-    for (long i = 0, n = expr.shape()[0]; i < n; ++i)
+    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
       _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr.fast(i), i, val,
                                      std::integral_constant<size_t, N - 1>());
   }
@@ -172,7 +172,7 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, N>)
   {
     static_assert(N >= 1, "specialization ok");
-    for (long i = 0, n = expr.shape()[0]; i < n; ++i)
+    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
       _argminmax_head<Op, Dim, Axis>(out.fast(i), expr.fast(i),
                                      std::integral_constant<size_t, N - 1>());
   }
@@ -195,7 +195,7 @@ namespace numpy
       axis += E::value;
     if (axis < 0 || size_t(axis) >= E::value)
       throw types::ValueError("axis out of bounds");
-    auto shape = array.shape();
+    auto shape = sutils::array(array.shape());
     types::array<long, E::value - 1> shp;
     auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
     std::copy(shape.begin() + axis + 1, shape.end(), next);

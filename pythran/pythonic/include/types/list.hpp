@@ -316,9 +316,10 @@ namespace types
     intptr_t id() const;
 
     long count(T const &x) const;
-    array<long, value> shape() const
+    using shape_t = array<long, value>;
+    shape_t shape() const
     {
-      array<long, value> res;
+      shape_t res;
       details::init_shape(res, *this, utils::int_<value>{});
       return res;
     }

@@ -787,7 +787,11 @@ namespace sutils
 
   template <class... Tys, class T>
   struct push_front<types::pshape<Tys...>, T> {
-    using type = types::pshape<Tys..., T>;
+    using type = types::pshape<T, Tys...>;
+  };
+  template <class T, size_t N, class S>
+  struct push_front<types::array<T, N>, S>
+      : push_front<types::make_pshape_t<N>, S> {
   };
 
   template <class P, class T>

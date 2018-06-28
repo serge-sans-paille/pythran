@@ -77,13 +77,13 @@ namespace numpy
     auto shape = array.shape();
     if (axis == 0) {
       types::array<long, N - 1> shp;
-      std::copy(shape.begin() + 1, shape.end(), shp.begin());
+      sutils::copy_shape<0, 1>(shp, shape, utils::make_index_sequence<N - 1>());
       types::ndarray<bool, types::array<long, N - 1>> out(shp, true);
       return std::accumulate(array.begin(), array.end(), out,
                              functor::multiply());
     } else {
       types::array<long, N - 1> shp;
-      std::copy(shape.begin(), shape.end() - 1, shp.begin());
+      sutils::copy_shape<0, 0>(shp, shape, utils::make_index_sequence<N - 1>());
       types::ndarray<bool, types::array<long, N - 1>> ally(shp,
                                                            __builtin__::None);
       std::transform(

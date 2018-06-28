@@ -46,11 +46,12 @@ namespace numpy
                   utils::index_sequence<Is...>)
   {
     constexpr size_t N = std::tuple_size<R>::value;
-    return {{(
-        reps[N - Is - 1] *
-        ((std::tuple_size<pS>::value > Is)
-             ? std::get<(Is < std::tuple_size<pS>::value ? Is : 0)>(expr_shape)
-             : 1))...}};
+    return {
+        {(reps[Is] * ((std::tuple_size<pS>::value > (N - 1 - Is))
+                          ? std::get<((N - 1 - Is < std::tuple_size<pS>::value)
+                                          ? (N - 1 - Is)
+                                          : 0)>(expr_shape)
+                          : 1))...}};
   }
 
   template <class E, size_t N>

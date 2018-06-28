@@ -149,7 +149,7 @@ namespace types
   typename numpy_expr<Op, Args...>::iterator
       numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>)
   {
-    return {{(size() == std::get<I>(args).shape()[0])...},
+    return {{(size() == std::get<0>(std::get<I>(args).shape()))...},
             const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
                 .begin()...};
   }
@@ -165,7 +165,7 @@ namespace types
   typename numpy_expr<Op, Args...>::iterator
       numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>)
   {
-    return {{(size() == std::get<I>(args).shape()[0])...},
+    return {{(size() == std::get<0>(std::get<I>(args).shape()))...},
             const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
                 .end()...};
   }

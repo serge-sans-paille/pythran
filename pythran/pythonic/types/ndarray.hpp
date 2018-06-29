@@ -1084,7 +1084,7 @@ namespace types
     {
       array<long, E::value> strides;
       strides[E::value - 1] = sizeof(typename E::dtype);
-      auto shape = a.shape().array();
+      auto shape = sutils::array(a.shape());
       std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin(),
                      strides.rbegin() + 1, std::multiplies<long>());
       return strides;

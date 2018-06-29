@@ -93,11 +93,20 @@ namespace types
         typename utils::nested_container_value_type<sliced_list>::type dtype;
     static const size_t value =
         utils::nested_container_depth<sliced_list>::value;
+    static_assert(value != 0, "valid shape");
     static const bool is_vectorizable =
         types::is_vectorizable_dtype<dtype>::value &&
         std::is_same<S, contiguous_slice>::value;
     static const bool is_strided =
         !std::is_same<contiguous_normalized_slice, S>::value;
+
+    using shape_t = types::array<long, value>;
+    shape_t shape() const
+    {
+      shape_t res;
+      details::init_shape(res, *this, utils::int_<value>{});
+      return res;
+    }
 
     // constructor
     sliced_list();

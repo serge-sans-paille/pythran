@@ -46,7 +46,7 @@ namespace numpy
         -> decltype(numpy::functor::asarray{}(expr))
     {
       if (n == 0)
-        return numpy::functor::identity{}(expr.shape()[0],
+        return numpy::functor::identity{}(std::get<0>(expr.shape()),
                                           types::dtype_t<typename E::dtype>{});
       if (n > 0) {
         auto base = numpy::functor::asarray{}(expr);

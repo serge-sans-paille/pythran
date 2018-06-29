@@ -484,6 +484,7 @@ namespace types
 #else
     std::tuple<Args...> args;
 #endif
+    static_assert(value != 0, "valid shape");
     using shape_t = array<long, value>;
     shape_t _shape;
 

@@ -42,6 +42,11 @@ namespace utils
     static const int value = 1 + nested_container_depth<T>::value;
   };
 
+  template <class T, class S>
+  struct nested_container_depth<types::sliced_list<T, S>> {
+    static const int value = 1 + nested_container_depth<T>::value;
+  };
+
   template <class T, size_t N>
   struct nested_container_depth<types::array<T, N>> {
     static const int value = 1 + nested_container_depth<T>::value;

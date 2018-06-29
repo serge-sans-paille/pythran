@@ -139,10 +139,11 @@ namespace numpy
     using return_type = decltype(asarray(std::get<0>(ai)));
     using T = typename return_type::dtype;
     auto constexpr N = return_type::value;
-    auto shape = ai[0].shape();
+    auto shape = sutils::array(ai[0].shape());
     shape[axis] = std::accumulate(
-        ai.begin(), ai.end(), 0L,
-        [axis](long v, E const &from) { return v + from.shape()[axis]; });
+        ai.begin(), ai.end(), 0L, [axis](long v, E const &from) {
+          return v + sutils::array(from.shape())[axis];
+        });
 
     return_type out{shape, types::none_type{}};
     details::concatenate_helper<N>()(out, ai, axis);

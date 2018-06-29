@@ -891,6 +891,24 @@ namespace sutils
   }
 
   template <class S>
+  long min(long curr, S const &s, std::integral_constant<size_t, 0>)
+  {
+    return std::min(curr, std::get<0>(s));
+  }
+  template <class S, size_t I>
+  long min(long curr, S const &s, std::integral_constant<size_t, I>)
+  {
+    return min(std::min(curr, std::get<I>(s)), s,
+               std::integral_constant<size_t, I - 1>());
+  }
+  template <class S>
+  long min(S const &s)
+  {
+    return min(std::get<std::tuple_size<S>::value - 1>(s), s,
+               std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+
+  template <class S>
   long prod(S const &s, std::integral_constant<size_t, 0>)
   {
     return std::get<0>(s);

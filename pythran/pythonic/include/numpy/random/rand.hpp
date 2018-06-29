@@ -10,7 +10,7 @@ namespace numpy
   namespace random
   {
     template <class... T>
-    types::ndarray<double, sizeof...(T)> rand(T... shape);
+    types::ndarray<double, types::array<long, sizeof...(T)>> rand(T... shape);
 
     double rand();
 

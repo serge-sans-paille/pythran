@@ -24,7 +24,7 @@ namespace numpy
     auto iter = buffer->data;
     if (k >= 0)
       for (int i = 0, j = k;
-           i < std::get<0>(a_shape[0]) && j < std::get<1>(a_shape);
+           i < std::get<0>(a_shape) && j < std::get<1>(a_shape);
            ++i, ++j, ++std::get<0>(shape))
         *iter++ = a[i][j];
     else

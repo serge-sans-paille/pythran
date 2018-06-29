@@ -10,9 +10,8 @@ namespace numpy
 {
   namespace random
   {
-    template <size_t N>
-    types::ndarray<long, N> randint(long min, long max,
-                                    types::array<long, N> const &shape);
+    template <class pS>
+    types::ndarray<long, pS> randint(long min, long max, pS const &shape);
 
     long randint(long min, long max);
 

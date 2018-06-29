@@ -11,7 +11,8 @@ namespace numpy
 {
 
   template <class E>
-  types::ndarray<typename E::dtype, E::value> diff(E const &expr, long n = 1);
+  types::ndarray<typename E::dtype, types::array<long, E::value>>
+  diff(E const &expr, long n = 1);
 
   DECLARE_FUNCTOR(pythonic::numpy, diff);
 }

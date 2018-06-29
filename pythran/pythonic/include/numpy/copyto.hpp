@@ -7,9 +7,9 @@
 PYTHONIC_NS_BEGIN
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<T, N> copyto(types::ndarray<T, N> &out,
-                              types::ndarray<T, N> const &a);
+  template <class T, class pS0, class pS1>
+  types::ndarray<T, pS0> copyto(types::ndarray<T, pS0> &out,
+                                types::ndarray<T, pS1> const &a);
 
   DECLARE_FUNCTOR(pythonic::numpy, copyto);
 }

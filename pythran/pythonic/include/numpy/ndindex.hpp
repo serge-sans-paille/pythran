@@ -48,6 +48,9 @@ namespace numpy
   template <size_t N>
   _ndindex<N> ndindex(types::array<long, N> const &args);
 
+  template <class... Tys>
+  _ndindex<sizeof...(Tys)> ndindex(types::pshape<Tys...> const &args);
+
   DECLARE_FUNCTOR(pythonic::numpy, ndindex);
 }
 PYTHONIC_NS_END

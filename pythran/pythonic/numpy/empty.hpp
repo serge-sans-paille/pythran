@@ -10,17 +10,15 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class IntTy, size_t N, class dtype>
-  types::ndarray<typename dtype::type, N>
-  empty(types::array<IntTy, N> const &shape, dtype)
+  template <class pS, class dtype>
+  types::ndarray<typename dtype::type, pS> empty(pS const &shape, dtype)
   {
-    static_assert(std::is_integral<IntTy>::value,
-                  "expected shape of integral type");
     return {shape, __builtin__::None};
   }
 
   template <class dtype>
-  types::ndarray<typename dtype::type, 1> empty(long size, dtype d)
+  types::ndarray<typename dtype::type, types::pshape<long>> empty(long size,
+                                                                  dtype d)
   {
     return empty(types::make_tuple(size), d);
   }

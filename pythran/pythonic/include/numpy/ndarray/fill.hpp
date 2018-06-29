@@ -15,8 +15,8 @@ namespace numpy
     template <class E, class F>
     types::none_type fill(E &&e, F f);
 
-    template <class T, size_t N, class F>
-    types::none_type fill(types::ndarray<T, N> &e, F f);
+    template <class T, class pS, class F>
+    types::none_type fill(types::ndarray<T, pS> &e, F f);
 
     DECLARE_FUNCTOR(pythonic::numpy::ndarray, fill);
   }

@@ -266,9 +266,9 @@ namespace types
 
   template <class Arg>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, 1>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>::type
   numpy_iexpr<Arg>::fast(F const &filter) const
   {
     long sz = filter.shape()[0];
@@ -279,7 +279,8 @@ namespace types
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
     long shp[1] = {n};
-    return this->fast(ndarray<long, 1>(raw, shp, types::ownership::owned));
+    return this->fast(
+        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
 #ifdef USE_BOOST_SIMD
@@ -368,9 +369,9 @@ namespace types
 
   template <class Arg>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, 1>>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>::type
       numpy_iexpr<Arg>::
       operator[](F const &filter) const
   {
@@ -428,11 +429,11 @@ namespace types
   }
 
   template <class Arg>
-  template <class T, size_t M, size_t N>
-  long numpy_iexpr<Arg>::buffer_offset(ndarray<T, M> const &arg, long index,
+  template <class T, class pS, size_t N>
+  long numpy_iexpr<Arg>::buffer_offset(ndarray<T, pS> const &arg, long index,
                                        utils::int_<N>)
   {
-    _shape[value - N] = arg._shape[value - N + 1];
+    _shape[value - N] = std::get<value - N + 1>(arg._shape);
     buffer_offset(arg, 0, utils::int_<N - 1>());
     return index * arg._strides[0];
   }
@@ -441,7 +442,7 @@ namespace types
   template <class E, size_t N>
   long numpy_iexpr<Arg>::buffer_offset(E const &arg, long index, utils::int_<N>)
   {
-    auto tmp = arg.shape()[value - N + 1];
+    auto tmp = std::get<value - N + 1>(arg.shape());
     _shape[value - N] = tmp;
     return buffer_offset(arg, index * tmp, utils::int_<N - 1>());
   }

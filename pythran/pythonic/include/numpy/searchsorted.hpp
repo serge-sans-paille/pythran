@@ -19,8 +19,9 @@ namespace numpy
   searchsorted(U const &a, T const &v, types::str const &side = "left");
 
   template <class E, class T>
-  typename std::enable_if<types::is_numexpr_arg<E>::value,
-                          types::ndarray<long, E::value>>::type
+  typename std::enable_if<
+      types::is_numexpr_arg<E>::value,
+      types::ndarray<long, types::array<long, E::value>>>::type
   searchsorted(T const &a, E const &v, types::str const &side = "left");
 
   DECLARE_FUNCTOR(pythonic::numpy, searchsorted);

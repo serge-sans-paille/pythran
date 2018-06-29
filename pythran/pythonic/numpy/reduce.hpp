@@ -53,7 +53,7 @@ namespace numpy
     template <class E, class F>
     F operator()(E &&e, F acc)
     {
-      for (long i = 0, n = e.shape()[0]; i < n; ++i) {
+      for (long i = 0, n = std::get<0>(e.shape()); i < n; ++i) {
         acc = _reduce<Op, N - 1, types::novectorize_nobroadcast>{}(e.fast(i),
                                                                    acc);
       }
@@ -66,7 +66,7 @@ namespace numpy
     template <class E, class F>
     F operator()(E &&e, F acc)
     {
-      for (long i = 0, n = e.shape()[0]; i < n; ++i) {
+      for (long i = 0, n = std::get<0>(e.shape()); i < n; ++i) {
         Op{}(acc, e.fast(i));
       }
       return acc;
@@ -212,14 +212,16 @@ namespace numpy
     auto shape = array.shape();
     if (axis == 0) {
       types::array<long, E::value - 1> shp;
-      std::copy(shape.begin() + 1, shape.end(), shp.begin());
+      sutils::copy_shape<0, 1>(shp, shape,
+                               utils::make_index_sequence<E::value - 1>());
       return _reduce<Op, 1, types::novectorize /* ! on scalars*/>{}(
           array,
           reduced_type<E>{shp, utils::neutral<Op, typename E::dtype>::value});
     } else {
       types::array<long, E::value - 1> shp;
-      auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
-      std::copy(shape.begin() + axis + 1, shape.end(), next);
+      auto tmp = sutils::array(shape);
+      auto next = std::copy(tmp.begin(), tmp.begin() + axis, shp.begin());
+      std::copy(tmp.begin() + axis + 1, tmp.end(), next);
       reduced_type<E> sumy{shp, __builtin__::None};
 
       auto sumy_iter = sumy.begin();

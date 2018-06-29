@@ -15,7 +15,7 @@ namespace numpy
   {
 
     template <class... T>
-    types::ndarray<double, sizeof...(T)> rand(T... shape)
+    types::ndarray<double, types::array<long, sizeof...(T)>> rand(T... shape)
     {
       return random(types::array<long, sizeof...(T)>{{shape...}});
     }

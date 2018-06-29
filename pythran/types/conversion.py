@@ -58,7 +58,7 @@ def pytype_to_ctype(t):
     elif isinstance(t, NDArray):
         dtype = pytype_to_ctype(t.__args__[0])
         ndim = len(t.__args__) - 1
-        arr = 'pythonic::types::ndarray<{0},{1}>'.format(dtype, ndim)
+        arr = 'pythonic::types::ndarray<{0},pythonic::types::pshape<{1}>>'.format(dtype, ','.join(['long'] * ndim))
         if t.__args__[1].start == -1:
             return 'pythonic::types::numpy_texpr<{0}>'.format(arr)
         elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):

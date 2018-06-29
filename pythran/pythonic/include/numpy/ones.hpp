@@ -10,12 +10,13 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-  template <class IntTy, size_t N, class dtype = functor::float64>
-  types::ndarray<typename dtype::type, N>
-  ones(types::array<IntTy, N> const &shape, dtype d = dtype());
+  template <class pS, class dtype = functor::float64>
+  types::ndarray<typename dtype::type, pS> ones(pS const &shape,
+                                                dtype d = dtype());
 
   template <class dtype = functor::float64>
-  types::ndarray<typename dtype::type, 1> ones(long size, dtype d = dtype());
+  types::ndarray<typename dtype::type, types::pshape<long>>
+  ones(long size, dtype d = dtype());
 
   DECLARE_FUNCTOR(pythonic::numpy, ones);
 }

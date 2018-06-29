@@ -26,12 +26,11 @@ namespace numpy
       }
     }
 
-    template <size_t N>
-    types::ndarray<long, N> binomial(double n, double p,
-                                     types::array<long, N> const &shape)
+    template <class pS>
+    types::ndarray<long, pS> binomial(double n, double p, pS const &shape)
     {
       details::parameters_check(n, p);
-      types::ndarray<long, N> result{shape, types::none_type()};
+      types::ndarray<long, pS> result{shape, types::none_type()};
       std::binomial_distribution<long> distribution{(long)n, p};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });

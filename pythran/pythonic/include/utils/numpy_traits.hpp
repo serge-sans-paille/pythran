@@ -5,7 +5,7 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  template <class T, size_t N>
+  template <class T, class pS>
   class ndarray;
 
   template <class A>
@@ -48,8 +48,8 @@ namespace types
     static constexpr bool value = false;
   };
 
-  template <class T, size_t N>
-  struct is_ndarray<ndarray<T, N>> {
+  template <class T, class pS>
+  struct is_ndarray<ndarray<T, pS>> {
     static constexpr bool value = true;
   };
 
@@ -63,8 +63,8 @@ namespace types
     static constexpr bool value = false;
   };
 
-  template <class T, size_t N>
-  struct is_array<ndarray<T, N>> {
+  template <class T, class pS>
+  struct is_array<ndarray<T, pS>> {
     static constexpr bool value = true;
   };
 

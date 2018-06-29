@@ -228,7 +228,7 @@ namespace types
       numpy_expr<Op, Args...>::_vbegin(vectorize,
                                        utils::index_sequence<I...>) const
   {
-    return {{(size() == std::get<I>(args).shape()[0])...},
+    return {{(size() == std::get<0>(std::get<I>(args).shape()))...},
             std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
                                 std::get<I>(args)).begin()...),
             std::get<I>(args).vbegin(vectorize{})...};
@@ -247,7 +247,7 @@ namespace types
       numpy_expr<Op, Args...>::_vend(vectorize,
                                      utils::index_sequence<I...>) const
   {
-    return {{(size() == std::get<I>(args).shape()[0])...},
+    return {{(size() == std::get<0>(std::get<I>(args).shape()))...},
             std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
                                 std::get<I>(args)).end()...),
             std::get<I>(args).vend(vectorize{})...};
@@ -323,7 +323,7 @@ namespace types
       numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, pshape<long>>>>::type
   numpy_expr<Op, Args...>::fast(F const &filter) const
   {
-    long sz = filter.shape()[0];
+    long sz = std::get<0>(filter.shape());
     long *raw = (long *)malloc(sz * sizeof(long));
     long n = 0;
     for (long i = 0; i < sz; ++i)

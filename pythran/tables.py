@@ -3933,6 +3933,7 @@ MODULES = {
         "union1d": ConstFunctionIntr(),
         "unique": ConstFunctionIntr(),
         "unwrap": ConstFunctionIntr(),
+        "unravel_index": ConstFunctionIntr(),
         "var": ConstMethodIntr(),
         "vstack": ConstFunctionIntr(),
         "where": ConstFunctionIntr(),

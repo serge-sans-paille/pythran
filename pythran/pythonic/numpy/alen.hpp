@@ -15,8 +15,6 @@ namespace numpy
   {
     return std::get<0>(expr.shape());
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, alen);
 }
 PYTHONIC_NS_END
 

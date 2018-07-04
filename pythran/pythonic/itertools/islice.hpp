@@ -122,8 +122,6 @@ namespace itertools
   {
     return {iterable, __builtin__::xrange(0, stop, 1)};
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, islice);
 }
 PYTHONIC_NS_END
 

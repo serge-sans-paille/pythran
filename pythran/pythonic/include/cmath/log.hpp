@@ -12,7 +12,7 @@ namespace cmath
 {
   using std::log;
   double log(double x, double base);
-  DECLARE_FUNCTOR(pythonic::cmath, log);
+  DEFINE_FUNCTOR(pythonic::cmath, log);
 }
 PYTHONIC_NS_END
 

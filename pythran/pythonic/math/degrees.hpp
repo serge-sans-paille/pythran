@@ -16,8 +16,6 @@ namespace math
   {
     return (x * 360.) / (2. * pi);
   }
-
-  DEFINE_FUNCTOR(pythonic::math, degrees);
 }
 PYTHONIC_NS_END
 

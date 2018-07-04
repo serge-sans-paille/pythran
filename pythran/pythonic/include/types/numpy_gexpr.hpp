@@ -248,7 +248,13 @@ namespace types
           -> decltype(tuple_push_head(
               std::get<0>(t0) * std::get<0>(t1),
               merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                  s + 1, tuple_tail(t0), tuple_tail(t1))));
+                  s + 1, tuple_tail(t0), tuple_tail(t1))))
+      {
+        return tuple_push_head(
+            std::get<0>(t0) * std::get<0>(t1),
+            merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
+                s + 1, tuple_tail(t0), tuple_tail(t1)));
+      }
       static_assert(
           std::is_same<decltype(std::declval<S0>() * std::declval<S1>()),
                        normalize_t<decltype(std::declval<S0>() *
@@ -265,7 +271,14 @@ namespace types
               tuple_push_head(
                   std::get<0>(t1),
                   merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                      s + 1, tuple_tail(t0), tuple_tail(t1)))));
+                      s + 1, tuple_tail(t0), tuple_tail(t1)))))
+      {
+        return tuple_push_head(
+            std::get<0>(t0),
+            tuple_push_head(std::get<0>(t1),
+                            merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
+                                s + 1, tuple_tail(t0), tuple_tail(t1))));
+      }
     };
 
     template <class... T0, class S1, class... T1>
@@ -275,7 +288,13 @@ namespace types
           -> decltype(tuple_push_head(
               std::get<0>(t0),
               merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
-                  s, tuple_tail(t0), t1)));
+                  s, tuple_tail(t0), t1)))
+      {
+        return tuple_push_head(
+            std::get<0>(t0),
+            merge_gexpr<std::tuple<T0...>, std::tuple<S1, T1...>>{}(
+                s, tuple_tail(t0), t1));
+      }
     };
     template <class... T0, class... T1>
     struct merge_gexpr<std::tuple<long, T0...>, std::tuple<none_type, T1...>> {
@@ -284,7 +303,13 @@ namespace types
           -> decltype(tuple_push_head(
               std::get<0>(t0),
               merge_gexpr<std::tuple<T0...>, std::tuple<none_type, T1...>>{}(
-                  s, tuple_tail(t0), t1)));
+                  s, tuple_tail(t0), t1)))
+      {
+        return tuple_push_head(
+            std::get<0>(t0),
+            merge_gexpr<std::tuple<T0...>, std::tuple<none_type, T1...>>{}(
+                s, tuple_tail(t0), t1));
+      }
     };
 
     template <class S0, class... T0, class... T1>
@@ -294,7 +319,13 @@ namespace types
           -> decltype(tuple_push_head(
               std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower,
               merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                  s + 1, tuple_tail(t0), tuple_tail(t1))));
+                  s + 1, tuple_tail(t0), tuple_tail(t1))))
+      {
+        return tuple_push_head(
+            std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower,
+            merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
+                s + 1, tuple_tail(t0), tuple_tail(t1)));
+      }
     };
 
     template <class... T0, class... T1>
@@ -304,7 +335,13 @@ namespace types
           -> decltype(tuple_push_head(
               std::get<0>(t0),
               merge_gexpr<std::tuple<T0...>, std::tuple<long, T1...>>{}(
-                  s, tuple_tail(t0), t1)));
+                  s, tuple_tail(t0), t1)))
+      {
+        return tuple_push_head(
+            std::get<0>(t0),
+            merge_gexpr<std::tuple<T0...>, std::tuple<long, T1...>>{}(
+                s, tuple_tail(t0), t1));
+      }
     };
 
     template <class Arg, class... Sp>

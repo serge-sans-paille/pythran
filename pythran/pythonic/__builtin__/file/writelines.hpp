@@ -19,8 +19,6 @@ namespace __builtin__
     {
       f.writelines(sequence);
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, writelines);
   }
 }
 PYTHONIC_NS_END

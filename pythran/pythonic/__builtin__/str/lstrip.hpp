@@ -18,8 +18,6 @@ namespace __builtin__
     {
       return {self.begin() + self.find_first_not_of(to_del), self.end()};
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::str, lstrip);
   }
 }
 PYTHONIC_NS_END

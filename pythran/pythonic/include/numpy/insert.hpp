@@ -44,7 +44,7 @@ namespace numpy
   template <class E, class... Args>
   E insert(E, Args const &...);
 
-  DECLARE_FUNCTOR(pythonic::numpy, insert);
+  DEFINE_FUNCTOR(pythonic::numpy, insert);
 }
 PYTHONIC_NS_END
 

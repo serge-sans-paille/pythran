@@ -16,7 +16,7 @@ namespace __builtin__
     types::dict_values<types::dict<K, V>>
     viewvalues(types::dict<K, V> const &d);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, viewvalues);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, viewvalues);
   }
 }
 PYTHONIC_NS_END

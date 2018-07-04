@@ -16,8 +16,6 @@ namespace operator_
   {
     return numpy::functor::dot{}(a, b);
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, matmul);
 }
 PYTHONIC_NS_END
 

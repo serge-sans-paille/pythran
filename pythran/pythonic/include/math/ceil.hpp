@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(ceil, std::ceil);
+  DEFINE_FUNCTOR_2(ceil, std::ceil);
 }
 PYTHONIC_NS_END
 

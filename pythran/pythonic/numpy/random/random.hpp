@@ -37,8 +37,6 @@ namespace numpy
     {
       return std::uniform_real_distribution<double>{0., 1.}(details::generator);
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, random);
   }
 }
 PYTHONIC_NS_END

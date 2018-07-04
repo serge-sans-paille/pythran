@@ -24,7 +24,7 @@ namespace numpy
       types::ndarray<long, types::array<long, E::value>>>::type
   searchsorted(T const &a, E const &v, types::str const &side = "left");
 
-  DECLARE_FUNCTOR(pythonic::numpy, searchsorted);
+  DEFINE_FUNCTOR(pythonic::numpy, searchsorted);
 }
 PYTHONIC_NS_END
 

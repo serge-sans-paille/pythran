@@ -15,7 +15,7 @@ namespace cmath
   template <class T>
   std::complex<T> cos(T const &v);
 
-  DECLARE_FUNCTOR(pythonic::cmath, cos);
+  DEFINE_FUNCTOR(pythonic::cmath, cos);
 }
 PYTHONIC_NS_END
 

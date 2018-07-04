@@ -3,6 +3,7 @@
 
 #include "pythonic/include/numpy/linalg/matrix_power.hpp"
 
+#include "pythonic/numpy/array.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/numpy/identity.hpp"
 #include "pythonic/numpy/dot.hpp"
@@ -54,8 +55,6 @@ namespace numpy
       }
       throw pythonic::__builtin__::NotImplementedError("negative power");
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::linalg, matrix_power);
   }
 }
 PYTHONIC_NS_END

@@ -13,7 +13,7 @@ namespace numpy
   types::ndarray<typename dtype::type, types::pshape<long, long>>
   tri(long N, long M = -1, long k = 0, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, tri)
+  DEFINE_FUNCTOR(pythonic::numpy, tri)
 }
 PYTHONIC_NS_END
 

@@ -24,8 +24,6 @@ namespace __builtin__
     {
       f.write(str);
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, write);
   }
 }
 PYTHONIC_NS_END

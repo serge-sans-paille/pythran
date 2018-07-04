@@ -12,7 +12,7 @@ namespace numpy
   template <class pS>
   types::ndarray<long, types::pshape<long>> lexsort(pS const &keys);
 
-  DECLARE_FUNCTOR(pythonic::numpy, lexsort)
+  DEFINE_FUNCTOR(pythonic::numpy, lexsort)
 }
 PYTHONIC_NS_END
 

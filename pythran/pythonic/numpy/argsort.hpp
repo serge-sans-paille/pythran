@@ -33,8 +33,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(argsort);
-
-  DEFINE_FUNCTOR(pythonic::numpy, argsort);
 }
 PYTHONIC_NS_END
 

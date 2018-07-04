@@ -11,7 +11,7 @@ namespace __dispatch__
   auto pop(Any &&any, Arg0 &&... arg0)
       -> decltype(any.pop(std::forward<Arg0>(arg0)...));
 
-  DECLARE_FUNCTOR(pythonic::__dispatch__, pop);
+  DEFINE_FUNCTOR(pythonic::__dispatch__, pop);
 }
 PYTHONIC_NS_END
 

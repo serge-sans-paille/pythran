@@ -82,7 +82,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(sort);
-  DEFINE_FUNCTOR(pythonic::numpy, sort);
 }
 PYTHONIC_NS_END
 

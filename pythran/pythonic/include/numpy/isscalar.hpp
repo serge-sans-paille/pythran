@@ -15,7 +15,7 @@ namespace numpy
   template <class E>
   constexpr bool isscalar(E const &);
 
-  DECLARE_FUNCTOR(pythonic::numpy, isscalar);
+  DEFINE_FUNCTOR(pythonic::numpy, isscalar);
 }
 PYTHONIC_NS_END
 

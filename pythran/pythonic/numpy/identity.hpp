@@ -14,8 +14,6 @@ namespace numpy
   {
     return eye(n, n, 0, d);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, identity);
 }
 PYTHONIC_NS_END
 

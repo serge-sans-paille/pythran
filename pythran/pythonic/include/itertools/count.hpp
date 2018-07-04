@@ -46,7 +46,7 @@ namespace itertools
 
   details::count<long> count();
 
-  DECLARE_FUNCTOR(pythonic::itertools, count);
+  DEFINE_FUNCTOR(pythonic::itertools, count);
 }
 PYTHONIC_NS_END
 

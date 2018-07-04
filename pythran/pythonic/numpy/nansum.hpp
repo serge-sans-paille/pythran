@@ -34,8 +34,6 @@ namespace numpy
     _nansum(expr.begin(), expr.end(), s, utils::int_<E::value>());
     return s;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, nansum);
 }
 PYTHONIC_NS_END
 

@@ -15,8 +15,6 @@ namespace operator_
   {
     return std::count(a.begin(), a.end(), b);
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, countOf);
 }
 PYTHONIC_NS_END
 

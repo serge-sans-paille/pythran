@@ -75,8 +75,6 @@ namespace numpy
       out_iter = std::copy(out.fbegin(), out.fbegin() + n, out_iter);
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, tile);
 }
 PYTHONIC_NS_END
 

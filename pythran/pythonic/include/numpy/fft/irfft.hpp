@@ -17,7 +17,7 @@ namespace numpy
           types::str renorm = "");
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(irfft);
-    DECLARE_FUNCTOR(pythonic::numpy::fft, irfft);
+    DEFINE_FUNCTOR(pythonic::numpy::fft, irfft);
   }
 }
 PYTHONIC_NS_END

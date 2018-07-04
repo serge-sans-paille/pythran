@@ -31,8 +31,6 @@ namespace numpy
   {
     throw std::runtime_error("putmask only partially implemented");
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, putmask);
 }
 PYTHONIC_NS_END
 

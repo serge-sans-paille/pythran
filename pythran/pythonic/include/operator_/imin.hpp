@@ -20,7 +20,7 @@ namespace operator_
       decltype(a = numpy::functor::minimum{}(std::forward<A>(a),
                                              std::forward<B>(b)))>::type;
 
-  DECLARE_FUNCTOR(pythonic::operator_, imin);
+  DEFINE_FUNCTOR(pythonic::operator_, imin);
 }
 PYTHONIC_NS_END
 

@@ -16,8 +16,6 @@ namespace itertools
   {
     return imap(__builtin__::None, std::forward<Iter>(iters)...);
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, izip);
 }
 PYTHONIC_NS_END
 

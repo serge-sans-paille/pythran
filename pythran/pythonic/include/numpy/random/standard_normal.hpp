@@ -19,7 +19,7 @@ namespace numpy
 
     double standard_normal(types::none_type d = {});
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, standard_normal);
+    DEFINE_FUNCTOR(pythonic::numpy::random, standard_normal);
   }
 }
 PYTHONIC_NS_END

@@ -10,7 +10,7 @@ namespace numpy
   template <class E>
   types::ndarray<long, types::pshape<long>> flatnonzero(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, flatnonzero);
+  DEFINE_FUNCTOR(pythonic::numpy, flatnonzero);
 }
 PYTHONIC_NS_END
 

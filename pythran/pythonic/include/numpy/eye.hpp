@@ -19,7 +19,7 @@ namespace numpy
   eye(long N, types::none_type M = __builtin__::None, long k = 0,
       dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, eye);
+  DEFINE_FUNCTOR(pythonic::numpy, eye);
 }
 PYTHONIC_NS_END
 

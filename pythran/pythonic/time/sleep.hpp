@@ -18,8 +18,6 @@ namespace time
     std::this_thread::sleep_for(std::chrono::duration<double>(value));
     return __builtin__::None;
   }
-
-  DEFINE_FUNCTOR(pythonic::time, sleep)
 }
 PYTHONIC_NS_END
 

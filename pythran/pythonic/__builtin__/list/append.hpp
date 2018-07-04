@@ -28,8 +28,6 @@ namespace __builtin__
       seq.push_back(std::forward<F>(value));
       return __builtin__::None;
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::list, append);
   }
 }
 PYTHONIC_NS_END

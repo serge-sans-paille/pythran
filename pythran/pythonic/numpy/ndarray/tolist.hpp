@@ -36,7 +36,6 @@ namespace numpy
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(tolist);
-    DEFINE_FUNCTOR(pythonic::numpy::ndarray, tolist);
   }
 }
 PYTHONIC_NS_END

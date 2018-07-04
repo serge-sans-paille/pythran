@@ -10,7 +10,7 @@ PYTHONIC_NS_BEGIN
 
 namespace cmath
 {
-  DECLARE_FUNCTOR_2(atan, std::atan);
+  DEFINE_FUNCTOR_2(atan, std::atan);
 }
 PYTHONIC_NS_END
 

@@ -81,7 +81,6 @@ namespace numpy
   }
 
   /* TODO: must specialize for higher order */
-  DEFINE_FUNCTOR(pythonic::numpy, fromfunction);
 }
 PYTHONIC_NS_END
 

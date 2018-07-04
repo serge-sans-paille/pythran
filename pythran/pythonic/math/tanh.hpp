@@ -10,7 +10,6 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DEFINE_FUNCTOR_2(tanh, std::tanh);
 }
 PYTHONIC_NS_END
 

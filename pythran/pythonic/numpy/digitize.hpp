@@ -50,8 +50,6 @@ namespace numpy
                 operator_::functor::gt(), utils::int_<E::value>());
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, digitize);
 }
 PYTHONIC_NS_END
 

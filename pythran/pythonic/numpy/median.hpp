@@ -35,8 +35,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(median);
-
-  DEFINE_FUNCTOR(pythonic::numpy, median);
 }
 PYTHONIC_NS_END
 

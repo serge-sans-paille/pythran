@@ -38,8 +38,6 @@ namespace __builtin__
       // typing issue
       return {};
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::set, intersection_update);
   }
 }
 PYTHONIC_NS_END

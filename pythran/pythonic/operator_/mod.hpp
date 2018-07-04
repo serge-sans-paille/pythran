@@ -40,8 +40,6 @@ namespace operator_
   {
     return a % b;
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, mod);
 }
 PYTHONIC_NS_END
 

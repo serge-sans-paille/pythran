@@ -16,7 +16,7 @@ namespace numpy
     flatten(types::ndarray<T, pS> const &a);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(flatten);
-    DECLARE_FUNCTOR(pythonic::numpy::ndarray, flatten);
+    DEFINE_FUNCTOR(pythonic::numpy::ndarray, flatten);
   }
 }
 PYTHONIC_NS_END

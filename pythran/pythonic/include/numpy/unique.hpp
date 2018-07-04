@@ -31,7 +31,7 @@ namespace numpy
   unique(E const &expr, bool return_index, bool return_inverse,
          bool return_counts);
 
-  DECLARE_FUNCTOR(pythonic::numpy, unique)
+  DEFINE_FUNCTOR(pythonic::numpy, unique)
 }
 PYTHONIC_NS_END
 

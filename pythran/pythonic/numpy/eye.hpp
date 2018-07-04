@@ -32,8 +32,6 @@ namespace numpy
   {
     return eye(N, N, k, d);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, eye);
 }
 PYTHONIC_NS_END
 

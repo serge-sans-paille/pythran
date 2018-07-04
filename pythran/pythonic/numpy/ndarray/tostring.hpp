@@ -22,7 +22,6 @@ namespace numpy
                         expr.flat_size() * sizeof(T));
     }
     NUMPY_EXPR_TO_NDARRAY0_IMPL(tostring);
-    DEFINE_FUNCTOR(pythonic::numpy::ndarray, tostring);
   }
 }
 PYTHONIC_NS_END

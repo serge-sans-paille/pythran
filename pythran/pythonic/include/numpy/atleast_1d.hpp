@@ -18,7 +18,7 @@ namespace numpy
       typename std::enable_if<!(types::is_dtype<T>::value),
                               decltype(asarray(t))>::type;
 
-  DECLARE_FUNCTOR(pythonic::numpy, atleast_1d);
+  DEFINE_FUNCTOR(pythonic::numpy, atleast_1d);
 }
 PYTHONIC_NS_END
 

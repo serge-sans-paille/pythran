@@ -24,8 +24,6 @@ namespace numpy
   {
     return ones(types::pshape<long>(size), d);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, ones);
 }
 PYTHONIC_NS_END
 

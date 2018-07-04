@@ -19,8 +19,6 @@ namespace operator_
   {
     return !a.real() && !a.imag();
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, not_);
 }
 PYTHONIC_NS_END
 

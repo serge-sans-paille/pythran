@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(atan2, std::atan2);
+  DEFINE_FUNCTOR_2(atan2, std::atan2);
 }
 PYTHONIC_NS_END
 

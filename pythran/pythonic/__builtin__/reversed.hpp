@@ -54,8 +54,6 @@ namespace __builtin__
   {
     return {iterable};
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, reversed);
 }
 PYTHONIC_NS_END
 

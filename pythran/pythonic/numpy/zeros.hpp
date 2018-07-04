@@ -27,8 +27,6 @@ namespace numpy
   {
     return zeros(types::pshape<long>(size), d);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, zeros);
 }
 PYTHONIC_NS_END
 

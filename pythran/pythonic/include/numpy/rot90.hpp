@@ -15,7 +15,7 @@ namespace numpy
   rot90(types::ndarray<T, pS> const &expr, int k = 1);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(rot90)
-  DECLARE_FUNCTOR(pythonic::numpy, rot90);
+  DEFINE_FUNCTOR(pythonic::numpy, rot90);
 }
 PYTHONIC_NS_END
 

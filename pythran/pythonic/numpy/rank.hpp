@@ -15,8 +15,6 @@ namespace numpy
   {
     return E::value;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, rank);
 }
 PYTHONIC_NS_END
 

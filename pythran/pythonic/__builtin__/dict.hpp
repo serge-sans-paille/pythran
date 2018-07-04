@@ -42,8 +42,6 @@ namespace __builtin__
       return out;
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, dict);
 }
 PYTHONIC_NS_END
 

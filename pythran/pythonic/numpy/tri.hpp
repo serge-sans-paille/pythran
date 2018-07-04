@@ -24,8 +24,6 @@ namespace numpy
           out[i][j] = 1;
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, tri)
 }
 PYTHONIC_NS_END
 

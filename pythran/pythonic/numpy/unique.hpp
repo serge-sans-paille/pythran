@@ -174,8 +174,6 @@ namespace numpy
         types::ndarray<long, types::pshape<long>>(return_index_res),
         return_inverse_res, return_counts_array);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, unique)
 }
 PYTHONIC_NS_END
 

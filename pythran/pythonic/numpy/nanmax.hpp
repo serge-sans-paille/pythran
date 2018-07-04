@@ -38,8 +38,6 @@ namespace numpy
     _nanmax(expr.begin(), expr.end(), max, utils::int_<E::value>());
     return max;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, nanmax);
 }
 PYTHONIC_NS_END
 

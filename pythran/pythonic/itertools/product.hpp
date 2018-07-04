@@ -137,8 +137,6 @@ namespace itertools
   {
     return {std::forward<Iter>(iters)...};
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, product);
 }
 PYTHONIC_NS_END
 

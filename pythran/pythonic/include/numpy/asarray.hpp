@@ -32,7 +32,7 @@ namespace numpy
       -> decltype(_asarray<typename std::decay<E>::type,
                            typename dtype::type>{}(std::forward<E>(e), d));
 
-  DECLARE_FUNCTOR(pythonic::numpy, asarray);
+  DEFINE_FUNCTOR(pythonic::numpy, asarray);
 }
 PYTHONIC_NS_END
 

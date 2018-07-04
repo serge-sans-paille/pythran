@@ -11,7 +11,7 @@ namespace operator_
   template <class A, class B>
   types::none_type delitem(A &&a, B const &b);
 
-  DECLARE_FUNCTOR(pythonic::operator_, delitem);
+  DEFINE_FUNCTOR(pythonic::operator_, delitem);
 }
 PYTHONIC_NS_END
 

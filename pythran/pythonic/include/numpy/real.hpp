@@ -17,7 +17,7 @@ namespace numpy
   auto real(types::list<T> const &expr)
       -> decltype(real(numpy::functor::asarray{}(expr)));
 
-  DECLARE_FUNCTOR(pythonic::numpy, real);
+  DEFINE_FUNCTOR(pythonic::numpy, real);
 }
 PYTHONIC_NS_END
 

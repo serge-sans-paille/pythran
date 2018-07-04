@@ -35,8 +35,6 @@ namespace numpy
     {
       return normal(0., 1., d);
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, standard_normal);
   }
 }
 PYTHONIC_NS_END

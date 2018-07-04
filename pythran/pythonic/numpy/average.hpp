@@ -32,8 +32,6 @@ namespace numpy
     auto weighted_expr = expr * aweights / average(aweights);
     return average(weighted_expr);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, average);
 }
 PYTHONIC_NS_END
 

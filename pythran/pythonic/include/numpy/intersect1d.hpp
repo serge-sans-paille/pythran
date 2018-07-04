@@ -18,7 +18,7 @@ namespace numpy
       types::pshape<long>>
   intersect1d(E const &e, F const &f);
 
-  DECLARE_FUNCTOR(pythonic::numpy, intersect1d);
+  DEFINE_FUNCTOR(pythonic::numpy, intersect1d);
 }
 PYTHONIC_NS_END
 

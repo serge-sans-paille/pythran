@@ -19,7 +19,7 @@ namespace numpy
 
     long binomial(double n, double p, types::none_type d = types::none_type());
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, binomial);
+    DEFINE_FUNCTOR(pythonic::numpy::random, binomial);
   }
 }
 PYTHONIC_NS_END

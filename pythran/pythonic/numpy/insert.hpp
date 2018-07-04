@@ -73,8 +73,6 @@ namespace numpy
   {
     throw std::runtime_error("insert only partially supported");
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, insert);
 }
 PYTHONIC_NS_END
 

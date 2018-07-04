@@ -17,7 +17,7 @@ namespace numpy
   template <class E, class M, class F>
   types::none_type putmask(E &, M const &, F const &);
 
-  DECLARE_FUNCTOR(pythonic::numpy, putmask);
+  DEFINE_FUNCTOR(pythonic::numpy, putmask);
 }
 PYTHONIC_NS_END
 

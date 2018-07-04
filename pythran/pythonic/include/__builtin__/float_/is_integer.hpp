@@ -13,7 +13,7 @@ namespace __builtin__
 
     bool is_integer(double d);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::float_, is_integer);
+    DEFINE_FUNCTOR(pythonic::__builtin__::float_, is_integer);
   }
 }
 PYTHONIC_NS_END

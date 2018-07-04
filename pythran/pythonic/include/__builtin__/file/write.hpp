@@ -16,7 +16,7 @@ namespace __builtin__
     void write(types::file &f, types::str const &str);
     void write(types::file &&f, types::str const &str);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, write);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, write);
   }
 }
 PYTHONIC_NS_END

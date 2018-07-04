@@ -16,7 +16,7 @@ namespace numpy
           pS, std::integral_constant<long, std::tuple_size<pS>::value>>>
   indices(pS const &shape, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, indices);
+  DEFINE_FUNCTOR(pythonic::numpy, indices);
 }
 PYTHONIC_NS_END
 

@@ -14,8 +14,6 @@ namespace __dispatch__
   {
     return any.remove(arg0);
   }
-
-  DEFINE_FUNCTOR(pythonic::__dispatch__, remove);
 }
 PYTHONIC_NS_END
 

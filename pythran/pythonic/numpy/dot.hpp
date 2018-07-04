@@ -444,8 +444,6 @@ namespace numpy
               f[types::array<long, 2>{{k, j}}];
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, dot);
 }
 PYTHONIC_NS_END
 

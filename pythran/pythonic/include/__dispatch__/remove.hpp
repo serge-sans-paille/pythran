@@ -10,7 +10,7 @@ namespace __dispatch__
   template <class Any, class Arg0>
   auto remove(Any &any, Arg0 const &arg0) -> decltype(any.remove(arg0));
 
-  DECLARE_FUNCTOR(pythonic::__dispatch__, remove);
+  DEFINE_FUNCTOR(pythonic::__dispatch__, remove);
 }
 PYTHONIC_NS_END
 

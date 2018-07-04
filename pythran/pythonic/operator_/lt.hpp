@@ -20,8 +20,6 @@ namespace operator_
   {
     return strcmp(self, other) < 0;
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, lt);
 }
 PYTHONIC_NS_END
 

@@ -43,8 +43,6 @@ namespace numpy
     }
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, indices);
 }
 PYTHONIC_NS_END
 

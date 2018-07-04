@@ -16,8 +16,6 @@ namespace numpy
   {
     return !types::is_complex<typename E::dtype>::value;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, isrealobj);
 }
 PYTHONIC_NS_END
 

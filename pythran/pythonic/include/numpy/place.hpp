@@ -21,7 +21,7 @@ namespace numpy
   template <class E, class M, class F>
   types::none_type place(E &, M const &, F const &);
 
-  DECLARE_FUNCTOR(pythonic::numpy, place);
+  DEFINE_FUNCTOR(pythonic::numpy, place);
 }
 PYTHONIC_NS_END
 

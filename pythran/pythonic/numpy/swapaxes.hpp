@@ -21,8 +21,6 @@ namespace numpy
     std::swap(t[axis1], t[axis2]);
     return functor::transpose{}(std::forward<T>(a), t);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, swapaxes);
 }
 PYTHONIC_NS_END
 

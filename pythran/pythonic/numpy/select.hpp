@@ -81,8 +81,6 @@ namespace numpy
         }
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, select);
 }
 PYTHONIC_NS_END
 

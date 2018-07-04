@@ -58,7 +58,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(diag);
-  DEFINE_FUNCTOR(pythonic::numpy, diag);
 }
 PYTHONIC_NS_END
 

@@ -24,7 +24,7 @@ namespace operator_
                                      !std::is_fundamental<B>::value,
                                  decltype(a % b)>::type;
 
-  DECLARE_FUNCTOR(pythonic::operator_, mod);
+  DEFINE_FUNCTOR(pythonic::operator_, mod);
 }
 PYTHONIC_NS_END
 

@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(lgamma, std::lgamma);
+  DEFINE_FUNCTOR_2(lgamma, std::lgamma);
 }
 PYTHONIC_NS_END
 

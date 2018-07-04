@@ -48,7 +48,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(repeat);
-  DEFINE_FUNCTOR(pythonic::numpy, repeat);
 }
 PYTHONIC_NS_END
 

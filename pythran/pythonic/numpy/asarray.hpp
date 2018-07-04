@@ -44,8 +44,6 @@ namespace numpy
     return _asarray<typename std::decay<E>::type, typename dtype::type>{}(
         std::forward<E>(e), d);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, asarray);
 }
 PYTHONIC_NS_END
 

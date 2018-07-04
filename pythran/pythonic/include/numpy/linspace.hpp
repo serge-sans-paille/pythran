@@ -11,7 +11,7 @@ namespace numpy
   types::ndarray<double, types::pshape<long>>
   linspace(double start, double stop, long num = 50, bool endpoint = true);
 
-  DECLARE_FUNCTOR(pythonic::numpy, linspace);
+  DEFINE_FUNCTOR(pythonic::numpy, linspace);
 }
 PYTHONIC_NS_END
 

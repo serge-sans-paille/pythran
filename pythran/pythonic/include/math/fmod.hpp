@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(fmod, std::fmod);
+  DEFINE_FUNCTOR_2(fmod, std::fmod);
 }
 PYTHONIC_NS_END
 

@@ -51,8 +51,6 @@ namespace numpy
             utils::int_<E::value>());
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, unwrap)
 }
 PYTHONIC_NS_END
 

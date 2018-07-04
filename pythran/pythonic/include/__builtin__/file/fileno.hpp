@@ -14,7 +14,7 @@ namespace __builtin__
 
     long fileno(types::file const &f);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, fileno);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, fileno);
   }
 }
 PYTHONIC_NS_END

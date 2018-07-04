@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   typename E::dtype asscalar(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, asscalar);
+  DEFINE_FUNCTOR(pythonic::numpy, asscalar);
 }
 PYTHONIC_NS_END
 

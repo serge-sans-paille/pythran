@@ -45,8 +45,6 @@ namespace numpy
   {
     return std::forward<T>(t);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, atleast_2d);
 }
 PYTHONIC_NS_END
 

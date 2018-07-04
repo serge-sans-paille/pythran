@@ -18,7 +18,7 @@ namespace numpy
 
     double random(types::none_type d = types::none_type());
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, random);
+    DEFINE_FUNCTOR(pythonic::numpy::random, random);
   }
 }
 PYTHONIC_NS_END

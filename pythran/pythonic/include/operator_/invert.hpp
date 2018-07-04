@@ -11,7 +11,7 @@ namespace operator_
   template <class A>
   decltype(~std::declval<A const &>()) invert(A const &a);
 
-  DECLARE_FUNCTOR(pythonic::operator_, invert);
+  DEFINE_FUNCTOR(pythonic::operator_, invert);
 }
 PYTHONIC_NS_END
 

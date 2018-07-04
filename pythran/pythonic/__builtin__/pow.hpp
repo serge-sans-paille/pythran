@@ -29,7 +29,6 @@ namespace __builtin__
     return rop;
   }
 #endif
-  DEFINE_FUNCTOR(pythonic::__builtin__, pow);
 }
 PYTHONIC_NS_END
 

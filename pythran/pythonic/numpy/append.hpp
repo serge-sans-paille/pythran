@@ -47,8 +47,6 @@ namespace numpy
                                  types::array<long, types::list<T>::value>>(to),
                   data);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, append);
 }
 PYTHONIC_NS_END
 

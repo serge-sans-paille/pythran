@@ -151,8 +151,6 @@ namespace numpy
     return out;
     ;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, concatenate);
 }
 PYTHONIC_NS_END
 

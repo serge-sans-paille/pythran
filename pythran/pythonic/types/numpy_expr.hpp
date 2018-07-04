@@ -48,29 +48,30 @@ namespace types
       return std::max((long)v0, max_of(v1, vs...));
     }
 
-    template <size_t value, size_t I, class Args, size_t... Is>
-    long init_shape(Args const &args, utils::index_sequence<Is...>)
+    template <size_t I, class Args, size_t... Is>
+    long init_shape_element(Args const &args, utils::index_sequence<Is...>)
     {
       return max_of(std::get<I>(std::get<Is>(args).shape())...);
     }
 
-    template <size_t value, class Args, size_t... Is>
-    array<long, value> init_shape(Args const &args,
-                                  utils::index_sequence<Is...>)
+    template <class pS, class Args, size_t... Is>
+    pS init_shape(Args const &args, utils::index_sequence<Is...>)
     {
-      return {{init_shape<value, Is>(args, valid_indices<value, Args>{})...}};
+      return {init_shape_element<Is>(
+          args, valid_indices<std::tuple_size<pS>::value, Args>{})...};
     }
 
-    template <size_t value, class Args>
-    array<long, value> init_shape(Args const &args)
+    template <class pS, class Args>
+    pS init_shape(Args const &args)
     {
-      return init_shape<value>(args, utils::make_index_sequence<value>());
+      return init_shape<pS>(
+          args, utils::make_index_sequence<std::tuple_size<pS>::value>());
     }
   }
 
   template <class Op, class... Args>
   numpy_expr<Op, Args...>::numpy_expr(Args const &... args)
-      : args(args...), _shape(details::init_shape<value>(this->args))
+      : args(args...), _shape(details::init_shape<shape_t>(this->args))
   {
   }
 
@@ -177,28 +178,10 @@ namespace types
   }
 
   template <class Op, class... Args>
-  template <size_t... I>
-  auto numpy_expr<Op, Args...>::_fast(long i, utils::index_sequence<I...>) const
-      -> decltype(Op()(std::get<I>(args).fast(i)...))
-  {
-    return Op()(std::get<I>(args).fast(i)...);
-  }
-
-  template <class Op, class... Args>
   auto numpy_expr<Op, Args...>::fast(long i) const
       -> decltype(this->_fast(i, utils::make_index_sequence<sizeof...(Args)>{}))
   {
     return _fast(i, utils::make_index_sequence<sizeof...(Args)>{});
-  }
-
-  template <class Op, class... Args>
-  template <size_t... I>
-  auto numpy_expr<Op, Args...>::_map_fast(
-      std::array<long, sizeof...(I)> const &indices,
-      utils::index_sequence<I...>) const
-      -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...))
-  {
-    return Op()(std::get<I>(args).fast(std::get<I>(indices))...);
   }
 
   template <class Op, class... Args>
@@ -295,15 +278,6 @@ namespace types
   }
 
 #endif
-
-  template <class Op, class... Args>
-  template <size_t... I, class... S>
-  auto numpy_expr<Op, Args...>::_get(utils::index_sequence<I...>,
-                                     S const &... s) const
-      -> decltype(Op{}(std::get<I>(args)(s...)...))
-  {
-    return Op{}(std::get<I>(args)(s...)...);
-  }
 
   template <class Op, class... Args>
   template <class S0, class... S>

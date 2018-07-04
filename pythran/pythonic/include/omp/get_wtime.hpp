@@ -11,7 +11,7 @@ namespace omp
 
   long get_wtime();
 
-  DECLARE_FUNCTOR(pythonic::omp, get_wtime);
+  DEFINE_FUNCTOR(pythonic::omp, get_wtime);
 }
 PYTHONIC_NS_END
 

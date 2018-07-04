@@ -503,7 +503,10 @@ namespace types
 
     template <class Ty, class... Tys>
     auto operator[](std::tuple<long, Ty, Tys...> const &indices) const
-        -> decltype((*this)[std::get<0>(indices)][tuple_tail(indices)]);
+        -> decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])
+    {
+      return (*this)[std::get<0>(indices)][tuple_tail(indices)];
+    }
 
     template <class L, class Ty, class... Tys>
     auto operator[](std::tuple<L, Ty, Tys...> const &indices) const ->
@@ -709,7 +712,10 @@ namespace types
 
     template <class E>
     struct getattr<attr::T, E> {
-      auto operator()(E const &a) -> decltype(numpy::transpose(a));
+      auto operator()(E const &a) -> decltype(numpy::transpose(a))
+      {
+        return numpy::transpose(a);
+      }
     };
 
     namespace

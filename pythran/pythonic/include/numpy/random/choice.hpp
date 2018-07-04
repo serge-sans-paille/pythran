@@ -43,7 +43,7 @@ namespace numpy
     types::ndarray<typename T::dtype, types::pshape<long>>
     choice(T &&a, long size, bool replace, P &&p);
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, choice);
+    DEFINE_FUNCTOR(pythonic::numpy::random, choice);
   }
 }
 PYTHONIC_NS_END

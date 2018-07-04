@@ -23,8 +23,6 @@ namespace numpy
     return sum(expr, axis) /=
            typename dtype::type(sutils::array(expr.shape())[axis]);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, mean);
 }
 PYTHONIC_NS_END
 

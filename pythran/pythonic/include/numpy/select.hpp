@@ -21,7 +21,7 @@ namespace numpy
   select(types::list<types::ndarray<U, UpS>> const &condlist,
          types::list<types::ndarray<T, TpS>> const &choicelist, T _default = 0);
 
-  DECLARE_FUNCTOR(pythonic::numpy, select);
+  DEFINE_FUNCTOR(pythonic::numpy, select);
 }
 PYTHONIC_NS_END
 

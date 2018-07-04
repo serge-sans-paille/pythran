@@ -23,7 +23,7 @@ namespace numpy
   types::ndarray<typename E::dtype, types::array<long, E::value>>
   concatenate(types::list<E> const &args, long axis = 0);
 
-  DECLARE_FUNCTOR(pythonic::numpy, concatenate);
+  DEFINE_FUNCTOR(pythonic::numpy, concatenate);
 }
 PYTHONIC_NS_END
 

@@ -27,7 +27,7 @@ namespace numpy
       types::pshape<long>>
   append(types::list<T> const &to, F const &data);
 
-  DECLARE_FUNCTOR(pythonic::numpy, append);
+  DEFINE_FUNCTOR(pythonic::numpy, append);
 }
 PYTHONIC_NS_END
 

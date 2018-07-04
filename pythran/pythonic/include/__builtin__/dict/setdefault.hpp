@@ -24,7 +24,7 @@ namespace __builtin__
     template <class K, class V, class W>
     types::none<V> setdefault(types::dict<K, V> &&d, W const &k);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, setdefault);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, setdefault);
   }
 }
 PYTHONIC_NS_END

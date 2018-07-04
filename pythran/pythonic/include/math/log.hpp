@@ -10,7 +10,7 @@ namespace math
 {
   using std::log;
   double log(double x, double base);
-  DECLARE_FUNCTOR(pythonic::math, log);
+  DEFINE_FUNCTOR(pythonic::math, log);
 }
 PYTHONIC_NS_END
 

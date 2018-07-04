@@ -19,8 +19,6 @@ namespace __builtin__
     {
       return std::trunc(d) == d;
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::float_, is_integer);
   }
 }
 PYTHONIC_NS_END

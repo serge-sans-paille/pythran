@@ -175,7 +175,7 @@ namespace numpy
           types::array<long, 2>>>::type
   dot(E const &e, F const &f);
 
-  DECLARE_FUNCTOR(pythonic::numpy, dot);
+  DEFINE_FUNCTOR(pythonic::numpy, dot);
 }
 PYTHONIC_NS_END
 

@@ -18,7 +18,7 @@ namespace __builtin__
     template <size_t N, class T>
     types::str __mod__(types::str const &, types::array<T, N> const &args);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, __mod__);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, __mod__);
   }
 }
 PYTHONIC_NS_END

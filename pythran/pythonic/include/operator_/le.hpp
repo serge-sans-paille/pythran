@@ -11,7 +11,7 @@ namespace operator_
   auto le(A const &a, B const &b) -> decltype(a <= b);
   bool le(char const *self, char const *other);
 
-  DECLARE_FUNCTOR(pythonic::operator_, le);
+  DEFINE_FUNCTOR(pythonic::operator_, le);
 }
 PYTHONIC_NS_END
 

@@ -25,8 +25,6 @@ namespace numpy
     {
       return as_array(ptr, types::pshape<long>{size});
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::ctypeslib, as_array);
   }
 }
 PYTHONIC_NS_END

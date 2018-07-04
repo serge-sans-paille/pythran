@@ -18,7 +18,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(ravel);
-  DEFINE_FUNCTOR(pythonic::numpy, ravel);
 }
 PYTHONIC_NS_END
 

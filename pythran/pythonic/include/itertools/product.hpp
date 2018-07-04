@@ -73,7 +73,7 @@ namespace itertools
       typename std::remove_reference<Iter>::type>::type...>
   product(Iter &&... iters);
 
-  DECLARE_FUNCTOR(pythonic::itertools, product);
+  DEFINE_FUNCTOR(pythonic::itertools, product);
 }
 PYTHONIC_NS_END
 

@@ -13,7 +13,7 @@ namespace bisect
   template <class X, class A>
   long bisect_right(X const &x, A const &a, long lo, long hi);
 
-  DECLARE_FUNCTOR(pythonic::bisect, bisect_right);
+  DEFINE_FUNCTOR(pythonic::bisect, bisect_right);
 }
 PYTHONIC_NS_END
 

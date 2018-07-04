@@ -19,7 +19,7 @@ namespace numpy
 
     long random_integers(long min, long max);
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, random_integers);
+    DEFINE_FUNCTOR(pythonic::numpy::random, random_integers);
   }
 }
 PYTHONIC_NS_END

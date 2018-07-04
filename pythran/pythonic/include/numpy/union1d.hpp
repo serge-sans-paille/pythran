@@ -14,7 +14,7 @@ namespace numpy
       types::pshape<long>>
   union1d(E const &e, F const &f);
 
-  DECLARE_FUNCTOR(pythonic::numpy, union1d)
+  DEFINE_FUNCTOR(pythonic::numpy, union1d)
 }
 PYTHONIC_NS_END
 

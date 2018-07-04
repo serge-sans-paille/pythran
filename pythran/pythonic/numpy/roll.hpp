@@ -68,7 +68,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(roll);
-  DEFINE_FUNCTOR(pythonic::numpy, roll);
 }
 PYTHONIC_NS_END
 

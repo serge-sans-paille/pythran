@@ -11,7 +11,7 @@ namespace __dispatch__
   template <class Any>
   auto conjugate(Any const &any) -> decltype(numpy::functor::conjugate{}(any));
 
-  DECLARE_FUNCTOR(pythonic::__dispatch__, conjugate);
+  DEFINE_FUNCTOR(pythonic::__dispatch__, conjugate);
 }
 PYTHONIC_NS_END
 

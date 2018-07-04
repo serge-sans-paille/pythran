@@ -27,8 +27,6 @@ namespace __builtin__
       seq.insert(n, std::forward<F>(value));
       return __builtin__::None;
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::list, insert);
   }
 }
 PYTHONIC_NS_END

@@ -34,7 +34,7 @@ namespace numpy
     tolist(types::ndarray<T, pS> const &expr);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(tolist);
-    DECLARE_FUNCTOR(pythonic::numpy::ndarray, tolist);
+    DEFINE_FUNCTOR(pythonic::numpy::ndarray, tolist);
   }
 }
 PYTHONIC_NS_END

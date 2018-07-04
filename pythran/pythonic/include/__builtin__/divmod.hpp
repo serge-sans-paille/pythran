@@ -13,7 +13,7 @@ namespace __builtin__
   auto divmod(T0 const &t0, T1 const &t1) // other types are left over
       -> decltype(types::make_tuple(t0 / t1, t0 % t1));
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, divmod);
+  DEFINE_FUNCTOR(pythonic::__builtin__, divmod);
 }
 PYTHONIC_NS_END
 

@@ -14,7 +14,7 @@ namespace operator_
 
   DEFINE_ALL_OPERATOR_OVERLOADS_DECL(sub, -)
 
-  DECLARE_FUNCTOR(pythonic::operator_, sub);
+  DEFINE_FUNCTOR(pythonic::operator_, sub);
 }
 PYTHONIC_NS_END
 

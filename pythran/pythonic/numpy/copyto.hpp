@@ -16,8 +16,6 @@ namespace numpy
     std::copy(a.fbegin(), a.fend(), out.fbegin());
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, copyto);
 }
 PYTHONIC_NS_END
 

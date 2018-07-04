@@ -14,7 +14,7 @@ namespace __builtin__
 
     bool isdigit(types::str const &s);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, isdigit);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, isdigit);
   }
 }
 PYTHONIC_NS_END

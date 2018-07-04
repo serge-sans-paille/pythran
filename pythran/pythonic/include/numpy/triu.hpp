@@ -13,7 +13,7 @@ namespace numpy
   types::ndarray<T, pS> triu(types::ndarray<T, pS> const &expr, int k = 0);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(triu)
-  DECLARE_FUNCTOR(pythonic::numpy, triu)
+  DEFINE_FUNCTOR(pythonic::numpy, triu)
 }
 PYTHONIC_NS_END
 

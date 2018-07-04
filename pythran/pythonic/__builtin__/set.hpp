@@ -27,8 +27,6 @@ namespace __builtin__
       return {t.begin(), t.end()};
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, set);
 }
 PYTHONIC_NS_END
 #endif

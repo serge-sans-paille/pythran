@@ -48,8 +48,6 @@ namespace numpy
       details::parameters_check(n, p);
       return std::binomial_distribution<long>{(long)n, p}(details::generator);
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, binomial);
   }
 }
 PYTHONIC_NS_END

@@ -18,7 +18,7 @@ namespace __builtin__
 
   template <typename T, typename... Types>
   void print(T const &value, Types const &... values);
-  DECLARE_FUNCTOR(pythonic::__builtin__, print);
+  DEFINE_FUNCTOR(pythonic::__builtin__, print);
 }
 PYTHONIC_NS_END
 

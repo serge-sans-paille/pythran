@@ -20,7 +20,7 @@ namespace numpy
     auto randint(long min, long max, long size)
         -> decltype(randint(min, max, types::array<long, 1>{{size}}));
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, randint);
+    DEFINE_FUNCTOR(pythonic::numpy::random, randint);
   }
 }
 PYTHONIC_NS_END

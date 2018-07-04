@@ -20,8 +20,6 @@ namespace numpy
           "can only convert an array  of size 1 to a Python scalar");
     return *asarray(expr).fbegin();
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, asscalar);
 }
 PYTHONIC_NS_END
 

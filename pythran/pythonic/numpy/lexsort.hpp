@@ -61,8 +61,6 @@ namespace numpy
     std::sort(out.buffer, out.buffer + n, details::lexcmp<pS>(keys));
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, lexsort)
 }
 PYTHONIC_NS_END
 

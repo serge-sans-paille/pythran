@@ -216,8 +216,6 @@ namespace itertools
   {
     return {std::forward<Operator>(_op), std::forward<Iter>(iters)...};
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, imap);
 }
 PYTHONIC_NS_END
 

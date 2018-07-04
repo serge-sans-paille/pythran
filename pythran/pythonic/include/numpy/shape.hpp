@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   auto shape(E const &e) -> decltype(e.shape());
 
-  DECLARE_FUNCTOR(pythonic::numpy, shape)
+  DEFINE_FUNCTOR(pythonic::numpy, shape)
 }
 PYTHONIC_NS_END
 

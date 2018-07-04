@@ -18,8 +18,6 @@ namespace __builtin__
     {
       return d.find(k) != d.item_end();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::dict, has_key);
   }
 }
 PYTHONIC_NS_END

@@ -13,7 +13,7 @@ namespace numpy
     template <class E, class dtype>
     auto astype(E &&e, dtype d) -> decltype(asarray(std::forward<E>(e), d));
 
-    DECLARE_FUNCTOR(pythonic::numpy::ndarray, astype);
+    DEFINE_FUNCTOR(pythonic::numpy::ndarray, astype);
   }
 }
 PYTHONIC_NS_END

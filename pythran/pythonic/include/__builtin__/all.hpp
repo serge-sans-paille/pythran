@@ -11,7 +11,7 @@ namespace __builtin__
   template <class Iterable>
   bool all(Iterable &&s);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, all);
+  DEFINE_FUNCTOR(pythonic::__builtin__, all);
 }
 PYTHONIC_NS_END
 

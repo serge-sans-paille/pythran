@@ -21,7 +21,7 @@ namespace numpy
     double normal(double loc = 0.0, double scale = 1.0,
                   types::none_type size = {});
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, normal);
+    DEFINE_FUNCTOR(pythonic::numpy::random, normal);
   }
 }
 PYTHONIC_NS_END

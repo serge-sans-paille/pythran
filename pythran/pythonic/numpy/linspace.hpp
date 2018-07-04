@@ -15,8 +15,6 @@ namespace numpy
     double step = (stop - start) / (num - (endpoint ? 1 : 0));
     return arange(start, stop + (endpoint ? step * .5 : 0), step);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, linspace);
 }
 PYTHONIC_NS_END
 

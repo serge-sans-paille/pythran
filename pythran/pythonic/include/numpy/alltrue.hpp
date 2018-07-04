@@ -11,7 +11,7 @@ namespace numpy
   auto alltrue(Types &&... types)
       -> decltype(all(std::forward<Types>(types)...));
 
-  DECLARE_FUNCTOR(pythonic::numpy, alltrue);
+  DEFINE_FUNCTOR(pythonic::numpy, alltrue);
 }
 PYTHONIC_NS_END
 

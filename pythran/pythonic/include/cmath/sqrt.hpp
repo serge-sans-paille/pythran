@@ -10,7 +10,7 @@ PYTHONIC_NS_BEGIN
 
 namespace cmath
 {
-  DECLARE_FUNCTOR_2(sqrt, std::sqrt);
+  DEFINE_FUNCTOR_2(sqrt, std::sqrt);
 }
 PYTHONIC_NS_END
 

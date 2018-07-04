@@ -23,7 +23,7 @@ namespace numpy
                                   std::is_same<E, types::str>::value,
                               bool>::type;
 
-  DECLARE_FUNCTOR(pythonic::numpy, issctype);
+  DEFINE_FUNCTOR(pythonic::numpy, issctype);
 }
 PYTHONIC_NS_END
 

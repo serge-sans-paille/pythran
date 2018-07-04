@@ -14,7 +14,7 @@ namespace numpy
   types::ndarray<double, typename E::shape_t> unwrap(E const &expr,
                                                      double discont = pi);
 
-  DECLARE_FUNCTOR(pythonic::numpy, unwrap)
+  DEFINE_FUNCTOR(pythonic::numpy, unwrap)
 }
 PYTHONIC_NS_END
 

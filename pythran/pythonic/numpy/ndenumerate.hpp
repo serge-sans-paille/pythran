@@ -106,7 +106,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(ndenumerate);
-  DEFINE_FUNCTOR(pythonic::numpy, ndenumerate);
 }
 PYTHONIC_NS_END
 

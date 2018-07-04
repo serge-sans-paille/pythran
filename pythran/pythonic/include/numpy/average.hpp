@@ -19,7 +19,7 @@ namespace numpy
   auto average(E const &expr, types::none_type const &axis, W const &weights)
       -> decltype(average(expr *asarray(weights) / average(asarray(weights))));
 
-  DECLARE_FUNCTOR(pythonic::numpy, average);
+  DEFINE_FUNCTOR(pythonic::numpy, average);
 }
 PYTHONIC_NS_END
 

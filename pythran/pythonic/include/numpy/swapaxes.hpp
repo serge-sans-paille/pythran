@@ -12,7 +12,7 @@ namespace numpy
       std::forward<T>(a),
       std::declval<types::array<long, std::decay<T>::type::value>>()));
 
-  DECLARE_FUNCTOR(pythonic::numpy, swapaxes);
+  DEFINE_FUNCTOR(pythonic::numpy, swapaxes);
 }
 PYTHONIC_NS_END
 

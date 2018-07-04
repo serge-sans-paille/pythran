@@ -21,7 +21,7 @@ namespace __builtin__
     types::list<types::str> split(types::str const &s, types::none_type const &,
                                   long maxsplit = -1);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, split);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, split);
   }
 }
 PYTHONIC_NS_END

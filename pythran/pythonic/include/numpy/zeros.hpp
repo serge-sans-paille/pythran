@@ -17,7 +17,7 @@ namespace numpy
   types::ndarray<typename dtype::type, types::pshape<long>>
   zeros(long size, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, zeros);
+  DEFINE_FUNCTOR(pythonic::numpy, zeros);
 }
 PYTHONIC_NS_END
 

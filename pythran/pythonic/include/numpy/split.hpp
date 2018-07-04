@@ -22,7 +22,7 @@ namespace numpy
   types::list<types::ndarray<typename E::dtype, types::array<long, E::value>>>
   split(E const &a, I const &);
 
-  DECLARE_FUNCTOR(pythonic::numpy, split);
+  DEFINE_FUNCTOR(pythonic::numpy, split);
 }
 PYTHONIC_NS_END
 

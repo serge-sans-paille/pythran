@@ -76,8 +76,6 @@ namespace itertools
   {
     return {value, -1};
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, repeat);
 }
 PYTHONIC_NS_END
 

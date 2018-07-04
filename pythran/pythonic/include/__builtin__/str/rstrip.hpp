@@ -14,7 +14,7 @@ namespace __builtin__
 
     types::str rstrip(types::str const &self, types::str const &to_del = " ");
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, rstrip);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, rstrip);
   }
 }
 PYTHONIC_NS_END

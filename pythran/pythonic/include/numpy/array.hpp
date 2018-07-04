@@ -15,7 +15,7 @@ namespace numpy
                  types::array<long, std::decay<T>::type::value>>
   array(T &&iterable, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, array);
+  DEFINE_FUNCTOR(pythonic::numpy, array);
 }
 PYTHONIC_NS_END
 

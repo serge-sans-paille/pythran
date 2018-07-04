@@ -26,7 +26,7 @@ namespace bisect
               details::bisect_fun<X, A> const &fun =
                   std::upper_bound<typename X::const_iterator, A>);
 
-  DECLARE_FUNCTOR(pythonic::bisect, bisect);
+  DEFINE_FUNCTOR(pythonic::bisect, bisect);
 }
 PYTHONIC_NS_END
 

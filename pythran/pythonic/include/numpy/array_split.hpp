@@ -20,7 +20,7 @@ namespace numpy
   array_split(types::ndarray<T, pS> const &a, I const &split_mask);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(array_split);
-  DECLARE_FUNCTOR(pythonic::numpy, array_split);
+  DEFINE_FUNCTOR(pythonic::numpy, array_split);
 }
 PYTHONIC_NS_END
 

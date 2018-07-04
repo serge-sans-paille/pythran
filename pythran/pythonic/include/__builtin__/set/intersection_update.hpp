@@ -24,7 +24,7 @@ namespace __builtin__
     types::none_type intersection_update(types::empty_set &&set,
                                          Types const &... others);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, intersection_update);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, intersection_update);
   }
 }
 PYTHONIC_NS_END

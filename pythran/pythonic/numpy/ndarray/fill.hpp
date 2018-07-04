@@ -27,8 +27,6 @@ namespace numpy
       std::fill(e.fbegin(), e.fend(), f);
       return __builtin__::None;
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::ndarray, fill);
   }
 }
 PYTHONIC_NS_END

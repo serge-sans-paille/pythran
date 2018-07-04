@@ -75,8 +75,6 @@ namespace numpy
              var_type<E>(sutils::array(expr.shape())[axis] - ddof);
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, var);
 }
 PYTHONIC_NS_END
 

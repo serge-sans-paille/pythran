@@ -43,8 +43,6 @@ namespace __builtin__
     {
       return details::static_if_<T>{}(f0, f1);
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, static_if_);
   }
 }
 PYTHONIC_NS_END

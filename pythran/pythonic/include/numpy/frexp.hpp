@@ -21,7 +21,7 @@ namespace numpy
                  types::ndarray<int, typename E::shape_t>>>::type
   frexp(E const &arr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, frexp);
+  DEFINE_FUNCTOR(pythonic::numpy, frexp);
 }
 PYTHONIC_NS_END
 

@@ -14,7 +14,7 @@ namespace __builtin__
 
     types::str upper(types::str const &s);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, upper);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, upper);
   }
 }
 PYTHONIC_NS_END

@@ -23,8 +23,6 @@ namespace numpy
     }
     return {};
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, fill_diagonal)
 }
 PYTHONIC_NS_END
 

@@ -79,7 +79,10 @@ namespace types
   /* helper to extract the tail of a tuple, && pop the head */
   template <int Offset, class T, size_t... N>
   auto make_tuple_tail(T const &t, utils::index_sequence<N...>)
-      -> decltype(std::make_tuple(std::get<Offset + 1 + N>(t)...));
+      -> decltype(std::make_tuple(std::get<Offset + 1 + N>(t)...))
+  {
+    return std::make_tuple(std::get<Offset + 1 + N>(t)...);
+  }
 
   template <class S, class... Stail>
   std::tuple<Stail...> tuple_tail(std::tuple<S, Stail...> const &t);
@@ -97,7 +100,12 @@ namespace types
   auto tuple_pop(std::tuple<S, Stail...> const &t)
       -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(
           t, utils::make_index_sequence<
-                 sizeof...(Stail)-count_trailing_long<Stail...>::value>{}));
+                 sizeof...(Stail)-count_trailing_long<Stail...>::value>{}))
+  {
+    return make_tuple_tail<count_trailing_long<Stail...>::value>(
+        t, utils::make_index_sequence<sizeof...(
+               Stail)-count_trailing_long<Stail...>::value>{});
+  }
 
   template <class A, size_t... I, class... Types>
   std::tuple<Types...> array_to_tuple(A const &a, utils::index_sequence<I...>,
@@ -457,19 +465,31 @@ namespace types
   template <bool Same, class... Types>
   struct _make_tuple {
     auto operator()(Types &&... types)
-        -> decltype(std::make_tuple(std::forward<Types>(types)...));
+        -> decltype(std::make_tuple(std::forward<Types>(types)...))
+    {
+      return std::make_tuple(std::forward<Types>(types)...);
+    }
   };
 
   template <class... Types>
   struct _make_tuple<true, Types...> {
     types::array<typename alike<Types...>::type, sizeof...(Types)>
-    operator()(Types &&... types);
+    operator()(Types &&... types)
+    {
+      return {{std::forward<Types>(types)...}};
+    }
   };
 
   template <class... Types>
   auto make_tuple(Types &&... types)
+#ifndef _MSC_VER
       -> decltype(_make_tuple<alike<Types...>::value, Types...>()(
-          std::forward<Types>(types)...));
+          std::forward<Types>(types)...))
+#endif
+  {
+    return _make_tuple<alike<Types...>::value, Types...>()(
+        std::forward<Types>(types)...);
+  }
 
   template <class T, class Tuple, size_t... S>
   types::array<T, sizeof...(S)> _to_array(Tuple const &t,

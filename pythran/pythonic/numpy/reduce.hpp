@@ -173,10 +173,9 @@ namespace numpy
   }
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis) ->
-      typename std::enable_if<std::is_scalar<E>::value ||
-                                  types::is_complex<E>::value,
-                              decltype(reduce<Op>(array))>::type
+  typename std::enable_if<
+      std::is_scalar<E>::value || types::is_complex<E>::value, E>::type
+  reduce(E const &array, long axis)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -184,8 +183,8 @@ namespace numpy
   }
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis, types::none_type, types::none_type) ->
-      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type
+  typename std::enable_if<E::value == 1, reduce_result_type<E>>::type
+  reduce(E const &array, long axis, types::none_type, types::none_type)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -193,8 +192,8 @@ namespace numpy
   }
 
   template <class Op, class E, class Out>
-  auto reduce(E const &array, long axis, types::none_type, Out &&out) ->
-      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type
+  typename std::enable_if<E::value == 1, reduce_result_type<E>>::type
+  reduce(E const &array, long axis, types::none_type, Out &&out)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");

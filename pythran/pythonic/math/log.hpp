@@ -16,8 +16,6 @@ namespace math
   {
     return log(x) / log(base);
   }
-
-  DEFINE_FUNCTOR(pythonic::math, log);
 }
 PYTHONIC_NS_END
 

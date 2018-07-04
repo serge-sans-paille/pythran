@@ -111,7 +111,7 @@ namespace itertools
       typename types::iterator<typename std::remove_cv<
           typename std::remove_reference<Iter>::type>::type>::type...>;
 
-  DECLARE_FUNCTOR(pythonic::itertools, imap);
+  DEFINE_FUNCTOR(pythonic::itertools, imap);
 }
 
 namespace types

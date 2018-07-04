@@ -20,7 +20,7 @@ namespace numpy
   template <class E, class M, class V>
   types::none_type put(E &, M const &, V const &);
 
-  DECLARE_FUNCTOR(pythonic::numpy, put);
+  DEFINE_FUNCTOR(pythonic::numpy, put);
 }
 PYTHONIC_NS_END
 

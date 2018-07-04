@@ -23,8 +23,6 @@ namespace numpy
   {
     return ones(expr.shape(), types::dtype_t<typename E::dtype>());
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, ones_like)
 }
 PYTHONIC_NS_END
 

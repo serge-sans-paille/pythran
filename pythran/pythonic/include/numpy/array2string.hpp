@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   types::str array2string(E &&a);
 
-  DECLARE_FUNCTOR(pythonic::numpy, array2string);
+  DEFINE_FUNCTOR(pythonic::numpy, array2string);
 }
 PYTHONIC_NS_END
 

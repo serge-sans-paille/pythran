@@ -29,17 +29,6 @@ namespace functools
     }
 
     template <typename... ClosureTypes>
-    template <size_t... S, typename... Types>
-    auto task<ClosureTypes...>::call(utils::index_sequence<S...>,
-                                     Types &&... types) const
-        -> decltype(std::get<0>(closure)(std::get<S + 1>(closure)...,
-                                         std::forward<Types>(types)...))
-    {
-      return std::get<0>(closure)(std::get<S + 1>(closure)...,
-                                  std::forward<Types>(types)...);
-    }
-
-    template <typename... ClosureTypes>
     template <typename... Types>
     auto task<ClosureTypes...>::operator()(Types &&... types) const -> decltype(
         this->call(utils::make_index_sequence<sizeof...(ClosureTypes)-1>(),
@@ -58,8 +47,6 @@ namespace functools
   {
     return {std::forward<Types>(types)...};
   }
-
-  DEFINE_FUNCTOR(pythonic::functools, partial);
 }
 PYTHONIC_NS_END
 

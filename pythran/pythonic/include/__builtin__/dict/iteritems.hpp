@@ -15,7 +15,7 @@ namespace __builtin__
     template <class K, class V>
     auto iteritems(types::dict<K, V> d) -> decltype(d.iteritems());
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, iteritems);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, iteritems);
   }
 }
 PYTHONIC_NS_END

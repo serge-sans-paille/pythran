@@ -25,7 +25,7 @@ namespace numpy
       -> decltype(diag(asarray(a), k));
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(diag);
-  DECLARE_FUNCTOR(pythonic::numpy, diag);
+  DEFINE_FUNCTOR(pythonic::numpy, diag);
 }
 PYTHONIC_NS_END
 

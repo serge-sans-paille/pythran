@@ -24,7 +24,7 @@ namespace numpy
     rfft(types::ndarray<T, pS> const &input, long NFFT = -1, long axis = -1);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(rfft);
-    DECLARE_FUNCTOR(pythonic::numpy::fft, rfft);
+    DEFINE_FUNCTOR(pythonic::numpy::fft, rfft);
   }
 }
 PYTHONIC_NS_END

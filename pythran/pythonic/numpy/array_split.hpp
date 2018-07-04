@@ -53,7 +53,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(array_split);
-  DEFINE_FUNCTOR(pythonic::numpy, array_split);
 }
 PYTHONIC_NS_END
 

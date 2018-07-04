@@ -27,7 +27,7 @@ namespace numpy
   auto outer(E0 const &a, E1 const &b)
       -> decltype(outer(asarray(a), asarray(b)));
 
-  DECLARE_FUNCTOR(pythonic::numpy, outer);
+  DEFINE_FUNCTOR(pythonic::numpy, outer);
 }
 PYTHONIC_NS_END
 

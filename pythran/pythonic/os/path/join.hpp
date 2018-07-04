@@ -64,8 +64,6 @@ namespace os
       _join(p, std::forward<Types>(tail)...);
       return p;
     }
-
-    DEFINE_FUNCTOR(pythonic::os::path, join);
   }
 }
 PYTHONIC_NS_END

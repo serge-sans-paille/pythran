@@ -32,8 +32,6 @@ namespace __builtin__
     {
       return find(s, value, 0, s.size());
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::str, find);
   }
 }
 PYTHONIC_NS_END

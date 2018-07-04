@@ -34,7 +34,7 @@ namespace numpy
       types::ndarray<typename E::dtype, types::array<long, E::value - 1>>>::type
   any(E const &array, long axis);
 
-  DECLARE_FUNCTOR(pythonic::numpy, any);
+  DEFINE_FUNCTOR(pythonic::numpy, any);
 }
 PYTHONIC_NS_END
 

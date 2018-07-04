@@ -14,7 +14,7 @@ namespace operator_
   template <class A, class B>
   A &ipow(A &a, B const &b);
 
-  DECLARE_FUNCTOR(pythonic::operator_, ipow);
+  DEFINE_FUNCTOR(pythonic::operator_, ipow);
 }
 PYTHONIC_NS_END
 

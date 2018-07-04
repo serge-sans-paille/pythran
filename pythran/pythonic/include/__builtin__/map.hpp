@@ -34,7 +34,7 @@ namespace __builtin__
   auto map(Operator op, List0 &&seq, ListN &&... lists)
       -> decltype(details::map(op, std::forward<List0>(seq), lists.begin()...));
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, map);
+  DEFINE_FUNCTOR(pythonic::__builtin__, map);
 }
 PYTHONIC_NS_END
 

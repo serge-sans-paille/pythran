@@ -55,8 +55,6 @@ namespace __builtin__
     std::copy(i.begin(), i.end(), res.begin());
     return res;
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, tuple);
 }
 PYTHONIC_NS_END
 

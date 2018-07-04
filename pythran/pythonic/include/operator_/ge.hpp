@@ -12,7 +12,7 @@ namespace operator_
 
   bool ge(char const *, char const *);
 
-  DECLARE_FUNCTOR(pythonic::operator_, ge);
+  DEFINE_FUNCTOR(pythonic::operator_, ge);
 }
 PYTHONIC_NS_END
 

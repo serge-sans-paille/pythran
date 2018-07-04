@@ -24,7 +24,7 @@ namespace numpy
   transpose(types::ndarray<T, pS> const &a, types::array<long, M> const &t);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(transpose);
-  DECLARE_FUNCTOR(pythonic::numpy, transpose);
+  DEFINE_FUNCTOR(pythonic::numpy, transpose);
 }
 PYTHONIC_NS_END
 

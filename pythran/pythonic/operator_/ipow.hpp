@@ -21,8 +21,6 @@ namespace operator_
   {
     return a = __builtin__::pow(a, b);
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, ipow);
 }
 PYTHONIC_NS_END
 

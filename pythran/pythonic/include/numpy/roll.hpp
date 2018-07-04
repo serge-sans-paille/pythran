@@ -17,7 +17,7 @@ namespace numpy
                              long axis);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(roll);
-  DECLARE_FUNCTOR(pythonic::numpy, roll);
+  DEFINE_FUNCTOR(pythonic::numpy, roll);
 }
 PYTHONIC_NS_END
 

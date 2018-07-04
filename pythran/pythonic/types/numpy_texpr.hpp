@@ -109,23 +109,6 @@ namespace types
   }
 
   template <class E>
-  template <class T0, class T1>
-  auto numpy_texpr_2<E>::operator[](std::tuple<T0, T1> const &indices)
-      -> decltype(
-          arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
-  {
-    return arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}];
-  }
-  template <class E>
-  template <class T0, class T1>
-  auto numpy_texpr_2<E>::operator[](std::tuple<T0, T1> const &indices) const
-      -> decltype(
-          arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
-  {
-    return arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}];
-  }
-
-  template <class E>
   auto numpy_texpr_2<E>::operator[](contiguous_slice const &s0) const
       -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
                                              pythonic::__builtin__::None),
@@ -235,15 +218,6 @@ namespace types
     std::transform(filter.begin(), filter.end(), out.begin(),
                    [this](typename F::dtype index) { return fast(index); });
     return out;
-  }
-
-  template <class E>
-  template <class S, size_t... I>
-  auto numpy_texpr_2<E>::_reverse_index(S const &indices,
-                                        utils::index_sequence<I...>) const
-      -> decltype(this->arg(std::get<I>(indices)...))
-  {
-    return arg(std::get<I>(indices)...);
   }
 
   template <class E>

@@ -19,7 +19,7 @@ namespace __builtin__
     inline types::str str(double l);
   }
 
-  DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, str);
+  DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, str);
 }
 PYTHONIC_NS_END
 

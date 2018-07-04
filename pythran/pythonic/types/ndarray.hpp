@@ -656,15 +656,6 @@ namespace types
     return (*this)[to_array<long>(indices)];
   }
 
-  template <class T, class pS>
-  template <class Ty, class... Tys>
-  auto ndarray<T, pS>::
-  operator[](std::tuple<long, Ty, Tys...> const &indices) const
-      -> decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])
-  {
-    return (*this)[std::get<0>(indices)][tuple_tail(indices)];
-  }
-
 #ifdef USE_BOOST_SIMD
   template <class T, class pS>
   template <class vectorizer>
@@ -1114,13 +1105,6 @@ namespace types
     dtype_t<typename E::dtype> getattr<attr::DTYPE, E>::operator()(E const &a)
     {
       return {};
-    }
-
-    template <class E>
-    auto getattr<attr::T, E>::operator()(E const &a)
-        -> decltype(numpy::transpose(a))
-    {
-      return numpy::transpose(a);
     }
 
     namespace

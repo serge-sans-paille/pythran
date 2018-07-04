@@ -13,7 +13,7 @@ namespace __builtin__
   typename details::minmax<sizeof...(Types) == 1, Types...>::result_type
   max(Types &&... values);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, max);
+  DEFINE_FUNCTOR(pythonic::__builtin__, max);
 }
 PYTHONIC_NS_END
 

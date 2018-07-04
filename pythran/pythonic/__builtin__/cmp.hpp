@@ -14,8 +14,6 @@ namespace __builtin__
   {
     return v0 == v1 ? 0 : (v0 < v1 ? -1 : 1);
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, cmp);
 }
 PYTHONIC_NS_END
 

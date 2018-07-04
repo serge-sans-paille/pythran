@@ -36,7 +36,7 @@ namespace numpy
   types::numpy_texpr<types::ndarray<T, pS>>
   copy(types::numpy_texpr<types::ndarray<T, pS>> const &a);
 
-  DECLARE_FUNCTOR(pythonic::numpy, copy);
+  DEFINE_FUNCTOR(pythonic::numpy, copy);
 }
 PYTHONIC_NS_END
 

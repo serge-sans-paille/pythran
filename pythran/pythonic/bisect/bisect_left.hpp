@@ -24,8 +24,6 @@ namespace bisect
     return bisect(x, a, lo, hi,
                   std::lower_bound<typename X::const_iterator, A>);
   }
-
-  DEFINE_FUNCTOR(pythonic::bisect, bisect_left);
 }
 PYTHONIC_NS_END
 

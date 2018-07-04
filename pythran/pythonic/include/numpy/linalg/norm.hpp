@@ -48,7 +48,7 @@ namespace numpy
 
     template <class Array>
     norm_t<Array> norm(Array &&array, double ord, types::array<long, 2> axis);
-    DECLARE_FUNCTOR(pythonic::numpy::linalg, norm);
+    DEFINE_FUNCTOR(pythonic::numpy::linalg, norm);
   }
 }
 PYTHONIC_NS_END

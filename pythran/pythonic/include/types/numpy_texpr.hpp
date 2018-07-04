@@ -126,11 +126,20 @@ namespace types
     }
     template <class T0, class T1>
     auto operator[](std::tuple<T0, T1> const &indices) -> decltype(
-        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}]);
+        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
+    {
+      return arg[std::tuple<T1, T0>{std::get<1>(indices),
+                                    std::get<0>(indices)}];
+    }
 
     template <class T0, class T1>
     auto operator[](std::tuple<T0, T1> const &indices) const -> decltype(
-        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}]);
+        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
+    {
+
+      return arg[std::tuple<T1, T0>{std::get<1>(indices),
+                                    std::get<0>(indices)}];
+    }
 
     auto operator[](contiguous_slice const &s0) const
         -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
@@ -151,7 +160,10 @@ namespace types
 
     template <class S, size_t... I>
     auto _reverse_index(S const &indices, utils::index_sequence<I...>) const
-        -> decltype(this->arg(std::get<I>(indices)...));
+        -> decltype(this->arg(std::get<I>(indices)...))
+    {
+      return arg(std::get<I>(indices)...);
+    }
 
     template <class S0, class... S>
     auto operator()(S0 const &s0, S const &... s) const

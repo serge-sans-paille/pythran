@@ -13,7 +13,7 @@ namespace numpy
   rollaxis(types::ndarray<T, pS> const &a, long axis, long start = 0);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(rollaxis);
-  DECLARE_FUNCTOR(pythonic::numpy, rollaxis);
+  DEFINE_FUNCTOR(pythonic::numpy, rollaxis);
 }
 PYTHONIC_NS_END
 

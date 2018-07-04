@@ -24,8 +24,6 @@ namespace __builtin__
     {
       return d.iterkeys();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::dict, iterkeys);
   }
 }
 PYTHONIC_NS_END

@@ -20,7 +20,7 @@ namespace numpy
           types::none_type axis = __builtin__::None);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(delete_);
-  DECLARE_FUNCTOR(pythonic::numpy, delete_);
+  DEFINE_FUNCTOR(pythonic::numpy, delete_);
 }
 PYTHONIC_NS_END
 

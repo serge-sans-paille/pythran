@@ -55,8 +55,6 @@ namespace __builtin__
   {
     return {std::forward<T>(t)};
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, iter);
 }
 PYTHONIC_NS_END
 

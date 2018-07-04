@@ -27,8 +27,6 @@ namespace __builtin__
     {
       return f.readlines(sizehint);
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, readlines);
   }
 }
 PYTHONIC_NS_END

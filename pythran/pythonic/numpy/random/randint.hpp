@@ -43,8 +43,6 @@ namespace numpy
       return std::uniform_int_distribution<long>{min,
                                                  max - 1}(details::generator);
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, randint);
   }
 }
 PYTHONIC_NS_END

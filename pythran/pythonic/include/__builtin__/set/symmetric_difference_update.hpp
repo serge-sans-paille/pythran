@@ -24,7 +24,7 @@ namespace __builtin__
     types::none_type symmetric_difference_update(types::empty_set const &set,
                                                  U const &other);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference_update);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference_update);
   }
 }
 PYTHONIC_NS_END

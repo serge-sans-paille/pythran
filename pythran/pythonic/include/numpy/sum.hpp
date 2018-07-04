@@ -11,10 +11,13 @@ namespace numpy
 {
 
   template <class... Args>
-  auto sum(Args &&... args) -> decltype(
-      reduce<operator_::functor::iadd>(std::forward<Args>(args)...));
+  auto sum(Args &&... args)
+      -> decltype(reduce<operator_::functor::iadd>(std::forward<Args>(args)...))
+  {
+    return reduce<operator_::functor::iadd>(std::forward<Args>(args)...);
+  }
 
-  DECLARE_FUNCTOR(pythonic::numpy, sum);
+  DEFINE_FUNCTOR(pythonic::numpy, sum);
 }
 PYTHONIC_NS_END
 

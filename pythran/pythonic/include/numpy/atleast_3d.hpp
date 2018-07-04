@@ -38,7 +38,7 @@ namespace numpy
       typename std::enable_if<(!types::is_dtype<T>::value) && T::value >= 3,
                               decltype(asarray(t))>::type;
 
-  DECLARE_FUNCTOR(pythonic::numpy, atleast_3d);
+  DEFINE_FUNCTOR(pythonic::numpy, atleast_3d);
 }
 PYTHONIC_NS_END
 

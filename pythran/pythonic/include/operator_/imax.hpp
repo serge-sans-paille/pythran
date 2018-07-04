@@ -20,7 +20,7 @@ namespace operator_
       decltype(a = numpy::functor::maximum{}(std::forward<A>(a),
                                              std::forward<B>(b)))>::type;
 
-  DECLARE_FUNCTOR(pythonic::operator_, imax);
+  DEFINE_FUNCTOR(pythonic::operator_, imax);
 }
 PYTHONIC_NS_END
 

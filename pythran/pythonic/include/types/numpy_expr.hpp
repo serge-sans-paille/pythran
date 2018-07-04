@@ -518,7 +518,10 @@ namespace types
 
     template <size_t... I>
     auto _fast(long i, utils::index_sequence<I...>) const
-        -> decltype(Op()(std::get<I>(args).fast(i)...));
+        -> decltype(Op()(std::get<I>(args).fast(i)...))
+    {
+      return Op()(std::get<I>(args).fast(i)...);
+    }
 
     auto fast(long i) const
         -> decltype(this->_fast(i,
@@ -527,7 +530,10 @@ namespace types
     template <size_t... I>
     auto _map_fast(std::array<long, sizeof...(I)> const &indices,
                    utils::index_sequence<I...>) const
-        -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...));
+        -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...))
+    {
+      return Op()(std::get<I>(args).fast(std::get<I>(indices))...);
+    }
 
     template <class... Indices>
     auto map_fast(Indices... indices) const -> decltype(
@@ -570,7 +576,10 @@ namespace types
 #endif
     template <size_t... I, class... S>
     auto _get(utils::index_sequence<I...>, S const &... s) const
-        -> decltype(Op{}(std::get<I>(args)(s...)...));
+        -> decltype(Op{}(std::get<I>(args)(s...)...))
+    {
+      return Op{}(std::get<I>(args)(s...)...);
+    }
 
     template <class S0, class... S>
     auto operator()(S0 const &s0, S const &... s) const ->

@@ -23,8 +23,6 @@ namespace numpy
   {
     return empty(types::make_tuple(size), d);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, empty);
 }
 PYTHONIC_NS_END
 

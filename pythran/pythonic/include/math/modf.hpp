@@ -11,7 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace math
 {
   std::tuple<double, double> modf(double x);
-  DECLARE_FUNCTOR(pythonic::math, modf);
+  DEFINE_FUNCTOR(pythonic::math, modf);
 }
 PYTHONIC_NS_END
 

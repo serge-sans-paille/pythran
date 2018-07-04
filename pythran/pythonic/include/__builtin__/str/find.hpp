@@ -19,7 +19,7 @@ namespace __builtin__
 
     long find(types::str const &s, types::str const &value);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, find);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, find);
   }
 }
 PYTHONIC_NS_END

@@ -29,7 +29,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(rollaxis);
-  DEFINE_FUNCTOR(pythonic::numpy, rollaxis);
 }
 PYTHONIC_NS_END
 

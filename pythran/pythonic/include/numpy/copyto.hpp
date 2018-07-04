@@ -11,7 +11,7 @@ namespace numpy
   types::ndarray<T, pS0> copyto(types::ndarray<T, pS0> &out,
                                 types::ndarray<T, pS1> const &a);
 
-  DECLARE_FUNCTOR(pythonic::numpy, copyto);
+  DEFINE_FUNCTOR(pythonic::numpy, copyto);
 }
 PYTHONIC_NS_END
 

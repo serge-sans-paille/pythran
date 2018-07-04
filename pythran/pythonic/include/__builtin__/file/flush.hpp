@@ -15,7 +15,7 @@ namespace __builtin__
     void flush(types::file &f);
     void flush(types::file &&f);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, flush);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, flush);
   }
 }
 PYTHONIC_NS_END

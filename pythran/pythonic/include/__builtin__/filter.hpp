@@ -13,7 +13,7 @@ namespace __builtin__
   types::list<typename Iterable::iterator::value_type>
   filter(F const &f, Iterable const &iterable);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, filter);
+  DEFINE_FUNCTOR(pythonic::__builtin__, filter);
 }
 PYTHONIC_NS_END
 

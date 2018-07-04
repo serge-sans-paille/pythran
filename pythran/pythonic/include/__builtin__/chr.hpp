@@ -11,7 +11,7 @@ namespace __builtin__
   template <class T>
   types::str chr(T const &v);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, chr);
+  DEFINE_FUNCTOR(pythonic::__builtin__, chr);
 }
 PYTHONIC_NS_END
 

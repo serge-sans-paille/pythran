@@ -16,7 +16,7 @@ namespace numpy
 
     template <class T>
     types::ndarray<T, types::pshape<long>> as_array(types::pointer<T>, long);
-    DECLARE_FUNCTOR(pythonic::numpy::ctypeslib, as_array);
+    DEFINE_FUNCTOR(pythonic::numpy::ctypeslib, as_array);
   }
 }
 PYTHONIC_NS_END

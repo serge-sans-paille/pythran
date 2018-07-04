@@ -25,8 +25,6 @@ namespace __builtin__
     {
       return true;
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::set, issubset);
   }
 }
 PYTHONIC_NS_END

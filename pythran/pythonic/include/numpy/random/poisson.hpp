@@ -19,7 +19,7 @@ namespace numpy
 
     double poisson(double lam = 1.0, types::none_type size = {});
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, poisson);
+    DEFINE_FUNCTOR(pythonic::numpy::random, poisson);
   }
 }
 PYTHONIC_NS_END

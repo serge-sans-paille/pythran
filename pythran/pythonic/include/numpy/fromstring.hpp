@@ -19,7 +19,7 @@ namespace numpy
   fromstring(types::str const &string, dtype d = dtype(), long count = -1,
              types::str const &sep = {});
 
-  DECLARE_FUNCTOR(pythonic::numpy, fromstring);
+  DEFINE_FUNCTOR(pythonic::numpy, fromstring);
 }
 PYTHONIC_NS_END
 

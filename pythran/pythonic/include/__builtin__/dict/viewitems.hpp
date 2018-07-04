@@ -15,7 +15,7 @@ namespace __builtin__
     template <class K, class V>
     types::dict_items<types::dict<K, V>> viewitems(types::dict<K, V> const &d);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, viewitems);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, viewitems);
   }
 }
 PYTHONIC_NS_END

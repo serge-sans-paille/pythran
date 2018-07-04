@@ -18,7 +18,7 @@ namespace numpy
   types::ndarray<typename dtype::type, types::pshape<long>>
   ones(long size, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, ones);
+  DEFINE_FUNCTOR(pythonic::numpy, ones);
 }
 PYTHONIC_NS_END
 

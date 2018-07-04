@@ -38,8 +38,6 @@ namespace numpy
     std::sort(lout.begin(), lout.end());
     return {lout};
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, intersect1d);
 }
 PYTHONIC_NS_END
 

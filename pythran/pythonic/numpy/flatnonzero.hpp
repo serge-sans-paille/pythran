@@ -38,8 +38,6 @@ namespace numpy
     types::pshape<long> shape = iter - buffer->data;
     return types::ndarray<long, types::pshape<long>>(std::move(buffer), shape);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, flatnonzero);
 }
 PYTHONIC_NS_END
 

@@ -23,8 +23,6 @@ namespace __builtin__
     {
       return f.read(size);
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, read);
   }
 }
 PYTHONIC_NS_END

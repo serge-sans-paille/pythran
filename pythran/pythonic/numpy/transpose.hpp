@@ -98,7 +98,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(transpose);
-  DEFINE_FUNCTOR(pythonic::numpy, transpose);
 }
 PYTHONIC_NS_END
 

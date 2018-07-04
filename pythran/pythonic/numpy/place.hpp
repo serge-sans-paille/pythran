@@ -45,8 +45,6 @@ namespace numpy
   {
     throw std::runtime_error("place only partially implemented");
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, place);
 }
 PYTHONIC_NS_END
 

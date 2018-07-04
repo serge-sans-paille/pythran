@@ -24,8 +24,6 @@ namespace numpy
     {
       return random();
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, rand);
   }
 }
 PYTHONIC_NS_END

@@ -130,7 +130,6 @@ namespace numpy
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(rfft);
-    DEFINE_FUNCTOR(pythonic::numpy::fft, rfft);
   }
 }
 PYTHONIC_NS_END

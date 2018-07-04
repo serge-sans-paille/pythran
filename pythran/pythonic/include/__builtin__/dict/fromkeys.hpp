@@ -19,7 +19,7 @@ namespace __builtin__
     types::dict<typename std::remove_reference<Iterable>::type::value_type, V>
     fromkeys(Iterable &&iter, V const &v = __builtin__::None);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, fromkeys);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, fromkeys);
   }
 }
 PYTHONIC_NS_END

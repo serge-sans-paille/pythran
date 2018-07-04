@@ -35,8 +35,6 @@ namespace operator_
   {
     return b;
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, iconcat);
 }
 PYTHONIC_NS_END
 

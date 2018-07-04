@@ -17,7 +17,7 @@ namespace __builtin__
     void seek(types::file &f, long offset, long whence);
     void seek(types::file &&f, long offset, long whence);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, seek);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, seek);
   }
 }
 PYTHONIC_NS_END

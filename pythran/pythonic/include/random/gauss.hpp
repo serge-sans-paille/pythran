@@ -11,7 +11,7 @@ namespace random
 
   double gauss(double mu, double sigma);
 
-  DECLARE_FUNCTOR(pythonic::random, gauss);
+  DEFINE_FUNCTOR(pythonic::random, gauss);
 }
 PYTHONIC_NS_END
 

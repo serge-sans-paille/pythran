@@ -94,8 +94,6 @@ namespace numpy
       return ally;
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, all);
 }
 PYTHONIC_NS_END
 

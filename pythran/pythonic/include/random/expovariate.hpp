@@ -10,7 +10,7 @@ namespace random
 {
   double expovariate(double l);
 
-  DECLARE_FUNCTOR(pythonic::random, expovariate);
+  DEFINE_FUNCTOR(pythonic::random, expovariate);
 }
 PYTHONIC_NS_END
 

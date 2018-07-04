@@ -106,7 +106,6 @@ namespace numpy
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(irfft);
-    DEFINE_FUNCTOR(pythonic::numpy::fft, irfft);
   }
 }
 PYTHONIC_NS_END

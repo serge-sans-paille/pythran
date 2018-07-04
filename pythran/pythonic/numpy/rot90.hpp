@@ -40,7 +40,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(rot90)
-  DEFINE_FUNCTOR(pythonic::numpy, rot90);
 }
 PYTHONIC_NS_END
 

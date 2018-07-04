@@ -61,7 +61,7 @@ namespace itertools
       typename std::remove_cv<typename std::remove_reference<T0>::type>::type>
   combinations(T0 &&iter, long num_elts);
 
-  DECLARE_FUNCTOR(pythonic::itertools, combinations);
+  DEFINE_FUNCTOR(pythonic::itertools, combinations);
 }
 PYTHONIC_NS_END
 

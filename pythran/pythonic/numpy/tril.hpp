@@ -29,7 +29,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(tril)
-  DEFINE_FUNCTOR(pythonic::numpy, tril)
 }
 PYTHONIC_NS_END
 

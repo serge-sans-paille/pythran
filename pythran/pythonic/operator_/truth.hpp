@@ -13,8 +13,6 @@ namespace operator_
   {
     return a;
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, truth);
 }
 PYTHONIC_NS_END
 

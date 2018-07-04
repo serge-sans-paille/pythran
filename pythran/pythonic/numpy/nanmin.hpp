@@ -39,8 +39,6 @@ namespace numpy
     _nanmin(expr.begin(), expr.end(), min, utils::int_<E::value>());
     return min;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, nanmin);
 }
 PYTHONIC_NS_END
 

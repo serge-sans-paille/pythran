@@ -19,8 +19,6 @@ namespace __builtin__
       return {filename, strmode};
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, file);
 }
 PYTHONIC_NS_END
 

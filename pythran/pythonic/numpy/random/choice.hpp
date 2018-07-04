@@ -116,8 +116,6 @@ namespace numpy
       return choice(std::forward<T>(a), types::pshape<long>{size}, replace,
                     std::forward<P>(p));
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, choice);
   }
 }
 PYTHONIC_NS_END

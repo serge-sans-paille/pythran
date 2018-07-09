@@ -127,7 +127,30 @@ namespace numpy
       dot(types::ndarray<E, 2> const &a, types::ndarray<E, 2> const &b,
           types::ndarray<E, 2> &c);
 
-  // If arguments could be sue with blas, we evaluate them as we need pointer
+  // texpr variants: MT, TM, TT
+  template <class E, class pS0, class pS1>
+  typename std::enable_if<is_blas_type<E>::value &&
+                              std::tuple_size<pS0>::value == 2 &&
+                              std::tuple_size<pS1>::value == 2,
+                          types::ndarray<E, types::array<long, 2>>>::type
+  dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
+      types::ndarray<E, pS1> const &b);
+  template <class E, class pS0, class pS1>
+  typename std::enable_if<is_blas_type<E>::value &&
+                              std::tuple_size<pS0>::value == 2 &&
+                              std::tuple_size<pS1>::value == 2,
+                          types::ndarray<E, types::array<long, 2>>>::type
+  dot(types::ndarray<E, pS0> const &a,
+      types::numpy_texpr<types::ndarray<E, pS1>> const &b);
+  template <class E, class pS0, class pS1>
+  typename std::enable_if<is_blas_type<E>::value &&
+                              std::tuple_size<pS0>::value == 2 &&
+                              std::tuple_size<pS1>::value == 2,
+                          types::ndarray<E, types::array<long, 2>>>::type
+  dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
+      types::numpy_texpr<types::ndarray<E, pS1>> const &b);
+
+  // If arguments could be use with blas, we evaluate them as we need pointer
   // on array for blas
   template <class E, class F>
   typename std::enable_if<

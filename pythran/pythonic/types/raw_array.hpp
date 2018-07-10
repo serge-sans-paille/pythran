@@ -30,6 +30,12 @@ namespace types
   }
 
   template <class T>
+  raw_array<T>::raw_array(T *d, const std::function<void(pointer_type)> &fct)
+      : data(d), external(false), free_fct(fct)
+  {
+  }
+
+  template <class T>
   raw_array<T>::raw_array(raw_array<T> &&d)
       : data(d.data), external(d.external)
   {
@@ -39,8 +45,13 @@ namespace types
   template <class T>
   raw_array<T>::~raw_array()
   {
-    if (data && !external)
-      free(data);
+    if (data && !external) {
+      if (!free_fct) {
+        free(data);
+      } else {
+        free_fct(data);
+      }
+    }
   }
 
   template <class T>

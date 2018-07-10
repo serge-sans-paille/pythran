@@ -325,7 +325,7 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     builddir = mkdtemp()
     buildtmp = mkdtemp()
 
-    extension_args = make_extension(**kwargs)
+    extension_args = make_extension(python=True, **kwargs)
 
     extension = PythranExtension(module_name,
                                  [cxxfile],

@@ -472,3 +472,12 @@ def recursive_interprocedural_typing1():
 
         return self.run_test(code, 9, alias_update_in_multiple_different_opaque_tests=[int])
 
+    def test_lambda_partial_merge(self):
+        code = '''
+            def lambda_partial_merge(a, c, s):
+              if s == "a":
+                x = lambda y:y 
+              else:
+                x = lambda y:y+c
+              return x(a)'''
+        return self.run_test(code, 1, 2, "A", lambda_partial_merge=[int, int, str])

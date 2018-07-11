@@ -42,7 +42,7 @@ namespace itertools
   template <typename T>
   _repeat<T, true> repeat(T iter);
 
-  DECLARE_FUNCTOR(pythonic::itertools, repeat);
+  DEFINE_FUNCTOR(pythonic::itertools, repeat);
 }
 PYTHONIC_NS_END
 

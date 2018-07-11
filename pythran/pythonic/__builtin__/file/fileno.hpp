@@ -18,8 +18,6 @@ namespace __builtin__
     {
       return f.fileno();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, fileno);
   }
 }
 PYTHONIC_NS_END

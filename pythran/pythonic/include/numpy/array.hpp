@@ -11,10 +11,11 @@ namespace numpy
 {
   template <class T,
             class dtype = types::dtype_t<typename std::decay<T>::type::dtype>>
-  types::ndarray<typename dtype::type, std::decay<T>::type::value>
+  types::ndarray<typename dtype::type,
+                 types::array<long, std::decay<T>::type::value>>
   array(T &&iterable, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, array);
+  DEFINE_FUNCTOR(pythonic::numpy, array);
 }
 PYTHONIC_NS_END
 

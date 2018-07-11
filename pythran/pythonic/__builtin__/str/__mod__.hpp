@@ -52,8 +52,6 @@ namespace __builtin__
       details::fmt(fmter, args, utils::int_<N>());
       return fmter.str();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::str, __mod__);
   }
 }
 PYTHONIC_NS_END

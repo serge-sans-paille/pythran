@@ -73,7 +73,7 @@ namespace operator_
     return OPERATOR_NAME(true, std::forward<A>(a), std::forward<B>(b), nullptr);
   }
 
-  DECLARE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);
+  DEFINE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);
 }
 PYTHONIC_NS_END
 

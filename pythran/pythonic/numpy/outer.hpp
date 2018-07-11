@@ -12,12 +12,14 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T0, size_t N0, class T1, size_t N1>
-  types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()), 2>
-  outer(types::ndarray<T0, N0> const &a, types::ndarray<T1, N1> const &b)
+  template <class T0, class pS0, class T1, class pS1>
+  types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()),
+                 types::pshape<long, long>>
+  outer(types::ndarray<T0, pS0> const &a, types::ndarray<T1, pS1> const &b)
   {
-    types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()), 2> out(
-        types::array<long, 2>{{a.flat_size(), b.flat_size()}},
+    types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()),
+                   types::pshape<long, long>>
+    out(types::pshape<long, long>{a.flat_size(), b.flat_size()},
         __builtin__::None);
     auto iter = out.fbegin();
     for (auto iter_a = a.fbegin(), end_a = a.fend(); iter_a != end_a;
@@ -29,15 +31,15 @@ namespace numpy
     return out;
   }
 
-  template <class T0, size_t N0, class E1>
-  auto outer(types::ndarray<T0, N0> const &a, E1 const &b)
+  template <class T0, class pS0, class E1>
+  auto outer(types::ndarray<T0, pS0> const &a, E1 const &b)
       -> decltype(outer(a, asarray(b)))
   {
     return outer(a, asarray(b));
   }
 
-  template <class E0, class T1, size_t N1>
-  auto outer(E0 const &a, types::ndarray<T1, N1> const &b)
+  template <class E0, class T1, class pS1>
+  auto outer(E0 const &a, types::ndarray<T1, pS1> const &b)
       -> decltype(outer(asarray(a), b))
   {
     return outer(asarray(a), b);
@@ -49,8 +51,6 @@ namespace numpy
   {
     return outer(asarray(a), asarray(b));
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, outer);
 }
 PYTHONIC_NS_END
 

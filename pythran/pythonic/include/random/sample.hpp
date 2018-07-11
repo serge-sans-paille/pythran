@@ -15,7 +15,7 @@ namespace random
       Iterable>::type>::type::iterator::value_type>
   sample(Iterable &&s, size_t k);
 
-  DECLARE_FUNCTOR(pythonic::random, sample);
+  DEFINE_FUNCTOR(pythonic::random, sample);
 }
 PYTHONIC_NS_END
 

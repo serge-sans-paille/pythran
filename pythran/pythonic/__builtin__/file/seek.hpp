@@ -33,8 +33,6 @@ namespace __builtin__
     {
       // Nothing have to be done as it is a lvalue
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, seek);
   }
 }
 PYTHONIC_NS_END

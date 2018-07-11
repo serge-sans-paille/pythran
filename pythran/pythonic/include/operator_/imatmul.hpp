@@ -14,7 +14,7 @@ namespace operator_
   template <class A, class B>
   A imatmul(A &a, B const &b);
 
-  DECLARE_FUNCTOR(pythonic::operator_, imatmul);
+  DEFINE_FUNCTOR(pythonic::operator_, imatmul);
 }
 PYTHONIC_NS_END
 

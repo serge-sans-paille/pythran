@@ -11,7 +11,7 @@ namespace numpy
   template <class T>
   long alen(T &&expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, alen);
+  DEFINE_FUNCTOR(pythonic::numpy, alen);
 }
 PYTHONIC_NS_END
 

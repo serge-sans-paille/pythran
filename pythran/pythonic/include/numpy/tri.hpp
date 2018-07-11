@@ -10,10 +10,10 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class dtype = functor::float64>
-  types::ndarray<typename dtype::type, 2> tri(int N, int M = -1, int k = 0,
-                                              dtype d = dtype());
+  types::ndarray<typename dtype::type, types::pshape<long, long>>
+  tri(long N, long M = -1, long k = 0, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, tri)
+  DEFINE_FUNCTOR(pythonic::numpy, tri)
 }
 PYTHONIC_NS_END
 

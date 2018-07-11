@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(hypot, std::hypot);
+  DEFINE_FUNCTOR_2(hypot, std::hypot);
 }
 PYTHONIC_NS_END
 

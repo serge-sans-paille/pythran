@@ -22,8 +22,6 @@ namespace __builtin__
     xrange xr(b, e, s);
     return {xr.begin(), xr.end()};
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, range);
 }
 PYTHONIC_NS_END
 

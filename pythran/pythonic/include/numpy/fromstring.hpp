@@ -15,11 +15,11 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class dtype = functor::float64>
-  types::ndarray<typename dtype::type, 1>
+  types::ndarray<typename dtype::type, types::pshape<long>>
   fromstring(types::str const &string, dtype d = dtype(), long count = -1,
              types::str const &sep = {});
 
-  DECLARE_FUNCTOR(pythonic::numpy, fromstring);
+  DEFINE_FUNCTOR(pythonic::numpy, fromstring);
 }
 PYTHONIC_NS_END
 

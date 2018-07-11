@@ -12,7 +12,7 @@ namespace operator_
 
   bool eq(char const *a, char const *b);
 
-  DECLARE_FUNCTOR(pythonic::operator_, eq);
+  DEFINE_FUNCTOR(pythonic::operator_, eq);
 }
 PYTHONIC_NS_END
 

@@ -16,7 +16,7 @@ namespace __builtin__
     template <class T0, class T1>
     types::lazy_combined_t<T0, T1> and_(T0 &&, T1 &&);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::pythran, and_);
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, and_);
   }
 }
 PYTHONIC_NS_END

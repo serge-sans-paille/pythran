@@ -18,7 +18,6 @@ namespace math
     double sig = std::frexp(x, &exp);
     return std::tuple<double, long>(sig, exp);
   }
-  DEFINE_FUNCTOR(pythonic::math, frexp);
 }
 PYTHONIC_NS_END
 

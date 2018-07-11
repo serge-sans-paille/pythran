@@ -13,7 +13,7 @@ namespace __dispatch__
     return any.clear();
   }
 
-  DECLARE_FUNCTOR(pythonic::__dispatch__, clear);
+  DEFINE_FUNCTOR(pythonic::__dispatch__, clear);
 }
 PYTHONIC_NS_END
 

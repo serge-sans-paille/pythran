@@ -11,9 +11,9 @@ namespace numpy
 
   template <class E>
   auto nonzero(E const &expr)
-      -> types::array<types::ndarray<long, 1>, E::value>;
+      -> types::array<types::ndarray<long, types::array<long, 1>>, E::value>;
 
-  DECLARE_FUNCTOR(pythonic::numpy, nonzero)
+  DEFINE_FUNCTOR(pythonic::numpy, nonzero)
 }
 PYTHONIC_NS_END
 

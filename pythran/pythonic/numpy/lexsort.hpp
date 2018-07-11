@@ -47,32 +47,20 @@ namespace numpy
         return lexcmp_nth<std::tuple_size<K>::value>{}(keys, i0, i1);
       }
     };
-
-    template <class K>
-    types::ndarray<long, 1> lexsort(K const &keys)
-    {
-      long n = std::get<0>(keys).size();
-      types::ndarray<long, 1> out(types::make_tuple(n), __builtin__::None);
-      // fill with the original indices
-      std::iota(out.buffer, out.buffer + n, 0L);
-      // then sort using keys as the comparator
-      std::sort(out.buffer, out.buffer + n, details::lexcmp<K>(keys));
-      return out;
-    }
   }
 
-  template <class T, size_t N>
-  types::ndarray<long, 1> lexsort(types::array<T, N> const &keys)
+  template <class pS>
+  types::ndarray<long, types::pshape<long>> lexsort(pS const &keys)
   {
-    return details::lexsort(keys);
+    long n = std::get<0>(keys).size();
+    types::ndarray<long, types::pshape<long>> out(types::pshape<long>(n),
+                                                  __builtin__::None);
+    // fill with the original indices
+    std::iota(out.buffer, out.buffer + n, 0L);
+    // then sort using keys as the comparator
+    std::sort(out.buffer, out.buffer + n, details::lexcmp<pS>(keys));
+    return out;
   }
-  template <class... Types>
-  types::ndarray<long, 1> lexsort(std::tuple<Types...> const &keys)
-  {
-    return details::lexsort(keys);
-  }
-
-  DEFINE_FUNCTOR(pythonic::numpy, lexsort)
 }
 PYTHONIC_NS_END
 

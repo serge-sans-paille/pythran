@@ -18,8 +18,6 @@ namespace __builtin__
     {
       return f.isatty();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, isatty);
   }
 }
 PYTHONIC_NS_END

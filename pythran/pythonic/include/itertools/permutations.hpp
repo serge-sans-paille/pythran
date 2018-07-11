@@ -83,7 +83,7 @@ namespace itertools
   template <typename T0>
   _permutations<T0> permutations(T0 iter);
 
-  DECLARE_FUNCTOR(pythonic::itertools, permutations);
+  DEFINE_FUNCTOR(pythonic::itertools, permutations);
 }
 PYTHONIC_NS_END
 

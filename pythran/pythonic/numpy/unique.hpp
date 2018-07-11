@@ -89,15 +89,16 @@ namespace numpy
     }
   }
   template <class E>
-  types::ndarray<typename E::dtype, 1> unique(E const &expr)
+  types::ndarray<typename E::dtype, types::pshape<long>> unique(E const &expr)
   {
     std::set<typename E::dtype> res;
     _unique1(expr.begin(), expr.end(), res, utils::int_<E::value>());
-    return types::ndarray<typename E::dtype, 1>(res);
+    return {res};
   }
 
   template <class E>
-  std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>>
+  std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
+             types::ndarray<long, types::pshape<long>>>
   unique(E const &expr, bool return_index)
   {
     std::set<typename E::dtype> res;
@@ -105,40 +106,45 @@ namespace numpy
     long i = 0;
     _unique2(expr.begin(), expr.end(), res, return_index_res, i,
              utils::int_<E::value>());
-    return std::make_tuple(types::ndarray<typename E::dtype, 1>(res),
-                           types::ndarray<long, 1>(return_index_res));
+    return std::make_tuple(
+        types::ndarray<typename E::dtype, types::pshape<long>>(res),
+        types::ndarray<long, types::pshape<long>>(return_index_res));
   }
 
   template <class E>
-  std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>,
-             types::ndarray<long, 1>>
+  std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
+             types::ndarray<long, types::pshape<long>>,
+             types::ndarray<long, types::pshape<long>>>
   unique(E const &expr, bool return_index, bool return_inverse)
   {
     assert(return_inverse && "invalid signature otherwise");
 
     std::set<typename E::dtype> res;
     std::vector<long> return_index_res;
-    types::ndarray<long, 1> return_inverse_res(
-        types::array<long, 1>{{expr.flat_size()}}, __builtin__::None);
+    types::ndarray<long, types::pshape<long>> return_inverse_res(
+        types::pshape<long>{expr.flat_size()}, __builtin__::None);
     long i = 0;
     _unique3(expr.begin(), expr.end(), res, return_index_res,
              return_inverse_res, i, utils::int_<E::value>());
-    return std::make_tuple(types::ndarray<typename E::dtype, 1>(res),
-                           types::ndarray<long, 1>(return_index_res),
-                           return_inverse_res);
+    return std::make_tuple(
+        types::ndarray<typename E::dtype, types::pshape<long>>(res),
+        types::ndarray<long, types::pshape<long>>(return_index_res),
+        return_inverse_res);
   }
 
   template <class E>
-  std::tuple<types::ndarray<typename E::dtype, 1>, types::ndarray<long, 1>,
-             types::ndarray<long, 1>, types::ndarray<long, 1>>
+  std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
+             types::ndarray<long, types::pshape<long>>,
+             types::ndarray<long, types::pshape<long>>,
+             types::ndarray<long, types::pshape<long>>>
   unique(E const &expr, bool return_index, bool return_inverse,
          bool return_counts)
   {
     assert(return_counts && "invalid signature otherwise");
 
     std::vector<long> return_index_res;
-    types::ndarray<long, 1> return_inverse_res(
-        types::array<long, 1>{{expr.flat_size()}}, __builtin__::None);
+    types::ndarray<long, types::pshape<long>> return_inverse_res(
+        types::pshape<long>{expr.flat_size()}, __builtin__::None);
 
     std::map<typename E::dtype, long> return_counts_map;
     {
@@ -147,10 +153,12 @@ namespace numpy
                return_counts_map, i, utils::int_<E::value>());
     }
 
-    types::array<long, 1> shp{{(long)return_counts_map.size()}};
+    types::pshape<long> shp{(long)return_counts_map.size()};
 
-    types::ndarray<long, 1> unique_array(shp, __builtin__::None);
-    types::ndarray<long, 1> return_counts_array(shp, __builtin__::None);
+    types::ndarray<long, types::pshape<long>> unique_array(shp,
+                                                           __builtin__::None);
+    types::ndarray<long, types::pshape<long>> return_counts_array(
+        shp, __builtin__::None);
 
     {
       long i = 0;
@@ -161,12 +169,11 @@ namespace numpy
       }
     }
 
-    return std::make_tuple(unique_array,
-                           types::ndarray<long, 1>(return_index_res),
-                           return_inverse_res, return_counts_array);
+    return std::make_tuple(
+        unique_array,
+        types::ndarray<long, types::pshape<long>>(return_index_res),
+        return_inverse_res, return_counts_array);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, unique)
 }
 PYTHONIC_NS_END
 

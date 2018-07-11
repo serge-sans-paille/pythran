@@ -22,14 +22,19 @@ namespace numpy
       using type = types::list<T>;
     };
 
-    template <class T>
-    types::list<T> tolist(types::ndarray<T, 1> const &expr);
+    template <class T, class pS>
+    typename std::enable_if<std::tuple_size<pS>::value == 1,
+                            types::list<T>>::type
+    tolist(types::ndarray<T, pS> const &expr);
 
-    template <class T, size_t N>
-    typename tolist_type<T, N>::type tolist(types::ndarray<T, N> const &expr);
+    template <class T, class pS>
+    typename std::enable_if<
+        std::tuple_size<pS>::value != 1,
+        typename tolist_type<T, std::tuple_size<pS>::value>::type>::type
+    tolist(types::ndarray<T, pS> const &expr);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(tolist);
-    DECLARE_FUNCTOR(pythonic::numpy::ndarray, tolist);
+    DEFINE_FUNCTOR(pythonic::numpy::ndarray, tolist);
   }
 }
 PYTHONIC_NS_END

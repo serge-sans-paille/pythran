@@ -16,11 +16,10 @@ namespace numpy
   namespace random
   {
 
-    template <size_t N>
-    types::ndarray<long, N> randint(long min, long max,
-                                    types::array<long, N> const &shape)
+    template <class pS>
+    types::ndarray<long, pS> randint(long min, long max, pS const &shape)
     {
-      types::ndarray<long, N> result{shape, types::none_type()};
+      types::ndarray<long, pS> result{shape, types::none_type()};
       std::uniform_int_distribution<long> distribution{min, max - 1};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });
@@ -44,8 +43,6 @@ namespace numpy
       return std::uniform_int_distribution<long>{min,
                                                  max - 1}(details::generator);
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, randint);
   }
 }
 PYTHONIC_NS_END

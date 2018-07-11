@@ -14,7 +14,7 @@ namespace __builtin__
 
   pythran_long_t long_();
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, long_);
+  DEFINE_FUNCTOR(pythonic::__builtin__, long_);
 }
 PYTHONIC_NS_END
 

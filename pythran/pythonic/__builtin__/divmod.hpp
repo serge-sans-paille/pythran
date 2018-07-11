@@ -17,8 +17,6 @@ namespace __builtin__
   {
     return types::make_tuple(t0 / t1, t0 % t1);
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, divmod);
 }
 PYTHONIC_NS_END
 

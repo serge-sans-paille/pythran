@@ -10,7 +10,6 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DEFINE_FUNCTOR_2(fmod, std::fmod);
 }
 PYTHONIC_NS_END
 

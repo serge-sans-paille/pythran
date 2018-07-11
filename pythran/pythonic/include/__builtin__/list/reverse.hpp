@@ -16,7 +16,7 @@ namespace __builtin__
     template <class T>
     types::none_type reverse(types::list<T> &seq);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::list, reverse);
+    DEFINE_FUNCTOR(pythonic::__builtin__::list, reverse);
   }
 }
 PYTHONIC_NS_END

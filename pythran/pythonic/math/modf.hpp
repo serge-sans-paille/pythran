@@ -19,8 +19,6 @@ namespace math
     double frac = std::modf(x, &i);
     return std::make_tuple(frac, i);
   }
-
-  DEFINE_FUNCTOR(pythonic::math, modf);
 }
 PYTHONIC_NS_END
 

@@ -13,7 +13,7 @@ namespace numpy
   auto std_(Args &&... args)
       -> decltype(functor::sqrt{}(var(std::forward<Args>(args)...)));
 
-  DECLARE_FUNCTOR(pythonic::numpy, std_);
+  DEFINE_FUNCTOR(pythonic::numpy, std_);
 }
 PYTHONIC_NS_END
 

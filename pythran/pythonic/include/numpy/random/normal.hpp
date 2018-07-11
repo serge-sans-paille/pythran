@@ -11,9 +11,9 @@ namespace numpy
 {
   namespace random
   {
-    template <size_t N>
-    types::ndarray<double, N> normal(double loc, double scale,
-                                     types::array<long, N> const &shape);
+    template <class pS>
+    types::ndarray<double, pS> normal(double loc, double scale,
+                                      pS const &shape);
 
     auto normal(double loc, double scale, long size)
         -> decltype(normal(loc, scale, types::array<long, 1>{{size}}));
@@ -21,7 +21,7 @@ namespace numpy
     double normal(double loc = 0.0, double scale = 1.0,
                   types::none_type size = {});
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, normal);
+    DEFINE_FUNCTOR(pythonic::numpy::random, normal);
   }
 }
 PYTHONIC_NS_END

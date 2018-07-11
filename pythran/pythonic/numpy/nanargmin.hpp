@@ -51,8 +51,6 @@ namespace numpy
     else
       throw types::ValueError("empty sequence");
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, nanargmin);
 }
 PYTHONIC_NS_END
 

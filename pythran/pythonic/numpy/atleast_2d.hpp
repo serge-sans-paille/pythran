@@ -10,18 +10,30 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T>
-  typename std::enable_if<types::is_dtype<T>::value, types::ndarray<T, 2>>::type
+  typename std::enable_if<
+      types::is_dtype<T>::value,
+      types::ndarray<T, types::pshape<std::integral_constant<long, 1>,
+                                      std::integral_constant<long, 1>>>>::type
   atleast_2d(T t)
   {
-    return types::ndarray<T, 2>(types::make_tuple(1L, 1L), t);
+    return {types::pshape<std::integral_constant<long, 1>,
+                          std::integral_constant<long, 1>>(),
+            t};
   }
 
   template <class T>
           auto atleast_2d(T const &t) ->
           typename std::enable_if < (!types::is_dtype<T>::value) &&
-      T::value<2, types::ndarray<typename T::dtype, 2>>::type
+      T::value<2, types::ndarray<
+                      typename T::dtype,
+                      types::pshape<std::integral_constant<long, 1>,
+                                    typename std::tuple_element<
+                                        0, typename T::shape_t>::type>>>::type
   {
-    return t.reshape(types::make_tuple(1L, t.shape()[0]));
+    return t.reshape(types::pshape<
+        std::integral_constant<long, 1>,
+        typename std::tuple_element<0, typename T::shape_t>::type>(
+        std::integral_constant<long, 1>(), std::get<0>(t.shape())));
   }
 
   template <class T>
@@ -33,8 +45,6 @@ namespace numpy
   {
     return std::forward<T>(t);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, atleast_2d);
 }
 PYTHONIC_NS_END
 

@@ -18,8 +18,6 @@ namespace numpy
       std::shuffle(seq.begin(), seq.end(), details::generator);
       return __builtin__::None;
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, shuffle);
   }
 }
 

@@ -35,8 +35,6 @@ namespace __builtin__
     std::sort(out.begin(), out.end(), cmp);
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, sorted);
 }
 PYTHONIC_NS_END
 

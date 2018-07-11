@@ -40,7 +40,7 @@ namespace __builtin__
                               types::static_if_return<F1, F0>>::type
     static_if_(T const &cond, F0 f0, F1 f1);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::pythran, static_if_);
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, static_if_);
   }
 }
 PYTHONIC_NS_END

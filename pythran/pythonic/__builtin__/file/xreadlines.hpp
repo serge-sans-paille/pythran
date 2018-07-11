@@ -23,8 +23,6 @@ namespace __builtin__
     {
       return std::forward<types::file>(f);
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, xreadlines);
   }
 }
 PYTHONIC_NS_END

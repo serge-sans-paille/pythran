@@ -20,7 +20,7 @@ namespace numpy
   template <class E>
   auto average(E const &expr, long axis) -> decltype(sum(expr, axis) / 1.)
   {
-    auto shape = expr.shape();
+    auto shape = sutils::array(expr.shape());
     return sum(expr, axis) / double(shape[axis]);
   }
 
@@ -32,8 +32,6 @@ namespace numpy
     auto weighted_expr = expr * aweights / average(aweights);
     return average(weighted_expr);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, average);
 }
 PYTHONIC_NS_END
 

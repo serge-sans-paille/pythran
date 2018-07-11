@@ -25,8 +25,6 @@ namespace __builtin__
   {
     return std::lround(v);
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, round);
 }
 PYTHONIC_NS_END
 

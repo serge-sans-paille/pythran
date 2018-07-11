@@ -17,7 +17,7 @@ namespace numpy
   template <class T>
   auto angle(T const &t) -> decltype(functor::angle_in_rad()(t));
 
-  DECLARE_FUNCTOR(pythonic::numpy, angle);
+  DEFINE_FUNCTOR(pythonic::numpy, angle);
 }
 PYTHONIC_NS_END
 

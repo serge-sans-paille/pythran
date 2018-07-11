@@ -16,8 +16,6 @@ namespace __dispatch__
   {
     return any.update(std::forward<Arg0>(arg0)...);
   }
-
-  DEFINE_FUNCTOR(pythonic::__dispatch__, update);
 }
 PYTHONIC_NS_END
 

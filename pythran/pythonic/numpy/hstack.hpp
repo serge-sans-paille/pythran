@@ -18,7 +18,6 @@ namespace numpy
          1);
     return concatenate(std::forward<ArraySequence>(seq), concatenate_axis);
   }
-  DEFINE_FUNCTOR(pythonic::numpy, hstack);
 }
 PYTHONIC_NS_END
 

@@ -14,7 +14,7 @@ namespace __builtin__
 
     bool isatty(types::file const &f);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, isatty);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, isatty);
   }
 }
 PYTHONIC_NS_END

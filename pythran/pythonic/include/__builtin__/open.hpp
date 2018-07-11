@@ -12,7 +12,7 @@ namespace __builtin__
 
   types::file open(types::str const &filename, types::str const &strmode = "r");
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, open);
+  DEFINE_FUNCTOR(pythonic::__builtin__, open);
 }
 PYTHONIC_NS_END
 

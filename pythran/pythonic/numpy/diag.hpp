@@ -12,30 +12,36 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T>
-  types::ndarray<T, 1> diag(types::ndarray<T, 2> const &a, long k)
+  template <class T, class pS>
+  typename std::enable_if<std::tuple_size<pS>::value == 2,
+                          types::ndarray<T, types::pshape<long>>>::type
+  diag(types::ndarray<T, pS> const &a, long k)
   {
     auto &&a_shape = a.shape();
     utils::shared_ref<types::raw_array<T>> buffer(
-        std::max(a_shape[0], a_shape[1]));
-    types::array<long, 1> shape = {0};
+        std::max(std::get<0>(a_shape), std::get<1>(a_shape)));
+    types::pshape<long> shape = 0;
     auto iter = buffer->data;
     if (k >= 0)
-      for (int i = 0, j = k; i < a_shape[0] && j < a_shape[1];
-           ++i, ++j, ++shape[0])
+      for (int i = 0, j = k;
+           i < std::get<0>(a_shape) && j < std::get<1>(a_shape);
+           ++i, ++j, ++std::get<0>(shape))
         *iter++ = a[i][j];
     else
-      for (int i = -k, j = 0; i < a_shape[0] && j < a_shape[1];
-           ++i, ++j, ++shape[0])
+      for (int i = -k, j = 0;
+           i < std::get<0>(a_shape) && j < std::get<1>(a_shape);
+           ++i, ++j, ++std::get<0>(shape))
         *iter++ = a[i][j];
-    return types::ndarray<T, 1>(buffer, shape);
+    return {buffer, shape};
   }
 
-  template <class T>
-  types::ndarray<T, 2> diag(types::ndarray<T, 1> const &a, long k)
+  template <class T, class pS>
+  typename std::enable_if<std::tuple_size<pS>::value == 1,
+                          types::ndarray<T, types::array<long, 2>>>::type
+  diag(types::ndarray<T, pS> const &a, long k)
   {
     long n = a.flat_size() + std::abs(k);
-    types::ndarray<T, 2> out(types::make_tuple(n, n), 0);
+    types::ndarray<T, types::array<long, 2>> out(types::make_tuple(n, n), 0);
     if (k >= 0)
       for (long i = 0, j = k; i < n && j < n; ++i, ++j)
         out[i][j] = a[i];
@@ -52,7 +58,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(diag);
-  DEFINE_FUNCTOR(pythonic::numpy, diag);
 }
 PYTHONIC_NS_END
 

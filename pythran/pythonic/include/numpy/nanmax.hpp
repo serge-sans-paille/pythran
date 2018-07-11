@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   typename E::dtype nanmax(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, nanmax);
+  DEFINE_FUNCTOR(pythonic::numpy, nanmax);
 }
 PYTHONIC_NS_END
 

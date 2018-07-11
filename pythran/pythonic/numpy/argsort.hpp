@@ -10,12 +10,13 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<long, N> argsort(types::ndarray<T, N> const &a)
+  template <class T, class pS>
+  types::ndarray<long, pS> argsort(types::ndarray<T, pS> const &a)
   {
-    size_t last_axis = a.shape()[N - 1];
+    constexpr auto N = std::tuple_size<pS>::value;
+    size_t last_axis = std::get<N - 1>(a.shape());
     size_t n = a.flat_size();
-    types::ndarray<long, N> indices(a.shape(), __builtin__::None);
+    types::ndarray<long, pS> indices(a.shape(), __builtin__::None);
     for (long j = 0, *iter_indices = indices.buffer,
               *end_indices = indices.buffer + n;
          iter_indices != end_indices;
@@ -32,8 +33,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(argsort);
-
-  DEFINE_FUNCTOR(pythonic::numpy, argsort);
 }
 PYTHONIC_NS_END
 

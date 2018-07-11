@@ -18,8 +18,6 @@ namespace numpy
   {
     return reduce<operator_::functor::imin>(std::forward<Args>(args)...);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, min);
 }
 PYTHONIC_NS_END
 

@@ -73,8 +73,6 @@ namespace operator_
   {
     return {item1, item2, items...};
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, itemgetter);
 }
 PYTHONIC_NS_END
 

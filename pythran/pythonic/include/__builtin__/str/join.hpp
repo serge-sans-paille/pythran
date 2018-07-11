@@ -39,7 +39,7 @@ namespace __builtin__
         types::str>::type
     join(S const &s, Iterable &&iterable);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, join);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, join);
   }
 }
 PYTHONIC_NS_END

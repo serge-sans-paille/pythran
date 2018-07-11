@@ -17,7 +17,7 @@ namespace __builtin__
     void truncate(types::file &f, long size);
     void truncate(types::file &&f, long size);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, truncate);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, truncate);
   }
 }
 PYTHONIC_NS_END

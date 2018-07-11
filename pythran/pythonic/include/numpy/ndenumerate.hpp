@@ -41,12 +41,12 @@ namespace numpy
     iterator end() const;
   };
 
-  template <class T, size_t N>
-  _ndenumerate<types::ndarray<T, N>>
-  ndenumerate(types::ndarray<T, N> const &expr);
+  template <class T, class pS>
+  _ndenumerate<types::ndarray<T, pS>>
+  ndenumerate(types::ndarray<T, pS> const &expr);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(ndenumerate);
-  DECLARE_FUNCTOR(pythonic::numpy, ndenumerate);
+  DEFINE_FUNCTOR(pythonic::numpy, ndenumerate);
 }
 PYTHONIC_NS_END
 

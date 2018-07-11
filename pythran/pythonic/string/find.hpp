@@ -16,8 +16,6 @@ namespace string
   {
     return s.find(std::forward<T>(val));
   }
-
-  DEFINE_FUNCTOR(pythonic::string, find);
 }
 PYTHONIC_NS_END
 

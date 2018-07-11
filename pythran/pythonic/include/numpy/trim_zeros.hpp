@@ -13,7 +13,7 @@ namespace numpy
   types::numpy_gexpr<T, types::contiguous_normalized_slice>
   trim_zeros(T const &expr, types::str const &trim = "fb");
 
-  DECLARE_FUNCTOR(pythonic::numpy, trim_zeros)
+  DEFINE_FUNCTOR(pythonic::numpy, trim_zeros)
 }
 PYTHONIC_NS_END
 

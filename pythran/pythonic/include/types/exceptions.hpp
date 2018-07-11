@@ -92,7 +92,7 @@ PYTHONIC_NS_END
   template <typename... Types>                                                 \
   types::name name(Types const &... args);                                     \
                                                                                \
-  DECLARE_FUNCTOR(pythonic::__builtin__, name);
+  DEFINE_FUNCTOR(pythonic::__builtin__, name);
 
 /* pythran attribute system { */
 #define DECLARE_EXCEPTION_GETATTR(name)                                        \

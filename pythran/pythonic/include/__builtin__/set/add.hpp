@@ -22,7 +22,7 @@ namespace __builtin__
     template <class F>
     types::none_type add(types::empty_set const &s, F &&value);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, add);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, add);
   }
 }
 PYTHONIC_NS_END

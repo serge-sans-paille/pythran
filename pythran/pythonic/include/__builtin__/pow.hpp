@@ -19,7 +19,7 @@ namespace __builtin__
   template <class T, class U>
   pythran_long_t pow(__gmp_expr<T, U> const &a, long b);
 #endif
-  DECLARE_FUNCTOR(pythonic::__builtin__, pow);
+  DEFINE_FUNCTOR(pythonic::__builtin__, pow);
 }
 PYTHONIC_NS_END
 

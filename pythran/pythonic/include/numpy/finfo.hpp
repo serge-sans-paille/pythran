@@ -12,7 +12,7 @@ namespace numpy
   template <class dtype = functor::float64>
   types::finfo<typename dtype::type> finfo(dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, finfo)
+  DEFINE_FUNCTOR(pythonic::numpy, finfo)
 }
 PYTHONIC_NS_END
 

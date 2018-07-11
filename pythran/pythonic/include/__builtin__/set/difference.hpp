@@ -30,7 +30,7 @@ namespace __builtin__
 
     types::empty_set difference(types::empty_set const &set);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, difference);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, difference);
   }
 }
 PYTHONIC_NS_END

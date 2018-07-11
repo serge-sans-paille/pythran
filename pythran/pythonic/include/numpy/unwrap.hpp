@@ -11,9 +11,10 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  types::ndarray<double, E::value> unwrap(E const &expr, double discont = pi);
+  types::ndarray<double, typename E::shape_t> unwrap(E const &expr,
+                                                     double discont = pi);
 
-  DECLARE_FUNCTOR(pythonic::numpy, unwrap)
+  DEFINE_FUNCTOR(pythonic::numpy, unwrap)
 }
 PYTHONIC_NS_END
 

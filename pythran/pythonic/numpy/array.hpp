@@ -12,13 +12,12 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class dtype>
-  types::ndarray<typename dtype::type, std::decay<T>::type::value>
+  types::ndarray<typename dtype::type,
+                 types::array<long, std::decay<T>::type::value>>
   array(T &&iterable, dtype d)
   {
     return {std::forward<T>(iterable)};
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, array);
 }
 PYTHONIC_NS_END
 

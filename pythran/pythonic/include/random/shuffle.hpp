@@ -14,7 +14,7 @@ namespace random
   template <class T, class function>
   types::none_type shuffle(T &seq, function &&randf);
 
-  DECLARE_FUNCTOR(pythonic::random, shuffle)
+  DEFINE_FUNCTOR(pythonic::random, shuffle)
 }
 PYTHONIC_NS_END
 

@@ -48,8 +48,6 @@ namespace numpy
     return _allclose(u.begin(), u.end(), v.begin(), rtol, atol,
                      utils::int_<U::value>());
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, allclose);
 }
 PYTHONIC_NS_END
 

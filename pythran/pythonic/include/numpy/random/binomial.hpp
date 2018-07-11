@@ -11,16 +11,15 @@ namespace numpy
 {
   namespace random
   {
-    template <size_t N>
-    types::ndarray<long, N> binomial(double n, double p,
-                                     types::array<long, N> const &shape);
+    template <class pS>
+    types::ndarray<long, pS> binomial(double n, double p, pS const &shape);
 
     auto binomial(double n, double p, long size)
         -> decltype(binomial(n, p, types::array<long, 1>{{size}}));
 
     long binomial(double n, double p, types::none_type d = types::none_type());
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, binomial);
+    DEFINE_FUNCTOR(pythonic::numpy::random, binomial);
   }
 }
 PYTHONIC_NS_END

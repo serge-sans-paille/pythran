@@ -18,7 +18,7 @@ namespace __builtin__
     template <class T>
     long index(types::list<T> &&seq, T const &x);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::list, index);
+    DEFINE_FUNCTOR(pythonic::__builtin__::list, index);
   }
 }
 PYTHONIC_NS_END

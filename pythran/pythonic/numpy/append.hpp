@@ -10,23 +10,24 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N, class F>
+  template <class T, class pS, class F>
   types::ndarray<
       typename std::remove_cv<typename std::remove_reference<
           decltype(std::declval<T>() +
                    std::declval<typename utils::nested_container_value_type<
                        F>::type>())>::type>::type,
-      1>
-  append(types::ndarray<T, N> const &nto, F const &data)
+      types::pshape<long>>
+  append(types::ndarray<T, pS> const &nto, F const &data)
   {
-    types::ndarray<typename F::dtype, F::value> ndata(data);
+    types::ndarray<typename F::dtype, typename F::shape_t> ndata(data);
     long nsize = nto.flat_size() + ndata.flat_size();
     types::ndarray<
         typename std::remove_cv<typename std::remove_reference<decltype(
             std::declval<T>() +
             std::declval<typename utils::nested_container_value_type<
                 F>::type>())>::type>::type,
-        1> out(types::make_tuple(nsize), __builtin__::None);
+        types::pshape<long>>
+    out(types::pshape<long>(nsize), __builtin__::None);
     auto out_back = std::copy(nto.fbegin(), nto.fend(), out.fbegin());
     std::copy(ndata.fbegin(), ndata.fend(), out_back);
     return out;
@@ -39,16 +40,13 @@ namespace numpy
                        types::list<T>>::type>() +
                    std::declval<typename utils::nested_container_value_type<
                        F>::type>())>::type>::type,
-      1>
+      types::pshape<long>>
   append(types::list<T> const &to, F const &data)
   {
-    return append(
-        types::ndarray<typename types::list<T>::dtype, types::list<T>::value>(
-            to),
-        data);
+    return append(types::ndarray<typename types::list<T>::dtype,
+                                 types::array<long, types::list<T>::value>>(to),
+                  data);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, append);
 }
 PYTHONIC_NS_END
 

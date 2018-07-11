@@ -31,8 +31,6 @@ namespace __builtin__
       return oss.str();
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, bin);
 }
 PYTHONIC_NS_END
 

@@ -15,15 +15,15 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-  template <class T, size_t N, class I, class F>
+  template <class T, class pS, class I, class F>
   typename std::enable_if<types::is_iterable<I>::value &&
                               types::is_iterable<F>::value,
-                          types::ndarray<T, 1>>::type
-  insert(types::ndarray<T, N> in, I const &indices, F const &data,
+                          types::ndarray<T, types::pshape<long>>>::type
+  insert(types::ndarray<T, pS> in, I const &indices, F const &data,
          types::none_type axis)
   {
-    types::ndarray<T, 1> out(
-        types::make_tuple(long(
+    types::ndarray<T, types::pshape<long>> out(
+        types::pshape<long>(long(
             in.flat_size() + std::min(indices.flat_size(), data.flat_size()))),
         __builtin__::None);
     auto out_iter = out.fbegin();
@@ -38,31 +38,31 @@ namespace numpy
     return out;
   }
 
-  template <class T, size_t N, class I, class F>
+  template <class T, class pS, class I, class F>
   typename std::enable_if<types::is_iterable<I>::value &&
                               !types::is_iterable<F>::value,
-                          types::ndarray<T, 1>>::type
-  insert(types::ndarray<T, N> in, I const &indices, F const &data,
+                          types::ndarray<T, types::pshape<long>>>::type
+  insert(types::ndarray<T, pS> in, I const &indices, F const &data,
          types::none_type axis)
   {
     return insert(in, indices, types::list<F>({data}), axis);
   }
 
-  template <class T, size_t N, class I, class F>
+  template <class T, class pS, class I, class F>
   typename std::enable_if<!types::is_iterable<I>::value &&
                               types::is_iterable<F>::value,
-                          types::ndarray<T, 1>>::type
-  insert(types::ndarray<T, N> in, I const &indices, F const &data,
+                          types::ndarray<T, types::pshape<long>>>::type
+  insert(types::ndarray<T, pS> in, I const &indices, F const &data,
          types::none_type axis)
   {
     return insert(in, types::list<I>({indices}), {data}, axis);
   }
 
-  template <class T, size_t N, class I, class F>
+  template <class T, class pS, class I, class F>
   typename std::enable_if<!types::is_iterable<I>::value &&
                               !types::is_iterable<F>::value,
-                          types::ndarray<T, 1>>::type
-  insert(types::ndarray<T, N> in, I const &indices, F const &data,
+                          types::ndarray<T, types::pshape<long>>>::type
+  insert(types::ndarray<T, pS> in, I const &indices, F const &data,
          types::none_type axis)
   {
     return insert(in, types::list<I>({indices}), types::list<F>({data}), axis);
@@ -73,8 +73,6 @@ namespace numpy
   {
     throw std::runtime_error("insert only partially supported");
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, insert);
 }
 PYTHONIC_NS_END
 

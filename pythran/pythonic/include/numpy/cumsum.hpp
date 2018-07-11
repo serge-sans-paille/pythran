@@ -15,7 +15,7 @@ namespace numpy
       -> decltype(partial_sum<operator_::functor::add>(
           std::forward<E>(e), std::forward<Opts>(opts)...));
 
-  DECLARE_FUNCTOR(pythonic::numpy, cumsum);
+  DEFINE_FUNCTOR(pythonic::numpy, cumsum);
 }
 PYTHONIC_NS_END
 

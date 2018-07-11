@@ -15,7 +15,7 @@ namespace __builtin__
     template <class K, class V, class W>
     bool has_key(types::dict<K, V> const &d, W const &k);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, has_key);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, has_key);
   }
 }
 PYTHONIC_NS_END

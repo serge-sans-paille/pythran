@@ -42,8 +42,6 @@ namespace __builtin__
   {
     return types::empty_list();
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, zip);
 }
 PYTHONIC_NS_END
 

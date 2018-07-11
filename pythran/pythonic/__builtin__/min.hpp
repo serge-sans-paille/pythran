@@ -19,8 +19,6 @@ namespace __builtin__
     return details::minmax<sizeof...(Types) == 1, Types...>()(
         operator_::functor::gt{}, std::forward<Types>(values)...);
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, min);
 }
 PYTHONIC_NS_END
 

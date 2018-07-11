@@ -21,8 +21,6 @@ namespace __builtin__
     std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out), f);
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, filter);
 }
 PYTHONIC_NS_END
 

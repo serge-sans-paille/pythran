@@ -11,7 +11,7 @@ namespace numpy
   template <class E>
   long nanargmin(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, nanargmin);
+  DEFINE_FUNCTOR(pythonic::numpy, nanargmin);
 }
 PYTHONIC_NS_END
 

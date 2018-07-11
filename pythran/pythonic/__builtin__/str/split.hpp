@@ -43,8 +43,6 @@ namespace __builtin__
     {
       return split(s, " ", maxsplit);
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::str, split);
   }
 }
 PYTHONIC_NS_END

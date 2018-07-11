@@ -18,8 +18,6 @@ namespace numpy
   {
     return reduce<operator_::functor::imax>(std::forward<Args>(args)...);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, max);
 }
 PYTHONIC_NS_END
 

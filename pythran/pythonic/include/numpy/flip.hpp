@@ -21,7 +21,7 @@ namespace numpy
       -> decltype(details::flip(expr, std::array<types::slice, E::value>{},
                                 utils::make_index_sequence<E::value>{}));
 
-  DECLARE_FUNCTOR(pythonic::numpy, flip);
+  DEFINE_FUNCTOR(pythonic::numpy, flip);
 }
 PYTHONIC_NS_END
 

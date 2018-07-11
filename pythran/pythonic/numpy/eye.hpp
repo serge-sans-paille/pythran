@@ -12,9 +12,10 @@ namespace numpy
 {
 
   template <class dtype>
-  types::ndarray<typename dtype::type, 2> eye(long N, long M, long k, dtype d)
+  types::ndarray<typename dtype::type, types::array<long, 2>>
+  eye(long N, long M, long k, dtype d)
   {
-    types::ndarray<typename dtype::type, 2> out =
+    types::ndarray<typename dtype::type, types::array<long, 2>> out =
         zeros(types::make_tuple(N, M), d);
     if (k >= 0)
       for (int i = 0, j = k; i < N && j < M; ++i, ++j)
@@ -26,13 +27,11 @@ namespace numpy
   }
 
   template <class dtype>
-  types::ndarray<typename dtype::type, 2> eye(long N, types::none_type M,
-                                              long k, dtype d)
+  types::ndarray<typename dtype::type, types::array<long, 2>>
+  eye(long N, types::none_type M, long k, dtype d)
   {
     return eye(N, N, k, d);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, eye);
 }
 PYTHONIC_NS_END
 

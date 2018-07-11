@@ -10,12 +10,12 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  types::ndarray<typename E::dtype, 1> ediff1d(E const &expr)
+  types::ndarray<typename E::dtype, types::pshape<long>> ediff1d(E const &expr)
   {
     auto arr = asarray(expr);
     long n = arr.flat_size() - 1;
-    types::ndarray<typename E::dtype, 1> out(types::make_tuple(n),
-                                             __builtin__::None);
+    types::ndarray<typename E::dtype, types::pshape<long>> out(
+        types::pshape<long>(n), __builtin__::None);
     // Compute adjacent difference except for the first element
     std::adjacent_difference(arr.fbegin() + 1, arr.fend(), out.fbegin());
     // First element can be done now
@@ -28,8 +28,6 @@ namespace numpy
   {
     return ediff1d(asarray(expr));
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, ediff1d);
 }
 PYTHONIC_NS_END
 

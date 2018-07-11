@@ -21,16 +21,16 @@ namespace numpy
     /***********************************************************
      * Implementation with long as first argument
      **********************************************************/
-    template <size_t S, class P>
-    types::ndarray<long, S> choice(long max, types::array<long, S> const &shape,
-                                   bool replace, P const &p)
+    template <class pS, class P>
+    types::ndarray<long, pS> choice(long max, pS const &shape, bool replace,
+                                    P const &p)
     {
       if (!replace)
         throw pythonic::__builtin__::NotImplementedError(
             "Choice without replacement is ! implemented, ask if you want "
             "it");
 
-      types::ndarray<long, S> result{shape, types::none_type()};
+      types::ndarray<long, pS> result{shape, types::none_type()};
       std::discrete_distribution<long> distribution{p.begin(), p.end()};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });
@@ -38,9 +38,10 @@ namespace numpy
     }
 
     template <class P>
-    types::ndarray<long, 1> choice(long max, long size, bool replace, P &&p)
+    types::ndarray<long, types::pshape<long>> choice(long max, long size,
+                                                     bool replace, P &&p)
     {
-      return choice(max, types::array<long, 1>{{size}}, replace,
+      return choice(max, types::pshape<long>{size}, replace,
                     std::forward<P>(p));
     }
 
@@ -69,14 +70,13 @@ namespace numpy
       return a.fast(randint(a.size()));
     }
 
-    template <class T, size_t S>
-    types::ndarray<typename T::dtype, S>
-    choice(T const &a, types::array<long, S> const &shape)
+    template <class T, class pS>
+    types::ndarray<typename T::dtype, pS> choice(T const &a, pS const &shape)
     {
       // This is a numpy constraint
       static_assert(T::value == 1, "ValueError: a must be 1-dimensional");
 
-      types::ndarray<typename T::dtype, S> result{shape, types::none_type()};
+      types::ndarray<typename T::dtype, pS> result{shape, types::none_type()};
       std::uniform_int_distribution<long> distribution{0, a.size() - 1};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return a[distribution(details::generator)]; });
@@ -84,15 +84,15 @@ namespace numpy
     }
 
     template <class T>
-    types::ndarray<typename T::dtype, 1> choice(T &&a, long size)
+    types::ndarray<typename T::dtype, types::pshape<long>> choice(T &&a,
+                                                                  long size)
     {
-      return choice(std::forward<T>(a), types::array<long, 1>{{size}});
+      return choice(std::forward<T>(a), types::pshape<long>{size});
     }
 
-    template <class T, size_t S, class P>
-    types::ndarray<typename T::dtype, S>
-    choice(T const &a, types::array<long, S> const &shape, bool replace,
-           P const &p)
+    template <class T, class pS, class P>
+    types::ndarray<typename T::dtype, pS> choice(T const &a, pS const &shape,
+                                                 bool replace, P const &p)
     {
       // This is a numpy constraint
       static_assert(T::value == 1, "ValueError: a must be 1-dimensional");
@@ -102,7 +102,7 @@ namespace numpy
             "Choice without replacement is ! implemented, ask if you want "
             "it");
 
-      types::ndarray<typename T::dtype, S> result{shape, types::none_type()};
+      types::ndarray<typename T::dtype, pS> result{shape, types::none_type()};
       std::discrete_distribution<long> distribution{p.begin(), p.end()};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return a[distribution(details::generator)]; });
@@ -110,14 +110,12 @@ namespace numpy
     }
 
     template <class T, class P>
-    types::ndarray<typename T::dtype, 1> choice(T &&a, long size, bool replace,
-                                                P &&p)
+    types::ndarray<typename T::dtype, types::pshape<long>>
+    choice(T &&a, long size, bool replace, P &&p)
     {
-      return choice(std::forward<T>(a), types::array<long, 1>{{size}}, replace,
+      return choice(std::forward<T>(a), types::pshape<long>{size}, replace,
                     std::forward<P>(p));
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, choice);
   }
 }
 PYTHONIC_NS_END

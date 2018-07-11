@@ -65,8 +65,9 @@ namespace numpy
   }
 
   template <class E>
-  typename std::enable_if<E::value != 1,
-                          types::ndarray<typename E::dtype, E::value - 1>>::type
+  typename std::enable_if<
+      E::value != 1,
+      types::ndarray<typename E::dtype, types::array<long, E::value - 1>>>::type
   any(E const &array, long axis)
   {
     constexpr long N = E::value;
@@ -77,23 +78,23 @@ namespace numpy
     if (axis == 0) {
       types::array<long, N> shp;
       shp[0] = 1;
-      std::copy(shape.begin() + 1, shape.end(), shp.begin() + 1);
-      types::ndarray<bool, N> out(shp, false);
+      sutils::copy_shape<1, 0>(shp, shape, utils::make_index_sequence<N - 1>());
+      types::ndarray<bool, types::array<long, N>> out(shp, false);
       return std::accumulate(array.begin(), array.end(), *out.begin(),
                              numpy::functor::add());
     } else {
       types::array<long, N - 1> shp;
-      std::copy(shape.begin(), shape.end() - 1, shp.begin());
-      types::ndarray<bool, N - 1> anyy(shp, __builtin__::None);
-      std::transform(array.begin(), array.end(), anyy.begin(),
-                     [=](types::ndarray<T, N - 1> const &other) {
-                       return any(other, axis - 1);
-                     });
+      sutils::copy_shape<0, 0>(shp, shape, utils::make_index_sequence<N - 1>());
+      types::ndarray<bool, types::array<long, N - 1>> anyy(shp,
+                                                           __builtin__::None);
+      std::transform(
+          array.begin(), array.end(), anyy.begin(),
+          [=](types::ndarray<T, types::array<long, N - 1>> const &other) {
+            return any(other, axis - 1);
+          });
       return anyy;
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, any);
 }
 PYTHONIC_NS_END
 

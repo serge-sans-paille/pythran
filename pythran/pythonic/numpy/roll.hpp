@@ -11,13 +11,13 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<T, N> roll(types::ndarray<T, N> const &expr, long shift)
+  template <class T, class pS>
+  types::ndarray<T, pS> roll(types::ndarray<T, pS> const &expr, long shift)
   {
     while (shift < 0)
       shift += expr.flat_size();
     shift %= expr.flat_size();
-    types::ndarray<T, N> out(expr.shape(), __builtin__::None);
+    types::ndarray<T, pS> out(expr.shape(), __builtin__::None);
     std::copy(expr.fbegin(), expr.fend() - shift,
               std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
     return out;
@@ -54,21 +54,20 @@ namespace numpy
     }
   }
 
-  template <class T, size_t N>
-  types::ndarray<T, N> roll(types::ndarray<T, N> const &expr, long shift,
-                            long axis)
+  template <class T, class pS>
+  types::ndarray<T, pS> roll(types::ndarray<T, pS> const &expr, long shift,
+                             long axis)
   {
-    auto &&expr_shape = expr.shape();
+    auto expr_shape = sutils::array(expr.shape());
     while (shift < 0)
       shift += expr_shape[axis];
-    types::ndarray<T, N> out(expr_shape, __builtin__::None);
+    types::ndarray<T, pS> out(expr.shape(), __builtin__::None);
     _roll(out.fbegin(), expr.fbegin(), shift, axis, expr_shape,
-          utils::int_<N>());
+          utils::int_<std::tuple_size<pS>::value>());
     return out;
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(roll);
-  DEFINE_FUNCTOR(pythonic::numpy, roll);
 }
 PYTHONIC_NS_END
 

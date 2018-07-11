@@ -49,10 +49,12 @@ namespace numpy
   }
 
   template <class E>
-  auto nonzero(E const &expr) -> types::array<types::ndarray<long, 1>, E::value>
+  auto nonzero(E const &expr)
+      -> types::array<types::ndarray<long, types::array<long, 1>>, E::value>
   {
     constexpr long N = E::value;
-    typedef types::array<types::ndarray<long, 1>, E::value> out_type;
+    typedef types::array<types::ndarray<long, types::array<long, 1>>, E::value>
+        out_type;
     long sz = expr.flat_size();
 
     types::array<utils::shared_ref<types::raw_array<long>>, N> out_buffers =
@@ -68,12 +70,11 @@ namespace numpy
 
     out_type out;
     for (size_t i = 0; i < N; ++i)
-      out[i] = types::ndarray<long, 1>(std::move(out_buffers[i]), shape);
+      out[i] = types::ndarray<long, types::array<long, 1>>(
+          std::move(out_buffers[i]), shape);
 
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, nonzero)
 }
 PYTHONIC_NS_END
 

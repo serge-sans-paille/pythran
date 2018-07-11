@@ -28,18 +28,16 @@ namespace numpy
     }
   }
   template <class E>
-  types::ndarray<long, 1> flatnonzero(E const &expr)
+  types::ndarray<long, types::pshape<long>> flatnonzero(E const &expr)
   {
     long n = expr.flat_size();
     utils::shared_ref<types::raw_array<long>> buffer(n);
     long *iter = buffer->data;
     long i = 0;
     _flatnonzero(expr.begin(), expr.end(), iter, i, utils::int_<E::value>());
-    types::array<long, 1> shape = {iter - buffer->data};
-    return types::ndarray<long, 1>(std::move(buffer), shape);
+    types::pshape<long> shape = iter - buffer->data;
+    return types::ndarray<long, types::pshape<long>>(std::move(buffer), shape);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, flatnonzero);
 }
 PYTHONIC_NS_END
 

@@ -24,7 +24,7 @@ namespace __builtin__
     types::none_type difference_update(types::empty_set const &set,
                                        Types const &... others);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, difference_update);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, difference_update);
   }
 }
 PYTHONIC_NS_END

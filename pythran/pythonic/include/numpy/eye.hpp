@@ -11,15 +11,15 @@ namespace numpy
 {
 
   template <class dtype = functor::float64>
-  types::ndarray<typename dtype::type, 2> eye(long N, long M, long k = 0,
-                                              dtype d = dtype());
+  types::ndarray<typename dtype::type, types::array<long, 2>>
+  eye(long N, long M, long k = 0, dtype d = dtype());
 
   template <class dtype = functor::float64>
-  types::ndarray<typename dtype::type, 2>
+  types::ndarray<typename dtype::type, types::array<long, 2>>
   eye(long N, types::none_type M = __builtin__::None, long k = 0,
       dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, eye);
+  DEFINE_FUNCTOR(pythonic::numpy, eye);
 }
 PYTHONIC_NS_END
 

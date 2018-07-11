@@ -14,7 +14,7 @@ namespace numpy
     template <class T>
     types::none_type shuffle(T &seq);
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, shuffle);
+    DEFINE_FUNCTOR(pythonic::numpy::random, shuffle);
   }
 }
 

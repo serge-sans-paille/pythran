@@ -43,8 +43,6 @@ namespace numpy
       return res;
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, binary_repr);
 }
 PYTHONIC_NS_END
 

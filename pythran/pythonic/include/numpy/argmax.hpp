@@ -13,9 +13,10 @@ namespace numpy
   long argmax(E const &expr);
 
   template <class E>
-  types::ndarray<long, E::value - 1> argmax(E const &expr, long axis);
+  types::ndarray<long, types::array<long, E::value - 1>> argmax(E const &expr,
+                                                                long axis);
 
-  DECLARE_FUNCTOR(pythonic::numpy, argmax);
+  DEFINE_FUNCTOR(pythonic::numpy, argmax);
 }
 PYTHONIC_NS_END
 

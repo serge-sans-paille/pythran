@@ -11,9 +11,9 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E, class F>
-  types::ndarray<long, 1> digitize(E const &expr, F const &b);
+  types::ndarray<long, types::pshape<long>> digitize(E const &expr, F const &b);
 
-  DECLARE_FUNCTOR(pythonic::numpy, digitize);
+  DEFINE_FUNCTOR(pythonic::numpy, digitize);
 }
 PYTHONIC_NS_END
 

@@ -11,19 +11,20 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-  template <class T>
-  types::numpy_texpr<types::ndarray<T, 2>>
-      transpose(types::ndarray<T, 2> const &arr);
+  template <class T, class pS0, class pS1>
+  types::numpy_texpr<types::ndarray<T, types::pshape<pS0, pS1>>>
+  transpose(types::ndarray<T, types::pshape<pS0, pS1>> const &arr);
 
-  template <class T, size_t N>
-  types::ndarray<T, N> transpose(types::ndarray<T, N> const &a);
+  template <class T, class pS>
+  types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
+  transpose(types::ndarray<T, pS> const &a);
 
-  template <class T, size_t N, size_t M>
-  types::ndarray<T, N> transpose(types::ndarray<T, N> const &a,
-                                 types::array<long, M> const &t);
+  template <class T, class pS, size_t M>
+  types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
+  transpose(types::ndarray<T, pS> const &a, types::array<long, M> const &t);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(transpose);
-  DECLARE_FUNCTOR(pythonic::numpy, transpose);
+  DEFINE_FUNCTOR(pythonic::numpy, transpose);
 }
 PYTHONIC_NS_END
 

@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(sqrt, std::sqrt);
+  DEFINE_FUNCTOR_2(sqrt, std::sqrt);
 }
 PYTHONIC_NS_END
 

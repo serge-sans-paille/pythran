@@ -18,7 +18,6 @@ namespace math
       res *= i;
     return res;
   }
-  DEFINE_FUNCTOR(pythonic::math, factorial);
 }
 PYTHONIC_NS_END
 

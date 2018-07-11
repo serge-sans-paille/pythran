@@ -10,7 +10,7 @@ PYTHONIC_NS_BEGIN
 
 namespace cmath
 {
-  DECLARE_FUNCTOR_2(acos, std::acos);
+  DEFINE_FUNCTOR_2(acos, std::acos);
 }
 PYTHONIC_NS_END
 

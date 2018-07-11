@@ -13,7 +13,7 @@ namespace __builtin__
   template <class T>
   double round(T const &v);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, round);
+  DEFINE_FUNCTOR(pythonic::__builtin__, round);
 }
 PYTHONIC_NS_END
 

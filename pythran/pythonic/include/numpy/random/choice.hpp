@@ -11,12 +11,13 @@ namespace numpy
 {
   namespace random
   {
-    template <size_t S, class P>
-    types::ndarray<long, S> choice(long max, types::array<long, S> const &shape,
-                                   bool replace, P const &p);
+    template <class pS, class P>
+    types::ndarray<long, pS> choice(long max, pS const &shape, bool replace,
+                                    P const &p);
 
     template <class P>
-    types::ndarray<long, 1> choice(long max, long size, bool replace, P &&p);
+    types::ndarray<long, types::pshape<long>> choice(long max, long size,
+                                                     bool replace, P &&p);
 
     template <class T>
     auto choice(long max, T &&size)
@@ -27,23 +28,22 @@ namespace numpy
     template <class T>
     typename T::dtype choice(T const &a);
 
-    template <class T, size_t S>
-    types::ndarray<typename T::dtype, S>
-    choice(T const &a, types::array<long, S> const &shape);
+    template <class T, class pS>
+    types::ndarray<typename T::dtype, pS> choice(T const &a, pS const &shape);
 
     template <class T>
-    types::ndarray<typename T::dtype, 1> choice(T &&a, long size);
+    types::ndarray<typename T::dtype, types::pshape<long>> choice(T &&a,
+                                                                  long size);
 
-    template <class T, size_t S, class P>
-    types::ndarray<typename T::dtype, S>
-    choice(T const &a, types::array<long, S> const &shape, bool replace,
-           P const &p);
+    template <class T, class pS, class P>
+    types::ndarray<typename T::dtype, pS> choice(T const &a, pS const &shape,
+                                                 bool replace, P const &p);
 
     template <class T, class P>
-    types::ndarray<typename T::dtype, 1> choice(T &&a, long size, bool replace,
-                                                P &&p);
+    types::ndarray<typename T::dtype, types::pshape<long>>
+    choice(T &&a, long size, bool replace, P &&p);
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, choice);
+    DEFINE_FUNCTOR(pythonic::numpy::random, choice);
   }
 }
 PYTHONIC_NS_END

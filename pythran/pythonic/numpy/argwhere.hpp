@@ -12,13 +12,12 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  typename types::ndarray<long, 2> argwhere(E const &expr)
+  typename types::ndarray<long, types::array<long, 2>> argwhere(E const &expr)
   {
-    using out_type = typename types::ndarray<long, 2>;
     constexpr long N = E::value;
     auto arr = asarray(expr);
     long sz = arr.flat_size();
-    auto eshape = arr.shape();
+    auto eshape = sutils::array(arr.shape());
 
     utils::shared_ref<types::raw_array<long>> buffer(sz *
                                                      N); // too much memory used
@@ -39,10 +38,8 @@ namespace numpy
       }
     }
     types::array<long, 2> shape = {real_sz, N};
-    return out_type(buffer, shape);
+    return {buffer, shape};
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, argwhere);
 }
 PYTHONIC_NS_END
 

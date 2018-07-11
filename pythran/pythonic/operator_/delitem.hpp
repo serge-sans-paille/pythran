@@ -17,8 +17,6 @@ namespace operator_
     a.remove(b);
     return __builtin__::None;
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, delitem);
 }
 PYTHONIC_NS_END
 

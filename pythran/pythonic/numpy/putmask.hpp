@@ -12,8 +12,8 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N, class E, class F>
-  types::none_type putmask(types::ndarray<T, N> &expr, E const &mask,
+  template <class T, class pS, class E, class F>
+  types::none_type putmask(types::ndarray<T, pS> &expr, E const &mask,
                            F const &values)
   {
     auto amask = asarray(mask);
@@ -31,8 +31,6 @@ namespace numpy
   {
     throw std::runtime_error("putmask only partially implemented");
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, putmask);
 }
 PYTHONIC_NS_END
 

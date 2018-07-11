@@ -22,8 +22,6 @@ namespace __builtin__
       std::reverse(seq.begin(), seq.end());
       return __builtin__::None;
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::list, reverse);
   }
 }
 PYTHONIC_NS_END

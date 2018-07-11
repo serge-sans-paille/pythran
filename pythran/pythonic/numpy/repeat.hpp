@@ -12,19 +12,21 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<T, N> repeat(types::ndarray<T, N> const &expr, long repeats,
-                              long axis)
+  template <class T, class pS>
+  types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
+  repeat(types::ndarray<T, pS> const &expr, long repeats, long axis)
   {
+    constexpr auto N = std::tuple_size<pS>::value;
     if (axis < 0)
       axis += N;
 
-    types::array<long, N> shape = expr.shape();
+    auto shape = sutils::array(expr.shape());
     const long stride = std::accumulate(shape.begin() + axis + 1, shape.end(),
                                         1L, std::multiplies<long>());
     shape[axis] *= repeats;
 
-    types::ndarray<T, N> out(shape, __builtin__::None);
+    types::ndarray<T, types::array<long, std::tuple_size<pS>::value>> out(
+        shape, __builtin__::None);
     auto out_iter = out.fbegin();
     for (auto iter = expr.fbegin(), end = expr.fend(); iter != end;
          iter += stride)
@@ -32,12 +34,12 @@ namespace numpy
         out_iter = std::copy(iter, iter + stride, out_iter);
     return out;
   }
-  template <class T, size_t N>
-  types::ndarray<T, 1> repeat(types::ndarray<T, N> const &expr, long repeats,
-                              types::none_type axis)
+  template <class T, class pS>
+  types::ndarray<T, types::pshape<long>>
+  repeat(types::ndarray<T, pS> const &expr, long repeats, types::none_type axis)
   {
-    types::ndarray<T, 1> out(
-        types::array<long, 1>{{expr.flat_size() * repeats}}, __builtin__::None);
+    types::ndarray<T, types::pshape<long>> out(
+        types::pshape<long>{expr.flat_size() * repeats}, __builtin__::None);
     auto out_iter = out.fbegin();
     for (auto iter = expr.fbegin(), end = expr.fend(); iter != end; ++iter)
       for (int i = 0; i < repeats; ++i)
@@ -46,7 +48,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(repeat);
-  DEFINE_FUNCTOR(pythonic::numpy, repeat);
 }
 PYTHONIC_NS_END
 

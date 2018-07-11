@@ -52,7 +52,6 @@ namespace __builtin__
       std::cout << ' ';
     print(values...);
   }
-  DEFINE_FUNCTOR(pythonic::__builtin__, print);
 }
 PYTHONIC_NS_END
 

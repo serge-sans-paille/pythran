@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   constexpr bool isrealobj(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, isrealobj);
+  DEFINE_FUNCTOR(pythonic::numpy, isrealobj);
 }
 PYTHONIC_NS_END
 

@@ -30,7 +30,7 @@ namespace numpy
       decltype(std::declval<impl::vstack_helper<ArraySequence>>().reshape(
           std::declval<types::array<long, 2>>()))>::type;
 
-  DECLARE_FUNCTOR(pythonic::numpy, vstack);
+  DEFINE_FUNCTOR(pythonic::numpy, vstack);
 }
 PYTHONIC_NS_END
 

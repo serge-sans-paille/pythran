@@ -11,7 +11,7 @@ namespace operator_
   template <class A>
   auto pos(A const &a) -> decltype(+a);
 
-  DECLARE_FUNCTOR(pythonic::operator_, pos);
+  DEFINE_FUNCTOR(pythonic::operator_, pos);
 }
 PYTHONIC_NS_END
 

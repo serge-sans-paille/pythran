@@ -28,7 +28,7 @@ namespace __builtin__
     typename __combined<types::empty_set, U>::type
     symmetric_difference(types::empty_set const &set, U const &other);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference);
   }
 }
 PYTHONIC_NS_END

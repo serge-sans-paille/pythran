@@ -90,8 +90,6 @@ namespace operator_
   {
     return std::forward<A>(a) OPERATOR_ISYMBOL std::forward<B>(b);
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, OPERATOR_NAME);
 }
 PYTHONIC_NS_END
 #undef OPERATOR_NAME

@@ -19,7 +19,7 @@ namespace __builtin__
     template <class F>
     types::list<types::str> readlines(F &&f, long sizehint);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, readlines);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, readlines);
   }
 }
 PYTHONIC_NS_END

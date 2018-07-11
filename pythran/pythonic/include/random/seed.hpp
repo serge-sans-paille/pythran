@@ -12,7 +12,7 @@ namespace random
   types::none_type seed(long s);
   types::none_type seed();
 
-  DECLARE_FUNCTOR(pythonic::random, seed);
+  DEFINE_FUNCTOR(pythonic::random, seed);
 }
 
 PYTHONIC_NS_END

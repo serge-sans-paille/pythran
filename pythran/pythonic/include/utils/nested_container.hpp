@@ -42,14 +42,19 @@ namespace utils
     static const int value = 1 + nested_container_depth<T>::value;
   };
 
+  template <class T, class S>
+  struct nested_container_depth<types::sliced_list<T, S>> {
+    static const int value = 1 + nested_container_depth<T>::value;
+  };
+
   template <class T, size_t N>
   struct nested_container_depth<types::array<T, N>> {
     static const int value = 1 + nested_container_depth<T>::value;
   };
 
-  template <class T, size_t N>
-  struct nested_container_depth<types::ndarray<T, N>> {
-    static const int value = N;
+  template <class T, class sP>
+  struct nested_container_depth<types::ndarray<T, sP>> {
+    static const int value = std::tuple_size<sP>::value;
   };
 
   /* Get the size of a container, using recursion on inner container if any
@@ -60,14 +65,14 @@ namespace utils
   struct nested_container_size {
     using Type =
         typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-    static size_t flat_size(T const &t);
+    static long flat_size(T const &t);
   };
 
   /* Recursion stops on bool */
   template <>
   struct nested_container_size<bool> {
     template <class F>
-    constexpr static size_t flat_size(F);
+    constexpr static long flat_size(F);
   };
 
   /* Statically define (by recursion) the type of element inside nested
@@ -101,8 +106,8 @@ namespace utils
     using type = typename nested_container_value_type<T>::type;
   };
 
-  template <class T, size_t N>
-  struct nested_container_value_type<types::ndarray<T, N>> {
+  template <class T, class sP>
+  struct nested_container_value_type<types::ndarray<T, sP>> {
     using type = T;
   };
 }

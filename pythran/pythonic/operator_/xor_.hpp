@@ -17,8 +17,6 @@ namespace operator_
   }
 
   DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(xor_, ^)
-
-  DEFINE_FUNCTOR(pythonic::operator_, xor_);
 }
 PYTHONIC_NS_END
 

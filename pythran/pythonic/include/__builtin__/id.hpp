@@ -15,7 +15,7 @@ namespace __builtin__
   long id(double const &t);
   long id(bool const &t);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, id);
+  DEFINE_FUNCTOR(pythonic::__builtin__, id);
 }
 PYTHONIC_NS_END
 

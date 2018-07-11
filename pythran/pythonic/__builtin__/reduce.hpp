@@ -44,8 +44,6 @@ namespace __builtin__
             init),
         op);
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, reduce);
 }
 PYTHONIC_NS_END
 

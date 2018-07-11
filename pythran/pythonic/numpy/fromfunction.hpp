@@ -16,15 +16,16 @@ namespace numpy
   struct fromfunction_helper;
 
   template <class F, class dtype, class purity_tag>
+  template <class pS>
   types::ndarray<typename std::remove_cv<typename std::remove_reference<
                      typename std::result_of<F(dtype)>::type>::type>::type,
-                 1> fromfunction_helper<F, 1, dtype, purity_tag>::
-  operator()(F &&f, types::array<long, 1> const &shape, dtype d)
+                 pS> fromfunction_helper<F, 1, dtype, purity_tag>::
+  operator()(F &&f, pS const &shape, dtype d)
   {
     types::ndarray<typename std::remove_cv<typename std::remove_reference<
                        typename std::result_of<F(dtype)>::type>::type>::type,
-                   1> out(shape, __builtin__::None);
-    long n = out.shape()[0];
+                   pS> out(shape, __builtin__::None);
+    long n = std::get<0>(out.shape());
 #ifdef _OPENMP
     if (std::is_same<purity_tag, purity::pure_tag>::value &&
         n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
@@ -39,19 +40,20 @@ namespace numpy
   }
 
   template <class F, class dtype, class purity_tag>
+  template <class pS>
   types::ndarray<
       typename std::remove_cv<typename std::remove_reference<
           typename std::result_of<F(dtype, dtype)>::type>::type>::type,
-      2> fromfunction_helper<F, 2, dtype, purity_tag>::
-  operator()(F &&f, types::array<long, 2> const &shape, dtype d)
+      pS> fromfunction_helper<F, 2, dtype, purity_tag>::
+  operator()(F &&f, pS const &shape, dtype d)
   {
     types::ndarray<
         typename std::remove_cv<typename std::remove_reference<
             typename std::result_of<F(dtype, dtype)>::type>::type>::type,
-        2> out(shape, __builtin__::None);
+        pS> out(shape, __builtin__::None);
     auto &&out_shape = out.shape();
-    long n = out_shape[0];
-    long m = out_shape[1];
+    long n = std::get<0>(out_shape);
+    long m = std::get<1>(out_shape);
 #ifdef _OPENMP
     if (std::is_same<purity_tag, purity::pure_tag>::value &&
         (m * n) >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
@@ -67,19 +69,18 @@ namespace numpy
     return out;
   }
 
-  template <class F, size_t N, class dtype>
-  auto fromfunction(F &&f, types::array<long, N> const &shape, dtype d)
-      -> decltype(fromfunction_helper<F, N, dtype,
+  template <class F, class pS, class dtype>
+  auto fromfunction(F &&f, pS const &shape, dtype d)
+      -> decltype(fromfunction_helper<F, std::tuple_size<pS>::value, dtype,
                                       typename pythonic::purity_of<F>::type>()(
           std::forward<F>(f), shape))
   {
-    return fromfunction_helper<F, N, dtype,
+    return fromfunction_helper<F, std::tuple_size<pS>::value, dtype,
                                typename pythonic::purity_of<F>::type>()(
         std::forward<F>(f), shape);
   }
 
   /* TODO: must specialize for higher order */
-  DEFINE_FUNCTOR(pythonic::numpy, fromfunction);
 }
 PYTHONIC_NS_END
 

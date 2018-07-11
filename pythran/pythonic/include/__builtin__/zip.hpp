@@ -16,7 +16,7 @@ namespace __builtin__
 
   types::empty_list zip();
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, zip);
+  DEFINE_FUNCTOR(pythonic::__builtin__, zip);
 }
 PYTHONIC_NS_END
 

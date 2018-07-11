@@ -19,7 +19,11 @@ namespace types
   {
     _shape[0] = 1;
     auto &&ref_shape = ref.shape();
-    std::copy(ref_shape.begin(), ref_shape.end(), _shape.begin() + 1);
+    long *data = _shape.data() + 1;
+    sutils::copy_shape<0, 0>(
+        data, ref_shape,
+        utils::make_index_sequence<std::tuple_size<
+            typename std::decay<decltype(ref_shape)>::type>::value>());
   }
 
   template <class T>
@@ -120,9 +124,9 @@ namespace types
   }
 
   template <class T, class B>
-  array<long, 1> broadcast<T, B>::shape() const
+  typename broadcast<T, B>::shape_t broadcast<T, B>::shape() const
   {
-    return {0};
+    return {};
   }
 
   template <class T, class B>

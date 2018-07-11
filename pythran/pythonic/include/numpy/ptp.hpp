@@ -15,7 +15,7 @@ namespace numpy
   template <class E>
   auto ptp(E const &expr) -> decltype(max(expr) - min(expr));
 
-  DECLARE_FUNCTOR(pythonic::numpy, ptp);
+  DEFINE_FUNCTOR(pythonic::numpy, ptp);
 }
 PYTHONIC_NS_END
 

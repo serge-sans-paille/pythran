@@ -108,10 +108,10 @@ namespace itertools
   auto imap(Operator &&_op, Iter &&... iters) -> details::imap<
       typename std::remove_cv<
           typename std::remove_reference<Operator>::type>::type,
-      typename std::remove_cv<
-          typename std::remove_reference<Iter>::type>::type...>;
+      typename types::iterator<typename std::remove_cv<
+          typename std::remove_reference<Iter>::type>::type>::type...>;
 
-  DECLARE_FUNCTOR(pythonic::itertools, imap);
+  DEFINE_FUNCTOR(pythonic::itertools, imap);
 }
 
 namespace types

@@ -25,7 +25,7 @@ namespace __builtin__
     list(Iterable &&t);
   }
 
-  DECLARE_FUNCTOR(pythonic::__builtin__::anonymous, list);
+  DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, list);
 }
 PYTHONIC_NS_END
 

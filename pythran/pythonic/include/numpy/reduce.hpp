@@ -33,25 +33,24 @@ namespace numpy
   reduce(E const &expr, types::none_type _ = types::none_type());
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis) ->
-      typename std::enable_if<std::is_scalar<E>::value ||
-                                  types::is_complex<E>::value,
-                              decltype(reduce<Op>(array))>::type;
+  typename std::enable_if<
+      std::is_scalar<E>::value || types::is_complex<E>::value, E>::type
+  reduce(E const &array, long axis);
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis,
-              types::none_type dtype = types::none_type(),
-              types::none_type out = types::none_type()) ->
-      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type;
+  typename std::enable_if<E::value == 1, reduce_result_type<E>>::type
+  reduce(E const &array, long axis, types::none_type dtype = types::none_type(),
+         types::none_type out = types::none_type());
 
   template <class Op, class E, class Out>
-  auto reduce(E const &array, long axis, types::none_type dtype, Out &&out) ->
-      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type;
+  typename std::enable_if<E::value == 1, reduce_result_type<E>>::type
+  reduce(E const &array, long axis, types::none_type dtype, Out &&out);
 
   namespace
   {
     template <class E>
-    using reduced_type = types::ndarray<reduce_result_type<E>, E::value - 1>;
+    using reduced_type =
+        types::ndarray<reduce_result_type<E>, types::array<long, E::value - 1>>;
   }
 
   template <class Op, class E>

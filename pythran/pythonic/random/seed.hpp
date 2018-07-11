@@ -24,8 +24,6 @@ namespace random
     __random_generator.seed(time(nullptr));
     return __builtin__::None;
   }
-
-  DEFINE_FUNCTOR(pythonic::random, seed);
 }
 PYTHONIC_NS_END
 

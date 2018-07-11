@@ -10,7 +10,7 @@ namespace __builtin__
   template <class Iterable>
   bool any(Iterable &&s);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, any);
+  DEFINE_FUNCTOR(pythonic::__builtin__, any);
 }
 PYTHONIC_NS_END
 

@@ -32,20 +32,23 @@ namespace numpy
           return std::real(i) < std::real(j);
       }
     };
-    template <class T>
-    void _sort(types::ndarray<T, 1> &out, long axis)
+    template <class T, class pS>
+    typename std::enable_if<std::tuple_size<pS>::value == 1, void>::type
+    _sort(types::ndarray<T, pS> &out, long axis)
     {
       std::sort(out.begin(), out.end(), _comp<T>{});
     }
 
-    template <class T, size_t N>
-    void _sort(types::ndarray<T, N> &out, long axis)
+    template <class T, class pS>
+    typename std::enable_if<std::tuple_size<pS>::value != 1, void>::type
+    _sort(types::ndarray<T, pS> &out, long axis)
     {
+      constexpr auto N = std::tuple_size<pS>::value;
       if (axis < 0)
         axis += N;
 
       axis = axis % N;
-      auto &&out_shape = out.shape();
+      auto out_shape = sutils::array(out.shape());
       const long step =
           std::accumulate(out_shape.begin() + axis, out_shape.end(), 1L,
                           std::multiplies<long>());
@@ -69,16 +72,16 @@ namespace numpy
     }
   }
 
-  template <class T, size_t N>
-  types::ndarray<T, N> sort(types::ndarray<T, N> const &expr, long axis)
+  template <class E>
+  types::ndarray<typename E::dtype, types::array<long, E::value>>
+  sort(E const &expr, long axis)
   {
-    types::ndarray<T, N> out = expr.copy();
+    auto out = expr.copy();
     _sort(out, axis);
     return out;
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(sort);
-  DEFINE_FUNCTOR(pythonic::numpy, sort);
 }
 PYTHONIC_NS_END
 

@@ -11,7 +11,7 @@ namespace math
   template <class T>
   double degrees(T x);
 
-  DECLARE_FUNCTOR(pythonic::math, degrees);
+  DEFINE_FUNCTOR(pythonic::math, degrees);
 }
 PYTHONIC_NS_END
 

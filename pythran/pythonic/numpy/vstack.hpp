@@ -29,8 +29,6 @@ namespace numpy
     types::array<long, 2> new_shape{{seq_size, temp_size / seq_size}};
     return temp.reshape(new_shape);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, vstack);
 }
 PYTHONIC_NS_END
 

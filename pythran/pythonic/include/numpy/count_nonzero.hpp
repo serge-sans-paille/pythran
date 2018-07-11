@@ -23,7 +23,7 @@ namespace numpy
   template <class E>
   size_t count_nonzero(E const &array);
 
-  DECLARE_FUNCTOR(pythonic::numpy, count_nonzero);
+  DEFINE_FUNCTOR(pythonic::numpy, count_nonzero);
 }
 PYTHONIC_NS_END
 

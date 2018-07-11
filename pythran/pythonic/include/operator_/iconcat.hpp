@@ -22,7 +22,7 @@ namespace operator_
   template <class A>
   auto iconcat(types::empty_set a, types::set<A> b) -> decltype(b);
 
-  DECLARE_FUNCTOR(pythonic::operator_, iconcat);
+  DEFINE_FUNCTOR(pythonic::operator_, iconcat);
 }
 PYTHONIC_NS_END
 

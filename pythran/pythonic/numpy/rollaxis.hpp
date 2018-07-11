@@ -10,10 +10,11 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<T, N> rollaxis(types::ndarray<T, N> const &a, long axis,
-                                long start)
+  template <class T, class pS>
+  types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
+  rollaxis(types::ndarray<T, pS> const &a, long axis, long start)
   {
+    auto constexpr N = std::tuple_size<pS>::value;
     if (start >= axis)
       return copy(a);
     long t[N];
@@ -28,7 +29,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(rollaxis);
-  DEFINE_FUNCTOR(pythonic::numpy, rollaxis);
 }
 PYTHONIC_NS_END
 

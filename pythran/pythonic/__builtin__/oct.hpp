@@ -26,8 +26,6 @@ namespace __builtin__
         << std::oct << v;
     return oss.str();
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, oct);
 }
 PYTHONIC_NS_END
 

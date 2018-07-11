@@ -13,7 +13,7 @@ namespace numpy
   auto max(Args &&... args) -> decltype(
       reduce<operator_::functor::imax>(std::forward<Args>(args)...));
 
-  DECLARE_FUNCTOR(pythonic::numpy, max);
+  DEFINE_FUNCTOR(pythonic::numpy, max);
 }
 PYTHONIC_NS_END
 

@@ -18,8 +18,6 @@ namespace numpy
     oss << std::forward<E>(a);
     return oss.str();
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, array2string);
 }
 PYTHONIC_NS_END
 

@@ -15,7 +15,7 @@ namespace __builtin__
     bool startswith(types::str const &s, types::str const &prefix,
                     long start = 0, long end = -1);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, startswith);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, startswith);
   }
 }
 PYTHONIC_NS_END

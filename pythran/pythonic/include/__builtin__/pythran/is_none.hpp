@@ -106,7 +106,7 @@ namespace __builtin__
       return {};
     };
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::pythran, is_none);
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, is_none);
   }
 }
 PYTHONIC_NS_END

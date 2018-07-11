@@ -18,7 +18,6 @@ namespace __builtin__
         return false;
     return true;
   }
-  DEFINE_FUNCTOR(pythonic::__builtin__, all);
 }
 PYTHONIC_NS_END
 

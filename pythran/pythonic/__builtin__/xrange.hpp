@@ -102,8 +102,6 @@ namespace __builtin__
   {
     return {begin_ - step_, -step_};
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, xrange);
 }
 PYTHONIC_NS_END
 

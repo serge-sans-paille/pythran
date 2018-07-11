@@ -10,7 +10,7 @@ namespace __dispatch__
   template <class Any>
   auto copy(Any const &any) -> decltype(any.copy());
 
-  DECLARE_FUNCTOR(pythonic::__dispatch__, copy);
+  DEFINE_FUNCTOR(pythonic::__dispatch__, copy);
 }
 PYTHONIC_NS_END
 

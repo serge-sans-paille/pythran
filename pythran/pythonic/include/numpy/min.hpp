@@ -14,7 +14,7 @@ namespace numpy
   auto min(Args &&... args) -> decltype(
       reduce<operator_::functor::imin>(std::forward<Args>(args)...));
 
-  DECLARE_FUNCTOR(pythonic::numpy, min);
+  DEFINE_FUNCTOR(pythonic::numpy, min);
 }
 PYTHONIC_NS_END
 

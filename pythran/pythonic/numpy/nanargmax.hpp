@@ -50,8 +50,6 @@ namespace numpy
     else
       throw types::ValueError("empty sequence");
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, nanargmax);
 }
 PYTHONIC_NS_END
 

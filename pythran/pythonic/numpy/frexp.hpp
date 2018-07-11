@@ -44,20 +44,18 @@ namespace numpy
   template <class E>
   typename std::enable_if<
       !types::is_dtype<E>::value,
-      std::tuple<types::ndarray<typename E::dtype, E::value>,
-                 types::ndarray<int, E::value>>>::type
+      std::tuple<types::ndarray<typename E::dtype, typename E::shape_t>,
+                 types::ndarray<int, typename E::shape_t>>>::type
   frexp(E const &arr)
   {
     auto &&arr_shape = arr.shape();
-    types::ndarray<typename E::dtype, E::value> significands(arr_shape,
-                                                             __builtin__::None);
-    types::ndarray<int, E::value> exps(arr_shape, __builtin__::None);
+    types::ndarray<typename E::dtype, typename E::shape_t> significands(
+        arr_shape, __builtin__::None);
+    types::ndarray<int, typename E::shape_t> exps(arr_shape, __builtin__::None);
     _frexp(arr.begin(), arr.end(), significands.begin(), exps.begin(),
            utils::int_<E::value>());
     return std::make_tuple(significands, exps);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, frexp);
 }
 PYTHONIC_NS_END
 

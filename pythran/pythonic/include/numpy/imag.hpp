@@ -18,7 +18,7 @@ namespace numpy
   auto imag(types::list<T> const &expr)
       -> decltype(imag(numpy::functor::asarray{}(expr)));
 
-  DECLARE_FUNCTOR(pythonic::numpy, imag);
+  DEFINE_FUNCTOR(pythonic::numpy, imag);
 }
 PYTHONIC_NS_END
 

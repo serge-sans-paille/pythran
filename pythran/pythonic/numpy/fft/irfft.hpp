@@ -27,28 +27,30 @@ namespace numpy
     std::mutex mtx_irfft; // mutex for critical section
 
     // Aux function
-    template <class T, size_t N>
-    types::ndarray<double, N> _irfft(types::ndarray<T, N> const &in_array,
-                                     long NFFT, bool norm)
+    template <class T, class pS>
+    types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
+    _irfft(types::ndarray<T, pS> const &in_array, long NFFT, bool norm)
     {
       long i;
-      auto shape = in_array.shape();
-      long npts = shape.back();
+      auto const &shape = in_array.shape();
+      long npts = std::get<std::tuple_size<pS>::value - 1>(shape);
       // Create output array.
       long out_size = NFFT;
-      auto out_shape = shape;
+      auto out_shape = sutils::array(shape);
       out_shape.back() = out_size;
-      types::ndarray<double, N> out_array(out_shape, __builtin__::None);
+      types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
+          out_array(out_shape, __builtin__::None);
 
       // Create the twiddle factors. These must be kept from call to call as
       // it's very wasteful to recompute them.
       mtx_irfft.lock();
-      static std::map<long, types::ndarray<double, 1>> all_twiddles_irfft;
+      static std::map<long, types::ndarray<double, types::pshape<long>>>
+          all_twiddles_irfft;
       if (all_twiddles_irfft.find(NFFT) == all_twiddles_irfft.end()) {
         // Insert a new twiddle array into our map and initialize it
         all_twiddles_irfft.insert(std::make_pair(
-            NFFT, types::ndarray<double, 1>({(long)(2 * NFFT + 15)},
-                                            __builtin__::None)));
+            NFFT, types::ndarray<double, types::pshape<long>>(
+                      {(long)(2 * NFFT + 15)}, __builtin__::None)));
         npy_rffti(NFFT, (double *)all_twiddles_irfft[NFFT].buffer);
       }
       mtx_irfft.unlock();
@@ -84,13 +86,15 @@ namespace numpy
       return out_array;
     }
 
-    template <class T, size_t N>
-    types::ndarray<double, N> irfft(types::ndarray<T, N> const &in_array,
-                                    long NFFT, long axis, types::str normalize)
+    template <class T, class pS>
+    types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis,
+          types::str normalize)
     {
+      auto constexpr N = std::tuple_size<pS>::value;
       bool norm = (normalize == "ortho");
       if (NFFT == -1)
-        NFFT = 2 * (in_array.shape().back() - 1);
+        NFFT = 2 * (std::get<N - 1>(in_array.shape()) - 1);
       if (axis != -1 && axis != N - 1) {
         // Swap axis if the FFT must be computed on an axis that's not the last
         // one.
@@ -102,7 +106,6 @@ namespace numpy
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(irfft);
-    DEFINE_FUNCTOR(pythonic::numpy::fft, irfft);
   }
 }
 PYTHONIC_NS_END

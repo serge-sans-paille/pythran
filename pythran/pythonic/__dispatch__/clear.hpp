@@ -12,8 +12,6 @@ namespace __dispatch__
 
   template <class Any>
   auto clear(Any &&any) -> decltype(any.clear());
-
-  DEFINE_FUNCTOR(pythonic::__dispatch__, clear);
 }
 PYTHONIC_NS_END
 

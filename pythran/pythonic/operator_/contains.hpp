@@ -15,8 +15,6 @@ namespace operator_
   {
     return in(a, b);
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, contains);
 }
 PYTHONIC_NS_END
 

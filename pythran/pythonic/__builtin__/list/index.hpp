@@ -34,8 +34,6 @@ namespace __builtin__
                                 " is ! in list");
       return index_value;
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::list, index);
   }
 }
 PYTHONIC_NS_END

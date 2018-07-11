@@ -16,8 +16,6 @@ namespace __dispatch__
   {
     return any.count(std::forward<Value>(value));
   }
-
-  DEFINE_FUNCTOR(pythonic::__dispatch__, count);
 }
 PYTHONIC_NS_END
 

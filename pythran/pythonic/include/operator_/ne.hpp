@@ -13,7 +13,7 @@ namespace operator_
 
   bool ne(char const *a, char const *b);
 
-  DECLARE_FUNCTOR(pythonic::operator_, ne);
+  DEFINE_FUNCTOR(pythonic::operator_, ne);
 }
 PYTHONIC_NS_END
 

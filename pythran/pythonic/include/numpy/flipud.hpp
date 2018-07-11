@@ -12,7 +12,7 @@ namespace numpy
   auto flipud(E &&expr) -> decltype(std::forward<E>(
       expr)[types::slice{__builtin__::None, __builtin__::None, -1}]);
 
-  DECLARE_FUNCTOR(pythonic::numpy, flipud);
+  DEFINE_FUNCTOR(pythonic::numpy, flipud);
 }
 PYTHONIC_NS_END
 

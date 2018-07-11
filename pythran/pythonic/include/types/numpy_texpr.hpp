@@ -38,8 +38,9 @@ namespace types
     using dtype = typename E::dtype;
 
     Arg arg;
-    array<long, 2> _shape;
-    array<long, 2> const &shape() const
+    using shape_t = sutils::transpose_t<typename E::shape_t>;
+    shape_t _shape;
+    shape_t const &shape() const
     {
       return _shape;
     }
@@ -87,27 +88,29 @@ namespace types
 
     /* element filtering */
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value &&
-                                std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_texpr_2, ndarray<long, 1>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            std::is_same<bool, typename F::dtype>::value,
+        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value,
-                            ndarray<dtype, 2>>::type
+                            ndarray<dtype, pshape<long, long>>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value &&
-                                std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_texpr_2, ndarray<long, 1>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            std::is_same<bool, typename F::dtype>::value,
+        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value,
-                            ndarray<dtype, 2>>::type
+                            ndarray<dtype, pshape<long, long>>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));
@@ -123,11 +126,20 @@ namespace types
     }
     template <class T0, class T1>
     auto operator[](std::tuple<T0, T1> const &indices) -> decltype(
-        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}]);
+        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
+    {
+      return arg[std::tuple<T1, T0>{std::get<1>(indices),
+                                    std::get<0>(indices)}];
+    }
 
     template <class T0, class T1>
     auto operator[](std::tuple<T0, T1> const &indices) const -> decltype(
-        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}]);
+        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
+    {
+
+      return arg[std::tuple<T1, T0>{std::get<1>(indices),
+                                    std::get<0>(indices)}];
+    }
 
     auto operator[](contiguous_slice const &s0) const
         -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
@@ -148,7 +160,10 @@ namespace types
 
     template <class S, size_t... I>
     auto _reverse_index(S const &indices, utils::index_sequence<I...>) const
-        -> decltype(this->arg(std::get<I>(indices)...));
+        -> decltype(this->arg(std::get<I>(indices)...))
+    {
+      return arg(std::get<I>(indices)...);
+    }
 
     template <class S0, class... S>
     auto operator()(S0 const &s0, S const &... s) const
@@ -159,7 +174,7 @@ namespace types
     explicit operator bool() const;
     long flat_size() const;
     intptr_t id() const;
-    ndarray<dtype, value> copy() const
+    ndarray<dtype, typename E::shape_t> copy() const
     {
       return *this;
     }
@@ -183,16 +198,17 @@ namespace types
   };
 
   // only implemented for N = 2
-  template <class T>
-  struct numpy_texpr<ndarray<T, 2>> : numpy_texpr_2<ndarray<T, 2>> {
+  template <class T, class S0, class S1>
+  struct numpy_texpr<ndarray<T, pshape<S0, S1>>>
+      : numpy_texpr_2<ndarray<T, pshape<S0, S1>>> {
     numpy_texpr();
     numpy_texpr(numpy_texpr const &) = default;
     numpy_texpr(numpy_texpr &&) = default;
-    numpy_texpr(ndarray<T, 2> const &arg);
+    numpy_texpr(ndarray<T, pshape<S0, S1>> const &arg);
 
     numpy_texpr &operator=(numpy_texpr const &) = default;
 
-    using numpy_texpr_2<ndarray<T, 2>>::operator=;
+    using numpy_texpr_2<ndarray<T, pshape<S0, S1>>>::operator=;
   };
 
   template <class E, class... S>

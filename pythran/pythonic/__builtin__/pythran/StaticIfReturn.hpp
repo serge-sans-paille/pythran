@@ -16,7 +16,6 @@ namespace __builtin__
     {
       return {arg};
     }
-    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, StaticIfReturn);
   }
 }
 PYTHONIC_NS_END

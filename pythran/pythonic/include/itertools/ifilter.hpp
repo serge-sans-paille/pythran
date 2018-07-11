@@ -76,7 +76,7 @@ namespace itertools
                        typename std::remove_reference<List0>::type>::type>
   ifilter(Operator &&_op, List0 &&_seq);
 
-  DECLARE_FUNCTOR(pythonic::itertools, ifilter);
+  DEFINE_FUNCTOR(pythonic::itertools, ifilter);
 }
 PYTHONIC_NS_END
 #endif

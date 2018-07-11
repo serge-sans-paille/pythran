@@ -18,7 +18,7 @@ namespace __builtin__
     template <class U>
     bool issuperset(types::empty_set const &set, U const &other);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, issuperset);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, issuperset);
   }
 }
 PYTHONIC_NS_END

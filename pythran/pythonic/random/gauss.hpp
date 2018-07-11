@@ -15,8 +15,6 @@ namespace random
   {
     return std::normal_distribution<>(mu, sigma)(__random_generator);
   }
-
-  DEFINE_FUNCTOR(pythonic::random, gauss);
 }
 PYTHONIC_NS_END
 

@@ -3,6 +3,7 @@
 
 #include "pythonic/include/numpy/linalg/matrix_power.hpp"
 
+#include "pythonic/numpy/array.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/numpy/identity.hpp"
 #include "pythonic/numpy/dot.hpp"
@@ -43,10 +44,10 @@ namespace numpy
 
     template <class E>
     auto matrix_power(E const &expr, long n)
-        -> decltype(numpy::functor::asarray{}(expr))
+        -> decltype(numpy::functor::array{}(expr))
     {
       if (n == 0)
-        return numpy::functor::identity{}(expr.shape()[0],
+        return numpy::functor::identity{}(std::get<0>(expr.shape()),
                                           types::dtype_t<typename E::dtype>{});
       if (n > 0) {
         auto base = numpy::functor::asarray{}(expr);
@@ -54,8 +55,6 @@ namespace numpy
       }
       throw pythonic::__builtin__::NotImplementedError("negative power");
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::linalg, matrix_power);
   }
 }
 PYTHONIC_NS_END

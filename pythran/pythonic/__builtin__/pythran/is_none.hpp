@@ -12,7 +12,6 @@ namespace __builtin__
 
   namespace pythran
   {
-    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, is_none);
   }
 }
 

@@ -10,14 +10,14 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<T, 1> ravel(types::ndarray<T, N> const &expr)
+  template <class T, class pS>
+  types::ndarray<T, types::pshape<long>>
+  ravel(types::ndarray<T, pS> const &expr)
   {
-    return expr.reshape(types::array<long, 1>{{expr.flat_size()}});
+    return expr.reshape(types::pshape<long>{expr.flat_size()});
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(ravel);
-  DEFINE_FUNCTOR(pythonic::numpy, ravel);
 }
 PYTHONIC_NS_END
 

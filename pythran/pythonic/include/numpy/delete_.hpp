@@ -8,17 +8,19 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<T, 1> delete_(types::ndarray<T, N> const &a, long index,
-                               types::none_type axis = __builtin__::None);
+  template <class T, class pS>
+  types::ndarray<T, types::pshape<long>>
+  delete_(types::ndarray<T, pS> const &a, long index,
+          types::none_type axis = __builtin__::None);
 
-  template <class T, size_t N, class I>
-  typename std::enable_if<!std::is_scalar<I>::value, types::ndarray<T, 1>>::type
-  delete_(types::ndarray<T, N> const &in, I const &indices,
+  template <class T, class pS, class I>
+  typename std::enable_if<!std::is_scalar<I>::value,
+                          types::ndarray<T, types::pshape<long>>>::type
+  delete_(types::ndarray<T, pS> const &in, I const &indices,
           types::none_type axis = __builtin__::None);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(delete_);
-  DECLARE_FUNCTOR(pythonic::numpy, delete_);
+  DEFINE_FUNCTOR(pythonic::numpy, delete_);
 }
 PYTHONIC_NS_END
 

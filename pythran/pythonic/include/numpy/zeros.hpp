@@ -9,14 +9,15 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class IntTy, size_t N, class dtype = functor::float64>
-  types::ndarray<typename dtype::type, N>
-  zeros(types::array<IntTy, N> const &shape, dtype d = dtype());
+  template <class pS, class dtype = functor::float64>
+  types::ndarray<typename dtype::type, sutils::shape_t<pS>>
+  zeros(pS const &shape, dtype d = dtype());
 
   template <class dtype = functor::float64>
-  types::ndarray<typename dtype::type, 1> zeros(long size, dtype d = dtype());
+  types::ndarray<typename dtype::type, types::pshape<long>>
+  zeros(long size, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, zeros);
+  DEFINE_FUNCTOR(pythonic::numpy, zeros);
 }
 PYTHONIC_NS_END
 

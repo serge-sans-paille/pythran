@@ -17,7 +17,7 @@ namespace numpy
   auto zeros_like(E const &expr, types::none_type d = __builtin__::None)
       -> decltype(zeros(expr.shape(), types::dtype_t<typename E::dtype>()));
 
-  DECLARE_FUNCTOR(pythonic::numpy, zeros_like)
+  DEFINE_FUNCTOR(pythonic::numpy, zeros_like)
 }
 PYTHONIC_NS_END
 

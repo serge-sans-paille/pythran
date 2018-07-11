@@ -11,7 +11,7 @@ namespace numpy
 
   types::str base_repr(long number, long base = 2, long padding = 0);
 
-  DECLARE_FUNCTOR(pythonic::numpy, base_repr);
+  DEFINE_FUNCTOR(pythonic::numpy, base_repr);
 }
 PYTHONIC_NS_END
 

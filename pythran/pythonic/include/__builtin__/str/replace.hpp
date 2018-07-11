@@ -16,7 +16,7 @@ namespace __builtin__
                        types::str const &new_pattern,
                        long count = std::numeric_limits<long>::max());
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, replace);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, replace);
   }
 }
 PYTHONIC_NS_END

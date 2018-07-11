@@ -43,7 +43,7 @@ namespace __builtin__
     template <class T>
     types::StaticIfReturn<T> StaticIfReturn(T const &arg);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::pythran, StaticIfReturn);
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, StaticIfReturn);
   }
 }
 PYTHONIC_NS_END

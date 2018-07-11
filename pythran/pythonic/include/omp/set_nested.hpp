@@ -11,7 +11,7 @@ namespace omp
 
   void set_nested(long val);
 
-  DECLARE_FUNCTOR(pythonic::omp, set_nested);
+  DEFINE_FUNCTOR(pythonic::omp, set_nested);
 }
 PYTHONIC_NS_END
 

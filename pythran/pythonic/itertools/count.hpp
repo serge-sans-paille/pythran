@@ -98,8 +98,6 @@ namespace itertools
   {
     return {0, 1};
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, count);
 }
 PYTHONIC_NS_END
 

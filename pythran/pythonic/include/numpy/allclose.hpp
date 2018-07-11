@@ -13,7 +13,7 @@ namespace numpy
   template <class U, class V>
   bool allclose(U const &u, V const &v, double rtol = 1e-5, double atol = 1e-8);
 
-  DECLARE_FUNCTOR(pythonic::numpy, allclose);
+  DEFINE_FUNCTOR(pythonic::numpy, allclose);
 }
 PYTHONIC_NS_END
 

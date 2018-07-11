@@ -4,14 +4,19 @@
 #include <utility>
 
 // create a function named `name' using function `f'
-#define DECLARE_FUNCTOR_2(name, f)                                             \
+
+#define DEFINE_FUNCTOR_2(name, f)                                              \
   namespace functor                                                            \
   {                                                                            \
     struct name {                                                              \
       using callable = void;                                                   \
       template <typename... Types>                                             \
       auto operator()(Types && ... types) const                                \
-          -> decltype(f(std::forward<Types>(types)...));                       \
+          -> decltype(f(std::forward<Types>(types)...))                        \
+      {                                                                        \
+        return f(std::forward<Types>(types)...);                               \
+      }                                                                        \
+                                                                               \
       friend std::ostream &operator<<(std::ostream &os, name)                  \
       {                                                                        \
         return os << #name;                                                    \
@@ -20,7 +25,7 @@
   }
 
 // create a functor named `f' using function `ns::f'
-#define DECLARE_FUNCTOR(ns, f) DECLARE_FUNCTOR_2(f, ns::f)
+#define DEFINE_FUNCTOR(ns, f) DEFINE_FUNCTOR_2(f, ns::f)
 
 #define USING_FUNCTOR(f, alias)                                                \
   namespace functor                                                            \

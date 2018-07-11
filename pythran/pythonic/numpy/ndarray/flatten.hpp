@@ -13,14 +13,14 @@ namespace numpy
 
   namespace ndarray
   {
-    template <class T, size_t N>
-    types::ndarray<T, 1> flatten(types::ndarray<T, N> const &a)
+    template <class T, class pS>
+    types::ndarray<T, types::pshape<long>>
+    flatten(types::ndarray<T, pS> const &a)
     {
-      return {a.mem, types::array<long, 1>{{a.flat_size()}}};
+      return {a.mem, types::pshape<long>{a.flat_size()}};
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(flatten);
-    DEFINE_FUNCTOR(pythonic::numpy::ndarray, flatten);
   }
 }
 PYTHONIC_NS_END

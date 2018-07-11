@@ -52,8 +52,6 @@ namespace numpy
   {
     return around(functor::asarray{}(a), decimals);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, around);
 }
 PYTHONIC_NS_END
 

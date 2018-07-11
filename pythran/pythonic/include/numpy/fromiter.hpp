@@ -15,7 +15,7 @@ namespace numpy
                  1>
   fromiter(Iterable &&iterable, dtype d = dtype(), long count = -1);
 
-  DECLARE_FUNCTOR(pythonic::numpy, fromiter);
+  DEFINE_FUNCTOR(pythonic::numpy, fromiter);
 }
 PYTHONIC_NS_END
 

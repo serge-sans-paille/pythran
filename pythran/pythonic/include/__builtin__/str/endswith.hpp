@@ -16,7 +16,7 @@ namespace __builtin__
     bool endswith(types::str const &s, types::str const &suffix, long start = 0,
                   long end = -1);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, endswith);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, endswith);
   }
 }
 PYTHONIC_NS_END

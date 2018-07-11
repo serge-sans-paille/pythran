@@ -116,8 +116,6 @@ namespace __builtin__
   {
     return {std::forward<Iterable>(seq), first};
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, enumerate);
 }
 PYTHONIC_NS_END
 

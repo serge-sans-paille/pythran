@@ -20,8 +20,6 @@ namespace __builtin__
       std::transform(s.begin(), s.end(), copy.begin(), ::toupper);
       return copy;
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::str, upper);
   }
 }
 PYTHONIC_NS_END

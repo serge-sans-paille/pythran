@@ -38,7 +38,11 @@ namespace functools
       template <std::size_t... S, typename... Types>
       auto call(utils::index_sequence<S...>, Types &&... types) const
           -> decltype(std::get<0>(closure)(std::get<S + 1>(closure)...,
-                                           std::forward<Types>(types)...));
+                                           std::forward<Types>(types)...))
+      {
+        return std::get<0>(closure)(std::get<S + 1>(closure)...,
+                                    std::forward<Types>(types)...);
+      }
 
       template <typename... Types>
       auto operator()(Types &&... types) const -> decltype(
@@ -53,7 +57,7 @@ namespace functools
       typename std::remove_reference<Types>::type>::type...>
   partial(Types &&... types);
 
-  DECLARE_FUNCTOR(pythonic::functools, partial);
+  DEFINE_FUNCTOR(pythonic::functools, partial);
 }
 PYTHONIC_NS_END
 

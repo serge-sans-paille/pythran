@@ -100,11 +100,10 @@ class Types(ModuleAnalysis):
 
     def run(self, node, ctx):
         super(Types, self).run(node, ctx)
-        final_types = self.result.copy()
         for head in self.current_global_declarations.values():
-            if head not in final_types:
-                final_types[head] = "pythonic::types::none_type"
-        return final_types
+            if head not in self.result:
+                self.result[head] = "pythonic::types::none_type"
+        return self.result
 
     def register(self, ptype):
         """register ptype as a local typedef"""
@@ -413,11 +412,7 @@ class Types(ModuleAnalysis):
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                                      [])
                 self.combiners[bounded_function].combiner(self, fake_node)
-                # force recombination of binded call
-                for n in self.strict_aliases[func]:
-                    self.result[n] = self.builder.ReturnType(
-                        self.result[alias.func],
-                        [self.result[arg] for arg in alias.args])
+
             # handle backward type dependencies from function calls
             else:
                 self.combiners[alias].combiner(self, node)

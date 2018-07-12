@@ -7,7 +7,7 @@ from pythran.passmanager import Transformation
 import gast as ast
 
 
-def outline(name, formal_parameters, out_parameters, stmts):
+def outline(name, formal_parameters, out_parameters, stmts, has_return):
     args = ast.arguments(
         [ast.Name(fp, ast.Param(), None) for fp in formal_parameters],
         None, [], [], None, [])
@@ -17,10 +17,9 @@ def outline(name, formal_parameters, out_parameters, stmts):
         fdef = ast.FunctionDef(name, args, [ast.Return(stmts)], [], None)
     else:
         fdef = ast.FunctionDef(name, args, stmts, [], None)
-        PatchReturn().visit(fdef)
 
         # this is part of a huge trick that plays with delayed type inference
-        # it basically computes the return type based on out paremeters, and
+        # it basically computes the return type based on out parameters, and
         # the return statement is unconditionally added so if we have other
         # returns, there will be a computation of the output type based on the
         # __combined of the regular return types and this one The original
@@ -38,13 +37,24 @@ def outline(name, formal_parameters, out_parameters, stmts):
                 )
             )
         )
+        if has_return:
+            pr = PatchReturn(stmts[-1])
+            pr.visit(fdef)
 
     return fdef
 
 
 class PatchReturn(ast.NodeTransformer):
 
+    def __init__(self, guard):
+        self.guard = guard
+
     def visit_Return(self, node):
+        if node is self.guard:
+            holder = "StaticIfNoReturn"
+        else:
+            holder = "StaticIfReturn"
+
         return ast.Return(
             ast.Call(
                 ast.Attribute(
@@ -52,7 +62,7 @@ class PatchReturn(ast.NodeTransformer):
                         ast.Name("__builtin__", ast.Load(), None),
                         "pythran",
                         ast.Load()),
-                    "StaticIfReturn",
+                    holder,
                     ast.Load()), [node.value], []))
 
 
@@ -96,10 +106,10 @@ class NormalizeStaticIf(Transformation):
         return actual_call
 
     def true_name(self):
-        return "$isnone{}".format(len(self.new_functions) + 0)
+        return "$isstatic{}".format(len(self.new_functions) + 0)
 
     def false_name(self):
-        return "$isnone{}".format(len(self.new_functions) + 1)
+        return "$isstatic{}".format(len(self.new_functions) + 1)
 
     def visit_IfExp(self, node):
         self.generic_visit(node)
@@ -110,8 +120,10 @@ class NormalizeStaticIf(Transformation):
         imported_ids = sorted(self.passmanager.gather(ImportedIds,
                                                       node, self.ctx))
 
-        func_true = outline(self.true_name(), imported_ids, [], node.body)
-        func_false = outline(self.false_name(), imported_ids, [], node.orelse)
+        func_true = outline(self.true_name(), imported_ids, [],
+                            node.body, False)
+        func_false = outline(self.false_name(), imported_ids, [],
+                             node.orelse, False)
         self.new_functions.extend((func_true, func_false))
 
         actual_call = self.make_dispatcher(node.test, func_true,
@@ -152,9 +164,9 @@ class NormalizeStaticIf(Transformation):
         has_return = true_has_return or false_has_return
 
         func_true = outline(self.true_name(), imported_ids, assigned_ids,
-                            node.body)
+                            node.body, has_return)
         func_false = outline(self.false_name(), imported_ids, assigned_ids,
-                             node.orelse)
+                             node.orelse, has_return)
         self.new_functions.extend((func_true, func_false))
 
         actual_call = self.make_dispatcher(node.test,

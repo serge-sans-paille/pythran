@@ -160,7 +160,7 @@ namespace types
       numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
-    long sz = filter.shape()[0];
+    long sz = std::get<0>(filter.shape());
     long *raw = (long *)malloc(sz * sizeof(long));
     long n = 0;
     for (long i = 0; i < sz; ++i)

@@ -745,7 +745,8 @@ namespace sutils
   };
 
   template <class T>
-  using shape_t = typename make_shape<T>::type;
+  using shape_t = typename std::enable_if<!std::is_integral<T>::value,
+                                          typename make_shape<T>::type>::type;
 
   template <class Curr, class... Ss>
   struct shape_merger;

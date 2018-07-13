@@ -3,6 +3,7 @@
 
 #include "pythonic/include/__builtin__/pythran/StaticIfReturn.hpp"
 #include "pythonic/utils/functor.hpp"
+#include "pythonic/types/static_if.hpp"
 
 PYTHONIC_NS_BEGIN
 

@@ -136,6 +136,20 @@ def returned_none_member(a):
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             self.run_test(code, 1, multiple_is_none=[int])
 
+    def test_different_return(self):
+        code = '''
+        def different_return(x):
+            return helper(0, x), helper(x, None), helper(18, x)
+
+        def helper(x, y):
+            if not (x is None is y):
+                return "7"
+            else:
+                return 7
+            return x + 1'''
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            self.run_test(code, 1, different_return=[int])
+
     def test_is_none_in_expr(self):
         code = '''
         def is_none_in_expr(x):

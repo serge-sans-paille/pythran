@@ -20,25 +20,24 @@ namespace __builtin__
       template <>
       struct static_if_<types::true_type> {
         template <class F0, class F1>
-        types::static_if_return<F0, F1> operator()(F0 f0, F1 f1)
+        F0 operator()(F0 f0, F1 f1)
         {
-          return {f0};
+          return f0;
         }
       };
       template <>
       struct static_if_<types::false_type> {
         template <class F0, class F1>
-        types::static_if_return<F1, F0> operator()(F0 f0, F1 f1)
+        F1 operator()(F0 f0, F1 f1)
         {
-          return {f1};
+          return f1;
         }
       };
     }
 
     template <class T, class F0, class F1>
-    typename std::conditional<std::is_same<T, types::true_type>::value,
-                              types::static_if_return<F0, F1>,
-                              types::static_if_return<F1, F0>>::type
+    typename std::conditional<std::is_same<T, types::true_type>::value, F0,
+                              F1>::type
     static_if_(T const &cond, F0 f0, F1 f1)
     {
       return details::static_if_<T>{}(f0, f1);

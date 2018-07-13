@@ -8,7 +8,7 @@ from pythran.config import cfg, make_extension
 from pythran.cxxgen import PythonModule, Define, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.cxxgen import ReturnStatement
-from pythran.dist import PythranExtension
+from pythran.dist import PythranExtension, PythranBuildExt
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
@@ -25,7 +25,6 @@ import pythran.frontend as frontend
 from datetime import datetime
 from distutils.errors import CompileError
 from numpy.distutils.core import setup
-import numpy.distutils.ccompiler
 
 from tempfile import mkdtemp, NamedTemporaryFile
 import gast as ast
@@ -35,39 +34,8 @@ import shutil
 import glob
 import hashlib
 from functools import reduce
-from collections import defaultdict
 
 logger = logging.getLogger('pythran')
-
-
-# hook taken from numpy.distutils.compiler
-# with useless steps  and warning removed
-def CCompiler_customize(self, _, need_cxx=0):
-    logger.info('customize %s', self.__class__.__name__)
-    numpy.distutils.ccompiler.customize_compiler(self)
-    if need_cxx:
-        # In general, distutils uses -Wstrict-prototypes, but this option is
-        # not valid for C++ code, only for C.  Remove it if it's there to
-        # avoid a spurious warning on every compilation.
-        try:
-            self.compiler_so.remove('-Wstrict-prototypes')
-        except (AttributeError, ValueError):
-            pass
-
-    if hasattr(self, 'compiler_so'):
-        # Remove -arch i386 if 'x86_64' is specified, otherwise incorrect code
-        # is generated, at least on OSX
-        archs = defaultdict(list)
-        for i, flag in enumerate(self.compiler_so[1:]):
-            if self.compiler_so[i] == '-arch':
-                archs[flag].append(i + 1)
-        if 'x86_64' in archs and 'i386' in archs:
-            for i in archs['i386']:
-                self.compiler_so[i] = 'x86_64'
-
-
-numpy.distutils.ccompiler.replace_method(numpy.distutils.ccompiler.CCompiler,
-                                         'customize', CCompiler_customize)
 
 
 def _extract_all_constructed_types(v):
@@ -334,6 +302,7 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     try:
         setup(name=module_name,
               ext_modules=[extension],
+              cmdclass={"build_ext": PythranBuildExt},
               # fake CLI call
               script_name='setup.py',
               script_args=['--verbose'

@@ -31,7 +31,7 @@ from __future__ import division
 
 from textwrap import dedent
 from pythran.tables import pythran_ward
-from pythran.types.conversion import pytype_to_pretty_type
+from pythran.spec import signatures_to_string
 
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
@@ -561,7 +561,7 @@ class PythonModule(object):
 
         for fname, overloads in self.functions.items():
             tryall = []
-            candidates = []
+            signatures = []
             for overload, ctypes, signature in overloads:
                 try_ = dedent("""
                     if(PyObject* obj = {name}(self, args, kw))
@@ -569,10 +569,9 @@ class PythonModule(object):
                     PyErr_Clear();
                     """.format(name=overload))
                 tryall.append(try_)
-                thecall = "{}({})".format(fname,
-                                          ",".join(pytype_to_pretty_type(t)
-                                                   for t in signature))
-                candidates.append(thecall)
+                signatures.append(signature)
+
+            candidates = signatures_to_string(fname, signatures)
 
             wrapper_name = pythran_ward + 'wrapall_' + fname
 
@@ -589,7 +588,7 @@ class PythonModule(object):
             }}
             '''.format(name=fname,
                        tryall="\n".join(tryall),
-                       candidates="\\n".join("   " + c for c in candidates),
+                       candidates=candidates.replace('\n', '\\n'),
                        wname=wrapper_name))
 
             fdoc = self.docstring(self.docstrings.get(fname, ''))

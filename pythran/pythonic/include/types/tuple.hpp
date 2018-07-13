@@ -944,7 +944,23 @@ namespace sutils
   }
 
   template <class S, class B>
-  bool equals(S const &s, B const &other)
+  typename std::enable_if<
+      std::tuple_size<S>::value == std::tuple_size<B>::value, bool>::type
+  equals(S const &s, B const &other)
+  {
+    return equals(
+        s, other,
+        std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+  }
+  template <class S, class B>
+  typename std::enable_if<
+      std::tuple_size<S>::value != std::tuple_size<B>::value, bool>::type
+  equals(S const &s, B const &other)
+  {
+    return false;
+  }
+  template <class S, class B>
+  bool equals(S const &s, B *other)
   {
     return equals(
         s, other,

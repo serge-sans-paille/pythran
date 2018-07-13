@@ -22,7 +22,7 @@ namespace numpy
   template <class dtype>
   types::ndarray<typename dtype::type, 1> empty(long size, dtype d)
   {
-    return empty(types::make_tuple(size), d);
+    return empty(types::pshape<long>(size), d);
   }
 
   DEFINE_FUNCTOR(pythonic::numpy, empty);

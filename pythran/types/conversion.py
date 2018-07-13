@@ -2,7 +2,8 @@
 
 import sys
 
-from numpy import int8, int16, int32, int64, uint8, uint16, uint32
+from numpy import int8, int16, int32, int64, intp
+from numpy import uint8, uint16, uint32, uint64, uintp
 from numpy import float64, float32, complex64, complex128, uint64
 from pythran.typing import List, Dict, Set, Tuple, NDArray, Pointer, Fun
 
@@ -17,10 +18,12 @@ PYTYPE_TO_CTYPE_TABLE = {
     int16: 'int16_t',
     int32: 'int32_t',
     int64: 'int64_t',
+    intp: 'intptr_t',
     uint8: 'uint8_t',
     uint16: 'uint16_t',
     uint32: 'uint32_t',
     uint64: 'uint64_t',
+    uintp: 'uintptr_t',
     float32: 'float',
     float64: 'double',
     complex64: 'std::complex<float>',

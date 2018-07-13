@@ -21,7 +21,7 @@ namespace numpy
   types::ndarray<typename dtype::type, types::pshape<long>> empty(long size,
                                                                   dtype d)
   {
-    return empty(types::make_tuple(size), d);
+    return empty(types::pshape<long>(size), d);
   }
 }
 PYTHONIC_NS_END

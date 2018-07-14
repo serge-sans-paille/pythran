@@ -80,3 +80,8 @@ class TestPyData(TestFromDir):
     path = os.path.join(os.path.dirname(__file__), "pydata")
 
 TestPyData.populate(TestPyData)
+
+class TestScikitImage(TestFromDir):
+    path = os.path.join(os.path.dirname(__file__), "scikit-image")
+
+TestPyData.populate(TestScikitImage)

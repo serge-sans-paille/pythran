@@ -55,6 +55,14 @@ def ambiguous_types(ty0, ty1):
         return ambiguous_types(ty0.__args__, ty1.__args__)
 
 
+def istransposed(t):
+    if not isinstance(t, NDArray):
+        return False
+    if len(t.__args__) - 1 != 2:
+        return False
+    return t.__args__[1] == t.__args__[2] == slice(-1, None, None)
+
+
 class Spec(object):
     '''
     Result of spec parsing.
@@ -83,9 +91,8 @@ class Spec(object):
 
     def to_docstrings(self, docstrings):
         for func_name, signatures in self.functions.items():
-            sigdocs = [spec_to_string(func_name, sig) for sig in signatures]
-            docstring_prototypes = 'Supported prototypes:\n{}'.format(
-                ''.join('\n    - ' + sigdoc for sigdoc in sigdocs))
+            sigdocs = signatures_to_string(func_name, signatures)
+            docstring_prototypes = 'Supported prototypes:\n{}'.format(sigdocs)
             docstring_py = docstrings.get(func_name, '')
             if not docstring_py:
                 docstring = docstring_prototypes
@@ -455,6 +462,14 @@ class ExtraSpecParser(SpecParser):
 def spec_to_string(function_name, spec):
     arguments_types = [pytype_to_pretty_type(t) for t in spec]
     return '{}({})'.format(function_name, ', '.join(arguments_types))
+
+
+def signatures_to_string(func_name, signatures):
+    # filter out transposed version, they are confusing for some users
+    # and can generate very long docstring that break MSVC
+    sigdocs = [spec_to_string(func_name, sig) for sig in signatures
+               if not any(istransposed(t) for t in sig)]
+    return ''.join('\n    - ' + sigdoc for sigdoc in sigdocs)
 
 
 def spec_parser(path_or_text):

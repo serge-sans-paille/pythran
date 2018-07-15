@@ -73,3 +73,33 @@ class TestComplex(TestEnv):
         self.run_test('def test_complex_same_types(a): return a + a',
                       np.array([[3 + 2j]],dtype=np.complex64),
                       test_complex_same_types=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_real_assign(self):
+        self.run_test('def test_complex_array_real_assign(a): a.real = 1; return a',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_real_assign=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_gexpr_real_assign(self):
+        self.run_test('def test_complex_array_gexpr_real_assign(a): a.real[1:] = 1; return a',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_gexpr_real_assign=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_iexpr_real_assign(self):
+        self.run_test('def test_complex_array_iexpr_real_assign(a): a.real[1] = 1; return a',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_iexpr_real_assign=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_imag_assign(self):
+        self.run_test('def test_complex_array_imag_assign(a): a.imag = 1; return a',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_imag_assign=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_gexpr_imag_assign(self):
+        self.run_test('def test_complex_array_gexpr_imag_assign(a): a.imag[1:] = 1; return a',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_gexpr_imag_assign=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_iexpr_imag_assign(self):
+        self.run_test('def test_complex_array_iexpr_imag_assign(a): a.imag[1] = 1; return a',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_iexpr_imag_assign=[NDArray[np.complex64, :, :]])

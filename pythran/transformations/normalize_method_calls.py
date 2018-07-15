@@ -97,11 +97,8 @@ class NormalizeMethodCalls(Transformation):
 
     def visit_Attribute(self, node):
         node = self.generic_visit(node)
-        # storing in an attribute -> not a getattr
-        if not isinstance(node.ctx, ast.Load):
-            return node
         # method name -> not a getattr
-        elif node.attr in methods:
+        if node.attr in methods:
             return node
         # imported module -> not a getattr
         elif (isinstance(node.value, ast.Name) and
@@ -120,13 +117,23 @@ class NormalizeMethodCalls(Transformation):
         # A getattr !
         else:
             self.update = True
-            return ast.Call(
+            call = ast.Call(
                 ast.Attribute(
                     ast.Name('__builtin__', ast.Load(), None),
                     'getattr',
                     ast.Load()),
                 [node.value, ast.Str(node.attr)],
                 [])
+            if isinstance(node.ctx, ast.Store):
+                # the only situation where this arises is for real/imag of
+                # a ndarray. As a call is not valid for a store, add a slice
+                # to ends up with a valid lhs
+                assert node.attr in ('real', 'imag'), "only store to imag/real"
+                return ast.Subscript(call,
+                                     ast.Slice(None, None, None),
+                                     node.ctx)
+            else:
+                return call
 
     @staticmethod
     def renamer(v, cur_module):

@@ -646,12 +646,26 @@ namespace types
     auto operator()(contiguous_slice const &s0, Sp const &... s) const
         -> decltype(make_gexpr(*this, s0, s...));
 
+    template <class... Sp>
+    auto operator()(contiguous_normalized_slice const &s0,
+                    Sp const &... s) const
+        -> decltype(make_gexpr(*this, s0, s...))
+    {
+    }
+
     auto operator[](contiguous_slice const &s0) const
         -> decltype(make_gexpr(*this, s0));
 
     template <class... Sp>
     auto operator()(slice const &s0, Sp const &... s) const
         -> decltype(make_gexpr(*this, s0, s...));
+
+    template <class... Sp>
+    auto operator()(normalized_slice const &s0, Sp const &... s) const
+        -> decltype(make_gexpr(*this, s0, s...))
+    {
+      return make_gexpr(*this, s0, s...);
+    }
 
     auto operator[](slice const &s0) const -> decltype(make_gexpr(*this, s0));
 

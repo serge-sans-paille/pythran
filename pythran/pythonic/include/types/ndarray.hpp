@@ -690,6 +690,38 @@ namespace types
     };
 
     template <class E>
+    struct getattr<attr::REAL, types::numpy_iexpr<E>> {
+
+      auto operator()(types::numpy_iexpr<E> const &a) -> decltype(
+          types::numpy_iexpr<decltype(getattr<attr::REAL, E>{}(a.arg))>{
+              getattr<attr::REAL, E>{}(a.arg)})
+      {
+        return {getattr<attr::REAL, E>{}(a.arg)};
+      }
+    };
+
+    template <class E, class... S>
+    struct getattr<attr::REAL, types::numpy_gexpr<E, S...>> {
+
+      template <class T, class Ss, size_t... Is>
+      auto get(T &&expr, Ss const &indices, utils::index_sequence<Is...>)
+          -> decltype(std::forward<T>(expr)(std::get<Is>(indices)...))
+      {
+        return std::forward<T>(expr)(std::get<Is>(indices)...);
+      }
+      auto operator()(types::numpy_gexpr<E, S...> const &a)
+          -> decltype(this->get(
+              getattr<attr::REAL, typename std::decay<E>::type>{}(a.arg),
+              a.slices, utils::make_index_sequence<
+                            std::tuple_size<decltype(a.slices)>::value>()))
+      {
+        return get(getattr<attr::REAL, typename std::decay<E>::type>{}(a.arg),
+                   a.slices, utils::make_index_sequence<
+                                 std::tuple_size<decltype(a.slices)>::value>());
+      }
+    };
+
+    template <class E>
     struct getattr<attr::IMAG, E> {
 
       types::ndarray<typename E::dtype, E::value> make_imag(E const &a,
@@ -710,6 +742,38 @@ namespace types
       auto operator()(types::numpy_texpr<E> const &a) -> decltype(
           types::numpy_texpr<decltype(getattr<attr::IMAG, E>{}(a.arg))>{
               getattr<attr::IMAG, E>{}(a.arg)});
+    };
+
+    template <class E>
+    struct getattr<attr::IMAG, types::numpy_iexpr<E>> {
+
+      auto operator()(types::numpy_iexpr<E> const &a) -> decltype(
+          types::numpy_iexpr<decltype(getattr<attr::IMAG, E>{}(a.arg))>{
+              getattr<attr::IMAG, E>{}(a.arg)})
+      {
+        return {getattr<attr::IMAG, E>{}(a.arg)};
+      }
+    };
+
+    template <class E, class... S>
+    struct getattr<attr::IMAG, types::numpy_gexpr<E, S...>> {
+
+      template <class T, class Ss, size_t... Is>
+      auto get(T &&expr, Ss const &indices, utils::index_sequence<Is...>)
+          -> decltype(std::forward<T>(expr)(std::get<Is>(indices)...))
+      {
+        return std::forward<T>(expr)(std::get<Is>(indices)...);
+      }
+      auto operator()(types::numpy_gexpr<E, S...> const &a)
+          -> decltype(this->get(
+              getattr<attr::IMAG, typename std::decay<E>::type>{}(a.arg),
+              a.slices, utils::make_index_sequence<
+                            std::tuple_size<decltype(a.slices)>::value>()))
+      {
+        return get(getattr<attr::IMAG, typename std::decay<E>::type>{}(a.arg),
+                   a.slices, utils::make_index_sequence<
+                                 std::tuple_size<decltype(a.slices)>::value>());
+      }
     };
   }
 }

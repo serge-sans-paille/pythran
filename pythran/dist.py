@@ -5,6 +5,7 @@ This modules contains a distutils extension mechanism for Pythran
 
 import pythran.config as cfg
 
+from collections import defaultdict
 import os.path
 import os
 
@@ -13,7 +14,7 @@ from distutils.command.build_ext import build_ext as LegacyBuildExt
 from numpy.distutils.extension import Extension
 
 
-class PythranBuildExt(LegacyBuildExt):
+class PythranBuildExt(LegacyBuildExt, object):
     """Subclass of `distutils.command.build_ext.build_ext` which is required to
     build `PythranExtension` with the configured C++ compiler. It may also be
     subclassed if you want to combine with another build_ext class (NumPy,
@@ -21,18 +22,48 @@ class PythranBuildExt(LegacyBuildExt):
 
     """
     def build_extension(self, ext):
-        prev = {'preprocessor': None,
+        prev = {
+                # linux-like
+                'preprocessor': None,
                 'compiler_cxx': None,
                 'compiler_so': None,
                 'compiler': None,
                 'linker_exe': None,
-                'linker_so': None}
-
+                'linker_so': None,
+                # Windows-like
+                'cc': None,
+                'linker': None,
+                'lib': None,
+                'rc': None,
+                'mc': None,
+        }
         if hasattr(ext, 'cxx'):
             # Backup compiler settings
-            for key in prev.keys():
-                prev[key] = getattr(self.compiler, key)[0]
-                getattr(self.compiler, key)[0] = ext.cxx
+            for key in list(prev.keys()):
+                if hasattr(self.compiler, key):
+                    prev[key] = getattr(self.compiler, key)[0]
+                    getattr(self.compiler, key)[0] = ext.cxx
+                else:
+                    del prev[key]
+
+            # In general, distutils uses -Wstrict-prototypes, but this option
+            # is not valid for C++ code, only for C.  Remove it if it's there
+            # to avoid a spurious warning on every compilation.
+            try:
+                self.compiler.compiler_so.remove('-Wstrict-prototypes')
+            except (AttributeError, ValueError):
+                pass
+
+            # Remove -arch i386 if 'x86_64' is specified, otherwise incorrect
+            # code is generated, at least on OSX
+            if hasattr(self.compiler, 'compiler_so'):
+                archs = defaultdict(list)
+                for i, flag in enumerate(self.compiler.compiler_so[1:]):
+                    if self.compiler.compiler_so[i] == '-arch':
+                        archs[flag].append(i + 1)
+                if 'x86_64' in archs and 'i386' in archs:
+                    for i in archs['i386']:
+                        self.compiler.compiler_so[i] = 'x86_64'
 
             try:
                 return super(PythranBuildExt, self).build_extension(ext)

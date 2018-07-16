@@ -97,7 +97,7 @@ def make_extension(python, **extra):
         # blas dependency
         user_blas = cfg.get('compiler', 'blas')
         numpy_blas = numpy_sys.get_info(user_blas)
-        # required to cope with atlas missing ectern "C"
+        # required to cope with atlas missing extern "C"
         extension['define_macros'].append('PYTHRAN_BLAS_{}'
                                           .format(user_blas.upper()))
         extension['libraries'].extend(numpy_blas.get('libraries', []))

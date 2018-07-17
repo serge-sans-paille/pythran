@@ -95,9 +95,10 @@ namespace types
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
-                                !std::is_same<bool, typename F::dtype>::value,
-                            ndarray<dtype, pshape<long, long>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            !std::is_same<bool, typename F::dtype>::value,
+        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
@@ -108,9 +109,10 @@ namespace types
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
-                                !std::is_same<bool, typename F::dtype>::value,
-                            ndarray<dtype, pshape<long, long>>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            !std::is_same<bool, typename F::dtype>::value,
+        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));

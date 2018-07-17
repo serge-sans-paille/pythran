@@ -751,9 +751,8 @@ namespace types
       if (filter.fast(i))
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
-    long shp[1] = {n};
-    return this->fast(
-        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
+    return this->fast(ndarray<long, pshape<long>>(raw, pshape<long>(n),
+                                                  types::ownership::owned));
   }
 
   template <class T, class pS>

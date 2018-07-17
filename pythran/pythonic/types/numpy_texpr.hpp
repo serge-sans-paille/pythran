@@ -167,9 +167,8 @@ namespace types
       if (filter.fast(i))
         raw[n++] = i;
     // realloc(raw, n * sizeof(long));
-    long shp[1] = {n};
-    return this->fast(
-        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
+    return this->fast(ndarray<long, pshape<long>>(raw, pshape<long>(n),
+                                                  types::ownership::owned));
   }
 
   template <class E>
@@ -187,37 +186,26 @@ namespace types
   template <class F> // indexing through an array of indices -- a view
   typename std::enable_if<
       is_numexpr_arg<F>::value && !std::is_same<bool, typename F::dtype>::value,
-      ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>>>::type
+      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
       numpy_texpr_2<E>::
       operator[](F const &filter) const
   {
     static_assert(F::value == 1,
                   "advanced indexing only supporint with 1D index");
 
-    ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>> out(
-        array<long, 2>{{filter.flat_size(), std::get<1>(shape())}},
-        none_type());
-    std::transform(
-        filter.begin(), filter.end(), out.begin(),
-        [this](typename F::dtype index) { return operator[](index); });
-    return out;
+    return {*this, filter};
   }
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
   typename std::enable_if<
       is_numexpr_arg<F>::value && !std::is_same<bool, typename F::dtype>::value,
-      ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>>>::type
+      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
     static_assert(F::value == 1,
                   "advanced indexing only supporint with 1D index");
-    ndarray<typename numpy_texpr_2<E>::dtype, pshape<long, long>> out(
-        array<long, 2>{{filter.flat_size(), std::get<1>(shape())}},
-        none_type());
-    std::transform(filter.begin(), filter.end(), out.begin(),
-                   [this](typename F::dtype index) { return fast(index); });
-    return out;
+    return {*this, filter};
   }
 
   template <class E>

@@ -871,3 +871,22 @@ def assign_ndarray(t):
         self.run_test(code, 10, test_fexpr1=[int])
 
 
+    def test_vexpr0(self):
+        code = '''
+            import numpy as np
+            def vexpr0(a, b=None):
+                if b is None:
+                    assert len(a) > 0
+                    b = np.copy(a[0])
+                    a = a[1:]
+                else:
+                    b = np.copy(b)
+                m = b >= 0
+                for array in a:
+                    b[m] *= array[m]
+                return b'''
+        self.run_test(code,
+            [numpy.arange(10, dtype=numpy.int32).reshape(5,2)],
+            2 * numpy.arange(10, dtype=numpy.int32).reshape(5,2),
+            vexpr0=[List[NDArray[numpy.int32,:,:]], NDArray[numpy.int32,:,:]])
+

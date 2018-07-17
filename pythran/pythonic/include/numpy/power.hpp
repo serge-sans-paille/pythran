@@ -18,13 +18,35 @@ namespace numpy
   namespace wrapper
   {
     template <class T0, class T1>
-    auto pow(T0 const &t0, T1 const &t1) -> decltype(
-        boost::simd::pow((typename std::common_type<T0, T1>::type)t0,
-                         (typename std::common_type<T0, T1>::type)t1))
+    auto pow(T0 const &t0, T1 const &t1) -> typename std::enable_if<
+        !std::is_integral<T1>::value,
+        decltype(boost::simd::pow((typename std::common_type<T0, T1>::type)t0,
+                                  (typename std::common_type<T0, T1>::type)
+                                      t1))>::type
     {
       return boost::simd::pow((typename std::common_type<T0, T1>::type)t0,
                               (typename std::common_type<T0, T1>::type)t1);
     }
+
+    template <class T0, class T1>
+    auto pow(T0 const &t0, T1 const &t1) ->
+        typename std::enable_if<std::is_integral<T1>::value, T0>::type
+    {
+      T0 a = t0;
+      T1 b = t1;
+      const int recip = b < 0;
+      T0 r = 1;
+      while (1) {
+        if (b & 1)
+          r *= a;
+        b /= 2;
+        if (b == 0)
+          break;
+        a *= a;
+      }
+      return recip ? 1 / r : r;
+    }
+
     // See https://github.com/MetaScale/nt2/issues/794
     double pow(long const &n, double const &m)
     {

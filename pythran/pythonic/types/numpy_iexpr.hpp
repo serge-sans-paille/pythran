@@ -424,12 +424,8 @@ namespace types
   typename numpy_iexpr<Arg>::dtype const &numpy_iexpr<Arg>::
   operator[](array<long, value> const &indices) const
   {
-    return buffer[compute_offset(indices[value - 1] < 0
-                                     ? indices[value - 1] +
-                                           std::get<value - 1>(_shape)
-                                     : indices[value - 1],
-                                 std::get<value - 1>(_shape), indices, _shape,
-                                 std::integral_constant<long, value - 2>())];
+    return buffer[compute_offset(0, 1, indices, _shape,
+                                 std::integral_constant<long, value - 1>())];
     /*
     size_t offset = indices[value - 1] < 0
                         ? indices[value - 1] + std::get<value - 1>(_shape)

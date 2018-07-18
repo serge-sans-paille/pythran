@@ -20,7 +20,7 @@ namespace numpy
     for (long i = 0, n = *std::min_element(shape.begin(), shape.end()); i < n;
          ++i) {
       std::fill(indices.begin(), indices.end(), i);
-      expr[indices] = fill_value;
+      expr.fast(indices) = fill_value;
     }
     return {};
   }

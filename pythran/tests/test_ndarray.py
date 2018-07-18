@@ -409,6 +409,9 @@ def assign_ndarray(t):
     def test_iexpr1(self):
         self.run_test("def np_iexpr1(a,i): return a[i,0][0]", numpy.array(range(10*9*8)).reshape(10,9,8), 0, np_iexpr1=[NDArray[int, :,:,:], int])
 
+    def test_iexpr2(self):
+        self.run_test("def np_iexpr2(a,m): a[m==False] = 1; return a", numpy.arange(10).reshape(5,2), numpy.arange(10).reshape(5,2), np_iexpr2=[NDArray[int, :,:], NDArray[int, :,:]])
+
     def test_item0(self):
         self.run_test("def np_item0(a): return a.item(3)", numpy.array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]), np_item0=[NDArray[int, :,: ]])
 

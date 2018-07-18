@@ -19,7 +19,7 @@ namespace numpy
     types::array<long, N> indices;
     for (long i = 0, n = sutils::min(shape); i < n; ++i) {
       std::fill(indices.begin(), indices.end(), i);
-      expr[indices] = fill_value;
+      expr.fast(indices) = fill_value;
     }
     return {};
   }

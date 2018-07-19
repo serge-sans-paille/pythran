@@ -249,15 +249,15 @@ namespace types
   size_t compute_fast_offset(size_t offset, long mult, T0 const &indices,
                              T1 const &shape, std::integral_constant<long, 0>)
   {
-    return offset + std::get<0>(indices) * mult;
+    return offset;
   }
 
   template <long I, class T0, class T1>
   size_t compute_fast_offset(size_t offset, long mult, T0 const &indices,
                              T1 const &shape, std::integral_constant<long, I>)
   {
-    return compute_fast_offset(offset + std::get<I>(indices) * mult,
-                               mult * std::get<I>(shape), indices, shape,
+    return compute_fast_offset(offset + std::get<I - 1>(indices) * mult,
+                               mult * std::get<I - 1>(shape), indices, shape,
                                std::integral_constant<long, I - 1>());
   }
 
@@ -267,23 +267,15 @@ namespace types
   {
     return buffer[compute_fast_offset(
         indices[value - 1], std::get<value - 1>(_shape), indices, _shape,
-        std::integral_constant<long, value - 2>())];
-    /*
-    size_t offset = indices[value - 1];
-    long mult = std::get<value - 1>(_shape);
-    for (size_t i = value - 2; i > 0; --i) {
-      offset += indices[i] * mult;
-      mult *= _shape[i];
-    }
-    return buffer[offset + indices[0] * mult];
-    */
+        std::integral_constant<long, value - 1>())];
   }
 
   template <class Arg>
   typename numpy_iexpr<Arg>::dtype &
   numpy_iexpr<Arg>::fast(array<long, value> const &indices)
   {
-    return const_cast<dtype &>(const_cast<numpy_iexpr const &>(*this)[indices]);
+    return const_cast<dtype &>(
+        const_cast<numpy_iexpr const &>(*this).fast(indices));
   }
 
   template <class Arg>
@@ -404,20 +396,21 @@ namespace types
   size_t compute_offset(size_t offset, long mult, T0 const &indices,
                         T1 const &shape, std::integral_constant<long, 0>)
   {
-    return offset + std::get<0>(indices) * mult;
+    return offset;
   }
 
   template <long I, class T0, class T1>
   size_t compute_offset(size_t offset, long mult, T0 const &indices,
                         T1 const &shape, std::integral_constant<long, I>)
   {
-    return compute_offset(offset +
-                              (std::get<I>(indices) < 0
-                                   ? std::get<I>(indices) + std::get<I>(shape)
-                                   : std::get<I>(indices)) *
-                                  mult,
-                          mult * std::get<I>(shape), indices, shape,
-                          std::integral_constant<long, I - 1>());
+    return compute_offset(
+        offset +
+            (std::get<I - 1>(indices) < 0
+                 ? std::get<I - 1>(indices) + std::get<I - 1>(shape)
+                 : std::get<I - 1>(indices)) *
+                mult,
+        mult * std::get<I - 1>(shape), indices, shape,
+        std::integral_constant<long, I - 1>());
   }
 
   template <class Arg>
@@ -429,23 +422,7 @@ namespace types
                                            std::get<value - 1>(_shape)
                                      : indices[value - 1],
                                  std::get<value - 1>(_shape), indices, _shape,
-                                 std::integral_constant<long, value - 2>())];
-    /*
-    size_t offset = indices[value - 1] < 0
-                        ? indices[value - 1] + std::get<value - 1>(_shape)
-                        : indices[value - 1];
-    long mult = _shape[value - 1];
-    if (value > 1) {
-      for (size_t i = value - 2; i > 0; --i) {
-        offset += (indices[i] < 0 ? indices[i] + _shape[i] : indices[i]) * mult;
-        mult *= _shape[i];
-      }
-    }
-    return buffer[offset +
-                  (indices[0] < 0 ? indices[0] + std::get<0>(_shape) :
-    indices[0]) *
-                      mult];
-                      */
+                                 std::integral_constant<long, value - 1>())];
   }
 
   template <class Arg>

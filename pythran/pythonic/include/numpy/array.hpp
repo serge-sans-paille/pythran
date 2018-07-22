@@ -15,6 +15,11 @@ namespace numpy
                  types::array<long, std::decay<T>::type::value>>
   array(T &&iterable, dtype d = dtype());
 
+  template <class T, size_t N, class dtype = types::dtype_t<T>>
+  types::ndarray<typename dtype::type,
+                 types::pshape<std::integral_constant<long, N>>>
+  array(types::array<T, N> const &, dtype d = dtype());
+
   DEFINE_FUNCTOR(pythonic::numpy, array);
 }
 PYTHONIC_NS_END

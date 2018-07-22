@@ -672,7 +672,7 @@ namespace types
 
     template <class E>
     struct getattr<attr::SHAPE, E> {
-      auto operator()(E const &a) -> decltype(a.shape());
+      auto operator()(E const &a) -> decltype(sutils::array(a.shape()));
     };
 
     template <class E>

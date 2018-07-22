@@ -18,6 +18,14 @@ namespace numpy
   {
     return {std::forward<T>(iterable)};
   }
+
+  template <class T, size_t N, class dtype>
+  types::ndarray<typename dtype::type,
+                 types::pshape<std::integral_constant<long, N>>>
+  array(types::array<T, N> const &a, dtype)
+  {
+    return {a};
+  }
 }
 PYTHONIC_NS_END
 

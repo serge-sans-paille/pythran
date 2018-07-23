@@ -1054,9 +1054,10 @@ namespace types
   {
 
     template <class E>
-    auto getattr<attr::SHAPE, E>::operator()(E const &a) -> decltype(a.shape())
+    auto getattr<attr::SHAPE, E>::operator()(E const &a)
+        -> decltype(sutils::array(a.shape()))
     {
-      return a.shape();
+      return sutils::array(a.shape());
     }
 
     template <class E>

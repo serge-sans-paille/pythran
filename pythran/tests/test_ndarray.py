@@ -893,3 +893,6 @@ def assign_ndarray(t):
             2 * numpy.arange(10, dtype=numpy.int32).reshape(5,2),
             vexpr0=[List[NDArray[numpy.int32,:,:]], NDArray[numpy.int32,:,:]])
 
+    def test_array_of_pshape(self):
+        code = 'def array_of_pshape(x): from numpy import array; return array(x[None].shape)'
+        self.run_test(code, numpy.arange(10), array_of_pshape=[NDArray[int,:]])

@@ -319,7 +319,12 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     if not output_binary:
         output_binary = os.path.join(os.getcwd(),
                                      module_name + os.path.splitext(target)[1])
-    shutil.move(target, output_binary)
+
+    # not using shutil.copy because it fails to copy stat across devices
+    with open(target, 'rb') as src:
+        with open(output_binary, 'wb') as dest:
+            dest.write(src.read())
+
     shutil.rmtree(builddir)
     shutil.rmtree(buildtmp)
 

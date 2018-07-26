@@ -69,6 +69,11 @@ namespace types
     {
       return fast_end(container_);
     }
+
+    auto size() const -> decltype(this->container_.size())
+    {
+      return this->container_.size();
+    }
   };
 
   template <class E>

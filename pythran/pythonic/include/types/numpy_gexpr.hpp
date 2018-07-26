@@ -524,7 +524,7 @@ namespace types
     static constexpr size_t value =
         std::remove_reference<Arg>::type::value - count_long<S...>::value;
 
-    // It is ! possible to vectorize everything. We only vectorize if the
+    // It is not possible to vectorize everything. We only vectorize if the
     // last dimension is contiguous, which happens if
     // 1. Arg is an ndarray (this is too strict)
     // 2. the size of the gexpr is lower than the dim of arg, || it's the

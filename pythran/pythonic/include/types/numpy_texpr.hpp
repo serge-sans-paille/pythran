@@ -57,6 +57,11 @@ namespace types
     iterator begin();
     iterator end();
 
+    long size() const
+    {
+      return std::get<0>(_shape);
+    }
+
     auto fast(long i) const
         -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
                                                pythonic::__builtin__::None),

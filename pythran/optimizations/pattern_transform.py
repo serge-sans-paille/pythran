@@ -32,6 +32,29 @@ know_pattern = [
              attr="len_set", ctx=ast.Load()),
          args=[Placeholder(0)], keywords=[])),
 
+    # __builtin__.abs(X ** 2) => __builtin__.pythran.abssqr(X)
+    (ast.Call(func=ast.Attribute(value=ast.Name(id='__pythran_import_numpy',
+                                                ctx=ast.Load(),
+                                                annotation=None),
+                                 attr="square", ctx=ast.Load()),
+              args=[ast.Call(func=ast.Attribute(
+                  value=ast.Name(id='__builtin__',
+                                 ctx=ast.Load(),
+                                 annotation=None),
+                  attr="abs",
+                  ctx=ast.Load()),
+                  args=[Placeholder(0)],
+                  keywords=[])],
+              keywords=[]),
+     lambda: ast.Call(
+         func=ast.Attribute(
+             value=ast.Attribute(value=ast.Name(id='__builtin__',
+                                                ctx=ast.Load(),
+                                                annotation=None),
+                                 attr="pythran", ctx=ast.Load()),
+             attr="abssqr", ctx=ast.Load()),
+         args=[Placeholder(0)], keywords=[])),
+
     # __builtin__.tuple([X, ..., Z]) => (X, ..., Z)
     (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
                                                 ctx=ast.Load(),

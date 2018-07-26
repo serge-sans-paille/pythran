@@ -2570,6 +2570,7 @@ _numpy_array_signature = Union[
 MODULES = {
     "__builtin__": {
         "pythran": {
+            "abssqr": ConstFunctionIntr(),
             "is_none": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
             "static_if_": ConstFunctionIntr(),

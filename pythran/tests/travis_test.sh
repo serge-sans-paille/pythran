@@ -1,11 +1,12 @@
 run_tests() {
-    if [ "$PYTHON_VERSION" = 2 -a "$TRAVIS_PYTHON_VERSION" = 3.5 ]
+    if [ -n "$PYTHRAN_DOC" ]
     then
-        exit
-    fi
-    if [ -n "$NOTEBOOK" ]
-    then
-        PYTHONPATH=$PWD:$PYTHONPATH py.test pythran/tests/notebooks --nbval
+        if [ "$PYTHON_VERSION" = 2 ]
+        then
+            PYTHONPATH=$PWD:$PYTHONPATH py.test pythran/tests/test_xdoc.py pythran/tests/notebooks --nbval
+        else
+            PYTHONPATH=$PWD:$PYTHONPATH py.test pythran/tests/test_xdoc.py
+        fi
         exit
     fi
     printf "[compiler]\nCXX=$CXX\nCC=$CC\ncflags=-std=c++11 $CXXFLAGS -w -O0 -fvisibility=hidden -fno-wrapv\nldflags=$CXXFLAGS -fopenmp -fvisibility=hidden -Wl,-strip-all\n" > ~/.pythranrc

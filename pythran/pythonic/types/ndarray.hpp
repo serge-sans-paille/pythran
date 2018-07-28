@@ -1542,7 +1542,7 @@ namespace impl
                   S const *dims, utils::int_<N>)
   {
     set_slice(std::get<std::tuple_size<Slice>::value - N>(slice), *offsets,
-              *offsets + *dims * *strides, *strides / sizeof(T));
+              *offsets + *dims * *strides / sizeof(T), *strides / sizeof(T));
     fill_slice<T>(slice, strides + 1, offsets + 1, dims + 1,
                   utils::int_<N - 1>());
   }

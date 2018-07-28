@@ -34,13 +34,17 @@ namespace numpy
 #endif
   _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
   {
-    auto local_minmax_elts = Op::elements(elts.begin(), elts.end());
-    if (Op::value(*local_minmax_elts, minmax_elts)) {
-      minmax_elts = *local_minmax_elts;
-      return local_minmax_elts - elts.begin();
+    long index = 0;
+    long res = -1;
+    for (auto const &elt : elts) {
+      if (Op::value(elt, minmax_elts)) {
+        minmax_elts = elt;
+        res = index;
+      }
+      ++index;
     }
 
-    return -1;
+    return res;
   }
 
 #ifdef USE_BOOST_SIMD
@@ -118,8 +122,13 @@ namespace numpy
       throw types::ValueError("empty sequence");
     using elt_type = typename E::dtype;
     elt_type argminmax_value = Op::limit();
-    ;
-    return _argminmax<Op>(expr, argminmax_value, utils::int_<E::value>());
+#ifndef USE_BOOST_SIMD
+    if (utils::no_broadcast(expr))
+      return _argminmax<Op>(types::make_fast_range(expr), argminmax_value,
+                            utils::int_<E::value>());
+    else
+#endif
+      return _argminmax<Op>(expr, argminmax_value, utils::int_<E::value>());
   }
 
   template <class Op, size_t Dim, size_t Axis, class T, class E, class V>

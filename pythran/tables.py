@@ -2570,6 +2570,7 @@ _numpy_array_signature = Union[
 MODULES = {
     "__builtin__": {
         "pythran": {
+            "abssqr": ConstFunctionIntr(),
             "is_none": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
             "static_if_": ConstFunctionIntr(),
@@ -3141,12 +3142,21 @@ MODULES = {
         "arctanh": ConstFunctionIntr(
             signature=_numpy_unary_op_float_signature),
         "argmax": ConstMethodIntr(
-            signature=_numpy_unary_op_int_axis_signature),
+            signature=_numpy_unary_op_int_axis_signature,
+            return_range=interval.positive_values
+        ),
         "argmin": ConstMethodIntr(
-            signature=_numpy_unary_op_int_axis_signature),
+            signature=_numpy_unary_op_int_axis_signature,
+            return_range=interval.positive_values
+        ),
         "argsort": ConstFunctionIntr(
-            signature=_numpy_unary_op_int_axis_signature),
-        "argwhere": ConstFunctionIntr(signature=_numpy_unary_op_int_signature),
+            signature=_numpy_unary_op_int_axis_signature,
+            return_range=interval.positive_values
+        ),
+        "argwhere": ConstFunctionIntr(
+            signature=_numpy_unary_op_int_signature,
+            return_range=interval.positive_values
+        ),
         "around": ConstFunctionIntr(signature=_numpy_around_signature),
         "array": ConstFunctionIntr(signature=_numpy_array_signature,
                                    args=('object', 'dtype'), defaults=(None,)),

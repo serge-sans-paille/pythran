@@ -23,7 +23,7 @@ class TestStr(TestEnv):
         self.run_test("def str_empty(s0): return '>o_/' if s0 else '0x0'", "", str_empty=[str])
 
     def test_str_failed_conversion(self):
-        self.run_test("def str_failed_conversion(s):\n try: return long(s)\n except: return 42", "prout", str_failed_conversion=[str])
+        self.run_test("def str_failed_conversion(s):\n try: return int(s)\n except: return 42", "prout", str_failed_conversion=[str])
 
     def test_str_replace0(self):
         self.run_test("def str_replace0(s): return s.replace('er', 'rer')", "parler", str_replace0=[str])

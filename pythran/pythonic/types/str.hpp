@@ -3,7 +3,6 @@
 
 #include "pythonic/include/types/str.hpp"
 
-#include "pythonic/types/long.hpp"
 #include "pythonic/types/tuple.hpp"
 
 #include "pythonic/types/assignable.hpp"
@@ -304,23 +303,6 @@ namespace types
     return res;
   }
 
-  str::operator pythran_long_t() const
-  {
-#ifdef USE_GMP
-    return pythran_long_t(*data);
-#else
-    char *endptr;
-    auto dat = data->data();
-    pythran_long_t res = strtoll(dat, &endptr, 10);
-    if (endptr == dat) {
-      std::ostringstream err;
-      err << "invalid literal for long() with base 10:'" << c_str() << '\'';
-      throw std::runtime_error(err.str());
-    }
-    return res;
-#endif
-  }
-
   str::operator double() const
   {
     char *endptr;
@@ -561,27 +543,6 @@ namespace types
   {
     return sliced_str<contiguous_slice>(*this, s.normalize(size()));
   }
-
-#ifdef USE_GMP
-  char str::fast(pythran_long_t const &m) const
-  {
-    return (*this)[m.get_si()];
-  }
-
-  char &str::fast(pythran_long_t const &m)
-  {
-    return (*this)[m.get_si()];
-  }
-  char str::operator[](pythran_long_t const &m) const
-  {
-    return this->fast(m.get_si());
-  }
-
-  char &str::operator[](pythran_long_t const &m)
-  {
-    return this->fast(m.get_si());
-  }
-#endif
 
   str::operator bool() const
   {

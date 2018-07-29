@@ -2,7 +2,7 @@
 from __future__ import absolute_import
 
 import gast as ast
-import numpy
+import numpy as np
 import sys
 import numbers
 
@@ -43,7 +43,7 @@ def size_container_folding(value):
             keys = [to_ast(elt) for elt in value.keys()]
             values = [to_ast(elt) for elt in value.values()]
             return ast.Dict(keys, values)
-        elif isinstance(value, numpy.ndarray):
+        elif isinstance(value, np.ndarray):
             return ast.Call(func=ast.Attribute(
                 ast.Name(mangle('numpy'), ast.Load(), None),
                 'array',
@@ -64,7 +64,7 @@ def builtin_folding(value):
     """ Convert builtin function to ast expression. """
     if isinstance(value, (type(None), bool)):
         name = str(value)
-    elif value.__name__ in ("bool", "float", "int", "long"):
+    elif value.__name__ in ("bool", "float", "int"):
         name = value.__name__ + "_"
     else:
         name = value.__name__
@@ -83,17 +83,25 @@ def to_ast(value):
     >>> print(ast.dump(to_ast(a)))
     List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())
     """
+
     if isinstance(value, (type(None), bool)):
         return builtin_folding(value)
+    if sys.version_info[0] == 2 and isinstance(value, long):
+        from pythran.syntax import PythranSyntaxError
+        raise PythranSyntaxError("constant folding results in big int")
     if any(value is t for t in (bool, int, float)):
+        iinfo = np.iinfo(int)
+        if isinstance(value, int) and not (iinfo.min <= value <= iinfo.max):
+            from pythran.syntax import PythranSyntaxError
+            raise PythranSyntaxError("constant folding results in big int")
         return builtin_folding(value)
-    elif isinstance(value, numpy.generic):
-        return to_ast(numpy.asscalar(value))
+    elif isinstance(value, np.generic):
+        return to_ast(np.asscalar(value))
     elif isinstance(value, numbers.Number):
         return ast.Num(value)
     elif isinstance(value, str):
         return ast.Str(value)
-    elif isinstance(value, (list, tuple, set, dict, numpy.ndarray)):
+    elif isinstance(value, (list, tuple, set, dict, np.ndarray)):
         return size_container_folding(value)
     elif hasattr(value, "__module__") and value.__module__ == "__builtin__":
         # TODO Can be done the same way for others modules

@@ -4,10 +4,6 @@
 #include "pythonic/include/numpy/power.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#ifdef USE_GMP
-#include "pythonic/include/types/long.hpp"
-#endif
-
 PYTHONIC_NS_BEGIN
 
 namespace __builtin__
@@ -15,10 +11,7 @@ namespace __builtin__
   template <class... Types>
   auto pow(Types &&... args)
       -> decltype(numpy::functor::power{}(std::forward<Types>(args)...));
-#ifdef USE_GMP
-  template <class T, class U>
-  pythran_long_t pow(__gmp_expr<T, U> const &a, long b);
-#endif
+
   DEFINE_FUNCTOR(pythonic::__builtin__, pow);
 }
 PYTHONIC_NS_END

@@ -3,10 +3,6 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-#ifdef USE_GMP
-#include "pythonic/include/types/long.hpp"
-#endif
-
 PYTHONIC_NS_BEGIN
 
 namespace __builtin__
@@ -22,13 +18,6 @@ namespace __builtin__
       type operator()(T &&t) const;
 
       type operator()() const;
-
-#ifdef USE_GMP
-      template <class T, class U>
-      type operator()(__gmp_expr<T, U> const &a) const;
-      template <class T, class U>
-      type operator()(__gmp_expr<T, U> &a) const;
-#endif
     };
   }
 }

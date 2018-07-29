@@ -6,10 +6,6 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#ifdef USE_GMP
-#include "pythonic/include/types/long.hpp"
-#endif
-
 #include <boost/simd/function/div.hpp>
 
 PYTHONIC_NS_BEGIN
@@ -51,14 +47,6 @@ namespace numpy
     {
       return boost::simd::div(boost::simd::floor, arg0, arg1);
     }
-#ifdef USE_GMP
-    template <class T0, class U0, class T>
-    auto divfloor(__gmp_expr<T0, U0> const &arg0, T const &arg1)
-        -> decltype(arg0 / arg1)
-    {
-      return arg0 / arg1;
-    }
-#endif
   }
 #define NUMPY_NARY_FUNC_NAME floor_divide
 #define NUMPY_NARY_FUNC_SYM wrapper::divfloor

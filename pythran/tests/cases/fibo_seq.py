@@ -1,13 +1,11 @@
 """ Nom recursive version of fibo. """
-# unittest.gmp.skip
 # pythran export fibo(int)
-# runas fibo(700)
-# benchfibo(300000)
+# runas fibo(70)
 
 
 def fibo(n):
     """ fibonaccie compuation. """
-    a, b = 1L, 1L
+    a, b = 1, 1
     for _ in range(n):
         a, b = a + b, a
     return a

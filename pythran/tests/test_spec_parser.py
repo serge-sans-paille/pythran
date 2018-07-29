@@ -2,11 +2,11 @@ import unittest
 import pythran
 import os.path
 
-#pythran export a((float,(int,long),str list) list list)
+#pythran export a((float,(int,uintp),str list) list list)
 #pythran export a(str)
-#pythran export a( (str,str), int, long list list)
+#pythran export a( (str,str), int, intp list list)
 #pythran export a( float set )
-#pythran export a( long:str dict )
+#pythran export a( bool:str dict )
 #pythran export a( float )
 #pythran export a( int8[] )
 #pythran export a( int8[][] )

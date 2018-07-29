@@ -1,8 +1,6 @@
 """ Checking if a number is a perfect square. """
-# unittest.gmp.skip
-# pythran export is_square(long)
-# runas is_square(12345678987654321234567 ** 256)
-# bench is_square(12345678987654321234567 ** 256)
+# pythran export is_square(int)
+# runas is_square(1234** 5)
 # from http://stackoverflow.com/questions/2489435/\
 # how-could-i-check-if-a-number-is-a-perfect-square
 

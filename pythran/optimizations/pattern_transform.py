@@ -1,5 +1,6 @@
 """ Optimization for Python costly pattern. """
 
+from pythran.conversion import mangle
 from pythran.analyses import Check, Placeholder
 from pythran.passmanager import Transformation
 
@@ -33,7 +34,7 @@ know_pattern = [
          args=[Placeholder(0)], keywords=[])),
 
     # __builtin__.abs(X ** 2) => __builtin__.pythran.abssqr(X)
-    (ast.Call(func=ast.Attribute(value=ast.Name(id='__pythran_import_numpy',
+    (ast.Call(func=ast.Attribute(value=ast.Name(id=mangle('numpy'),
                                                 ctx=ast.Load(),
                                                 annotation=None),
                                  attr="square", ctx=ast.Load()),

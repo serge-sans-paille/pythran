@@ -426,7 +426,7 @@ def tr(t):
         elif issubclass(t, (float, floating)):
             return Float()
 
-        elif issubclass(t, (int, integer, long)):
+        elif issubclass(t, (int, integer)):
             return Integer()
 
         elif issubclass(t, NoneType_):
@@ -551,7 +551,7 @@ def analyse(node, env, non_generic=None):
             env[node.id] = new_type
         return get_type(node.id, env, non_generic)
     elif isinstance(node, gast.Num):
-        if isinstance(node.n, (int, long)):
+        if isinstance(node.n, int):
             return Integer()
         elif isinstance(node.n, float):
             return Float()

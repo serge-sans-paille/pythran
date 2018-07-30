@@ -23,9 +23,6 @@ if sys.version_info.major == 3:
     sys.modules['__builtin__'] = sys.modules['builtins']
     sys.modules['__builtin__'].xrange = sys.modules['builtins'].range
 
-    class long(int):
-        pass
-    sys.modules['__builtin__'].long = long
     import functools
     sys.modules['__builtin__'].reduce = functools.reduce
     getargspec = inspect.getfullargspec
@@ -2713,15 +2710,6 @@ MODULES = {
                 Fun[[Iterable[T0]], List[T0]]
             ],
         ),
-        "long_": ConstFunctionIntr(
-            signature=Union[
-                Fun[[], int],
-                Fun[[bool], int],
-                Fun[[int], int],
-                Fun[[float], int],
-                Fun[[str], int],
-            ]
-        ),
         "map": ReadOnceFunctionIntr(
             signature=Union[
                 Fun[[None, Iterable[T0]], List[T0]],
@@ -4444,7 +4432,6 @@ if sys.version_info.major == 3:
     del MODULES['operator_']['__div__']
     del MODULES['__builtin__']['cmp']
     del MODULES['__builtin__']['file']
-    del MODULES['__builtin__']['long_']
     del MODULES['__builtin__']['StandardError']
     MODULES['io'] = {
         '_io': {

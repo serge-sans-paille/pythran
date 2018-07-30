@@ -1,9 +1,7 @@
 #taken from http://eli.thegreenplace.net/2012/01/16/python-parallelizing-cpu-bound-tasks-with-multiprocessing/
-#unittest.gmp.skip
 
-#pythran export factorize_naive(long)
-#runas factorize_naive(12222L)
-#bench factorize_naive(3241618756762348687L)
+#pythran export factorize_naive(int)
+#runas factorize_naive(12222)
 def factorize_naive(n):
     """ A naive factorization method. Take integer 'n', return list of
         factors.
@@ -11,7 +9,7 @@ def factorize_naive(n):
     if n < 2:
         return []
     factors = []
-    p = 2L
+    p = 2
 
     while True:
         if n == 1:

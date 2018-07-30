@@ -128,13 +128,6 @@ def compiler():
     return os.environ.get('CXX', cfg_cxx)
 
 
-def have_gmp_support(**extra):
-    """Check if the USE_GMP macro is defined."""
-    return (sys.version_info.major != 3 and
-            any("USE_GMP" == name
-                for name, _ in make_extension(True, **extra)["define_macros"]))
-
-
 # load platform specific configuration then user configuration
 cfg = init_cfg('pythran.cfg',
                'pythran-{}.cfg'.format(sys.platform),

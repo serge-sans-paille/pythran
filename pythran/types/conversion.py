@@ -34,10 +34,6 @@ TYPE_TO_SUFFIX = {
     int: "L",
     }
 
-if sys.version_info.major == 2:
-    PYTYPE_TO_CTYPE_TABLE[long] = 'pythran_long_t'
-    TYPE_TO_SUFFIX[long] = "LL"
-
 
 def pytype_to_ctype(t):
     """ Python -> pythonic type binding. """

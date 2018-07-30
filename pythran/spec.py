@@ -8,7 +8,6 @@ from pythran.types.conversion import pytype_to_pretty_type
 from collections import defaultdict
 from itertools import product
 import re
-import sys
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
@@ -143,9 +142,9 @@ class SpecParser(object):
     A parser that scans a file lurking for lines such as the one below.
 
     It then generates a pythran-compatible signature to inject into compile.
-#pythran export a((float,(int,long),str list) list list)
+#pythran export a((float,(int, uint8),str list) list list)
 #pythran export a(str)
-#pythran export a( (str,str), int, long list list)
+#pythran export a( (str,str), int, int16 list list)
 #pythran export a( {str} )
 """
 
@@ -182,7 +181,6 @@ class SpecParser(object):
         'set': 'SET',
         'dict': 'DICT',
         'str': 'STR',
-        'long': 'LONG',
         'None': 'NONE',
         }
     reserved.update(dtypes)
@@ -372,17 +370,11 @@ class SpecParser(object):
     def p_term(self, p):
         '''term : STR
                 | NONE
-                | LONG
                 | dtype'''
         if p[1] == 'str':
             p[0] = str
         elif p[1] == 'None':
             p[0] = type(None)
-        elif p[1] == 'long':
-            if sys.version_info.major == 3:
-                p[0] = int
-            else:
-                p[0] = long
         else:
             p[0] = p[1][0]
 

@@ -901,8 +901,6 @@ class CxxFunction(Backend):
                 PYTYPE_TO_CTYPE_TABLE[complex],
                 node.n.real,
                 node.n.imag)
-        elif isinstance(node.n, long):
-            return 'pythran_long({0})'.format(node.n)
         elif isnan(node.n):
             return 'pythonic::numpy::nan'
         elif isinf(node.n):
@@ -936,8 +934,7 @@ class CxxFunction(Backend):
         if (isinstance(node.slice, ast.Index) and
             isinstance(node.slice.value, ast.Num) and
             (node.slice.value.n >= 0) and
-            any(isinstance(node.slice.value.n, t)
-                for t in (int, long))):
+            isinstance(node.slice.value.n, int)):
             return "std::get<{0}>({1})".format(node.slice.value.n, value)
         # extended slice case
         elif isinstance(node.slice, ast.ExtSlice):

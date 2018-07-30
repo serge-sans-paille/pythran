@@ -7,9 +7,6 @@
 #include "pythonic/include/utils/functor.hpp"
 
 #include <boost/simd/function/pow.hpp>
-#ifdef USE_GMP
-#include "pythonic/types/long.hpp"
-#endif
 
 PYTHONIC_NS_BEGIN
 
@@ -67,15 +64,6 @@ namespace numpy
     {
       return std::pow(n, m);
     }
-#ifdef USE_GMP
-    template <class T0, class U0, class T>
-    pythran_long_t pow(__gmp_expr<T0, U0> const &arg0, T const &arg1)
-    {
-      mpz_class rop;
-      mpz_pow_ui(rop.get_mpz_t(), arg0.get_mpz_t(), arg1);
-      return rop;
-    }
-#endif
   }
 #define NUMPY_NARY_FUNC_NAME power
 #define NUMPY_NARY_FUNC_SYM wrapper::pow

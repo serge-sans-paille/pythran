@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_STR_HPP
 
 #include "pythonic/include/types/slice.hpp"
-#include "pythonic/include/types/long.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
 #include "pythonic/include/types/assignable.hpp"
@@ -136,7 +135,6 @@ namespace types
 
     explicit operator char() const;
     operator long int() const;
-    operator pythran_long_t() const;
     explicit operator double() const;
 
     template <class S>
@@ -189,12 +187,6 @@ namespace types
 
     sliced_str<slice> operator[](slice const &s) const;
     sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
-#ifdef USE_GMP
-    char operator[](pythran_long_t const &m) const;
-    char &operator[](pythran_long_t const &m);
-    char fast(pythran_long_t const &m) const;
-    char &fast(pythran_long_t const &m);
-#endif
 
     explicit operator bool() const;
     long count(types::str const &sub) const;

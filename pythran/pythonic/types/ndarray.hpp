@@ -1419,6 +1419,14 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
     PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(p);
     auto const *pshape = PyArray_DIMS(arr);
     Py_INCREF(p);
+
+    // handle complex trick :-/
+    if ((long)sizeof(T) != PyArray_ITEMSIZE((PyArrayObject *)(arr))) {
+      arr = (PyArrayObject *)PyArray_View(
+          (PyArrayObject *)(arr),
+          PyArray_DescrFromType(c_type_to_numpy_type<T>::value), nullptr);
+    }
+
     if (sutils::equals(n.shape(), pshape)) {
       if (transpose && !(PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS))
         return PyArray_Transpose(arr, nullptr);

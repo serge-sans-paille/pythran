@@ -174,4 +174,24 @@ namespace types
 }
 PYTHONIC_NS_END
 
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+
+PYTHONIC_NS_BEGIN
+
+template <>
+struct to_python<types::contiguous_normalized_slice> {
+  static PyObject *convert(types::contiguous_normalized_slice const &n);
+};
+
+template <>
+struct to_python<types::normalized_slice> {
+  static PyObject *convert(types::normalized_slice const &n);
+};
+
+PYTHONIC_NS_END
+
+#endif
+
 #endif

@@ -1419,6 +1419,14 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
     PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(p);
     auto const *pshape = PyArray_DIMS(arr);
     Py_INCREF(p);
+
+    // handle complex trick :-/
+    if ((long)sizeof(T) != PyArray_ITEMSIZE((PyArrayObject *)(arr))) {
+      arr = (PyArrayObject *)PyArray_View(
+          (PyArrayObject *)(arr),
+          PyArray_DescrFromType(c_type_to_numpy_type<T>::value), nullptr);
+    }
+
     if (sutils::equals(n.shape(), pshape)) {
       if (transpose && !(PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS))
         return PyArray_Transpose(arr, nullptr);
@@ -1473,9 +1481,9 @@ template <class Arg, class... S>
 PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
     types::numpy_gexpr<Arg, S...> const &v)
 {
-  return ::to_python(
-      types::ndarray<typename types::numpy_gexpr<Arg, S...>::dtype,
-                     typename types::numpy_gexpr<Arg, S...>::shape_t>{v});
+  PyObject *slices = ::to_python(v.slices);
+  PyObject *base = ::to_python(v.arg);
+  return PyObject_GetItem(base, slices);
 }
 
 namespace impl
@@ -1541,8 +1549,10 @@ namespace impl
   void fill_slice(Slice &slice, long const *strides, long const *offsets,
                   S const *dims, utils::int_<N>)
   {
-    set_slice(std::get<std::tuple_size<Slice>::value - N>(slice), *offsets,
-              *offsets + *dims * *strides / sizeof(T), *strides / sizeof(T));
+    set_slice(std::get<std::tuple_size<Slice>::value - N>(slice),
+              *offsets / sizeof(T),
+              *offsets / sizeof(T) + *dims * *strides / sizeof(T),
+              *strides / sizeof(T));
     fill_slice<T>(slice, strides + 1, offsets + 1, dims + 1,
                   utils::int_<N - 1>());
   }
@@ -1658,9 +1668,9 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(
     offsets[i] = full_offset / accumulated_dim;
     strides[i] = arr_strides[i] / accumulated_dim;
   }
-
   types::ndarray<T, pS> base_array((T *)PyArray_BYTES(base_arr),
-                                   PyArray_DIMS(base_arr), obj);
+                                   PyArray_DIMS(base_arr),
+                                   (PyObject *)base_arr);
   std::tuple<S...> slices;
   impl::fill_slice<T>(slices, strides, offsets, PyArray_DIMS(arr),
                       utils::int_<sizeof...(S)>());

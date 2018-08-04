@@ -419,4 +419,30 @@ namespace types
 }
 PYTHONIC_NS_END
 
+#ifdef ENABLE_PYTHON_MODULE
+PYTHONIC_NS_BEGIN
+
+PyObject *to_python<types::contiguous_normalized_slice>::convert(
+    types::contiguous_normalized_slice const &v)
+{
+  return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
+                     ::to_python(v.step));
+}
+
+PyObject *
+to_python<types::normalized_slice>::convert(types::normalized_slice const &v)
+{
+  if (v.step > 0)
+    return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
+                       ::to_python(v.step));
+  else {
+    return PySlice_New(::to_python(v.lower),
+                       v.upper < 0 ? ::to_python(types::none_type{})
+                                   : ::to_python(v.upper),
+                       ::to_python(v.step));
+  }
+}
+PYTHONIC_NS_END
+
+#endif
 #endif

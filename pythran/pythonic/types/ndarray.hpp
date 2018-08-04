@@ -1473,9 +1473,9 @@ template <class Arg, class... S>
 PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
     types::numpy_gexpr<Arg, S...> const &v)
 {
-  return ::to_python(
-      types::ndarray<typename types::numpy_gexpr<Arg, S...>::dtype,
-                     typename types::numpy_gexpr<Arg, S...>::shape_t>{v});
+  PyObject *slices = ::to_python(v.slices);
+  PyObject *base = ::to_python(v.arg);
+  return PyObject_GetItem(base, slices);
 }
 
 namespace impl

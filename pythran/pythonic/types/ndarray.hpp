@@ -1541,8 +1541,10 @@ namespace impl
   void fill_slice(Slice &slice, long const *strides, long const *offsets,
                   S const *dims, utils::int_<N>)
   {
-    set_slice(std::get<std::tuple_size<Slice>::value - N>(slice), *offsets,
-              *offsets + *dims * *strides / sizeof(T), *strides / sizeof(T));
+    set_slice(std::get<std::tuple_size<Slice>::value - N>(slice),
+              *offsets / sizeof(T),
+              *offsets / sizeof(T) + *dims * *strides / sizeof(T),
+              *strides / sizeof(T));
     fill_slice<T>(slice, strides + 1, offsets + 1, dims + 1,
                   utils::int_<N - 1>());
   }
@@ -1658,9 +1660,9 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(
     offsets[i] = full_offset / accumulated_dim;
     strides[i] = arr_strides[i] / accumulated_dim;
   }
-
   types::ndarray<T, pS> base_array((T *)PyArray_BYTES(base_arr),
-                                   PyArray_DIMS(base_arr), obj);
+                                   PyArray_DIMS(base_arr),
+                                   (PyObject *)base_arr);
   std::tuple<S...> slices;
   impl::fill_slice<T>(slices, strides, offsets, PyArray_DIMS(arr),
                       utils::int_<sizeof...(S)>());

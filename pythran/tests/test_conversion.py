@@ -90,8 +90,8 @@ def dict_of_complex64_and_complex_128(l):
 
     def test_ndarray_with_stride_and_offset_and_end(self):
         code = 'def ndarray_with_stride_and_offset_and_end(a): return a'
-        self.run_test(code, np.arange((10), dtype=np.uint8)[1:6:2],
-                      ndarray_with_stride_and_offset_and_end=[NDArray[np.uint8, ::-1]])
+        self.run_test(code, np.arange((10), dtype=np.uint16)[1:6:2],
+                      ndarray_with_stride_and_offset_and_end=[NDArray[np.uint16, ::-1]])
 
     def test_ndarray_with_multi_strides(self):
         code = 'def ndarray_with_multi_strides(a): return a'

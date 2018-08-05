@@ -896,3 +896,18 @@ def assign_ndarray(t):
     def test_array_of_pshape(self):
         code = 'def array_of_pshape(x): from numpy import array; return array(x[None].shape)'
         self.run_test(code, numpy.arange(10), array_of_pshape=[NDArray[int,:]])
+
+    def test_vexpr_of_texpr(self):
+        code = '''
+        import numpy as np
+        def apply_mask(mat, mask):
+            assert mask.shape == mat.shape
+            mat[mask == False] = np.nan
+            return mat
+
+        def vexpr_of_texpr(a, b):
+            return apply_mask(a.T, b), apply_mask(a, b.T), apply_mask(a.T, b.T)'''
+        self.run_test(code,
+                      numpy.ndarray((2,2), numpy.float32),
+                      numpy.ndarray((2,2), numpy.bool),
+                      vexpr_of_texpr=[NDArray[numpy.float32,:,:], NDArray[numpy.bool,:,:]])

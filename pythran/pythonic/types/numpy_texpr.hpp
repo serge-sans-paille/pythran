@@ -4,6 +4,7 @@
 #include "pythonic/include/types/numpy_texpr.hpp"
 
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/numpy/array.hpp"
 
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/operator_/iand.hpp"
@@ -156,7 +157,8 @@ namespace types
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
   typename std::enable_if<
-      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      is_numexpr_arg<F>::value &&
+          std::is_same<bool, typename F::dtype>::value && F::value == 1,
       numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
@@ -170,14 +172,39 @@ namespace types
     return this->fast(ndarray<long, pshape<long>>(raw, pshape<long>(n),
                                                   types::ownership::owned));
   }
+  template <class E>
+  template <class F> // indexing through an array of boolean -- a mask
+  typename std::enable_if<
+      is_numexpr_arg<F>::value &&
+          std::is_same<bool, typename F::dtype>::value && F::value != 1,
+      numpy_vexpr<ndarray<typename numpy_texpr_2<E>::dtype, pshape<long>>,
+                  ndarray<long, pshape<long>>>>::type
+  numpy_texpr_2<E>::fast(F const &filter) const
+  {
+    return numpy::functor::array{}(*this)
+        .flat()[ndarray<typename F::dtype, typename F::shape_t>(filter).flat()];
+  }
 
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
   typename std::enable_if<
-      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      is_numexpr_arg<F>::value &&
+          std::is_same<bool, typename F::dtype>::value && F::value == 1,
       numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
       numpy_texpr_2<E>::
       operator[](F const &filter) const
+  {
+    return fast(filter);
+  }
+
+  template <class E>
+  template <class F> // indexing through an array of boolean -- a mask
+  typename std::enable_if<
+      is_numexpr_arg<F>::value &&
+          std::is_same<bool, typename F::dtype>::value && F::value != 1,
+      numpy_vexpr<ndarray<typename numpy_texpr_2<E>::dtype, pshape<long>>,
+                  ndarray<long, pshape<long>>>>::type numpy_texpr_2<E>::
+  operator[](F const &filter) const
   {
     return fast(filter);
   }

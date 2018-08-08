@@ -37,42 +37,44 @@ class PythranBuildExt(LegacyBuildExt, object):
                 'rc': None,
                 'mc': None,
         }
-        if hasattr(ext, 'cxx'):
-            # Backup compiler settings
-            for key in list(prev.keys()):
-                if hasattr(self.compiler, key):
-                    prev[key] = getattr(self.compiler, key)[0]
-                    getattr(self.compiler, key)[0] = ext.cxx
-                else:
-                    del prev[key]
+        # Backup compiler settings
+        for key in list(prev.keys()):
+            if hasattr(self.compiler, key):
+                prev[key] = getattr(self.compiler, key)[0]
+            else:
+                del prev[key]
 
-            # In general, distutils uses -Wstrict-prototypes, but this option
-            # is not valid for C++ code, only for C.  Remove it if it's there
-            # to avoid a spurious warning on every compilation.
-            try:
-                self.compiler.compiler_so.remove('-Wstrict-prototypes')
-            except (AttributeError, ValueError):
-                pass
+        # try hard to modify the compiler
+        for comp in prev:
+            if hasattr(self.compiler, comp):
+                if getattr(ext, 'cxx', None) is not None:
+                    getattr(self.compiler, comp)[0] = ext.cxx
 
-            # Remove -arch i386 if 'x86_64' is specified, otherwise incorrect
-            # code is generated, at least on OSX
-            if hasattr(self.compiler, 'compiler_so'):
-                archs = defaultdict(list)
-                for i, flag in enumerate(self.compiler.compiler_so[1:]):
-                    if self.compiler.compiler_so[i] == '-arch':
-                        archs[flag].append(i + 1)
-                if 'x86_64' in archs and 'i386' in archs:
-                    for i in archs['i386']:
-                        self.compiler.compiler_so[i] = 'x86_64'
+        # In general, distutils uses -Wstrict-prototypes, but this option
+        # is not valid for C++ code, only for C.  Remove it if it's there
+        # to avoid a spurious warning on every compilation.
+        try:
+            self.compiler.compiler_so.remove('-Wstrict-prototypes')
+        except (AttributeError, ValueError):
+            pass
 
-            try:
-                return super(PythranBuildExt, self).build_extension(ext)
-            finally:
-                # Revert compiler settings
-                for key in prev.keys():
-                    getattr(self.compiler, key)[0] = prev[key]
-        else:
+        # Remove -arch i386 if 'x86_64' is specified, otherwise incorrect
+        # code is generated, at least on OSX
+        if hasattr(self.compiler, 'compiler_so'):
+            archs = defaultdict(list)
+            for i, flag in enumerate(self.compiler.compiler_so[1:]):
+                if self.compiler.compiler_so[i] == '-arch':
+                    archs[flag].append(i + 1)
+            if 'x86_64' in archs and 'i386' in archs:
+                for i in archs['i386']:
+                    self.compiler.compiler_so[i] = 'x86_64'
+
+        try:
             return super(PythranBuildExt, self).build_extension(ext)
+        finally:
+            # Revert compiler settings
+            for key in prev.keys():
+                getattr(self.compiler, key)[0] = prev[key]
 
 
 class PythranExtension(Extension):
@@ -87,7 +89,7 @@ class PythranExtension(Extension):
 
     def __init__(self, name, sources, *args, **kwargs):
         cfg_ext = cfg.make_extension(python=True, **kwargs)
-        self.cxx = cfg_ext.pop('cxx')
+        self.cxx = cfg_ext.pop('cxx', None)
         self._sources = sources
         Extension.__init__(self, name, sources, *args, **cfg_ext)
         self.__dict__.pop("sources", None)

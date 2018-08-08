@@ -29,6 +29,8 @@ class OpenMP(object):
         # find_library() does not search automatically LD_LIBRARY_PATH
         paths = os.environ.get('LD_LIBRARY_PATH', '').split(':')
         for gomp in ('libgomp.so', 'libgomp.dylib'):
+            if cxx is None:
+                continue
             cmd = [cxx, '-print-file-name=' + gomp]
             # the subprocess can fail in various ways
             # in that case just give up that path

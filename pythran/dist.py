@@ -130,5 +130,6 @@ class PythranExtension(Extension):
             cxx_sources.append(output_file)
 
         cfg_ext = cfg.make_extension(python=True, **kwargs)
-        self.cxx = cfg_ext.pop('cxx')
+        if 'cxx' in cfg_ext:
+            self.cxx = cfg_ext.pop('cxx')
         Extension.__init__(self, name, cxx_sources, *args, **cfg_ext)

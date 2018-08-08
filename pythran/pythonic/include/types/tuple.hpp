@@ -68,7 +68,7 @@ namespace types
   template <class T, size_t N>
   struct array;
 
-  struct str;
+  class str;
 
   struct slice;
   struct contiguous_slice;

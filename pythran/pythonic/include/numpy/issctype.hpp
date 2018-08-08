@@ -6,7 +6,7 @@
 PYTHONIC_NS_BEGIN
 namespace types
 {
-  struct str;
+  class str;
 }
 
 namespace numpy

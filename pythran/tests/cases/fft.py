@@ -11,7 +11,7 @@ def fft(x):
    e=fft(x[::2])
    o=fft(x[1::2])
    M=N//2
-   l=[ e[k] + o[k]*math.e**(-2j*math.pi*k/N) for k in xrange(M) ]
-   r=[ e[k] - o[k]*math.e**(-2j*math.pi*k/N) for k in xrange(M) ]
+   l=[ e[k] + o[k]*math.e**(-2j*math.pi*k/N) for k in range(M) ]
+   r=[ e[k] - o[k]*math.e**(-2j*math.pi*k/N) for k in range(M) ]
    return np.array(l+r)
 

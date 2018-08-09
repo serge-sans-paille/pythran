@@ -12,7 +12,7 @@ def primes_sieve(limit):
     for (i, isprime) in enumerate(a):
         if isprime:
             primes.append(i)
-            for n in xrange(i*i, limit, i):     # Mark factors non-prime
+            for n in range(i*i, limit, i):     # Mark factors non-prime
                 a[n] = False
 
     return primes

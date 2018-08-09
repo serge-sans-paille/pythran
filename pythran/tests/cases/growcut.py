@@ -24,15 +24,15 @@ def python_kernel(image, state, state_next, window_radius):
     height = image.shape[0]
     width = image.shape[1]
 
-    for j in xrange(width):
-        for i in xrange(height):
+    for j in range(width):
+        for i in range(height):
 
             winning_colony = state[i, j, 0]
             defense_strength = state[i, j, 1]
 
-            for jj in xrange(window_floor(j, window_radius),
+            for jj in range(window_floor(j, window_radius),
                              window_ceil(j+1, width, window_radius)):
-                for ii in xrange(window_floor(i, window_radius),
+                for ii in range(window_floor(i, window_radius),
                                  window_ceil(i+1, height, window_radius)):
                     if (ii == i and jj == j):
                         continue

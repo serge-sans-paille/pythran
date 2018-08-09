@@ -11,7 +11,7 @@ def permutations(iterable):
     cycles = range(n-r+1, n+1)[::-1]
     out.append( tuple([pool[i] for i in indices[:r]]))
     while 1:
-        for i in reversed(xrange(r)):
+        for i in reversed(range(r)):
             cycles[i] -= 1
             if cycles[i] == 0:
                 indices[i:] = indices[i+1:] + indices[i:i+1]

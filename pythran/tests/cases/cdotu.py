@@ -1,6 +1,6 @@
 #pythran export CDOTU(int, complex list, int, complex list, int)
 #runas CDOTU(2,[complex(1,2),complex(2,3),complex(3,4),complex(5,6)],2,[complex(3,4),complex(1,2),complex(2,3),complex(5,6)],3)
-#bench sz = 20000000; in1 = map(complex, xrange(sz), xrange(sz)); in2 = map(complex, xrange(sz), xrange(sz));CDOTU(sz / 6,in1,2,in2,3)
+#bench sz = 20000000; in1 = map(complex, range(sz), range(sz)); in2 = map(complex, range(sz), range(sz));CDOTU(sz / 6,in1,2,in2,3)
 def CDOTU(N,CX,INCX,CY,INCY):
 #     .. Scalar Arguments ..
 #     INTEGER INCX,INCY,N

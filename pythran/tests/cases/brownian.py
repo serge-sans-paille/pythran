@@ -7,7 +7,7 @@ from math import sqrt
 
 def linspace(begin, end, nbsteps):
     assert begin < end
-    return [ begin + i*(end-begin)/nbsteps for i in xrange(nbsteps) ]
+    return [ begin + i*(end-begin)/nbsteps for i in range(nbsteps) ]
 
 def zeros(n): return [0.]*n
 

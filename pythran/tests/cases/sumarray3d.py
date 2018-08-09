@@ -12,7 +12,7 @@ def summation(pos, weights, points):
     pyi = points[i, 1]
     pzi = points[i, 2]
     total = 0.0
-    for j in xrange(n_weights):
+    for j in range(n_weights):
       weight_j = weights[j]
       xj = pos[j,0]
       yj = pos[j,1]
@@ -26,5 +26,5 @@ def summation(pos, weights, points):
       sum_array3d[i,1] += weight_j * dy
       sum_array3d[i,2] += weight_j * dz
     return total 
-  sum_array = np.array([compute(i) for i in xrange(n_points)])
+  sum_array = np.array([compute(i) for i in range(n_points)])
   return sum_array, sum_array3d

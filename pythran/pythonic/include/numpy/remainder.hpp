@@ -6,14 +6,12 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <boost/simd/function/rem.hpp>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME remainder
-#define NUMPY_NARY_FUNC_SYM boost::simd::rem
+#define NUMPY_NARY_FUNC_SYM std::remainder
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

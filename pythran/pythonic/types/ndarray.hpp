@@ -53,7 +53,7 @@
 #include "pythonic/operator_/isub.hpp"
 
 #include <cassert>
-#include <ostream>
+#include <iostream>
 #include <iterator>
 #include <array>
 #include <initializer_list>
@@ -1370,11 +1370,6 @@ struct c_type_to_numpy_type<unsigned char> {
 
 template <>
 struct c_type_to_numpy_type<bool> {
-  static const int value = NPY_BOOL;
-};
-
-template <class T>
-struct c_type_to_numpy_type<boost::simd::logical<T>> {
   static const int value = NPY_BOOL;
 };
 

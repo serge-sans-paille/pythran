@@ -111,6 +111,22 @@ namespace types
   };
 
   template <class T>
+  struct is_numexpr_arg<T &> : is_numexpr_arg<T> {
+  };
+
+  template <class T>
+  struct is_numexpr_arg<T const> : is_numexpr_arg<T> {
+  };
+
+  template <class T>
+  struct is_numexpr_arg<T const &> : is_numexpr_arg<T> {
+  };
+
+  template <class T>
+  struct is_numexpr_arg<T &&> : is_numexpr_arg<T> {
+  };
+
+  template <class T>
   struct is_numexpr_arg<list<T>> {
     static constexpr bool value = true;
   };

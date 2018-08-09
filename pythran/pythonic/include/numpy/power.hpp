@@ -6,8 +6,6 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <boost/simd/function/pow.hpp>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy
@@ -17,12 +15,11 @@ namespace numpy
     template <class T0, class T1>
     auto pow(T0 const &t0, T1 const &t1) -> typename std::enable_if<
         !std::is_integral<T1>::value,
-        decltype(boost::simd::pow((typename std::common_type<T0, T1>::type)t0,
-                                  (typename std::common_type<T0, T1>::type)
-                                      t1))>::type
+        decltype(std::pow((typename std::common_type<T0, T1>::type)t0,
+                          (typename std::common_type<T0, T1>::type)t1))>::type
     {
-      return boost::simd::pow((typename std::common_type<T0, T1>::type)t0,
-                              (typename std::common_type<T0, T1>::type)t1);
+      return std::pow((typename std::common_type<T0, T1>::type)t0,
+                      (typename std::common_type<T0, T1>::type)t1);
     }
 
     template <class T0, class T1>
@@ -42,27 +39,6 @@ namespace numpy
         a *= a;
       }
       return recip ? 1 / r : r;
-    }
-
-    // See https://github.com/MetaScale/nt2/issues/794
-    double pow(long const &n, double const &m)
-    {
-      return pow(static_cast<double>(n), m);
-    }
-    template <class T>
-    std::complex<T> pow(T const &n, std::complex<T> const &m)
-    {
-      return std::pow(n, m);
-    }
-    template <class T>
-    std::complex<T> pow(std::complex<T> const &n, std::complex<T> const &m)
-    {
-      return std::pow(n, m);
-    }
-    template <class T>
-    std::complex<T> pow(std::complex<T> const &n, T const &m)
-    {
-      return std::pow(n, m);
     }
   }
 #define NUMPY_NARY_FUNC_NAME power

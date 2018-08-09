@@ -5,8 +5,7 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <boost/simd/function/is_inf.hpp>
-#include <boost/simd/function/is_negative.hpp>
+#include "pythonic/include/numpy/isinf.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -15,8 +14,7 @@ namespace numpy
   namespace wrapper
   {
     template <class T>
-    auto isneginf(T const &t)
-        -> decltype(boost::simd::is_inf(t) && boost::simd::is_negative(t));
+    auto isneginf(T const &t) -> decltype(functor::isinf{}(t) && (t < 0));
   }
 
 #define NUMPY_NARY_FUNC_NAME isneginf

@@ -4,7 +4,6 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <boost/simd/function/log1p.hpp>
 
 PYTHONIC_NS_BEGIN
 
@@ -19,9 +18,9 @@ namespace numpy
       return std::log(val + 1);
     }
     template <class T>
-    auto log1p(T const &val) -> decltype(boost::simd::log1p(val))
+    auto log1p(T const &val) -> decltype(std::log1p(val))
     {
-      return boost::simd::log1p(val);
+      return std::log1p(val);
     }
   }
 

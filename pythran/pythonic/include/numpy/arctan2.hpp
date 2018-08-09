@@ -5,7 +5,6 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <boost/simd/function/atan2.hpp>
 
 PYTHONIC_NS_BEGIN
 
@@ -13,7 +12,7 @@ namespace numpy
 {
 
 #define NUMPY_NARY_FUNC_NAME arctan2
-#define NUMPY_NARY_FUNC_SYM boost::simd::atan2
+#define NUMPY_NARY_FUNC_SYM std::atan2
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

@@ -58,8 +58,6 @@
 #include "numpy/arrayobject.h"
 #endif
 
-#include <boost/simd/logical.hpp>
-
 #ifdef USE_BOOST_SIMD
 #include <boost/simd/pack.hpp>
 #endif

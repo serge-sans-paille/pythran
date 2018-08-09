@@ -4,14 +4,21 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <boost/simd/function/eps.hpp>
 
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+  namespace wrapper
+  {
+    template <class T>
+    auto spacing(T const &v) -> decltype(std::nextafter(v, 1) - v)
+    {
+      return std::nextafter(v, 1) - v;
+    }
+  }
 #define NUMPY_NARY_FUNC_NAME spacing
-#define NUMPY_NARY_FUNC_SYM boost::simd::detail::eps
+#define NUMPY_NARY_FUNC_SYM wrapper::spacing
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

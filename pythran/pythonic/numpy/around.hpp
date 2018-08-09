@@ -7,7 +7,6 @@
 #include "pythonic/numpy/power.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/numpy/floor_divide.hpp"
-#include <boost/simd/function/pow.hpp>
 
 PYTHONIC_NS_BEGIN
 
@@ -29,7 +28,7 @@ namespace numpy
                std::declval<typename types::dtype_of<E>::type>())>::type
   {
     typename types::dtype_of<E>::type const fact =
-        boost::simd::pow(10., decimals);
+        functor::power{}(10., decimals);
     return functor::rint{}(a * fact) / fact;
   }
 
@@ -42,7 +41,7 @@ namespace numpy
                std::declval<typename types::dtype_of<E>::type>())>::type
   {
     typename types::dtype_of<E>::type const fact =
-        boost::simd::pow(10L, std::max(0L, -decimals));
+        functor::power{}(10L, std::max(0L, -decimals));
     return pythonic::numpy::functor::floor_divide{}(a, fact) * fact;
   }
   // list version

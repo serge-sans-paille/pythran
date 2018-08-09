@@ -181,7 +181,6 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                     'date': datetime.now()}
 
         mod = PythonModule(module_name, docstrings, metainfo)
-        mod.add_to_preamble(Define("BOOST_SIMD_NO_STRICT_ALIASING", "1"))
         mod.add_to_includes(
             Include("pythonic/core.hpp"),
             Include("pythonic/python/core.hpp"),
@@ -469,7 +468,6 @@ def test_compile():
 
     '''
     code = '''
-        #define BOOST_PYTHON_MAX_ARITY 4
         #include <pythonic/core.hpp>
     '''
 

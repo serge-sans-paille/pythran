@@ -67,7 +67,6 @@ class BuildWithThirdParty(build_py):
     """
     Set up Pythran dependencies.
 
-    * install boost.simd
     * install boost dependencies
     """
 
@@ -79,14 +78,13 @@ class BuildWithThirdParty(build_py):
         self.no_boost = None
 
     def copy_boost(self, src_only=False):
-        "Install boost-simd and boost deps from the third_party directory"
+        "Install boost deps from the third_party directory"
 
         if self.no_boost is None:
-            print('Copying boost.simd and its dependencies')
+            print('Copying boost dependencies')
             to_copy = 'boost',
         else:
-            print('Copying boost.simd')
-            to_copy = 'boost', 'simd'
+            return
 
         src = os.path.join('third_party', *to_copy)
 

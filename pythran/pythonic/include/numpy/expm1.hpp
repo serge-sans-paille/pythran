@@ -5,8 +5,6 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <boost/simd/function/expm1.hpp>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy
@@ -20,9 +18,9 @@ namespace numpy
       return exp(val) - 1;
     }
     template <class T>
-    auto expm1(T const &val) -> decltype(boost::simd::expm1(val))
+    auto expm1(T const &val) -> decltype(std::expm1(val))
     {
-      return boost::simd::expm1(val);
+      return std::expm1(val);
     }
   }
 

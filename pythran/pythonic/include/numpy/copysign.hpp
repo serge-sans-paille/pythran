@@ -6,14 +6,12 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <boost/simd/function/copysign.hpp>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME copysign
-#define NUMPY_NARY_FUNC_SYM boost::simd::copysign
+#define NUMPY_NARY_FUNC_SYM std::copysign
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

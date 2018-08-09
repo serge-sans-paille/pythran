@@ -13,6 +13,8 @@ namespace numpy
   {
     template <class T>
     T rint(T const &v);
+    template <class T>
+    std::complex<T> rint(std::complex<T> const &v);
   }
 #define NUMPY_NARY_FUNC_NAME rint
 #define NUMPY_NARY_FUNC_SYM wrapper::rint

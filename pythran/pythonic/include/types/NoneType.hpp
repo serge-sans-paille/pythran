@@ -193,14 +193,14 @@ struct __combined<pythonic::types::none<T0>, T1>
 };
 
 template <class T0, class T1>
-struct __combined<T1, pythonic::types::none<T0>>
+struct __combined<T0, pythonic::types::none<T1>>
     : std::enable_if<!pythonic::types::is_none<T0>::value,
                      pythonic::dummy>::type {
   using type = pythonic::types::none<typename __combined<T0, T1>::type>;
 };
 
 template <class T0, class T1>
-struct __combined<pythonic::types::none<T1>, pythonic::types::none<T0>> {
+struct __combined<pythonic::types::none<T0>, pythonic::types::none<T1>> {
   using type = pythonic::types::none<typename __combined<T0, T1>::type>;
 };
 

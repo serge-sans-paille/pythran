@@ -2568,6 +2568,7 @@ MODULES = {
         "pythran": {
             "abssqr": ConstFunctionIntr(),
             "is_none": ConstFunctionIntr(),
+            "is_none_d": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
             "static_if_": ConstFunctionIntr(),
             "StaticIfReturn": ConstFunctionIntr(),

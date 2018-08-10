@@ -108,6 +108,29 @@ namespace __builtin__
 
     DEFINE_FUNCTOR(pythonic::__builtin__::pythran, is_none);
   }
+
+  namespace pythran
+  {
+    template <class T>
+    bool is_none_d(T const &)
+    {
+      return false;
+    };
+
+    template <class T>
+    bool is_none_d(types::none<T, false> const &t)
+    {
+      return t.is_none || is_none_d(static_cast<T const &>(t));
+    };
+
+    template <class T>
+    bool is_none_d(types::none<T, true> const &t)
+    {
+      return t.is_none || is_none_d(t.data);
+    };
+
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, is_none_d);
+  }
 }
 PYTHONIC_NS_END
 

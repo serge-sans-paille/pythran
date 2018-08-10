@@ -5,6 +5,7 @@ from pythran.analyses import (ImportedIds, IsAssigned, HasReturn,
 from pythran.passmanager import Transformation
 
 import gast as ast
+from copy import deepcopy
 
 
 def outline(name, formal_parameters, out_parameters, stmts, has_return):
@@ -111,11 +112,16 @@ class NormalizeStaticIf(Transformation):
     def false_name(self):
         return "$isstatic{}".format(len(self.new_functions) + 1)
 
-    def visit_IfExp(self, node):
-        self.generic_visit(node)
+    def visit_Attribute(self, node):
+        if node.attr == 'is_none_d':
+            node.attr = 'is_none'
+        return node
 
+    def visit_IfExp(self, node):
+        old_node = deepcopy(node)
+        self.generic_visit(node)
         if node.test not in self.static_expressions:
-            return node
+            return old_node
 
         imported_ids = sorted(self.passmanager.gather(ImportedIds,
                                                       node, self.ctx))
@@ -132,9 +138,10 @@ class NormalizeStaticIf(Transformation):
         return actual_call
 
     def visit_If(self, node):
+        old_node = deepcopy(node)
         self.generic_visit(node)
         if node.test not in self.static_expressions:
-            return node
+            return old_node
 
         imported_ids = self.passmanager.gather(ImportedIds, node, self.ctx)
 

@@ -48,55 +48,63 @@ namespace types
   struct none<T, true> {
     T data;
     template <class T1>
-    friend std::ostream &operator<<(std::ostream &, none<T1> const &);
+    friend std::ostream &operator<<(std::ostream &, none<T1, true> const &);
     template <class T1>
-    friend T1 operator+(none<T1> const &t0, T1 const &t1);
+    friend T1 operator+(none<T1, true> const &t0, T1 const &t1);
     template <class T1>
-    friend T1 operator+(T1 const &t0, none<T1> const &t1);
+    friend T1 operator+(T1 const &t0, none<T1, true> const &t1);
     template <class T1>
-    friend none<T1> operator+(none<T1> const &t0, none<T1> const &t1);
+    friend none<T1, true> operator+(none<T1, true> const &t0,
+                                    none<T1, true> const &t1);
     template <class T1>
     friend bool operator>(none<T1, true> const &t0, T1 const &t1);
     template <class T1>
-    friend bool operator>(T1 const &t0, none<T1> const &t1);
+    friend bool operator>(T1 const &t0, none<T1, true> const &t1);
     template <class T1>
-    friend none<bool> operator>(none<T1> const &t0, none<T1> const &t1);
+    friend none<bool> operator>(none<T1, true> const &t0,
+                                none<T1, true> const &t1);
     template <class T1>
-    friend bool operator>=(none<T1> const &t0, T1 const &t1);
+    friend bool operator>=(none<T1, true> const &t0, T1 const &t1);
     template <class T1>
-    friend bool operator>=(T1 const &t0, none<T1> const &t1);
+    friend bool operator>=(T1 const &t0, none<T1, true> const &t1);
     template <class T1>
-    friend none<bool> operator>=(none<T1> const &t0, none<T1> const &t1);
+    friend none<bool> operator>=(none<T1, true> const &t0,
+                                 none<T1, true> const &t1);
     template <class T1>
-    friend bool operator<(none<T1> const &t0, T1 const &t1);
+    friend bool operator<(none<T1, true> const &t0, T1 const &t1);
     template <class T1>
-    friend bool operator<(T1 const &t0, none<T1> const &t1);
+    friend bool operator<(T1 const &t0, none<T1, true> const &t1);
     template <class T1>
-    friend none<bool> operator<(none<T1> const &t0, none<T1> const &t1);
+    friend none<bool> operator<(none<T1, true> const &t0,
+                                none<T1, true> const &t1);
     template <class T1>
-    friend bool operator<=(none<T1> const &t0, T1 const &t1);
+    friend bool operator<=(none<T1, true> const &t0, T1 const &t1);
     template <class T1>
-    friend bool operator<=(T1 const &t0, none<T1> const &t1);
+    friend bool operator<=(T1 const &t0, none<T1, true> const &t1);
     template <class T1>
-    friend none<bool> operator<=(none<T1> const &t0, none<T1> const &t1);
+    friend none<bool> operator<=(none<T1, true> const &t0,
+                                 none<T1, true> const &t1);
     template <class T1>
-    friend T1 operator-(none<T1> const &t0, T1 const &t1);
+    friend T1 operator-(none<T1, true> const &t0, T1 const &t1);
     template <class T1>
-    friend T1 operator-(T1 const &t0, none<T1> const &t1);
+    friend T1 operator-(T1 const &t0, none<T1, true> const &t1);
     template <class T1>
-    friend none<T1> operator-(none<T1> const &t0, none<T1> const &t1);
+    friend none<T1, true> operator-(none<T1, true> const &t0,
+                                    none<T1, true> const &t1);
     template <class T1>
-    friend T1 operator*(none<T1> const &t0, T1 const &t1);
+    friend T1 operator*(none<T1, true> const &t0, T1 const &t1);
     template <class T1>
-    friend T1 operator*(T1 const &t0, none<T1> const &t1);
+    friend T1 operator*(T1 const &t0, none<T1, true> const &t1);
     template <class T1>
-    friend none<T1> operator*(none<T1> const &t0, none<T1> const &t1);
+    friend none<T1, true> operator*(none<T1, true> const &t0,
+                                    none<T1, true> const &t1);
     template <class T1>
-    friend T1 operator/(none<T1> const &t0, T1 const &t1);
+    friend T1 operator/(none<T1, true> const &t0, T1 const &t1);
     template <class T1>
-    friend T1 operator/(T1 const &t0, none<T1> const &t1);
+    friend T1 operator/(T1 const &t0, none<T1, true> const &t1);
     template <class T1>
-    friend none<T1> operator/(none<T1> const &t0, none<T1> const &t1);
+    friend none<T1, true> operator/(none<T1, true> const &t0,
+                                    none<T1, true> const &t1);
 
   public:
     bool is_none;

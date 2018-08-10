@@ -134,7 +134,8 @@ namespace types
     str(T const &begin, T const &end);
 
     explicit operator char() const;
-    operator long int() const;
+    explicit operator long int() const;
+    explicit operator float() const;
     explicit operator double() const;
 
     template <class S>

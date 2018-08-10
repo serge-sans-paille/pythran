@@ -192,3 +192,17 @@ class TestStr(TestEnv):
                 else:
                    return eee("YYY", i), "3"'''
         self.run_test(code, "EEE", 2, str_literal_mult=[str, int])
+
+    def test_str_float(self):
+        self.run_test("def str_float(s): return float(s)", "0.000012", str_float=[str])
+
+    def test_str_numpy_float32(self):
+        self.run_test("def str_numpy_float32(s): import numpy; return numpy.float32(s)", "0.000012",
+                      str_numpy_float32=[str])
+
+    def test_str_numpy_float64(self):
+        self.run_test("def str_numpy_float64(s): import numpy; return numpy.float64(s)", "0.000012",
+                      str_numpy_float64=[str])
+
+    def test_str_int(self):
+        self.run_test("def str_int(s): return int(s)", "12", str_int=[str])

@@ -8,12 +8,8 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/utils/neutral.hpp"
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/function/broadcast.hpp>
-#include <boost/simd/function/aligned_store.hpp>
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/load.hpp>
-#include <boost/simd/function/store.hpp>
+#ifdef USE_XSIMD
+#include <xsimd/xsimd.hpp>
 #endif
 
 #include <algorithm>
@@ -73,13 +69,13 @@ namespace numpy
     }
   };
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class vectorizer, class Op, class E, class F>
   F vreduce(E e, F acc)
   {
     using T = typename E::dtype;
-    using vT = boost::simd::pack<T>;
-    static const size_t vN = vT::static_size;
+    using vT = xsimd::simd_type<T>;
+    static const size_t vN = vT::size;
     const long n = e.size();
     auto viter = vectorizer::vbegin(e), vend = vectorizer::vend(e);
     const long bound = std::distance(viter, vend);
@@ -88,7 +84,7 @@ namespace numpy
       for (++viter; viter != vend; ++viter)
         Op{}(vacc, *viter);
       alignas(sizeof(vT)) T stored[vN];
-      boost::simd::store(vacc, &stored[0]);
+      vacc.store_aligned(&stored[0]);
       for (size_t j = 0; j < vN; ++j)
         Op{}(acc, stored[j]);
     }

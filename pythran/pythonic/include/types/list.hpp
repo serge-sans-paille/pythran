@@ -148,7 +148,7 @@ namespace types
     bool operator==(list<K> const &other) const;
     bool operator==(empty_list const &other) const;
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<sliced_list>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>
@@ -257,7 +257,7 @@ namespace types
     int operator<(list<T> const &other) const;
 
 // element access
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<list>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>
@@ -346,7 +346,7 @@ namespace types
 
     typedef empty_iterator iterator;
     typedef empty_iterator const_iterator;
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     typedef empty_iterator simd_iterator;
     typedef empty_iterator simd_iterator_nobroadcast;
 #endif

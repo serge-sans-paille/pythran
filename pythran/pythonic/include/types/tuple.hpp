@@ -313,7 +313,7 @@ namespace types
     // Element access.
     reference fast(long n);
     constexpr const_reference fast(long n) const noexcept;
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<array>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>

@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME sin
-#define NUMPY_NARY_FUNC_SYM std::sin
+#define NUMPY_NARY_FUNC_SYM xsimd::sin
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

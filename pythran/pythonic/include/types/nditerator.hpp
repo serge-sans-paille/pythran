@@ -3,10 +3,8 @@
 
 #include <iterator>
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/load.hpp>
-#include <boost/simd/function/store.hpp>
+#ifdef USE_XSIMD
+#include <xsimd/xsimd.hpp>
 #endif
 
 PYTHONIC_NS_BEGIN
@@ -141,20 +139,20 @@ namespace types
     bool operator<(const_nditerator<E> const &other) const;
     const_nditerator &operator=(const_nditerator const &other);
   };
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class E>
   struct const_simd_nditerator
       : public std::iterator<std::random_access_iterator_tag,
-                             boost::simd::pack<typename E::dtype>> {
+                             xsimd::simd_type<typename E::dtype>> {
 
-    using vector_type = typename boost::simd::pack<typename E::dtype>;
+    using vector_type = typename xsimd::simd_type<typename E::dtype>;
     typename E::dtype const *data;
-    static const std::size_t vector_size = vector_type::static_size;
+    static const std::size_t vector_size = vector_type::size;
 
     const_simd_nditerator(typename E::dtype const *data);
 
     auto operator*() const -> decltype(
-        boost::simd::load<boost::simd::pack<typename E::dtype>>(data));
+        xsimd::load_unaligned(data));
     const_simd_nditerator &operator++();
     const_simd_nditerator &operator+=(long);
     const_simd_nditerator operator+(long);
@@ -164,7 +162,7 @@ namespace types
     bool operator==(const_simd_nditerator const &other) const;
     bool operator<(const_simd_nditerator const &other) const;
     const_simd_nditerator &operator=(const_simd_nditerator const &other);
-    void store(boost::simd::pack<typename E::dtype> const &);
+    void store(xsimd::simd_type<typename E::dtype> const &);
   };
   template <class E>
   struct const_simd_nditerator_nostep : const_simd_nditerator<E> {

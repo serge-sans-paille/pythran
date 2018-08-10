@@ -297,7 +297,7 @@ namespace types
         ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class Arg>
   template <class vectorizer>
   typename numpy_iexpr<Arg>::simd_iterator
@@ -311,8 +311,8 @@ namespace types
   typename numpy_iexpr<Arg>::simd_iterator
       numpy_iexpr<Arg>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {buffer + long(std::get<0>(_shape) / vector_size * vector_size)};
   }
 

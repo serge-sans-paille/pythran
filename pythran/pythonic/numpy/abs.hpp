@@ -11,7 +11,7 @@ namespace numpy
 {
 
 #define NUMPY_NARY_FUNC_NAME abs
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
 #define NUMPY_NARY_FUNC_SYM wrapper::abs
 #else
 #define NUMPY_NARY_FUNC_SYM std::abs

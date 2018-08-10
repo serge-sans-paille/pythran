@@ -38,7 +38,7 @@ namespace types
     return ref;
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T>
   template <class vectorizer>
   typename broadcasted<T>::simd_iterator
@@ -77,12 +77,12 @@ namespace types
   {
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class dtype>
   template <class V>
   broadcast_base<dtype, true>::broadcast_base(V v)
       : _value(v),
-        _splated(boost::simd::splat<boost::simd::pack<dtype>>(_value))
+        _splated(xsimd::simd_type<dtype>(_value))
   {
   }
 

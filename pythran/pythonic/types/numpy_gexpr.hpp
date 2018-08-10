@@ -719,7 +719,7 @@ namespace types
              : std::get<count_leading_long<S...>::value>(slices).step * i));
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class Arg, class... S>
   template <class vectorizer>
   typename numpy_gexpr<Arg, S...>::simd_iterator
@@ -733,8 +733,8 @@ namespace types
   typename numpy_gexpr<Arg, S...>::simd_iterator
       numpy_gexpr<Arg, S...>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {buffer + long(size() / vector_size * vector_size)};
   }
 

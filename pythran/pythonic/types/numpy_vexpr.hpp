@@ -65,7 +65,7 @@ namespace types
   {
     return ndarray<dtype, array<long, value>>{*this}(slices...);
   }
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T, class F>
   template <class vectorizer>
   typename numpy_vexpr<T, F>::simd_iterator
@@ -79,8 +79,8 @@ namespace types
   typename numpy_vexpr<T, F>::simd_iterator
       numpy_vexpr<T, F>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {*this, 0};
   }
 #endif

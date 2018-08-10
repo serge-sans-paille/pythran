@@ -663,7 +663,7 @@ namespace types
     return (*this)[to_array<long>(indices)];
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T, class pS>
   template <class vectorizer>
   typename ndarray<T, pS>::simd_iterator
@@ -676,8 +676,8 @@ namespace types
   template <class vectorizer>
   typename ndarray<T, pS>::simd_iterator ndarray<T, pS>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {buffer + long(std::get<0>(_shape) / vector_size * vector_size)};
   }
 

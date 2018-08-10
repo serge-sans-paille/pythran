@@ -727,7 +727,7 @@ namespace types
 
     auto fast(long i) -> decltype(numpy_gexpr_helper<Arg, S...>::get(*this, i));
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<numpy_gexpr>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>

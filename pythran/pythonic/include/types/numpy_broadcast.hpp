@@ -1,10 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPY_BROADCAST_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_BROADCAST_HPP
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/load.hpp>
-#include <boost/simd/function/store.hpp>
+#ifdef USE_XSIMD
+#include <xsimd/xsimd.hpp>
 #endif
 
 #include "pythonic/include/types/vectorizable_type.hpp"
@@ -105,7 +103,7 @@ namespace types
       return {ref[s]};
     }
     T const &fast(long i) const;
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator_nostep<broadcasted>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>
@@ -145,11 +143,11 @@ namespace types
     void load(I) const;
   };
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class dtype>
   struct broadcast_base<dtype, true> {
     dtype _value;
-    boost::simd::pack<dtype> _splated;
+    xsimd::simd_type<dtype> _splated;
     broadcast_base() = default;
 
     template <class V>
@@ -269,7 +267,7 @@ namespace types
     {
       return {_base._value};
     }
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_broadcast_iterator<decltype(_base._splated)>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>

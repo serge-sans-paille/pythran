@@ -75,7 +75,7 @@ namespace types
                i);
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class E>
   template <class vectorizer>
   typename numpy_texpr_2<E>::simd_iterator

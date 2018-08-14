@@ -11,11 +11,7 @@ namespace numpy
 {
 
 #define NUMPY_NARY_FUNC_NAME abs
-#ifdef USE_XSIMD
-#define NUMPY_NARY_FUNC_SYM wrapper::abs
-#else
-#define NUMPY_NARY_FUNC_SYM std::abs
-#endif
+#define NUMPY_NARY_FUNC_SYM xsimd::abs
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

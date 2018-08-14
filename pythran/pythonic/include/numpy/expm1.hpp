@@ -5,27 +5,15 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
+#include <xsimd/xsimd.hpp>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
 
-  namespace wrapper
-  {
-    template <class T>
-    std::complex<T> expm1(std::complex<T> const &val)
-    {
-      return exp(val) - 1;
-    }
-    template <class T>
-    auto expm1(T const &val) -> decltype(std::expm1(val))
-    {
-      return std::expm1(val);
-    }
-  }
-
 #define NUMPY_NARY_FUNC_NAME expm1
-#define NUMPY_NARY_FUNC_SYM wrapper::expm1
+#define NUMPY_NARY_FUNC_SYM xsimd::expm1
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

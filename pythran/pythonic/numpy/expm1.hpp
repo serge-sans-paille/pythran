@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME expm1
-#define NUMPY_NARY_FUNC_SYM wrapper::expm1
+#define NUMPY_NARY_FUNC_SYM xsimd::expm1
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

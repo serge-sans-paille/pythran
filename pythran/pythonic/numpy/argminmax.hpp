@@ -64,28 +64,25 @@ namespace numpy
     long minmax_index = -1;
     if (bound > 0) {
       auto vacc = *viter;
-      auto curr = details::iota<xsimd::simd_type<long>>();
-      auto indices = curr;
-      xsimd::simd_type<long> step = vT::size;
-
       for (++viter; viter != vend; ++viter) {
-        curr += step;
-        auto m = typename Op::op{}(vacc, *viter);
-        auto mask = m != vacc;
-        indices =
-            xsimd::max(mask & curr, indices);
-        vacc = m;
+        vacc = typename Op::op{}(vacc, *viter);
       }
 
       alignas(sizeof(vT)) T stored[vN];
       vacc.store_aligned(&stored[0]);
-      alignas(sizeof(vT)) long indexed[vN];
-      indices.store_aligned(&indexed[0]);
       for (size_t j = 0; j < vN; ++j) {
         if (Op::value(stored[j], minmax_elts)) {
           minmax_elts = stored[j];
-          minmax_index = indexed[j];
         }
+      }
+
+      long i = 0;
+      for (auto iter : elts) {
+        if (iter == minmax_elts) {
+          minmax_index = i;
+          break;
+        }
+        ++i;
       }
     }
     auto iter = elts.begin() + bound * vN;

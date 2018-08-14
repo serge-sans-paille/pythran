@@ -13,7 +13,7 @@ namespace numpy
 {
 
 #define NUMPY_NARY_FUNC_NAME signbit
-#define NUMPY_NARY_FUNC_SYM std::signbit
+#define NUMPY_NARY_FUNC_SYM xsimd::signbit
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

@@ -111,10 +111,12 @@ namespace utils
   void vbroadcast_copy(E &&self, F const &other)
   {
     using T = typename F::dtype;
-    using vT = typename xsimd::simd_type<T>;
+    using vT = xsimd::simd_type<T>;
+
+    static const std::size_t vN = vT::size;
+
     long self_size = std::distance(self.begin(), self.end()),
          other_size = std::distance(other.begin(), other.end());
-    static const std::size_t vN = vT::size;
     auto oiter = vectorizer::vbegin(other);
     const long bound =
         std::distance(vectorizer::vbegin(other), vectorizer::vend(other));

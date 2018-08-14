@@ -5,12 +5,14 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
+#include <xsimd/xsimd.hpp>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME tan
-#define NUMPY_NARY_FUNC_SYM std::tan
+#define NUMPY_NARY_FUNC_SYM xsimd::tan
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

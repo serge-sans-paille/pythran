@@ -7,6 +7,7 @@
 #include "pythonic/numpy/power.hpp"
 #include "pythonic/numpy/asarray.hpp"
 #include "pythonic/numpy/floor_divide.hpp"
+#include "pythonic/numpy/float64.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -37,12 +38,15 @@ namespace numpy
   auto around(E const &a, long decimals) -> typename std::enable_if<
       std::is_integral<typename types::dtype_of<E>::type>::value,
       decltype(numpy::functor::floor_divide{}(
-                   a, std::declval<typename types::dtype_of<E>::type>()) *
+                   functor::float64{}(a),
+                   std::declval<typename types::dtype_of<E>::type>()) *
                std::declval<typename types::dtype_of<E>::type>())>::type
   {
     typename types::dtype_of<E>::type const fact =
         functor::power{}(10L, std::max(0L, -decimals));
-    return pythonic::numpy::functor::floor_divide{}(a, fact) * fact;
+    return pythonic::numpy::functor::floor_divide{}(functor::float64{}(a),
+                                                    fact) *
+           fact;
   }
   // list version
   template <class E>

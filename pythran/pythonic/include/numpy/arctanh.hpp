@@ -5,12 +5,14 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
+#include <xsimd/xsimd.hpp>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME arctanh
-#define NUMPY_NARY_FUNC_SYM std::atanh
+#define NUMPY_NARY_FUNC_SYM xsimd::atanh
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

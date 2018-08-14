@@ -7,6 +7,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/numpy_broadcast.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/numpy/floor.hpp"
 
 PYTHONIC_NS_BEGIN
 

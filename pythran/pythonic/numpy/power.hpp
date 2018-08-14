@@ -11,7 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME power
-#define NUMPY_NARY_FUNC_SYM wrapper::pow
+#define NUMPY_NARY_FUNC_SYM xsimd::pow
 // no need to adapt_type here, as it may turn a**2 into a**2.f
 #define NUMPY_NARY_RESHAPE_MODE reshape_type
 #include "pythonic/types/numpy_nary_expr.hpp"

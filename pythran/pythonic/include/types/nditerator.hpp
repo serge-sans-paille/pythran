@@ -151,8 +151,7 @@ namespace types
 
     const_simd_nditerator(typename E::dtype const *data);
 
-    auto operator*() const -> decltype(
-        xsimd::load_unaligned(data));
+    auto operator*() const -> decltype(xsimd::load_unaligned(data));
     const_simd_nditerator &operator++();
     const_simd_nditerator &operator+=(long);
     const_simd_nditerator operator+(long);

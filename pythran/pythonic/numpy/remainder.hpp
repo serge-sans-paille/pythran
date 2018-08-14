@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME remainder
-#define NUMPY_NARY_FUNC_SYM std::remainder
+#define NUMPY_NARY_FUNC_SYM xsimd::remainder
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

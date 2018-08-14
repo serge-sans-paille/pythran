@@ -73,7 +73,9 @@ namespace types
     assert(buffer);
     return utils::broadcast_copy < numpy_iexpr &, numpy_iexpr const &, value,
            value - utils::dim_of<numpy_iexpr>::value,
-           is_vectorizable && numpy_iexpr<Arg>::is_vectorizable > (*this, expr);
+           is_vectorizable && numpy_iexpr<Arg>::is_vectorizable &&
+               std::is_same<dtype, typename numpy_iexpr<Arg>::dtype>::value >
+                   (*this, expr);
   }
 
   template <class Arg>

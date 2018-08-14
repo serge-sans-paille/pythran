@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME minimum
-#define NUMPY_NARY_FUNC_SYM wrapper::min
+#define NUMPY_NARY_FUNC_SYM xsimd::min
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

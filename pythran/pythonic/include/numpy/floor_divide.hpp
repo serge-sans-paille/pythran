@@ -5,6 +5,7 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
+#include "pythonic/include//numpy/floor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -32,29 +33,11 @@ namespace numpy
 
     template <class Arg0, class Arg1>
     auto divfloor(Arg0 const &arg0, Arg1 const &arg1) ->
-        typename std::enable_if<(std::is_floating_point<Arg0>::value &&
-                                 std::is_floating_point<Arg1>::value),
-                                decltype(std::floor(arg0 / arg1))>::type
+        typename std::enable_if<!std::is_integral<Arg0>::value ||
+                                    !std::is_integral<Arg1>::value,
+                                decltype(functor::floor{}(arg0 / arg1))>::type
     {
-      return std::floor(arg0 / arg1);
-    }
-
-    template <class Arg0, class Arg1>
-    auto divfloor(Arg0 const &arg0, Arg1 const &arg1) ->
-        typename std::enable_if<(std::is_integral<Arg0>::value &&
-                                 std::is_floating_point<Arg1>::value),
-                                Arg1>::type
-    {
-      return std::floor(arg0 / arg1);
-    }
-
-    template <class Arg0, class Arg1>
-    auto divfloor(Arg0 const &arg0, Arg1 const &arg1) ->
-        typename std::enable_if<(std::is_integral<Arg1>::value &&
-                                 std::is_floating_point<Arg0>::value),
-                                Arg0>::type
-    {
-      return std::floor(arg0 / arg1);
+      return functor::floor{}(arg0 / arg1);
     }
   }
 #define NUMPY_NARY_FUNC_NAME floor_divide

@@ -55,7 +55,7 @@ namespace types
   template <class T>
   none<T, false>::operator bool() const
   {
-    return !is_none && static_cast<const T &>(*this);
+    return !is_none;
   }
 
   template <class T>

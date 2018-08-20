@@ -919,7 +919,7 @@ namespace types
   template <class T, class pS>
   ndarray<T, pshape<long>> ndarray<T, pS>::flat() const
   {
-    return {mem, array<long, 1>{{flat_size()}}};
+    return {mem, pshape<long>{{flat_size()}}};
   }
 
   template <class T, class pS>

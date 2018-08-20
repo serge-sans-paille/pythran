@@ -37,7 +37,7 @@ namespace types
     template <class O>
     bool operator==(O const &t) const;
 
-    operator bool() const;
+    explicit operator bool() const;
 
     intptr_t id() const;
   };
@@ -114,11 +114,8 @@ namespace types
     bool operator==(none_type const &) const;
     template <class O>
     bool operator==(O const &t) const;
-    operator bool() const;
-    operator size_t() const;
-    operator long() const;
-    operator long long() const;
-    operator double() const;
+    explicit operator bool() const;
+    operator T const &() const;
     T &operator=(T const &t);
     intptr_t id() const;
   };

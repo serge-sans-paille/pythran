@@ -59,6 +59,11 @@
 #include <initializer_list>
 #include <numeric>
 
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 PYTHONIC_NS_BEGIN
 
 namespace types

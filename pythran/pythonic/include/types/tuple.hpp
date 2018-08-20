@@ -11,6 +11,13 @@
 #include <tuple>
 #include <algorithm>
 
+#if !defined(HAVE_SSIZE_T) || !HAVE_SSIZE_T
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+#endif
+
 // Equality comparison between pair && tuple
 namespace std
 {

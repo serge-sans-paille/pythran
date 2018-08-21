@@ -156,3 +156,19 @@ def returned_none_member(a):
             return (1 if None == x else 2), (x if None is x else 1), (1 if None != x else 2), (x if None is not x else 1)
         '''
         self.run_test(code, 1, is_none_in_expr=[int])
+
+    def test_none_bool_tuple(self):
+        code = '''
+        def none_bool_tuple(x):
+            if x > 2:
+                y = (1, '2')
+            else:
+                y = None
+            if x > 2:
+                z = ()
+            else:
+                z = None
+            return bool(y), bool(z)'''
+        self.run_test(code, 1, none_bool_tuple=[int])
+
+

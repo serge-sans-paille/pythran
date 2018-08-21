@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_BOOL_HPP
 
 #include "pythonic/include/utils/functor.hpp"
+#include "pythonic/include/types/tuple.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -18,7 +19,13 @@ namespace __builtin__
       bool operator()() const;
 
       template <class T>
-      bool operator()(T &&val) const;
+      bool operator()(T const &val) const;
+
+      template <class... Ts>
+      bool operator()(std::tuple<Ts...> const &val) const;
+
+      template <class T, size_t N>
+      bool operator()(types::array<T, N> const &val) const;
     };
   }
 }

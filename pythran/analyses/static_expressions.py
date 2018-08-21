@@ -20,7 +20,6 @@ class StaticExpressions(NodeAnalysis):
         return False
 
     def match_all(self, *args):
-        assert len(args) > 1, "at least two arguments"
         static = False
         const = True
         for value in args:
@@ -47,7 +46,7 @@ class StaticExpressions(NodeAnalysis):
         return self.match_all(node.left, *node.comparators) and self.add(node)
 
     def visit_Call(self, node):
-        return self.visit(node.func)and self.add(node)  # very limited
+        return self.visit(node.func) and self.match_all(*node.args) and self.add(node)  # very limited
 
     def visit_Attribute(self, node):
         return node.attr == 'is_none'

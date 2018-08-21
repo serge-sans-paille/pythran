@@ -94,7 +94,7 @@ class NormalizeIsNone(Transformation):
                     'pythran',
                     ast.Load()
                 ),
-                'is_none',
+                'is_none_d',
                 ast.Load()),
             [noned_var], [])
 

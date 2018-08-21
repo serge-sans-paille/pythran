@@ -103,25 +103,7 @@ namespace types
   }
 
   template <class T>
-  none<T, true>::operator size_t() const
-  {
-    return data;
-  }
-
-  template <class T>
-  none<T, true>::operator long() const
-  {
-    return data;
-  }
-
-  template <class T>
-  none<T, true>::operator long long() const
-  {
-    return data;
-  }
-
-  template <class T>
-  none<T, true>::operator double() const
+  none<T, true>::operator T const &() const
   {
     return data;
   }

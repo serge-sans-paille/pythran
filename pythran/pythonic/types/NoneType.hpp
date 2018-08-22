@@ -5,6 +5,7 @@
 
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/__builtin__/id.hpp"
+#include "pythonic/__builtin__/bool_.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -55,7 +56,8 @@ namespace types
   template <class T>
   none<T, false>::operator bool() const
   {
-    return !is_none && static_cast<const T &>(*this);
+    return !is_none &&
+           __builtin__::functor::bool_{}(static_cast<const T &>(*this));
   }
 
   template <class T>

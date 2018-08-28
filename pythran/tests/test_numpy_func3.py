@@ -3,7 +3,7 @@
 import unittest
 
 import numpy
-from pythran.typing import List, NDArray
+from pythran.typing import List, NDArray, Tuple
 
 from test_env import TestEnv
 
@@ -311,6 +311,12 @@ def np_trim_zeros2(x):
 
     def test_unwrap2(self):
         self.run_test("def np_unwrap2(x): from numpy import unwrap, pi ; x[:3] -= 2*pi; return unwrap(x, 4)", numpy.arange(6, dtype=float), np_unwrap2=[NDArray[float,:]])
+
+    def test_unravel_index_0(self):
+        self.run_test("def np_unravel_index0(x, y): from numpy import unravel_index; return unravel_index(x, y)", 1621, (6, 7, 8, 9), np_unravel_index0=[int, Tuple[int, int, int, int]])
+
+    def test_unravel_index_1(self):
+        self.run_test("def np_unravel_index1(x, y): from numpy import unravel_index; return unravel_index(x, y, 'F')", 1621, (6, 7, 8, 9), np_unravel_index1=[int, Tuple[int, int, int, int]])
 
     def test_numpy_pow0(self):
         self.run_test('def numpy_pow0(a): return a ** 2',

@@ -15,7 +15,7 @@ namespace __builtin__
     template <class T>
     float_::type float_::operator()(T &&t) const
     {
-      return t;
+      return static_cast<float_::type>(t);
     }
 
     float_::type float_::operator()() const

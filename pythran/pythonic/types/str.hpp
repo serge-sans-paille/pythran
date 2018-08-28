@@ -303,6 +303,19 @@ namespace types
     return res;
   }
 
+  str::operator float() const
+  {
+    char *endptr;
+    auto dat = data->data();
+    float res = strtof(dat, &endptr);
+    if (endptr == dat) {
+      std::ostringstream err;
+      err << "invalid literal for float():'" << c_str() << "'";
+      throw std::runtime_error(err.str());
+    }
+    return res;
+  }
+
   str::operator double() const
   {
     char *endptr;

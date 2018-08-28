@@ -26,7 +26,7 @@ namespace __builtin__
     template <class T>
     int_::type int_::operator()(T &&t) const
     {
-      return t;
+      return static_cast<int_::type>(t);
     }
 
     int_::type int_::operator()(char t) const

@@ -23,7 +23,7 @@ namespace numpy
     template <class V>
     double float64(V v)
     {
-      return v;
+      return static_cast<double>(v);
     }
   }
 

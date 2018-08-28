@@ -16,7 +16,7 @@ namespace __builtin__
     template <class T>
     bool bool_::operator()(T const &val) const
     {
-      return (bool)val;
+      return static_cast<bool>(val);
     }
 
     template <class... Ts>

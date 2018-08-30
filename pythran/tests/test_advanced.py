@@ -265,3 +265,19 @@ def combiner_on_empty_list():
         self.run_test(code,
                       3,
                       generator_handler_name2=[int])
+
+    def test_builtin_slices(self):
+        code = '''
+            def builtin_slices(x):
+                s = slice(2, None, None)
+                return (s.start, s.stop, s.step, s,
+                        x[s],
+                        x[slice(3)],
+                        x[slice(1,2)],
+                        x[slice(1,10,2)],
+                        x[slice(3, None)],
+                        x[slice(None,4)],
+                        x[slice(None,4, None)])'''
+        self.run_test(code,
+                      numpy.arange(15),
+                      builtin_slices=[NDArray[int,:]])

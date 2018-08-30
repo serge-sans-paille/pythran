@@ -33,6 +33,10 @@ namespace types
       FLAT,
       DTYPE,
       T,
+      /* slice attributes */
+      START,
+      STOP,
+      STEP,
       /* */
       SUPERCALIGRAFILISTICEXPIDELILICIOUS
     };

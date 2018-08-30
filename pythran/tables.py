@@ -200,6 +200,11 @@ CLASSES = {
         "remove": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "insert": MethodIntr(signature=Fun[[List[T0], int, T0], None]),
     },
+    "slice": {
+        "start": AttributeIntr(signature=Fun[[T0], int]),
+        "stop": AttributeIntr(signature=Fun[[T0], int]),
+        "step": AttributeIntr(signature=Fun[[T0], int]),
+    },
     "str": {
         "__mod__": ConstMethodIntr(
             signature=Union[
@@ -2796,6 +2801,7 @@ MODULES = {
                 Fun[[Iterable[T0]], Set[T0]]
             ],
         ),
+        "slice": ClassWithConstConstructor(CLASSES['slice']),
         "sorted": ConstFunctionIntr(signature=Fun[[Iterable[T0]], List[T0]]),
         "str": ClassWithConstConstructor(
             CLASSES['str'],

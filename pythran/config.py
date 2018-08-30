@@ -74,10 +74,10 @@ def make_extension(python, **extra):
 
     extra.pop('language', None)  # forced to c++ anyway
     cxx = extra.pop('cxx', None)
+    if cxx is None:
+        cxx = compiler()
     if cxx is not None:
         extension['cxx'] = cxx
-    else:
-        extension['cxx'] = compiler()
 
     for k, w in extra.items():
         extension[k].extend(w)
@@ -119,13 +119,14 @@ def compiler():
 
       1. `CXX` environment variable
       2. User configuration (~/.pythranrc)
-      3. Default to `c++`
+
+    Returns None if none is set or if it's set to the empty string
 
     """
     cfg_cxx = str(cfg.get('compiler', 'CXX'))
     if not cfg_cxx:
-        cfg_cxx = 'c++'
-    return os.environ.get('CXX', cfg_cxx)
+        cfg_cxx = None
+    return os.environ.get('CXX', cfg_cxx) or None
 
 
 # load platform specific configuration then user configuration
@@ -170,7 +171,7 @@ def run():
     extension = pythran.config.make_extension(python=args.python)
 
     if args.compiler:
-        output.append(compiler())
+        output.append(compiler() or 'c++')
 
     if args.cflags:
         def fmt_define(define):

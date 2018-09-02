@@ -2869,6 +2869,46 @@ MODULES = {
             "gamma": ConstFunctionIntr(
                 signature=_numpy_unary_op_float_signature
             ),
+            "hankel1": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "hankel2": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "iv": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "ivp": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "jv": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "jvp": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "kv": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "kvp": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "yv": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
+            "yvp": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
         }
     },
     "numpy": {

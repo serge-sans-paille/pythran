@@ -173,10 +173,11 @@ To the input file. You can compile it as the previous code::
 
 and you'll get a decent binary. But what you really want to do is::
 
-    $> pythran -fopenmp -march=avx arc_distance.py
+    $> pythran -DUSE_BOOST_SIMD -fopenmp -march=native arc_distance.py
 
-which basically tells the compiler to parallelize and vectorize loops. Then you'll get **really** fast code!
-
+which basically tells the compiler to parallelize and vectorize loops using
+whatever hardware available on your machine. Then you'll get **really** fast
+code!
 
 
 Concerning Pythran specifications

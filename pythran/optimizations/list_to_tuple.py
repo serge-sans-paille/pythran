@@ -50,5 +50,6 @@ class ListToTuple(Transformation):
         func_aliases = self.aliases[node.func]
         if func_aliases.issubset(patterns):
             if islist(node.args[0]):
+                self.update = True
                 node.args[0] = totuple(node.args[0])
         return self.generic_visit(node)

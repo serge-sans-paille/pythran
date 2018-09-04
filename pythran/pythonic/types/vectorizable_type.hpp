@@ -45,6 +45,25 @@ namespace numpy
     struct where;
   }
 }
+namespace scipy
+{
+  namespace special
+  {
+    namespace functor
+    {
+      struct hankel1;
+      struct hankel2;
+      struct jv;
+      struct iv;
+      struct kv;
+      struct yv;
+      struct jvp;
+      struct ivp;
+      struct kvp;
+      struct yvp;
+    }
+  }
+}
 namespace types
 {
   template <class O, class... Args>
@@ -86,6 +105,17 @@ namespace types
         !std::is_same<O, numpy::functor::uint64>::value &&
         !std::is_same<O, numpy::functor::float32>::value &&
         !std::is_same<O, numpy::functor::float64>::value &&
+        // special functions not in the scope of boost.simd
+        !std::is_same<O, scipy::special::functor::hankel1>::value &&
+        !std::is_same<O, scipy::special::functor::hankel2>::value &&
+        !std::is_same<O, scipy::special::functor::jv>::value &&
+        !std::is_same<O, scipy::special::functor::iv>::value &&
+        !std::is_same<O, scipy::special::functor::kv>::value &&
+        !std::is_same<O, scipy::special::functor::yv>::value &&
+        !std::is_same<O, scipy::special::functor::jvp>::value &&
+        !std::is_same<O, scipy::special::functor::ivp>::value &&
+        !std::is_same<O, scipy::special::functor::kvp>::value &&
+        !std::is_same<O, scipy::special::functor::yvp>::value &&
         //
         true;
   };

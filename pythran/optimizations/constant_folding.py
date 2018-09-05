@@ -191,17 +191,20 @@ class PartialConstantFolding(Transformation):
 
         node = self.generic_visit(node)
         if self.fold_mult_left(node):
+            self.update = True
             node.left.elts = [deepcopy(elt)
                               for _ in range(node.right.n)
                               for elt in node.left.elts]
             return node.left
 
         if self.fold_mult_right(node):
+            self.update = True
             node.left, node.right = node.right, node.left
             return self.visit(node)
 
         for ty in (ast.List, ast.Tuple):
             if self.fold_add(node, ty):
+                self.update = True
                 node.left.elts += node.right.elts
                 return node.left
 

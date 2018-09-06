@@ -68,14 +68,18 @@ class BuildWithThirdParty(build_py):
     Set up Pythran dependencies.
 
     * install boost dependencies
+    * install xsimd dependencies
     """
 
     user_options = build_py.user_options + [
-        ('no-boost', None, 'Do not distribute boost headers')]
+        ('no-boost', None, 'Do not distribute boost headers'),
+        ('no-xsimd', None, 'Do not distribute xsimd headers'),
+    ]
 
     def initialize_options(self):
         build_py.initialize_options(self)
         self.no_boost = None
+        self.no_xsimd = None
 
     def copy_boost(self, src_only=False):
         "Install boost deps from the third_party directory"
@@ -99,11 +103,34 @@ class BuildWithThirdParty(build_py):
         shutil.rmtree(target, True)
         shutil.copytree(src, target)
 
+    def copy_xsimd(self, src_only=False):
+        "Install xsimd"
+
+        if self.no_xsimd is None:
+            print('Copying xsimd dependencies')
+            to_copy = 'xsimd',
+        else:
+            return
+
+        src = os.path.join('third_party', *to_copy)
+
+        # copy to the build tree
+        if not src_only:
+            target = os.path.join(self.build_lib, 'pythran', *to_copy)
+            shutil.rmtree(target, True)
+            shutil.copytree(src, target)
+
+        # copy them to the source tree too, needed for sdist
+        target = os.path.join('pythran', *to_copy)
+        shutil.rmtree(target, True)
+        shutil.copytree(src, target)
+
     def run(self, *args, **kwargs):
         # regular build done by parent class
         build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
             self.copy_boost()
+            self.copy_xsimd()
 
 
 class DevelopWithThirdParty(develop, BuildWithThirdParty):
@@ -111,15 +138,18 @@ class DevelopWithThirdParty(develop, BuildWithThirdParty):
     def initialize_options(self):
         develop.initialize_options(self)
         self.no_boost = None
+        self.no_xsimd = None
 
     def run(self, *args, **kwargs):
         if not self.dry_run:  # compatibility with the parent options
             self.copy_boost(src_only=True)
+            self.copy_xsimd(src_only=True)
         develop.run(self, *args, **kwargs)
 
 
 # Cannot use glob here, as the files may not be generated yet
 boost_headers = (['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
+xsimd_headers = (['xsimd/' + '*/' * i + '*.hpp' for i in range(1, 20)])
 pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
 
 # rename pythran into pythran3 for python3 version
@@ -148,7 +178,7 @@ setup(name='pythran',
       packages=['pythran', 'pythran.analyses', 'pythran.transformations',
                 'pythran.optimizations', 'omp', 'pythran/pythonic',
                 'pythran.types'],
-      package_data={'pythran': ['pythran*.cfg'] + boost_headers,
+      package_data={'pythran': ['pythran*.cfg'] + boost_headers + xsimd_headers,
                     'pythran/pythonic': pythonic_headers},
       classifiers=[
           'Development Status :: 4 - Beta',

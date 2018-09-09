@@ -171,4 +171,15 @@ def returned_none_member(a):
             return bool(y), bool(z)'''
         self.run_test(code, 1, none_bool_tuple=[int])
 
+    def test_none_large_cond(self):
+        code = '''
+        def none_large_cond(x):
+            return helper(x, None, None), helper(None, x, None), helper(None, None, x)
+
+        def helper(x, y, z):
+            if x is None or y is None and z is None:
+                return 5
+            else:
+                return 6'''
+        self.run_test(code, 1, none_large_cond=[int])
 

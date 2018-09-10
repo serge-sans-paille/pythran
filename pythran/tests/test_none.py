@@ -183,3 +183,65 @@ def returned_none_member(a):
                 return 6'''
         self.run_test(code, 1, none_large_cond=[int])
 
+    def test_none_mixed_test0(self):
+        code = '''
+        def none_mixed_test0(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            if x is None or x > 2:
+                return 5
+            if y > 0 or x is not None:
+                return 6'''
+        self.run_test(code, 1, none_mixed_test0=[int])
+
+    def test_none_mixed_test1(self):
+        code = '''
+        def none_mixed_test1(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            if x is not None and x > 2 and x < 8:
+                return 5
+            if y > 0 and x is not None:
+                return 6'''
+        self.run_test(code, 1, none_mixed_test1=[int])
+
+    def test_none_mixed_test2(self):
+        code = '''
+        def none_mixed_test2(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            if x is not None and x > 2 or x < 8:
+                return 5
+            if y > 0 or x is None:
+                return 6'''
+        self.run_test(code, 1, none_mixed_test2=[int])
+
+    def test_none_mixed_test3(self):
+        code = '''
+        def none_mixed_test3(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            return 5 if x is None or x > 2 or x < 8 else 6'''
+        self.run_test(code, 1, none_mixed_test3=[int])
+
+    def test_none_mixed_test4(self):
+        code = '''
+        def none_mixed_test4(x):
+            return helper(x, 4), helper(x, 3)
+
+        def helper(x, y):
+            return 5 if x is not None and x > 2 and x < 8 else 6'''
+        self.run_test(code, 4, none_mixed_test4=[int])
+
+    def test_none_mixed_test5(self):
+        code = '''
+        def none_mixed_test5(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            return 5 if x is not None and x > 5 or x < 8 else 6'''
+        self.run_test(code, 1, none_mixed_test5=[int])

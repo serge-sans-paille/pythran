@@ -10,7 +10,7 @@ from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      RemoveNestedFunctions, RemoveLambdas,
                                      UnshadowParameters, RemoveNamedArguments,
                                      ExpandGlobals, NormalizeIsNone,
-                                     NormalizeStaticIf)
+                                     NormalizeStaticIf, SplitStaticExpression)
 
 
 def refine(pm, node, optimizations):
@@ -22,6 +22,7 @@ def refine(pm, node, optimizations):
     pm.apply(ExpandBuiltins, node)
     pm.apply(ExpandImports, node)
     pm.apply(NormalizeIsNone, node)
+    pm.apply(SplitStaticExpression, node)
     pm.apply(NormalizeStaticIf, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(NormalizeException, node)

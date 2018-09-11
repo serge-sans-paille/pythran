@@ -591,28 +591,32 @@ namespace types
     template <class F>
     typename std::enable_if<
         is_numexpr_arg<F>::value &&
-            std::is_same<bool, typename F::dtype>::value,
+            std::is_same<bool, typename F::dtype>::value &&
+            !is_pod_array<F>::value,
         numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
     template <class F>
     typename std::enable_if<
         is_numexpr_arg<F>::value &&
-            std::is_same<bool, typename F::dtype>::value,
+            std::is_same<bool, typename F::dtype>::value &&
+            !is_pod_array<F>::value,
         numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
-                                !std::is_same<bool, typename F::dtype>::value,
+                                !std::is_same<bool, typename F::dtype>::value &&
+                                !is_pod_array<F>::value,
                             numpy_vexpr<numpy_expr, F>>::type
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     typename std::enable_if<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
-                                !std::is_same<bool, typename F::dtype>::value,
+                                !std::is_same<bool, typename F::dtype>::value &&
+                                !is_pod_array<F>::value,
                             numpy_vexpr<numpy_expr, F>>::type
     fast(F const &filter) const;
 

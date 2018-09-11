@@ -22,28 +22,28 @@ install:
 
 env:
     - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS=-g TESTCASE='pythran/tests/test_[ab]*.py pythran/tests/test_c[b-z]*.py pythran/tests/test_numpy_[a-eg-r]*.py pythran/tests/test_numpy_f[a-t]*.py'
-    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native" TESTCASE='pythran/tests/test_[ab]*.py pythran/tests/test_c[b-z]*.py pythran/tests/test_numpy_[a-eg-r]*.py pythran/tests/test_numpy_f[a-t]*.py'
+    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_XSIMD -march=native" TESTCASE='pythran/tests/test_[ab]*.py pythran/tests/test_c[b-z]*.py pythran/tests/test_numpy_[a-eg-r]*.py pythran/tests/test_numpy_f[a-t]*.py'
     - CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp" TESTCASE='pythran/tests/test_[ab]*.py pythran/tests/test_c[b-z]*.py pythran/tests/test_numpy_[a-eg-r]*.py pythran/tests/test_numpy_f[a-t]*.py'
 
     - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS=-g TESTCASE='pythran/tests/test_ca*.py'
-    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native" TESTCASE='pythran/tests/test_ca*.py'
+    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_XSIMD -march=native" TESTCASE='pythran/tests/test_ca*.py'
     - CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp" TESTCASE='pythran/tests/test_ca*.py'
-    - CC=gcc-5 CXX=g++-5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native -fopenmp" TESTCASE='pythran/tests/test_ca*.py'
+    - CC=gcc-5 CXX=g++-5 CXXFLAGS="-DUSE_XSIMD -march=native -fopenmp" TESTCASE='pythran/tests/test_ca*.py'
 
     - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS=-g TESTCASE='pythran/tests/test_[d-m]*.py pythran/tests/test_n[a-t]*.py'
-    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native" TESTCASE='pythran/tests/test_[d-m]*.py pythran/tests/test_n[a-t]*.py'
+    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_XSIMD -march=native" TESTCASE='pythran/tests/test_[d-m]*.py pythran/tests/test_n[a-t]*.py'
     - CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp" TESTCASE='pythran/tests/test_[d-m]*.py pythran/tests/test_n[a-t]*.py'
 
     - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS=-g TESTCASE='pythran/tests/test_numpy_f[u-z]*.py'
-    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native" TESTCASE='pythran/tests/test_numpy_f[u-z]*.py'
+    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_XSIMD -march=native" TESTCASE='pythran/tests/test_numpy_f[u-z]*.py'
     - CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp" TESTCASE='pythran/tests/test_numpy_f[u-z]*.py'
 
     - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS=-g TESTCASE='pythran/tests/test_numpy_[s-z]*.py'
-    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native" TESTCASE='pythran/tests/test_numpy_[s-z]*.py'
+    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_XSIMD -march=native" TESTCASE='pythran/tests/test_numpy_[s-z]*.py'
     - CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp" TESTCASE='pythran/tests/test_numpy_[s-z]*.py'
 
     - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS=-g TESTCASE='pythran/tests/test_[o-w]*.py'
-    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_BOOST_SIMD -march=native" TESTCASE='pythran/tests/test_[o-w]*.py'
+    - CC=clang-3.5 CXX=clang++-3.5 CXXFLAGS="-DUSE_XSIMD -march=native" TESTCASE='pythran/tests/test_[o-w]*.py'
     - CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp" TESTCASE='pythran/tests/test_[o-w]*.py'
 
     - PYTHRAN_DOC=true

@@ -4,6 +4,9 @@
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "Python.h"
+// Python defines this for windows, and it's not needed in C++
+#undef copysign
+
 #include <type_traits>
 #include <utility>
 #include <sstream>

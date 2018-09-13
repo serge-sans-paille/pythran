@@ -245,3 +245,57 @@ def returned_none_member(a):
         def helper(x, y):
             return 5 if x is not None and x > 5 or x < 8 else 6'''
         self.run_test(code, 1, none_mixed_test5=[int])
+
+    def test_987(self):
+        code = '''
+        def test_987(x):
+            a = None
+            if x == 5:
+                a = 3
+            if a is not None:
+                return 1
+            return 0'''
+        self.run_test(code, 1, test_987=[int])
+    def test_987_0(self):
+        code = '''
+        def test_987_0(x):
+            a = None
+            if x == 5:
+                a = 3
+            if a is not None:
+                return 1
+            return 0'''
+        self.run_test(code, 5, test_987_0=[int])
+    def test_987_1(self):
+        code = '''
+        def test_987_1(x):
+            a = None
+            b = 0
+            if x != 12:
+                a = x
+            if a is not None and a < 5:
+                b = 1
+            return (b, a)'''
+        self.run_test(code, 12, test_987_1=[int])
+    def test_987_2(self):
+        code = '''
+        def test_987_2(x):
+            a = None
+            b = 0
+            if x != 12:
+                a = x
+            if a is not None and a < 5:
+                b = 1
+            return (b, a)'''
+        self.run_test(code, 13, test_987_2=[int])
+    def test_987_3(self):
+        code = '''
+        def test_987_3(x):
+            a = None
+            b = 0
+            if x != 12:
+                a = x
+            if a is not None and a < 5:
+                b = 1
+            return (b, a)'''
+        self.run_test(code, 3, test_987_3=[int])

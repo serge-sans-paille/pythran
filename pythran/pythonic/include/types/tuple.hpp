@@ -11,6 +11,13 @@
 #include <tuple>
 #include <algorithm>
 
+#if !defined(HAVE_SSIZE_T) || !HAVE_SSIZE_T
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+#endif
+
 // Equality comparison between pair && tuple
 namespace std
 {
@@ -203,7 +210,7 @@ namespace types
     }
 
     template <class S>
-    pshape(array<S, sizeof...(Tys)> data)
+    pshape(pythonic::types::array<S, sizeof...(Tys)> data)
         : pshape(data.data())
     {
     }
@@ -770,14 +777,20 @@ namespace sutils
   };
 
   template <size_t I, class Ss>
+  struct shape_selecter
+      : std::conditional<
+            (I < std::tuple_size<Ss>::value),
+            typename std::tuple_element<
+                (I < std::tuple_size<Ss>::value ? I : 0L), Ss>::type,
+            std::integral_constant<long, 1>> {
+  };
+
+  template <size_t I, class Ss>
   struct merge_shape;
   template <size_t I, class... Ss>
   struct merge_shape<I, std::tuple<Ss...>> {
-    using type = typename shape_merger<typename std::conditional<
-        (I < std::tuple_size<Ss>::value),
-        typename std::tuple_element<(I < std::tuple_size<Ss>::value ? I : 0L),
-                                    Ss>::type,
-        std::integral_constant<long, 1>>::type...>::type;
+    using type =
+        typename shape_merger<typename shape_selecter<I, Ss>::type...>::type;
   };
   template <class Ss, class T>
   struct merged_shapes;

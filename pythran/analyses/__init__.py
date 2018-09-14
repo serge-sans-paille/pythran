@@ -40,7 +40,7 @@ from .range_values import RangeValues
 from .potential_iterator import PotentialIterator
 from .pure_expressions import PureExpressions
 from .scope import Scope
-from .static_expressions import StaticExpressions
+from .static_expressions import StaticExpressions, HasStaticExpression
 from .use_def_chain import UseDefChain
 from .use_omp import UseOMP
 from .yield_points import YieldPoints

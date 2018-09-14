@@ -2,6 +2,7 @@
 
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
+from functools import reduce
 
 import gast as ast
 
@@ -75,10 +76,10 @@ class NormalizeIsNone(Transformation):
         values = list(node.values)
         self.generic_visit(node)
         if any(x != y for x, y in zip(values, node.values)):
-            left, right = node.values
-            return ast.BinOp(left,
-                             NormalizeIsNone.table[type(node.op)](),
-                             right)
+            return reduce(lambda x, y:
+                          ast.BinOp(x,
+                                    NormalizeIsNone.table[type(node.op)](), y),
+                          node.values)
         else:
             return node
 

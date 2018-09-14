@@ -171,4 +171,131 @@ def returned_none_member(a):
             return bool(y), bool(z)'''
         self.run_test(code, 1, none_bool_tuple=[int])
 
+    def test_none_large_cond(self):
+        code = '''
+        def none_large_cond(x):
+            return helper(x, None, None), helper(None, x, None), helper(None, None, x)
 
+        def helper(x, y, z):
+            if x is None or y is None and z is None:
+                return 5
+            else:
+                return 6'''
+        self.run_test(code, 1, none_large_cond=[int])
+
+    def test_none_mixed_test0(self):
+        code = '''
+        def none_mixed_test0(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            if x is None or x > 2:
+                return 5
+            if y > 0 or x is not None:
+                return 6'''
+        self.run_test(code, 1, none_mixed_test0=[int])
+
+    def test_none_mixed_test1(self):
+        code = '''
+        def none_mixed_test1(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            if x is not None and x > 2 and x < 8:
+                return 5
+            if y > 0 and x is not None:
+                return 6'''
+        self.run_test(code, 1, none_mixed_test1=[int])
+
+    def test_none_mixed_test2(self):
+        code = '''
+        def none_mixed_test2(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            if x is not None and x > 2 or x < 8:
+                return 5
+            if y > 0 or x is None:
+                return 6'''
+        self.run_test(code, 1, none_mixed_test2=[int])
+
+    def test_none_mixed_test3(self):
+        code = '''
+        def none_mixed_test3(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            return 5 if x is None or x > 2 or x < 8 else 6'''
+        self.run_test(code, 1, none_mixed_test3=[int])
+
+    def test_none_mixed_test4(self):
+        code = '''
+        def none_mixed_test4(x):
+            return helper(x, 4), helper(x, 3)
+
+        def helper(x, y):
+            return 5 if x is not None and x > 2 and x < 8 else 6'''
+        self.run_test(code, 4, none_mixed_test4=[int])
+
+    def test_none_mixed_test5(self):
+        code = '''
+        def none_mixed_test5(x):
+            return helper(x, 1), helper(x, 3)
+
+        def helper(x, y):
+            return 5 if x is not None and x > 5 or x < 8 else 6'''
+        self.run_test(code, 1, none_mixed_test5=[int])
+
+    def test_987(self):
+        code = '''
+        def test_987(x):
+            a = None
+            if x == 5:
+                a = 3
+            if a is not None:
+                return 1
+            return 0'''
+        self.run_test(code, 1, test_987=[int])
+    def test_987_0(self):
+        code = '''
+        def test_987_0(x):
+            a = None
+            if x == 5:
+                a = 3
+            if a is not None:
+                return 1
+            return 0'''
+        self.run_test(code, 5, test_987_0=[int])
+    def test_987_1(self):
+        code = '''
+        def test_987_1(x):
+            a = None
+            b = 0
+            if x != 12:
+                a = x
+            if a is not None and a < 5:
+                b = 1
+            return (b, a)'''
+        self.run_test(code, 12, test_987_1=[int])
+    def test_987_2(self):
+        code = '''
+        def test_987_2(x):
+            a = None
+            b = 0
+            if x != 12:
+                a = x
+            if a is not None and a < 5:
+                b = 1
+            return (b, a)'''
+        self.run_test(code, 13, test_987_2=[int])
+    def test_987_3(self):
+        code = '''
+        def test_987_3(x):
+            a = None
+            b = 0
+            if x != 12:
+                a = x
+            if a is not None and a < 5:
+                b = 1
+            return (b, a)'''
+        self.run_test(code, 3, test_987_3=[int])

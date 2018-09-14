@@ -15,7 +15,7 @@ Firstly lets clear the working space::
 One of the most classic use case in Pythran is to generate a native .so module::
 
   $> printf '#pythran export foo()\n#pythran export msg\nmsg = \"hello world\"\ndef foo(): print(msg)' > cli_foo.py
-  $> pythran cli_foo.py
+  $> pythran cli_foo.py -o cli_foo.so
   $> ls cli_foo.so
   cli_foo.so
 
@@ -39,7 +39,7 @@ The module-level ``__pythran__`` variable indicates that the module loaded has b
 You can choose your optimization level by using ``-O`` flag::
 
   $> rm cli_foo.so
-  $> pythran cli_foo.py -O2
+  $> pythran cli_foo.py -O2 -o cli_foo.so
   $> ls cli_foo.so
   cli_foo.so
 
@@ -49,7 +49,7 @@ Out of curiosity, you can check the generated output::
 
 That's some heavily templated code ;-) Pythran can then compile it for you to a Python module::
 
-  $> pythran cli_foo.cpp
+  $> pythran cli_foo.cpp -o cli_foo.so
 
 Pythran can also generate raw C++ code, using the ``-e`` switch::
 

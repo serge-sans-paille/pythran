@@ -83,6 +83,8 @@ namespace python
           ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) &&
           (PyArray_NDIM(arr) > 1)) {
         oss << " (with unsupported column-major layout)";
+      } else if (PyArray_BASE(arr)) {
+        oss << " (reshaped)";
       } else {
         auto const *stride = PyArray_STRIDES(arr);
         auto const *dims = PyArray_DIMS(arr);

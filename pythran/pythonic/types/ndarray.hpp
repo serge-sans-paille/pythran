@@ -59,6 +59,13 @@
 #include <initializer_list>
 #include <numeric>
 
+#if !defined(HAVE_SSIZE_T) || !HAVE_SSIZE_T
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+#endif
+
 PYTHONIC_NS_BEGIN
 
 namespace types
@@ -919,7 +926,7 @@ namespace types
   template <class T, class pS>
   ndarray<T, pshape<long>> ndarray<T, pS>::flat() const
   {
-    return {mem, array<long, 1>{{flat_size()}}};
+    return {mem, pshape<long>{{flat_size()}}};
   }
 
   template <class T, class pS>

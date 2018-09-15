@@ -5,6 +5,14 @@
 
 #include <utility>
 
+#if _MSC_VER
+#define NUMPY_EXPR_TO_NDARRAY0_DECL(fname)                                     \
+  template <class E, class... Types,                                           \
+            typename std::enable_if<!types::is_ndarray<E>::value &&            \
+                                        types::is_array<E>::value,             \
+                                    E>::type * = nullptr>                      \
+  auto fname(E const &expr, Types &&... others);
+#else
 #define NUMPY_EXPR_TO_NDARRAY0_DECL(fname)                                     \
   template <class E, class... Types>                                           \
   auto fname(E const &expr, Types &&... others)                                \
@@ -13,5 +21,5 @@
           decltype(fname(                                                      \
               types::ndarray<typename E::dtype, typename E::shape_t>{expr},    \
               std::forward<Types>(others)...))>::type;
-
+#endif
 #endif

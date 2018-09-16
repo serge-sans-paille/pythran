@@ -1613,6 +1613,12 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>,
   if (!arr)
     return false;
 
+  if ((PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS) &&
+      ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) &&
+      (std::tuple_size<pS>::value > 1)) {
+    return false;
+  }
+
   PyObject *base_obj = PyArray_BASE(arr);
   if (!base_obj || !PyArray_Check(base_obj))
     return false;
@@ -1629,7 +1635,6 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>,
   bool at_least_one_stride = false;
   for (long i = std::tuple_size<pS>::value - 1; i >= 0; i--) {
     if (stride[i] < 0) {
-      std::cerr << "array with negative strides are not supported" << std::endl;
       return false;
     } else if (stride[i] != current_stride) {
       at_least_one_stride = true;
@@ -1639,7 +1644,6 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>,
   }
   if (at_least_one_stride) {
     if (PyArray_NDIM(base_arr) != std::tuple_size<pS>::value) {
-      std::cerr << "reshaped array are not supported" << std::endl;
       return false;
     }
     return true;

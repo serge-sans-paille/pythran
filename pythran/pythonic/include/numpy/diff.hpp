@@ -12,7 +12,7 @@ namespace numpy
 
   template <class E>
   types::ndarray<typename E::dtype, types::array<long, E::value>>
-  diff(E const &expr, long n = 1);
+  diff(E const &expr, long n = 1, long axis = -1);
 
   DEFINE_FUNCTOR(pythonic::numpy, diff);
 }

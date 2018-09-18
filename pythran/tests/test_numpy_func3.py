@@ -228,6 +228,21 @@ class TestNumpyFunc3(TestEnv):
     def test_diff4(self):
         self.run_test("def np_diff4(x): from numpy import diff; return diff(x + x)", numpy.array([1, 2, 4, 7, 0]), np_diff4=[NDArray[int,:]])
 
+    def test_diff5(self):
+        self.run_test("def np_diff5(x): from numpy import diff; return diff(x + x, 2, axis=0)", numpy.arange(100).reshape(10, 10)*2, np_diff5=[NDArray[int,:,:]])
+
+    def test_diff6(self):
+        self.run_test("def np_diff6(x): from numpy import diff; return diff(x, axis=0)", numpy.arange(100).reshape(10, 10)*2, np_diff6=[NDArray[int,:,:]])
+
+    def test_diff7(self):
+        self.run_test("def np_diff7(x): from numpy import diff; return diff(x, axis=0)", numpy.arange(300).reshape(3, 10, 10)*2, np_diff7=[NDArray[int,:,:,:]])
+
+    def test_diff8(self):
+        self.run_test("def np_diff8(x): from numpy import diff; return diff(x, axis=1)", numpy.arange(300).reshape(3, 10, 10)*2, np_diff8=[NDArray[int,:,:,:]])
+
+    def test_diff9(self):
+        self.run_test("def np_diff9(x): from numpy import diff; return diff(x, axis=2)", numpy.arange(300).reshape(3, 10, 10)*2, np_diff9=[NDArray[int,:,:,:]])
+
     def test_trace0(self):
         self.run_test("def np_trace0(x): return x.trace()", numpy.arange(9).reshape(3,3), np_trace0=[NDArray[int,:,:]])
 

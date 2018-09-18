@@ -198,6 +198,9 @@ def combiner_on_empty_list():
                       2,
                       list_to_tuple=[int])
 
+    def test_tuple_to_shape(self):
+        self.run_test('def tuple_to_shape(n): from numpy import zeros; return zeros((n,4))', 5, tuple_to_shape=[int])
+
     def test_print_intrinsic(self):
         self.run_test('def print_intrinsic(): print(len)',
                       print_intrinsic=[])

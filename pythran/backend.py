@@ -8,6 +8,7 @@ from __future__ import print_function
 from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions, Dependencies
+from pythran.analyses import Immediates
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Nop
@@ -202,6 +203,7 @@ class CxxFunction(Backend):
         self.types = parent.types
         self.pure_expressions = parent.pure_expressions
         self.global_declarations = parent.global_declarations
+        self.immediates = parent.immediates
 
     # local declaration processing
     def process_locals(self, node, node_visited, *skipped):
@@ -901,16 +903,21 @@ class CxxFunction(Backend):
 
     def visit_Num(self, node):
         if isinstance(node.n, complex):
-            return "{0}({1}, {2})".format(
+            ret = "{0}({1}, {2})".format(
                 PYTYPE_TO_CTYPE_TABLE[complex],
                 node.n.real,
                 node.n.imag)
         elif isnan(node.n):
-            return 'pythonic::numpy::nan'
+            ret = 'pythonic::numpy::nan'
         elif isinf(node.n):
-            return ('+' if node.n >= 0 else '-') + 'pythonic::numpy::inf'
+            ret = ('+' if node.n >= 0 else '-') + 'pythonic::numpy::inf'
         else:
-            return repr(node.n) + TYPE_TO_SUFFIX.get(type(node.n), "")
+            ret = repr(node.n) + TYPE_TO_SUFFIX.get(type(node.n), "")
+        if node in self.immediates:
+            assert isinstance(node.n, int)
+            return "std::integral_constant<%s, %s>{}" % (
+                PYTYPE_TO_CTYPE_TABLE[type(node.n)], ret)
+        return ret
 
     def visit_Str(self, node):
         quoted = node.s.replace('"', '\\"').replace('\n', '\\n"\n"')
@@ -1239,7 +1246,8 @@ result_type;
         """ Basic initialiser gathering analysis informations. """
         self.result = None
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations, Types,
-                                  Scope, RangeValues, PureExpressions)
+                                  Scope, RangeValues, PureExpressions,
+                                  Immediates)
 
     # mod
     def visit_Module(self, node):

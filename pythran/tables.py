@@ -2574,9 +2574,10 @@ MODULES = {
             "abssqr": ConstFunctionIntr(),
             "is_none": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
+            "make_shape": ConstFunctionIntr(),
             "static_if_": ConstFunctionIntr(),
             "StaticIfReturn": ConstFunctionIntr(),
-            "StaticIfNoReturn": ConstFunctionIntr(),
+            "StaticIfNoReturn": ConstFunctionIntr()
         },
         "abs": ConstFunctionIntr(
             signature=Union[

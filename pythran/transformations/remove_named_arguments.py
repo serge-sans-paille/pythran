@@ -6,6 +6,7 @@ from pythran.syntax import PythranSyntaxError
 from pythran.tables import MODULES
 
 import gast as ast
+from copy import deepcopy
 
 
 def handle_special_calls(func_alias, node):
@@ -55,9 +56,9 @@ class RemoveNamedArguments(Transformation):
         for index, arg in enumerate(node.args):
             if arg is None:
                 if index in keywords:
-                    replacements[index] = keywords[index]
+                    replacements[index] = deepcopy(keywords[index])
                 else:  # must be a default value
-                    replacements[index] = defaults[index - nargs]
+                    replacements[index] = deepcopy(defaults[index - nargs])
         return replacements
 
     def visit_Call(self, node):

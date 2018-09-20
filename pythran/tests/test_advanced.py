@@ -160,6 +160,22 @@ def combiner_on_empty_list():
     def test_default_arg3(self):
         self.run_test('def default_arg3(m,n=12): return m+n', 1, 2, default_arg3=[int,int])
 
+    def test_default_arg4(self):
+        code = '''
+            import numpy as np
+            def default_arg4(signal,sR):
+                N = 30
+                F = 0.
+                F2 = 22000
+                FF = 10
+                W = test2(sR, FF, N, F, F2)
+                return W
+
+            def test2(sr,N,M=128,F=0.0,F2=0,B=False,No=1):
+                W = np.zeros(10)
+                return W'''
+        self.run_test(code, 1, 2, default_arg4=[int,int])
+
     @skip("lists as zeros parameter are not supported")
     def test_list_as_zeros_parameter(self):
         self.run_test('def list_as_zeros_parameter(n): from numpy import zeros ; return zeros([n,n])', 3, list_as_zeros_parameter=[int])

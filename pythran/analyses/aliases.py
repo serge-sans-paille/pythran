@@ -10,6 +10,7 @@ from pythran.conversion import demangle
 import pythran.metadata as md
 
 import gast as ast
+from copy import deepcopy
 from itertools import product
 import sys
 
@@ -282,7 +283,10 @@ class Aliases(ModuleAnalysis):
             if isinstance(func, ast.FunctionDef):
                 extra = len(func.args.args) - len(args)
                 if extra:
-                    args = args + func.args.defaults[extra:]
+                    tail = [deepcopy(n) for n in func.args.defaults[extra:]]
+                    for arg in tail:
+                        self.visit(arg)
+                    args = args + tail
             return args
 
         func = node.func

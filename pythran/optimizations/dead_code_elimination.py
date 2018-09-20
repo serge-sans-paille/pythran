@@ -79,6 +79,20 @@ class DeadCodeElimination(Transformation):
 
     def visit_If(self, node):
         self.generic_visit(node)
+
+        try:
+            if ast.literal_eval(node.test):
+                if not metadata.get(node, OMPDirective):
+                    self.update = True
+                    return node.body
+            else:
+                if not metadata.get(node, OMPDirective):
+                    self.update = True
+                    return node.orelse
+        except ValueError:
+            # not a constant expression
+            pass
+
         have_body = any(not isinstance(x, ast.Pass) for x in node.body)
         have_else = any(not isinstance(x, ast.Pass) for x in node.orelse)
         # If the "body" is empty but "else content" is useful, switch branches

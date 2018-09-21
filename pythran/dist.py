@@ -5,9 +5,10 @@ This modules contains a distutils extension mechanism for Pythran
 
 import pythran.config as cfg
 
-from collections import defaultdict
+from collections import defaultdict, Iterable
 import os.path
 import os
+import sys
 
 from distutils.command.build_ext import build_ext as LegacyBuildExt
 
@@ -22,6 +23,23 @@ class PythranBuildExt(LegacyBuildExt, object):
 
     """
     def build_extension(self, ext):
+        StringTypes = (str, unicode) if sys.version_info[0] == 2 else (str,)
+        def get_value(obj, key):
+            var = getattr(obj, key)
+            if isinstance(var, Iterable) and \
+                not isinstance(var, StringTypes):
+                return var[0]
+            else:
+                return var
+
+        def set_value(obj, key, value):
+            var = getattr(obj, key)
+            if isinstance(var, Iterable) and \
+                not isinstance(var, StringTypes):
+                var[0] = value
+            else:
+                setattr(obj, key, value)
+
         prev = {
                 # linux-like
                 'preprocessor': None,
@@ -40,15 +58,15 @@ class PythranBuildExt(LegacyBuildExt, object):
         # Backup compiler settings
         for key in list(prev.keys()):
             if hasattr(self.compiler, key):
-                prev[key] = getattr(self.compiler, key)[0]
+                prev[key] = get_value(self.compiler, key)
             else:
                 del prev[key]
 
         # try hard to modify the compiler
-        for comp in prev:
-            if hasattr(self.compiler, comp):
-                if getattr(ext, 'cxx', None) is not None:
-                    getattr(self.compiler, comp)[0] = ext.cxx
+        if getattr(ext, 'cxx', None) is not None:
+            for comp in prev:
+                if hasattr(self.compiler, comp):
+                    set_value(self.compiler, comp, ext.cxx)
 
         # In general, distutils uses -Wstrict-prototypes, but this option
         # is not valid for C++ code, only for C.  Remove it if it's there
@@ -74,7 +92,7 @@ class PythranBuildExt(LegacyBuildExt, object):
         finally:
             # Revert compiler settings
             for key in prev.keys():
-                getattr(self.compiler, key)[0] = prev[key]
+                set_value(self.compiler, key, prev[key])
 
 
 class PythranExtension(Extension):

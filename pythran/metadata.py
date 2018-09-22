@@ -58,6 +58,16 @@ def get(node, class_):
         return []
 
 
+def clear(node, class_):
+    if hasattr(node, 'metadata'):
+        node.metadata.data = [s for s in node.metadata
+                              if not isinstance(s, class_)]
+        if not node.metadata.data:
+            del node.metadata
+            assert node._fields[-1] == 'metadata'
+            node._fields = node._fields[:-1]
+
+
 def visit(self, node):
     if hasattr(node, 'metadata'):
         self.visit(node.metadata)

@@ -160,9 +160,9 @@ conditional::
     >>> _ = pm.apply(openmp.GatherOMPData, foo_tree)
     >>> print(pm.dump(backend.Python, foo_tree))
     def foo(n):
+        'omp parallel'
+        'omp single'
         if 1:
-            'omp parallel'
-            'omp single'
             s = 1
         return s
 

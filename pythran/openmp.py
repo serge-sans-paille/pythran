@@ -206,5 +206,9 @@ class GatherOMPData(Transformation):
             sdirective = ''.join(d.s for d in directives)
             scoping = ('parallel', 'task', 'section')
             if any(s in sdirective for s in scoping):
+                metadata.clear(node, OMPDirective)
                 node = ast.If(ast.Num(1), [node], [])
+                for directive in directives:
+                    metadata.add(node, directive)
+
         return node

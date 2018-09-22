@@ -80,9 +80,6 @@ namespace types
   struct slice;
   struct contiguous_slice;
 
-  template <class Arg, class... S>
-  struct numpy_gexpr;
-
   /* helper to extract the tail of a tuple, && pop the head */
   template <int Offset, class T, size_t... N>
   auto make_tuple_tail(T const &t, utils::index_sequence<N...>)

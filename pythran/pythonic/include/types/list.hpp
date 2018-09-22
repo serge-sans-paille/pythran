@@ -362,6 +362,11 @@ namespace types
     operator list<T>() const;
     static constexpr long size();
 
+    shape_t shape() const
+    {
+      return {0};
+    }
+
     char fast(long) const
     {
       return {};

@@ -6,7 +6,7 @@
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/numpy/arctan.hpp"
 
-/* NOTE: angle_in_rad is ! part of the official Numpy API,
+/* NOTE: angle_in_rad is not part of the official Numpy API,
  * this file is here only to split the angle function in two parts
  */
 
@@ -18,7 +18,7 @@ namespace numpy
   {
     template <class T>
     auto angle_in_rad(T const &t)
-        -> decltype(boost::simd::atan(std::imag(t) / std::real(t)));
+        -> decltype(std::atan(std::imag(t) / std::real(t)));
   }
 #define NUMPY_NARY_FUNC_NAME angle_in_rad
 #define NUMPY_NARY_FUNC_SYM wrapper::angle_in_rad

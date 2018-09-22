@@ -5,8 +5,9 @@
 
 #include "pythonic/numpy/angle_in_rad.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/numpy/pi.hpp"
 
-/* NOTE: angle_in_deg is ! part of the official Numpy API,
+/* NOTE: angle_in_deg is not part of the official Numpy API,
  * this file is here only to split the angle function in two parts
  */
 

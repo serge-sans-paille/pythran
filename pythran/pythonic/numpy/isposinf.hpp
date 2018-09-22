@@ -7,8 +7,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#include <boost/simd/function/is_inf.hpp>
-#include <boost/simd/function/is_positive.hpp>
+#include "pythonic/numpy/isinf.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -17,9 +16,9 @@ namespace numpy
   namespace wrapper
   {
     template <class T>
-    bool isposinf(T const &t)
+    auto isposinf(T const &t) -> decltype(functor::isinf{}(t) && t >= 0)
     {
-      return boost::simd::is_inf(t) && boost::simd::is_positive(t);
+      return functor::isinf{}(t) && t >= 0;
     }
   }
 #define NUMPY_NARY_FUNC_NAME isposinf

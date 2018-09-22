@@ -40,8 +40,10 @@ namespace numpy
     struct ldexp;
     struct logaddexp2;
     struct nan_to_num;
+    struct nextafter;
     struct rint;
     struct signbit;
+    struct spacing;
     struct where;
   }
 }
@@ -70,7 +72,7 @@ namespace types
   struct is_vector_op {
 
     // vectorize everything but these ops. They require special handling for
-    // vectorization, && SG did ! invest enough time in those
+    // vectorization, && SG did not invest enough time in those
     static const bool value =
         !std::is_same<O, operator_::functor::mod>::value &&
         (!std::is_same<O, operator_::functor::div>::value ||
@@ -93,6 +95,9 @@ namespace types
         !std::is_same<O, numpy::functor::asarray_chkfinite>::value &&
         !std::is_same<O, numpy::functor::clip>::value &&
         !std::is_same<O, numpy::functor::where>::value &&
+        // not supported by xsimd
+        !std::is_same<O, numpy::functor::nextafter>::value &&
+        !std::is_same<O, numpy::functor::spacing>::value &&
         // transtyping
         !std::is_same<O, numpy::functor::bool_>::value &&
         !std::is_same<O, numpy::functor::int8>::value &&

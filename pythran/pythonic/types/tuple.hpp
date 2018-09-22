@@ -221,7 +221,7 @@ namespace types
     return buffer[n];
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T, size_t N>
   template <class vectorizer>
   typename array<T, N>::simd_iterator array<T, N>::vbegin(vectorizer) const
@@ -233,8 +233,8 @@ namespace types
   template <class vectorizer>
   typename array<T, N>::simd_iterator array<T, N>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {&buffer[long(size() / vector_size * vector_size)]};
   }
 #endif

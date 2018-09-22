@@ -21,11 +21,11 @@ namespace numpy
     template <class P>
     P iota()
     {
-      return iota<P>(utils::make_index_sequence<P::static_size>());
+      return iota<P>(utils::make_index_sequence<P::size>());
     }
   }
   template <class Op, class E, class T>
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   typename std::enable_if<!E::is_vectorizable ||
                               std::is_same<typename E::dtype, bool>::value,
                           long>::type
@@ -47,15 +47,15 @@ namespace numpy
     return res;
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class Op, class E, class T>
   typename std::enable_if<E::is_vectorizable &&
                               !std::is_same<typename E::dtype, bool>::value,
                           long>::type
   _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
   {
-    using vT = boost::simd::pack<T>;
-    static const size_t vN = vT::static_size;
+    using vT = xsimd::simd_type<T>;
+    static const size_t vN = vT::size;
     const long n = elts.size();
     auto viter = types::vectorizer_nobroadcast::vbegin(elts),
          vend = types::vectorizer_nobroadcast::vend(elts);
@@ -64,29 +64,25 @@ namespace numpy
     long minmax_index = -1;
     if (bound > 0) {
       auto vacc = *viter;
-      boost::simd::pack<long> curr = details::iota<boost::simd::pack<long>>();
-      boost::simd::pack<long> indices = curr;
-      boost::simd::pack<long> step =
-          boost::simd::splat<boost::simd::pack<long>>(vT::static_size);
-
       for (++viter; viter != vend; ++viter) {
-        curr += step;
-        auto m = typename Op::op{}(vacc, *viter);
-        auto mask = m != vacc;
-        indices =
-            boost::simd::max(boost::simd::if_else_zero(mask, curr), indices);
-        vacc = m;
+        vacc = typename Op::op{}(vacc, *viter);
       }
 
       alignas(sizeof(vT)) T stored[vN];
-      boost::simd::store(vacc, &stored[0]);
-      alignas(sizeof(vT)) long indexed[vN];
-      boost::simd::store(indices, &indexed[0]);
+      vacc.store_aligned(&stored[0]);
       for (size_t j = 0; j < vN; ++j) {
         if (Op::value(stored[j], minmax_elts)) {
           minmax_elts = stored[j];
-          minmax_index = indexed[j];
         }
+      }
+
+      long i = 0;
+      for (auto iter : elts) {
+        if (iter == minmax_elts) {
+          minmax_index = i;
+          break;
+        }
+        ++i;
       }
     }
     auto iter = elts.begin() + bound * vN;
@@ -122,7 +118,7 @@ namespace numpy
       throw types::ValueError("empty sequence");
     using elt_type = typename E::dtype;
     elt_type argminmax_value = Op::limit();
-#ifndef USE_BOOST_SIMD
+#ifndef USE_XSIMD
     if (utils::no_broadcast(expr))
       return _argminmax<Op>(types::make_fast_range(expr), argminmax_value,
                             utils::int_<E::value>());

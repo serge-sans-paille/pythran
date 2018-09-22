@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME maximum
-#define NUMPY_NARY_FUNC_SYM wrapper::max
+#define NUMPY_NARY_FUNC_SYM xsimd::max
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

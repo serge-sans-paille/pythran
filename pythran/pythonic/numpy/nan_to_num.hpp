@@ -6,11 +6,10 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/numpy/isinf.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
 #include <limits>
-#include <boost/simd/function/is_inf.hpp>
-#include <boost/simd/function/is_positive.hpp>
 
 PYTHONIC_NS_BEGIN
 
@@ -22,12 +21,12 @@ namespace numpy
     template <class I>
     I nan_to_num(I const &a)
     {
-      if (boost::simd::is_inf(a)) {
-        if (boost::simd::is_positive(a))
+      if (functor::isinf{}(a)) {
+        if (a >= 0)
           return std::numeric_limits<I>::max();
         else
           return std::numeric_limits<I>::lowest();
-      } else if (functor::isnan()(a))
+      } else if (functor::isnan{}(a))
         return 0;
       else
         return a;

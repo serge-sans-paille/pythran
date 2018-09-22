@@ -14,7 +14,7 @@ namespace numpy
 {
 
 #define NUMPY_NARY_FUNC_NAME arctan2
-#define NUMPY_NARY_FUNC_SYM boost::simd::atan2
+#define NUMPY_NARY_FUNC_SYM xsimd::atan2
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

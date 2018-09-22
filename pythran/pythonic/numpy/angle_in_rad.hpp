@@ -9,7 +9,7 @@
 #include "pythonic/numpy/arctan.hpp"
 #include "pythonic/numpy/pi.hpp"
 
-/* NOTE: angle_in_rad is ! part of the official Numpy API,
+/* NOTE: angle_in_rad is not part of the official Numpy API,
  * this file is here only to split the angle function in two parts
  */
 
@@ -21,10 +21,10 @@ namespace numpy
   {
     template <class T>
     auto angle_in_rad(T const &t)
-        -> decltype(boost::simd::atan(std::imag(t) / std::real(t)))
+        -> decltype(std::atan(std::imag(t) / std::real(t)))
     {
       if (std::real(t))
-        return boost::simd::atan(std::imag(t) / std::real(t));
+        return std::atan(std::imag(t) / std::real(t));
       else
         return pythonic::numpy::pi / 2;
     }

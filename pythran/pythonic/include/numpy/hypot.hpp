@@ -6,14 +6,14 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <boost/simd/function/hypot.hpp>
+#include <xsimd/xsimd.hpp>
 
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME hypot
-#define NUMPY_NARY_FUNC_SYM boost::simd::hypot
+#define NUMPY_NARY_FUNC_SYM xsimd::hypot
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

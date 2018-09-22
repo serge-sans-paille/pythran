@@ -160,7 +160,7 @@ namespace types
         numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<numpy_iexpr>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>

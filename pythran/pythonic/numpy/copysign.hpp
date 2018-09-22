@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME copysign
-#define NUMPY_NARY_FUNC_SYM boost::simd::copysign
+#define NUMPY_NARY_FUNC_SYM xsimd::copysign
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

@@ -6,7 +6,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <boost/simd/function/inearbyint.hpp>
 
 PYTHONIC_NS_BEGIN
 
@@ -17,13 +16,12 @@ namespace numpy
     template <class T>
     T rint(T const &v)
     {
-      return boost::simd::inearbyint(v);
+      return std::nearbyint(v);
     }
     template <class T>
     std::complex<T> rint(std::complex<T> const &v)
     {
-      return {(T)boost::simd::inearbyint(v.real()),
-              (T)boost::simd::inearbyint(v.imag())};
+      return {std::nearbyint(v.real()), std::nearbyint(v.imag())};
     }
   }
 #define NUMPY_NARY_FUNC_NAME rint

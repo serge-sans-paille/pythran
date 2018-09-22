@@ -6,7 +6,6 @@
 #include "pythonic/include/utils/functor.hpp"
 
 #include <complex>
-#include <boost/simd/function/sqr.hpp>
 
 namespace wrapper
 {
@@ -20,14 +19,9 @@ namespace numpy
   namespace wrapper
   {
     template <class T>
-    std::complex<T> square(std::complex<T> const &arg)
+    auto square(T const &arg) -> decltype(arg *arg)
     {
       return arg * arg;
-    }
-    template <class T>
-    auto square(T const &arg) -> decltype(boost::simd::sqr(arg))
-    {
-      return boost::simd::sqr(arg);
     }
   }
 

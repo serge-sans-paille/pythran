@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME hypot
-#define NUMPY_NARY_FUNC_SYM boost::simd::hypot
+#define NUMPY_NARY_FUNC_SYM xsimd::hypot
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

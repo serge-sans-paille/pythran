@@ -82,7 +82,7 @@ namespace types
       return arg.fast(array<long, 2>{{indices[1], indices[0]}});
     }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<numpy_texpr_2>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>

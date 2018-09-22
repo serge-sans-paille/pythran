@@ -5,8 +5,6 @@
 
 #include "pythonic/python/core.hpp"
 
-#include "boost/simd/logical.hpp"
-
 PYTHONIC_NS_BEGIN
 template <>
 struct to_python<bool> {
@@ -18,10 +16,6 @@ struct from_python<bool> {
   static bool convert(PyObject *obj);
 };
 
-template <class T>
-struct to_python<boost::simd::logical<T>> {
-  static PyObject *convert(boost::simd::logical<T> b);
-};
 PYTHONIC_NS_END
 
 #endif

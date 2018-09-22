@@ -163,7 +163,7 @@ namespace types
       return _lt(other, utils::int_<sizeof...(Iters)>{});
     }
   };
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class E, class Op, class SIters, class... Iters>
   struct numpy_expr_simd_iterator
       : std::iterator<std::random_access_iterator_tag,
@@ -197,7 +197,7 @@ namespace types
     {
       return Op{}(((steps_[I])
                        ? (*std::get<I>(iters_))
-                       : (boost::simd::splat<decltype(*std::get<I>(iters_))>(
+                       : (xsimd::simd_type<decltype(*std::get<I>(iters_))>(
                              *std::get<I>(siters_))))...);
     }
 
@@ -549,7 +549,7 @@ namespace types
     bool _no_broadcast(utils::index_sequence<I...>) const;
     bool no_broadcast() const;
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = numpy_expr_simd_iterator<
         numpy_expr, Op, std::tuple<typename std::remove_reference<
                             Args>::type::const_iterator...>,

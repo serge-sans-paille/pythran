@@ -2,7 +2,7 @@
 This package provides several entry points
     * spec_parser looks for code annotations in the form of formatted comments
     * functions defined in toolchain.py:
-       * generate_cxx:    python (str) to c++ code, returns a BoostPythonModule
+       * generate_cxx:    python (str) to c++ code, returns a PythonModule
        * compile_cxxfile: c++ (file) to DLL, returns DLL filename
        * compile_cxxcode: c++ (str) to DLL, returns DLL filename
        * compile_pythrancode: python (str) to so/cpp, returns output filename

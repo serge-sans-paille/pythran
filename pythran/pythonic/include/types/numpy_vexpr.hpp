@@ -60,7 +60,7 @@ namespace types
 
     const_iterator begin() const;
     const_iterator end() const;
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<numpy_vexpr>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>

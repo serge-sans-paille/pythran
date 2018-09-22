@@ -908,8 +908,8 @@ def assign_ndarray(t):
         def vexpr_of_texpr(a, b):
             return apply_mask(a.T, b), apply_mask(a, b.T), apply_mask(a.T, b.T)'''
         self.run_test(code,
-                      numpy.ndarray((2,2), numpy.float32),
-                      numpy.ndarray((2,2), numpy.bool),
+                      numpy.arange(4., dtype=numpy.float32).reshape(2,2),
+                      numpy.array([[False,True],[True, False]]),
                       vexpr_of_texpr=[NDArray[numpy.float32,:,:], NDArray[numpy.bool,:,:]])
 
     def test_indexing_through_int8(self):

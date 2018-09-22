@@ -53,7 +53,7 @@
 #include "pythonic/operator_/isub.hpp"
 
 #include <cassert>
-#include <ostream>
+#include <iostream>
 #include <iterator>
 #include <array>
 #include <initializer_list>
@@ -663,7 +663,7 @@ namespace types
     return (*this)[to_array<long>(indices)];
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T, class pS>
   template <class vectorizer>
   typename ndarray<T, pS>::simd_iterator
@@ -676,8 +676,8 @@ namespace types
   template <class vectorizer>
   typename ndarray<T, pS>::simd_iterator ndarray<T, pS>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {buffer + long(std::get<0>(_shape) / vector_size * vector_size)};
   }
 
@@ -1370,11 +1370,6 @@ struct c_type_to_numpy_type<unsigned char> {
 
 template <>
 struct c_type_to_numpy_type<bool> {
-  static const int value = NPY_BOOL;
-};
-
-template <class T>
-struct c_type_to_numpy_type<boost::simd::logical<T>> {
   static const int value = NPY_BOOL;
 };
 

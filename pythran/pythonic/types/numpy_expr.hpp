@@ -204,7 +204,7 @@ namespace types
     return fast(i);
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class Op, class... Args>
   template <size_t... I>
   typename numpy_expr<Op, Args...>::simd_iterator

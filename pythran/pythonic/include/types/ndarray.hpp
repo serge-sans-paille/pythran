@@ -58,10 +58,8 @@
 #include "numpy/arrayobject.h"
 #endif
 
-#include <boost/simd/logical.hpp>
-
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/pack.hpp>
+#ifdef USE_XSIMD
+#include <xsimd/xsimd.hpp>
 #endif
 
 PYTHONIC_NS_BEGIN
@@ -385,7 +383,7 @@ namespace types
         auto fast(array<long, M> const &indices) &&
         -> decltype(nget<M - 1>().fast(std::move(*this), indices));
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<ndarray>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>

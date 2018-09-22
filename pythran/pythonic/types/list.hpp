@@ -168,7 +168,7 @@ namespace types
   {
     return l * n;
   }
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T, class S>
   template <class vectorizer>
   typename sliced_list<T, S>::simd_iterator
@@ -182,8 +182,8 @@ namespace types
   typename sliced_list<T, S>::simd_iterator
       sliced_list<T, S>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {data->data() + slicing.lower +
             long(size() / vector_size * vector_size)};
   }
@@ -427,7 +427,7 @@ namespace types
   }
 
 // element access
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T>
   template <class vectorizer>
   typename list<T>::simd_iterator list<T>::vbegin(vectorizer) const
@@ -439,8 +439,8 @@ namespace types
   template <class vectorizer>
   typename list<T>::simd_iterator list<T>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {data->data() + long(size() / vector_size * vector_size)};
   }
 

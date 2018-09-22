@@ -3626,9 +3626,7 @@ MODULES = {
                      Iterable[Iterable[Iterable[complex]]]], None],
             ]
         ),
-        "copysign": ConstFunctionIntr(
-            signature=_numpy_binary_op_float_signature
-        ),
+        "copysign": UFunc(BINARY_UFUNC),
         "count_nonzero": ConstFunctionIntr(
             signature=Union[
                 # scalar

@@ -9,6 +9,7 @@
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/seq.hpp"
 #include "pythonic/utils/nested_container.hpp"
+#include "pythonic/types/ndarray.hpp"
 
 #include <tuple>
 #include <algorithm>

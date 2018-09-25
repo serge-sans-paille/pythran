@@ -7,6 +7,7 @@
 #include "pythonic/__builtin__/len.hpp"
 #include "pythonic/types/slice.hpp"
 #include "pythonic/types/tuple.hpp"
+#include "pythonic/types/bool.hpp"
 #include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/reserve.hpp"
 

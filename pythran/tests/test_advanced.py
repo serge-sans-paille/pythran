@@ -297,3 +297,16 @@ def combiner_on_empty_list():
         self.run_test(code,
                       numpy.arange(15),
                       builtin_slices=[NDArray[int,:]])
+
+    def test_slicing_tuple(self):
+        code = '''
+            def testFunc():
+                x=2
+                y=3
+                z=4
+                return x,y,z
+
+            def slicing_tuple(n):
+                x,y = testFunc()[0:n]
+                return x,y'''
+        self.run_test(code, 2, slicing_tuple=[int])

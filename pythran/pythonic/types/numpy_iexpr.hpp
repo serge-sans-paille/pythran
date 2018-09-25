@@ -6,6 +6,9 @@
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/array_helper.hpp"
+#include "pythonic/utils/broadcast_copy.hpp"
+#include "pythonic/include/types/raw_array.hpp"
+#include "pythonic/types/ndarray.hpp" // we should remove that dep during a refactoring :-)
 
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/operator_/iand.hpp"

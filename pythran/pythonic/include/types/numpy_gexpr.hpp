@@ -626,6 +626,9 @@ namespace types
   private:
     template <class _Arg, class... _S>
     friend struct details::make_gexpr;
+
+    template <class T, size_t N>
+    friend struct array;
     template <class _Arg, class... _S>
     friend typename std::enable_if<count_new_axis<_S...>::value == 0,
                                    numpy_gexpr<_Arg, _S...>>::type

@@ -152,7 +152,7 @@ namespace types
   }
 
   template <class T>
-  struct is_pshape_element : std::false_type {
+  struct is_pshape_element : std::is_convertible<T, long> {
   };
   template <>
   struct is_pshape_element<long> : std::true_type {

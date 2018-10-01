@@ -216,13 +216,26 @@ namespace types
   };
 
   template <class T, class B>
-  struct broadcast {
-    // Perform the type conversion here if it seems valid (although it is !
-    // always)
-    using dtype =
+  struct broadcast_dtype {
+    using type =
         typename std::conditional<std::is_integral<T>::value &&
                                       std::is_integral<B>::value,
                                   T, typename __combined<T, B>::type>::type;
+  };
+  template <class T, class B>
+  struct broadcast_dtype<std::complex<T>, B> {
+    using type = T;
+  };
+  template <class T0, class T1>
+  struct broadcast_dtype<std::complex<T0>, std::complex<T1>> {
+    using type = std::complex<typename __combined<T0, T1>::type>;
+  };
+
+  template <class T, class B>
+  struct broadcast {
+    // Perform the type conversion here if it seems valid (although it is !
+    // always)
+    using dtype = typename broadcast_dtype<T, B>::type;
     static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
     static const bool is_strided = false;
     using value_type = dtype;

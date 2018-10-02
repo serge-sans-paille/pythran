@@ -920,3 +920,8 @@ def assign_ndarray(t):
                       numpy.arange(10, dtype=numpy.uint8).reshape(5,2),
                       indexing_through_int8=[NDArray[numpy.uint8,:,:]])
 
+    def test_complex_scalar_broadcast(self):
+        self.run_test('def complex_scalar_broadcast(a): return (a**2 * (1 + a) + 2) / 5.',
+                      numpy.ones((10,10), dtype=complex),
+                      complex_scalar_broadcast=[NDArray[complex, :, :]])
+

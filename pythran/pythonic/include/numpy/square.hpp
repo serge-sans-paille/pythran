@@ -23,6 +23,15 @@ namespace numpy
     {
       return arg * arg;
     }
+    template <class T>
+    std::complex<T> square(std::complex<T> const &arg)
+    {
+      T r = arg.real(), i = arg.imag();
+      auto t = r * i;
+      auto r2 = r * r;
+      auto i2 = i * i;
+      return {r2 - i2, t + t};
+    }
   }
 
 #define NUMPY_NARY_FUNC_NAME square

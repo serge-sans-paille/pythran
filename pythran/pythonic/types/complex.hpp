@@ -130,13 +130,28 @@ PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"
+#include "numpy/arrayscalars.h"
 
 PYTHONIC_NS_BEGIN
+
+template <>
+PyObject *to_python<std::complex<long double>>::convert(
+    std::complex<long double> const &c)
+{
+  return PyArray_Scalar(const_cast<std::complex<long double> *>(&c),
+                        PyArray_DescrFromType(NPY_CLONGDOUBLE), nullptr);
+}
 
 template <class T>
 PyObject *to_python<std::complex<T>>::convert(std::complex<T> const &c)
 {
   return PyComplex_FromDoubles(c.real(), c.imag());
+}
+
+template <>
+bool from_python<std::complex<long double>>::is_convertible(PyObject *obj)
+{
+  return PyComplex_Check(obj) || PyArray_IsScalar(obj, CLongDouble);
 }
 
 template <class T>
@@ -147,6 +162,10 @@ bool from_python<std::complex<T>>::is_convertible(PyObject *obj)
 template <class T>
 std::complex<T> from_python<std::complex<T>>::convert(PyObject *obj)
 {
+  if (PyArray_IsScalar(obj, CLongDouble)) {
+    auto val = PyArrayScalar_VAL(obj, CLongDouble);
+    return {static_cast<T>(val.real), static_cast<T>(val.imag)};
+  }
   if (PyComplex_Check(obj))
     return {PyComplex_RealAsDouble(obj), PyComplex_ImagAsDouble(obj)};
   else if (PyFloat_Check(obj))

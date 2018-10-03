@@ -6,6 +6,13 @@ import numpy
 import unittest
 import sys
 
+try:
+    numpy.float128
+    has_float128 = True
+except AttributeError:
+    has_float128 = False
+
+
 
 @TestEnv.module
 class TestNdarray(TestEnv):
@@ -925,3 +932,21 @@ def assign_ndarray(t):
                       numpy.ones((10,10), dtype=complex),
                       complex_scalar_broadcast=[NDArray[complex, :, :]])
 
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_float128_0(self):
+        self.run_test('def float128_0(x): return x, x **2',
+                      numpy.float128(numpy.finfo(numpy.float64).max),
+                      float128_0=[numpy.float128])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_float128_1(self):
+        self.run_test('def float128_1(x): return x, x **2',
+                      numpy.ones((10,10), dtype=numpy.float128),
+                      float128_1=[NDArray[numpy.float128,:, :]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_float128_2(self):
+        self.run_test('def float128_2(x): from numpy import ones, float128; return ones(x,dtype=float128)',
+                      3,
+                      float128_2=[int])

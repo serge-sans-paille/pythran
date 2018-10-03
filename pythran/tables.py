@@ -3567,6 +3567,7 @@ MODULES = {
         "complex": ConstFunctionIntr(signature=_complex_signature),
         "complex64": ConstFunctionIntr(signature=_complex_signature),
         "complex128": ConstFunctionIntr(signature=_complex_signature),
+        "complex256": ConstFunctionIntr(signature=_complex_signature),
         "conj": ConstMethodIntr(signature=_numpy_unary_op_signature),
         "conjugate": ConstMethodIntr(signature=_numpy_unary_op_signature),
         "copy": ConstMethodIntr(signature=_numpy_array_signature),
@@ -3722,6 +3723,7 @@ MODULES = {
         "flipud": ConstFunctionIntr(),
         "float32": ConstFunctionIntr(signature=_float_signature),
         "float64": ConstFunctionIntr(signature=_float_signature),
+        "float128": ConstFunctionIntr(signature=_float_signature),
         "float_": ConstFunctionIntr(signature=_float_signature),
         "floor": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "floor_divide": UFunc(BINARY_UFUNC),
@@ -4486,7 +4488,7 @@ try:
     import omp
     omp_version = omp.VERSION
 except (ImportError, AttributeError):
-    omp_version = 45 # Fallback on last version
+    omp_version = 45  # Fallback on last version
 
 if omp_version >= 30:
     MODULES['omp'].update({

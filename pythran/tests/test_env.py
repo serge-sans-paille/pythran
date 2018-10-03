@@ -1,7 +1,13 @@
 """ Base file for all Pythran tests. """
 
 from imp import load_dynamic
-from numpy import float32, float64
+from numpy import float32, float64, complex128
+try:
+    from numpy import float128, complex256
+except ImportError:
+    float128 = float64
+    complex256 = complex128
+
 from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64
 from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
 from textwrap import dedent
@@ -59,9 +65,10 @@ class TestEnv(unittest.TestCase):
         print("Type of Pythran res : ", type(res))
         print("Type of Python ref : ", type(ref))
         type_matching = (((list, tuple), (list, tuple)),
-                         ((float, float64), (int, float, float32,
-                                             float64)),
-                         (float32, (int, float, float32)),
+                         ((float, float64, float128), (int, float, float32,
+                                             float64, float128)),
+                         (float32, (int, float, float32, float128)),
+                         (float128, (int, float, float32, float128)),
                          ((uint64, int64), (int, uint64, int64)),
                          (bool, (bool, bool_)),
                          # FIXME combiner for boolean doesn't work
@@ -76,9 +83,9 @@ class TestEnv(unittest.TestCase):
                 self.assertIsInstance(res, type(ref))
         elif isinstance(res, complex):
             if res.imag == 0:
-                self.assertIsInstance(ref, (int, float, complex))
+                self.assertIsInstance(ref, (int, float, complex, complex256))
             else:
-                self.assertIsInstance(ref, complex)
+                self.assertIsInstance(ref, (complex, complex256))
         else:
             for res_type, ref_type in type_matching:
                 if isinstance(res, res_type):

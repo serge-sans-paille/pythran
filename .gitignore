@@ -4,7 +4,7 @@ build
 dist
 website/*.html
 website/license.txt
-pythran/nt
+pythran/nt2
 pythran/boost
 pythran/xsimd
 parsetab.py

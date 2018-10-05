@@ -14,11 +14,10 @@ namespace numpy
   namespace wrapper
   {
     template <class Arg0, class Arg1>
-    std::complex<typename __combined<Arg0, Arg1>::type>
+    std::complex<typename std::common_type<Arg0, Arg1>::type>
     divfloor(std::complex<Arg0> const &arg0, std::complex<Arg1> const &arg1)
     {
-      auto tmp = arg0 / arg1;
-      return {std::floor(tmp.real()), std::floor(tmp.imag())};
+      return {functor::floor{}(std::real(arg0 / arg1)), 0};
     }
 
     template <class Arg0, class Arg1>

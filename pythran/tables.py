@@ -4494,7 +4494,7 @@ else:
 try:
     import omp
     omp_version = omp.VERSION
-except ImportError:
+except (ImportError, AttributeError):
     omp_version = 45 # Fallback on last version
 
 if omp_version >= 30:

@@ -59,6 +59,8 @@ namespace xsimd
     {
     public:
 
+        using base_type = simd_batch<batch<T, N>>;
+
         avx_int_batch();
         explicit avx_int_batch(T i);
         // Constructor from N scalar parameters
@@ -76,12 +78,23 @@ namespace xsimd
         batch<T, N>& load_aligned(const T* src);
         batch<T, N>& load_unaligned(const T* src);
 
+        batch<T, N>& load_aligned(const flipped_sign_type_t<T>* src);
+        batch<T, N>& load_unaligned(const flipped_sign_type_t<T>* src);
+
         void store_aligned(T* dst) const;
         void store_unaligned(T* dst) const;
 
+        void store_aligned(flipped_sign_type_t<T>* dst) const;
+        void store_unaligned(flipped_sign_type_t<T>* dst) const;
+
+        using base_type::load_aligned;
+        using base_type::load_unaligned;
+        using base_type::store_aligned;
+        using base_type::store_unaligned;
+
         T operator[](std::size_t index) const;
 
-    private:
+    protected:
 
         __m256i m_value;
     };
@@ -110,6 +123,30 @@ namespace xsimd
         inline __m256i int_init(std::integral_constant<std::size_t, 8>, Args... args)
         {
             return _mm256_setr_epi64x(args...);
+        }
+
+        template <class T>
+        inline __m256i int_set(std::integral_constant<std::size_t, 1>, T v)
+        {
+            return _mm256_set1_epi8(v);
+        }
+
+        template <class T>
+        inline __m256i int_set(std::integral_constant<std::size_t, 2>, T v)
+        {
+            return _mm256_set1_epi16(v);
+        }
+
+        template <class T>
+        inline __m256i int_set(std::integral_constant<std::size_t, 4>, T v)
+        {
+            return _mm256_set1_epi32(v);
+        }
+
+        template <class T>
+        inline __m256i int_set(std::integral_constant<std::size_t, 8>, T v)
+        {
+            return _mm256_set1_epi64x(v);
         }
     }
 
@@ -282,10 +319,7 @@ namespace xsimd
 
     template <class T, std::size_t N>
     inline avx_int_batch<T, N>::avx_int_batch(T i)
-        : m_value(sizeof(T) == 1 ? _mm256_set1_epi8(i)  :
-                  sizeof(T) == 2 ? _mm256_set1_epi16(i) :
-                  sizeof(T) == 4 ? _mm256_set1_epi32(i) : 
-                                   _mm256_set1_epi64x(i))
+        : m_value(avx_detail::int_set(std::integral_constant<std::size_t, sizeof(T)>{}, i))
     {
     }
 
@@ -348,6 +382,20 @@ namespace xsimd
     }
 
     template <class T, std::size_t N>
+    inline batch<T, N>& avx_int_batch<T, N>::load_aligned(const flipped_sign_type_t<T>* src)
+    {
+        m_value = _mm256_load_si256((__m256i const*) src);
+        return (*this)();
+    }
+
+    template <class T, std::size_t N>
+    inline batch<T, N>& avx_int_batch<T, N>::load_unaligned(const flipped_sign_type_t<T>* src)
+    {
+        m_value = _mm256_loadu_si256((__m256i const*) src);
+        return (*this)();
+    }
+
+    template <class T, std::size_t N>
     inline void avx_int_batch<T, N>::store_aligned(T* dst) const
     {
         _mm256_store_si256((__m256i*) dst, m_value);
@@ -358,6 +406,19 @@ namespace xsimd
     {
         _mm256_storeu_si256((__m256i*) dst, m_value);
     }
+
+    template <class T, std::size_t N>
+    inline void avx_int_batch<T, N>::store_aligned(flipped_sign_type_t<T>* dst) const
+    {
+        _mm256_store_si256((__m256i*) dst, m_value);
+    }
+
+    template <class T, std::size_t N>
+    inline void avx_int_batch<T, N>::store_unaligned(flipped_sign_type_t<T>* dst) const
+    {
+        _mm256_storeu_si256((__m256i*) dst, m_value);
+    }
+
 
     template <class T, std::size_t N>
     inline T avx_int_batch<T, N>::operator[](std::size_t index) const

@@ -15,24 +15,8 @@
 
 namespace xsimd
 {
-    /********************
-     * helper functions *
-     ********************/
 
-    namespace detail
-    {
-        inline __m128i cmpeq_epi64_sse2(__m128i lhs, __m128i rhs)
-        {
-            __m128i tmp1 = _mm_cmpeq_epi32(lhs, rhs);
-            __m128i tmp2 = _mm_shuffle_epi32(tmp1, 0xB1);
-            __m128i tmp3 = _mm_and_si128(tmp1, tmp2);
-            __m128i tmp4 = _mm_srai_epi32(tmp3, 31);
-            return _mm_shuffle_epi32(tmp4, 0xF5);
-        }
-    }
-
-
-    /********************
+   /********************
      * batch_bool<T, N> *
      ********************/
 
@@ -66,6 +50,8 @@ namespace xsimd
     {
     public:
 
+        using base_type = simd_batch<batch<T, N>>;
+
         sse_int_batch();
         explicit sse_int_batch(T i);
         template <class... Args, class Enable = detail::is_array_initializer_t<T, N, Args...>>
@@ -81,15 +67,30 @@ namespace xsimd
         batch<T, N>& load_aligned(const T* src);
         batch<T, N>& load_unaligned(const T* src);
 
+        batch<T, N>& load_aligned(const flipped_sign_type_t<T>* src);
+        batch<T, N>& load_unaligned(const flipped_sign_type_t<T>* src);
+
         void store_aligned(T* dst) const;
         void store_unaligned(T* dst) const;
 
+        void store_aligned(flipped_sign_type_t<T>* src) const;
+        void store_unaligned(flipped_sign_type_t<T>* src) const;
+
+        using base_type::load_aligned;
+        using base_type::load_unaligned;
+        using base_type::store_aligned;
+        using base_type::store_unaligned;
+
         T operator[](std::size_t index) const;
 
-    private:
+    protected:
 
         __m128i m_value;
     };
+
+    /********************
+     * helper functions *
+     ********************/
 
     namespace sse_detail
     {
@@ -115,6 +116,39 @@ namespace xsimd
         inline __m128i int_init(std::integral_constant<std::size_t, 8>, I0 i0, I1 i1)
         {
             return _mm_set_epi64x(i1, i0);
+        }
+
+        template <class T>
+        inline __m128i int_set(std::integral_constant<std::size_t, 1>, T v)
+        {
+            return _mm_set1_epi8(v);
+        }
+
+        template <class T>
+        inline __m128i int_set(std::integral_constant<std::size_t, 2>, T v)
+        {
+            return _mm_set1_epi16(v);
+        }
+
+        template <class T>
+        inline __m128i int_set(std::integral_constant<std::size_t, 4>, T v)
+        {
+            return _mm_set1_epi32(v);
+        }
+
+        template <class T>
+        inline __m128i int_set(std::integral_constant<std::size_t, 8>, T v)
+        {
+            return _mm_set1_epi64x(v);
+        }
+
+        inline __m128i cmpeq_epi64_sse2(__m128i lhs, __m128i rhs)
+        {
+            __m128i tmp1 = _mm_cmpeq_epi32(lhs, rhs);
+            __m128i tmp2 = _mm_shuffle_epi32(tmp1, 0xB1);
+            __m128i tmp3 = _mm_and_si128(tmp1, tmp2);
+            __m128i tmp4 = _mm_srai_epi32(tmp3, 31);
+            return _mm_shuffle_epi32(tmp4, 0xF5);
         }
     }
 
@@ -214,7 +248,7 @@ namespace xsimd
 #if XSIMD_X86_INSTR_SET >= XSIMD_X86_SSE4_1_VERSION
                         return _mm_cmpeq_epi64(lhs, rhs);
 #else
-                        return detail::cmpeq_epi64_sse2(lhs, rhs);
+                        return sse_detail::cmpeq_epi64_sse2(lhs, rhs);
 #endif
                     }
                 }
@@ -252,10 +286,7 @@ namespace xsimd
 
     template <class T, std::size_t N>
     inline sse_int_batch<T, N>::sse_int_batch(T i)
-        : m_value(sizeof(T) == 1 ? _mm_set1_epi8(i)  :
-                  sizeof(T) == 2 ? _mm_set1_epi16(i) :
-                  sizeof(T) == 4 ? _mm_set1_epi32(i) : 
-                                   _mm_set1_epi64x(i))
+        : m_value(sse_detail::int_set(std::integral_constant<std::size_t, sizeof(T)>{}, i))
     {
     }
 
@@ -318,6 +349,20 @@ namespace xsimd
     }
 
     template <class T, std::size_t N>
+    inline batch<T, N>& sse_int_batch<T, N>::load_aligned(const flipped_sign_type_t<T>* src)
+    {
+        m_value = _mm_load_si128((__m128i const*)src);
+        return (*this)();
+    }
+
+    template <class T, std::size_t N>
+    inline batch<T, N>& sse_int_batch<T, N>::load_unaligned(const flipped_sign_type_t<T>* src)
+    {
+        m_value = _mm_loadu_si128((__m128i const*)src);
+        return (*this)();
+    }
+
+    template <class T, std::size_t N>
     inline void sse_int_batch<T, N>::store_aligned(T* dst) const
     {
         _mm_store_si128((__m128i*)dst, m_value);
@@ -325,6 +370,18 @@ namespace xsimd
 
     template <class T, std::size_t N>
     inline void sse_int_batch<T, N>::store_unaligned(T* dst) const
+    {
+        _mm_storeu_si128((__m128i*)dst, m_value);
+    }
+
+    template <class T, std::size_t N>
+    inline void sse_int_batch<T, N>::store_aligned(flipped_sign_type_t<T>* dst) const
+    {
+        _mm_store_si128((__m128i*)dst, m_value);
+    }
+
+    template <class T, std::size_t N>
+    inline void sse_int_batch<T, N>::store_unaligned(flipped_sign_type_t<T>* dst) const
     {
         _mm_storeu_si128((__m128i*)dst, m_value);
     }

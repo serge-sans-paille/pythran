@@ -33,12 +33,15 @@ namespace numpy
     struct asarray_chkfinite;
     struct clip;
     struct fix;
+    struct floor_divide;
     struct isfinite;
     struct isinf;
     struct isnan;
     struct isposinf;
     struct ldexp;
     struct logaddexp2;
+    struct maximum;
+    struct minimum;
     struct nan_to_num;
     struct nextafter;
     struct rint;
@@ -98,6 +101,12 @@ namespace types
         // not supported by xsimd
         !std::is_same<O, numpy::functor::nextafter>::value &&
         !std::is_same<O, numpy::functor::spacing>::value &&
+        // not supported for complex numbers
+        !(utils::any_of<
+              is_complex<typename dtype_of<Args>::type>::value...>::value &&
+          (std::is_same<O, numpy::functor::floor_divide>::value ||
+           std::is_same<O, numpy::functor::maximum>::value ||
+           std::is_same<O, numpy::functor::minimum>::value)) &&
         // transtyping
         !std::is_same<O, numpy::functor::bool_>::value &&
         !std::is_same<O, numpy::functor::int8>::value &&
@@ -110,7 +119,7 @@ namespace types
         !std::is_same<O, numpy::functor::uint64>::value &&
         !std::is_same<O, numpy::functor::float32>::value &&
         !std::is_same<O, numpy::functor::float64>::value &&
-        // special functions not in the scope of boost.simd
+        // special functions not in the scope of xsimd
         !std::is_same<O, scipy::special::functor::hankel1>::value &&
         !std::is_same<O, scipy::special::functor::hankel2>::value &&
         !std::is_same<O, scipy::special::functor::jv>::value &&

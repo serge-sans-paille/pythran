@@ -1300,6 +1300,11 @@ struct c_type_to_numpy_type
 };
 
 template <>
+struct c_type_to_numpy_type<long double>
+    : std::integral_constant<int, NPY_LONGDOUBLE> {
+};
+
+template <>
 struct c_type_to_numpy_type<double> : std::integral_constant<int, NPY_DOUBLE> {
 };
 
@@ -1315,6 +1320,11 @@ struct c_type_to_numpy_type<std::complex<float>>
 template <>
 struct c_type_to_numpy_type<std::complex<double>>
     : std::integral_constant<int, NPY_CDOUBLE> {
+};
+
+template <>
+struct c_type_to_numpy_type<std::complex<long double>>
+    : std::integral_constant<int, NPY_CLONGDOUBLE> {
 };
 
 template <>

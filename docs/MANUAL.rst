@@ -210,8 +210,8 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
     basic_type = bool | int | float | str | None
                | uint8 | uint16 | uint32 | uint64 | uintp
                | int8 | int16 | int32 | int64 | intp
-               | float32 | float64
-               | complex64 | complex128
+               | float32 | float64 | float128
+               | complex64 | complex128 | complex256
 
 The same syntax can be used to export global variable (in read only mode)::
 

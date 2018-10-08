@@ -724,5 +724,23 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>,
   using type = pythonic::types::ndarray<T, pS>;
 };
 
+template <class T, class Op, class... Args>
+struct __combined<pythonic::types::numpy_expr<Op, Args...>,
+                  pythonic::types::numpy_texpr<T>> {
+  using type = pythonic::types::ndarray<
+      typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+      pythonic::types::array<long,
+                             pythonic::types::numpy_expr<Op, Args...>::value>>;
+};
+
+template <class T, class Op, class... Args>
+struct __combined<pythonic::types::numpy_texpr<T>,
+                  pythonic::types::numpy_expr<Op, Args...>> {
+  using type = pythonic::types::ndarray<
+      typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+      pythonic::types::array<long,
+                             pythonic::types::numpy_expr<Op, Args...>::value>>;
+};
+
 /*}*/
 #endif

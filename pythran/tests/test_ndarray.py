@@ -950,3 +950,9 @@ def assign_ndarray(t):
         self.run_test('def float128_2(x): from numpy import ones, float128; return ones(x,dtype=float128)',
                       3,
                       float128_2=[int])
+
+    def test_texpr_expr_combined(self):
+        self.run_test("def texpr_expr_combined(x, y):\n if x: return y.T\n else: return y * 2",
+                      1,
+                      numpy.arange(10).reshape(5, 2),
+                      texpr_expr_combined=[int, NDArray[int,:,:]])

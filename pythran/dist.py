@@ -24,18 +24,17 @@ class PythranBuildExt(LegacyBuildExt, object):
     """
     def build_extension(self, ext):
         StringTypes = (str, unicode) if sys.version_info[0] == 2 else (str,)
+
         def get_value(obj, key):
             var = getattr(obj, key)
-            if isinstance(var, Iterable) and \
-                not isinstance(var, StringTypes):
+            if isinstance(var, Iterable) and not isinstance(var, StringTypes):
                 return var[0]
             else:
                 return var
 
         def set_value(obj, key, value):
             var = getattr(obj, key)
-            if isinstance(var, Iterable) and \
-                not isinstance(var, StringTypes):
+            if isinstance(var, Iterable) and not isinstance(var, StringTypes):
                 var[0] = value
             else:
                 setattr(obj, key, value)
@@ -71,10 +70,12 @@ class PythranBuildExt(LegacyBuildExt, object):
         # In general, distutils uses -Wstrict-prototypes, but this option
         # is not valid for C++ code, only for C.  Remove it if it's there
         # to avoid a spurious warning on every compilation.
-        try:
-            self.compiler.compiler_so.remove('-Wstrict-prototypes')
-        except (AttributeError, ValueError):
-            pass
+        for flag in cfg.cfg.get('compiler', "ignoreflags").split():
+            for target in ('compiler_so', 'linker_so'):
+                try:
+                    getattr(self.compiler, target).remove(flag)
+                except (AttributeError, ValueError):
+                    pass
 
         # Remove -arch i386 if 'x86_64' is specified, otherwise incorrect
         # code is generated, at least on OSX

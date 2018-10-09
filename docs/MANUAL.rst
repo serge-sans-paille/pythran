@@ -456,11 +456,11 @@ This section contains compiler flags configuration. For education purpose, the d
 
 :``include_dirs``:
 
-    Additionnal include directories to search for headers.
+    Additional include directories to search for headers.
 
 :``cflags``:
 
-    Additionnal random compiler flags (``-f``, ``-O``). Optimization flags generally
+    Additional random compiler flags (``-f``, ``-O``). Optimization flags generally
     go there. The default is to set ``-std=c++11`` for C++11 support.
 
 :``libs``:
@@ -475,11 +475,18 @@ This section contains compiler flags configuration. For education purpose, the d
 
 :``ldflags``:
 
-    Additionnal random linker flags.
+    Additional random linker flags.
 
 :``blas``:
 
     BLAS library to use. Default is ``blas``, but ``atlas`` or ``mkl`` are also viable choices.
+
+:``ignoreflags``:
+
+    Space-separated list of compiler flags that should not be forwarded to the
+    pythran backend compiler when inherited, for instance, from
+    ``python-config``. For instance ``-Wstrict-prototypes`` is a C-only option
+    that should be pruned.
 
 
 ``[pythran]``

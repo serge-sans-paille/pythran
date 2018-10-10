@@ -222,6 +222,7 @@ namespace types
                                       std::is_integral<B>::value,
                                   T, typename __combined<T, B>::type>::type;
   };
+#ifndef USE_XSIMD
   template <class T, class B>
   struct broadcast_dtype<std::complex<T>, B> {
     using type = T;
@@ -230,6 +231,7 @@ namespace types
   struct broadcast_dtype<std::complex<T0>, std::complex<T1>> {
     using type = std::complex<typename __combined<T0, T1>::type>;
   };
+#endif
 
   template <class T, class B>
   struct broadcast {

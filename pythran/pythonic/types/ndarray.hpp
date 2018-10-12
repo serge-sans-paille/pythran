@@ -1586,7 +1586,9 @@ bool from_python<types::ndarray<T, pS>>::is_convertible(PyObject *obj)
   auto const *dims = PyArray_DIMS(arr);
   long current_stride = PyArray_ITEMSIZE(arr);
   for (long i = std::tuple_size<pS>::value - 1; i >= 0; i--) {
-    if (stride[i] != current_stride)
+    if (stride[i] == 0 && dims[i] == 1) {
+      // happens when a new dim is added though None/newaxis
+    } else if (stride[i] != current_stride)
       return false;
     current_stride *= dims[i];
   }
@@ -1641,6 +1643,9 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>,
   for (long i = std::tuple_size<pS>::value - 1; i >= 0; i--) {
     if (stride[i] < 0) {
       return false;
+    }
+    if (stride[i] == 0 && dims[i] == 1) {
+      // happens when a new dim is added though None/newaxis
     } else if (stride[i] != current_stride) {
       at_least_one_stride = true;
       break;

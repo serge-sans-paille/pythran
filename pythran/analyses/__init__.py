@@ -16,8 +16,8 @@ from .argument_read_once import ArgumentReadOnce
 from .ast_matcher import ASTMatcher, AST_any, AST_or, Placeholder, Check
 from .cfg import CFG
 from .constant_expressions import ConstantExpressions
-from .extended_syntax_check import ExtendedSyntaxCheck
 from .dependencies import Dependencies
+from .extended_syntax_check import ExtendedSyntaxCheck
 from .global_declarations import GlobalDeclarations
 from .global_effects import GlobalEffects
 from .globals_analysis import Globals
@@ -25,6 +25,7 @@ from .has_break import HasBreak
 from .has_continue import HasContinue
 from .has_return import HasReturn
 from .identifiers import Identifiers
+from .immediates import Immediates
 from .imported_ids import ImportedIds
 from .inlinable import Inlinable
 from .is_assigned import IsAssigned
@@ -36,9 +37,9 @@ from .node_count import NodeCount
 from .optimizable_comprehension import OptimizableComprehension
 from .ordered_global_declarations import OrderedGlobalDeclarations
 from .parallel_maps import ParallelMaps
-from .range_values import RangeValues
 from .potential_iterator import PotentialIterator
 from .pure_expressions import PureExpressions
+from .range_values import RangeValues
 from .scope import Scope
 from .static_expressions import StaticExpressions, HasStaticExpression
 from .use_def_chain import UseDefChain

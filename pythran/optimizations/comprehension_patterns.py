@@ -25,18 +25,12 @@ class ComprehensionPatterns(Transformation):
     Transforms list comprehension into intrinsics.
     >>> import gast as ast
     >>> from pythran import passmanager, backend
-    >>> node = ast.parse("[x*x for x in range(10)]")
+    >>> node = ast.parse("def foo(y) : return [x for x in y]")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ComprehensionPatterns, node)
     >>> print(pm.dump(backend.Python, node))
-    __builtin__.map((lambda x: (x * x)), range(10))
-
-    #>>> node = ast.parse("(x*x for x in range(10))")
-    #>>> pm = passmanager.PassManager("test")
-    #>>> _, node = pm.apply(ComprehensionPatterns, node)
-    #>>> print(pm.dump(backend.Python, node))
-    #import itertools as __pythran_import_itertools
-    #__pythran_import_itertools.imap((lambda x: (x * x)), range(10))
+    def foo(y):
+        return __builtin__.map((lambda x: x), y)
     '''
 
     def __init__(self):

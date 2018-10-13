@@ -21,4 +21,4 @@ try:
 except ImportError:
     # No color available, use default config
     logging.basicConfig(format='%(levelname)s: %(message)s')
-    logger.warn("Disabling color, you really want to install colorlog.")
+    logger.info("Disabling color, you really want to install colorlog.")

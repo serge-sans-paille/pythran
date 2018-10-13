@@ -352,7 +352,8 @@ Tired of typing the same compiler switches again and again? Store them in
 ``$XDG_CONFIG_HOME/.pythranrc``!
 
 Wants to try your own compiler? Update the `CC` and `CXX` fields from your
-`pythranrc`, or set the same env variables to the right compilers.
+`pythranrc`, or set the same env variables to the right compilers. Environment
+variables have greater precedence than configuration file.
 
 The careful reader might have noticed the ``-p`` flag from the command line. It
 makes it possible to define your own optimization sequence::

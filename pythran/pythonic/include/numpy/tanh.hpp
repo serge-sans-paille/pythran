@@ -11,8 +11,12 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+
+#define TRIGO_FUN tanh
+#include "pythonic/include/numpy/trigo.hpp"
+
 #define NUMPY_NARY_FUNC_NAME tanh
-#define NUMPY_NARY_FUNC_SYM xsimd::tanh
+#define NUMPY_NARY_FUNC_SYM wrapper::tanh
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

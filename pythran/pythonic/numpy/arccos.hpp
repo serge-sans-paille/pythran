@@ -13,7 +13,7 @@ namespace numpy
 {
 
 #define NUMPY_NARY_FUNC_NAME arccos
-#define NUMPY_NARY_FUNC_SYM xsimd::acos
+#define NUMPY_NARY_FUNC_SYM wrapper::acos
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 

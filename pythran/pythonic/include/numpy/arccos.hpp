@@ -12,8 +12,11 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
+#define TRIGO_FUN acos
+#include "pythonic/include/numpy/trigo.hpp"
+
 #define NUMPY_NARY_FUNC_NAME arccos
-#define NUMPY_NARY_FUNC_SYM xsimd::acos
+#define NUMPY_NARY_FUNC_SYM wrapper::acos
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 

@@ -37,8 +37,9 @@ class PythranMagics(Magics):
     @magic_arguments.magic_arguments()
     @magic_arguments.argument('-D', action='append', default=[])
     @magic_arguments.argument('-O', action='append', default=[])
-    @magic_arguments.argument('-march', action='append', default=[])
-    @magic_arguments.argument('-fopenmp', action='store_true')
+    @magic_arguments.argument('-m', action='append', default=[])
+    @magic_arguments.argument('-W', action='append', default=[])
+    @magic_arguments.argument('-f', action='append', default=[])
     @cell_magic
     def pythran(self, line, cell):
         """
@@ -53,17 +54,12 @@ class PythranMagics(Magics):
         kwargs = {}
         if args.D:
             kwargs['define_macros'] = args.D
-        if args.O:
-            kwargs.setdefault('extra_compile_args', []).extend(
-                '-O' + str(x) for x in args.O)
-        if args.march:
-            kwargs.setdefault('extra_compile_args', []).extend(
-                '-march=' + str(x) for x in args.march)
-        if args.fopenmp:
-            kwargs.setdefault('extra_compile_args', []).append(
-                '-fopenmp')
-            kwargs.setdefault('extra_link_args', []).append(
-                '-fopenmp')
+        for v in "OmWf":
+            args_v = getattr(args, v)
+            for target in ('extra_compile_args', 'extra_link_args'):
+                kwargs.setdefault(target, []).extend('-{}{}'.format(v, x)
+                                                     for x in args_v)
+
         m = hashlib.md5()
         m.update(line.encode('utf-8'))
         m.update(cell.encode('utf-8'))

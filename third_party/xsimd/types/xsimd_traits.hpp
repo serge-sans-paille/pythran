@@ -19,7 +19,7 @@
 
 #if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX512_VERSION
 #define XSIMD_BATCH_INT8_SIZE 64
-// #define XSIMD_BATCH_INT16_SIZE 32
+#define XSIMD_BATCH_INT16_SIZE 32
 #define XSIMD_BATCH_INT32_SIZE 16
 #define XSIMD_BATCH_INT64_SIZE 8
 #define XSIMD_BATCH_FLOAT_SIZE 16
@@ -40,7 +40,7 @@
 #define XSIMD_BATCH_DOUBLE_SIZE 2
 #elif XSIMD_ARM_INSTR_SET >= XSIMD_ARM7_NEON_VERSION
 #define XSIMD_BATCH_INT8_SIZE 16
-// #define XSIMD_BATCH_INT16_SIZE 8
+#define XSIMD_BATCH_INT16_SIZE 8
 #define XSIMD_BATCH_INT32_SIZE 4
 #define XSIMD_BATCH_INT64_SIZE 2
 #define XSIMD_BATCH_FLOAT_SIZE 4
@@ -122,6 +122,20 @@ namespace xsimd
         using type = int32_t;
         static constexpr size_t size = simd_traits<type>::size;
     };
+
+#ifdef XSIMD_32_BIT_ABI
+    template <>
+    struct simd_traits<long> : simd_traits<int32_t>
+    {
+    };
+
+    template <>
+    struct revert_simd_traits<batch<long, XSIMD_BATCH_INT32_SIZE>>
+    {
+        using type = long;
+        static constexpr size_t size = simd_traits<type>::size;
+    };
+#endif
 
     template <>
     struct simd_traits<int64_t>
@@ -233,6 +247,20 @@ namespace xsimd
         static constexpr size_t size = simd_traits<type>::size;
     };
 
+#ifdef XSIMD_32_BIT_ABI
+    template <>
+    struct simd_traits<unsigned long> : simd_traits<uint32_t>
+    {
+    };
+
+    template <>
+    struct revert_simd_traits<batch<unsigned long, XSIMD_BATCH_INT32_SIZE>>
+    {
+        using type = unsigned long;
+        static constexpr size_t size = simd_traits<type>::size;
+    };
+#endif
+
     template <>
     struct simd_traits<uint64_t>
     {
@@ -308,7 +336,8 @@ namespace xsimd
         struct simd_condition
         {
             static constexpr bool value =
-                std::is_same<T1, T2>::value ||
+                (std::is_same<T1, T2>::value && !std::is_same<T1, bool>::value) ||
+                (std::is_same<T1, bool>::value && !std::is_same<T2, bool>::value) ||
                 std::is_same<T1, float>::value ||
                 std::is_same<T1, double>::value ||
                 std::is_same<T1, int8_t>::value ||
@@ -321,35 +350,47 @@ namespace xsimd
                 detail::is_complex<T1>::value;
         };
 
-        template <class T1, class T2>
+        template <class T1, class T2, std::size_t N>
         struct simd_return_type_impl
-            : std::enable_if<simd_condition<T1, T2>::value, simd_type<T2>>
+            : std::enable_if<simd_condition<T1, T2>::value, batch<T2, N>>
         {
         };
 
-        // Do not rely on simd_return_type_impl<T1, T2> becasue N2 can be different from
-        // simd_type<T2>::size
-        template <class T1, std::size_t N1, class T2, std::size_t N2>
-        struct simd_return_type_impl<batch<T1, N1>, batch<T2, N2>>
-            : std::enable_if<simd_condition<T1, T2>::value, batch<T2, N2>>
+        template <class T2, std::size_t N>
+        struct simd_return_type_impl<bool, T2, N>
+            : std::enable_if<simd_condition<bool, T2>::value, batch_bool<T2, N>>
         {
         };
 
-        template <class T1, std::size_t N1, class T2, std::size_t N2>
-        struct simd_return_type_impl<batch<T1, N1>, batch_bool<T2, N2>>
-            : std::enable_if<simd_condition<T1, T2>::value, batch_bool<T2, N2>>
+        template <class T1, class T2, std::size_t N>
+        struct simd_return_type_impl<std::complex<T1>, T2, N>
+            : std::enable_if<simd_condition<T1, T2>::value, batch<std::complex<T2>, N>>
         {
         };
 
-        template <class T1, std::size_t N1, class T2, std::size_t N2>
-        struct simd_return_type_impl<batch_bool<T1, N1>, batch_bool<T2, N2>>
-            : std::enable_if<simd_condition<T1, T2>::value, batch_bool<T2, N2>>
+        template <class T1, class T2, std::size_t N>
+        struct simd_return_type_impl<std::complex<T1>, std::complex<T2>, N>
+            : std::enable_if<simd_condition<T1, T2>::value, batch<std::complex<T2>, N>>
         {
         };
+
+#ifdef XSIMD_ENABLE_XTL_COMPLEX
+        template <class T1, bool i3ec, class T2, std::size_t N>
+        struct simd_return_type_impl<xtl::xcomplex<T1, T1, i3ec>, T2, N>
+            : std::enable_if<simd_condition<T1, T2>::value, batch<xtl::xcomplex<T2, T2, i3ec>, N>>
+        {
+        };
+
+        template <class T1, class T2, bool i3ec, std::size_t N>
+        struct simd_return_type_impl<xtl::xcomplex<T1, T1, i3ec>, xtl::xcomplex<T2, T2, i3ec>, N>
+            : std::enable_if<simd_condition<T1, T2>::value, batch<xtl::xcomplex<T2, T2, i3ec>, N>>
+        {
+        };
+#endif
     }
 
-    template <class T1, class T2>
-    using simd_return_type = typename detail::simd_return_type_impl<T1, T2>::type;
+    template <class T1, class T2, std::size_t N = simd_traits<T2>::size>
+    using simd_return_type = typename detail::simd_return_type_impl<T1, T2, N>::type;
 
     /*****************
      * is_batch_bool *

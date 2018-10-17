@@ -26,9 +26,11 @@ namespace numpy
   }
   template <class Op, class E, class T>
 #ifdef USE_XSIMD
-  typename std::enable_if<!E::is_vectorizable ||
-                              std::is_same<typename E::dtype, bool>::value,
-                          long>::type
+  typename std::enable_if<
+      !E::is_vectorizable ||
+          !types::is_vector_op<typename Op::op, T, T>::value ||
+          std::is_same<typename E::dtype, bool>::value,
+      long>::type
 #else
   long
 #endif
@@ -49,9 +51,10 @@ namespace numpy
 
 #ifdef USE_XSIMD
   template <class Op, class E, class T>
-  typename std::enable_if<E::is_vectorizable &&
-                              !std::is_same<typename E::dtype, bool>::value,
-                          long>::type
+  typename std::enable_if<
+      E::is_vectorizable && types::is_vector_op<typename Op::op, T, T>::value &&
+          !std::is_same<typename E::dtype, bool>::value,
+      long>::type
   _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
   {
     using vT = xsimd::simd_type<T>;

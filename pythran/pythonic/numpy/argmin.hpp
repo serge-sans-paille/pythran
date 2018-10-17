@@ -13,6 +13,7 @@ namespace numpy
   template <class E>
   struct argmin_op {
     using op = functor::minimum;
+    using expr_type = E;
     static typename E::dtype constexpr limit()
     {
       return std::numeric_limits<typename E::dtype>::max();

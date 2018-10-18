@@ -130,7 +130,7 @@ class FunctionDeclaration(NestedDeclarator):
 
     def get_decl_pair(self):
         sub_tp, sub_decl = self.subdecl.get_decl_pair()
-        return sub_tp, ("%s(%s) %s" % (
+        return sub_tp + ['inline'], ("%s(%s) %s" % (
             sub_decl,
             ", ".join(ad.inline() for ad in self.arg_decls),
             " ".join(self.attributes)))

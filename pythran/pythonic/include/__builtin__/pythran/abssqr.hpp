@@ -21,6 +21,15 @@ namespace __builtin__
 
       template <class T>
       T abssqr(std::complex<T> const &v);
+
+#ifdef USE_XSIMD
+      template <class T, std::size_t N>
+      auto abssqr(xsimd::batch<std::complex<T>, N> const &val)
+          -> decltype(xsimd::abs(val *val))
+      {
+        return xsimd::abs(val * val);
+      }
+#endif
     }
 
 #define NUMPY_NARY_FUNC_NAME abssqr

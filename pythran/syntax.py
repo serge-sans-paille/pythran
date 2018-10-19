@@ -184,12 +184,7 @@ def check_specs(mod, specs, renamings, types):
 
     functions = {renamings.get(k, k): v for k, v in specs.functions.items()}
     for fname, signatures in functions.items():
-        try:
-            ftype = types[fname]
-        except KeyError:
-            raise PythranSyntaxError(
-                "Invalid spec: exporting undefined function `{}`"
-                .format(fname))
+        ftype = types[fname]
         for signature in signatures:
             sig_type = Function([tr(p) for p in signature], TypeVariable())
             try:
@@ -203,3 +198,32 @@ def check_specs(mod, specs, renamings, types):
                         ftype,
                         ", ".join(map(str, sig_type.types[:-1])))
                 )
+
+
+def check_exports(mod, specs, renamings):
+    '''
+    Does nothing but raising PythranSyntaxError if specs
+    references an undefined global
+    '''
+    functions = {renamings.get(k, k): v for k, v in specs.functions.items()}
+
+    mod_functions = {node.name: node for node in mod.body
+                     if isinstance(node, ast.FunctionDef)}
+
+    for fname, signatures in functions.items():
+        try:
+            fnode = mod_functions[fname]
+        except KeyError:
+            raise PythranSyntaxError(
+                "Invalid spec: exporting undefined function `{}`"
+                .format(fname))
+        for signature in signatures:
+            args_count = len(fnode.args.args)
+            if len(signature) > args_count:
+                raise PythranSyntaxError(
+                    "Too many arguments when exporting `{}`"
+                    .format(fname))
+            elif len(signature) < args_count - len(fnode.args.defaults):
+                raise PythranSyntaxError(
+                    "Not enough arguments when exporting `{}`"
+                    .format(fname))

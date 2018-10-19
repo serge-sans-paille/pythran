@@ -18,7 +18,7 @@ from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
 from pythran.spec import load_specfile, Spec
 from pythran.spec import spec_to_string
-from pythran.syntax import check_specs
+from pythran.syntax import check_specs, check_exports
 from pythran.version import __version__
 import pythran.frontend as frontend
 
@@ -171,6 +171,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
             check_specs(ir, specs, renamings, types)
 
         specs.to_docstrings(docstrings)
+        check_exports(ir, specs, renamings)
 
         if isinstance(code, bytes):
             code_bytes = code

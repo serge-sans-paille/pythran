@@ -34,7 +34,14 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
     def visit_Call(self, node):
         self.generic_visit(node)
         func = node.func
-        for alias in self.strict_aliases[func]:
+        try:
+            aliases = self.strict_aliases[func]
+        except KeyError:
+            raise PythranSyntaxError(
+                "Call to unknown function `{}`, it's a trap!"
+                .format(getattr(func, 'id', None) or func),
+                node)
+        for alias in aliases:
             if not isinstance(alias, ast.FunctionDef):
                 continue
             ubound = len(alias.args.args)

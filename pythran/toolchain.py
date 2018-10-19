@@ -5,7 +5,7 @@ a dynamic library, see __init__.py for exported interfaces.
 
 from pythran.backend import Cxx, Python
 from pythran.config import cfg, make_extension
-from pythran.cxxgen import PythonModule, Define, Include, Line, Statement
+from pythran.cxxgen import PythonModule, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.cxxgen import ReturnStatement
 from pythran.dist import PythranExtension, PythranBuildExt
@@ -18,7 +18,7 @@ from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
 from pythran.spec import load_specfile, Spec
 from pythran.spec import spec_to_string
-from pythran.syntax import check_specs
+from pythran.syntax import check_specs, check_exports
 from pythran.version import __version__
 import pythran.frontend as frontend
 
@@ -171,6 +171,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
             check_specs(ir, specs, renamings, types)
 
         specs.to_docstrings(docstrings)
+        check_exports(ir, specs, renamings)
 
         if isinstance(code, bytes):
             code_bytes = code
@@ -314,6 +315,7 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
               )
     except SystemExit as e:
         raise CompileError(str(e))
+
     def copy(src_file, dest_file):
         # not using shutil.copy because it fails to copy stat across devices
         with open(src_file, 'rb') as src:

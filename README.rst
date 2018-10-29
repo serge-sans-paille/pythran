@@ -73,9 +73,9 @@ Depending on your setup, you may need to add the following to your \\~/.pythranr
 ArchLinux
 =========
 
-Using `yaourt`::
+Using any working `AUR helper <https://wiki.archlinux.org/index.php/AUR_helpers>`_, say aurman::
 
-    $> yaourt -S python2-pythran-git
+    $> aurman -S python-pythran
 
 Windows
 =======

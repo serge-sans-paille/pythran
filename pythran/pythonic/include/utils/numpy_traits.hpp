@@ -59,14 +59,6 @@ namespace types
    * Only used to write concise expression templates
    */
   template <class T>
-  struct is_pod_array {
-    static constexpr bool value = false;
-  };
-  template <class T, size_t N>
-  struct is_pod_array<types::array<T, N>> {
-    static constexpr bool value = true;
-  };
-  template <class T>
   struct is_array {
     static constexpr bool value = false;
   };

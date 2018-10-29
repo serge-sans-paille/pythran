@@ -54,15 +54,6 @@ class Interval(object):
             high = self.high
         return Interval(low, high)
 
-    def __sub__(self, other):
-        """
-        Combiner for Subtraction operation.
-
-        >>> Interval(1, 5) - Interval(-5, -4)
-        Interval(low=5, high=10)
-        """
-        return Interval(self.low - other.high, self.high - other.low)
-
     def __mul__(self, other):
         """
         Combiner for Multiplication operation.
@@ -74,20 +65,18 @@ class Interval(object):
         >>> Interval(1, 5) * Interval(3, 8)
         Interval(low=3, high=40)
         """
+
+        def all_bounds():
+            return itertools.chain(self.bounds(), other.bounds())
+
+        if any(map(isinf, all_bounds())) and any(x == 0 for x in all_bounds()):
+            return UNKNOWN_RANGE
+
         res = [v1 * v2 for v1, v2 in
                itertools.product(self.bounds(), other.bounds())]
         return Interval(min(res), max(res))
 
     __mult__ = __mul__
-
-    def __add__(self, other):
-        """
-        Combiner for Addition operation.
-
-        >>> Interval(-12, 5) + Interval(-5, -3)
-        Interval(low=-17, high=2)
-        """
-        return Interval(self.low + other.low, self.high + other.high)
 
     def __div__(self, other):
         """
@@ -100,15 +89,55 @@ class Interval(object):
         >>> Interval(-1, 5) / Interval(-5, 3)
         Interval(low=-inf, high=inf)
         """
+
         if other.low <= 0 and other.high >= 0:
             return UNKNOWN_RANGE
         if other.low == 0:
             return UNKNOWN_RANGE
+
+        def all_bounds():
+            return itertools.chain(self.bounds(), other.bounds())
+
+        if any(isinf(x) for x in all_bounds()):
+            return UNKNOWN_RANGE
+
         res = [v1 // v2 for v1, v2 in
                itertools.product(self.bounds(), other.bounds())]
         return Interval(min(res), max(res))
 
     __truediv__ = __div__
+
+    def __add__(self, other):
+        """
+        Combiner for Addition operation.
+
+        >>> Interval(-12, 5) + Interval(-5, -3)
+        Interval(low=-17, high=2)
+        """
+        sl, sh, ol, oh = self.low, self.high, other.low, other.high
+
+        if isinf(sl) and isinf(ol) and sl * ol < 0:
+            return UNKNOWN_RANGE
+        if isinf(sh) and isinf(oh) and sh * oh < 0:
+            return UNKNOWN_RANGE
+
+        return Interval(sl + ol, sh + oh)
+
+    def __sub__(self, other):
+        """
+        Combiner for Subtraction operation.
+
+        >>> Interval(1, 5) - Interval(-5, -4)
+        Interval(low=5, high=10)
+        """
+        sl, sh, ol, oh = self.low, self.high, other.low, other.high
+
+        if isinf(sl) and isinf(oh):
+            return UNKNOWN_RANGE
+        if isinf(sh) and isinf(ol):
+            return UNKNOWN_RANGE
+
+        return Interval(sl - oh, sh - ol)
 
     def __rshift__(range1, range2):
         """

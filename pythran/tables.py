@@ -4518,7 +4518,7 @@ for module_name in ["omp", "scipy.special", "scipy"]:
     try:
         __import__(module_name)
     except ImportError:
-        logger.warn(
+        logger.info(
             "Pythran support disabled for module: {}".format(module_name)
         )
         parts = module_name.split(".")

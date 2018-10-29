@@ -13,7 +13,7 @@ namespace numpy
 {
 
 #define NUMPY_NARY_FUNC_NAME cos
-#define NUMPY_NARY_FUNC_SYM wrapper::cos
+#define NUMPY_NARY_FUNC_SYM xsimd::cos
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

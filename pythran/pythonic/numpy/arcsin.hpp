@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME arcsin
-#define NUMPY_NARY_FUNC_SYM wrapper::asin
+#define NUMPY_NARY_FUNC_SYM xsimd::asin
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

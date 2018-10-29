@@ -14,7 +14,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME cosh
-#define NUMPY_NARY_FUNC_SYM wrapper::cosh
+#define NUMPY_NARY_FUNC_SYM xsimd::cosh
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

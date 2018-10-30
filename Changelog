@@ -42,7 +42,7 @@
 	* Most tests now work on Python 2 and Python 3
 
 	* Many bugfixes triggered by the bug report of Yann Diorcet, Jean Laroche
-	and David Menéndez Hurtado, Fabien Rozar, C. Claus
+	  and David Menéndez Hurtado, Fabien Rozar, C. Claus
 
 
 2018-04-23 Serge Guelton <serge.guelton@telecom-bretagne.eu>

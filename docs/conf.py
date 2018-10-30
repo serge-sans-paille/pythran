@@ -27,6 +27,7 @@ with open("../README.rst") as readme:
 
 
     MANUAL
+    EXAMPLES
     CLI
     SUPPORT
     DEVGUIDE
@@ -123,7 +124,7 @@ with open('SUPPORT.rst', 'w') as support:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = ['nbsphinx',]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -162,7 +163,7 @@ release = version
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['**.ipynb_checkpoints']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.

@@ -335,7 +335,9 @@ line::
     #pythran export capsule foo(double*, doule)
 
 Note that pointer types are only supported within the context of a capsule, as
-they don't match any real Python type.
+they don't match any real Python type. **Any** Pythran type is valid as capsule
+parameter, but beware that non scalar or pointer types only make sense withing
+the Pythran context.
 
 Advanced Usage
 --------------

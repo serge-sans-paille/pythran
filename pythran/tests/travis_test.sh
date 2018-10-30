@@ -3,7 +3,7 @@ run_tests() {
     then
         if [ "$PYTHON_VERSION" = 2 ]
         then
-            PYTHONPATH=$PWD:$PYTHONPATH py.test pythran/tests/test_xdoc.py pythran/tests/notebooks --nbval
+            PYTHONPATH=$PWD:$PYTHONPATH py.test pythran/tests/test_xdoc.py pythran/tests/notebooks docs/examples --nbval
         else
             PYTHONPATH=$PWD:$PYTHONPATH py.test pythran/tests/test_xdoc.py
         fi

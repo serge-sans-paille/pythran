@@ -39,6 +39,7 @@
 #include "pythonic/include/types/numpy_vexpr.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
+#include "pythonic/include/types/pointer.hpp"
 
 #include "pythonic/include/__builtin__/len.hpp"
 
@@ -542,6 +543,11 @@ namespace types
     ndarray<T, pS> copy() const;
     intptr_t id() const;
     pS const &shape() const;
+
+    operator pointer<T>()
+    {
+      return {buffer};
+    }
   };
 
   /* pretty printing { */

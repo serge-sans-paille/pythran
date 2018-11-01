@@ -1503,7 +1503,7 @@ from_python<types::numpy_gexpr<types::ndarray<T, N>, S...>>::convert(
                       utils::int_<sizeof...(S)>());
   types::numpy_gexpr<types::ndarray<T, N>, S...> r(base_array, slices);
 
-  Py_INCREF(obj);
+  Py_INCREF(base_arr);
   return r;
 }
 

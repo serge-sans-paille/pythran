@@ -82,6 +82,11 @@ def dict_of_complex64_and_complex_128(l):
                           ndarray_with_negative_stride=[NDArray[np.uint8, ::-1]])
 
 
+    def iexpr_with_strides_and_offsets(self):
+        code = 'def iexpr_with_strides_and_offsets(a): return a'
+        self.run_test(code, np.array(np.arange((160), dtype=np.uint8).reshape((4, 5, 8)))[1][1::][:-1],
+                      ndarray_with_strides_and_offsets=[NDArray[np.uint8, :, ::-1]])
+
     def test_ndarray_with_strides_and_offsets(self):
         code = 'def ndarray_with_strides_and_offsets(a): return a'
         self.run_test(code, np.array(np.arange((128), dtype=np.uint8).reshape((16,8)))[1::3,2::2],

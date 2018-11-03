@@ -50,6 +50,7 @@
 #include "pythonic/operator_/idiv.hpp"
 #include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/ixor.hpp"
 #include "pythonic/operator_/isub.hpp"
 
 #include <cassert>
@@ -588,6 +589,13 @@ namespace types
   ndarray<T, pS> &ndarray<T, pS>::operator|=(Expr const &expr)
   {
     return update_<pythonic::operator_::functor::ior>(expr);
+  }
+
+  template <class T, class pS>
+  template <class Expr>
+  ndarray<T, pS> &ndarray<T, pS>::operator^=(Expr const &expr)
+  {
+    return update_<pythonic::operator_::functor::ixor>(expr);
   }
 
   /* element indexing

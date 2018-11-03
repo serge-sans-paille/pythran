@@ -203,6 +203,13 @@ namespace types
   {
     return update_<pythonic::operator_::functor::ior>(expr);
   }
+
+  template <class T, class F>
+  template <class Expr>
+  numpy_vexpr<T, F> &numpy_vexpr<T, F>::operator^=(Expr const &expr)
+  {
+    return update_<pythonic::operator_::functor::ixor>(expr);
+  }
 }
 PYTHONIC_NS_END
 

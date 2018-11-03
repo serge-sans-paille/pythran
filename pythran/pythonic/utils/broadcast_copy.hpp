@@ -200,7 +200,8 @@ namespace utils
   template <class E, class F, size_t N, size_t D, bool vector_form>
   E &broadcast_copy(E &self, F const &other)
   {
-    broadcast_copy_dispatcher<E, F, N, D, vector_form>{}(self, other);
+    if (self.size())
+      broadcast_copy_dispatcher<E, F, N, D, vector_form>{}(self, other);
     return self;
   }
 
@@ -368,7 +369,8 @@ namespace utils
   template <class Op, class E, class F, size_t N, size_t D, bool vector_form>
   E &broadcast_update(E &self, F const &other)
   {
-    broadcast_update_dispatcher<Op, vector_form, E, F, N, D>{}(self, other);
+    if (self.size())
+      broadcast_update_dispatcher<Op, vector_form, E, F, N, D>{}(self, other);
     return self;
   }
 }

@@ -11,6 +11,11 @@
   }                                                                            \
   }
 
+// for backward compatibility
+#ifdef USE_BOOST_SIMD
+#define USE_XSIMD
+#endif
+
 #define STR_(M) #M
 // clang-format off
 #define INCLUDE_FILE(U, M) STR_(U/M.hpp)

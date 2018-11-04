@@ -173,7 +173,7 @@ To the input file. You can compile it as the previous code::
 
 and you'll get a decent binary. But what you really want to do is::
 
-    $> pythran -DUSE_BOOST_SIMD -fopenmp -march=native arc_distance.py
+    $> pythran -DUSE_XSIMD -fopenmp -march=native arc_distance.py
 
 which basically tells the compiler to parallelize and vectorize loops using
 whatever hardware available on your machine. Then you'll get **really** fast
@@ -447,8 +447,8 @@ This section contains compiler flags configuration. For education purpose, the d
 
 :``defines``:
 
-    Preprocessor definitions. Pythran is sensible to ``USE_BOOST_SIMD`` and
-    ``PYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on Boost.simd
+    Preprocessor definitions. Pythran is sensible to ``USE_XSIMD`` and
+    ``PYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on `xsimd <https://github.com/QuantStack/xsimd>`_
     vectorization and the latter controls the mimimal loop trip count to turn a
     sequential loop into a parallel loop. The default is to set ``USE_GMP``, so
     that Python's longs are represented using GMP.

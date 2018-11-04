@@ -1,3 +1,30 @@
+2018-11-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Moving to xsimd as vectorization engine, requires -DUSE_XSIMD
+
+	* Better support of view conversion from Python to Pythran
+
+	* Improved Cython integration
+
+	* Improved documentation, add exemple section
+
+	* Updated ArchLinux Packaging
+
+	* Remove useless warnings during compilation
+
+	* Faster ``abs(x**2)`` for complex numbers
+
+	* IPython magic now accepts most optimization flags
+
+	* Automatic detection of partially (or fully) constant shape for arrays
+
+	* Add ignoreflags settings to .pythranrc to skip some compiler flags
+
+	* Quad number (aka long double) basic support
+
+	* And many minor bugfixes, as usual :-)
+
+
 2018-09-16 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Decent support for ``is None`` pattern

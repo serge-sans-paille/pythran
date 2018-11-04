@@ -11,6 +11,7 @@
 #include "pythonic/operator_/idiv.hpp"
 #include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/ixor.hpp"
 #include "pythonic/operator_/isub.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -343,6 +344,13 @@ namespace types
   numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator|=(E const &expr)
   {
     return update_<pythonic::operator_::functor::ior>(expr);
+  }
+
+  template <class Arg>
+  template <class E>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator^=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::ixor>(expr);
   }
 
   // only implemented for N = 2

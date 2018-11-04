@@ -147,6 +147,9 @@ namespace types
 
     template <class E>
     numpy_vexpr &operator|=(E const &expr);
+
+    template <class E>
+    numpy_vexpr &operator^=(E const &expr);
   };
 }
 

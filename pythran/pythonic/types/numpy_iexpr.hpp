@@ -15,6 +15,7 @@
 #include "pythonic/operator_/idiv.hpp"
 #include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/ixor.hpp"
 #include "pythonic/operator_/isub.hpp"
 
 #include <numeric>
@@ -176,6 +177,19 @@ namespace types
   numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator|=(numpy_iexpr<Arg> const &expr)
   {
     return update_<pythonic::operator_::functor::ior>(expr);
+  }
+
+  template <class Arg>
+  template <class E>
+  numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator^=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::ixor>(expr);
+  }
+
+  template <class Arg>
+  numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator^=(numpy_iexpr<Arg> const &expr)
+  {
+    return update_<pythonic::operator_::functor::ixor>(expr);
   }
 
   template <class Arg>

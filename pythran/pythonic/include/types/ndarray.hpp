@@ -358,6 +358,9 @@ namespace types
     template <class Expr>
     ndarray &operator|=(Expr const &expr);
 
+    template <class Expr>
+    ndarray &operator^=(Expr const &expr);
+
     /* element indexing
      * differentiate const from non const, && r-value from l-value
      * */

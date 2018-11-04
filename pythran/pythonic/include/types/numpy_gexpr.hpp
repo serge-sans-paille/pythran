@@ -719,6 +719,11 @@ namespace types
 
     numpy_gexpr &operator&=(numpy_gexpr const &expr);
 
+    template <class E>
+    numpy_gexpr &operator^=(E const &expr);
+
+    numpy_gexpr &operator^=(numpy_gexpr const &expr);
+
     const_iterator begin() const;
     const_iterator end() const;
 

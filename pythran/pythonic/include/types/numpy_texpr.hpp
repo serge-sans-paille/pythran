@@ -220,6 +220,8 @@ namespace types
     numpy_texpr_2 &operator&=(Expr const &expr);
     template <class Expr>
     numpy_texpr_2 &operator|=(Expr const &expr);
+    template <class Expr>
+    numpy_texpr_2 &operator^=(Expr const &expr);
   };
 
   // only implemented for N = 2

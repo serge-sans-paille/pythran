@@ -299,3 +299,16 @@ def returned_none_member(a):
                 b = 1
             return (b, a)'''
         self.run_test(code, 3, test_987_3=[int])
+
+    def test_none_to_str(self):
+        code = """
+        def dump_as_str(x):
+            y = x
+            return str(y) + str(y) * 2
+        def none_to_str(x):
+            if x > 1:
+                y = None
+            else:
+                y = 2
+            return dump_as_str(None), dump_as_str(y)"""
+        self.run_test(code, 0, none_to_str=[int])

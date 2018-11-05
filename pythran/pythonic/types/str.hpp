@@ -264,6 +264,12 @@ namespace types
   {
   }
 
+  template <size_t N>
+  str::str(const char(&s)[N])
+      : data(s)
+  {
+  }
+
   str::str(const char *s, size_t n) : data(s, n)
   {
   }
@@ -282,6 +288,14 @@ namespace types
   str::str(T const &begin, T const &end)
       : data(begin, end)
   {
+  }
+
+  template <class T>
+  str::str(T const &s)
+  {
+    std::ostringstream oss;
+    oss << s;
+    *data = oss.str();
   }
 
   str::operator char() const
@@ -607,6 +621,12 @@ namespace types
   bool operator==(str const &s, char c)
   {
     return s.size() == 1 && s[0] == c;
+  }
+
+  template <size_t N>
+  bool operator==(char const(&self)[N], str const &other)
+  {
+    return other == self;
   }
 
   bool operator!=(char c, str const &s)

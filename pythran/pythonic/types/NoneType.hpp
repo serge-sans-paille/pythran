@@ -65,6 +65,14 @@ namespace types
   {
     return is_none ? NONE_ID : __builtin__::id(static_cast<const T &>(*this));
   }
+  template <class T>
+  std::ostream &operator<<(std::ostream &os, none<T, false> const &v)
+  {
+    if (v.is_none)
+      return os << none_type();
+    else
+      return os << static_cast<T const &>(v);
+  }
 
   /* specialization of none for integral types we cannot derive from */
   template <class T>
@@ -295,7 +303,7 @@ namespace types
   std::ostream &operator<<(std::ostream &os, none<T, true> const &v)
   {
     if (v.is_none)
-      return os << "None";
+      return os << none_type();
     else
       return os << v.data;
   }

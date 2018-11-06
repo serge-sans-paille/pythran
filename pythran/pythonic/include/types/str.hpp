@@ -126,12 +126,16 @@ namespace types
     str(std::string const &s);
     str(std::string &&s);
     str(const char *s);
+    template <size_t N>
+    str(const char(&s)[N]);
     str(const char *s, size_t n);
     str(char c);
     template <class S>
     str(sliced_str<S> const &other);
     template <class T>
     str(T const &begin, T const &end);
+    template <class T>
+    explicit str(T const &);
 
     explicit operator char() const;
     explicit operator long int() const;
@@ -191,6 +195,11 @@ namespace types
 
     explicit operator bool() const;
     long count(types::str const &sub) const;
+
+    intptr_t id() const
+    {
+      return reinterpret_cast<intptr_t>(&(*data));
+    }
   };
 
   size_t hash_value(str const &x);
@@ -204,7 +213,10 @@ namespace types
   str operator+(char const(&self)[N], str const &other);
 
   bool operator==(char c, str const &s);
-  bool operator==(str const &s, char c);
+
+  template <size_t N>
+  bool operator==(char const(&self)[N], str const &other);
+
   bool operator!=(char c, str const &s);
   bool operator!=(str const &s, char c);
   std::ostream &operator<<(std::ostream &os, str const &s);

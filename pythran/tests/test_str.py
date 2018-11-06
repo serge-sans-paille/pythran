@@ -206,3 +206,6 @@ class TestStr(TestEnv):
 
     def test_str_int(self):
         self.run_test("def str_int(s): return int(s)", "12", str_int=[str])
+
+    def test_str_id(self):
+        self.run_test("def str_id(x): return id(x) != 0", "hello", str_id=[str])

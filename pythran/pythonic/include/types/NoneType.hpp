@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_NONE_HPP
 
 #include "pythonic/include/types/assignable.hpp"
+#include <ostream>
 
 PYTHONIC_NS_BEGIN
 
@@ -14,6 +15,11 @@ namespace types
     none_type();
     intptr_t id() const;
   };
+
+  std::ostream &operator<<(std::ostream &os, none_type const &)
+  {
+    return os << "None";
+  }
 
   template <class T, bool is_fundamental = std::is_fundamental<T>::value>
   struct none;
@@ -40,6 +46,9 @@ namespace types
     explicit operator bool() const;
 
     intptr_t id() const;
+
+    template <class T0>
+    friend std::ostream &operator<<(std::ostream &os, none<T0, false> const &);
   };
 
   /* specialization of none for integral types we cannot derive from

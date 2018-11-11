@@ -29,24 +29,33 @@ namespace numpy
 {
   namespace functor
   {
+    struct arctan2;
     struct angle_in_rad;
     struct asarray_chkfinite;
     struct clip;
+    struct copysign;
+    struct divide;
     struct fix;
     struct floor_divide;
+    struct fmod;
+    struct hypot;
     struct isfinite;
     struct isinf;
     struct isnan;
     struct isposinf;
     struct ldexp;
+    struct logaddexp;
     struct logaddexp2;
     struct maximum;
     struct minimum;
     struct nan_to_num;
     struct nextafter;
+    struct power;
+    struct remainder;
     struct rint;
     struct signbit;
     struct spacing;
+    struct true_divide;
     struct where;
   }
 }
@@ -119,6 +128,21 @@ namespace types
         !std::is_same<O, numpy::functor::uint64>::value &&
         !std::is_same<O, numpy::functor::float32>::value &&
         !std::is_same<O, numpy::functor::float64>::value &&
+        // not supported for integral numbers
+        !(utils::any_of<std::is_integral<
+              typename dtype_of<Args>::type>::value...>::value &&
+          (std::is_same<O, numpy::functor::floor_divide>::value ||
+#if PY_MAJOR_VERSION >= 3
+           std::is_same<O, numpy::functor::true_divide>::value ||
+           std::is_same<O, numpy::functor::divide>::value ||
+#endif
+           std::is_same<O, numpy::functor::arctan2>::value ||
+           std::is_same<O, numpy::functor::copysign>::value ||
+           std::is_same<O, numpy::functor::logaddexp>::value ||
+           std::is_same<O, numpy::functor::power>::value ||
+           std::is_same<O, numpy::functor::remainder>::value ||
+           std::is_same<O, numpy::functor::hypot>::value ||
+           std::is_same<O, numpy::functor::fmod>::value)) &&
         // special functions not in the scope of xsimd
         !std::is_same<O, scipy::special::functor::hankel1>::value &&
         !std::is_same<O, scipy::special::functor::hankel2>::value &&

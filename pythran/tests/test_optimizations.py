@@ -451,3 +451,20 @@ class TestAnalyses(TestEnv):
 
     def test_falsepoly(self):
         self.run_test("def falsepoly():\n i = 2\n if i:\n  i='ok'\n else:\n  i='lolo'\n return i", falsepoly=[])
+
+    def test_global_effects_unknown(self):
+        code = '''
+            def bb(x):
+                return x[0]()
+
+
+            def ooo(a):
+                def aa():
+                    return a
+                return aa,
+
+            def global_effects_unknown(a):
+                    return bb(ooo(a))'''
+        self.run_test(code,
+                      1,
+                      global_effects_unknown=[int])

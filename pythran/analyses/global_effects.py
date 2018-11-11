@@ -99,10 +99,15 @@ class GlobalEffects(ModuleAnalysis):
             func_aliases,
             list())
         for func_alias in func_aliases:
-            # special hook for boundd functions
+            # special hook for bound functions
             if isinstance(func_alias, ast.Call):
                 bound_name = func_alias.args[0].id
                 func_alias = self.global_declarations[bound_name]
+
+            # conservative choice
+            if func_alias not in self.node_to_functioneffect:
+                func_alias = intrinsic.UnboundValue
+
             func_alias = self.node_to_functioneffect[func_alias]
             self.result.add_edge(self.current_function, func_alias)
         self.generic_visit(node)

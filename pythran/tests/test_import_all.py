@@ -33,8 +33,7 @@ class TestImportAll(TestEnv):
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
             pythran.compile_pythrancode("flamby", dedent(code))
 
-        self.assertIn("Module 'collections' unknown and not found.",
-                      str(ex.exception))
+        self.assertIn("Module 'collections' not found.", str(ex.exception))
 
     def test_complex_import_manipulation(self):
         """

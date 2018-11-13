@@ -22,9 +22,13 @@ class TestDistutils(unittest.TestCase):
                    cwd=os.path.join(cwd, 'test_distutils'))
         check_call(['python', 'setup.py', 'install', '--prefix=demo_install'],
                    cwd=os.path.join(cwd, 'test_distutils'))
+
+        base = os.path.join(cwd, 'test_distutils', 'demo_install',)
+        libdir = os.path.join(base, 'lib')
+        if not os.path.isdir(libdir):
+            libdir = os.path.join(base, 'lib64')
         check_call(['python', '-c', 'import demo'],
-                   cwd=os.path.join(cwd, 'test_distutils', 'demo_install',
-                                    'lib', python_version, 'site-packages'))
+                   cwd=os.path.join(libdir, python_version, 'site-packages'))
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'demo_install'))
@@ -59,9 +63,13 @@ class TestDistutils(unittest.TestCase):
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
         check_call(['python', 'setup.py', 'install', '--prefix=demo_install2'],
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
+
+        base = os.path.join(cwd, 'test_distutils_packaged', 'demo_install2',)
+        libdir = os.path.join(base, 'lib')
+        if not os.path.isdir(libdir):
+            libdir = os.path.join(base, 'lib64')
         check_call(['python', '-c', 'import demo2.a'],
-                   cwd=os.path.join(cwd, 'test_distutils_packaged', 'demo_install2',
-                                    'lib', python_version, 'site-packages'))
+                   cwd=os.path.join(libdir, python_version, 'site-packages'))
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils_packaged', 'demo_install2'))

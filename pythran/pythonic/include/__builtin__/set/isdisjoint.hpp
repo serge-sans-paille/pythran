@@ -17,7 +17,7 @@ namespace __builtin__
     template <class U>
     bool isdisjoint(types::empty_set const &calling_set, U const &arg_set);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, isdisjoint);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, isdisjoint);
   }
 }
 PYTHONIC_NS_END

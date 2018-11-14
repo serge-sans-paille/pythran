@@ -7,7 +7,10 @@ constraints.
 from pythran.tables import MODULES
 from pythran.intrinsic import Class
 
+import sys
+
 import gast as ast
+import numpy as np
 
 
 class PythranSyntaxError(SyntaxError):
@@ -90,6 +93,13 @@ class SyntaxChecker(ast.NodeVisitor):
 
     def visit_Call(self, node):
         self.generic_visit(node)
+
+    def visit_Num(self, node):
+        if sys.version_info[0] == 2 and isinstance(node.n, long):
+            raise PythranSyntaxError("long int not supported", node)
+        iinfo = np.iinfo(int)
+        if isinstance(node.n, int) and not (iinfo.min <= node.n <= iinfo.max):
+            raise PythranSyntaxError("large int not supported", node)
 
     def visit_FunctionDef(self, node):
         self.generic_visit(node)

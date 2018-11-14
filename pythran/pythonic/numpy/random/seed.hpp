@@ -22,8 +22,6 @@ namespace numpy
       details::generator.seed();
       return __builtin__::None;
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, seed);
   }
 }
 

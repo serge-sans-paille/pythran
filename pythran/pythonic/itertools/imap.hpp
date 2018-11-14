@@ -208,16 +208,14 @@ namespace itertools
   }
 
   template <typename Operator, typename... Iter>
-  auto imap(Operator &&_op, Iter &&... iters)
-      -> details::imap<typename std::remove_cv<typename std::remove_reference<
-                           Operator>::type>::type,
-                       typename std::remove_cv<
-                           typename std::remove_reference<Iter>::type>::type...>
+  auto imap(Operator &&_op, Iter &&... iters) -> details::imap<
+      typename std::remove_cv<
+          typename std::remove_reference<Operator>::type>::type,
+      typename types::iterator<typename std::remove_cv<
+          typename std::remove_reference<Iter>::type>::type>::type...>
   {
     return {std::forward<Operator>(_op), std::forward<Iter>(iters)...};
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, imap);
 }
 PYTHONIC_NS_END
 

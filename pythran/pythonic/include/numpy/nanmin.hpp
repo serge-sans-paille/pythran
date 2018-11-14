@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   typename E::dtype nanmin(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, nanmin);
+  DEFINE_FUNCTOR(pythonic::numpy, nanmin);
 }
 PYTHONIC_NS_END
 

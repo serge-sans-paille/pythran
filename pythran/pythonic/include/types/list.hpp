@@ -34,8 +34,10 @@ namespace types
   class list;
   template <class T, class S>
   class sliced_list;
-  template <class T, size_t N>
+  template <class T, class pS>
   struct ndarray;
+  template <class... Tys>
+  struct pshape;
   template <class T>
   struct is_list {
     static const bool value = false;
@@ -91,11 +93,20 @@ namespace types
         typename utils::nested_container_value_type<sliced_list>::type dtype;
     static const size_t value =
         utils::nested_container_depth<sliced_list>::value;
+    static_assert(value != 0, "valid shape");
     static const bool is_vectorizable =
         types::is_vectorizable_dtype<dtype>::value &&
         std::is_same<S, contiguous_slice>::value;
     static const bool is_strided =
         !std::is_same<contiguous_normalized_slice, S>::value;
+
+    using shape_t = types::array<long, value>;
+    shape_t shape() const
+    {
+      shape_t res;
+      details::init_shape(res, *this, utils::int_<value>{});
+      return res;
+    }
 
     // constructor
     sliced_list();
@@ -137,7 +148,7 @@ namespace types
     bool operator==(list<K> const &other) const;
     bool operator==(empty_list const &other) const;
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<sliced_list>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>
@@ -209,7 +220,9 @@ namespace types
     template <class S>
     list<T> &operator=(sliced_list<T, S> const &other);
 
-    list &operator=(ndarray<T, 1> const &); // implemented in ndarray.hpp
+    template <class pS>
+    list &
+    operator=(ndarray<T, pshape<pS>> const &); // implemented in ndarray.hpp
 
     template <class S>
     list<T> &operator+=(sliced_list<T, S> const &other);
@@ -244,7 +257,7 @@ namespace types
     int operator<(list<T> const &other) const;
 
 // element access
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<list>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>
@@ -312,9 +325,10 @@ namespace types
     intptr_t id() const;
 
     long count(T const &x) const;
-    array<long, value> shape() const
+    using shape_t = array<long, value>;
+    shape_t shape() const
     {
-      array<long, value> res;
+      shape_t res;
       details::init_shape(res, *this, utils::int_<value>{});
       return res;
     }
@@ -327,11 +341,12 @@ namespace types
     static const size_t value = 1;
     static const bool is_vectorizable = false;
     static const bool is_strided = false;
+    using shape_t = types::array<long, value>;
     typedef char value_type;
 
     typedef empty_iterator iterator;
     typedef empty_iterator const_iterator;
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     typedef empty_iterator simd_iterator;
     typedef empty_iterator simd_iterator_nobroadcast;
 #endif
@@ -346,6 +361,11 @@ namespace types
     template <class T>
     operator list<T>() const;
     static constexpr long size();
+
+    shape_t shape() const
+    {
+      return {0};
+    }
 
     char fast(long) const
     {

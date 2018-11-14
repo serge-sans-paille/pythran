@@ -21,11 +21,7 @@ from functools import reduce
 
 if sys.version_info.major == 3:
     sys.modules['__builtin__'] = sys.modules['builtins']
-    sys.modules['__builtin__'].xrange = sys.modules['builtins'].range
 
-    class long(int):
-        pass
-    sys.modules['__builtin__'].long = long
     import functools
     sys.modules['__builtin__'].reduce = functools.reduce
     getargspec = inspect.getfullargspec
@@ -203,6 +199,11 @@ CLASSES = {
         "count": ConstMethodIntr(signature=Fun[[List[T0], T0], int]),
         "remove": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "insert": MethodIntr(signature=Fun[[List[T0], int, T0], None]),
+    },
+    "slice": {
+        "start": AttributeIntr(signature=Fun[[T0], int]),
+        "stop": AttributeIntr(signature=Fun[[T0], int]),
+        "step": AttributeIntr(signature=Fun[[T0], int]),
     },
     "str": {
         "__mod__": ConstMethodIntr(
@@ -2573,9 +2574,10 @@ MODULES = {
             "abssqr": ConstFunctionIntr(),
             "is_none": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
+            "make_shape": ConstFunctionIntr(),
             "static_if_": ConstFunctionIntr(),
             "StaticIfReturn": ConstFunctionIntr(),
-            "StaticIfNoReturn": ConstFunctionIntr(),
+            "StaticIfNoReturn": ConstFunctionIntr()
         },
         "abs": ConstFunctionIntr(
             signature=Union[
@@ -2713,15 +2715,6 @@ MODULES = {
                 Fun[[Iterable[T0]], List[T0]]
             ],
         ),
-        "long_": ConstFunctionIntr(
-            signature=Union[
-                Fun[[], int],
-                Fun[[bool], int],
-                Fun[[int], int],
-                Fun[[float], int],
-                Fun[[str], int],
-            ]
-        ),
         "map": ReadOnceFunctionIntr(
             signature=Union[
                 Fun[[None, Iterable[T0]], List[T0]],
@@ -2809,6 +2802,7 @@ MODULES = {
                 Fun[[Iterable[T0]], Set[T0]]
             ],
         ),
+        "slice": ClassWithConstConstructor(CLASSES['slice']),
         "sorted": ConstFunctionIntr(signature=Fun[[Iterable[T0]], List[T0]]),
         "str": ClassWithConstConstructor(
             CLASSES['str'],
@@ -3574,6 +3568,7 @@ MODULES = {
         "complex": ConstFunctionIntr(signature=_complex_signature),
         "complex64": ConstFunctionIntr(signature=_complex_signature),
         "complex128": ConstFunctionIntr(signature=_complex_signature),
+        "complex256": ConstFunctionIntr(signature=_complex_signature),
         "conj": ConstMethodIntr(signature=_numpy_unary_op_signature),
         "conjugate": ConstMethodIntr(signature=_numpy_unary_op_signature),
         "copy": ConstMethodIntr(signature=_numpy_array_signature),
@@ -3633,9 +3628,7 @@ MODULES = {
                      Iterable[Iterable[Iterable[complex]]]], None],
             ]
         ),
-        "copysign": ConstFunctionIntr(
-            signature=_numpy_binary_op_float_signature
-        ),
+        "copysign": UFunc(BINARY_UFUNC),
         "count_nonzero": ConstFunctionIntr(
             signature=Union[
                 # scalar
@@ -3731,6 +3724,7 @@ MODULES = {
         "flipud": ConstFunctionIntr(),
         "float32": ConstFunctionIntr(signature=_float_signature),
         "float64": ConstFunctionIntr(signature=_float_signature),
+        "float128": ConstFunctionIntr(signature=_float_signature),
         "float_": ConstFunctionIntr(signature=_float_signature),
         "floor": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "floor_divide": UFunc(BINARY_UFUNC),
@@ -4475,7 +4469,7 @@ if sys.version_info.major == 3:
     del MODULES['operator_']['__div__']
     del MODULES['__builtin__']['cmp']
     del MODULES['__builtin__']['file']
-    del MODULES['__builtin__']['long_']
+    del MODULES['__builtin__']['xrange']
     del MODULES['__builtin__']['StandardError']
     MODULES['io'] = {
         '_io': {
@@ -4495,7 +4489,7 @@ try:
     import omp
     omp_version = omp.VERSION
 except (ImportError, AttributeError):
-    omp_version = 45 # Fallback on last version
+    omp_version = 45  # Fallback on last version
 
 if omp_version >= 30:
     MODULES['omp'].update({

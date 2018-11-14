@@ -43,7 +43,7 @@ namespace operator_
   itemgetter_tuple_return<long, long, L...>
   itemgetter(long const &item1, long const &item2, L... items);
 
-  DECLARE_FUNCTOR(pythonic::operator_, itemgetter);
+  DEFINE_FUNCTOR(pythonic::operator_, itemgetter);
 }
 PYTHONIC_NS_END
 

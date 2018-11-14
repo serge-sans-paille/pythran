@@ -13,7 +13,7 @@ namespace itertools
   auto izip(Iter &&... iters)
       -> decltype(imap(__builtin__::None, std::forward<Iter>(iters)...));
 
-  DECLARE_FUNCTOR(pythonic::itertools, izip);
+  DEFINE_FUNCTOR(pythonic::itertools, izip);
 }
 PYTHONIC_NS_END
 

@@ -11,7 +11,7 @@ namespace math
   template <class T>
   T factorial(T x);
 
-  DECLARE_FUNCTOR(pythonic::math, factorial);
+  DEFINE_FUNCTOR(pythonic::math, factorial);
 }
 PYTHONIC_NS_END
 

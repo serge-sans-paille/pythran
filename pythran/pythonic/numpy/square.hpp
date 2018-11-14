@@ -7,10 +7,6 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#ifdef USE_GMP
-#include "pythonic/types/long.hpp"
-#endif
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

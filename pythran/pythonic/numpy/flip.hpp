@@ -30,7 +30,6 @@ namespace numpy
     slices[axis].step = -1;
     return details::flip(expr, slices, utils::make_index_sequence<E::value>{});
   }
-  DEFINE_FUNCTOR(pythonic::numpy, flip);
 }
 PYTHONIC_NS_END
 

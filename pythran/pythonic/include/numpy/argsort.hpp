@@ -8,12 +8,12 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  types::ndarray<long, N> argsort(types::ndarray<T, N> const &a);
+  template <class T, class pS>
+  types::ndarray<long, pS> argsort(types::ndarray<T, pS> const &a);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(argsort);
 
-  DECLARE_FUNCTOR(pythonic::numpy, argsort);
+  DEFINE_FUNCTOR(pythonic::numpy, argsort);
 }
 PYTHONIC_NS_END
 

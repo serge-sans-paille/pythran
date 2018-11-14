@@ -23,7 +23,7 @@ namespace operator_
   DEFINE_ALL_OPERATOR_OVERLOADS_DECL(div, / )
 #endif
 
-  DECLARE_FUNCTOR(pythonic::operator_, div);
+  DEFINE_FUNCTOR(pythonic::operator_, div);
 }
 PYTHONIC_NS_END
 

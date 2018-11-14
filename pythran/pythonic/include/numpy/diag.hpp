@@ -10,18 +10,22 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T>
-  types::ndarray<T, 1> diag(types::ndarray<T, 2> const &a, long k = 0);
+  template <class T, class pS>
+  typename std::enable_if<std::tuple_size<pS>::value == 2,
+                          types::ndarray<T, types::pshape<long>>>::type
+  diag(types::ndarray<T, pS> const &a, long k = 0);
 
-  template <class T>
-  types::ndarray<T, 2> diag(types::ndarray<T, 1> const &a, long k = 0);
+  template <class T, class pS>
+  typename std::enable_if<std::tuple_size<pS>::value == 1,
+                          types::ndarray<T, types::array<long, 2>>>::type
+  diag(types::ndarray<T, pS> const &a, long k = 0);
 
   template <class T>
   auto diag(types::list<T> const &a, long k = 0)
       -> decltype(diag(asarray(a), k));
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(diag);
-  DECLARE_FUNCTOR(pythonic::numpy, diag);
+  DEFINE_FUNCTOR(pythonic::numpy, diag);
 }
 PYTHONIC_NS_END
 

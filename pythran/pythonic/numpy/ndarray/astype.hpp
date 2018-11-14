@@ -16,7 +16,6 @@ namespace numpy
     {
       return asarray(std::forward<E>(e), d);
     }
-    DEFINE_FUNCTOR(pythonic::numpy::ndarray, astype);
   }
 }
 PYTHONIC_NS_END

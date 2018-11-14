@@ -129,8 +129,6 @@ namespace itertools
   {
     return {std::forward<T0>(iter), num_elts};
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, combinations);
 }
 PYTHONIC_NS_END
 

@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   auto size(E const &e) -> decltype(e.flat_size());
 
-  DECLARE_FUNCTOR(pythonic::numpy, size)
+  DEFINE_FUNCTOR(pythonic::numpy, size)
 }
 PYTHONIC_NS_END
 

@@ -16,7 +16,7 @@ namespace __builtin__
     template <class T, class F>
     types::none_type insert(types::list<T> &seq, long n, F &&value);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::list, insert);
+    DEFINE_FUNCTOR(pythonic::__builtin__::list, insert);
   }
 }
 PYTHONIC_NS_END

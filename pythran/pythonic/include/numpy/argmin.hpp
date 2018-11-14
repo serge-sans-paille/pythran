@@ -12,9 +12,10 @@ namespace numpy
   long argmin(E const &expr);
 
   template <class E>
-  types::ndarray<long, E::value - 1> argmin(E const &expr, long axis);
+  types::ndarray<long, types::array<long, E::value - 1>> argmin(E const &expr,
+                                                                long axis);
 
-  DECLARE_FUNCTOR(pythonic::numpy, argmin);
+  DEFINE_FUNCTOR(pythonic::numpy, argmin);
 }
 PYTHONIC_NS_END
 

@@ -25,7 +25,7 @@ namespace numpy
       ndenumerate_iterator<E>::operator*()
   {
     types::array<long, E::value> out;
-    auto &&shape = expr.shape();
+    auto shape = sutils::array(expr.shape());
     long mult = 1;
     for (long j = E::value - 1; j > 0; j--) {
       out[j] = (index / mult) % shape[j];
@@ -98,15 +98,14 @@ namespace numpy
     return end_iter;
   }
 
-  template <class T, size_t N>
-  _ndenumerate<types::ndarray<T, N>>
-  ndenumerate(types::ndarray<T, N> const &expr)
+  template <class T, class pS>
+  _ndenumerate<types::ndarray<T, pS>>
+  ndenumerate(types::ndarray<T, pS> const &expr)
   {
     return {expr};
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(ndenumerate);
-  DEFINE_FUNCTOR(pythonic::numpy, ndenumerate);
 }
 PYTHONIC_NS_END
 

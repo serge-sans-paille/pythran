@@ -11,14 +11,14 @@ namespace numpy
 {
   namespace random
   {
-    template <size_t N>
-    types::ndarray<double, N> random(types::array<long, N> const &shape);
+    template <class pS>
+    types::ndarray<double, pS> random(pS const &shape);
 
     auto random(long size) -> decltype(random(types::array<long, 1>{{size}}));
 
     double random(types::none_type d = types::none_type());
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, random);
+    DEFINE_FUNCTOR(pythonic::numpy::random, random);
   }
 }
 PYTHONIC_NS_END

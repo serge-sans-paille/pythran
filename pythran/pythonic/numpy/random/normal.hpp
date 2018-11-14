@@ -18,11 +18,10 @@ namespace numpy
   namespace random
   {
 
-    template <size_t N>
-    types::ndarray<double, N> normal(double loc, double scale,
-                                     types::array<long, N> const &shape)
+    template <class pS>
+    types::ndarray<double, pS> normal(double loc, double scale, pS const &shape)
     {
-      types::ndarray<double, N> result{shape, types::none_type()};
+      types::ndarray<double, pS> result{shape, types::none_type()};
       std::normal_distribution<double> distribution{loc, scale};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });
@@ -39,8 +38,6 @@ namespace numpy
     {
       return std::normal_distribution<double>{loc, scale}(details::generator);
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, normal);
   }
 }
 PYTHONIC_NS_END

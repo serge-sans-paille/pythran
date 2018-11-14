@@ -29,8 +29,6 @@ namespace operator_
   {
     return truediv(a, b);
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, itruediv);
 }
 PYTHONIC_NS_END
 

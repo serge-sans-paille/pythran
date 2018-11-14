@@ -12,7 +12,7 @@ namespace numpy
   template <class dtype = functor::float64>
   auto identity(long n, dtype d = dtype()) -> decltype(eye(n, n, 0, d));
 
-  DECLARE_FUNCTOR(pythonic::numpy, identity);
+  DEFINE_FUNCTOR(pythonic::numpy, identity);
 }
 PYTHONIC_NS_END
 

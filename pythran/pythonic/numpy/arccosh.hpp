@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME arccosh
-#define NUMPY_NARY_FUNC_SYM wrapper::acosh
+#define NUMPY_NARY_FUNC_SYM xsimd::acosh
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

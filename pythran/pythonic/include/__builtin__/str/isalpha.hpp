@@ -14,7 +14,7 @@ namespace __builtin__
 
     bool isalpha(types::str const &s);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::str, isalpha);
+    DEFINE_FUNCTOR(pythonic::__builtin__::str, isalpha);
   }
 }
 PYTHONIC_NS_END

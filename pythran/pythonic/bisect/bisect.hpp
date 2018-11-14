@@ -29,8 +29,6 @@ namespace bisect
       throw types::ValueError("lo must be non-negative");
     return std::distance(x.begin(), fun(x.begin() + lo, x.begin() + hi, a));
   }
-
-  DEFINE_FUNCTOR(pythonic::bisect, bisect);
 }
 PYTHONIC_NS_END
 

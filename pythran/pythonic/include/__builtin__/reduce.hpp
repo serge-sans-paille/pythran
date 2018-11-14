@@ -25,7 +25,7 @@ namespace __builtin__
               init),
           op));
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, reduce);
+  DEFINE_FUNCTOR(pythonic::__builtin__, reduce);
 }
 PYTHONIC_NS_END
 

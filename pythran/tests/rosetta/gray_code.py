@@ -3,10 +3,10 @@
 #pythran export gray2bin(int list)
 #pythran export int2bin(int)
 #pythran export bin2int(int list)
-#runas [int2bin(i) for i in xrange(16)]
-#runas [bin2gray(int2bin(i)) for i in xrange(16)]
-#runas [gray2bin(bin2gray(int2bin(i))) for i in xrange(16)]
-#runas [bin2int(gray2bin(bin2gray(int2bin(i)))) for i in xrange(16)]
+#runas [int2bin(i) for i in range(16)]
+#runas [bin2gray(int2bin(i)) for i in range(16)]
+#runas [gray2bin(bin2gray(int2bin(i))) for i in range(16)]
+#runas [bin2int(gray2bin(bin2gray(int2bin(i)))) for i in range(16)]
 
 def bin2gray(bits):
     return bits[:1] + [i ^ ishift for i, ishift in zip(bits[:-1], bits[1:])]

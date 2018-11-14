@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(erf, std::erf);
+  DEFINE_FUNCTOR_2(erf, std::erf);
 }
 PYTHONIC_NS_END
 

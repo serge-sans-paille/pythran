@@ -11,7 +11,7 @@ namespace __dispatch__
   auto count(Any &&any, Value &&value)
       -> decltype(any.count(std::forward<Value>(value)));
 
-  DECLARE_FUNCTOR(pythonic::__dispatch__, count);
+  DEFINE_FUNCTOR(pythonic::__dispatch__, count);
 }
 PYTHONIC_NS_END
 

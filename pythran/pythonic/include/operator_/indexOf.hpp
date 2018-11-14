@@ -11,7 +11,7 @@ namespace operator_
   template <class A, class B>
   long indexOf(A const &a, B const &b);
 
-  DECLARE_FUNCTOR(pythonic::operator_, indexOf);
+  DEFINE_FUNCTOR(pythonic::operator_, indexOf);
 }
 PYTHONIC_NS_END
 

@@ -15,7 +15,7 @@ namespace __builtin__
     template <class F, class T>
     void writelines(F &&f, T const &sequence);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, writelines);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, writelines);
   }
 }
 PYTHONIC_NS_END

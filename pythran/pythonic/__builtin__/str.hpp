@@ -70,8 +70,6 @@ namespace __builtin__
       return buffer;
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__::anonymous, str);
 }
 PYTHONIC_NS_END
 

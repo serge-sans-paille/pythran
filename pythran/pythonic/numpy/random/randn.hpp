@@ -15,7 +15,7 @@ namespace numpy
   {
 
     template <class... T>
-    types::ndarray<double, sizeof...(T)> randn(T... shape)
+    types::ndarray<double, types::array<long, sizeof...(T)>> randn(T... shape)
     {
       return standard_normal(types::array<long, sizeof...(T)>{{shape...}});
     }
@@ -24,8 +24,6 @@ namespace numpy
     {
       return standard_normal();
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, randn);
   }
 }
 PYTHONIC_NS_END

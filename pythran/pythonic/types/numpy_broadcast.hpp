@@ -19,7 +19,11 @@ namespace types
   {
     _shape[0] = 1;
     auto &&ref_shape = ref.shape();
-    std::copy(ref_shape.begin(), ref_shape.end(), _shape.begin() + 1);
+    long *data = _shape.data() + 1;
+    sutils::copy_shape<0, 0>(
+        data, ref_shape,
+        utils::make_index_sequence<std::tuple_size<
+            typename std::decay<decltype(ref_shape)>::type>::value>());
   }
 
   template <class T>
@@ -34,7 +38,7 @@ namespace types
     return ref;
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T>
   template <class vectorizer>
   typename broadcasted<T>::simd_iterator
@@ -73,12 +77,11 @@ namespace types
   {
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class dtype>
   template <class V>
   broadcast_base<dtype, true>::broadcast_base(V v)
-      : _value(v),
-        _splated(boost::simd::splat<boost::simd::pack<dtype>>(_value))
+      : _value(v), _splated(xsimd::simd_type<dtype>(_value))
   {
   }
 
@@ -98,10 +101,19 @@ namespace types
   }
 
   template <class T, class B>
+  template <size_t N>
+  typename broadcast<T, B>::dtype broadcast<T, B>::
+  operator[](array<long, N>) const
+  {
+    return _base._value;
+  }
+
+  template <class T, class B>
   typename broadcast<T, B>::dtype broadcast<T, B>::fast(long) const
   {
     return _base._value;
   }
+
   template <class T, class B>
   template <class... Args>
   typename broadcast<T, B>::dtype broadcast<T, B>::
@@ -111,9 +123,9 @@ namespace types
   }
 
   template <class T, class B>
-  array<long, 1> broadcast<T, B>::shape() const
+  typename broadcast<T, B>::shape_t broadcast<T, B>::shape() const
   {
-    return {0};
+    return {};
   }
 
   template <class T, class B>

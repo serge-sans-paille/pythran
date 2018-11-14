@@ -68,9 +68,8 @@ namespace types
   struct slice {
     using normalized_type = normalized_slice;
 
-    bound<long> lower, upper;
-    long step;
-    slice(none<long> lower, none<long> upper, none<long> step = 1);
+    bound<long> lower, upper, step;
+    slice(none<long> lower, none<long> upper, none<long> step);
     slice();
 
     slice operator*(slice const &other) const;
@@ -171,7 +170,88 @@ namespace types
   {
     return s.normalize(n);
   }
+
+  namespace __slice
+  {
+    template <int I, class T>
+    struct getattr;
+
+    template <class T>
+    struct getattr<attr::START, T> {
+      auto operator()(T const &s) -> decltype(s.lower) const
+      {
+        return s.lower;
+      }
+    };
+    template <class T>
+    struct getattr<attr::STOP, T> {
+      auto operator()(T const &s) -> decltype(s.upper) const
+      {
+        return s.upper;
+      }
+    };
+    template <class T>
+    struct getattr<attr::STEP, T> {
+      auto operator()(T const &s) -> decltype(s.step) const
+      {
+        return s.step;
+      }
+    };
+  }
+}
+namespace __builtin__
+{
+  template <int I>
+  auto getattr(pythonic::types::slice const &s) -> decltype(
+      pythonic::types::__slice::getattr<I, pythonic::types::slice>()(s))
+  {
+    return pythonic::types::__slice::getattr<I, pythonic::types::slice>()(s);
+  }
+
+  template <int I>
+  auto getattr(pythonic::types::contiguous_slice const &s) -> decltype(
+      pythonic::types::__slice::getattr<I, pythonic::types::contiguous_slice>()(
+          s))
+  {
+    return pythonic::types::__slice::getattr<
+        I, pythonic::types::contiguous_slice>()(s);
+  }
 }
 PYTHONIC_NS_END
+
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+
+PYTHONIC_NS_BEGIN
+
+template <class T>
+struct to_python<types::bound<T>> {
+  static PyObject *convert(types::bound<T> const &n);
+};
+
+template <>
+struct to_python<types::contiguous_slice> {
+  static PyObject *convert(types::contiguous_slice const &n);
+};
+
+template <>
+struct to_python<types::contiguous_normalized_slice> {
+  static PyObject *convert(types::contiguous_normalized_slice const &n);
+};
+
+template <>
+struct to_python<types::slice> {
+  static PyObject *convert(types::slice const &n);
+};
+
+template <>
+struct to_python<types::normalized_slice> {
+  static PyObject *convert(types::normalized_slice const &n);
+};
+
+PYTHONIC_NS_END
+
+#endif
 
 #endif

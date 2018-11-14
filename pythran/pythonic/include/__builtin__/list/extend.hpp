@@ -22,7 +22,7 @@ namespace __builtin__
     template <class F>
     types::none_type extend(types::empty_list, types::list<F> const &);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::list, extend);
+    DEFINE_FUNCTOR(pythonic::__builtin__::list, extend);
   }
 }
 PYTHONIC_NS_END

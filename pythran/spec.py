@@ -8,7 +8,6 @@ from pythran.types.conversion import pytype_to_pretty_type
 from collections import defaultdict
 from itertools import product
 import re
-import sys
 import os.path
 import ply.lex as lex
 import ply.yacc as yacc
@@ -22,17 +21,22 @@ def ambiguous_types(ty0, ty1):
     from numpy import float32, float64
     from numpy import int8, int16, int32, int64, intp, intc
     from numpy import uint8, uint16, uint32, uint64, uintp, uintc
+    try:
+        from numpy import complex256, float128
+    except ImportError:
+        complex256 = complex128
+        float128 = float64
 
     if isinstance(ty0, tuple):
         if len(ty0) != len(ty1):
             return False
         return all(ambiguous_types(t0, t1) for t0, t1 in zip(ty0, ty1))
 
-    ambiguous_float_types = float, float32, float64
+    ambiguous_float_types = float, float32, float64, float128
     if ty0 in ambiguous_float_types and ty1 in ambiguous_float_types:
         return True
 
-    ambiguous_cplx_types = complex, complex64, complex128
+    ambiguous_cplx_types = complex, complex64, complex128, complex256
     if ty0 in ambiguous_cplx_types and ty1 in ambiguous_cplx_types:
         return True
 
@@ -143,9 +147,9 @@ class SpecParser(object):
     A parser that scans a file lurking for lines such as the one below.
 
     It then generates a pythran-compatible signature to inject into compile.
-#pythran export a((float,(int,long),str list) list list)
+#pythran export a((float,(int, uint8),str list) list list)
 #pythran export a(str)
-#pythran export a( (str,str), int, long list list)
+#pythran export a( (str,str), int, int16 list list)
 #pythran export a( {str} )
 """
 
@@ -169,8 +173,10 @@ class SpecParser(object):
         'intp': 'INTP',
         'float32': 'FLOAT32',
         'float64': 'FLOAT64',
+        'float128': 'FLOAT128',
         'complex64': 'COMPLEX64',
         'complex128': 'COMPLEX128',
+        'complex256': 'COMPLEX256',
         }
 
     reserved = {
@@ -182,19 +188,18 @@ class SpecParser(object):
         'set': 'SET',
         'dict': 'DICT',
         'str': 'STR',
-        'long': 'LONG',
         'None': 'NONE',
         }
     reserved.update(dtypes)
 
     tokens = ('IDENTIFIER', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP',
-              'LARRAY', 'RARRAY', 'STAR') + tuple(reserved.values())
+              'LARRAY', 'RARRAY', 'STAR', 'NUM') + tuple(reserved.values())
 
     crap = [tok for tok in tokens if tok != 'PYTHRAN']
     some_crap = [tok for tok in crap if tok not in ('LPAREN', 'COMMA')]
 
     # token <> regexp binding
-    t_CRAP = r'[^,:\(\)\[\]*]'
+    t_CRAP = r'[^,:\(\)\[\]*0-9]'
     t_COMMA = r','
     t_COLUMN = r':'
     t_LPAREN = r'\('
@@ -202,6 +207,7 @@ class SpecParser(object):
     t_RARRAY = r'\]'
     t_LARRAY = r'\['
     t_STAR = r'\*'
+    t_NUM = r'[1-9][0-9]*'
 
     precedence = (
         ('left', 'OR'),
@@ -358,27 +364,24 @@ class SpecParser(object):
 
     def p_array_index(self, p):
         '''array_index :
+                       | NUM
                        | COLUMN
                        | COLUMN COLUMN'''
         if len(p) == 3:
             p[0] = slice(0, -1, -1)
-        else:
+        elif len(p) == 1 or p[1] == ':':
             p[0] = slice(0, -1, 1)
+        else:
+            p[0] = slice(0, int(p[1]), 1)
 
     def p_term(self, p):
         '''term : STR
                 | NONE
-                | LONG
                 | dtype'''
         if p[1] == 'str':
             p[0] = str
         elif p[1] == 'None':
             p[0] = type(None)
-        elif p[1] == 'long':
-            if sys.version_info.major == 3:
-                p[0] = int
-            else:
-                p[0] = long
         else:
             p[0] = p[1][0]
 

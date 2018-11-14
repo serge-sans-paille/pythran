@@ -14,8 +14,8 @@ namespace numpy
       std::declval<typename std::remove_reference<E>::type::dtype>()))>;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
-  types::ndarray<typename dtype::type, 1> partial_sum(E const &expr,
-                                                      dtype d = dtype());
+  types::ndarray<typename dtype::type, types::pshape<long>>
+  partial_sum(E const &expr, dtype d = dtype());
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
   auto partial_sum(E const &expr, long axis, dtype d = dtype()) ->
@@ -23,9 +23,11 @@ namespace numpy
                               decltype(partial_sum<Op, E, dtype>(expr))>::type;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
-  using partial_sum_type = types::ndarray<typename dtype::type, E::value>;
+  using partial_sum_type =
+      types::ndarray<typename dtype::type, types::array<long, E::value>>;
   template <class Op, class E, class dtype = result_dtype<Op, E>>
-  using partial_sum_type2 = types::ndarray<typename dtype::type, E::value - 1>;
+  using partial_sum_type2 =
+      types::ndarray<typename dtype::type, types::array<long, E::value - 1>>;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
   typename std::enable_if<E::value != 1, partial_sum_type<Op, E, dtype>>::type

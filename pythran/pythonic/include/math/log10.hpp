@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(log10, std::log10);
+  DEFINE_FUNCTOR_2(log10, std::log10);
 }
 PYTHONIC_NS_END
 

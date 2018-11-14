@@ -65,7 +65,7 @@ namespace __builtin__
       typename std::remove_reference<Iterable>::type>::type>
   enumerate(Iterable &&seq, long first = 0L);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, enumerate);
+  DEFINE_FUNCTOR(pythonic::__builtin__, enumerate);
 }
 PYTHONIC_NS_END
 

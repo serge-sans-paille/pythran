@@ -17,7 +17,8 @@ namespace numpy
 {
   template <class E, class F>
   types::ndarray<
-      typename __combined<typename E::dtype, typename F::dtype>::type, 1>
+      typename __combined<typename E::dtype, typename F::dtype>::type,
+      types::pshape<long>>
   intersect1d(E const &e, F const &f)
   {
     using T = typename __combined<typename E::dtype, typename F::dtype>::type;
@@ -35,10 +36,8 @@ namespace numpy
       }
     }
     std::sort(lout.begin(), lout.end());
-    return types::ndarray<T, 1>(lout);
+    return {lout};
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, intersect1d);
 }
 PYTHONIC_NS_END
 

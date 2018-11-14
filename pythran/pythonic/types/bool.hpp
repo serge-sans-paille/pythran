@@ -23,14 +23,6 @@ bool from_python<bool>::convert(PyObject *obj)
   return obj == Py_True;
 }
 
-template <class T>
-PyObject *to_python<boost::simd::logical<T>>::convert(boost::simd::logical<T> b)
-{
-  if (b)
-    Py_RETURN_TRUE;
-  else
-    Py_RETURN_FALSE;
-}
 PYTHONIC_NS_END
 
 #endif

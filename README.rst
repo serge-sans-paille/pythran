@@ -35,7 +35,7 @@ Using ``pip``
 
    Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
 
-        $> sudo apt-get install libgmp-dev libatlas-base-dev
+        $> sudo apt-get install libatlas-base-dev
         $> sudo apt-get install python-dev python-ply python-networkx python-numpy
 
 2. Use ``easy_install`` or ``pip``::
@@ -56,9 +56,6 @@ Mac OSX
 =======
 
 Using brew (http://brew.sh/)::
-
-    $> brew install gmp
-    $> brew install cmake
 
     $> easy_install pip
 

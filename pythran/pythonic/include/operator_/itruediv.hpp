@@ -21,7 +21,7 @@ namespace operator_
       typename std::enable_if<!std::is_same<A, decltype(truediv(a, b))>::value,
                               decltype(truediv(a, b))>::type;
 
-  DECLARE_FUNCTOR(pythonic::operator_, itruediv);
+  DEFINE_FUNCTOR(pythonic::operator_, itruediv);
 }
 PYTHONIC_NS_END
 

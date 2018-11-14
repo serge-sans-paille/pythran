@@ -16,8 +16,6 @@ namespace numpy
   {
     return e.flat_size();
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, size)
 }
 PYTHONIC_NS_END
 

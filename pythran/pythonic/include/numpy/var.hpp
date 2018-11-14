@@ -30,7 +30,7 @@ namespace numpy
            types::none_type out = __builtin__::None, long ddof = 0) ->
       typename assignable<decltype(var_type<E>() * mean(expr, axis))>::type;
 
-  DECLARE_FUNCTOR(pythonic::numpy, var);
+  DEFINE_FUNCTOR(pythonic::numpy, var);
 }
 PYTHONIC_NS_END
 

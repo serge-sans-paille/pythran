@@ -31,7 +31,7 @@ namespace __builtin__
   template <class Iterable>
   details::reversed<Iterable> reversed(Iterable const &iterable);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, reversed);
+  DEFINE_FUNCTOR(pythonic::__builtin__, reversed);
 }
 PYTHONIC_NS_END
 

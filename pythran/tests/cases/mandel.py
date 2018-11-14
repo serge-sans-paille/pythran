@@ -2,10 +2,10 @@
 #bench mandel(400,0.,0., 75)
 #pythran export mandel(int, float, float, int)
 def mandel(size, x_center, y_center, max_iteration):
-    out= [ [ 0 for i in xrange(size) ] for j in xrange(size) ]
-    for i in xrange(size):
+    out= [ [ 0 for i in range(size) ] for j in range(size) ]
+    for i in range(size):
         "omp parallel for"
-        for j in xrange(size):
+        for j in range(size):
             x,y = ( x_center + 4.0*float(i-size/2)/size,
                       y_center + 4.0*float(j-size/2)/size
                     )

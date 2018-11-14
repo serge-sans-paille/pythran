@@ -49,8 +49,6 @@ namespace numpy
     delete[] mem;
     return res;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, base_repr);
 }
 PYTHONIC_NS_END
 

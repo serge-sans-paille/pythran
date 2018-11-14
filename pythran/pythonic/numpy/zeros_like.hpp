@@ -23,8 +23,6 @@ namespace numpy
   {
     return zeros(expr.shape(), types::dtype_t<typename E::dtype>());
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, zeros_like)
 }
 PYTHONIC_NS_END
 

@@ -12,8 +12,8 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N>
-  decltype(std::declval<T>() + 1.) median(types::ndarray<T, N> const &arr)
+  template <class T, class pS>
+  decltype(std::declval<T>() + 1.) median(types::ndarray<T, pS> const &arr)
   {
     size_t n = arr.flat_size();
     T *tmp = new T[n];
@@ -24,8 +24,8 @@ namespace numpy
     return out;
   }
 
-  template <class T, size_t N>
-  decltype(std::declval<T>() + 1.) median(types::ndarray<T, N> &&arr)
+  template <class T, class pS>
+  decltype(std::declval<T>() + 1.) median(types::ndarray<T, pS> &&arr)
   {
     size_t n = arr.flat_size();
     T *tmp = arr.buffer;
@@ -35,8 +35,6 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(median);
-
-  DEFINE_FUNCTOR(pythonic::numpy, median);
 }
 PYTHONIC_NS_END
 

@@ -10,7 +10,7 @@ def pairwise(X):
     for i in range(M):
         for j in range(M):
             d = 0.0
-            for k in xrange(N):
+            for k in range(N):
                 tmp = X[i,k] - X[j,k]
                 d += tmp * tmp
             D[i,j] = np.sqrt(d)

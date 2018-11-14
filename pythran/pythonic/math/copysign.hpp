@@ -10,7 +10,6 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DEFINE_FUNCTOR_2(copysign, std::copysign);
 }
 PYTHONIC_NS_END
 

@@ -44,8 +44,6 @@ namespace __builtin__
     {
       return types::empty_set();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::set, union_);
   }
 }
 PYTHONIC_NS_END

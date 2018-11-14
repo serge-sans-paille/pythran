@@ -28,8 +28,6 @@ namespace operator_
   {
     return a = numpy::functor::minimum{}(a, std::forward<B>(b));
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, imin);
 }
 PYTHONIC_NS_END
 

@@ -18,8 +18,6 @@ namespace operator_
   }
 
   DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(mul, *)
-
-  DEFINE_FUNCTOR(pythonic::operator_, mul);
 }
 PYTHONIC_NS_END
 

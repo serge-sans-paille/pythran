@@ -6,7 +6,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <boost/simd/function/is_inf.hpp>
 
 PYTHONIC_NS_BEGIN
 
@@ -17,12 +16,12 @@ namespace numpy
     template <class T>
     bool isinf(T const &v)
     {
-      return boost::simd::is_inf(v);
+      return std::isinf(v);
     }
     template <class T>
     bool isinf(std::complex<T> const &v)
     {
-      return boost::simd::is_inf(v.real()) || boost::simd::is_inf(v.imag());
+      return std::isinf(v.real()) || std::isinf(v.imag());
     }
   }
 #define NUMPY_NARY_FUNC_NAME isinf

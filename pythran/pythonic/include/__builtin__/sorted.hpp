@@ -19,7 +19,7 @@ namespace __builtin__
       typename std::remove_cv<typename Iterable::iterator::value_type>::type>
   sorted(Iterable const &seq, C const &cmp);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, sorted);
+  DEFINE_FUNCTOR(pythonic::__builtin__, sorted);
 }
 PYTHONIC_NS_END
 

@@ -8,8 +8,8 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/pi.hpp"
 
-#include <boost/simd/function/max.hpp>
-#include <boost/simd/function/abs.hpp>
+#include <pythonic/numpy/maximum.hpp>
+#include <pythonic/numpy/abs.hpp>
 
 PYTHONIC_NS_BEGIN
 
@@ -23,7 +23,7 @@ namespace numpy
       *obegin = *ibegin;
       ++ibegin;
       for (; ibegin != iend; ++ibegin, ++obegin) {
-        if (boost::simd::abs(*obegin - *ibegin) > discont)
+        if (functor::abs{}(*obegin - *ibegin) > discont)
           *(obegin + 1) =
               *ibegin + 2 * pi * int((*obegin - *ibegin) / (discont));
         else
@@ -41,16 +41,16 @@ namespace numpy
   }
 
   template <class E>
-  types::ndarray<double, E::value> unwrap(E const &expr, double discont)
+  types::ndarray<double, typename E::shape_t> unwrap(E const &expr,
+                                                     double discont)
   {
-    discont = boost::simd::max(discont, pi);
-    types::ndarray<double, E::value> out(expr.shape(), __builtin__::None);
+    discont = functor::maximum{}(discont, pi);
+    types::ndarray<double, typename E::shape_t> out(expr.shape(),
+                                                    __builtin__::None);
     _unwrap(expr.begin(), expr.end(), out.begin(), discont,
             utils::int_<E::value>());
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, unwrap)
 }
 PYTHONIC_NS_END
 

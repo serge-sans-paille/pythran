@@ -15,8 +15,6 @@ namespace numpy
   {
     return types::finfo<typename dtype::type>();
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, finfo)
 }
 PYTHONIC_NS_END
 

@@ -12,7 +12,7 @@ namespace __builtin__
   template <class T>
   types::str hex(T const &v);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, hex);
+  DEFINE_FUNCTOR(pythonic::__builtin__, hex);
 }
 PYTHONIC_NS_END
 

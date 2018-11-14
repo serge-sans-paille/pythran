@@ -14,7 +14,7 @@ namespace numpy
   auto prod(Args &&... args) -> decltype(
       reduce<operator_::functor::imul>(std::forward<Args>(args)...));
 
-  DECLARE_FUNCTOR(pythonic::numpy, prod);
+  DEFINE_FUNCTOR(pythonic::numpy, prod);
 }
 PYTHONIC_NS_END
 

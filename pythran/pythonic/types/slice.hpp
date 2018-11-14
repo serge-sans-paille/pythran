@@ -2,12 +2,9 @@
 #define PYTHONIC_TYPES_SLICE_HPP
 
 #include "pythonic/include/types/slice.hpp"
+#include "pythonic/types/NoneType.hpp"
 
 #include "pythonic/__builtin__/None.hpp"
-
-#ifndef NDEBUG
-#include <boost/simd/function/bitofsign.hpp>
-#endif
 
 #include <cassert>
 #include <stdexcept>
@@ -74,11 +71,13 @@ namespace types
   }
 
   slice::slice(none<long> lower, none<long> upper, none<long> step)
-      : lower(lower), upper(upper), step(step.is_none ? 1 : (long)step)
+      : lower(lower), upper(upper), step(step)
   {
   }
 
-  slice::slice() : lower(__builtin__::None), upper(__builtin__::None), step(1)
+  slice::slice()
+      : lower(__builtin__::None), upper(__builtin__::None),
+        step(__builtin__::None)
   {
   }
 
@@ -87,15 +86,17 @@ namespace types
     // We do ! implement these because it requires to know the "end"
     // value of the slice which is ! possible if it is ! "step == 1" slice
     // TODO: We can skip these constraints if we know begin, end && step.
-    assert(!((other.step < 0 || static_cast<long>(other.upper) < 0 ||
+    long sstep = (step.is_none()) ? 1 : (long)step;
+    long ostep = (other.step.is_none()) ? 1 : (long)other.step;
+    assert(!((ostep < 0 || static_cast<long>(other.upper) < 0 ||
               static_cast<long>(other.lower) < 0) &&
-             step != 1 && step != -1) &&
-           "! implemented");
+             sstep != 1 && sstep != -1) &&
+           "not implemented");
     bound<long> new_lower;
     if (other.lower.is_none() || (long)other.lower == 0) {
-      if (other.step > 0)
+      if (ostep > 0)
         new_lower = lower;
-      else if (step > 0) {
+      else if (sstep > 0) {
         if (upper.is_none() || (long)upper == 0)
           // 0 means the first value && ! the last value
           new_lower = none_type{};
@@ -110,21 +111,21 @@ namespace types
     } else {
       none<long> ref = ((long)other.lower > 0) ? lower : upper;
       if (ref.is_none) {
-        if (step > 0)
-          new_lower = (long)other.lower * step;
+        if (sstep > 0)
+          new_lower = (long)other.lower * sstep;
         else
-          new_lower = (long)other.lower * step - 1;
+          new_lower = (long)other.lower * sstep - 1;
       } else
-        new_lower = (long)ref + (long)other.lower * step;
+        new_lower = (long)ref + (long)other.lower * sstep;
     }
 
-    long new_step = step * other.step;
+    long new_step = sstep * ostep;
 
     bound<long> new_upper;
     if (other.upper.is_none()) {
-      if (other.step > 0)
+      if (ostep > 0)
         new_upper = upper;
-      else if (step > 0) {
+      else if (sstep > 0) {
         if (lower.is_none() || (long)lower == 0)
           new_upper = none_type{};
         else
@@ -139,12 +140,12 @@ namespace types
     } else {
       none<long> ref = ((long)other.upper > 0) ? lower : upper;
       if (ref.is_none) {
-        if (step > 0)
-          new_upper = (long)other.upper * step;
+        if (sstep > 0)
+          new_upper = (long)other.upper * sstep;
         else
-          new_upper = (long)other.upper * step - 1;
+          new_upper = (long)other.upper * sstep - 1;
       } else
-        new_upper = (long)ref + (long)other.upper * step;
+        new_upper = (long)ref + (long)other.upper * sstep;
     }
     return {new_lower, new_upper, new_step};
   }
@@ -156,9 +157,10 @@ namespace types
      */
   normalized_slice slice::normalize(long max_size) const
   {
+    long sstep = step.is_none() ? 1 : (long)step;
     long normalized_upper;
     if (upper.is_none()) {
-      if (step > 0L)
+      if (sstep > 0L)
         normalized_upper = max_size;
       else
         normalized_upper = -1L;
@@ -172,9 +174,9 @@ namespace types
     }
 
     long normalized_lower;
-    if (lower.is_none() && step > 0L)
+    if (lower.is_none() && sstep > 0L)
       normalized_lower = 0L;
-    else if (lower.is_none() && step < 0L)
+    else if (lower.is_none() && sstep < 0L)
       normalized_lower = max_size - 1L;
     else if (lower < 0L)
       normalized_lower = std::max(0L, max_size + lower);
@@ -183,7 +185,7 @@ namespace types
     else
       normalized_lower = (long)lower;
 
-    return {normalized_lower, normalized_upper, step};
+    return {normalized_lower, normalized_upper, sstep};
   }
 
   /*
@@ -192,25 +194,25 @@ namespace types
    */
   long slice::size() const
   {
+    long sstep = step.is_none() ? 1 : (long)step;
     assert(!(upper.is_none() && lower.is_none()));
     long len;
     if (upper.is_none()) {
-      assert(boost::simd::bitofsign((long)step) !=
-             boost::simd::bitofsign((long)lower));
+      assert(std::signbit(sstep) != std::signbit((long)lower));
       len = -(long)lower;
     } else if (lower.is_none()) {
-      assert(boost::simd::bitofsign((long)step) ==
-             boost::simd::bitofsign((long)upper));
+      assert(std::signbit(sstep) == std::signbit((long)upper));
       len = upper;
     } else
       len = upper - lower;
-    return std::max(0L, details::roundup_divide(len, step));
+    return std::max(0L, details::roundup_divide(len, sstep));
   }
 
   long slice::get(long i) const
   {
+    long sstep = step.is_none() ? 1 : (long)step;
     assert(!upper.is_none() && !lower.is_none());
-    return (long)lower + i * (long)step;
+    return (long)lower + i * sstep;
   }
 
   contiguous_normalized_slice::contiguous_normalized_slice()
@@ -419,4 +421,59 @@ namespace types
 }
 PYTHONIC_NS_END
 
+#ifdef ENABLE_PYTHON_MODULE
+PYTHONIC_NS_BEGIN
+
+template <class T>
+PyObject *to_python<types::bound<T>>::convert(types::bound<T> const &b)
+{
+  if (b.is_none())
+    return ::to_python(types::none_type{});
+  else
+    return ::to_python((T)b);
+}
+
+PyObject *to_python<types::contiguous_normalized_slice>::convert(
+    types::contiguous_normalized_slice const &v)
+{
+  return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
+                     ::to_python(1));
+}
+
+PyObject *
+to_python<types::contiguous_slice>::convert(types::contiguous_slice const &v)
+{
+  return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
+                     ::to_python(1));
+}
+
+PyObject *
+to_python<types::normalized_slice>::convert(types::normalized_slice const &v)
+{
+  if (v.step > 0) {
+    return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
+                       ::to_python(v.step));
+  } else {
+    return PySlice_New(::to_python(v.lower),
+                       v.upper < 0 ? ::to_python(types::none_type{})
+                                   : ::to_python(v.upper),
+                       ::to_python(v.step));
+  }
+}
+
+PyObject *to_python<types::slice>::convert(types::slice const &v)
+{
+  if (v.step > 0) {
+    return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
+                       ::to_python(v.step));
+  } else {
+    return PySlice_New(::to_python(v.lower),
+                       v.upper < 0 ? ::to_python(types::none_type{})
+                                   : ::to_python(v.upper),
+                       ::to_python(v.step));
+  }
+}
+PYTHONIC_NS_END
+
+#endif
 #endif

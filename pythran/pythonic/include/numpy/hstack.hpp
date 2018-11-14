@@ -12,7 +12,7 @@ namespace numpy
   auto hstack(ArraySequence &&seq)
       -> decltype(concatenate(std::forward<ArraySequence>(seq), 1));
 
-  DECLARE_FUNCTOR(pythonic::numpy, hstack);
+  DEFINE_FUNCTOR(pythonic::numpy, hstack);
 }
 PYTHONIC_NS_END
 

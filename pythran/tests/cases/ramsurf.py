@@ -5,8 +5,8 @@ import cmath
 #This subroutine finds a root of a polynomial of degree n > 2
 #        by Laguerre's method.
 def guerre(a,n,z,err,nter):
-    az = [complex(0,0) for i in xrange(50)]
-    azz = [complex(0,0) for i in xrange(50)]
+    az = [complex(0,0) for i in range(50)]
+    azz = [complex(0,0) for i in range(50)]
     ci=complex(0.0,1.0)
     eps=1.0e-20
 #  The coefficients of p'[z] and p''[z].
@@ -52,7 +52,7 @@ def guerre(a,n,z,err,nter):
 
 #   The root-finding subroutine. 
 def fndrt(a,n):
-    z=[complex(0,0) for k in xrange(n) ]
+    z=[complex(0,0) for k in range(n) ]
     if n==1:
         z[0]=-a[0]/a[1]
         return z

@@ -1,7 +1,7 @@
 # unittest.skip Incorrect values computed on windows ...
 # pythran export run(float, float, float, float, float, float, int, int, float[][])
-# bench import numpy ; run(0,0,90,90, 1, 100, 80, 80, numpy.array([ [i/10., i/10., i/20.] for i in xrange(160)],dtype=numpy.double))
-# runas import numpy ; run(0,0,90,90, 1, 100, 80, 80, numpy.array([ [i/10., i/10., i/20.] for i in xrange(80)],dtype=numpy.double))
+# bench import numpy ; run(0,0,90,90, 1, 100, 80, 80, numpy.array([ [i/10., i/10., i/20.] for i in range(160)],dtype=numpy.double))
+# runas import numpy ; run(0,0,90,90, 1, 100, 80, 80, numpy.array([ [i/10., i/10., i/20.] for i in range(80)],dtype=numpy.double))
 
 import numpy as np
 

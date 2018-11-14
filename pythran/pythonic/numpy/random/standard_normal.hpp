@@ -19,9 +19,8 @@ namespace numpy
   namespace random
   {
 
-    template <size_t N>
-    types::ndarray<double, N>
-    standard_normal(types::array<long, N> const &shape)
+    template <class pS>
+    types::ndarray<double, pS> standard_normal(pS const &shape)
     {
       return normal(0., 1., shape);
     }
@@ -36,8 +35,6 @@ namespace numpy
     {
       return normal(0., 1., d);
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, standard_normal);
   }
 }
 PYTHONIC_NS_END

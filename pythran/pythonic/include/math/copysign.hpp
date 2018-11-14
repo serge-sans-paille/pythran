@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(copysign, std::copysign);
+  DEFINE_FUNCTOR_2(copysign, std::copysign);
 }
 PYTHONIC_NS_END
 

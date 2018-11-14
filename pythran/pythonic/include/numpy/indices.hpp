@@ -9,11 +9,14 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <size_t N, class dtype = functor::int64>
-  types::ndarray<typename dtype::type, N + 1>
-  indices(types::array<long, N> const &shape, dtype d = dtype());
+  template <class pS, class dtype = functor::int64>
+  types::ndarray<
+      typename dtype::type,
+      sutils::push_front_t<
+          pS, std::integral_constant<long, std::tuple_size<pS>::value>>>
+  indices(pS const &shape, dtype d = dtype());
 
-  DECLARE_FUNCTOR(pythonic::numpy, indices);
+  DEFINE_FUNCTOR(pythonic::numpy, indices);
 }
 PYTHONIC_NS_END
 

@@ -17,7 +17,7 @@ namespace numpy
   template <class E>
   typename E::dtype nansum(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, nansum);
+  DEFINE_FUNCTOR(pythonic::numpy, nansum);
 }
 PYTHONIC_NS_END
 

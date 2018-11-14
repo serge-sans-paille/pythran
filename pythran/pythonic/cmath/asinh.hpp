@@ -12,7 +12,6 @@ PYTHONIC_NS_BEGIN
 
 namespace cmath
 {
-  DEFINE_FUNCTOR_2(asinh, std::asinh);
 }
 PYTHONIC_NS_END
 

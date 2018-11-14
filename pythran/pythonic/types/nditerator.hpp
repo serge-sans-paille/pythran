@@ -196,7 +196,7 @@ namespace types
     index = other.index;
     return *this;
   }
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class E>
   const_simd_nditerator<E>::const_simd_nditerator(typename E::dtype const *data)
       : data(data)
@@ -205,16 +205,16 @@ namespace types
 
   template <class E>
   auto const_simd_nditerator<E>::operator*() const
-      -> decltype(boost::simd::load<boost::simd::pack<typename E::dtype>>(data))
+      -> decltype(xsimd::load_unaligned(data))
   {
-    return boost::simd::load<boost::simd::pack<typename E::dtype>>(data);
+    return xsimd::load_unaligned(data);
   }
 
   template <class E>
   void const_simd_nditerator<E>::store(
-      boost::simd::pack<typename E::dtype> const &val)
+      xsimd::simd_type<typename E::dtype> const &val)
   {
-    boost::simd::store(val, const_cast<typename E::dtype *>(data));
+    val.store_unaligned(const_cast<typename E::dtype *>(data));
   }
 
   template <class E>

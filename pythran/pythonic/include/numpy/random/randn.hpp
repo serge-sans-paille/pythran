@@ -11,11 +11,11 @@ namespace numpy
   namespace random
   {
     template <class... T>
-    types::ndarray<double, sizeof...(T)> randn(T... shape);
+    types::ndarray<double, types::array<long, sizeof...(T)>> randn(T... shape);
 
     double randn();
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, randn);
+    DEFINE_FUNCTOR(pythonic::numpy::random, randn);
   }
 }
 PYTHONIC_NS_END

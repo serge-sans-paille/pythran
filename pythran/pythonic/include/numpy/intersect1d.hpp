@@ -14,10 +14,11 @@ namespace numpy
 {
   template <class E, class F>
   types::ndarray<
-      typename __combined<typename E::dtype, typename F::dtype>::type, 1>
+      typename __combined<typename E::dtype, typename F::dtype>::type,
+      types::pshape<long>>
   intersect1d(E const &e, F const &f);
 
-  DECLARE_FUNCTOR(pythonic::numpy, intersect1d);
+  DEFINE_FUNCTOR(pythonic::numpy, intersect1d);
 }
 PYTHONIC_NS_END
 

@@ -111,12 +111,12 @@ computation, if any::
   >>> tree = ast.parse("""
   ... def foo(x):
   ...     #omp critical
-  ...     a,b = bar(x)
+  ...     a,b = 1, x + 1
   ...     return a + b""")
   >>> _ = pm.apply(transformations.NormalizeTuples, tree)  # in-place
   >>> print(pm.dump(backend.Python, tree))
   def foo(x):
-      __tuple0 = bar(x)
+      __tuple0 = (1, (x + 1))
       a = __tuple0[0]
       b = __tuple0[1]
       return (a + b)
@@ -154,7 +154,7 @@ More complex ones rely on introspection to implement constant folding::
 
 One can also detect some common generator expression patterns to call the itertool module::
 
-  >>> norm = 'def norm(l): return sum(n*n for n in l)'
+  >>> norm = 'def norm(l): return __builtin__.sum(n*n for n in l)'
   >>> tree = ast.parse(norm)
   >>> _ = pm.apply(optim.ComprehensionPatterns, tree)
   >>> 'map' in pm.dump(backend.Python, tree)

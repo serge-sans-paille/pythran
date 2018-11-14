@@ -1,10 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPY_BROADCAST_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_BROADCAST_HPP
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/load.hpp>
-#include <boost/simd/function/store.hpp>
+#ifdef USE_XSIMD
+#include <xsimd/xsimd.hpp>
 #endif
 
 #include "pythonic/include/types/vectorizable_type.hpp"
@@ -76,8 +74,9 @@ namespace types
     using iterator = const_iterator;
 
     T const ref;
-    types::array<long, value> _shape;
-    types::array<long, value> const &shape() const
+    using shape_t = types::array<long, value>;
+    shape_t _shape;
+    shape_t const &shape() const
     {
       return _shape;
     }
@@ -104,7 +103,7 @@ namespace types
       return {ref[s]};
     }
     T const &fast(long i) const;
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator_nostep<broadcasted>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>
@@ -144,11 +143,11 @@ namespace types
     void load(I) const;
   };
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class dtype>
   struct broadcast_base<dtype, true> {
     dtype _value;
-    boost::simd::pack<dtype> _splated;
+    xsimd::simd_type<dtype> _splated;
     broadcast_base() = default;
 
     template <class V>
@@ -217,13 +216,28 @@ namespace types
   };
 
   template <class T, class B>
-  struct broadcast {
-    // Perform the type conversion here if it seems valid (although it is !
-    // always)
-    using dtype =
+  struct broadcast_dtype {
+    using type =
         typename std::conditional<std::is_integral<T>::value &&
                                       std::is_integral<B>::value,
                                   T, typename __combined<T, B>::type>::type;
+  };
+#ifndef USE_XSIMD
+  template <class T, class B>
+  struct broadcast_dtype<std::complex<T>, B> {
+    using type = T;
+  };
+  template <class T0, class T1>
+  struct broadcast_dtype<std::complex<T0>, std::complex<T1>> {
+    using type = std::complex<typename __combined<T0, T1>::type>;
+  };
+#endif
+
+  template <class T, class B>
+  struct broadcast {
+    // Perform the type conversion here if it seems valid (although it is !
+    // always)
+    using dtype = typename broadcast_dtype<T, B>::type;
     static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
     static const bool is_strided = false;
     using value_type = dtype;
@@ -242,6 +256,8 @@ namespace types
     broadcast(V v);
 
     dtype operator[](long) const;
+    template <size_t N>
+    dtype operator[](array<long, N>) const;
     broadcast operator[](slice) const
     {
       return *this;
@@ -255,7 +271,8 @@ namespace types
     auto load(I i) const -> decltype(this->_base.load(i));
     template <class... Args>
     dtype operator()(Args &&...) const;
-    array<long, 1> shape() const;
+    using shape_t = types::pshape<std::integral_constant<long, 0>>;
+    shape_t shape() const;
     long flat_size() const;
     const_iterator begin() const
     {
@@ -265,7 +282,7 @@ namespace types
     {
       return {_base._value};
     }
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = const_broadcast_iterator<decltype(_base._splated)>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>

@@ -15,8 +15,6 @@ namespace __builtin__
   {
     return {(char)v};
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, chr);
 }
 PYTHONIC_NS_END
 

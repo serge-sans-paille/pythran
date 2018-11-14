@@ -4,14 +4,15 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <boost/simd/function/trunc.hpp>
+
+#include <xsimd/xsimd.hpp>
 
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME trunc
-#define NUMPY_NARY_FUNC_SYM boost::simd::trunc
+#define NUMPY_NARY_FUNC_SYM xsimd::trunc
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

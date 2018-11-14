@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(trunc, std::trunc);
+  DEFINE_FUNCTOR_2(trunc, std::trunc);
 }
 PYTHONIC_NS_END
 

@@ -11,7 +11,7 @@ namespace __dispatch__
   template <class Any>
   auto next(Any &&any) -> decltype(any.next());
 
-  DECLARE_FUNCTOR(pythonic::__dispatch__, next);
+  DEFINE_FUNCTOR(pythonic::__dispatch__, next);
 }
 PYTHONIC_NS_END
 

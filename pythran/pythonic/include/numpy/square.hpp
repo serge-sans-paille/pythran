@@ -6,11 +6,6 @@
 #include "pythonic/include/utils/functor.hpp"
 
 #include <complex>
-#include <boost/simd/function/sqr.hpp>
-
-#ifdef USE_GMP
-#include "pythonic/include/types/long.hpp"
-#endif
 
 namespace wrapper
 {
@@ -23,22 +18,19 @@ namespace numpy
 
   namespace wrapper
   {
-#ifdef USE_GMP
-    template <class T, class U>
-    auto square(__gmp_expr<T, U> const &a) -> decltype(a *a)
-    {
-      return a * a;
-    }
-#endif
     template <class T>
-    std::complex<T> square(std::complex<T> const &arg)
+    auto square(T const &arg) -> decltype(arg *arg)
     {
       return arg * arg;
     }
     template <class T>
-    auto square(T const &arg) -> decltype(boost::simd::sqr(arg))
+    std::complex<T> square(std::complex<T> const &arg)
     {
-      return boost::simd::sqr(arg);
+      T r = arg.real(), i = arg.imag();
+      auto t = r * i;
+      auto r2 = r * r;
+      auto i2 = i * i;
+      return {r2 - i2, t + t};
     }
   }
 

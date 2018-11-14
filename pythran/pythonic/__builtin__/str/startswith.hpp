@@ -22,8 +22,6 @@ namespace __builtin__
       return (end - start) >= prefix.size() &&
              s.compare(start, prefix.size(), prefix) == 0;
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::str, startswith);
   }
 }
 PYTHONIC_NS_END

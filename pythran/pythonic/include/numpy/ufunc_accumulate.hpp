@@ -20,7 +20,7 @@ namespace numpy
     auto accumulate(T &&a, long axis = 0, dtype d = dtype())
         -> decltype(partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a),
                                                             axis, d));
-    DECLARE_FUNCTOR(pythonic::numpy::UFUNC_NAME, accumulate);
+    DEFINE_FUNCTOR(pythonic::numpy::UFUNC_NAME, accumulate);
   }
 }
 PYTHONIC_NS_END

@@ -14,7 +14,7 @@ namespace __builtin__
     template <class Iterable>
     long len_set(Iterable const &s);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::pythran, len_set);
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, len_set);
   }
 }
 PYTHONIC_NS_END

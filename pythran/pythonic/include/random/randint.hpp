@@ -11,7 +11,7 @@ namespace random
 
   long randint(long a, long b);
 
-  DECLARE_FUNCTOR(pythonic::random, randint);
+  DEFINE_FUNCTOR(pythonic::random, randint);
 }
 PYTHONIC_NS_END
 

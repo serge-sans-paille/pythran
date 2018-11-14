@@ -14,7 +14,7 @@ def BlackScholes(stock_price, option_strike, option_years, Riskfree,  Volatility
     A5 = 1.330274429
     call_result = []
     put_result = []
-    for opt in xrange(0, nb_opt) :
+    for opt in range(0, nb_opt) :
         sqrtT = math.sqrt(option_years[opt])
         d1 = math.log(stock_price[opt] / option_strike[opt])
         d1 += (Riskfree + 0.5 * Volatility * Volatility) * option_years[opt]

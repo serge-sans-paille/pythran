@@ -138,8 +138,6 @@ namespace itertools
   {
     return _permutations<T0>(iter, std::distance(iter.begin(), iter.end()));
   }
-
-  DEFINE_FUNCTOR(pythonic::itertools, permutations);
 }
 PYTHONIC_NS_END
 

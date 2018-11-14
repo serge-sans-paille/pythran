@@ -21,7 +21,7 @@ namespace numpy
   typename std::enable_if<(U::value > V::value), bool>::type
   array_equiv(U const &u, V const &v);
 
-  DECLARE_FUNCTOR(pythonic::numpy, array_equiv);
+  DEFINE_FUNCTOR(pythonic::numpy, array_equiv);
 }
 PYTHONIC_NS_END
 

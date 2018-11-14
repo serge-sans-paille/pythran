@@ -15,8 +15,6 @@ namespace operator_
   {
     return +a;
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, pos);
 }
 PYTHONIC_NS_END
 

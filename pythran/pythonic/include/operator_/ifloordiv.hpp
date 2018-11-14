@@ -13,7 +13,7 @@ namespace operator_
   template <class A, class B>
   A &ifloordiv(A &a, B const &b);
 
-  DECLARE_FUNCTOR(pythonic::operator_, ifloordiv);
+  DEFINE_FUNCTOR(pythonic::operator_, ifloordiv);
 }
 PYTHONIC_NS_END
 

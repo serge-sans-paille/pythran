@@ -163,7 +163,7 @@ namespace types
       return _lt(other, utils::int_<sizeof...(Iters)>{});
     }
   };
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class E, class Op, class SIters, class... Iters>
   struct numpy_expr_simd_iterator
       : std::iterator<std::random_access_iterator_tag,
@@ -197,7 +197,7 @@ namespace types
     {
       return Op{}(((steps_[I])
                        ? (*std::get<I>(iters_))
-                       : (boost::simd::splat<decltype(*std::get<I>(iters_))>(
+                       : (xsimd::simd_type<decltype(*std::get<I>(iters_))>(
                              *std::get<I>(siters_))))...);
     }
 
@@ -484,7 +484,12 @@ namespace types
 #else
     std::tuple<Args...> args;
 #endif
-    array<long, value> _shape;
+    using shape_t = sutils::merged_shapes_t<
+        value, typename std::remove_reference<Args>::type::shape_t...>;
+    static_assert(value == std::tuple_size<shape_t>::value,
+                  "consistent shape and size");
+
+    shape_t _shape;
 
     numpy_expr() = default;
     numpy_expr(numpy_expr const &) = default;
@@ -513,7 +518,10 @@ namespace types
 
     template <size_t... I>
     auto _fast(long i, utils::index_sequence<I...>) const
-        -> decltype(Op()(std::get<I>(args).fast(i)...));
+        -> decltype(Op()(std::get<I>(args).fast(i)...))
+    {
+      return Op()(std::get<I>(args).fast(i)...);
+    }
 
     auto fast(long i) const
         -> decltype(this->_fast(i,
@@ -522,7 +530,10 @@ namespace types
     template <size_t... I>
     auto _map_fast(std::array<long, sizeof...(I)> const &indices,
                    utils::index_sequence<I...>) const
-        -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...));
+        -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...))
+    {
+      return Op()(std::get<I>(args).fast(std::get<I>(indices))...);
+    }
 
     template <class... Indices>
     auto map_fast(Indices... indices) const -> decltype(
@@ -530,7 +541,7 @@ namespace types
                         utils::make_index_sequence<sizeof...(Args)>{}));
 
   public:
-    array<long, value> const &shape() const
+    shape_t const &shape() const
     {
       return _shape;
     }
@@ -538,7 +549,7 @@ namespace types
     bool _no_broadcast(utils::index_sequence<I...>) const;
     bool no_broadcast() const;
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
     using simd_iterator = numpy_expr_simd_iterator<
         numpy_expr, Op, std::tuple<typename std::remove_reference<
                             Args>::type::const_iterator...>,
@@ -565,7 +576,10 @@ namespace types
 #endif
     template <size_t... I, class... S>
     auto _get(utils::index_sequence<I...>, S const &... s) const
-        -> decltype(Op{}(std::get<I>(args)(s...)...));
+        -> decltype(Op{}(std::get<I>(args)(s...)...))
+    {
+      return Op{}(std::get<I>(args)(s...)...);
+    }
 
     template <class S0, class... S>
     auto operator()(S0 const &s0, S const &... s) const ->
@@ -575,14 +589,36 @@ namespace types
                                 s0, s...))>::type;
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
-                            numpy_fexpr<numpy_expr, F>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            std::is_same<bool, typename F::dtype>::value &&
+            !is_pod_array<F>::value,
+        numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
     template <class F>
-    typename std::enable_if<is_numexpr_arg<F>::value,
-                            numpy_fexpr<numpy_expr, F>>::type
+    typename std::enable_if<
+        is_numexpr_arg<F>::value &&
+            std::is_same<bool, typename F::dtype>::value &&
+            !is_pod_array<F>::value,
+        numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
     operator[](F const &filter) const;
+
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value &&
+                                !is_pod_array<F>::value,
+                            numpy_vexpr<numpy_expr, F>>::type
+    operator[](F const &filter) const;
+
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value &&
+                                !is_pod_array<F>::value,
+                            numpy_vexpr<numpy_expr, F>>::type
+    fast(F const &filter) const;
 
     // FIXME: this does ! take into account bounds && broadcasting
     auto operator[](long i) const -> decltype(this->fast(i));
@@ -604,6 +640,13 @@ namespace types
       return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
     }
 
+    dtype operator[](array<long, value> const &indices) const
+    {
+      return _index(indices, utils::make_index_sequence<sizeof...(Args)>{});
+    }
+
+    explicit operator bool() const;
+
     long flat_size() const;
 
     long size() const;
@@ -612,9 +655,9 @@ namespace types
 
 template <class Op, class... Args>
 struct assignable<types::numpy_expr<Op, Args...>> {
-  using type =
-      types::ndarray<typename pythonic::types::numpy_expr<Op, Args...>::dtype,
-                     pythonic::types::numpy_expr<Op, Args...>::value>;
+  using type = types::ndarray<
+      typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+      typename pythonic::types::numpy_expr<Op, Args...>::shape_t>;
 };
 
 template <class Op, class... Arg>
@@ -661,7 +704,8 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>,
                   pythonic::types::numpy_expr<Op2, Args2...>> {
   using type = pythonic::types::ndarray<
       typename pythonic::types::numpy_expr<Op, Args...>::dtype,
-      pythonic::types::numpy_expr<Op, Args...>::value>;
+      pythonic::types::array<long,
+                             pythonic::types::numpy_expr<Op, Args...>::value>>;
 };
 template <class E, class Op, class... Args>
 struct __combined<pythonic::types::numpy_iexpr<E>,
@@ -674,10 +718,28 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>,
   using type = pythonic::types::numpy_iexpr<E>;
 };
 
-template <class T, size_t N, class Op, class... Args>
+template <class T, class pS, class Op, class... Args>
 struct __combined<pythonic::types::numpy_expr<Op, Args...>,
-                  pythonic::types::ndarray<T, N>> {
-  using type = pythonic::types::ndarray<T, N>;
+                  pythonic::types::ndarray<T, pS>> {
+  using type = pythonic::types::ndarray<T, pS>;
+};
+
+template <class T, class Op, class... Args>
+struct __combined<pythonic::types::numpy_expr<Op, Args...>,
+                  pythonic::types::numpy_texpr<T>> {
+  using type = pythonic::types::ndarray<
+      typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+      pythonic::types::array<long,
+                             pythonic::types::numpy_expr<Op, Args...>::value>>;
+};
+
+template <class T, class Op, class... Args>
+struct __combined<pythonic::types::numpy_texpr<T>,
+                  pythonic::types::numpy_expr<Op, Args...>> {
+  using type = pythonic::types::ndarray<
+      typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+      pythonic::types::array<long,
+                             pythonic::types::numpy_expr<Op, Args...>::value>>;
 };
 
 /*}*/

@@ -4,7 +4,7 @@ from random import random
 
 #pythran export arc_distance_list( (float, float) list, (float, float) list)
 #runas arc_distance_list([(12.4,0.5),(-5.6,12.34),(9.21,-5.6),(3.4,2.3),(-23.31,12.6)],[(3.45,1.5),(55.4,567.0),(43.2,56.1),(3.4,1.34),(-56.9,-3.4)])
-#bench import random; N=1000; a = [(random.random(), random.random()) for i in xrange(N)]; b = [(random.random(), random.random()) for i in xrange(N)]; arc_distance_list(a,b)
+#bench import random; N=1000; a = [(random.random(), random.random()) for i in range(N)]; b = [(random.random(), random.random()) for i in range(N)]; arc_distance_list(a,b)
 def arc_distance_list(a, b):
     distance_matrix = []
     for theta_1, phi_1 in a:

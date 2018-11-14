@@ -24,7 +24,7 @@ namespace numpy
     template <class V>
     float float32(V v)
     {
-      return v;
+      return static_cast<float>(v);
     }
   }
 

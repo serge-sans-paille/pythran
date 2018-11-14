@@ -8,12 +8,8 @@
 #include "pythonic/__builtin__/ValueError.hpp"
 #include "pythonic/utils/neutral.hpp"
 
-#ifdef USE_BOOST_SIMD
-#include <boost/simd/function/broadcast.hpp>
-#include <boost/simd/function/aligned_store.hpp>
-#include <boost/simd/pack.hpp>
-#include <boost/simd/function/load.hpp>
-#include <boost/simd/function/store.hpp>
+#ifdef USE_XSIMD
+#include <xsimd/xsimd.hpp>
 #endif
 
 #include <algorithm>
@@ -53,7 +49,7 @@ namespace numpy
     template <class E, class F>
     F operator()(E &&e, F acc)
     {
-      for (long i = 0, n = e.shape()[0]; i < n; ++i) {
+      for (long i = 0, n = std::get<0>(e.shape()); i < n; ++i) {
         acc = _reduce<Op, N - 1, types::novectorize_nobroadcast>{}(e.fast(i),
                                                                    acc);
       }
@@ -66,20 +62,20 @@ namespace numpy
     template <class E, class F>
     F operator()(E &&e, F acc)
     {
-      for (long i = 0, n = e.shape()[0]; i < n; ++i) {
+      for (long i = 0, n = std::get<0>(e.shape()); i < n; ++i) {
         Op{}(acc, e.fast(i));
       }
       return acc;
     }
   };
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class vectorizer, class Op, class E, class F>
   F vreduce(E e, F acc)
   {
     using T = typename E::dtype;
-    using vT = boost::simd::pack<T>;
-    static const size_t vN = vT::static_size;
+    using vT = xsimd::simd_type<T>;
+    static const size_t vN = vT::size;
     const long n = e.size();
     auto viter = vectorizer::vbegin(e), vend = vectorizer::vend(e);
     const long bound = std::distance(viter, vend);
@@ -88,7 +84,7 @@ namespace numpy
       for (++viter; viter != vend; ++viter)
         Op{}(vacc, *viter);
       alignas(sizeof(vT)) T stored[vN];
-      boost::simd::store(vacc, &stored[0]);
+      vacc.store_aligned(&stored[0]);
       for (size_t j = 0; j < vN; ++j)
         Op{}(acc, stored[j]);
     }
@@ -173,10 +169,9 @@ namespace numpy
   }
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis) ->
-      typename std::enable_if<std::is_scalar<E>::value ||
-                                  types::is_complex<E>::value,
-                              decltype(reduce<Op>(array))>::type
+  typename std::enable_if<
+      std::is_scalar<E>::value || types::is_complex<E>::value, E>::type
+  reduce(E const &array, long axis)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -184,8 +179,8 @@ namespace numpy
   }
 
   template <class Op, class E>
-  auto reduce(E const &array, long axis, types::none_type, types::none_type) ->
-      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type
+  typename std::enable_if<E::value == 1, reduce_result_type<E>>::type
+  reduce(E const &array, long axis, types::none_type, types::none_type)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -193,8 +188,8 @@ namespace numpy
   }
 
   template <class Op, class E, class Out>
-  auto reduce(E const &array, long axis, types::none_type, Out &&out) ->
-      typename std::enable_if<E::value == 1, decltype(reduce<Op>(array))>::type
+  typename std::enable_if<E::value == 1, reduce_result_type<E>>::type
+  reduce(E const &array, long axis, types::none_type, Out &&out)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -212,14 +207,16 @@ namespace numpy
     auto shape = array.shape();
     if (axis == 0) {
       types::array<long, E::value - 1> shp;
-      std::copy(shape.begin() + 1, shape.end(), shp.begin());
+      sutils::copy_shape<0, 1>(shp, shape,
+                               utils::make_index_sequence<E::value - 1>());
       return _reduce<Op, 1, types::novectorize /* ! on scalars*/>{}(
           array,
           reduced_type<E>{shp, utils::neutral<Op, typename E::dtype>::value});
     } else {
       types::array<long, E::value - 1> shp;
-      auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
-      std::copy(shape.begin() + axis + 1, shape.end(), next);
+      auto tmp = sutils::array(shape);
+      auto next = std::copy(tmp.begin(), tmp.begin() + axis, shp.begin());
+      std::copy(tmp.begin() + axis + 1, tmp.end(), next);
       reduced_type<E> sumy{shp, __builtin__::None};
 
       auto sumy_iter = sumy.begin();

@@ -16,8 +16,6 @@ namespace random
     // TODO: It should be implemented with an uniform_int_distribution
     return randrange(a, b + 1);
   }
-
-  DEFINE_FUNCTOR(pythonic::random, randint);
 }
 PYTHONIC_NS_END
 

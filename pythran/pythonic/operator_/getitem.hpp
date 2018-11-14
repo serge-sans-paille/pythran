@@ -14,8 +14,6 @@ namespace operator_
   {
     return a[b];
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, getitem);
 }
 PYTHONIC_NS_END
 

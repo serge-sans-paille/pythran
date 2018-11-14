@@ -14,8 +14,6 @@ namespace random
   {
     return a + (b - a) * random();
   }
-
-  DEFINE_FUNCTOR(pythonic::random, uniform);
 }
 PYTHONIC_NS_END
 

@@ -15,11 +15,7 @@ namespace scipy
   {
 
 #define NUMPY_NARY_FUNC_NAME gammaln
-#ifdef USE_BOOST_SIMD
-#define NUMPY_NARY_FUNC_SYM boost::simd::gammaln
-#else
-#define NUMPY_NARY_FUNC_SYM std::lgamma
-#endif
+#define NUMPY_NARY_FUNC_SYM xsimd::lgamma
 #include "pythonic/types/numpy_nary_expr.hpp"
   }
 }

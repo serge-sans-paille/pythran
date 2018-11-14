@@ -9,12 +9,14 @@ namespace numpy
 {
   namespace ctypeslib
   {
-    template <class T, size_t N>
-    types::ndarray<T, N> as_array(types::pointer<T>, types::array<long, N>);
+    template <class T, class pS>
+    typename std::enable_if<!std::is_integral<pS>::value,
+                            types::ndarray<T, pS>>::type
+        as_array(types::pointer<T>, pS);
 
     template <class T>
-    types::ndarray<T, 1> as_array(types::pointer<T>, long);
-    DECLARE_FUNCTOR(pythonic::numpy::ctypeslib, as_array);
+    types::ndarray<T, types::pshape<long>> as_array(types::pointer<T>, long);
+    DEFINE_FUNCTOR(pythonic::numpy::ctypeslib, as_array);
   }
 }
 PYTHONIC_NS_END

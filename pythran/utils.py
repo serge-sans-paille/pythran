@@ -78,6 +78,16 @@ def get_variable(assignable):
         assignable = assignable.value
     return assignable
 
+def pythran_builtin(name):
+    return MODULES['__builtin__']['pythran'][name]
+
+def pythran_builtin_path(name):
+    assert name in MODULES['__builtin__']['pythran']
+    return ('__builtin__', 'pythran', name)
+
+def pythran_builtin_attr(name):
+    return path_to_attr(pythran_builtin_path(name))
+
 
 @contextmanager
 def pushpop(l, v):

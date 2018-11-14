@@ -8,12 +8,12 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  types::ndarray<typename E::dtype, 1> ediff1d(E const &expr);
+  types::ndarray<typename E::dtype, types::pshape<long>> ediff1d(E const &expr);
 
   template <class E>
   auto ediff1d(types::list<E> const &expr) -> decltype(ediff1d(asarray(expr)));
 
-  DECLARE_FUNCTOR(pythonic::numpy, ediff1d);
+  DEFINE_FUNCTOR(pythonic::numpy, ediff1d);
 }
 PYTHONIC_NS_END
 

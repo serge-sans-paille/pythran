@@ -56,8 +56,6 @@ namespace random
                  details::URG<function>(std::forward<function>(randf)));
     return __builtin__::None;
   }
-
-  DEFINE_FUNCTOR(pythonic::random, shuffle)
 }
 
 PYTHONIC_NS_END

@@ -19,8 +19,6 @@ namespace __builtin__
     {
       return d.viewkeys();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::dict, viewkeys);
   }
 }
 PYTHONIC_NS_END

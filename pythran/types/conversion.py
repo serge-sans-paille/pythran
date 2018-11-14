@@ -1,10 +1,8 @@
 """ Module to convert Python type to Pythonic type. """
 
-import sys
-
 from numpy import int8, int16, int32, int64, intp
 from numpy import uint8, uint16, uint32, uint64, uintp
-from numpy import float64, float32, complex64, complex128, uint64
+from numpy import float64, float32, complex64, complex128
 from pythran.typing import List, Dict, Set, Tuple, NDArray, Pointer, Fun
 
 PYTYPE_TO_CTYPE_TABLE = {
@@ -30,13 +28,16 @@ PYTYPE_TO_CTYPE_TABLE = {
     complex128: 'std::complex<double>',
 }
 
+try:
+    from numpy import float128, complex256
+    PYTYPE_TO_CTYPE_TABLE[float128] = 'long double'
+    PYTYPE_TO_CTYPE_TABLE[complex256] = 'std::complex<long double>'
+except ImportError:
+    pass
+
 TYPE_TO_SUFFIX = {
     int: "L",
     }
-
-if sys.version_info.major == 2:
-    PYTYPE_TO_CTYPE_TABLE[long] = 'pythran_long_t'
-    TYPE_TO_SUFFIX[long] = "LL"
 
 
 def pytype_to_ctype(t):
@@ -61,7 +62,14 @@ def pytype_to_ctype(t):
     elif isinstance(t, NDArray):
         dtype = pytype_to_ctype(t.__args__[0])
         ndim = len(t.__args__) - 1
-        arr = 'pythonic::types::ndarray<{0},{1}>'.format(dtype, ndim)
+        shapes = ','.join(('long'
+                           if s.stop == -1 or s.stop is None
+                           else 'std::integral_constant<long, {}>'.format(
+                               s.stop)
+                           ) for s in t.__args__[1:])
+        pshape = 'pythonic::types::pshape<{0}>'.format(shapes)
+        arr = 'pythonic::types::ndarray<{0},{1}>'.format(
+                    dtype, pshape)
         if t.__args__[1].start == -1:
             return 'pythonic::types::numpy_texpr<{0}>'.format(arr)
         elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):
@@ -101,7 +109,10 @@ def pytype_to_pretty_type(t):
     elif isinstance(t, NDArray):
         dtype = pytype_to_pretty_type(t.__args__[0])
         ndim = len(t.__args__) - 1
-        arr = '{0}[{1}]'.format(dtype, ','.join([':'] * ndim))
+        arr = '{0}[{1}]'.format(
+            dtype,
+            ','.join(':' if s.stop in (-1, None) else str(s.stop)
+                     for s in t.__args__[1:]))
         # it's a transpose!
         if t.__args__[1].start == -1:
             return '{}.T'.format(arr)

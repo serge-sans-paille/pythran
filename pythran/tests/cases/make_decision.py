@@ -1,4 +1,5 @@
 import numpy as np
+#pythran export md(complex128[], complex128[])
 #pythran export md(complex128[], complex128[::])
 #runas import numpy as np;  s=np.arange(160.)+np.arange(160.)*1.j ; sc = s[::2]; md(s, sc)
 def md(E, symbols):

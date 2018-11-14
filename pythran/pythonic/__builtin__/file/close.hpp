@@ -23,8 +23,6 @@ namespace __builtin__
     {
       f.close();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, close);
   }
 }
 PYTHONIC_NS_END

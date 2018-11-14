@@ -6,12 +6,16 @@
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/array_helper.hpp"
+#include "pythonic/utils/broadcast_copy.hpp"
+#include "pythonic/include/types/raw_array.hpp"
+#include "pythonic/types/ndarray.hpp" // we should remove that dep during a refactoring :-)
 
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/operator_/iand.hpp"
 #include "pythonic/operator_/idiv.hpp"
 #include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/ixor.hpp"
 #include "pythonic/operator_/isub.hpp"
 
 #include <numeric>
@@ -52,7 +56,7 @@ namespace types
   template <class Arg>
   long numpy_iexpr<Arg>::size() const
   {
-    return _shape[0];
+    return std::get<0>(_shape);
   }
 
   template <class Arg>
@@ -73,7 +77,9 @@ namespace types
     assert(buffer);
     return utils::broadcast_copy < numpy_iexpr &, numpy_iexpr const &, value,
            value - utils::dim_of<numpy_iexpr>::value,
-           is_vectorizable && numpy_iexpr<Arg>::is_vectorizable > (*this, expr);
+           is_vectorizable && numpy_iexpr<Arg>::is_vectorizable &&
+               std::is_same<dtype, typename numpy_iexpr<Arg>::dtype>::value >
+                   (*this, expr);
   }
 
   template <class Arg>
@@ -174,6 +180,19 @@ namespace types
   }
 
   template <class Arg>
+  template <class E>
+  numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator^=(E const &expr)
+  {
+    return update_<pythonic::operator_::functor::ixor>(expr);
+  }
+
+  template <class Arg>
+  numpy_iexpr<Arg> &numpy_iexpr<Arg>::operator^=(numpy_iexpr<Arg> const &expr)
+  {
+    return update_<pythonic::operator_::functor::ixor>(expr);
+  }
+
+  template <class Arg>
   typename numpy_iexpr<Arg>::const_iterator numpy_iexpr<Arg>::begin() const
   {
     return make_const_nditerator < is_strided || value != 1 > ()(*this, 0);
@@ -183,7 +202,7 @@ namespace types
   typename numpy_iexpr<Arg>::const_iterator numpy_iexpr<Arg>::end() const
   {
     return make_const_nditerator < is_strided ||
-           value != 1 > ()(*this, _shape[0]);
+           value != 1 > ()(*this, std::get<0>(_shape));
   }
 
   template <class Arg>
@@ -195,7 +214,8 @@ namespace types
   template <class Arg>
   typename numpy_iexpr<Arg>::iterator numpy_iexpr<Arg>::end()
   {
-    return make_nditerator < is_strided || value != 1 > ()(*this, _shape[0]);
+    return make_nditerator < is_strided ||
+           value != 1 > ()(*this, std::get<0>(_shape));
   }
 
   template <class Arg>
@@ -244,37 +264,59 @@ namespace types
     return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
   }
 
+  template <class T0, class T1>
+  size_t compute_fast_offset(size_t offset, long mult, T0 const &indices,
+                             T1 const &shape, std::integral_constant<long, 0>)
+  {
+    return offset;
+  }
+
+  template <long I, class T0, class T1>
+  size_t compute_fast_offset(size_t offset, long mult, T0 const &indices,
+                             T1 const &shape, std::integral_constant<long, I>)
+  {
+    return compute_fast_offset(offset + std::get<I - 1>(indices) * mult,
+                               mult * std::get<I - 1>(shape), indices, shape,
+                               std::integral_constant<long, I - 1>());
+  }
+
   template <class Arg>
   typename numpy_iexpr<Arg>::dtype const &
   numpy_iexpr<Arg>::fast(array<long, value> const &indices) const
   {
-    size_t offset = indices[value - 1];
-    long mult = _shape[value - 1];
-    for (size_t i = value - 2; i > 0; --i) {
-      offset += indices[i] * mult;
-      mult *= _shape[i];
-    }
-    return buffer[offset + indices[0] * mult];
+    return buffer[compute_fast_offset(
+        indices[value - 1], std::get<value - 1>(_shape), indices, _shape,
+        std::integral_constant<long, value - 1>())];
   }
 
   template <class Arg>
   typename numpy_iexpr<Arg>::dtype &
   numpy_iexpr<Arg>::fast(array<long, value> const &indices)
   {
-    return const_cast<dtype &>(const_cast<numpy_iexpr const &>(*this)[indices]);
+    return const_cast<dtype &>(
+        const_cast<numpy_iexpr const &>(*this).fast(indices));
   }
 
   template <class Arg>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_fexpr<numpy_iexpr<Arg>, F>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>::type
   numpy_iexpr<Arg>::fast(F const &filter) const
   {
-    return numpy_fexpr<numpy_iexpr, F>(*this, filter);
+    long sz = std::get<0>(filter.shape());
+    long *raw = (long *)malloc(sz * sizeof(long));
+    long n = 0;
+    for (long i = 0; i < sz; ++i)
+      if (filter.fast(i))
+        raw[n++] = i;
+    // realloc(raw, n * sizeof(long));
+    long shp[1] = {n};
+    return this->fast(
+        ndarray<long, pshape<long>>(raw, shp, types::ownership::owned));
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class Arg>
   template <class vectorizer>
   typename numpy_iexpr<Arg>::simd_iterator
@@ -288,9 +330,9 @@ namespace types
   typename numpy_iexpr<Arg>::simd_iterator
       numpy_iexpr<Arg>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
-    return {buffer + long(_shape[0] / vector_size * vector_size)};
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
+    return {buffer + long(std::get<0>(_shape) / vector_size * vector_size)};
   }
 
 #endif
@@ -298,7 +340,7 @@ namespace types
   auto numpy_iexpr<Arg>::operator[](long i) const & -> decltype(this->fast(i))
   {
     if (i < 0)
-      i += _shape[0];
+      i += std::get<0>(_shape);
     return fast(i);
   }
 
@@ -306,7 +348,7 @@ namespace types
       auto numpy_iexpr<Arg>::operator[](long i) & -> decltype(this->fast(i))
   {
     if (i < 0)
-      i += _shape[0];
+      i += std::get<0>(_shape);
     return fast(i);
   }
 
@@ -315,7 +357,7 @@ namespace types
       -> decltype(std::move(*this).fast(i))
   {
     if (i < 0)
-      i += _shape[0];
+      i += std::get<0>(_shape);
     return std::move(*this).fast(i);
   }
 
@@ -360,30 +402,46 @@ namespace types
 
   template <class Arg>
   template <class F>
-  typename std::enable_if<is_numexpr_arg<F>::value &&
-                              std::is_same<bool, typename F::dtype>::value,
-                          numpy_fexpr<numpy_iexpr<Arg>, F>>::type
+  typename std::enable_if<
+      is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+      numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>::type
       numpy_iexpr<Arg>::
       operator[](F const &filter) const
   {
     return fast(filter);
   }
 
+  template <class T0, class T1>
+  size_t compute_offset(size_t offset, long mult, T0 const &indices,
+                        T1 const &shape, std::integral_constant<long, 0>)
+  {
+    return offset;
+  }
+
+  template <long I, class T0, class T1>
+  size_t compute_offset(size_t offset, long mult, T0 const &indices,
+                        T1 const &shape, std::integral_constant<long, I>)
+  {
+    return compute_offset(
+        offset +
+            (std::get<I - 1>(indices) < 0
+                 ? std::get<I - 1>(indices) + std::get<I - 1>(shape)
+                 : std::get<I - 1>(indices)) *
+                mult,
+        mult * std::get<I - 1>(shape), indices, shape,
+        std::integral_constant<long, I - 1>());
+  }
+
   template <class Arg>
   typename numpy_iexpr<Arg>::dtype const &numpy_iexpr<Arg>::
   operator[](array<long, value> const &indices) const
   {
-    size_t offset = indices[value - 1] < 0
-                        ? indices[value - 1] + _shape[value - 1]
-                        : indices[value - 1];
-    long mult = _shape[value - 1];
-    for (size_t i = value - 2; i > 0; --i) {
-      offset += (indices[i] < 0 ? indices[i] + _shape[i] : indices[i]) * mult;
-      mult *= _shape[i];
-    }
-    return buffer[offset +
-                  (indices[0] < 0 ? indices[0] + _shape[0] : indices[0]) *
-                      mult];
+    return buffer[compute_offset(indices[value - 1] < 0
+                                     ? indices[value - 1] +
+                                           std::get<value - 1>(_shape)
+                                     : indices[value - 1],
+                                 std::get<value - 1>(_shape), indices, _shape,
+                                 std::integral_constant<long, value - 1>())];
   }
 
   template <class Arg>
@@ -394,10 +452,18 @@ namespace types
   }
 
   template <class Arg>
+  numpy_iexpr<Arg>::operator bool() const
+  {
+    if (sutils::any_of(_shape, [](long n) { return n != 1; }))
+      throw ValueError("The truth value of an array with more than one element "
+                       "is ambiguous. Use a.any() or a.all()");
+    return *buffer;
+  }
+
+  template <class Arg>
   long numpy_iexpr<Arg>::flat_size() const
   {
-    return std::accumulate(_shape.begin() + 1, _shape.end(), *_shape.begin(),
-                           std::multiplies<long>());
+    return sutils::prod(_shape);
   }
 
   template <class Arg>
@@ -408,11 +474,12 @@ namespace types
   }
 
   template <class Arg>
-  template <class T, size_t M, size_t N>
-  long numpy_iexpr<Arg>::buffer_offset(ndarray<T, M> const &arg, long index,
+  template <class T, class pS, size_t N>
+  long numpy_iexpr<Arg>::buffer_offset(ndarray<T, pS> const &arg, long index,
                                        utils::int_<N>)
   {
-    _shape[value - N] = arg._shape[value - N + 1];
+    sutils::assign(std::get<value - N>(_shape),
+                   std::get<value - N + 1>(arg._shape));
     buffer_offset(arg, 0, utils::int_<N - 1>());
     return index * arg._strides[0];
   }
@@ -421,8 +488,8 @@ namespace types
   template <class E, size_t N>
   long numpy_iexpr<Arg>::buffer_offset(E const &arg, long index, utils::int_<N>)
   {
-    auto tmp = arg.shape()[value - N + 1];
-    _shape[value - N] = tmp;
+    auto tmp = std::get<value - N + 1>(arg.shape());
+    sutils::assign(std::get<value - N>(_shape), tmp);
     return buffer_offset(arg, index * tmp, utils::int_<N - 1>());
   }
 

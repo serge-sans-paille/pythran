@@ -15,7 +15,7 @@ namespace __builtin__
     types::file &xreadlines(types::file &f);
     types::file &&xreadlines(types::file &&f);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, xreadlines);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, xreadlines);
   }
 }
 PYTHONIC_NS_END

@@ -5,6 +5,7 @@
 
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/__builtin__/id.hpp"
+#include "pythonic/__builtin__/bool_.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -55,13 +56,22 @@ namespace types
   template <class T>
   none<T, false>::operator bool() const
   {
-    return !is_none && static_cast<const T &>(*this);
+    return !is_none &&
+           __builtin__::functor::bool_{}(static_cast<const T &>(*this));
   }
 
   template <class T>
   intptr_t none<T, false>::id() const
   {
     return is_none ? NONE_ID : __builtin__::id(static_cast<const T &>(*this));
+  }
+  template <class T>
+  std::ostream &operator<<(std::ostream &os, none<T, false> const &v)
+  {
+    if (v.is_none)
+      return os << none_type();
+    else
+      return os << static_cast<T const &>(v);
   }
 
   /* specialization of none for integral types we cannot derive from */
@@ -293,7 +303,7 @@ namespace types
   std::ostream &operator<<(std::ostream &os, none<T, true> const &v)
   {
     if (v.is_none)
-      return os << "None";
+      return os << none_type();
     else
       return os << v.data;
   }

@@ -18,8 +18,6 @@ namespace numpy
   {
     return reduce<operator_::functor::imul>(std::forward<Args>(args)...);
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, prod);
 }
 PYTHONIC_NS_END
 

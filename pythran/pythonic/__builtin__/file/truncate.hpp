@@ -33,8 +33,6 @@ namespace __builtin__
     {
       f.truncate(size);
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::file, truncate);
   }
 }
 PYTHONIC_NS_END

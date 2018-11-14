@@ -14,7 +14,7 @@ namespace operator_
 
   DEFINE_ALL_OPERATOR_OVERLOADS_DECL(lshift, << )
 
-  DECLARE_FUNCTOR(pythonic::operator_, lshift);
+  DEFINE_FUNCTOR(pythonic::operator_, lshift);
 }
 PYTHONIC_NS_END
 

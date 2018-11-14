@@ -29,8 +29,6 @@ namespace numpy
       return {buffer, shape};
     }
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, fromiter);
 }
 PYTHONIC_NS_END
 

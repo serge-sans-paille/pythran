@@ -11,7 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace math
 {
   std::tuple<double, long> frexp(double x);
-  DECLARE_FUNCTOR(pythonic::math, frexp);
+  DEFINE_FUNCTOR(pythonic::math, frexp);
 }
 PYTHONIC_NS_END
 

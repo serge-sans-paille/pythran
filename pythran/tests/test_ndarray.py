@@ -6,6 +6,13 @@ import numpy
 import unittest
 import sys
 
+try:
+    numpy.float128
+    has_float128 = True
+except AttributeError:
+    has_float128 = False
+
+
 
 @TestEnv.module
 class TestNdarray(TestEnv):
@@ -409,6 +416,9 @@ def assign_ndarray(t):
     def test_iexpr1(self):
         self.run_test("def np_iexpr1(a,i): return a[i,0][0]", numpy.array(range(10*9*8)).reshape(10,9,8), 0, np_iexpr1=[NDArray[int, :,:,:], int])
 
+    def test_iexpr2(self):
+        self.run_test("def np_iexpr2(a,m): a[m==False] = 1; return a", numpy.arange(10).reshape(5,2), numpy.arange(10).reshape(5,2), np_iexpr2=[NDArray[int, :,:], NDArray[int, :,:]])
+
     def test_item0(self):
         self.run_test("def np_item0(a): return a.item(3)", numpy.array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]), np_item0=[NDArray[int, :,: ]])
 
@@ -794,6 +804,38 @@ def assign_ndarray(t):
                       10, 10,
                       numpy_expr_combiner=[int, int])
 
+    def test_bool_conversion_0(self):
+        code = 'def bool_conversion_0(x): return bool(x)'
+        self.run_test(code,
+                      numpy.array([[1]]),
+                      bool_conversion_0=[NDArray[int, :,:]])
+
+    def test_bool_conversion_1(self):
+        code = 'def bool_conversion_1(x): return bool(x > 1)'
+        self.run_test(code,
+                      numpy.array([1]),
+                      bool_conversion_1=[NDArray[int, :]])
+
+    def test_bool_conversion_2(self):
+        code = 'def bool_conversion_2(x): return bool(x[1:,1,1:])'
+        self.run_test(code,
+                      numpy.array([[[1,1],[1,1]],
+                                   [[1,0],[1,1]]]
+                                   ),
+                                   bool_conversion_2=[NDArray[int, :,:,:]])
+
+    def test_bool_conversion_3(self):
+        code = 'def bool_conversion_3(x): return bool(x[1])'
+        self.run_test(code,
+                      numpy.array([[1],[0]]),
+                      bool_conversion_3=[NDArray[int, :,:]])
+
+    def test_bool_conversion_4(self):
+        code = 'def bool_conversion_4(x): return bool(x.T)'
+        self.run_test(code,
+                      numpy.array([[1]]),
+                      bool_conversion_4=[NDArray[int, :,:]])
+
     def test_numpy_lazy_gexpr(self):
         code = '''
             import numpy as np
@@ -812,3 +854,105 @@ def assign_ndarray(t):
         self.run_test(code,
                       10, "b", 10, 10,
                       numpy_lazy_gexpr=[int, str, int, int])
+
+    def test_fexpr0(self):
+        code = '''
+            import numpy as np
+            def test_fexpr0(peaks):
+                peaks = peaks[peaks>30] # <- does not compiles
+                lastBin = 0
+                for peak in peaks:
+                    lastBin = peak
+                return lastBin'''
+        self.run_test(code, numpy.array([1,32,33,4]), test_fexpr0=[NDArray[int, :]])
+
+    def test_fexpr1(self):
+        code = '''
+            import numpy as np
+            def yy(x):
+                a = np.zeros(x, np.float32)
+                return a[:-1]
+
+            def test_fexpr1(x):
+                c = yy(x)
+                d = yy(x)
+                c[d == 0] = np.nan
+                return c'''
+        self.run_test(code, 10, test_fexpr1=[int])
+
+
+    def test_vexpr0(self):
+        code = '''
+            import numpy as np
+            def vexpr0(a, b=None):
+                if b is None:
+                    assert len(a) > 0
+                    b = np.copy(a[0])
+                    a = a[1:]
+                else:
+                    b = np.copy(b)
+                m = b >= 0
+                for array in a:
+                    b[m] *= array[m]
+                return b'''
+        self.run_test(code,
+            [numpy.arange(10, dtype=numpy.int32).reshape(5,2)],
+            2 * numpy.arange(10, dtype=numpy.int32).reshape(5,2),
+            vexpr0=[List[NDArray[numpy.int32,:,:]], NDArray[numpy.int32,:,:]])
+
+    def test_array_of_pshape(self):
+        code = 'def array_of_pshape(x): from numpy import array; return array(x[None].shape)'
+        self.run_test(code, numpy.arange(10), array_of_pshape=[NDArray[int,:]])
+
+    def test_vexpr_of_texpr(self):
+        code = '''
+        import numpy as np
+        def apply_mask(mat, mask):
+            assert mask.shape == mat.shape
+            mat[mask == False] = np.nan
+            return mat
+
+        def vexpr_of_texpr(a, b):
+            return apply_mask(a.T, b), apply_mask(a, b.T), apply_mask(a.T, b.T)'''
+        self.run_test(code,
+                      numpy.arange(4., dtype=numpy.float32).reshape(2,2),
+                      numpy.array([[False,True],[True, False]]),
+                      vexpr_of_texpr=[NDArray[numpy.float32,:,:], NDArray[numpy.bool,:,:]])
+
+    def test_indexing_through_int8(self):
+        code = '''
+            def indexing_through_int8(x):
+                return x[x[0,0],x[0,1]]'''
+        self.run_test(code,
+                      numpy.arange(10, dtype=numpy.uint8).reshape(5,2),
+                      indexing_through_int8=[NDArray[numpy.uint8,:,:]])
+
+    def test_complex_scalar_broadcast(self):
+        self.run_test('def complex_scalar_broadcast(a): return (a**2 * (1 + a) + 2) / 5.',
+                      numpy.ones((10,10), dtype=complex),
+                      complex_scalar_broadcast=[NDArray[complex, :, :]])
+
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_float128_0(self):
+        self.run_test('def float128_0(x): return x, x **2',
+                      numpy.float128(numpy.finfo(numpy.float64).max),
+                      float128_0=[numpy.float128])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_float128_1(self):
+        self.run_test('def float128_1(x): return x, x **2',
+                      numpy.ones((10,10), dtype=numpy.float128),
+                      float128_1=[NDArray[numpy.float128,:, :]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_float128_2(self):
+        self.run_test('def float128_2(x): from numpy import ones, float128; return ones(x,dtype=float128)',
+                      3,
+                      float128_2=[int])
+
+    def test_texpr_expr_combined(self):
+        self.run_test("def texpr_expr_combined(x, y):\n if x: return y.T\n else: return y * 2",
+                      1,
+                      numpy.arange(10).reshape(5, 2),
+                      texpr_expr_combined=[int, NDArray[int,:,:]])

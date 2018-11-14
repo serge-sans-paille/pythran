@@ -29,11 +29,12 @@ namespace numpy
       typename std::enable_if<E::value == 1, decltype(any(array))>::type;
 
   template <class E>
-  typename std::enable_if<E::value != 1,
-                          types::ndarray<typename E::dtype, E::value - 1>>::type
+  typename std::enable_if<
+      E::value != 1,
+      types::ndarray<typename E::dtype, types::array<long, E::value - 1>>>::type
   any(E const &array, long axis);
 
-  DECLARE_FUNCTOR(pythonic::numpy, any);
+  DEFINE_FUNCTOR(pythonic::numpy, any);
 }
 PYTHONIC_NS_END
 

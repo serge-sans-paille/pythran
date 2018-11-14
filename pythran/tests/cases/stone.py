@@ -77,7 +77,7 @@ def whetstone(loopstart):
         X3  = -1.0;
         X4  = -1.0;
 
-        for I in xrange(1,N1+1):
+        for I in range(1,N1+1):
             X1 = (X1 + X2 + X3 - X4) * T;
             X2 = (X1 + X2 - X3 + X4) * T;
             X3 = (X1 - X2 + X3 + X4) * T;
@@ -86,7 +86,7 @@ def whetstone(loopstart):
     #    Module 2: Array elements
         E1 =  [ 1.0, -1.0, -1.0, -1.0 ]
 
-        for I in xrange(1,N2+1):
+        for I in range(1,N2+1):
             E1[0] = ( E1[0] + E1[1] + E1[2] - E1[3]) * T;
             E1[1] = ( E1[0] + E1[1] - E1[2] + E1[3]) * T;
             E1[2] = ( E1[0] - E1[1] + E1[2] + E1[3]) * T;
@@ -94,13 +94,13 @@ def whetstone(loopstart):
 
 
     #    Module 3: Array as parameter
-        for I in xrange(1,N3+1):
+        for I in range(1,N3+1):
             PA(E1, T, T2);
 
 
     #    Module 4: Conditional jumps
         J = 1;
-        for I in xrange(1,N4+1):
+        for I in range(1,N4+1):
             if J == 1:
                 J = 2;
             else:
@@ -124,7 +124,7 @@ def whetstone(loopstart):
         K = 2;
         L = 3;
 
-        for I in xrange(1,N6+1):
+        for I in range(1,N6+1):
             J = J * (K-J) * (L-K);
             K = L * K - (L-J) * K;
             L = (L-K) * (K+J);
@@ -136,7 +136,7 @@ def whetstone(loopstart):
         X = 0.5;
         Y = 0.5;
 
-        for I in xrange(1,N7+1):
+        for I in range(1,N7+1):
             X = T * DATAN(T2*DSIN(X)*DCOS(X)/(DCOS(X+Y)+DCOS(X-Y)-1.0));
             Y = T * DATAN(T2*DSIN(Y)*DCOS(Y)/(DCOS(X+Y)+DCOS(X-Y)-1.0));
 
@@ -146,7 +146,7 @@ def whetstone(loopstart):
         Y = 1.0;
         Z = 1.0;
 
-        for I in xrange(1,N8+1):
+        for I in range(1,N8+1):
             Z=P3(X,Y,T, T2)
 
     #    Module 9: Array references
@@ -157,7 +157,7 @@ def whetstone(loopstart):
         E1[1] = 2.0;
         E1[2] = 3.0;
 
-        for I in xrange(1,N9+1):
+        for I in range(1,N9+1):
             P0(E1, J, K, L)
 
 
@@ -165,7 +165,7 @@ def whetstone(loopstart):
         J = 2;
         K = 3;
 
-        for I in xrange(1,N10+1):
+        for I in range(1,N10+1):
             J = J + K;
             K = J + K;
             J = K - J;
@@ -175,7 +175,7 @@ def whetstone(loopstart):
     #    Module 11: Standard functions
         X = 0.75;
 
-        for I in xrange(1,N11+1):
+        for I in range(1,N11+1):
             X = DSQRT(DEXP(DLOG(X)/T1));
 
         JJ+=1

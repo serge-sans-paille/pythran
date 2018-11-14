@@ -20,8 +20,6 @@ namespace __builtin__
     {
       return d.itervalues();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::dict, itervalues);
   }
 }
 PYTHONIC_NS_END

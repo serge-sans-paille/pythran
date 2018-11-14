@@ -22,8 +22,6 @@ namespace __builtin__
       else
         return std::forward<T1>(v1)();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, ifexp);
   }
 }
 PYTHONIC_NS_END

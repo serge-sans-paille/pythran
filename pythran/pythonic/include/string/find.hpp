@@ -12,7 +12,7 @@ namespace string
   template <class T>
   long find(types::str const &s, T &&val);
 
-  DECLARE_FUNCTOR(pythonic::string, find);
+  DEFINE_FUNCTOR(pythonic::string, find);
 }
 PYTHONIC_NS_END
 

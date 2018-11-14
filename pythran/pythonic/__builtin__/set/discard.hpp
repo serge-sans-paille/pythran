@@ -30,8 +30,6 @@ namespace __builtin__
     {
       // nothing to remove in an empty_set
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::set, discard);
   }
 }
 PYTHONIC_NS_END

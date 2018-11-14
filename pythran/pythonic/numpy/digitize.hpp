@@ -34,13 +34,13 @@ namespace numpy
   }
 
   template <class E, class F>
-  types::ndarray<long, 1> digitize(E const &expr, F const &b)
+  types::ndarray<long, types::pshape<long>> digitize(E const &expr, F const &b)
   {
     auto bins = asarray(b);
     bool is_increasing =
         bins.flat_size() > 1 && *bins.fbegin() < *(bins.fbegin() + 1);
-    types::ndarray<long, 1> out(types::make_tuple(long(expr.flat_size())),
-                                __builtin__::None);
+    types::ndarray<long, types::pshape<long>> out(
+        types::make_tuple(long(expr.flat_size())), __builtin__::None);
     auto out_iter = out.fbegin();
     if (is_increasing)
       _digitize(expr.begin(), expr.end(), out_iter, bins,
@@ -50,8 +50,6 @@ namespace numpy
                 operator_::functor::gt(), utils::int_<E::value>());
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, digitize);
 }
 PYTHONIC_NS_END
 

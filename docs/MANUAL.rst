@@ -39,7 +39,6 @@ Prerequisite
 
 Pythran depends on the following packages:
 
-- GMP: https://gmplib.org/
 - ply: http://www.dabeaz.com/ply/
 - networkx: https://networkx.github.io/
 - numpy: http://www.numpy.org/
@@ -204,14 +203,15 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
                   | argument_type set    # this is a set
                   | argument_type []+    # this is a ndarray, C-style
                   | argument_type [::]+    # this is a strided ndarray
-                  | argument_type [:,...,:]+ # this is a ndarray, Cython
+                  | argument_type [:,...,:]+ # this is a ndarray, Cython style
+                  | argument_type [:,...,3]+ # this is a ndarray, some dimension fixed
                   | argument_type:argument_type dict    # this is a dictionary
 
-    basic_type = bool | int | long | float | str | None
+    basic_type = bool | int | float | str | None
                | uint8 | uint16 | uint32 | uint64 | uintp
                | int8 | int16 | int32 | int64 | intp
-               | float32 | float64
-               | complex64 | complex128
+               | float32 | float64 | float128
+               | complex64 | complex128 | complex256
 
 The same syntax can be used to export global variable (in read only mode)::
 
@@ -450,8 +450,7 @@ This section contains compiler flags configuration. For education purpose, the d
     Preprocessor definitions. Pythran is sensible to ``USE_XSIMD`` and
     ``PYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on `xsimd <https://github.com/QuantStack/xsimd>`_
     vectorization and the latter controls the mimimal loop trip count to turn a
-    sequential loop into a parallel loop. The default is to set ``USE_GMP``, so
-    that Python's longs are represented using GMP.
+    sequential loop into a parallel loop.
 
 :``undefs``:
 

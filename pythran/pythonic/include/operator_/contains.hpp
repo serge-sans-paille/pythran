@@ -11,7 +11,7 @@ namespace operator_
   template <class A, class B>
   auto contains(A const &a, B const &b) -> decltype(in(a, b));
 
-  DECLARE_FUNCTOR(pythonic::operator_, contains);
+  DEFINE_FUNCTOR(pythonic::operator_, contains);
 }
 PYTHONIC_NS_END
 

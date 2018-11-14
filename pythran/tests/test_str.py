@@ -23,7 +23,7 @@ class TestStr(TestEnv):
         self.run_test("def str_empty(s0): return '>o_/' if s0 else '0x0'", "", str_empty=[str])
 
     def test_str_failed_conversion(self):
-        self.run_test("def str_failed_conversion(s):\n try: return long(s)\n except: return 42", "prout", str_failed_conversion=[str])
+        self.run_test("def str_failed_conversion(s):\n try: return int(s)\n except: return 42", "prout", str_failed_conversion=[str])
 
     def test_str_replace0(self):
         self.run_test("def str_replace0(s): return s.replace('er', 'rer')", "parler", str_replace0=[str])
@@ -192,3 +192,20 @@ class TestStr(TestEnv):
                 else:
                    return eee("YYY", i), "3"'''
         self.run_test(code, "EEE", 2, str_literal_mult=[str, int])
+
+    def test_str_float(self):
+        self.run_test("def str_float(s): return float(s)", "0.000012", str_float=[str])
+
+    def test_str_numpy_float32(self):
+        self.run_test("def str_numpy_float32(s): import numpy; return numpy.float32(s)", "0.000012",
+                      str_numpy_float32=[str])
+
+    def test_str_numpy_float64(self):
+        self.run_test("def str_numpy_float64(s): import numpy; return numpy.float64(s)", "0.000012",
+                      str_numpy_float64=[str])
+
+    def test_str_int(self):
+        self.run_test("def str_int(s): return int(s)", "12", str_int=[str])
+
+    def test_str_id(self):
+        self.run_test("def str_id(x): return id(x) != 0", "hello", str_id=[str])

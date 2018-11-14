@@ -38,7 +38,7 @@ namespace __builtin__
               StaticIterable>::type>::type>::value>>::type
   tuple(StaticIterable &&i);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, tuple);
+  DEFINE_FUNCTOR(pythonic::__builtin__, tuple);
 }
 PYTHONIC_NS_END
 

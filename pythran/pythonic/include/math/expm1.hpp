@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(expm1, std::expm1);
+  DEFINE_FUNCTOR_2(expm1, std::expm1);
 }
 PYTHONIC_NS_END
 

@@ -28,7 +28,7 @@ namespace __builtin__
 
     types::empty_set union_(types::empty_set const &init);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, union_);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, union_);
   }
 }
 PYTHONIC_NS_END

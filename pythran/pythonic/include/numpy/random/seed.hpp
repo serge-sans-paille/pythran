@@ -12,7 +12,7 @@ namespace numpy
     types::none_type seed(long s);
     types::none_type seed(types::none_type _ = {});
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, seed);
+    DEFINE_FUNCTOR(pythonic::numpy::random, seed);
   }
 }
 

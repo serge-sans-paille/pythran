@@ -17,8 +17,6 @@ namespace numpy
     return std::forward<E>(
         expr)[types::slice{__builtin__::None, __builtin__::None, -1}];
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, flipud);
 }
 PYTHONIC_NS_END
 

@@ -5,8 +5,8 @@ import numpy as np
 
 def dists(X,Y):
   result = np.zeros( (X.shape[0], Y.shape[0]), X.dtype)
-  for i in xrange(X.shape[0]):
-    for j in xrange(Y.shape[0]):
+  for i in range(X.shape[0]):
+    for j in range(Y.shape[0]):
       result[i,j] = np.sum( (X[i,:] - Y[j,:]) ** 2)
   return result
 

@@ -67,26 +67,28 @@ class BuildWithThirdParty(build_py):
     """
     Set up Pythran dependencies.
 
-    * install boost.simd
     * install boost dependencies
+    * install xsimd dependencies
     """
 
     user_options = build_py.user_options + [
-        ('no-boost', None, 'Do not distribute boost headers')]
+        ('no-boost', None, 'Do not distribute boost headers'),
+        ('no-xsimd', None, 'Do not distribute xsimd headers'),
+    ]
 
     def initialize_options(self):
         build_py.initialize_options(self)
         self.no_boost = None
+        self.no_xsimd = None
 
     def copy_boost(self, src_only=False):
-        "Install boost-simd and boost deps from the third_party directory"
+        "Install boost deps from the third_party directory"
 
         if self.no_boost is None:
-            print('Copying boost.simd and its dependencies')
+            print('Copying boost dependencies')
             to_copy = 'boost',
         else:
-            print('Copying boost.simd')
-            to_copy = 'boost', 'simd'
+            return
 
         src = os.path.join('third_party', *to_copy)
 
@@ -101,68 +103,34 @@ class BuildWithThirdParty(build_py):
         shutil.rmtree(target, True)
         shutil.copytree(src, target)
 
-    def detect_gmp(self):
-        # It's far from perfect, but we try to compile a code that uses
-        # Python long. If it fails, _whatever the reason_ we just disable gmp
-        print('Trying to compile GMP dependencies.')
+    def copy_xsimd(self, src_only=False):
+        "Install xsimd"
 
-        cc = ccompiler.new_compiler("posix", verbose=False)
-        # try to compile a code that requires gmp support
-        with NamedTemporaryFile(suffix='.c', delete=False) as temp:
-            temp.write('''
-                #include <stdio.h>
-                #include <gmp.h>
+        if self.no_xsimd is None:
+            print('Copying xsimd dependencies')
+            to_copy = 'xsimd',
+        else:
+            return
 
-                int main(void) {
-                 mpz_t x,y,result;
+        src = os.path.join('third_party', *to_copy)
 
-                 mpz_init_set_str(x, "7612058254738945", 10);
-                 mpz_init_set_str(y, "9263591128439081", 10);
-                 mpz_init(result);
+        # copy to the build tree
+        if not src_only:
+            target = os.path.join(self.build_lib, 'pythran', *to_copy)
+            shutil.rmtree(target, True)
+            shutil.copytree(src, target)
 
-                 mpz_mul(result, x, y);
-                 gmp_printf("%Zd * %Zd = %Zd", x, y, result);
-
-                 /* free used memory */
-                 mpz_clear(x);
-                 mpz_clear(y);
-                 mpz_clear(result);
-
-                 return 0;
-                }
-            '''.encode('ascii'))
-            srcs = [temp.name]
-        exe = "a.out"
-        objs = []  # Make sure this variable exist in case of fail.
-        try:
-            objs = cc.compile(srcs)
-            cc.link(ccompiler.CCompiler.EXECUTABLE,
-                    objs, exe,
-                    libraries=['gmp'])
-        except (LinkError, CompileError):
-            # failure: remove the gmp dependency
-            print('Failed to compile GMP source, disabling long support.')
-            for cfg in glob.glob(os.path.join(self.build_lib, "pythran",
-                                              "pythran-*.cfg")):
-                with open(cfg, "r") as fd:
-                    content = fd.read()
-                    content = content.replace('USE_GMP', '')
-                    content = content.replace('gmp gmpxx', '')
-                with open(cfg, 'w') as fd:
-                    fd.write(content)
-        finally:
-            tmp_files = objs + srcs + [exe]
-            for filename in tmp_files:
-                # file may not exist as it may raise before its creation.
-                if os.path.exists(filename):
-                    os.remove(filename)
+        # copy them to the source tree too, needed for sdist
+        target = os.path.join('pythran', *to_copy)
+        shutil.rmtree(target, True)
+        shutil.copytree(src, target)
 
     def run(self, *args, **kwargs):
         # regular build done by parent class
         build_py.run(self, *args, **kwargs)
         if not self.dry_run:  # compatibility with the parent options
             self.copy_boost()
-            self.detect_gmp()
+            self.copy_xsimd()
 
 
 class DevelopWithThirdParty(develop, BuildWithThirdParty):
@@ -170,15 +138,18 @@ class DevelopWithThirdParty(develop, BuildWithThirdParty):
     def initialize_options(self):
         develop.initialize_options(self)
         self.no_boost = None
+        self.no_xsimd = None
 
     def run(self, *args, **kwargs):
         if not self.dry_run:  # compatibility with the parent options
             self.copy_boost(src_only=True)
+            self.copy_xsimd(src_only=True)
         develop.run(self, *args, **kwargs)
 
 
 # Cannot use glob here, as the files may not be generated yet
 boost_headers = (['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)])
+xsimd_headers = (['xsimd/' + '*/' * i + '*.hpp' for i in range(1, 20)])
 pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
 
 # rename pythran into pythran3 for python3 version
@@ -207,7 +178,7 @@ setup(name='pythran',
       packages=['pythran', 'pythran.analyses', 'pythran.transformations',
                 'pythran.optimizations', 'omp', 'pythran/pythonic',
                 'pythran.types'],
-      package_data={'pythran': ['pythran*.cfg'] + boost_headers,
+      package_data={'pythran': ['pythran*.cfg'] + boost_headers + xsimd_headers,
                     'pythran/pythonic': pythonic_headers},
       classifiers=[
           'Development Status :: 4 - Beta',

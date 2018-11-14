@@ -4,6 +4,14 @@ from pythran.config import cfg
 from test_env import TestEnv
 from pythran.typing import NDArray
 
+import unittest
+
+try:
+    np.float128
+    has_float128 = True
+except AttributeError:
+    has_float128 = False
+
 
 class TestComplex(TestEnv):
 
@@ -43,6 +51,11 @@ class TestComplex(TestEnv):
         self.run_test('def test_complex_array_abs(a): import numpy as np ; return np.abs(a)',
                       np.array([[3 + 2j]]),
                       test_complex_array_abs=[NDArray[complex, :, :]])
+
+    def test_complex_floordiv(self):
+        self.run_test('def complex_floordiv(x): import numpy as np; return np.floor_divide(x, 2 + 2j)',
+                      3.5 - 3.5j,
+                      complex_floordiv=[complex])
 
     def test_complex_array_sqr(self):
         self.run_test('def test_complex_array_sqr(a): return a ** 2',
@@ -103,3 +116,39 @@ class TestComplex(TestEnv):
         self.run_test('def test_complex_array_iexpr_imag_assign(a): a.imag[1] = 1; return a',
                       np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
                       test_complex_array_iexpr_imag_assign=[NDArray[np.complex64, :, :]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_complex256_array0(self):
+        self.run_test('def complex256_array0(x): import numpy as np; return np.cos(x * 2j)',
+                      np.array([1.2,3.1], dtype=np.complex256) ** 6,
+                      complex256_array0=[NDArray[np.complex256, :]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_complex256_array1(self):
+        self.run_test('def complex256_array1(x): import numpy as np; return (x * 2j)**2',
+                      np.array([1.2,3.1], dtype=np.complex256) ** 6,
+                      complex256_array1=[NDArray[np.complex256, :]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_complex256_array2(self):
+        self.run_test('def complex256_array2(x): import numpy as np; return np.ones(x, dtype=np.complex256)',
+                      10,
+                      complex256_array2=[int])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_complex256_array3(self):
+        self.run_test('def complex256_array3(x): return x.real, x.imag',
+                      np.array([2j, 2], dtype=np.complex256)** 5,
+                      complex256_array3=[NDArray[np.complex256, :]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_complex256_array4(self):
+        self.run_test('def complex256_array4(x): return x.conj(), x.sum()',
+                      np.array([2j, 2], dtype=np.complex256)** 7,
+                      complex256_array4=[NDArray[np.complex256, :]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_complex256_array5(self):
+        self.run_test('def complex256_array5(x): return x',
+                      np.complex256(1 + 1j),
+                      complex256_array5=[np.complex256])

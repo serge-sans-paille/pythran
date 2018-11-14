@@ -28,22 +28,41 @@ namespace __builtin__
         out.push_back(types::make_tuple(*iters...));
       return out;
     }
+    template <long N, class... Tys>
+    auto zip(Tys &&... arrays)
+        -> types::array<decltype(types::make_tuple(arrays[0]...)), N>
+    {
+      types::array<decltype(types::make_tuple(arrays[0]...)), N> out;
+      for (long i = 0; i < N; ++i)
+        out.fast(i) = types::make_tuple(arrays[i]...);
+      return out;
+    }
   }
 
   template <class... Lists>
-  auto zip(Lists &&... lists)
-      -> types::list<decltype(types::make_tuple(*lists.begin()...))>
+  auto zip(Lists &&... lists) -> typename std::enable_if<
+      !utils::all_of<types::is_pod_array<
+          typename std::decay<Lists>::type>::value...>::value,
+      types::list<decltype(types::make_tuple(*lists.begin()...))>>::type
   {
     size_t n = min(len(std::forward<Lists>(lists))...);
     return details::zip(n, lists.begin()...);
+  }
+  template <class... Lists>
+  auto zip(Lists &&... lists) -> typename std::enable_if<
+      utils::all_of<types::is_pod_array<
+          typename std::decay<Lists>::type>::value...>::value,
+      types::array<decltype(types::make_tuple(*lists.begin()...)),
+                   zip_len<typename std::decay<Lists>::type...>::value>>::type
+  {
+    return details::zip<zip_len<typename std::decay<Lists>::type...>::value>(
+        lists...);
   }
 
   types::empty_list zip()
   {
     return types::empty_list();
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, zip);
 }
 PYTHONIC_NS_END
 

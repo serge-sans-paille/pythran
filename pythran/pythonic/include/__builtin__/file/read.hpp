@@ -16,7 +16,7 @@ namespace __builtin__
     types::str read(types::file &f, long size = -1);
     types::str read(types::file &&f, long size = -1);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::file, read);
+    DEFINE_FUNCTOR(pythonic::__builtin__::file, read);
   }
 }
 PYTHONIC_NS_END

@@ -1,7 +1,11 @@
 #pythran export a(int)
 #pythran export a(float)
 #pythran export a(str)
+#pythran export a(int[])
+#pythran export a(int[3])
 #runas a(2.4)
 #runas a(2)
 #runas a("hello world")
+#runas import numpy as np; x = np.array([1,2,3,4]); a(x)
+#runas import numpy as np; x = np.array([1,2,3]); a(x)
 def a(i): return i

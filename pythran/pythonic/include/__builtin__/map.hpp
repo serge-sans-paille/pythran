@@ -28,13 +28,39 @@ namespace __builtin__
     types::list<
         typename std::remove_reference<List0>::type::iterator::value_type>
     map(types::none_type, List0 &&seq);
+
+    template <long N, typename Operator, typename List0, typename... ListN>
+    auto mapN(Operator &op, List0 &&seq, ListN &&... lists)
+        -> types::array<decltype(op(*seq.begin(), *lists.begin()...)), N>;
+
+    template <long N, typename List0, typename... ListN>
+    auto mapN(types::none_type, List0 &&seq, ListN &&... lists) -> types::array<
+        decltype(types::make_tuple(*seq.begin(), *lists.begin()...)), N>;
   }
 
   template <typename Operator, typename List0, typename... ListN>
-  auto map(Operator op, List0 &&seq, ListN &&... lists)
-      -> decltype(details::map(op, std::forward<List0>(seq), lists.begin()...));
+  auto map(Operator op, List0 &&seq, ListN &&... lists) ->
+      typename std::enable_if<
+          !utils::all_of<
+              types::is_pod_array<typename std::decay<List0>::type>::value,
+              types::is_pod_array<typename std::decay<ListN>::type>::value...>::
+              value,
+          decltype(details::map(op, std::forward<List0>(seq),
+                                lists.begin()...))>::type;
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, map);
+  template <typename Operator, typename List0, typename... ListN>
+  auto map(Operator op, List0 &&seq, ListN &&... lists) ->
+      typename std::enable_if<
+          utils::all_of<
+              types::is_pod_array<typename std::decay<List0>::type>::value,
+              types::is_pod_array<typename std::decay<ListN>::type>::value...>::
+              value,
+          decltype(details::mapN<
+              types::len_of<typename std::decay<List0>::type>::value>(
+              op, std::forward<List0>(seq),
+              std::forward<ListN>(lists)...))>::type;
+
+  DEFINE_FUNCTOR(pythonic::__builtin__, map);
 }
 PYTHONIC_NS_END
 

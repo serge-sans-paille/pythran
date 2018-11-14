@@ -19,7 +19,7 @@ class ModIndex(Transformation):
     >>> code = """
     ... def foo(x):
     ...     y = __builtin__.len(x)
-    ...     for i in __builtin__.xrange(8):
+    ...     for i in __builtin__.range(8):
     ...         z = i % y"""
     >>> node = ast.parse(code)
     >>> _, node = pm.apply(ModIndex, node)
@@ -27,7 +27,7 @@ class ModIndex(Transformation):
     def foo(x):
         y = __builtin__.len(x)
         i_m = ((0 - 1) % y)
-        for i in __builtin__.xrange(8):
+        for i in __builtin__.range(8):
             i_m = (0 if ((i_m + 1) == y) else (i_m + 1))
             z = i_m
     '''
@@ -84,7 +84,9 @@ class ModIndex(Transformation):
         # gather range informations
         range_ = None
         for alias in self.aliases[loop.iter.func]:
-            if alias is MODULES['__builtin__']['xrange']:
+            if alias is MODULES['__builtin__']['range']:
+                range_ = alias
+            elif alias is MODULES['__builtin__']['xrange']:
                 range_ = alias
             else:
                 break

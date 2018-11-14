@@ -12,7 +12,7 @@ namespace operator_
   auto lt(A const &a, B const &b) -> decltype(a < b);
   bool lt(char const *self, char const *other);
 
-  DECLARE_FUNCTOR(pythonic::operator_, lt);
+  DEFINE_FUNCTOR(pythonic::operator_, lt);
 }
 PYTHONIC_NS_END
 

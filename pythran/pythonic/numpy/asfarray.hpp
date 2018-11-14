@@ -15,7 +15,6 @@ namespace numpy
                   "expected a floating point type");
     return asarray(std::forward<E>(e), d);
   }
-  DEFINE_FUNCTOR(pythonic::numpy, asfarray);
 }
 PYTHONIC_NS_END
 

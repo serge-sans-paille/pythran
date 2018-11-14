@@ -66,7 +66,7 @@ def step(H, U, V, dt=0.02, dx=1.0, dy=1.0):
 def simulate(H, timesteps):
     U = np.zeros_like(H)
     V = np.zeros_like(H)
-    for i in xrange(timesteps):
+    for i in range(timesteps):
         (H, U, V) = step(H, U, V)
     return H
 

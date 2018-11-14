@@ -13,10 +13,8 @@ namespace numpy
   template <class T>
   long alen(T &&expr)
   {
-    return expr.shape()[0];
+    return std::get<0>(expr.shape());
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, alen);
 }
 PYTHONIC_NS_END
 

@@ -15,7 +15,7 @@ namespace __builtin__
     template <class K, class V>
     types::list<V> values(types::dict<K, V> const &d);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, values);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, values);
   }
 }
 PYTHONIC_NS_END

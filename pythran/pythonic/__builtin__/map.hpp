@@ -58,16 +58,58 @@ namespace __builtin__
         s.push_back(iseq);
       return s;
     }
+
+    template <long N, typename Operator, typename List0, typename... ListN>
+    auto mapN(Operator &op, List0 &&seq, ListN &&... lists)
+        -> types::array<decltype(op(*seq.begin(), *lists.begin()...)), N>
+    {
+      types::array<decltype(op(*seq.begin(), *lists.begin()...)), N> s;
+      for (long i = 0; i < N; ++i)
+        s[i] = op(seq[i], lists[i]...);
+      return s;
+    }
+
+    template <long N, typename List0, typename... ListN>
+    auto mapN(types::none_type, List0 &&seq, ListN &&... lists) -> types::array<
+        decltype(types::make_tuple(*seq.begin(), *lists.begin()...)), N>
+    {
+      types::array<decltype(types::make_tuple(*seq.begin(), *lists.begin()...)),
+                   N> s;
+      for (long i = 0; i < N; ++i)
+        s[i] = types::make_tuple(seq[i], lists[i]...);
+      return s;
+    }
   }
 
   template <typename Operator, typename List0, typename... ListN>
-  auto map(Operator op, List0 &&seq, ListN &&... lists)
-      -> decltype(details::map(op, std::forward<List0>(seq), lists.begin()...))
+  auto map(Operator op, List0 &&seq, ListN &&... lists) ->
+      typename std::enable_if<
+          !utils::all_of<
+              types::is_pod_array<typename std::decay<List0>::type>::value,
+              types::is_pod_array<typename std::decay<ListN>::type>::value...>::
+              value,
+          decltype(details::map(op, std::forward<List0>(seq),
+                                lists.begin()...))>::type
   {
     return details::map(op, std::forward<List0>(seq), lists.begin()...);
   }
 
-  DEFINE_FUNCTOR(pythonic::__builtin__, map);
+  template <typename Operator, typename List0, typename... ListN>
+  auto map(Operator op, List0 &&seq, ListN &&... lists) ->
+      typename std::enable_if<
+          utils::all_of<
+              types::is_pod_array<typename std::decay<List0>::type>::value,
+              types::is_pod_array<typename std::decay<ListN>::type>::value...>::
+              value,
+          decltype(details::mapN<
+              types::len_of<typename std::decay<List0>::type>::value>(
+              op, std::forward<List0>(seq),
+              std::forward<ListN>(lists)...))>::type
+  {
+    return details::mapN<
+        types::len_of<typename std::decay<List0>::type>::value>(
+        op, std::forward<List0>(seq), lists.begin()...);
+  }
 }
 PYTHONIC_NS_END
 

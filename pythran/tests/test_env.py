@@ -1,7 +1,13 @@
 """ Base file for all Pythran tests. """
 
 from imp import load_dynamic
-from numpy import float32, float64
+from numpy import float32, float64, complex128
+try:
+    from numpy import float128, complex256
+except ImportError:
+    float128 = float64
+    complex256 = complex128
+
 from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64
 from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
 from textwrap import dedent
@@ -17,7 +23,6 @@ import unittest
 import pytest
 
 from pythran import compile_pythrancode, spec_parser, load_specfile, frontend
-from pythran.config import have_gmp_support
 from pythran.backend import Python
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
@@ -52,7 +57,6 @@ class TestEnv(unittest.TestCase):
     PYTHRAN_CXX_FLAGS = ['-O0', '-Wall', '-Wno-unknown-pragmas',
                          '-Wno-mismatched-tags', '-Wno-unused-local-typedefs',
                          '-Wno-unknown-warning-option', '-Werror'] if sys.platform != "win32" else ['/w']
-    # -Werror can't be use because of boost.Python warning for Windows version
 
     TEST_RETURNVAL = "TEST_RETURNVAL"
 
@@ -61,14 +65,15 @@ class TestEnv(unittest.TestCase):
         print("Type of Pythran res : ", type(res))
         print("Type of Python ref : ", type(ref))
         type_matching = (((list, tuple), (list, tuple)),
-                         ((float, float64), (int, long, float, float32,
-                                             float64)),
-                         (float32, (int, long, float, float32)),
-                         ((uint64, int64, long), (int, long, uint64, int64)),
+                         ((float, float64, float128), (int, float, float32,
+                                             float64, float128)),
+                         (float32, (int, float, float32, float128)),
+                         (float128, (int, float, float32, float128)),
+                         ((uint64, int64), (int, uint64, int64)),
                          (bool, (bool, bool_)),
                          # FIXME combiner for boolean doesn't work
                          (int, (int, bool, bool_, int8, int16, int32, int64,
-                                uint8, uint16, uint32, uint64, long)))
+                                uint8, uint16, uint32, uint64)))
         if isinstance(ref, ndarray):
             # res can be an ndarray of dim 0 because of isneginf call
             if ref.ndim == 0 and (not isinstance(res, ndarray)
@@ -78,9 +83,9 @@ class TestEnv(unittest.TestCase):
                 self.assertIsInstance(res, type(ref))
         elif isinstance(res, complex):
             if res.imag == 0:
-                self.assertIsInstance(ref, (int, float, complex))
+                self.assertIsInstance(ref, (int, float, complex, complex256))
             else:
-                self.assertIsInstance(ref, complex)
+                self.assertIsInstance(ref, (complex, complex256))
         else:
             for res_type, ref_type in type_matching:
                 if isinstance(res, res_type):
@@ -423,11 +428,6 @@ class TestFromDir(TestEnv):
 
         def __call__(self):
             if "unittest.skip" in self.module_code:
-                return self.test_env.skipTest("Marked as skippable")
-
-            if ("unittest.gmp.skip" in self.module_code and
-                    not have_gmp_support(
-                        extra_compile_args=self.test_env.PYTHRAN_CXX_FLAGS)):
                 return self.test_env.skipTest("Marked as skippable")
 
             if (sys.version_info.major == 3 and

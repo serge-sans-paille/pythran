@@ -21,8 +21,6 @@ namespace __builtin__
       return std::set<typename Iterable::iterator::value_type>(s.begin(),
                                                                s.end()).size();
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, len_set);
   }
 }
 PYTHONIC_NS_END

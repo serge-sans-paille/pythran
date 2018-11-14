@@ -27,7 +27,7 @@ namespace __builtin__
     template <class T, class I, class J>
     typename __combined<T, J>::type get(::dict_container<T>, I, J);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, get);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, get);
   }
 }
 PYTHONIC_NS_END

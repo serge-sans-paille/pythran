@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(ldexp, std::ldexp);
+  DEFINE_FUNCTOR_2(ldexp, std::ldexp);
 }
 PYTHONIC_NS_END
 

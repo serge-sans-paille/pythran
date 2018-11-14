@@ -20,8 +20,6 @@ namespace __builtin__
     oss << "0x" << std::hex << v;
     return oss.str();
   }
-
-  DEFINE_FUNCTOR(pythonic::__builtin__, hex);
 }
 PYTHONIC_NS_END
 

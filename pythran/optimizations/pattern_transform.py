@@ -1,10 +1,16 @@
 """ Optimization for Python costly pattern. """
 
+from pythran.conversion import mangle
 from pythran.analyses import Check, Placeholder
 from pythran.passmanager import Transformation
 
 import gast as ast
+import sys
 
+if sys.version_info.major == 3:
+    range_name = 'range'
+else:
+    range_name = 'xrange'
 
 # Tuple of : (pattern, replacement)
 # replacement have to be a lambda function to have a new ast to replace when
@@ -33,7 +39,7 @@ know_pattern = [
          args=[Placeholder(0)], keywords=[])),
 
     # __builtin__.abs(X ** 2) => __builtin__.pythran.abssqr(X)
-    (ast.Call(func=ast.Attribute(value=ast.Name(id='__pythran_import_numpy',
+    (ast.Call(func=ast.Attribute(value=ast.Name(id=mangle('numpy'),
                                                 ctx=ast.Load(),
                                                 annotation=None),
                                  attr="square", ctx=ast.Load()),
@@ -75,14 +81,14 @@ know_pattern = [
                   func=ast.Attribute(
                       value=ast.Name(id='__builtin__',
                                      ctx=ast.Load(), annotation=None),
-                      attr="xrange", ctx=ast.Load()),
+                      attr=range_name, ctx=ast.Load()),
                   args=[Placeholder(0)],
                   keywords=[])],
               keywords=[]),
      lambda: ast.Call(
          func=ast.Attribute(value=ast.Name(id='__builtin__',
                                            ctx=ast.Load(), annotation=None),
-                            attr="xrange", ctx=ast.Load()),
+                            attr=range_name, ctx=ast.Load()),
          args=[ast.BinOp(left=Placeholder(0), op=ast.Sub(),
                          right=ast.Num(n=1)),
                ast.Num(n=-1),

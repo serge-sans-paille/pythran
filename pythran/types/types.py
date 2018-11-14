@@ -36,8 +36,6 @@ def extract_constructed_types(t):
     elif isinstance(t, tuple):
         return ([pytype_to_ctype(t)] +
                 sum((extract_constructed_types(v) for v in t), []))
-    elif t == long:
-        return [pytype_to_ctype(t)]
     elif t == str:
         return [pytype_to_ctype(t)]
     else:

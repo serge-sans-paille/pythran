@@ -5,29 +5,26 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  template <class T, size_t N>
-  class ndarray;
+  template <class T, class pS>
+  struct ndarray;
 
   template <class A>
-  class numpy_iexpr;
+  struct numpy_iexpr;
 
   template <class A, class F>
-  class numpy_fexpr;
-
-  template <class A, class F>
-  class numpy_vexpr;
+  struct numpy_vexpr;
 
   template <class A, class... S>
-  class numpy_gexpr;
+  struct numpy_gexpr;
 
   template <class A>
-  class numpy_texpr;
+  struct numpy_texpr;
 
   template <class A>
-  class numpy_texpr_2;
+  struct numpy_texpr_2;
 
   template <class O, class... Args>
-  class numpy_expr;
+  struct numpy_expr;
 
   template <class T>
   class list;
@@ -35,7 +32,7 @@ namespace types
   template <class T, class S>
   class sliced_list;
 
-  class empty_list;
+  struct empty_list;
 
   template <class T, size_t N>
   struct array;
@@ -51,8 +48,8 @@ namespace types
     static constexpr bool value = false;
   };
 
-  template <class T, size_t N>
-  struct is_ndarray<ndarray<T, N>> {
+  template <class T, class pS>
+  struct is_ndarray<ndarray<T, pS>> {
     static constexpr bool value = true;
   };
 
@@ -66,18 +63,13 @@ namespace types
     static constexpr bool value = false;
   };
 
-  template <class T, size_t N>
-  struct is_array<ndarray<T, N>> {
+  template <class T, class pS>
+  struct is_array<ndarray<T, pS>> {
     static constexpr bool value = true;
   };
 
   template <class A>
   struct is_array<numpy_iexpr<A>> {
-    static constexpr bool value = true;
-  };
-
-  template <class A, class F>
-  struct is_array<numpy_fexpr<A, F>> {
     static constexpr bool value = true;
   };
 
@@ -108,6 +100,22 @@ namespace types
 
   template <class T>
   struct is_numexpr_arg : is_array<T> {
+  };
+
+  template <class T>
+  struct is_numexpr_arg<T &> : is_numexpr_arg<T> {
+  };
+
+  template <class T>
+  struct is_numexpr_arg<T const> : is_numexpr_arg<T> {
+  };
+
+  template <class T>
+  struct is_numexpr_arg<T const &> : is_numexpr_arg<T> {
+  };
+
+  template <class T>
+  struct is_numexpr_arg<T &&> : is_numexpr_arg<T> {
   };
 
   template <class T>

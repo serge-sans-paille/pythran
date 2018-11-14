@@ -30,8 +30,9 @@ namespace numpy
     template <class Array>
     using norm_t = typename std::conditional<
         std::decay<Array>::type::value == 1, norm_dtype_t<Array>,
-        types::ndarray<norm_dtype_t<Array>,
-                       std::decay<Array>::type::value - 1>>::type;
+        types::ndarray<
+            norm_dtype_t<Array>,
+            types::array<long, std::decay<Array>::type::value - 1>>>::type;
 
     template <class Array>
     norm_t<Array> norm(Array &&array, double ord, types::none_type axis = {});
@@ -47,7 +48,7 @@ namespace numpy
 
     template <class Array>
     norm_t<Array> norm(Array &&array, double ord, types::array<long, 2> axis);
-    DECLARE_FUNCTOR(pythonic::numpy::linalg, norm);
+    DEFINE_FUNCTOR(pythonic::numpy::linalg, norm);
   }
 }
 PYTHONIC_NS_END

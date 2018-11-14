@@ -10,7 +10,7 @@ PYTHONIC_NS_BEGIN
 
 namespace cmath
 {
-  DECLARE_FUNCTOR_2(exp, std::exp);
+  DEFINE_FUNCTOR_2(exp, std::exp);
 }
 PYTHONIC_NS_END
 

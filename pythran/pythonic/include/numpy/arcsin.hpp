@@ -5,26 +5,15 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <boost/simd/function/asin.hpp>
+#include <xsimd/xsimd.hpp>
 
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
 
-  namespace wrapper
-  {
-    double arcsin(long const &v);
-    template <class T>
-    auto arcsin(T const &v) -> decltype(boost::simd::asin(v));
-    template <class T>
-    std::complex<T> arcsin(std::complex<T> const &v)
-    {
-      return std::asin(v);
-    }
-  }
 #define NUMPY_NARY_FUNC_NAME arcsin
-#define NUMPY_NARY_FUNC_SYM wrapper::arcsin
+#define NUMPY_NARY_FUNC_SYM xsimd::asin
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

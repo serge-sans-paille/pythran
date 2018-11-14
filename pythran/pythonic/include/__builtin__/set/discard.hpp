@@ -20,7 +20,7 @@ namespace __builtin__
     template <class U>
     void discard(types::empty_set const &set, U const &elem);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, discard);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, discard);
   }
 }
 PYTHONIC_NS_END

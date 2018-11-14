@@ -21,14 +21,16 @@ namespace numpy
     template <class P>
     P iota()
     {
-      return iota<P>(utils::make_index_sequence<P::static_size>());
+      return iota<P>(utils::make_index_sequence<P::size>());
     }
   }
   template <class Op, class E, class T>
-#ifdef USE_BOOST_SIMD
-  typename std::enable_if<!E::is_vectorizable ||
-                              std::is_same<typename E::dtype, bool>::value,
-                          long>::type
+#ifdef USE_XSIMD
+  typename std::enable_if<
+      !E::is_vectorizable ||
+          !types::is_vector_op<typename Op::op, T, T>::value ||
+          std::is_same<typename E::dtype, bool>::value,
+      long>::type
 #else
   long
 #endif
@@ -47,15 +49,16 @@ namespace numpy
     return res;
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class Op, class E, class T>
-  typename std::enable_if<E::is_vectorizable &&
-                              !std::is_same<typename E::dtype, bool>::value,
-                          long>::type
+  typename std::enable_if<
+      E::is_vectorizable && types::is_vector_op<typename Op::op, T, T>::value &&
+          !std::is_same<typename E::dtype, bool>::value,
+      long>::type
   _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
   {
-    using vT = boost::simd::pack<T>;
-    static const size_t vN = vT::static_size;
+    using vT = xsimd::simd_type<T>;
+    static const size_t vN = vT::size;
     const long n = elts.size();
     auto viter = types::vectorizer_nobroadcast::vbegin(elts),
          vend = types::vectorizer_nobroadcast::vend(elts);
@@ -64,29 +67,25 @@ namespace numpy
     long minmax_index = -1;
     if (bound > 0) {
       auto vacc = *viter;
-      boost::simd::pack<long> curr = details::iota<boost::simd::pack<long>>();
-      boost::simd::pack<long> indices = curr;
-      boost::simd::pack<long> step =
-          boost::simd::splat<boost::simd::pack<long>>(vT::static_size);
-
       for (++viter; viter != vend; ++viter) {
-        curr += step;
-        auto m = typename Op::op{}(vacc, *viter);
-        auto mask = m != vacc;
-        indices =
-            boost::simd::max(boost::simd::if_else_zero(mask, curr), indices);
-        vacc = m;
+        vacc = typename Op::op{}(vacc, *viter);
       }
 
       alignas(sizeof(vT)) T stored[vN];
-      boost::simd::store(vacc, &stored[0]);
-      alignas(sizeof(vT)) long indexed[vN];
-      boost::simd::store(indices, &indexed[0]);
+      vacc.store_aligned(&stored[0]);
       for (size_t j = 0; j < vN; ++j) {
         if (Op::value(stored[j], minmax_elts)) {
           minmax_elts = stored[j];
-          minmax_index = indexed[j];
         }
+      }
+
+      long i = 0;
+      for (auto iter : elts) {
+        if (iter == minmax_elts) {
+          minmax_index = i;
+          break;
+        }
+        ++i;
       }
     }
     auto iter = elts.begin() + bound * vN;
@@ -122,7 +121,7 @@ namespace numpy
       throw types::ValueError("empty sequence");
     using elt_type = typename E::dtype;
     elt_type argminmax_value = Op::limit();
-#ifndef USE_BOOST_SIMD
+#ifndef USE_XSIMD
     if (utils::no_broadcast(expr))
       return _argminmax<Op>(types::make_fast_range(expr), argminmax_value,
                             utils::int_<E::value>());
@@ -148,7 +147,7 @@ namespace numpy
                   std::integral_constant<size_t, N>)
   {
     static_assert(N >= 1, "specialization ok");
-    for (long i = 0, n = expr.shape()[0]; i < n; ++i)
+    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
       _argminmax_tail<Op, Dim, Axis>(out.fast(i), expr.fast(i), curr,
                                      curr_minmax.fast(i),
                                      std::integral_constant<size_t, N - 1>());
@@ -159,7 +158,7 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, 1>)
   {
     typename E::dtype val = Op::limit();
-    for (long i = 0, n = expr.shape()[0]; i < n; ++i)
+    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
       _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr.fast(i), i, val,
                                      std::integral_constant<size_t, 0>());
   }
@@ -169,8 +168,9 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, N>)
   {
     static_assert(N > 1, "specialization ok");
-    types::ndarray<typename E::dtype, N - 1> val{out.shape(), Op::limit()};
-    for (long i = 0, n = expr.shape()[0]; i < n; ++i)
+    types::ndarray<typename E::dtype, types::array<long, N - 1>> val{
+        out.shape(), Op::limit()};
+    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
       _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr.fast(i), i, val,
                                      std::integral_constant<size_t, N - 1>());
   }
@@ -180,7 +180,7 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, N>)
   {
     static_assert(N >= 1, "specialization ok");
-    for (long i = 0, n = expr.shape()[0]; i < n; ++i)
+    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
       _argminmax_head<Op, Dim, Axis>(out.fast(i), expr.fast(i),
                                      std::integral_constant<size_t, N - 1>());
   }
@@ -196,17 +196,19 @@ namespace numpy
   }
 
   template <class Op, class E>
-  types::ndarray<long, E::value - 1> argminmax(E const &array, long axis)
+  types::ndarray<long, types::array<long, E::value - 1>>
+  argminmax(E const &array, long axis)
   {
     if (axis < 0)
       axis += E::value;
     if (axis < 0 || size_t(axis) >= E::value)
       throw types::ValueError("axis out of bounds");
-    auto shape = array.shape();
+    auto shape = sutils::array(array.shape());
     types::array<long, E::value - 1> shp;
     auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
     std::copy(shape.begin() + axis + 1, shape.end(), next);
-    types::ndarray<long, E::value - 1> out{shp, __builtin__::None};
+    types::ndarray<long, types::array<long, E::value - 1>> out{
+        shp, __builtin__::None};
     typename E::dtype curr_minmax;
     _argminmax_pick_axis<Op, E::value>(axis, out, array,
                                        utils::make_index_sequence<E::value>());

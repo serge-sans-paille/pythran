@@ -4,10 +4,7 @@
 #include "pythonic/include/__builtin__/bool_.hpp"
 
 #include "pythonic/utils/functor.hpp"
-
-#ifdef USE_GMP
-#include "pythonic/types/long.hpp"
-#endif
+#include "pythonic/types/tuple.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -17,28 +14,27 @@ namespace __builtin__
   {
 
     template <class T>
-    bool bool_::operator()(T &&val) const
+    bool bool_::operator()(T const &val) const
     {
-      return (bool)val;
+      return static_cast<bool>(val);
+    }
+
+    template <class... Ts>
+    bool bool_::operator()(std::tuple<Ts...> const &val) const
+    {
+      return sizeof...(Ts);
+    }
+
+    template <class T, size_t N>
+    bool bool_::operator()(types::array<T, N> const &val) const
+    {
+      return N;
     }
 
     bool bool_::operator()() const
     {
       return false;
     }
-
-#ifdef USE_GMP
-    template <class T, class U>
-    bool bool_::operator()(__gmp_expr<T, U> const &a) const
-    {
-      return a != 0;
-    }
-    template <class T, class U>
-    bool bool_::operator()(__gmp_expr<T, U> &&a) const
-    {
-      return a != 0;
-    }
-#endif
   }
 }
 PYTHONIC_NS_END

@@ -21,7 +21,6 @@ namespace numpy
       return partial_sum<numpy::functor::UFUNC_NAME>(std::forward<T>(a), axis,
                                                      d);
     }
-    DEFINE_FUNCTOR(pythonic::numpy::UFUNC_NAME, accumulate);
   }
 }
 PYTHONIC_NS_END

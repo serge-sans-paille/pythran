@@ -122,8 +122,6 @@ class Dependencies(ModuleAnalysis):
     def visit_Num(self, node):
         if isinstance(node.n, complex):
             self.result.add(('types', 'complex'))
-        elif isinstance(node.n, long):
-            self.result.add(('types', 'long'))
         elif math.isnan(node.n):
             self.result.add(('numpy', 'nan'))
         elif math.isinf(node.n):

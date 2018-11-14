@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DECLARE_FUNCTOR_2(floor, std::floor);
+  DEFINE_FUNCTOR_2(floor, std::floor);
 }
 PYTHONIC_NS_END
 

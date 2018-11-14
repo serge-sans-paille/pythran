@@ -62,7 +62,7 @@ namespace itertools
       typename std::remove_reference<Iterable>::type>::type>
   islice(Iterable &&iterable, long stop);
 
-  DECLARE_FUNCTOR(pythonic::itertools, islice);
+  DEFINE_FUNCTOR(pythonic::itertools, islice);
 }
 PYTHONIC_NS_END
 

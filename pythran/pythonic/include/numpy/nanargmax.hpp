@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   long nanargmax(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, nanargmax);
+  DEFINE_FUNCTOR(pythonic::numpy, nanargmax);
 }
 PYTHONIC_NS_END
 

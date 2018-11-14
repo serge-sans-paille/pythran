@@ -1,8 +1,6 @@
 #encoding: utf8
 from test_env import TestEnv
 
-from pythran.config import have_gmp_support
-
 from unittest import skip, skipIf
 import sys
 import numpy
@@ -162,15 +160,21 @@ def combiner_on_empty_list():
     def test_default_arg3(self):
         self.run_test('def default_arg3(m,n=12): return m+n', 1, 2, default_arg3=[int,int])
 
-    @skipIf(
-        not have_gmp_support(extra_compile_args=TestEnv.PYTHRAN_CXX_FLAGS),
-        "Require big int support")
-    def test_long_to_float_conversion(self):
-        """Check long to float conversion."""
-        self.run_test("""
-            def long_to_float_conversion(l):
-                return float(l)""",
-                      123456789123456789120, long_to_float_conversion=[long])
+    def test_default_arg4(self):
+        code = '''
+            import numpy as np
+            def default_arg4(signal,sR):
+                N = 30
+                F = 0.
+                F2 = 22000
+                FF = 10
+                W = test2(sR, FF, N, F, F2)
+                return W
+
+            def test2(sr,N,M=128,F=0.0,F2=0,B=False,No=1):
+                W = np.zeros(10)
+                return W'''
+        self.run_test(code, 1, 2, default_arg4=[int,int])
 
     @skip("lists as zeros parameter are not supported")
     def test_list_as_zeros_parameter(self):
@@ -193,6 +197,9 @@ def combiner_on_empty_list():
         self.run_test('def list_to_tuple(t): return tuple([1, t])',
                       2,
                       list_to_tuple=[int])
+
+    def test_tuple_to_shape(self):
+        self.run_test('def tuple_to_shape(n): from numpy import zeros; return zeros((n,4))', 5, tuple_to_shape=[int])
 
     def test_print_intrinsic(self):
         self.run_test('def print_intrinsic(): print(len)',
@@ -253,20 +260,56 @@ def combiner_on_empty_list():
     def test_generator_handler_name(self):
         code = '''
             def foo(x):
-                if x > 2:
-                    for i in range(x):
-                        if i > 1:
-                            break
-                        yield i
-                else:
-                    for i in ["1"] * x:
-                        if len(i) == 1:
-                            break
-                        yield i
+                for i in range(x):
+                    if i > 1:
+                        break
+                    yield i
 
             def generator_handler_name(n):
                 return list(foo(n))'''
         self.run_test(code,
                       3,
                       generator_handler_name=[int])
-                    
+
+    def test_generator_handler_name2(self):
+        code = '''
+            def foo(x):
+                for i in ["1"] * x:
+                    if len(i) == 1:
+                        break
+                    yield i
+
+            def generator_handler_name2(n):
+                return list(foo(n))'''
+        self.run_test(code,
+                      3,
+                      generator_handler_name2=[int])
+
+    def test_builtin_slices(self):
+        code = '''
+            def builtin_slices(x):
+                s = slice(2, None, None)
+                return (s.start, s.stop, s.step, s,
+                        x[s],
+                        x[slice(3)],
+                        x[slice(1,2)],
+                        x[slice(1,10,2)],
+                        x[slice(3, None)],
+                        x[slice(None,4)],
+                        x[slice(None,4, None)])'''
+        self.run_test(code,
+                      numpy.arange(15),
+                      builtin_slices=[NDArray[int,:]])
+
+    def test_slicing_tuple(self):
+        code = '''
+            def testFunc():
+                x=2
+                y=3
+                z=4
+                return x,y,z
+
+            def slicing_tuple(n):
+                x,y = testFunc()[0:n]
+                return x,y'''
+        self.run_test(code, 2, slicing_tuple=[int])

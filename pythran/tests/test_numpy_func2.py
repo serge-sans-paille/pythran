@@ -168,11 +168,11 @@ def test_copy0(x):
         self.run_test("def np_concatenate0(a): from numpy import array, concatenate ; b = array([[5, 6]]) ; return concatenate((a,b))", numpy.array([[1, 2], [3, 4]]), np_concatenate0=[NDArray[int,:,:]])
 
     def test_concatenate1(self):
-        self.run_test("def np_concatenate1(a): from numpy import array, concatenate ; b = array([[5, 6]]) ; return concatenate([a,b])", numpy.array([[1, 2], [3, 4]]), np_concatenate1=[NDArray[int,:,:]])
+        self.run_test("def np_concatenate1(a): from numpy import array, concatenate ; return concatenate([a,a])", numpy.array([[1, 2], [3, 4]]), np_concatenate1=[NDArray[int,:,:]])
 
     def test_concatenate2(self):
         self.run_test(
-            "def np_concatenate2(a): from numpy import array, concatenate ; b = array([[5, 6]]).T ; return concatenate([a,b, b], axis=1)",
+            "def np_concatenate2(a): from numpy import array, concatenate ; b = array([[5, 6]]).T ; return concatenate((a,b, b), axis=1)",
             numpy.array([[1, 2], [3, 4]]),
             np_concatenate2=[NDArray[int,:,:]])
 
@@ -586,10 +586,10 @@ def test_copy0(x):
         self.run_test("def np_e_():\n from numpy import e\n return e", np_e_=[])
 
     def test_ones_like_(self):
-        self.run_test("def np_ones_like_(a):\n from numpy import ones_like, array\n return ones_like(array(a))", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_ones_like_=[List[List[int]]])
+        self.run_test("def np_ones_like_(a):\n from numpy import ones_like, array\n return ones_like(array(a))", [[i,j,k,l] for i in range(5) for j in range(4) for k in range(6) for l in range(8)], np_ones_like_=[List[List[int]]])
 
     def test_zeros_like_(self):
-        self.run_test("def np_zeros_like_(a):\n from numpy import zeros_like, array\n return zeros_like(array(a))", [[i,j,k,l] for i in xrange(5) for j in xrange(4) for k in xrange(6) for l in xrange(8)], np_zeros_like_=[List[List[int]]])
+        self.run_test("def np_zeros_like_(a):\n from numpy import zeros_like, array\n return zeros_like(array(a))", [[i,j,k,l] for i in range(5) for j in range(4) for k in range(6) for l in range(8)], np_zeros_like_=[List[List[int]]])
 
     def test_empty_like_1(self):
         """ Check empty_like numpy function without specified dtype. """
@@ -597,9 +597,9 @@ def test_copy0(x):
             def np_empty_like_1(a):
                 from numpy import empty_like
                 b = empty_like(a)
-                for i in xrange(2):
-                    for j in xrange(3):
-                        for k in xrange(4):
+                for i in range(2):
+                    for j in range(3):
+                        for k in range(4):
                             b[i, j, k] = i + j + k
                 return b"""
         self.run_test(code,
@@ -612,9 +612,9 @@ def test_copy0(x):
             def np_empty_like_2(a):
                 from numpy import empty_like
                 b = empty_like(a, dtype=float)
-                for i in xrange(2):
-                    for j in xrange(3):
-                        for k in xrange(4):
+                for i in range(2):
+                    for j in range(3):
+                        for k in range(4):
                             b[i, j, k] = i + j + k
                 return b"""
         self.run_test(code,
@@ -633,6 +633,9 @@ def np_reshape1(a):
 
     def test_reshape2(self):
         self.run_test("def np_reshape2(a): return a.reshape(5, 2)", numpy.arange(10), np_reshape2=[NDArray[int,:]])
+
+    def test_reshape3(self):
+        self.run_test("def np_reshape3(a): return (1 + a.reshape(1, a.size)), (1 + a[None])", numpy.arange(10), np_reshape3=[NDArray[int,:]])
 
     def test_duplicate(self):
         """Check array forwarded twice doesn't double free. """

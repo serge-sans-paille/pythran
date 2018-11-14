@@ -15,7 +15,7 @@ namespace scipy
   {
 
 #define NUMPY_NARY_FUNC_NAME gamma
-#define NUMPY_NARY_FUNC_SYM boost::simd::gamma
+#define NUMPY_NARY_FUNC_SYM xsimd::tgamma
 #include "pythonic/types/numpy_nary_expr.hpp"
   }
 }

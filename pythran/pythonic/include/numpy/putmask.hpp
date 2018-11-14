@@ -10,14 +10,14 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T, size_t N, class E, class F>
-  types::none_type putmask(types::ndarray<T, N> &expr, E const &mask,
+  template <class T, class pS, class E, class F>
+  types::none_type putmask(types::ndarray<T, pS> &expr, E const &mask,
                            F const &values);
 
   template <class E, class M, class F>
   types::none_type putmask(E &, M const &, F const &);
 
-  DECLARE_FUNCTOR(pythonic::numpy, putmask);
+  DEFINE_FUNCTOR(pythonic::numpy, putmask);
 }
 PYTHONIC_NS_END
 

@@ -18,11 +18,10 @@ namespace numpy
   namespace random
   {
 
-    template <size_t N>
-    types::ndarray<double, N> poisson(double lam,
-                                      types::array<long, N> const &shape)
+    template <class pS>
+    types::ndarray<double, pS> poisson(double lam, pS const &shape)
     {
-      types::ndarray<double, N> result{shape, types::none_type()};
+      types::ndarray<double, pS> result{shape, types::none_type()};
       std::poisson_distribution<long> distribution{lam};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });
@@ -39,8 +38,6 @@ namespace numpy
     {
       return std::poisson_distribution<long>{lam}(details::generator);
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::random, poisson);
   }
 }
 PYTHONIC_NS_END

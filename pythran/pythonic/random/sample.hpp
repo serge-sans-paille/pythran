@@ -28,8 +28,6 @@ namespace random
       out[i] = tmp[indices[i]];
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::random, sample);
 }
 PYTHONIC_NS_END
 

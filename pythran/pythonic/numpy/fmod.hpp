@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 #define NUMPY_NARY_FUNC_NAME fmod
-#define NUMPY_NARY_FUNC_SYM boost::simd::rem
+#define NUMPY_NARY_FUNC_SYM xsimd::fmod
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

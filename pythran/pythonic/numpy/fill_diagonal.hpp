@@ -17,15 +17,12 @@ namespace numpy
     constexpr auto N = std::decay<E>::type::value;
     auto const &shape = expr.shape();
     types::array<long, N> indices;
-    for (long i = 0, n = *std::min_element(shape.begin(), shape.end()); i < n;
-         ++i) {
+    for (long i = 0, n = sutils::min(shape); i < n; ++i) {
       std::fill(indices.begin(), indices.end(), i);
       expr.fast(indices) = fill_value;
     }
     return {};
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, fill_diagonal)
 }
 PYTHONIC_NS_END
 

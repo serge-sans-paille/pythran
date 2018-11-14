@@ -101,12 +101,18 @@ namespace __builtin__
       return {};
     };
 
+    template <class T>
+    bool is_none(types::none<T> const &n)
+    {
+      return n.is_none;
+    };
+
     types::true_type is_none(types::none_type const &)
     {
       return {};
     };
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::pythran, is_none);
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, is_none);
   }
 }
 PYTHONIC_NS_END

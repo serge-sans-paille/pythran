@@ -12,7 +12,7 @@ namespace numpy
   template <class E>
   auto ndim(E const &e) -> decltype(__builtin__::getattr<types::attr::NDIM>(e));
 
-  DECLARE_FUNCTOR(pythonic::numpy, ndim)
+  DEFINE_FUNCTOR(pythonic::numpy, ndim)
 }
 PYTHONIC_NS_END
 

@@ -20,7 +20,7 @@ namespace __builtin__
     template <class K, class V>
     std::tuple<K, V> popitem(types::dict<K, V> &&d);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::dict, popitem);
+    DEFINE_FUNCTOR(pythonic::__builtin__::dict, popitem);
   }
 }
 PYTHONIC_NS_END

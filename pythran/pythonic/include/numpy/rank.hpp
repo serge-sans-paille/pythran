@@ -11,7 +11,7 @@ namespace numpy
   template <class E>
   size_t rank(E const &expr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, rank);
+  DEFINE_FUNCTOR(pythonic::numpy, rank);
 }
 PYTHONIC_NS_END
 

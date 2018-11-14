@@ -18,7 +18,7 @@ namespace __builtin__
     template <class U>
     bool issubset(types::empty_set const &set, U const &other);
 
-    DECLARE_FUNCTOR(pythonic::__builtin__::set, issubset);
+    DEFINE_FUNCTOR(pythonic::__builtin__::set, issubset);
   }
 }
 PYTHONIC_NS_END

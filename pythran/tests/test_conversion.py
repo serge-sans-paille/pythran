@@ -4,6 +4,12 @@ from pythran.typing import *
 
 from test_env import TestEnv
 
+try:
+    np.float128
+    has_float128 = True
+except AttributeError:
+    has_float128 = False
+
 class TestConversion(TestEnv):
 
     def test_list_of_uint16(self):
@@ -26,6 +32,14 @@ class TestConversion(TestEnv):
 
     def test_list_of_float64(self):
         self.run_test('def list_of_float64(l): return [2. * _ for _ in l]', [1.,2.], list_of_float64=[List[np.float64]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_list_of_float128(self):
+        self.run_test('def list_of_float128(l): return [2. * _ for _ in l]', [1.,2.], list_of_float128=[List[np.float128]])
+
+    @unittest.skipIf(not has_float128, "not float128")
+    def test_array_of_float128(self):
+        self.run_test('def array_of_float128(l): return l + 1', np.array([1.,2.], dtype=np.float128), array_of_float128=[NDArray[np.float128, :]])
 
     @unittest.skip("No np.float32 python_to_pythran converter exists.")
     def test_set_of_float32(self):
@@ -95,8 +109,8 @@ def dict_of_complex64_and_complex_128(l):
 
     def test_ndarray_with_stride_and_offset_and_end(self):
         code = 'def ndarray_with_stride_and_offset_and_end(a): return a'
-        self.run_test(code, np.arange((10), dtype=np.uint8)[1:6:2],
-                      ndarray_with_stride_and_offset_and_end=[NDArray[np.uint8, ::-1]])
+        self.run_test(code, np.arange((10), dtype=np.uint16)[1:6:2],
+                      ndarray_with_stride_and_offset_and_end=[NDArray[np.uint16, ::-1]])
 
     def test_ndarray_with_multi_strides(self):
         code = 'def ndarray_with_multi_strides(a): return a'

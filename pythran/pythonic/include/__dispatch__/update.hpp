@@ -12,7 +12,7 @@ namespace __dispatch__
   auto update(Any &&any, Arg0 &&... arg0)
       -> decltype(any.update(std::forward<Arg0>(arg0)...));
 
-  DECLARE_FUNCTOR(pythonic::__dispatch__, update);
+  DEFINE_FUNCTOR(pythonic::__dispatch__, update);
 }
 PYTHONIC_NS_END
 

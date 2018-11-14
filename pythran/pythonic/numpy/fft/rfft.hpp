@@ -23,32 +23,35 @@ namespace numpy
     std::mutex mtx_rfft; // mutex for critical section
 
     // Aux function
-    template <class T, size_t N>
-    types::ndarray<std::complex<typename std::common_type<T, double>::type>, N>
-    _rfft(types::ndarray<T, N> const &in_array, long NFFT, bool norm)
+    template <class T, class pS>
+    types::ndarray<std::complex<typename std::common_type<T, double>::type>,
+                   types::array<long, std::tuple_size<pS>::value>>
+    _rfft(types::ndarray<T, pS> const &in_array, long NFFT, bool norm)
     {
       long i;
-      auto shape = in_array.shape();
+      auto &&shape = in_array.shape();
       T *dptr = (T *)in_array.buffer;
-      long npts = shape.back();
+      long npts = std::get<std::tuple_size<pS>::value - 1>(shape);
 
       // Create output array.
       long out_size = NFFT / 2 + 1;
-      auto out_shape = shape;
+      auto out_shape = sutils::array(shape);
       out_shape.back() = out_size;
       types::ndarray<std::complex<typename std::common_type<T, double>::type>,
-                     N> out_array(out_shape, __builtin__::None);
+                     types::array<long, std::tuple_size<pS>::value>>
+          out_array(out_shape, __builtin__::None);
 
       // Create the twiddle factors. These must be kept from call to call as
       // it's very wasteful to recompute them.
       // This is from fftpack_litemodule.c
       mtx_rfft.lock();
-      static std::map<long, types::ndarray<double, 1>> all_twiddles_rfft;
+      static std::map<long, types::ndarray<double, types::pshape<long>>>
+          all_twiddles_rfft;
       if (all_twiddles_rfft.find(NFFT) == all_twiddles_rfft.end()) {
         // Insert a new twiddle array into our map and initialize it
         all_twiddles_rfft.insert(std::make_pair(
-            NFFT, types::ndarray<double, 1>({(long)(2 * NFFT + 15)},
-                                            __builtin__::None)));
+            NFFT, types::ndarray<double, types::pshape<long>>(
+                      {(long)(2 * NFFT + 15)}, __builtin__::None)));
         npy_rffti(NFFT, (double *)all_twiddles_rfft[NFFT].buffer);
       }
       mtx_rfft.unlock();
@@ -87,9 +90,10 @@ namespace numpy
       return out_array;
     }
 
-    template <class T, size_t N>
-    types::ndarray<std::complex<typename std::common_type<T, double>::type>, N>
-    rfft(types::ndarray<T, N> const &in_array, long NFFT, long axis)
+    template <class T, class pS>
+    types::ndarray<std::complex<typename std::common_type<T, double>::type>,
+                   types::array<long, std::tuple_size<pS>::value>>
+    rfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis)
     {
       return rfft(in_array, NFFT, axis, "");
     }
@@ -104,16 +108,17 @@ namespace numpy
       return param == "ortho";
     }
 
-    template <class T, size_t N, typename U>
-    types::ndarray<std::complex<typename std::common_type<T, double>::type>, N>
-    rfft(types::ndarray<T, N> const &in_array, long NFFT, long axis,
+    template <class T, class pS, typename U>
+    types::ndarray<std::complex<typename std::common_type<T, double>::type>,
+                   types::array<long, std::tuple_size<pS>::value>>
+    rfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis,
          U normalize)
     {
       bool norm = testThis(normalize);
-      //            printf("NORMALIZE = %s!\n",norm?"TRUE":"FALSE");
+      auto constexpr N = std::tuple_size<pS>::value;
 
       if (NFFT == -1)
-        NFFT = in_array.shape().back();
+        NFFT = std::get<N - 1>(in_array.shape());
       if (axis != -1 && axis != N - 1) {
         // Swap axis if the FFT must be computed on an axis that's not the last
         // one.
@@ -125,7 +130,6 @@ namespace numpy
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(rfft);
-    DEFINE_FUNCTOR(pythonic::numpy::fft, rfft);
   }
 }
 PYTHONIC_NS_END

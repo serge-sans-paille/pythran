@@ -13,10 +13,10 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class F, class T, size_t N, class E>
+  template <class F, class T, class pS, class E>
   typename std::enable_if<types::is_numexpr_arg<F>::value,
                           types::none_type>::type
-  put(types::ndarray<T, N> &expr, F const &ind, E const &v)
+  put(types::ndarray<T, pS> &expr, F const &ind, E const &v)
   {
     auto vind = asarray(ind);
     auto vv = asarray(v);
@@ -29,8 +29,8 @@ namespace numpy
     return __builtin__::None;
   }
 
-  template <class T, size_t N>
-  types::none_type put(types::ndarray<T, N> &expr, long int ind, T const &v)
+  template <class T, class pS>
+  types::none_type put(types::ndarray<T, pS> &expr, long int ind, T const &v)
   {
     if (ind >= expr.flat_size() || ind < 0)
       throw types::ValueError("indice out of bound");
@@ -43,8 +43,6 @@ namespace numpy
   {
     throw std::runtime_error("put only partially implemented");
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, put);
 }
 PYTHONIC_NS_END
 

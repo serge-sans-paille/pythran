@@ -6,6 +6,7 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/attr.hpp"
+#include "pythonic/__builtin__/None.hpp"
 #include "pythonic/__builtin__/str.hpp"
 
 #include <stdexcept>
@@ -79,9 +80,7 @@ PYTHONIC_NS_END
   types::name name(Types const &... args)                                      \
   {                                                                            \
     return types::name(args...);                                               \
-  }                                                                            \
-                                                                               \
-  DEFINE_FUNCTOR(pythonic::__builtin__, name);
+  }
 
 /* pythran attribute system { */
 #define IMPL_EXCEPTION_GETATTR(name)                                           \

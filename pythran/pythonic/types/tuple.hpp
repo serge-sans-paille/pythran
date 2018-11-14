@@ -9,6 +9,7 @@
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/seq.hpp"
 #include "pythonic/utils/nested_container.hpp"
+#include "pythonic/types/ndarray.hpp"
 
 #include <tuple>
 #include <algorithm>
@@ -63,12 +64,6 @@ namespace types
 
   /* helper to extract the tail of a tuple, && pop the head
    */
-  template <int Offset, class T, size_t... N>
-  auto make_tuple_tail(T const &t, utils::index_sequence<N...>)
-      -> decltype(std::make_tuple(std::get<Offset + 1 + N>(t)...))
-  {
-    return std::make_tuple(std::get<Offset + 1 + N>(t)...);
-  }
 
   template <class S, class... Stail>
   std::tuple<Stail...> tuple_tail(std::tuple<S, Stail...> const &t)
@@ -77,21 +72,10 @@ namespace types
                               utils::make_index_sequence<sizeof...(Stail)>{});
   }
 
-  template <class S, class... Stail>
-  auto tuple_pop(std::tuple<S, Stail...> const &t)
-      -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(
-          t, utils::make_index_sequence<
-                 sizeof...(Stail)-count_trailing_long<Stail...>::value>{}))
-  {
-    return make_tuple_tail<count_trailing_long<Stail...>::value>(
-        t, utils::make_index_sequence<sizeof...(
-               Stail)-count_trailing_long<Stail...>::value>{});
-  }
-
   template <class T, size_t N, class A, size_t... I>
   array<T, N> array_to_array(A const &a, utils::index_sequence<I...>)
   {
-    return {a[I]...};
+    return {std::get<I>(a)...};
   }
 
   /* inspired by std::array implementation */
@@ -238,7 +222,7 @@ namespace types
     return buffer[n];
   }
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   template <class T, size_t N>
   template <class vectorizer>
   typename array<T, N>::simd_iterator array<T, N>::vbegin(vectorizer) const
@@ -250,8 +234,8 @@ namespace types
   template <class vectorizer>
   typename array<T, N>::simd_iterator array<T, N>::vend(vectorizer) const
   {
-    using vector_type = typename boost::simd::pack<dtype>;
-    static const std::size_t vector_size = vector_type::static_size;
+    using vector_type = typename xsimd::simd_type<dtype>;
+    static const std::size_t vector_size = vector_type::size;
     return {&buffer[long(size() / vector_size * vector_size)]};
   }
 #endif
@@ -372,29 +356,6 @@ namespace types
       os << *iter;
     }
     return os << ')';
-  }
-
-  template <bool Same, class... Types>
-  auto _make_tuple<Same, Types...>::operator()(Types &&... types)
-      -> decltype(std::make_tuple(std::forward<Types>(types)...))
-  {
-    return std::make_tuple(std::forward<Types>(types)...);
-  }
-
-  template <class... Types>
-  types::array<typename alike<Types...>::type, sizeof...(Types)>
-      _make_tuple<true, Types...>::operator()(Types &&... types)
-  {
-    return {{std::forward<Types>(types)...}};
-  }
-
-  template <class... Types>
-  auto make_tuple(Types &&... types)
-      -> decltype(_make_tuple<alike<Types...>::value, Types...>()(
-          std::forward<Types>(types)...))
-  {
-    return _make_tuple<alike<Types...>::value, Types...>()(
-        std::forward<Types>(types)...);
   }
 
   template <class T, size_t N, class... Types>
@@ -531,6 +492,13 @@ PyObject *to_python<std::pair<K, V>>::convert(std::pair<K, V> const &t)
   PyTuple_SET_ITEM(out, 0, ::to_python(std::get<0>(t)));
   PyTuple_SET_ITEM(out, 1, ::to_python(std::get<1>(t)));
   return out;
+}
+
+template <typename... Tys>
+PyObject *
+to_python<types::pshape<Tys...>>::convert(types::pshape<Tys...> const &t)
+{
+  return ::to_python(t.array());
 }
 
 template <typename... Types>

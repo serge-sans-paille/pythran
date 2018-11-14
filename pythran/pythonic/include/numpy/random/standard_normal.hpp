@@ -11,16 +11,15 @@ namespace numpy
 {
   namespace random
   {
-    template <size_t N>
-    types::ndarray<double, N>
-    standard_normal(types::array<long, N> const &shape);
+    template <class pS>
+    types::ndarray<double, pS> standard_normal(pS const &shape);
 
     auto standard_normal(long size)
         -> decltype(standard_normal(types::array<long, 1>{{size}}));
 
     double standard_normal(types::none_type d = {});
 
-    DECLARE_FUNCTOR(pythonic::numpy::random, standard_normal);
+    DEFINE_FUNCTOR(pythonic::numpy::random, standard_normal);
   }
 }
 PYTHONIC_NS_END

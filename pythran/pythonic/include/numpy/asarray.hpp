@@ -16,26 +16,23 @@ namespace numpy
         -> decltype(array(std::forward<Types>(args)...));
   };
 
-  template <class T, size_t N>
-  struct _asarray<types::ndarray<T, N>, T> {
-    template <class F, class dtype>
-    F &&operator()(F &&a, dtype);
+  template <class T, class pS>
+  struct _asarray<types::ndarray<T, pS>, T> {
+    template <class F, class dtype = types::none_type>
+    F &&operator()(F &&a, dtype d = types::none_type());
   };
 
   template <class E>
   auto asarray(E &&e, types::none_type d = types::none_type()) -> decltype(
       _asarray<typename std::decay<E>::type,
-               types::dtype_t<typename utils::nested_container_value_type<
-                   typename std::decay<E>::type>::type>>{}(
-          std::forward<E>(e),
-          types::dtype_t<typename utils::nested_container_value_type<
-              typename std::decay<E>::type>::type>{}));
+               typename std::decay<E>::type::dtype>{}(std::forward<E>(e)));
 
   template <class E, class dtype>
-  auto asarray(E &&e, dtype d) -> decltype(
-      _asarray<typename std::decay<E>::type, dtype>{}(std::forward<E>(e), d));
+  auto asarray(E &&e, dtype d)
+      -> decltype(_asarray<typename std::decay<E>::type,
+                           typename dtype::type>{}(std::forward<E>(e), d));
 
-  DECLARE_FUNCTOR(pythonic::numpy, asarray);
+  DEFINE_FUNCTOR(pythonic::numpy, asarray);
 }
 PYTHONIC_NS_END
 

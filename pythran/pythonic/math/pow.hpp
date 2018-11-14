@@ -10,7 +10,6 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DEFINE_FUNCTOR_2(pow, std::pow);
 }
 PYTHONIC_NS_END
 

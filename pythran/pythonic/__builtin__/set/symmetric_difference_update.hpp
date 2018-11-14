@@ -37,8 +37,6 @@ namespace __builtin__
       // nothing otherwise empty_set have ! its correct type.
       return {};
     }
-
-    DEFINE_FUNCTOR(pythonic::__builtin__::set, symmetric_difference_update);
   }
 }
 PYTHONIC_NS_END

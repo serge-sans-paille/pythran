@@ -5,8 +5,6 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <boost/simd/function/is_finite.hpp>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy
@@ -21,7 +19,7 @@ namespace numpy
     template <class T>
     bool isfinite(T const &v)
     {
-      return boost::simd::is_finite(v);
+      return std::isfinite(v);
     }
   }
 

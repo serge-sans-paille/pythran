@@ -1,6 +1,6 @@
 #from http://rosettacode.org/wiki/Happy_numbers#Python
 #pythran export happy(int)
-#runas [x for x in xrange(500) if happy(x)][:8]
+#runas [x for x in range(500) if happy(x)][:8]
 
 def happy(n):
     past = set()

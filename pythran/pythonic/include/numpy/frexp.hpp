@@ -17,11 +17,11 @@ namespace numpy
   template <class E>
   typename std::enable_if<
       !types::is_dtype<E>::value,
-      std::tuple<types::ndarray<typename E::dtype, E::value>,
-                 types::ndarray<int, E::value>>>::type
+      std::tuple<types::ndarray<typename E::dtype, typename E::shape_t>,
+                 types::ndarray<int, typename E::shape_t>>>::type
   frexp(E const &arr);
 
-  DECLARE_FUNCTOR(pythonic::numpy, frexp);
+  DEFINE_FUNCTOR(pythonic::numpy, frexp);
 }
 PYTHONIC_NS_END
 

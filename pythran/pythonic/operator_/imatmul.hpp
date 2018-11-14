@@ -21,8 +21,6 @@ namespace operator_
   {
     return a = numpy::functor::dot(a, b); // FIXME: improve that
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, imatmul);
 }
 PYTHONIC_NS_END
 

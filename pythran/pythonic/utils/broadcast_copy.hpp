@@ -92,7 +92,7 @@ namespace utils
         auto siter = sfirst;
         *sfirst = other;
 #ifdef _OPENMP
-        long n = self.shape()[0];
+        long n = std::get<0>(self.shape());
         if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
           for (long i = 1; i < n; ++i)
@@ -104,17 +104,19 @@ namespace utils
     }
   };
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   // specialize for SIMD only if available
   // otherwise use the std::copy fallback
   template <class vectorizer, class E, class F>
   void vbroadcast_copy(E &&self, F const &other)
   {
     using T = typename F::dtype;
-    using vT = typename boost::simd::pack<T>;
+    using vT = xsimd::simd_type<T>;
+
+    static const std::size_t vN = vT::size;
+
     long self_size = std::distance(self.begin(), self.end()),
          other_size = std::distance(other.begin(), other.end());
-    static const std::size_t vN = vT::static_size;
     auto oiter = vectorizer::vbegin(other);
     const long bound =
         std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
@@ -212,7 +214,7 @@ namespace utils
     template <class E, class F>
     void operator()(E &&self, F const &other)
     {
-      long n = self.shape()[0];
+      long n = std::get<0>(self.shape());
       auto siter = self.begin();
 #ifdef _OPENMP
       if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
@@ -270,18 +272,18 @@ namespace utils
     }
   };
 
-#ifdef USE_BOOST_SIMD
+#ifdef USE_XSIMD
   // specialize for SIMD only if available
   // otherwise use the std::copy fallback
   template <class Op, class vectorizer, class E, class F>
   void vbroadcast_update(E &&self, F const &other)
   {
     using T = typename F::dtype;
-    using vT = typename boost::simd::pack<T>;
+    using vT = typename xsimd::simd_type<T>;
     long self_size = std::distance(self.begin(), self.end()),
          other_size = std::distance(other.begin(), other.end());
 
-    static const std::size_t vN = vT::static_size;
+    static const std::size_t vN = vT::size;
     auto oiter = vectorizer::vbegin(other);
     auto iter = vectorizer::vbegin(self);
     const long bound =

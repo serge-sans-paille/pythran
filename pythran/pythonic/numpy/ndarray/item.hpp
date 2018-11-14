@@ -5,6 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/numpy/asarray.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -14,8 +15,8 @@ namespace numpy
   namespace ndarray
   {
 
-    template <class T, size_t N>
-    T item(types::ndarray<T, N> const &expr, long i)
+    template <class T, class pS>
+    T item(types::ndarray<T, pS> const &expr, long i)
     {
       if (i < 0)
         i += expr.flat_size();
@@ -34,12 +35,8 @@ namespace numpy
     {
       if (i < 0)
         i += expr.flat_size();
-      return types::ndarray<typename std::decay<E>::type::dtype,
-                            std::decay<E>::type::value>{
-          std::forward<E>(expr)}.flat()[i];
+      return asarray(std::forward<E>(expr)).flat()[i];
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::ndarray, item);
   }
 }
 PYTHONIC_NS_END

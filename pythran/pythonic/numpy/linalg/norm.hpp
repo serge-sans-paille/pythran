@@ -91,8 +91,6 @@ namespace numpy
     {
       throw pythonic::__builtin__::NotImplementedError("We need more dev!");
     }
-
-    DEFINE_FUNCTOR(pythonic::numpy::linalg, norm);
   }
 }
 PYTHONIC_NS_END

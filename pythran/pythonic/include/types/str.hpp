@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_STR_HPP
 
 #include "pythonic/include/types/slice.hpp"
-#include "pythonic/include/types/long.hpp"
 #include "pythonic/include/types/tuple.hpp"
 
 #include "pythonic/include/types/assignable.hpp"
@@ -127,16 +126,20 @@ namespace types
     str(std::string const &s);
     str(std::string &&s);
     str(const char *s);
+    template <size_t N>
+    str(const char(&s)[N]);
     str(const char *s, size_t n);
     str(char c);
     template <class S>
     str(sliced_str<S> const &other);
     template <class T>
     str(T const &begin, T const &end);
+    template <class T>
+    explicit str(T const &);
 
     explicit operator char() const;
-    operator long int() const;
-    operator pythran_long_t() const;
+    explicit operator long int() const;
+    explicit operator float() const;
     explicit operator double() const;
 
     template <class S>
@@ -189,15 +192,14 @@ namespace types
 
     sliced_str<slice> operator[](slice const &s) const;
     sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
-#ifdef USE_GMP
-    char operator[](pythran_long_t const &m) const;
-    char &operator[](pythran_long_t const &m);
-    char fast(pythran_long_t const &m) const;
-    char &fast(pythran_long_t const &m);
-#endif
 
     explicit operator bool() const;
     long count(types::str const &sub) const;
+
+    intptr_t id() const
+    {
+      return reinterpret_cast<intptr_t>(&(*data));
+    }
   };
 
   size_t hash_value(str const &x);
@@ -211,7 +213,10 @@ namespace types
   str operator+(char const(&self)[N], str const &other);
 
   bool operator==(char c, str const &s);
-  bool operator==(str const &s, char c);
+
+  template <size_t N>
+  bool operator==(char const(&self)[N], str const &other);
+
   bool operator!=(char c, str const &s);
   bool operator!=(str const &s, char c);
   std::ostream &operator<<(std::ostream &os, str const &s);

@@ -30,7 +30,7 @@ namespace __builtin__
       typename std::remove_cv<typename std::remove_reference<T>::type>::type>
   iter(T &&t);
 
-  DECLARE_FUNCTOR(pythonic::__builtin__, iter);
+  DEFINE_FUNCTOR(pythonic::__builtin__, iter);
 }
 PYTHONIC_NS_END
 

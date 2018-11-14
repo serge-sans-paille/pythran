@@ -19,8 +19,6 @@ namespace operator_
   {
     return strcmp(a, b) == 0;
   }
-
-  DEFINE_FUNCTOR(pythonic::operator_, eq);
 }
 PYTHONIC_NS_END
 

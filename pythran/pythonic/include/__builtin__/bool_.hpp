@@ -2,10 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_BOOL_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-
-#ifdef USE_GMP
-#include "pythonic/include/types/long.hpp"
-#endif
+#include "pythonic/include/types/tuple.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -22,15 +19,13 @@ namespace __builtin__
       bool operator()() const;
 
       template <class T>
-      bool operator()(T &&val) const;
+      bool operator()(T const &val) const;
 
-#ifdef USE_GMP
-      template <class T, class U>
-      bool operator()(__gmp_expr<T, U> const &a) const;
+      template <class... Ts>
+      bool operator()(std::tuple<Ts...> const &val) const;
 
-      template <class T, class U>
-      bool operator()(__gmp_expr<T, U> &&a) const;
-#endif
+      template <class T, size_t N>
+      bool operator()(types::array<T, N> const &val) const;
     };
   }
 }

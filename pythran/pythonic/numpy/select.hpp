@@ -46,14 +46,15 @@ namespace numpy
   }
 
   template <class T, class U>
-  types::ndarray<typename U::type, U::value>
+  types::ndarray<typename U::type, types::array<long, U::value>>
   select(types::list<T> const &condlist, types::list<U> const &choicelist,
          typename U::dtype _default)
   {
     constexpr size_t N = U::value;
     auto &&choicelist0_shape = choicelist[0].shape();
-    types::ndarray<T, N> out(choicelist0_shape, _default);
-    types::ndarray<T, N> selected(choicelist0_shape(), false);
+    types::ndarray<T, types::array<long, N>> out(choicelist0_shape, _default);
+    types::ndarray<T, types::array<long, N>> selected(choicelist0_shape(),
+                                                      false);
     long size = selected.flat_size();
     for (long i = 0; i < condlist.size() && size != 0; i++)
       size =
@@ -62,12 +63,16 @@ namespace numpy
     return out;
   }
 
-  template <class T, size_t N, class U>
-  types::ndarray<T, N>
-  select(types::list<types::ndarray<U, N>> const &condlist,
-         types::list<types::ndarray<T, N>> const &choicelist, T _default)
+  template <class T, class TpS, class U, class UpS>
+  typename std::enable_if<
+      std::tuple_size<TpS>::value == std::tuple_size<UpS>::value,
+      types::ndarray<T, types::array<long, std::tuple_size<TpS>::value>>>::type
+  select(types::list<types::ndarray<U, UpS>> const &condlist,
+         types::list<types::ndarray<T, TpS>> const &choicelist, T _default)
   {
-    types::ndarray<T, N> out(choicelist[0].shape(), _default);
+    auto constexpr N = std::tuple_size<UpS>::value;
+    types::ndarray<T, types::array<long, N>> out(
+        sutils::array(choicelist[0].shape()), _default);
     for (long i = 0; i < out.flat_size(); ++i)
       for (long j = 0; j < condlist.size(); ++j)
         if (condlist[j].buffer[i]) {
@@ -76,8 +81,6 @@ namespace numpy
         }
     return out;
   }
-
-  DEFINE_FUNCTOR(pythonic::numpy, select);
 }
 PYTHONIC_NS_END
 

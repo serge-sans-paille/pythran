@@ -1,8 +1,8 @@
 #from http://rosettacode.org/wiki/Prime_decomposition#Python
 #pythran export fac(int)
-#runas fac(2**30 - 1)
+#runas fac(2**10 - 1)
 #pythran export test_decompose(int)
-#runas test_decompose(2**30 - 1)
+#runas test_decompose(2**10 - 1)
 import math
 
 def decompose(n):
@@ -34,7 +34,7 @@ def primes(primelist):
 
 def fac(n):
     step = lambda x: 1 + x * 4 - (x // 2) * 2
-    maxq = long(math.floor(math.sqrt(n)))
+    maxq = math.floor(math.sqrt(n))
     d = 1
     q = n % 2 == 0 and 2 or 3
     while q <= maxq and n % q != 0:

@@ -17,10 +17,10 @@ def conv(x, weights):
     sx = x.shape
     sw = weights.shape
     result = np.zeros_like(x)
-    for i in xrange(sx[0]):
-        for j in xrange(sx[1]):
-            for ii in xrange(sw[0]):
-                for jj in xrange(sw[1]):
+    for i in range(sx[0]):
+        for j in range(sx[1]):
+            for ii in range(sw[0]):
+                for jj in range(sw[1]):
                     idx = clamp(i, ii-sw[0]//2, sw[0]), clamp(j, jj-sw[0]//2, sw[0])
                     result[i, j] += x[idx] * weights[ii, jj]
     return result

@@ -1,0 +1,2 @@
+def dint():
+    return int()

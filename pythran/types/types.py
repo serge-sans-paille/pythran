@@ -4,8 +4,8 @@ This module performs the return type inference, according to symbolic types,
     * type_all generates a node -> type binding
 '''
 
-from pythran.analyses import (LazynessAnalysis, StrictAliases, YieldPoints,
-                              LocalNodeDeclarations)
+from pythran.analyses import LazynessAnalysis, StrictAliases, YieldPoints
+from pythran.analyses import LocalNodeDeclarations, Immediates
 from pythran.config import cfg
 from pythran.cxxtypes import TypeBuilder, ordered_set
 from pythran.intrinsic import UserFunction, Class
@@ -68,7 +68,8 @@ class Types(ModuleAnalysis):
         self.combiners = defaultdict(UserFunction)
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
-        ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis)
+        ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
+                                Immediates)
         self.curr_locals_declaration = None
 
     def prepare(self, node, ctx):
@@ -455,7 +456,11 @@ class Types(ModuleAnalysis):
         type converter.
         """
         ty = type(node.n)
-        self.result[node] = self.builder.NamedType(pytype_to_ctype(ty))
+        sty = pytype_to_ctype(ty)
+        if node in self.immediates:
+            sty = "std::integral_constant<%s, %s>" % (sty, node.n)
+
+        self.result[node] = self.builder.NamedType(sty)
 
     def visit_Str(self, node):
         """ Set the pythonic string type. """

@@ -916,7 +916,7 @@ class CxxFunction(Backend):
         if node in self.immediates:
             assert isinstance(node.n, int)
             return "std::integral_constant<%s, %s>{}" % (
-                PYTYPE_TO_CTYPE_TABLE[type(node.n)], ret)
+                PYTYPE_TO_CTYPE_TABLE[type(node.n)], node.n)
         return ret
 
     def visit_Str(self, node):

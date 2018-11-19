@@ -52,9 +52,9 @@ namespace types
     return data != other.data;
   }
 
-  char const_sliced_str_iterator::operator*() const
+  str const_sliced_str_iterator::operator*() const
   {
-    return *data;
+    return str(*data);
   }
 
   const_sliced_str_iterator const_sliced_str_iterator::operator-(long n) const
@@ -135,28 +135,13 @@ namespace types
 
   // accessor
   template <class S>
-  char sliced_str<S>::fast(long i) const
+  str sliced_str<S>::fast(long i) const
   {
-    return (*data)[slicing.get(i)];
+    return str((*data)[slicing.get(i)]);
   }
 
   template <class S>
-  char &sliced_str<S>::fast(long i)
-  {
-    return (*data)[slicing.get(i)];
-  }
-
-  template <class S>
-  char sliced_str<S>::operator[](long i) const
-  {
-    if (i < 0) {
-      i += size();
-    }
-    return fast(i);
-  }
-
-  template <class S>
-  char &sliced_str<S>::operator[](long i)
+  str sliced_str<S>::operator[](long i) const
   {
     if (i < 0) {
       i += size();
@@ -280,8 +265,11 @@ namespace types
 
   template <class S>
   str::str(sliced_str<S> const &other)
-      : data(other.begin(), other.end())
+      : data(other.size(), 0)
   {
+    auto iter = chars().begin();
+    for (auto &&s : other)
+      *iter++ = s.chars()[0];
   }
 
   template <class T>
@@ -370,44 +358,24 @@ namespace types
     return data->size();
   }
 
-  auto str::begin() const -> decltype(data->begin())
+  typename str::iterator str::begin() const
   {
-    return data->begin();
+    return {data->begin()};
   }
 
-  auto str::begin() -> decltype(data->begin())
+  typename str::reverse_iterator str::rbegin() const
   {
-    return data->begin();
+    return {data->rbegin()};
   }
 
-  auto str::rbegin() const -> decltype(data->rbegin())
+  typename str::iterator str::end() const
   {
-    return data->rbegin();
+    return {data->end()};
   }
 
-  auto str::rbegin() -> decltype(data->rbegin())
+  typename str::reverse_iterator str::rend() const
   {
-    return data->rbegin();
-  }
-
-  auto str::end() const -> decltype(data->end())
-  {
-    return data->end();
-  }
-
-  auto str::end() -> decltype(data->end())
-  {
-    return data->end();
-  }
-
-  auto str::rend() const -> decltype(data->rend())
-  {
-    return data->rend();
-  }
-
-  auto str::rend() -> decltype(data->rend())
-  {
-    return data->rend();
+    return {data->rend()};
   }
 
   auto str::c_str() const -> decltype(data->c_str())
@@ -522,7 +490,7 @@ namespace types
       return false;
     for (long i = other.get_slice().lower, j = 0L; j < size();
          i = i + other.get_slice().step, j++)
-      if (other.get_data()[i] != (*this)[j])
+      if (other.get_data()[i] != chars()[j])
         return false;
     return true;
   }
@@ -537,28 +505,16 @@ namespace types
     return operator[](s);
   }
 
-  char str::operator[](long i) const
+  str str::operator[](long i) const
   {
     if (i < 0)
       i += size();
-    return fast(i);
+    return str(fast(i));
   }
 
-  char &str::operator[](long i)
+  str str::fast(long i) const
   {
-    if (i < 0)
-      i += size();
-    return fast(i);
-  }
-
-  char str::fast(long i) const
-  {
-    return (*data)[i];
-  }
-
-  char &str::fast(long i)
-  {
-    return (*data)[i];
+    return str((*data)[i]);
   }
 
   sliced_str<slice> str::operator[](slice const &s) const
@@ -613,30 +569,10 @@ namespace types
     return {std::move(s)};
   }
 
-  bool operator==(char c, str const &s)
-  {
-    return s.size() == 1 && s[0] == c;
-  }
-
-  bool operator==(str const &s, char c)
-  {
-    return s.size() == 1 && s[0] == c;
-  }
-
   template <size_t N>
   bool operator==(char const(&self)[N], str const &other)
   {
     return other == self;
-  }
-
-  bool operator!=(char c, str const &s)
-  {
-    return s.size() != 1 || s[0] != c;
-  }
-
-  bool operator!=(str const &s, char c)
-  {
-    return s.size() != 1 || s[0] != c;
   }
 
   std::ostream &operator<<(std::ostream &os, str const &s)
@@ -685,9 +621,9 @@ pythonic::types::str operator*(pythonic::types::str const &s, long n)
     return pythonic::types::str();
   pythonic::types::str other;
   other.resize(s.size() * n);
-  auto where = other.begin();
+  auto where = other.chars().begin();
   for (long i = 0; i < n; i++, where += s.size())
-    std::copy(s.begin(), s.end(), where);
+    std::copy(s.chars().begin(), s.chars().end(), where);
   return other;
 }
 
@@ -740,10 +676,6 @@ PyObject *
 to_python<types::sliced_str<S>>::convert(types::sliced_str<S> const &v)
 {
   return ::to_python(types::str(v));
-}
-PyObject *to_python<char>::convert(char l)
-{
-  return PyString_FromStringAndSize(&l, 1);
 }
 
 bool from_python<types::str>::is_convertible(PyObject *obj)

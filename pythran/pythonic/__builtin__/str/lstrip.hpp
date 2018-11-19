@@ -16,7 +16,8 @@ namespace __builtin__
 
     types::str lstrip(types::str const &self, types::str const &to_del)
     {
-      return {self.begin() + self.find_first_not_of(to_del), self.end()};
+      return {self.chars().begin() + self.find_first_not_of(to_del),
+              self.chars().end()};
     }
   }
 }

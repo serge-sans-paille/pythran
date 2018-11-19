@@ -29,12 +29,6 @@ namespace __builtin__
       return static_cast<int_::type>(t);
     }
 
-    int_::type int_::operator()(char t) const
-    {
-      assert(t >= '0' && t <= '9');
-      return t - '0';
-    }
-
     int_::type int_::operator()() const
     {
       return 0L;

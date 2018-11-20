@@ -30,9 +30,9 @@ namespace numpy
   unravel_index(E const &expr, S const &shape, types::str const &order)
   {
     types::array<long, std::tuple_size<S>::value> ret;
-    if (order[0] == 'C') {
+    if (order[0] == "C") {
       _unravel_index(expr, shape.rbegin(), shape.rend(), ret.rbegin());
-    } else if (order[0] == 'F') {
+    } else if (order[0] == "F") {
       _unravel_index(expr, shape.begin(), shape.end(), ret.begin());
     } else {
       throw types::ValueError("Invalid order");

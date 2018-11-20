@@ -13,7 +13,7 @@ namespace __builtin__
   template <class T>
   types::str chr(T const &v)
   {
-    return {(char)v};
+    return types::str((char)v);
   }
 }
 PYTHONIC_NS_END

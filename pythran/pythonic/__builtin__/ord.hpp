@@ -18,12 +18,7 @@ namespace __builtin__
       throw types::TypeError(
           "ord() expected a character, but string of length " +
           std::to_string(v.size()) + " found");
-    return (long)v[0];
-  }
-
-  long ord(char v)
-  {
-    return v;
+    return (long)v.chars()[0];
   }
 }
 PYTHONIC_NS_END

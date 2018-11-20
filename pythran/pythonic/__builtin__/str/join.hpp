@@ -25,17 +25,18 @@ namespace __builtin__
 
       std::string out(n, 0);
 
-      auto iter = iterable.begin();
+      auto iter = iterable.chars().begin();
       auto oter = out.begin();
-      if (iter != iterable.end()) {
+      if (iter != iterable.chars().end()) {
         *oter++ = *iter++;
         if (ssize)
-          for (; iter != iterable.end(); ++iter) {
-            oter = std::copy(std::begin(s), std::begin(s) + ssize, oter);
+          for (; iter != iterable.chars().end(); ++iter) {
+            for (auto &&v : s)
+              *oter++ = v.chars()[0];
             *oter++ = *iter;
           }
         else
-          std::copy(iter, iterable.end(), oter);
+          std::copy(iter, iterable.chars().end(), oter);
       }
       return {std::move(out)};
     }
@@ -68,18 +69,22 @@ namespace __builtin__
       auto oter = out.begin();
       if (iter != iterable.end()) {
         auto tmp = *iter;
-        oter = std::copy(tmp.begin(), tmp.end(), oter);
+        auto const &stmp = tmp.chars();
+        oter = std::copy(stmp.begin(), stmp.end(), oter);
         ++iter;
         if (ssize)
           for (; iter != iterable.end(); ++iter) {
-            oter = std::copy(std::begin(s), std::begin(s) + ssize, oter);
+            oter = std::copy(std::begin(s.chars()),
+                             std::begin(s.chars()) + ssize, oter);
             auto tmp = *iter;
-            oter = std::copy(tmp.begin(), tmp.end(), oter);
+            auto const &stmp = tmp.chars();
+            oter = std::copy(stmp.begin(), stmp.end(), oter);
           }
         else
           for (; iter != iterable.end(); ++iter) {
-            auto tmp = *iter;
-            oter = std::copy(tmp.begin(), tmp.end(), oter);
+            auto tmp = (*iter);
+            auto const &stmp = tmp.chars();
+            oter = std::copy(stmp.begin(), stmp.end(), oter);
           }
       }
       return {std::move(out)};

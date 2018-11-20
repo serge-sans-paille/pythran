@@ -15,8 +15,6 @@ namespace __builtin__
   template <class... Types>
   long len(std::tuple<Types...> const &);
 
-  constexpr long len(char);
-
   template <class T>
   typename std::enable_if<types::has_size<T>::value, long>::type
   len(T const &t);

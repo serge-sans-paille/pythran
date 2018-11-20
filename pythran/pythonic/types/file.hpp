@@ -188,7 +188,7 @@ namespace types
       // +1 because we read the last chunk so we don't want to count \0
       if (fgets(read_str, std::min(BUFFER_SIZE - 1, size - i) + 1, **data))
         res += read_str;
-      if (feof(**data) || res[-1] == '\n')
+      if (feof(**data) || res[res.size() - 1] == "\n")
         break;
     }
     return res;

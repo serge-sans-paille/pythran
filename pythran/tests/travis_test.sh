@@ -1,7 +1,7 @@
 run_tests() {
     if [ -n "$PYTHRAN_DOC" ]
     then
-        if [ "$PYTHON_VERSION" = 2 ]
+        if [ "$PYTHON_VERSION" = 3 ]
         then
             PYTHONPATH=$PWD:$PYTHONPATH py.test pythran/tests/test_xdoc.py pythran/tests/notebooks docs/examples --nbval
         else

@@ -295,6 +295,12 @@ class TestNumpyFunc1(TestEnv):
                       numpy.array([[-1.01, 1e-10+1e-11, -0, 7.],[9., 1e-10, 0., float('NaN')]]),
                       np_isclose7=[NDArray[float,:], NDArray[float,:,:]])
 
+    def test_remainder0(self):
+        self.run_test("def np_remainder0(u, v): from numpy import remainder; return remainder(u, v)",
+                      numpy.array([9., 9., -9., -9.]),
+                      numpy.array([2., -2., 2., -2.]),
+                      np_remainder0=[NDArray[float,:], NDArray[float,:]])
+
     def test_numpy_ones_list(self):
         self.run_test(
             "def np_ones_list(u): from numpy import ones; return ones([u,u])",

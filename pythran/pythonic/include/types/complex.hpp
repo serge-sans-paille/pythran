@@ -31,6 +31,11 @@ namespace std
   bool operator||(std::complex<T> self, std::complex<T> other);
   template <class T>
   bool operator!(std::complex<T> self);
+
+  template <class T>
+  struct hash<std::complex<T>> {
+    size_t operator()(std::complex<T> const &x) const;
+  };
 }
 
 PYTHONIC_NS_BEGIN

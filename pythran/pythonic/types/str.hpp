@@ -579,11 +579,6 @@ namespace types
   {
     return os << s.c_str();
   }
-
-  size_t hash_value(str const &x)
-  {
-    return std::hash<str>()(x);
-  }
 }
 
 namespace operator_

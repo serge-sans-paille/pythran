@@ -1,9 +1,17 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_INT_HPP
 #define PYTHONIC_INCLUDE_TYPES_INT_HPP
 
+PYTHONIC_NS_BEGIN
+namespace __builtin__
+{
+  template <size_t AttributeID, class T>
+  typename std::enable_if<std::is_integral<T>::value, T>::value getattr(T self);
+}
+PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"
+#include "pythonic/include/types/attr.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -45,6 +53,7 @@ PYTHONIC_INT_FROM_PYTHON(unsigned long long);
 PYTHONIC_INT_FROM_PYTHON(signed long long);
 
 #undef PYTHONIC_INT_FROM_PYTHON
+
 PYTHONIC_NS_END
 #endif
 

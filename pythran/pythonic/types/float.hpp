@@ -6,17 +6,6 @@
 #include "pythonic/types/attr.hpp"
 #include <cstddef>
 
-PYTHONIC_NS_BEGIN
-namespace __builtin__
-{
-  template <size_t AttributeID>
-  double getattr(double self)
-  {
-    return AttributeID == pythonic::types::attr::REAL ? self : 0.;
-  }
-}
-PYTHONIC_NS_END
-
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"

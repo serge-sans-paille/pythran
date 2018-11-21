@@ -7,64 +7,76 @@
 
 namespace std
 {
-  std::complex<double> operator+(std::complex<double> self, long other)
+  template <class T>
+  std::complex<T> operator+(std::complex<T> self, long other)
   {
-    return self + double(other);
+    return self + T(other);
   }
 
-  std::complex<double> operator+(long self, std::complex<double> other)
+  template <class T>
+  std::complex<T> operator+(long self, std::complex<T> other)
   {
-    return double(self) + other;
+    return T(self) + other;
   }
 
-  std::complex<double> operator-(std::complex<double> self, long other)
+  template <class T>
+  std::complex<T> operator-(std::complex<T> self, long other)
   {
-    return self - double(other);
+    return self - T(other);
   }
 
-  std::complex<double> operator-(long self, std::complex<double> other)
+  template <class T>
+  std::complex<T> operator-(long self, std::complex<T> other)
   {
-    return double(self) - other;
+    return T(self) - other;
   }
 
-  std::complex<double> operator*(std::complex<double> self, long other)
+  template <class T>
+  std::complex<T> operator*(std::complex<T> self, long other)
   {
-    return self * double(other);
+    return self * T(other);
   }
 
-  std::complex<double> operator*(long self, std::complex<double> other)
+  template <class T>
+  std::complex<T> operator*(long self, std::complex<T> other)
   {
-    return double(self) * other;
+    return T(self) * other;
   }
 
-  std::complex<double> operator/(std::complex<double> self, long other)
+  template <class T>
+  std::complex<T> operator/(std::complex<T> self, long other)
   {
-    return self / double(other);
+    return self / T(other);
   }
 
-  std::complex<double> operator/(long self, std::complex<double> other)
+  template <class T>
+  std::complex<T> operator/(long self, std::complex<T> other)
   {
-    return double(self) / other;
+    return T(self) / other;
   }
 
-  bool operator==(std::complex<double> self, long other)
+  template <class T>
+  bool operator==(std::complex<T> self, long other)
   {
-    return self == double(other);
+    return self == T(other);
   }
 
-  bool operator==(long self, std::complex<double> other)
+  template <class T>
+  bool operator==(long self, std::complex<T> other)
   {
-    return double(self) == other;
+    return T(self) == other;
   }
 
-  bool operator!=(std::complex<double> self, long other)
+  template <class T>
+  bool operator!=(std::complex<T> self, long other)
   {
-    return self != double(other);
+    return self != T(other);
   }
 
-  bool operator!=(long self, std::complex<double> other)
+  template <class T>
+  bool operator!=(long self, std::complex<T> other)
   {
-    return double(self) != other;
+    return T(self) != other;
   }
 
   template <class T>
@@ -123,8 +135,8 @@ PYTHONIC_NS_BEGIN
 namespace __builtin__
 {
 
-  template <size_t AttributeID>
-  double getattr(std::complex<double> const &self)
+  template <size_t AttributeID, class T>
+  T getattr(std::complex<T> const &self)
   {
     return AttributeID == pythonic::types::attr::REAL ? std::real(self)
                                                       : std::imag(self);

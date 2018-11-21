@@ -2,6 +2,18 @@
 #define PYTHONIC_TYPES_INT_HPP
 
 #include "pythonic/include/types/int.hpp"
+#include "pythonic/types/attr.hpp"
+
+PYTHONIC_NS_BEGIN
+namespace __builtin__
+{
+  template <size_t AttributeID, class T>
+  typename std::enable_if<std::is_integral<T>::value, T>::type getattr(T self)
+  {
+    return AttributeID == pythonic::types::attr::REAL ? self : T(0);
+  }
+}
+PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
@@ -172,6 +184,7 @@ PYTHONIC_INT_FROM_PYTHON(unsigned long long, ULongLong)
 PYTHONIC_INT_FROM_PYTHON(signed long long, LongLong)
 
 #undef PYTHONIC_INT_FROM_PYTHON
+
 PYTHONIC_NS_END
 #endif
 

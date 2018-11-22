@@ -44,7 +44,7 @@ test_inputs_by_type = {
         '_matrix': ('numpy.ones((2,5))*1.j', '[NDArray[complex,:,:]]')
     },
     'numpy.int32': {
-        '_scalar': ('1', '[numpy.int32]'),
+        '_scalar': ('numpy.int32(1)', '[numpy.int32]'),
         '': ('numpy.ones(10, numpy.int32)', '[NDArray[numpy.int32,:]]'),
         '_matrix': ('numpy.ones((2,5), numpy.int32)',
                     '[NDArray[numpy.int32,:,:]]')

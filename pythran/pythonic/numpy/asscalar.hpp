@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  typename E::dtype asscalar(E const &expr)
+  asscalar_result_type<typename E::dtype> asscalar(E const &expr)
   {
     if (expr.flat_size() != 1)
       throw types::ValueError(

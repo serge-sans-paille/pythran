@@ -5,18 +5,30 @@
 
 namespace std
 {
-  std::complex<double> operator+(std::complex<double> self, long other);
-  std::complex<double> operator+(long self, std::complex<double> other);
-  std::complex<double> operator-(std::complex<double> self, long other);
-  std::complex<double> operator-(long self, std::complex<double> other);
-  std::complex<double> operator*(std::complex<double> self, long other);
-  std::complex<double> operator*(long self, std::complex<double> other);
-  std::complex<double> operator/(std::complex<double> self, long other);
-  std::complex<double> operator/(long self, std::complex<double> other);
-  bool operator==(std::complex<double> self, long other);
-  bool operator==(long self, std::complex<double> other);
-  bool operator!=(std::complex<double> self, long other);
-  bool operator!=(long self, std::complex<double> other);
+  template <class T>
+  std::complex<T> operator+(std::complex<T> self, long other);
+  template <class T>
+  std::complex<T> operator+(long self, std::complex<T> other);
+  template <class T>
+  std::complex<T> operator-(std::complex<T> self, long other);
+  template <class T>
+  std::complex<T> operator-(long self, std::complex<T> other);
+  template <class T>
+  std::complex<T> operator*(std::complex<T> self, long other);
+  template <class T>
+  std::complex<T> operator*(long self, std::complex<T> other);
+  template <class T>
+  std::complex<T> operator/(std::complex<T> self, long other);
+  template <class T>
+  std::complex<T> operator/(long self, std::complex<T> other);
+  template <class T>
+  bool operator==(std::complex<T> self, long other);
+  template <class T>
+  bool operator==(long self, std::complex<T> other);
+  template <class T>
+  bool operator!=(std::complex<T> self, long other);
+  template <class T>
+  bool operator!=(long self, std::complex<T> other);
   template <class T>
   bool operator<(std::complex<T> self, std::complex<T> other);
   template <class T>
@@ -31,27 +43,32 @@ namespace std
   bool operator||(std::complex<T> self, std::complex<T> other);
   template <class T>
   bool operator!(std::complex<T> self);
+
+  template <class T>
+  struct hash<std::complex<T>> {
+    size_t operator()(std::complex<T> const &x) const;
+  };
 }
 
 PYTHONIC_NS_BEGIN
 namespace __builtin__
 {
-  template <size_t AttributeID>
-  double getattr(std::complex<double> const &self);
+  template <size_t AttributeID, class T>
+  T getattr(std::complex<T> const &self);
 }
 PYTHONIC_NS_END
 
 /* for type inference { */
 
 #include "pythonic/include/types/combined.hpp"
-template <class K>
-struct __combined<indexable<K>, std::complex<double>> {
-  using type = std::complex<double>;
+template <class K, class T>
+struct __combined<indexable<K>, std::complex<T>> {
+  using type = std::complex<T>;
 };
 
-template <class K>
-struct __combined<std::complex<double>, indexable<K>> {
-  using type = std::complex<double>;
+template <class K, class T>
+struct __combined<std::complex<T>, indexable<K>> {
+  using type = std::complex<T>;
 };
 
 /* } */

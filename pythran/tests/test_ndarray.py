@@ -24,17 +24,17 @@ class TestNdarray(TestEnv):
 
     def test_ndarray_uintc(self):
         self.run_test('def ndarray_uintc(a): import numpy as np; return np.uintc(a), np.array([a, a], dtype=np.uintc)',
-                      5,
+                      numpy.uintc(5),
                       ndarray_uintc=[numpy.uintc])
 
     def test_ndarray_intp(self):
         self.run_test('def ndarray_intp(a): import numpy as np; return np.intp(a), np.array([a, a], dtype=np.intp)',
-                      numpy.intp(5),
+                      numpy.intp(-5),
                       ndarray_intp=[numpy.intp])
 
     def test_ndarray_uintp(self):
         self.run_test('def ndarray_uintp(a): import numpy as np; return np.uintp(a), np.array([a, a], dtype=np.uintp)',
-                      5,
+                      numpy.uintp(5),
                       ndarray_uintp=[numpy.uintp])
 
     def test_ndarray_real_attr_read(self):

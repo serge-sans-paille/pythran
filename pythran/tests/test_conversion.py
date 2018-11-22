@@ -13,16 +13,16 @@ except AttributeError:
 class TestConversion(TestEnv):
 
     def test_list_of_uint16(self):
-        self.run_test('def list_of_uint16(l): return l', [1,2,3,4], list_of_uint16=[List[np.uint16]])
+        self.run_test('def list_of_uint16(l): return l', [np.uint16(1),np.uint16(2)], list_of_uint16=[List[np.uint16]])
 
     def test_set_of_int32(self):
-        self.run_test('def set_of_int32(l): return l', {1,2,3,-4}, set_of_int32=[Set[np.int32]])
+        self.run_test('def set_of_int32(l): return l', {np.int32(1),np.int32(-4)}, set_of_int32=[Set[np.int32]])
 
     def test_dict_of_int64_and_int8(self):
-        self.run_test('def dict_of_int64_and_int8(l): return l', {1:1,2:3,3:4,-4:-5}, dict_of_int64_and_int8=[Dict[np.int64,np.int8]])
+        self.run_test('def dict_of_int64_and_int8(l): return l', {1:np.int8(1),2:np.int8(3),3:np.int8(4),-4:np.int8(-5)}, dict_of_int64_and_int8=[Dict[np.int64,np.int8]])
 
     def test_tuple_of_uint8_and_int16(self):
-        self.run_test('def tuple_of_uint8_and_int16(l): return l', (5, -146), tuple_of_uint8_and_int16=[Tuple[np.uint8, np.int16]])
+        self.run_test('def tuple_of_uint8_and_int16(l): return l', (np.uint8(5), np.int16(-146)), tuple_of_uint8_and_int16=[Tuple[np.uint8, np.int16]])
 
     def test_array_of_uint32(self):
         self.run_test('def array_of_uint32(l): return l', np.ones(2,dtype=np.uint32), array_of_uint32=[NDArray[np.uint32, :]])
@@ -35,13 +35,12 @@ class TestConversion(TestEnv):
 
     @unittest.skipIf(not has_float128, "not float128")
     def test_list_of_float128(self):
-        self.run_test('def list_of_float128(l): return [2. * _ for _ in l]', [1.,2.], list_of_float128=[List[np.float128]])
+        self.run_test('def list_of_float128(l): return [2. * _ for _ in l]', [np.float128(1.),np.float128(2.)], list_of_float128=[List[np.float128]])
 
     @unittest.skipIf(not has_float128, "not float128")
     def test_array_of_float128(self):
         self.run_test('def array_of_float128(l): return l + 1', np.array([1.,2.], dtype=np.float128), array_of_float128=[NDArray[np.float128, :]])
 
-    @unittest.skip("No np.float32 python_to_pythran converter exists.")
     def test_set_of_float32(self):
         """ Check np.float32 conversion. """
         code = """
@@ -50,7 +49,6 @@ def set_of_float32(l):
         self.run_test(code, {np.float32(1), np.float32(2)},
                       set_of_float32=[Set[np.float32]])
 
-    @unittest.skip("No np.complex64 python_to_pythran converter exists.")
     def test_dict_of_complex64_and_complex_128(self):
         """ Check numpy complex type conversion. """
         code = """

@@ -32,17 +32,15 @@ def ambiguous_types(ty0, ty1):
             return False
         return all(ambiguous_types(t0, t1) for t0, t1 in zip(ty0, ty1))
 
-    ambiguous_float_types = float, float32, float64, float128
+    ambiguous_float_types = float, float64
     if ty0 in ambiguous_float_types and ty1 in ambiguous_float_types:
         return True
 
-    ambiguous_cplx_types = complex, complex64, complex128, complex256
+    ambiguous_cplx_types = complex, complex128
     if ty0 in ambiguous_cplx_types and ty1 in ambiguous_cplx_types:
         return True
 
-    ambiguous_int_types = (int8, int16, int32, int64, intp, intc,
-                           uint8, uint16, uint32, uint64, uintp, uintc,
-                           int,)
+    ambiguous_int_types = int64, int
     if ty0 in ambiguous_int_types and ty1 in ambiguous_int_types:
         return True
 

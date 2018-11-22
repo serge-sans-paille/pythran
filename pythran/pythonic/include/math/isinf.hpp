@@ -8,7 +8,12 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DEFINE_FUNCTOR_2(isinf, std::isinf);
+  template <class T>
+  bool isinf(T const &v)
+  {
+    return std::isinf(v);
+  }
+  DEFINE_FUNCTOR(pythonic::math, isinf);
 }
 PYTHONIC_NS_END
 

@@ -212,12 +212,6 @@ class SpecParser(object):
         ('left', 'LIST', 'DICT', 'SET'),
     )
 
-    # regexp to extract pythran specs from comments
-    # the first part matches lines with a comment and the pythran keyword
-    # the second part matches lines with comments following the pythran ones
-    FILTER = re.compile(r'^\s*#\s*pythran[^\n\r]*[\n\r]*'
-                        r'^(?:\s*#[^\n\r]*[\n\r]*)*', re.MULTILINE)
-
     def t_IDENTIFER(self, t):
         r'\#?[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = SpecParser.reserved.get(t.value, 'IDENTIFIER')
@@ -414,11 +408,24 @@ class SpecParser(object):
         self.input_file = None
 
         data = self.read_path_or_text(path_or_text)
+        lines = []
+        in_pythran_export = False
+        for line in data.split("\n"):
+            if re.match(r'\s*#\s*pythran', line):
+                in_pythran_export = True
+                lines.append(re.sub(r'\s*#\s*pythran', '#pythran', line))
+            elif in_pythran_export:
+                stripped = line.strip()
+                if stripped.startswith('#'):
+                    lines.append(line.replace('#', ''))
+                else:
+                    in_pythran_export = not stripped
+                    lines.append('')
+            else:
+                in_pythran_export &= not line.strip()
+                lines.append('')
 
-        raw = "\n".join(SpecParser.FILTER.findall(data))
-        pythran_data = (re.sub(r'#\s*pythran', '\_o< pythran >o_/', raw)
-                        .replace('#', '')
-                        .replace('\_o< pythran >o_/', '#pythran'))
+        pythran_data = '\n'.join(lines)
         self.parser.parse(pythran_data, lexer=self.lexer, debug=False)
 
         for key, overloads in self.native_exports.items():

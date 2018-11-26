@@ -99,6 +99,8 @@ class ExpandGlobals(Transformation):
                     self.ctx)
                 module_body.append(self.visit(stmt))
 
+        self.update |= bool(self.to_expand)
+
         node.body = module_body
         return node
 
@@ -112,6 +114,7 @@ class ExpandGlobals(Transformation):
         if (isinstance(node.ctx, ast.Load) and
                 node.id not in self.local_decl and
                 node.id in self.to_expand):
+            self.update = True
             return ast.Call(func=node,
                             args=[], keywords=[])
         return node

@@ -312,3 +312,14 @@ def returned_none_member(a):
                 y = 2
             return dump_as_str(None), dump_as_str(y)"""
         self.run_test(code, 0, none_to_str=[int])
+
+    def test_is_none_attribute(self):
+        code = '''
+            def is_none_attribute(x):
+                a = [x, x]
+                if x is not None:
+                    a.pop()
+                return a'''
+        self.run_test(code, 0, is_none_attribute=[int])
+
+

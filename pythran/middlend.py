@@ -21,6 +21,7 @@ def refine(pm, node, optimizations):
     pm.apply(NormalizeTuples, node)
     pm.apply(ExpandBuiltins, node)
     pm.apply(ExpandImports, node)
+    pm.apply(NormalizeMethodCalls, node)
     pm.apply(NormalizeIsNone, node)
     pm.apply(SplitStaticExpression, node)
     pm.apply(NormalizeStaticIf, node)

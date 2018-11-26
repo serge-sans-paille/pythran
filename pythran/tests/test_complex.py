@@ -102,6 +102,16 @@ class TestComplex(TestEnv):
                       np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
                       test_complex_array_iexpr_real_assign=[NDArray[np.complex64, :, :]])
 
+    def test_complex_broadcast_scalar0(self):
+        self.run_test('def complex_broadcast_scalar0(x): return x + 1.5, 1.3 +x, 3.1 - x, x - 3.7, x * 5.4, 7.6 * x',
+                      5.1 + 3j,
+                      complex_broadcast_scalar0=[complex])
+
+    def test_complex_broadcast_scalar1(self):
+        self.run_test('def complex_broadcast_scalar1(x): return x + 1.5, 1.3 +x, 3.1 - x, x - 3.7, x * 5.4, 7.6 * x',
+                      np.complex64(5.1 + 3j),
+                      complex_broadcast_scalar1=[np.complex64])
+
     def test_complex_array_imag_assign(self):
         self.run_test('def test_complex_array_imag_assign(a): a.imag = 1; return a',
                       np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),

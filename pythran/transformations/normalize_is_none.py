@@ -76,6 +76,7 @@ class NormalizeIsNone(Transformation):
         values = list(node.values)
         self.generic_visit(node)
         if any(x != y for x, y in zip(values, node.values)):
+            self.update = True
             return reduce(lambda x, y:
                           ast.BinOp(x,
                                     NormalizeIsNone.table[type(node.op)](), y),
@@ -98,6 +99,8 @@ class NormalizeIsNone(Transformation):
                 'is_none',
                 ast.Load()),
             [noned_var], [])
+
+        self.update = True
 
         if negated:
             return ast.UnaryOp(ast.Not(), call)

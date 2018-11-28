@@ -7,114 +7,122 @@
 
 namespace std
 {
-  template <class T>
-  std::complex<T> operator+(std::complex<T> self, long other)
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator+(std::complex<T> self, S other)
   {
-    return self + T(other);
+    return (complex_broadcast_t<T, S>)self +
+           (typename std::common_type<T, S>::type)(other);
   }
 
-  template <class T>
-  std::complex<T> operator+(long self, std::complex<T> other)
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator+(S self, std::complex<T> other)
   {
-    return T(self) + other;
+    return (typename std::common_type<T, S>::type)(self) +
+           (complex_broadcast_t<T, S>)other;
   }
 
-  template <class T>
-  std::complex<T> operator-(std::complex<T> self, long other)
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator-(std::complex<T> self, S other)
   {
-    return self - T(other);
+    return (complex_broadcast_t<T, S>)self -
+           (typename std::common_type<T, S>::type)(other);
   }
 
-  template <class T>
-  std::complex<T> operator-(long self, std::complex<T> other)
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator-(S self, std::complex<T> other)
   {
-    return T(self) - other;
+    return (typename std::common_type<T, S>::type)(self) -
+           (complex_broadcast_t<T, S>)other;
   }
 
-  template <class T>
-  std::complex<T> operator*(std::complex<T> self, long other)
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator*(std::complex<T> self, S other)
   {
-    return self * T(other);
+    return (complex_broadcast_t<T, S>)self *
+           (typename std::common_type<T, S>::type)(other);
   }
 
-  template <class T>
-  std::complex<T> operator*(long self, std::complex<T> other)
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator*(S self, std::complex<T> other)
   {
-    return T(self) * other;
+    return (typename std::common_type<T, S>::type)(self) *
+           (complex_broadcast_t<T, S>)other;
   }
 
-  template <class T>
-  std::complex<T> operator/(std::complex<T> self, long other)
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator/(std::complex<T> self, S other)
   {
-    return self / T(other);
+    return (complex_broadcast_t<T, S>)self /
+           (typename std::common_type<T, S>::type)(other);
   }
 
-  template <class T>
-  std::complex<T> operator/(long self, std::complex<T> other)
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator/(S self, std::complex<T> other)
   {
-    return T(self) / other;
+    return (typename std::common_type<T, S>::type)(self) /
+           (complex_broadcast_t<T, S>)other;
   }
 
-  template <class T>
-  bool operator==(std::complex<T> self, long other)
+  template <class T, class S>
+  complex_bool_t<T, S> operator==(std::complex<T> self, S other)
   {
     return self == T(other);
   }
 
-  template <class T>
-  bool operator==(long self, std::complex<T> other)
+  template <class T, class S>
+  complex_bool_t<T, S> operator==(S self, std::complex<T> other)
   {
     return T(self) == other;
   }
 
-  template <class T>
-  bool operator!=(std::complex<T> self, long other)
+  template <class T, class S>
+  complex_bool_t<T, S> operator!=(std::complex<T> self, S other)
   {
     return self != T(other);
   }
 
-  template <class T>
-  bool operator!=(long self, std::complex<T> other)
+  template <class T, class S>
+  complex_bool_t<T, S> operator!=(S self, std::complex<T> other)
   {
     return T(self) != other;
   }
 
-  template <class T>
-  bool operator<(std::complex<T> self, std::complex<T> other)
+  template <class T, class S>
+  bool operator<(std::complex<T> self, std::complex<S> other)
   {
     return self.real() == other.real() ? self.imag() < other.imag()
                                        : self.real() < other.real();
   }
 
-  template <class T>
-  bool operator<=(std::complex<T> self, std::complex<T> other)
+  template <class T, class S>
+  bool operator<=(std::complex<T> self, std::complex<S> other)
   {
     return self.real() == other.real() ? self.imag() <= other.imag()
                                        : self.real() <= other.real();
   }
 
-  template <class T>
-  bool operator>(std::complex<T> self, std::complex<T> other)
+  template <class T, class S>
+  bool operator>(std::complex<T> self, std::complex<S> other)
   {
     return self.real() == other.real() ? self.imag() > other.imag()
                                        : self.real() > other.real();
   }
 
-  template <class T>
-  bool operator>=(std::complex<T> self, std::complex<T> other)
+  template <class T, class S>
+  bool operator>=(std::complex<T> self, std::complex<S> other)
   {
     return self.real() == other.real() ? self.imag() >= other.imag()
                                        : self.real() >= other.real();
   }
 
-  template <class T>
-  bool operator&&(std::complex<T> self, std::complex<T> other)
+  template <class T, class S>
+  bool operator&&(std::complex<T> self, std::complex<S> other)
   {
     return (self.real() || self.imag()) && (other.real() || other.imag());
   }
 
-  template <class T>
-  bool operator||(std::complex<T> self, std::complex<T> other)
+  template <class T, class S>
+  bool operator||(std::complex<T> self, std::complex<S> other)
   {
     return (self.real() || self.imag()) || (other.real() || other.imag());
   }

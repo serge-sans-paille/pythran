@@ -5,42 +5,54 @@
 
 namespace std
 {
-  template <class T>
-  std::complex<T> operator+(std::complex<T> self, long other);
-  template <class T>
-  std::complex<T> operator+(long self, std::complex<T> other);
-  template <class T>
-  std::complex<T> operator-(std::complex<T> self, long other);
-  template <class T>
-  std::complex<T> operator-(long self, std::complex<T> other);
-  template <class T>
-  std::complex<T> operator*(std::complex<T> self, long other);
-  template <class T>
-  std::complex<T> operator*(long self, std::complex<T> other);
-  template <class T>
-  std::complex<T> operator/(std::complex<T> self, long other);
-  template <class T>
-  std::complex<T> operator/(long self, std::complex<T> other);
-  template <class T>
-  bool operator==(std::complex<T> self, long other);
-  template <class T>
-  bool operator==(long self, std::complex<T> other);
-  template <class T>
-  bool operator!=(std::complex<T> self, long other);
-  template <class T>
-  bool operator!=(long self, std::complex<T> other);
-  template <class T>
-  bool operator<(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator<=(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator>(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator>=(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator&&(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator||(std::complex<T> self, std::complex<T> other);
+
+  template <class T, class S>
+  using complex_broadcast_t = typename std::enable_if<
+      std::is_scalar<S>::value && !std::is_same<T, S>::value,
+      std::complex<typename std::common_type<T, S>::type>>::type;
+  template <class T, class S>
+  using complex_bool_t = typename std::enable_if<
+      std::is_scalar<S>::value && !std::is_same<T, S>::value, bool>::type;
+
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator+(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator+(S self, std::complex<T> other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator-(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator-(S self, std::complex<T> other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator*(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator*(S self, std::complex<T> other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator/(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator/(S self, std::complex<T> other);
+
+  template <class T, class S>
+  complex_bool_t<T, S> operator==(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_bool_t<T, S> operator==(S self, std::complex<T> other);
+  template <class T, class S>
+  complex_bool_t<T, S> operator!=(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_bool_t<T, S> operator!=(S self, std::complex<T> other);
+
+  template <class T, class S>
+  bool operator<(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator<=(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator>(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator>=(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator&&(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator||(std::complex<T> self, std::complex<S> other);
+
   template <class T>
   bool operator!(std::complex<T> self);
 

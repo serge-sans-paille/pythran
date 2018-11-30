@@ -331,17 +331,17 @@ namespace types
   }
 
   template <size_t L>
-  template <size_t M>
+  template <class Ty, size_t M>
   long noffset<L>::operator()(array<long, M> const &strides,
-                              array<long, M> const &indices) const
+                              array<Ty, M> const &indices) const
   {
     return noffset<L - 1>{}(strides, indices) + strides[M - L] * indices[M - L];
   }
 
   template <size_t L>
-  template <size_t M, class pS>
+  template <class Ty, size_t M, class pS>
   long noffset<L>::operator()(array<long, M> const &strides,
-                              array<long, M> const &indices,
+                              array<Ty, M> const &indices,
                               pS const &shape) const
   {
     return noffset<L - 1>{}(strides, indices, shape) +
@@ -351,17 +351,17 @@ namespace types
   }
 
   template <>
-  template <size_t M>
+  template <class Ty, size_t M>
   long noffset<1>::operator()(array<long, M> const &,
-                              array<long, M> const &indices) const
+                              array<Ty, M> const &indices) const
   {
     return indices[M - 1];
   }
 
   template <>
-  template <size_t M, class pS>
+  template <class Ty, size_t M, class pS>
   long noffset<1>::operator()(array<long, M> const &,
-                              array<long, M> const &indices,
+                              array<Ty, M> const &indices,
                               pS const &shape) const
   {
     return (indices[M - 1] < 0) ? indices[M - 1] + std::get<M - 1>(shape)
@@ -603,72 +603,78 @@ namespace types
    * */
 
   template <class T, class pS>
-  T &ndarray<T, pS>::fast(array<long, value> const &indices)
+  template <class Ty>
+  typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+  ndarray<T, pS>::fast(array<Ty, value> const &indices)
   {
     return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
   }
 
   template <class T, class pS>
-  T ndarray<T, pS>::fast(array<long, value> const &indices) const
+  template <class Ty>
+  typename std::enable_if<std::is_integral<Ty>::value, T>::type
+  ndarray<T, pS>::fast(array<Ty, value> const &indices) const
   {
     return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
   }
 
   template <class T, class pS>
-  template <size_t M>
-  auto ndarray<T, pS>::fast(array<long, M> const &indices) const
-      & -> decltype(nget<M - 1>().fast(*this, indices))
+  template <class Ty, size_t M>
+  auto ndarray<T, pS>::fast(array<Ty, M> const &indices) const & ->
+      typename std::enable_if<std::is_integral<Ty>::value,
+                              decltype(nget<M - 1>().fast(*this,
+                                                          indices))>::type
   {
     return nget<M - 1>().fast(*this, indices);
   }
 
   template <class T, class pS>
-      template <size_t M>
-      auto ndarray<T, pS>::fast(array<long, M> const &indices) &&
-      -> decltype(nget<M - 1>().fast(std::move(*this), indices))
+      template <class Ty, size_t M>
+      auto ndarray<T, pS>::fast(array<Ty, M> const &indices) &&
+      -> typename std::enable_if<std::is_integral<Ty>::value,
+                                 decltype(nget<M - 1>().fast(std::move(*this),
+                                                             indices))>::type
   {
     return nget<M - 1>().fast(std::move(*this), indices);
   }
 
   template <class T, class pS>
-  T const &ndarray<T, pS>::operator[](array<long, value> const &indices) const
+  template <class Ty>
+  typename std::enable_if<std::is_integral<Ty>::value, T const &>::type
+      ndarray<T, pS>::
+      operator[](array<Ty, value> const &indices) const
   {
     return *(buffer +
              noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
   }
 
   template <class T, class pS>
-  T &ndarray<T, pS>::operator[](array<long, value> const &indices)
+  template <class Ty>
+  typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+      ndarray<T, pS>::
+      operator[](array<Ty, value> const &indices)
   {
     return *(buffer +
              noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
   }
 
   template <class T, class pS>
-  template <size_t M>
-  auto ndarray<T, pS>::operator[](array<long, M> const &indices) const
-      & -> decltype(nget<M - 1>()(*this, indices))
+  template <class Ty, size_t M>
+  auto ndarray<T, pS>::operator[](array<Ty, M> const &indices) const & ->
+      typename std::enable_if<std::is_integral<Ty>::value,
+                              decltype(nget<M - 1>()(*this, indices))>::type
   {
     return nget<M - 1>()(*this, indices);
   }
 
   template <class T, class pS>
-      template <size_t M>
-      auto ndarray<T, pS>::operator[](array<long, M> const &indices) &&
-      -> decltype(nget<M - 1>()(std::move(*this), indices))
+      template <class Ty, size_t M>
+      auto ndarray<T, pS>::operator[](array<Ty, M> const &indices) &&
+      -> typename std::enable_if<std::is_integral<Ty>::value,
+                                 decltype(nget<M - 1>()(std::move(*this),
+                                                        indices))>::type
   {
     return nget<M - 1>()(std::move(*this), indices);
-  }
-
-  template <class T, class pS>
-  template <class Ty0, class Ty1, class... Tys>
-  auto ndarray<T, pS>::
-  operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
-      typename std::enable_if<!std::is_same<Ty0, long>::value &&
-                                  !is_numexpr_arg<Ty0>::value,
-                              decltype((*this)[to_array<long>(indices)])>::type
-  {
-    return (*this)[to_array<long>(indices)];
   }
 
 #ifdef USE_XSIMD
@@ -834,10 +840,10 @@ namespace types
   }
 
   template <class T, class pS>
-  template <class L, class Ty, class... Tys>
+  template <class Ty0, class Ty1, class... Tys>
   auto ndarray<T, pS>::
-  operator[](std::tuple<L, Ty, Tys...> const &indices) const ->
-      typename std::enable_if<is_numexpr_arg<L>::value,
+  operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
+      typename std::enable_if<is_numexpr_arg<Ty0>::value,
                               decltype((*this)[tuple_tail(indices)])>::type
   {
     return ndarray<T, pS>

@@ -211,21 +211,20 @@ namespace types
 
   template <size_t L>
   struct noffset {
-    template <size_t M>
+    template <class Ty, size_t M>
     long operator()(array<long, M> const &strides,
-                    array<long, M> const &indices) const;
-    template <size_t M, class pS>
-    long operator()(array<long, M> const &strides,
-                    array<long, M> const &indices, pS const &shape) const;
+                    array<Ty, M> const &indices) const;
+    template <class Ty, size_t M, class pS>
+    long operator()(array<long, M> const &strides, array<Ty, M> const &indices,
+                    pS const &shape) const;
   };
 
   template <>
   struct noffset<0> {
-    template <size_t M>
-    long operator()(array<long, M> const &,
-                    array<long, M> const &indices) const;
-    template <size_t M, class pS>
-    long operator()(array<long, M> const &, array<long, M> const &indices,
+    template <class Ty, size_t M>
+    long operator()(array<long, M> const &, array<Ty, M> const &indices) const;
+    template <class Ty, size_t M, class pS>
+    long operator()(array<long, M> const &, array<Ty, M> const &indices,
                     pS const &shape) const;
   };
 
@@ -376,16 +375,24 @@ namespace types
       return type_helper<ndarray>::get(std::move(*this), i);
     }
 
-    T &fast(array<long, value> const &indices);
-    T fast(array<long, value> const &indices) const;
+    template <class Ty>
+    typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+    fast(array<Ty, value> const &indices);
+    template <class Ty>
+    typename std::enable_if<std::is_integral<Ty>::value, T>::type
+    fast(array<Ty, value> const &indices) const;
 
-    template <size_t M>
-    auto fast(array<long, M> const &indices) const
-        & -> decltype(nget<M - 1>().fast(*this, indices));
+    template <class Ty, size_t M>
+    auto fast(array<Ty, M> const &indices) const & ->
+        typename std::enable_if<std::is_integral<Ty>::value,
+                                decltype(nget<M - 1>().fast(*this,
+                                                            indices))>::type;
 
-    template <size_t M>
-        auto fast(array<long, M> const &indices) &&
-        -> decltype(nget<M - 1>().fast(std::move(*this), indices));
+    template <class Ty, size_t M>
+        auto fast(array<Ty, M> const &indices) &&
+        -> typename std::enable_if<std::is_integral<Ty>::value,
+                                   decltype(nget<M - 1>().fast(std::move(*this),
+                                                               indices))>::type;
 
 #ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<ndarray>;
@@ -482,17 +489,24 @@ namespace types
       return std::move(*this).fast(i);
     }
 
-    T const &operator[](array<long, value> const &indices) const;
+    template <class Ty>
+    typename std::enable_if<std::is_integral<Ty>::value, T const &>::type
+    operator[](array<Ty, value> const &indices) const;
 
-    T &operator[](array<long, value> const &indices);
+    template <class Ty>
+    typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+    operator[](array<Ty, value> const &indices);
 
-    template <size_t M>
-    auto operator[](array<long, M> const &indices) const
-        & -> decltype(nget<M - 1>()(*this, indices));
+    template <class Ty, size_t M>
+    auto operator[](array<Ty, M> const &indices) const & ->
+        typename std::enable_if<std::is_integral<Ty>::value,
+                                decltype(nget<M - 1>()(*this, indices))>::type;
 
-    template <size_t M>
-        auto operator[](array<long, M> const &indices) &&
-        -> decltype(nget<M - 1>()(std::move(*this), indices));
+    template <class Ty, size_t M>
+        auto operator[](array<Ty, M> const &indices) &&
+        -> typename std::enable_if<std::is_integral<Ty>::value,
+                                   decltype(nget<M - 1>()(std::move(*this),
+                                                          indices))>::type;
 
     template <class Ty>
     auto operator[](std::tuple<Ty> const &indices) const
@@ -504,20 +518,42 @@ namespace types
     template <class Ty0, class Ty1, class... Tys>
     auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
         typename std::enable_if<
-            !std::is_same<Ty0, long>::value && !is_numexpr_arg<Ty0>::value,
-            decltype((*this)[to_array<long>(indices)])>::type;
-
-    template <class Ty, class... Tys>
-    auto operator[](std::tuple<long, Ty, Tys...> const &indices) const
-        -> decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])
+            std::is_integral<Ty0>::value,
+            decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>::type
     {
       return (*this)[std::get<0>(indices)][tuple_tail(indices)];
     }
 
-    template <class L, class Ty, class... Tys>
-    auto operator[](std::tuple<L, Ty, Tys...> const &indices) const ->
-        typename std::enable_if<is_numexpr_arg<L>::value,
+    template <class Ty0, class Ty1, class... Tys>
+    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
+        typename std::enable_if<is_numexpr_arg<Ty0>::value,
                                 decltype((*this)[tuple_tail(indices)])>::type;
+
+    template <class Slices, size_t... Is>
+    auto _fwdindex(Slices const &indices, utils::index_sequence<Is...>) const
+        & -> decltype((*this)(std::get<Is>(indices)...))
+    {
+      return (*this)((indices.size() > Is ? std::get<Is>(indices)
+                                          : contiguous_slice())...);
+    }
+    template <class Ty, size_t M>
+    auto operator[](array<Ty, M> const &indices) const & ->
+        typename std::enable_if<
+            !std::is_integral<Ty>::value,
+            decltype(this->_fwdindex(indices,
+                                     utils::make_index_sequence<M>()))>::type
+    {
+      return _fwdindex(indices, utils::make_index_sequence<M>());
+    }
+    template <class S>
+    auto operator[](list<S> const &indices) const -> typename std::enable_if<
+        std::is_same<S, slice>::value ||
+            std::is_same<S, contiguous_slice>::value,
+        decltype(this->_fwdindex(indices,
+                                 utils::make_index_sequence<value>()))>::type
+    {
+      return _fwdindex(indices, utils::make_index_sequence<value>());
+    }
 
     /* through iterators */
     iterator begin();

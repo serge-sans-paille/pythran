@@ -91,7 +91,11 @@ struct __combined<std::complex<T>, indexable<K>> {
       ->std::complex<typename std::common_type<T, U>::type>                    \
   {                                                                            \
     using ctype = std::complex<typename std::common_type<T, U>::type>;         \
-    return ctype{lhs} + ctype{rhs};                                            \
+    return ctype                                                               \
+    {                                                                          \
+      lhs                                                                      \
+    }                                                                          \
+    op ctype{rhs};                                                             \
   }
 
 STD_COMPLEX_IMPLICT_OPERATOR_CAST(+)

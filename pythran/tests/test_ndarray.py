@@ -927,6 +927,15 @@ def assign_ndarray(t):
                       numpy.arange(10, dtype=numpy.uint8).reshape(5,2),
                       indexing_through_int8=[NDArray[numpy.uint8,:,:]])
 
+    def test_indexing_through_uint8(self):
+        code = '''
+            def indexing_through_uint8(x):
+                import numpy as np
+                return x[np.uint8(2), np.uint8(1)]'''
+        self.run_test(code,
+                      numpy.arange(9).reshape(3,3),
+                      indexing_through_uint8=[NDArray[int,:,:]])
+
     def test_complex_scalar_broadcast(self):
         self.run_test('def complex_scalar_broadcast(a): return (a**2 * (1 + a) + 2) / 5.',
                       numpy.ones((10,10), dtype=complex),
@@ -956,3 +965,21 @@ def assign_ndarray(t):
                       1,
                       numpy.arange(10).reshape(5, 2),
                       texpr_expr_combined=[int, NDArray[int,:,:]])
+
+    def test_built_slice_indexing(self):
+        self.run_test('''
+            def built_slice_indexing(x,n,axis,val=0.):
+                import numpy as np
+                y = np.roll(x,n,axis)
+                S = [slice(None,None)]*x.ndim
+                if n>0: S[axis] = slice(0, n)
+                elif n<0: S[axis] = slice(n, None)
+                if n: y[tuple(S)] = val
+                return y''',
+            numpy.array([-1.2, 1, 1.2]),
+            1,
+            0,
+            5.,
+            built_slice_indexing=[NDArray[float, :], int, int, float])
+
+

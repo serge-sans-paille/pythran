@@ -4,6 +4,7 @@
 #include "pythonic/include/types/NoneType.hpp"
 
 #include <limits>
+#include <ostream>
 
 PYTHONIC_NS_BEGIN
 
@@ -198,6 +199,8 @@ namespace types
       }
     };
   }
+  std::ostream &operator<<(std::ostream &os, slice const &s);
+  std::ostream &operator<<(std::ostream &os, contiguous_slice const &s);
 }
 namespace __builtin__
 {

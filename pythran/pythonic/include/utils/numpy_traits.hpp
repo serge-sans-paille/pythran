@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_NUMPY_TRAITS_HPP
 #define PYTHONIC_INCLUDE_UTILS_NUMPY_TRAITS_HPP
 
+#include "pythonic/include/types/traits.hpp"
+
 PYTHONIC_NS_BEGIN
 namespace types
 {
@@ -145,7 +147,8 @@ namespace types
 
   template <class T, size_t N>
   struct is_numexpr_arg<array<T, N>> {
-    static constexpr bool value = true;
+    static constexpr bool value =
+        is_numexpr_arg<T>::value || is_dtype<T>::value;
   };
 
   template <class E>

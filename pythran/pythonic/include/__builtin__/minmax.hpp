@@ -14,8 +14,8 @@ namespace __builtin__
 
     template <class T0>
     struct minmax<true, T0> {
-      using result_type =
-          typename std::remove_reference<T0>::type::iterator::value_type;
+      using result_type = typename std::iterator_traits<
+          typename std::remove_reference<T0>::type::iterator>::value_type;
       template <typename Op>
       result_type operator()(Op const &, T0 &&t);
     };

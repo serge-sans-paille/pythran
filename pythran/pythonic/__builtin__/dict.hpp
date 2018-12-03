@@ -22,20 +22,22 @@ namespace __builtin__
     }
 
     template <class Iterable>
-    inline types::dict<typename std::tuple_element<
-                           0, typename std::remove_reference<
-                                  Iterable>::type::iterator::value_type>::type,
-                       typename std::tuple_element<
-                           1, typename std::remove_reference<
-                                  Iterable>::type::iterator::value_type>::type>
+    inline types::dict<
+        typename std::tuple_element<
+            0, typename std::iterator_traits<typename std::remove_reference<
+                   Iterable>::type::iterator>::value_type>::type,
+        typename std::tuple_element<
+            1, typename std::iterator_traits<typename std::remove_reference<
+                   Iterable>::type::iterator>::value_type>::type>
     dict(Iterable &&iterable)
     {
-      types::dict<typename std::tuple_element<
-                      0, typename std::remove_reference<
-                             Iterable>::type::iterator::value_type>::type,
-                  typename std::tuple_element<
-                      1, typename std::remove_reference<
-                             Iterable>::type::iterator::value_type>::type> out =
+      types::dict<
+          typename std::tuple_element<
+              0, typename std::iterator_traits<typename std::remove_reference<
+                     Iterable>::type::iterator>::value_type>::type,
+          typename std::tuple_element<
+              1, typename std::iterator_traits<typename std::remove_reference<
+                     Iterable>::type::iterator>::value_type>::type> out =
           types::empty_dict();
       for (auto const &i : iterable)
         out[std::get<0>(i)] = std::get<1>(i);

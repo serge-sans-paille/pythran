@@ -10,7 +10,8 @@ namespace __builtin__
 {
 
   template <class F, class Iterable>
-  types::list<typename Iterable::iterator::value_type>
+  types::list<
+      typename std::iterator_traits<typename Iterable::iterator>::value_type>
   filter(F const &f, Iterable const &iterable);
 
   DEFINE_FUNCTOR(pythonic::__builtin__, filter);

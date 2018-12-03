@@ -27,6 +27,14 @@ class TestComplex(TestEnv):
                           complex(-4, np.nan), complex(4, -np.inf),
                           test_complex_limited_range=[complex, complex])
 
+    def test_complex128_to_complex64(self):
+        self.run_test("""
+            import numpy as np
+            def complex128_to_complex64(a):
+                return np.complex64(a)""",
+            complex(-4.4, 4.4),
+            complex128_to_complex64=[complex])
+
     def test_conjugate(self):
         """
         Check complex conjugate.

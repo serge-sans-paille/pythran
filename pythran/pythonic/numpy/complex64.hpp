@@ -25,6 +25,12 @@ namespace numpy
     {
       return v;
     }
+
+    template <class T>
+    std::complex<float> complex64(std::complex<T> v)
+    {
+      return {(float)v.real(), (float)v.imag()};
+    }
   }
 
 #define NUMPY_NARY_FUNC_NAME complex64

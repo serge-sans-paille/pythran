@@ -283,7 +283,7 @@ namespace types
   template <class S0, class... S>
   auto numpy_expr<Op, Args...>::operator()(S0 const &s0, S const &... s) const
       -> typename std::enable_if<
-          !std::is_scalar<S0>::value,
+          !std::is_scalar<S0>::value || sizeof...(S) != 0,
           decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{}, s0,
                               s...))>::type
   {

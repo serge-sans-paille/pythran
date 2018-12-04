@@ -777,6 +777,41 @@ def assign_ndarray(t):
             [1],
             numpy_indexing_ex4=[NDArray[int, :, :], List[int]])
 
+    def test_numpy_indexing_ex10(self):
+        self.run_test(
+            'def numpy_indexing_ex10(x, y): return (2*x)[y]',
+            numpy.array([1,2,3,4]),
+            (0,),
+            numpy_indexing_ex10=[NDArray[int, :], Tuple[int]])
+
+    def test_numpy_indexing_ex11(self):
+        self.run_test(
+            'def numpy_indexing_ex11(x, y): return (2*x)[y]',
+            numpy.array([[1,2],[3,4]]),
+            (0, 1),
+            numpy_indexing_ex11=[NDArray[int, :, :], Tuple[int, int]])
+
+    def test_numpy_indexing_ex12(self):
+        self.run_test(
+            'def numpy_indexing_ex12(x, y): return (2*x)[y, :]',
+            numpy.array([[1,2],[3,4]]),
+            0,
+            numpy_indexing_ex12=[NDArray[int, :, :], int])
+
+    def test_numpy_indexing_ex13(self):
+        self.run_test(
+            'def numpy_indexing_ex13(x, y): return (2*x)[y]',
+            numpy.array([[1,2],[3,4]]),
+            [1],
+            numpy_indexing_ex13=[NDArray[int, :, :], List[int]])
+
+    def test_numpy_indexing_ex14(self):
+        self.run_test(
+            'def numpy_indexing_ex14(x, y): return (2*x)[:,:][y]',
+            numpy.array([[1,2],[3,4]]),
+            [1],
+            numpy_indexing_ex14=[NDArray[int, :, :], List[int]])
+
     def test_numpy_expr_combiner(self):
         code = '''
             import numpy as np

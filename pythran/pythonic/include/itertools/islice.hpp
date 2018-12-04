@@ -13,7 +13,8 @@ namespace itertools
   template <typename Iterable>
   struct islice_iterator
       : std::iterator<typename Iterable::iterator::iterator_category,
-                      typename Iterable::iterator::value_type> {
+                      typename std::iterator_traits<
+                          typename Iterable::iterator>::value_type> {
     typename std::remove_reference<
         typename std::remove_cv<Iterable>::type>::type iterable_ref;
     typename std::remove_reference<

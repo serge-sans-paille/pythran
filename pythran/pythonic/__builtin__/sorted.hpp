@@ -14,24 +14,24 @@ namespace __builtin__
 {
 
   template <class Iterable>
-  types::list<
-      typename std::remove_cv<typename Iterable::iterator::value_type>::type>
+  types::list<typename std::remove_cv<typename std::iterator_traits<
+      typename Iterable::iterator>::value_type>::type>
   sorted(Iterable const &seq)
   {
-    types::list<
-        typename std::remove_cv<typename Iterable::iterator::value_type>::type>
-        out(seq.begin(), seq.end());
+    types::list<typename std::remove_cv<typename std::iterator_traits<
+        typename Iterable::iterator>::value_type>::type> out(seq.begin(),
+                                                             seq.end());
     std::sort(out.begin(), out.end());
     return out;
   }
   template <class Iterable, class C>
-  types::list<
-      typename std::remove_cv<typename Iterable::iterator::value_type>::type>
+  types::list<typename std::remove_cv<typename std::iterator_traits<
+      typename Iterable::iterator>::value_type>::type>
   sorted(Iterable const &seq, C const &cmp)
   {
-    types::list<
-        typename std::remove_cv<typename Iterable::iterator::value_type>::type>
-        out(seq.begin(), seq.end());
+    types::list<typename std::remove_cv<typename std::iterator_traits<
+        typename Iterable::iterator>::value_type>::type> out(seq.begin(),
+                                                             seq.end());
     std::sort(out.begin(), out.end(), cmp);
     return out;
   }

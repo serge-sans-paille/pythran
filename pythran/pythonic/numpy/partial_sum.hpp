@@ -107,10 +107,11 @@ namespace numpy
       auto it_begin = the_partial_sum.begin();
       _partial_sum<Op, 1, partial_sum_type2<Op, E, dtype>>{}(expr, it_begin);
     } else {
-      std::transform(expr.begin(), expr.end(), the_partial_sum.begin(),
-                     [axis, d](typename E::iterator::value_type other) {
-                       return partial_sum<Op>(other, axis - 1, d);
-                     });
+      std::transform(
+          expr.begin(), expr.end(), the_partial_sum.begin(),
+          [axis, d](
+              typename std::iterator_traits<typename E::iterator>::value_type
+                  other) { return partial_sum<Op>(other, axis - 1, d); });
     }
     return the_partial_sum;
   }

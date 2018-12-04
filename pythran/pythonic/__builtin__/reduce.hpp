@@ -16,8 +16,10 @@ namespace __builtin__
 
   template <class Iterable, class Operator>
   auto reduce(Operator op, Iterable s)
-      -> decltype(op(std::declval<typename Iterable::iterator::value_type>(),
-                     std::declval<typename Iterable::iterator::value_type>()))
+      -> decltype(op(std::declval<typename std::iterator_traits<
+                         typename Iterable::iterator>::value_type>(),
+                     std::declval<typename std::iterator_traits<
+                         typename Iterable::iterator>::value_type>()))
   {
     auto iter = s.begin();
     auto r = *iter;
@@ -32,16 +34,16 @@ namespace __builtin__
   auto reduce(Operator op, Iterable s, T const &init)
       -> decltype(std::accumulate(
           s.begin(), s.end(),
-          static_cast<decltype(op(
-              init, std::declval<typename Iterable::iterator::value_type>()))>(
-              init),
+          static_cast<decltype(
+              op(init, std::declval<typename std::iterator_traits<
+                           typename Iterable::iterator>::value_type>()))>(init),
           op))
   {
     return std::accumulate(
         s.begin(), s.end(),
         static_cast<decltype(
-            op(init, std::declval<typename Iterable::iterator::value_type>()))>(
-            init),
+            op(init, std::declval<typename std::iterator_traits<
+                         typename Iterable::iterator>::value_type>()))>(init),
         op);
   }
 }

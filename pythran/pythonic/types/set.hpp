@@ -331,7 +331,8 @@ namespace types
   set<T>::symmetric_difference(U const &other) const
   {
     // Return a new set with elements in either the set || other but ! both.
-    set<typename U::iterator::value_type> tmp(other.begin(), other.end());
+    set<typename std::iterator_traits<typename U::iterator>::value_type> tmp(
+        other.begin(), other.end());
 
     // We must use fcts && ! operators because fcts have to handle any
     // iterable objects && operators only sets (cf python ref)

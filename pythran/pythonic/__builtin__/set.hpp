@@ -20,8 +20,8 @@ namespace __builtin__
     }
 
     template <class Iterable>
-    inline types::set<
-        typename std::remove_reference<Iterable>::type::iterator::value_type>
+    inline types::set<typename std::iterator_traits<
+        typename std::remove_reference<Iterable>::type::iterator>::value_type>
     set(Iterable &&t)
     {
       return {t.begin(), t.end()};

@@ -2,6 +2,18 @@
 #define PYTHONIC_INCLUDE_TYPES_COMPLEX_HPP
 
 #include <complex>
+PYTHONIC_NS_BEGIN
+namespace numpy
+{
+  namespace functor
+  {
+    struct complex64;
+    struct complex128;
+    struct complex256;
+  }
+}
+
+PYTHONIC_NS_END
 
 namespace std
 {
@@ -65,8 +77,16 @@ namespace std
 PYTHONIC_NS_BEGIN
 namespace __builtin__
 {
-  template <size_t AttributeID, class T>
-  T getattr(std::complex<T> const &self);
+  template <class T>
+  T getattr(types::attr::REAL, std::complex<T> const &self);
+  template <class T>
+  T getattr(types::attr::IMAG, std::complex<T> const &self);
+  numpy::functor::complex64 getattr(types::attr::DTYPE,
+                                    std::complex<float> const &self);
+  numpy::functor::complex128 getattr(types::attr::DTYPE,
+                                     std::complex<double> const &self);
+  numpy::functor::complex256 getattr(types::attr::DTYPE,
+                                     std::complex<long double> const &self);
 }
 PYTHONIC_NS_END
 

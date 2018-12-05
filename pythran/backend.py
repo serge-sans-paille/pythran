@@ -895,7 +895,7 @@ class CxxFunction(Backend):
         func = self.visit(node.func)
         # special hook for getattr, as we cannot represent it in C++
         if func == 'pythonic::__builtin__::functor::getattr{}':
-            return ('pythonic::__builtin__::getattr<{}>({})'
+            return ('pythonic::__builtin__::getattr({}{{}}, {})'
                     .format('pythonic::types::attr::' + node.args[1].s.upper(),
                             args[0]))
         else:

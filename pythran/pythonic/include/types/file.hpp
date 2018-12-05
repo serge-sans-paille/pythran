@@ -119,42 +119,17 @@ PYTHONIC_NS_END
 
 /* pythran attribute system { */
 PYTHONIC_NS_BEGIN
-namespace types
-{
-  namespace __file
-  {
-
-    template <int I>
-    struct getattr;
-
-    template <>
-    struct getattr<attr::CLOSED> {
-      bool operator()(file const &f);
-    };
-
-    template <>
-    struct getattr<attr::MODE> {
-      str const &operator()(file const &f);
-    };
-
-    template <>
-    struct getattr<attr::NAME> {
-      str const &operator()(file const &f);
-    };
-
-    template <>
-    struct getattr<attr::NEWLINES> {
-      // Python seems to always return none... Doing the same.
-      none_type operator()(file const &f);
-    };
-  }
-}
 
 namespace __builtin__
 {
-  template <int I>
-  auto getattr(pythonic::types::file const &f)
-      -> decltype(pythonic::types::__file::getattr<I>()(f));
+  bool getattr(types::attr::CLOSED, types::file const &f);
+
+  types::str const &getattr(types::attr::MODE, types::file const &f);
+
+  types::str const &getattr(types::attr::NAME, types::file const &f);
+
+  // Python seems to always return none... Doing the same.
+  types::none_type getattr(types::attr::NEWLINES, types::file const &f);
 }
 PYTHONIC_NS_END
 

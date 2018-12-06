@@ -7,10 +7,17 @@
 PYTHONIC_NS_BEGIN
 namespace __builtin__
 {
-  template <size_t AttributeID, class T>
-  typename std::enable_if<std::is_integral<T>::value, T>::type getattr(T self)
+  template <class T>
+  typename std::enable_if<std::is_integral<T>::value, T>::type
+  getattr(types::attr::REAL, T self)
   {
-    return AttributeID == pythonic::types::attr::REAL ? self : T(0);
+    return self;
+  }
+  template <class T>
+  typename std::enable_if<std::is_integral<T>::value, T>::type
+  getattr(types::attr::IMAG, T self)
+  {
+    return T(0);
   }
 }
 PYTHONIC_NS_END

@@ -2,6 +2,9 @@
 #define PYTHONIC_TYPES_COMPLEX_HPP
 
 #include "pythonic/include/types/complex.hpp"
+#include "pythonic/numpy/complex64.hpp"
+#include "pythonic/numpy/complex128.hpp"
+#include "pythonic/numpy/complex256.hpp"
 
 #include "pythonic/types/attr.hpp"
 
@@ -143,11 +146,30 @@ PYTHONIC_NS_BEGIN
 namespace __builtin__
 {
 
-  template <size_t AttributeID, class T>
-  T getattr(std::complex<T> const &self)
+  template <class T>
+  T getattr(types::attr::REAL, std::complex<T> const &self)
   {
-    return AttributeID == pythonic::types::attr::REAL ? std::real(self)
-                                                      : std::imag(self);
+    return std::real(self);
+  }
+  template <class T>
+  T getattr(types::attr::IMAG, std::complex<T> const &self)
+  {
+    return std::imag(self);
+  }
+  numpy::functor::complex64 getattr(types::attr::DTYPE,
+                                    std::complex<float> const &self)
+  {
+    return {};
+  }
+  numpy::functor::complex128 getattr(types::attr::DTYPE,
+                                     std::complex<double> const &self)
+  {
+    return {};
+  }
+  numpy::functor::complex256 getattr(types::attr::DTYPE,
+                                     std::complex<long double> const &self)
+  {
+    return {};
   }
 }
 PYTHONIC_NS_END

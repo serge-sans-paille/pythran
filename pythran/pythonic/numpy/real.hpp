@@ -13,10 +13,10 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  auto real(E &&expr) -> decltype(
-      __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr)))
+  auto real(E &&expr) -> decltype(__builtin__::getattr(types::attr::REAL{},
+                                                       std::forward<E>(expr)))
   {
-    return __builtin__::getattr<types::attr::REAL>(std::forward<E>(expr));
+    return __builtin__::getattr(types::attr::REAL{}, std::forward<E>(expr));
   }
 
   template <class T>

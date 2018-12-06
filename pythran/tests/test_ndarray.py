@@ -1017,4 +1017,15 @@ def assign_ndarray(t):
             5.,
             built_slice_indexing=[NDArray[float, :], int, int, float])
 
+    def test_dtype_type(self):
+        self.run_test('''
+            def dtype_type(x):
+                import numpy as np
+                c = np.complex64(x)
+                f = np.float32(x)
+                u = np.uint8(x)
+                return c.dtype.type(1), f.dtype.type(2), u.dtype.type(3)''',
+            2,
+            dtype_type=[int])
+
 

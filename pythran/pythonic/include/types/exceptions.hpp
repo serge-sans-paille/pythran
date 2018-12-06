@@ -97,59 +97,24 @@ PYTHONIC_NS_END
 /* pythran attribute system { */
 #define DECLARE_EXCEPTION_GETATTR(name)                                        \
   PYTHONIC_NS_BEGIN                                                            \
-  namespace types                                                              \
-  {                                                                            \
-    namespace __##name                                                         \
-    {                                                                          \
-                                                                               \
-      template <int I>                                                         \
-      struct getattr;                                                          \
-      template <>                                                              \
-      struct getattr<attr::ARGS> {                                             \
-        none<list<str>> operator()(name const &e);                             \
-      };                                                                       \
-    }                                                                          \
-  }                                                                            \
   namespace __builtin__                                                        \
   {                                                                            \
-    template <int I>                                                           \
-    auto getattr(types::name const &f)                                         \
-        -> decltype(types::__##name::getattr<I>()(f));                         \
+    types::none<types::list<types::str>> getattr(types::attr::ARGS,            \
+                                                 types::name const &f);        \
   }                                                                            \
   PYTHONIC_NS_END
 
 #define DECLARE_EXCEPTION_GETATTR_FULL(name)                                   \
   PYTHONIC_NS_BEGIN                                                            \
-  namespace types                                                              \
-  {                                                                            \
-    namespace __##name                                                         \
-    {                                                                          \
-                                                                               \
-      template <int I>                                                         \
-      struct getattr;                                                          \
-      template <>                                                              \
-      struct getattr<attr::ARGS> {                                             \
-        none<list<str>> operator()(name const &e);                             \
-      };                                                                       \
-      template <>                                                              \
-      struct getattr<attr::ERRNO> {                                            \
-        none<str> operator()(name const &e);                                   \
-      };                                                                       \
-      template <>                                                              \
-      struct getattr<attr::STRERROR> {                                         \
-        none<str> operator()(name const &e);                                   \
-      };                                                                       \
-      template <>                                                              \
-      struct getattr<attr::FILENAME> {                                         \
-        none<str> operator()(name const &e);                                   \
-      };                                                                       \
-    }                                                                          \
-  }                                                                            \
   namespace __builtin__                                                        \
   {                                                                            \
-    template <int I>                                                           \
-    auto getattr(types::name const &f)                                         \
-        -> decltype(types::__##name::getattr<I>()(f));                         \
+    types::none<types::list<types::str>> getattr(types::attr::ARGS,            \
+                                                 types::name const &e);        \
+    types::none<types::str> getattr(types::attr::ERRNO, types::name const &e); \
+    types::none<types::str> getattr(types::attr::STRERROR,                     \
+                                    types::name const &e);                     \
+    types::none<types::str> getattr(types::attr::FILENAME,                     \
+                                    types::name const &e);                     \
   }                                                                            \
   PYTHONIC_NS_END
 

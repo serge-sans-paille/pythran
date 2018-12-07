@@ -129,6 +129,10 @@ def run():
     if args.warn_off:
         logger.setLevel(logging.ERROR)
 
+
+    if args.verbose and not args.warn_off:
+        pythran.config.lint_cfg(pythran.config.cfg)
+
     try:
         if not os.path.exists(args.input_file):
             raise ValueError("input file `{0}' not found".format(

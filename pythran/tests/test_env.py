@@ -69,7 +69,7 @@ class TestEnv(unittest.TestCase):
                                              float64, float128)),
                          (float32, (int, float, float32, float128)),
                          (float128, (int, float, float32, float128)),
-                         ((uint64, int64), (int, uint64, int64)),
+                         ((uint64, int64), (int, uint32, int32, uint64, int64)),
                          (bool, (bool, bool_)),
                          # FIXME combiner for boolean doesn't work
                          (int, (int, bool, bool_, int8, int16, int32, int64,

@@ -34,7 +34,7 @@ def init_cfg(sys_file, platform_file, user_file):
 
     cfgp = ConfigParser()
     for required in (sys_config_path, platform_config_path):
-        cfgp.readfp(open(required))
+        cfgp.read([required])
     cfgp.read([user_config_path])
 
     return cfgp

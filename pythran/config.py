@@ -215,8 +215,8 @@ def run():
 
     parser.add_argument('--verbose', '-v', action='count', default=0,
                         help=(
-                            'verbose mode: [-v] prints compiler and flags, '
-                            'and checks for invalid configuration; use '
+                            'verbose mode: [-v] prints warnings if pythranrc '
+                            'has an invalid configuration; use '
                             '[-vv] for more information')
                         )
 
@@ -229,50 +229,56 @@ def run():
     extension = pythran.config.make_extension(python=args.python)
 
     if args.verbose >= 1:
-        logger.setLevel(max(logging.DEBUG, logging.ERROR - args.verbose * 10))
+        if args.verbose == 1:
+            logger.setLevel(logging.WARNING)
+        else:
+            logger.setLevel(logging.INFO)
+
         lint_cfg(cfg)
-        args.compiler = True
-        args.cflags = True
-        args.libs = True
 
-    if args.verbose >= 2:
-        output.append("CXX =".rjust(10))
+    if args.compiler or args.verbose>=2:
+        cxx = compiler() or 'c++'
+        logger.info('CXX = '.rjust(10) + cxx)
+        if args.compiler:
+            output.append(cxx)
 
-    if args.compiler:
-        output.append(compiler() or 'c++')
-
-    if args.verbose >= 2:
-        output.append("\n" + "CFLAGS =".rjust(10))
-
-    if args.cflags:
+    if args.cflags or args.verbose>=2:
         def fmt_define(define):
             name, value = define
             if value is None:
                 return '-D' + name
             else:
                 return '-D' + name + '=' + value
-        output.extend(fmt_define(define)
+
+        cflags = []
+        cflags.extend(fmt_define(define)
                       for define in extension['define_macros'])
-        output.extend(('-I' + include)
+        cflags.extend(('-I' + include)
                       for include in extension['include_dirs'])
         if args.python:
-            output.append('-I' + numpy.get_include())
-            output.append('-I' + distutils.sysconfig.get_python_inc())
+            cflags.append('-I' + numpy.get_include())
+            cflags.append('-I' + distutils.sysconfig.get_python_inc())
 
-    if args.verbose >= 2:
-        output.append("\n" + "LDFLAGS =".rjust(10))
+        logger.info('CFLAGS = '.rjust(10) + ' '.join(cflags))
+        if args.cflags:
+            output.extend(cflags)
 
-    if args.libs:
-        output.extend(('-L' + include)
-                      for include in extension['library_dirs'])
-        output.extend(('-l' + include)
-                      for include in extension['libraries'])
+    if args.libs or args.verbose>=2:
+        ldflags = []
+        ldflags.extend(('-L' + include)
+                       for include in extension['library_dirs'])
+        ldflags.extend(('-l' + include)
+                       for include in extension['libraries'])
 
         if args.python:
-            output.append('-L' + distutils.sysconfig.get_config_var('LIBPL'))
-            output.extend(distutils.sysconfig.get_config_var('LIBS').split())
-            output.append('-lpython' +
-                          distutils.sysconfig.get_config_var('VERSION'))
+            ldflags.append('-L' + distutils.sysconfig.get_config_var('LIBPL'))
+            ldflags.extend(distutils.sysconfig.get_config_var('LIBS').split())
+            ldflags.append('-lpython'
+                           + distutils.sysconfig.get_config_var('VERSION'))
+
+        logger.info('LDFLAGS = '.rjust(10) + ' '.join(ldflags))
+        if args.libs:
+            output.extend(ldflags)
 
     if output:
         print(' '.join(output))

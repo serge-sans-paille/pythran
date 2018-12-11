@@ -3396,6 +3396,7 @@ MODULES = {
             signature=_numpy_int_binary_op_signature
         ),
         "bool_": ConstFunctionIntr(signature=_bool_signature),
+        "broadcast_to": ConstFunctionIntr(),
         "ceil": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "clip": ConstMethodIntr(signature=_numpy_ternary_op_signature),
         "concatenate": ConstFunctionIntr(

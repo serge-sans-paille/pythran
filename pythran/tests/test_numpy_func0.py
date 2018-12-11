@@ -693,3 +693,12 @@ def np_rosen_der(x):
 
     def test_print_expr(self):
         self.run_test("def np_print_expr(a): print(a * 2)", numpy.arange(12), np_print_expr=[NDArray[int,:]])
+
+    def test_broadcast_to0(self):
+        self.run_test("def np_broadcast_to0(a, s): import numpy as np; return np.broadcast_to(a, s)", numpy.arange(12), (4, 12), np_broadcast_to0=[NDArray[int,:], Tuple[int, int]])
+
+    def test_broadcast_to1(self):
+        self.run_test("def np_broadcast_to1(a, s): import numpy as np; return np.broadcast_to(a, s)", numpy.arange(1), (4, 12), np_broadcast_to1=[NDArray[int,:], Tuple[int, int]])
+
+    def test_broadcast_to2(self):
+        self.run_test("def np_broadcast_to2(a, s): import numpy as np; return np.broadcast_to(a, s)", 5., (12, 2), np_broadcast_to2=[float, Tuple[int, int]])

@@ -209,3 +209,56 @@ class PartialConstantFolding(Transformation):
                 return node.left
 
         return node
+
+    def visit_Subscript(self, node):
+        """
+        >>> import gast as ast
+        >>> from pythran import passmanager, backend
+        >>> pm = passmanager.PassManager("test")
+
+        >>> node = ast.parse("def foo(a): a[1:][3]")
+        >>> _, node = pm.apply(PartialConstantFolding, node)
+        >>> _, node = pm.apply(ConstantFolding, node)
+        >>> print(pm.dump(backend.Python, node))
+        def foo(a):
+            a[4]
+
+        >>> node = ast.parse("def foo(a): a[::2][3]")
+        >>> _, node = pm.apply(PartialConstantFolding, node)
+        >>> _, node = pm.apply(ConstantFolding, node)
+        >>> print(pm.dump(backend.Python, node))
+        def foo(a):
+            a[6]
+
+        >>> node = ast.parse("def foo(a): a[-4:][5]")
+        >>> _, node = pm.apply(PartialConstantFolding, node)
+        >>> _, node = pm.apply(ConstantFolding, node)
+        >>> print(pm.dump(backend.Python, node))
+        def foo(a):
+            a[1]
+        """
+        self.generic_visit(node)
+        if not isinstance(node.value, ast.Subscript):
+            return node
+        if not isinstance(node.value.slice, ast.Slice):
+            return node
+        if not isinstance(node.slice, ast.Index):
+            return node
+
+        if not isinstance(node.slice.value, ast.Num):
+            return node
+
+        slice_ = node.value.slice
+        index = node.slice
+        node = node.value
+
+        node.slice = index
+        lower = slice_.lower or ast.Num(0)
+        step = slice_.step or ast.Num(1)
+        node.slice.value = ast.BinOp(lower,
+                                     ast.Add(),
+                                     ast.BinOp(index.value,
+                                               ast.Mult(),
+                                               step))
+        self.update = True
+        return node

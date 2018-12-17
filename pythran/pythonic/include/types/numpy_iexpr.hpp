@@ -138,14 +138,23 @@ namespace types
      *   the buffer of ``a`` that is ! temp.
      */
     auto fast(long i) const
-        & -> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i));
+        & -> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i))
+    {
+      return numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i);
+    }
 
     auto fast(long i) &
-        -> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i));
+        -> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i))
+    {
+      return numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i);
+    }
 
     auto fast(long i) &&
         -> decltype(
-            numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i));
+            numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i))
+    {
+      return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
+    }
 
     dtype const &fast(array<long, value> const &indices) const;
     dtype &fast(array<long, value> const &indices);
@@ -182,7 +191,10 @@ namespace types
 
     template <class... S>
     auto operator()(long s0, S const &... s) const
-        -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s...));
+        -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s...))
+    {
+      return (*this)[s0](s...);
+    }
 
     template <class F>
     typename std::enable_if<

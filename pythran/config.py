@@ -1,8 +1,8 @@
 try:
     # python3 vs. python2
-    import configparser
+    from configparser import ConfigParser
 except ImportError:
-    import ConfigParser as configparser
+    from ConfigParser import SafeConfigParser as ConfigParser
 import logging
 import numpy.distutils.system_info as numpy_sys
 import numpy
@@ -12,7 +12,11 @@ import sys
 logger = logging.getLogger('pythran')
 
 
-def init_cfg(sys_file, platform_file, user_file):
+def get_paths_cfg(
+    sys_file='pythran.cfg',
+    platform_file='pythran-{}.cfg'.format(sys.platform),
+    user_file='.pythranrc'
+):
     sys_config_dir = os.path.dirname(__file__)
     sys_config_path = os.path.join(sys_config_dir, sys_file)
 
@@ -21,18 +25,65 @@ def init_cfg(sys_file, platform_file, user_file):
     user_config_dir = os.environ.get('XDG_CONFIG_HOME', '~')
     user_config_path = os.path.expanduser(
         os.path.join(user_config_dir, user_file))
+    return {"sys": sys_config_path, "platform": platform_config_path, "user": user_config_path}
 
-    cfgp = configparser.SafeConfigParser()
+
+def init_cfg(sys_file, platform_file, user_file):
+    paths = get_paths_cfg(sys_file, platform_file, user_file)
+    sys_config_path, platform_config_path, user_config_path = paths.values()
+
+    cfgp = ConfigParser()
     for required in (sys_config_path, platform_config_path):
-        cfgp.readfp(open(required))
+        cfgp.read([required])
     cfgp.read([user_config_path])
 
-    for obsolete_section in ('user', 'sys'):
-        if cfgp.has_section(obsolete_section):
-            logger.warn("Your pythranrc has an obsolete `%s' section",
-                        obsolete_section)
-
     return cfgp
+
+
+def lint_cfg(cfgp, **paths):
+    if not paths:
+        paths = get_paths_cfg()
+
+    # Use configuration from sys and platform as "reference"
+    cfgp_ref = ConfigParser()
+    cfgp_ref.read([paths["sys"], paths["platform"]])
+
+    # Check if pythran configuration files exists
+    for loc, path in paths.items():
+        exists = os.path.exists(path)
+
+        msg = " ".join([
+            "{} file".format(loc).rjust(13),
+            "exists:" if exists else "does not exist:",
+            path
+        ])
+        logger.info(msg) if exists else logger.warn(msg)
+
+    for section in cfgp.sections():
+        # Check if section in the current configuration exists in the
+        # reference configuration
+        if cfgp_ref.has_section(section):
+            options = set(cfgp.options(section))
+            options_ref = set(cfgp_ref.options(section))
+
+            # Check if the options in the section are supported by the
+            # reference configuration
+            if options.issubset(options_ref):
+                logger.info(
+                    (
+                        "pythranrc section [{}] is valid and options are "
+                        "correct"
+                    ).format(section)
+                )
+            else:
+                logger.warn(
+                    (
+                        "pythranrc section [{}] is valid but options {} "
+                        "are incorrect!"
+                    ).format(section, options.difference(options_ref))
+                )
+        else:
+            logger.warn("pythranrc section [{}] is invalid!".format(section))
 
 
 def make_extension(python, **extra):
@@ -148,7 +199,7 @@ def run():
         prog='pythran-config',
         description='output build options for pythran-generated code',
         epilog="It's a megablast!"
-        )
+    )
 
     parser.add_argument('--compiler', action='store_true',
                         help='print default compiler')
@@ -162,6 +213,13 @@ def run():
     parser.add_argument('--no-python', action='store_true',
                         help='do not include Python-related flags')
 
+    parser.add_argument('--verbose', '-v', action='count', default=0,
+                        help=(
+                            'verbose mode: [-v] prints warnings if pythranrc '
+                            'has an invalid configuration; use '
+                            '[-vv] for more information')
+                        )
+
     args = parser.parse_args(sys.argv[1:])
 
     args.python = not args.no_python
@@ -170,35 +228,57 @@ def run():
 
     extension = pythran.config.make_extension(python=args.python)
 
-    if args.compiler:
-        output.append(compiler() or 'c++')
+    if args.verbose >= 1:
+        if args.verbose == 1:
+            logger.setLevel(logging.WARNING)
+        else:
+            logger.setLevel(logging.INFO)
 
-    if args.cflags:
+        lint_cfg(cfg)
+
+    if args.compiler or args.verbose>=2:
+        cxx = compiler() or 'c++'
+        logger.info('CXX = '.rjust(10) + cxx)
+        if args.compiler:
+            output.append(cxx)
+
+    if args.cflags or args.verbose>=2:
         def fmt_define(define):
             name, value = define
             if value is None:
                 return '-D' + name
             else:
                 return '-D' + name + '=' + value
-        output.extend(fmt_define(define)
+
+        cflags = []
+        cflags.extend(fmt_define(define)
                       for define in extension['define_macros'])
-        output.extend(('-I' + include)
+        cflags.extend(('-I' + include)
                       for include in extension['include_dirs'])
         if args.python:
-            output.append('-I' + numpy.get_include())
-            output.append('-I' + distutils.sysconfig.get_python_inc())
+            cflags.append('-I' + numpy.get_include())
+            cflags.append('-I' + distutils.sysconfig.get_python_inc())
 
-    if args.libs:
-        output.extend(('-L' + include)
-                      for include in extension['library_dirs'])
-        output.extend(('-l' + include)
-                      for include in extension['libraries'])
+        logger.info('CFLAGS = '.rjust(10) + ' '.join(cflags))
+        if args.cflags:
+            output.extend(cflags)
+
+    if args.libs or args.verbose>=2:
+        ldflags = []
+        ldflags.extend(('-L' + include)
+                       for include in extension['library_dirs'])
+        ldflags.extend(('-l' + include)
+                       for include in extension['libraries'])
 
         if args.python:
-            output.append('-L' + distutils.sysconfig.get_config_var('LIBPL'))
-            output.extend(distutils.sysconfig.get_config_var('LIBS').split())
-            output.append('-lpython' +
-                          distutils.sysconfig.get_config_var('VERSION'))
+            ldflags.append('-L' + distutils.sysconfig.get_config_var('LIBPL'))
+            ldflags.extend(distutils.sysconfig.get_config_var('LIBS').split())
+            ldflags.append('-lpython'
+                           + distutils.sysconfig.get_config_var('VERSION'))
+
+        logger.info('LDFLAGS = '.rjust(10) + ' '.join(ldflags))
+        if args.libs:
+            output.extend(ldflags)
 
     if output:
         print(' '.join(output))

@@ -3,10 +3,11 @@ Replace variable that can be lazy evaluated and used only once by their full
 computation code.
 """
 
-from pythran.analyses import LazynessAnalysis, UseDefChain, Literals
+from pythran.analyses import LazynessAnalysis, UseDefChain, Literals, Ancestors
 from pythran.passmanager import Transformation
 
 import gast as ast
+from copy import deepcopy
 
 
 class _LazyRemover(Transformation):
@@ -70,6 +71,7 @@ def foo(): a = 2; __builtin__.print(a + a)")
         """ Satisfy dependencies on others analyses. """
         super(ForwardSubstitution, self).__init__(LazynessAnalysis,
                                                   UseDefChain,
+                                                  Ancestors,
                                                   Literals)
 
     def visit_FunctionDef(self, node):
@@ -96,4 +98,52 @@ def foo(): a = 2; __builtin__.print(a + a)")
                         not isinstance(D[0].ctx, ast.Param)):
                     node = _LazyRemover(self.ctx, U, D[0]).visit(node)
                     self.update = True
+        return self.generic_visit(node)
+
+    def visit_Assign(self, node):
+        """
+        >>> import gast as ast
+        >>> from pythran import passmanager, backend
+        >>> pm = passmanager.PassManager("test")
+        >>> node = ast.parse("def foo(a): b = a[2:];return b[0], b[1]")
+        >>> _, node = pm.apply(ForwardSubstitution, node)
+        >>> print(pm.dump(backend.Python, node))
+        def foo(a):
+            b = a
+            return (b[2:][0], b[2:][1])
+        """
+        if not isinstance(node.value, ast.Subscript):
+            return node
+        if not isinstance(node.value.slice, ast.Slice):
+            return node
+        if not isinstance(node.targets[0], ast.Name):
+            return node
+        name = node.targets[0].id
+        udgraph = self.use_def_chain[name]
+        uses = [udgraph.node[n]['name'] for n in udgraph.nodes()
+                if udgraph.node[n]['action'] == 'U']
+        can_fold = True
+        targets = []
+        for use in uses:
+            parent = self.ancestors[use][-1]
+            if not isinstance(parent, ast.Subscript):
+                can_fold = False
+                break
+            if not isinstance(parent.slice, ast.Index):
+                can_fold = False
+                break
+            if not isinstance(parent.slice.value, ast.Num):
+                can_fold = False
+                break
+
+            targets.append(parent)
+
+        if can_fold:
+            slice_ = node.value.slice
+            node.value = node.value.value
+            for target in targets:
+                target.value = ast.Subscript(target.value,
+                                           deepcopy(slice_),
+                                           ast.Load())
+            self.update = True
         return node

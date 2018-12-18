@@ -1,4 +1,6 @@
 from test_env import TestEnv
+import warnings
+warnings.filterwarnings("ignore",category=DeprecationWarning)
 
 
 @TestEnv.module

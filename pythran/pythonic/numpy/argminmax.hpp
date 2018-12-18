@@ -25,16 +25,7 @@ namespace numpy
     }
   }
   template <class Op, class E, class T>
-#ifdef USE_XSIMD
-  typename std::enable_if<
-      !E::is_vectorizable ||
-          !types::is_vector_op<typename Op::op, T, T>::value ||
-          std::is_same<typename E::dtype, bool>::value,
-      long>::type
-#else
-  long
-#endif
-  _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
+  long _argminmax_seq(E const &elts, T &minmax_elts)
   {
     long index = 0;
     long res = -1;
@@ -48,8 +39,41 @@ namespace numpy
 
     return res;
   }
+  template <class Op, class E, class T>
+#ifdef USE_XSIMD
+  typename std::enable_if<
+      !E::is_vectorizable ||
+          !types::is_vector_op<typename Op::op, T, T>::value ||
+          std::is_same<typename E::dtype, bool>::value,
+      long>::type
+#else
+  long
+#endif
+  _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
+  {
+    return _argminmax_seq<Op>(elts, minmax_elts);
+  }
 
 #ifdef USE_XSIMD
+  template <bool IsInt>
+  struct bool_caster;
+  template <>
+  struct bool_caster<true> {
+    template <class T>
+    auto operator()(T const &value) -> decltype(xsimd::bool_cast(value))
+    {
+      return xsimd::bool_cast(value);
+    }
+  };
+  template <>
+  struct bool_caster<false> {
+    template <class T>
+    T operator()(T const &value)
+    {
+      return value;
+    }
+  };
+
   template <class Op, class E, class T>
   typename std::enable_if<
       E::is_vectorizable && types::is_vector_op<typename Op::op, T, T>::value &&
@@ -58,8 +82,13 @@ namespace numpy
   _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
   {
     using vT = xsimd::simd_type<T>;
+    using iT = xsimd::as_integer_t<T>;
     static const size_t vN = vT::size;
     const long n = elts.size();
+    if (n >= std::numeric_limits<iT>::max()) {
+      return _argminmax_seq<Op>(elts, minmax_elts);
+    }
+
     auto viter = types::vectorizer_nobroadcast::vbegin(elts),
          vend = types::vectorizer_nobroadcast::vend(elts);
 
@@ -67,25 +96,33 @@ namespace numpy
     long minmax_index = -1;
     if (bound > 0) {
       auto vacc = *viter;
+      iT iota[vN] = {0};
+      for (long i = 0; i < vN; ++i)
+        iota[i] = i;
+      auto curr = xsimd::load_unaligned(iota);
+      xsimd::simd_type<iT> indices = curr;
+      xsimd::simd_type<iT> step{vN};
+
       for (++viter; viter != vend; ++viter) {
-        vacc = typename Op::op{}(vacc, *viter);
+        curr += step;
+        auto c = *viter;
+        vacc = typename Op::op{}(vacc, c);
+        auto mask = c == vacc;
+        indices =
+            xsimd::select(bool_caster<std::is_floating_point<T>::value>{}(mask),
+                          curr, indices);
       }
 
       alignas(sizeof(vT)) T stored[vN];
       vacc.store_aligned(&stored[0]);
+      alignas(sizeof(vT)) long indexed[vN];
+      indices.store_aligned(&indexed[0]);
+
       for (size_t j = 0; j < vN; ++j) {
         if (Op::value(stored[j], minmax_elts)) {
           minmax_elts = stored[j];
+          minmax_index = indexed[j];
         }
-      }
-
-      long i = 0;
-      for (auto iter : elts) {
-        if (iter == minmax_elts) {
-          minmax_index = i;
-          break;
-        }
-        ++i;
       }
     }
     auto iter = elts.begin() + bound * vN;

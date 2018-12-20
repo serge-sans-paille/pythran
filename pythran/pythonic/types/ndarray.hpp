@@ -1121,6 +1121,19 @@ namespace __builtin__
       return _build_gexpr<E::value>{}(
           translated, types::slice{0, std::get<E::value - 1>(new_shape), 2});
     }
+    template <class Op, class... Args>
+    auto _make_real(types::numpy_expr<Op, Args...> const &a, utils::int_<1>)
+        -> decltype(_make_real(
+            types::ndarray<typename types::numpy_expr<Op, Args...>::dtype,
+                           typename types::numpy_expr<Op, Args...>::shape_t>(a),
+            utils::int_<1>{}))
+    {
+      return _make_real(
+          types::ndarray<typename types::numpy_expr<Op, Args...>::dtype,
+                         typename types::numpy_expr<Op, Args...>::shape_t>(a),
+          utils::int_<1>{});
+    }
+
     template <class E>
     types::ndarray<typename E::dtype, typename E::shape_t>
     _make_imag(E const &a, utils::int_<0>)
@@ -1129,6 +1142,19 @@ namespace __builtin__
       return {
           (typename E::dtype *)calloc(a.flat_size(), sizeof(typename E::dtype)),
           a.shape(), types::ownership::owned};
+    }
+
+    template <class Op, class... Args>
+    auto _make_imag(types::numpy_expr<Op, Args...> const &a, utils::int_<1>)
+        -> decltype(_make_imag(
+            types::ndarray<typename types::numpy_expr<Op, Args...>::dtype,
+                           typename types::numpy_expr<Op, Args...>::shape_t>(a),
+            utils::int_<1>{}))
+    {
+      return _make_imag(
+          types::ndarray<typename types::numpy_expr<Op, Args...>::dtype,
+                         typename types::numpy_expr<Op, Args...>::shape_t>(a),
+          utils::int_<1>{});
     }
 
     template <class E>

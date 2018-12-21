@@ -135,6 +135,16 @@ class TestComplex(TestEnv):
                       np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
                       test_complex_array_iexpr_imag_assign=[NDArray[np.complex64, :, :]])
 
+    def test_complex_array_expr_imag(self):
+        self.run_test('def test_complex_array_expr_imag(a): return (2.j*a).imag',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_expr_imag=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_expr_real(self):
+        self.run_test('def test_complex_array_expr_real(a): return (2+a).real',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_expr_real=[NDArray[np.complex64, :, :]])
+
     @unittest.skipIf(not has_float128, "not float128")
     def test_complex256_array0(self):
         self.run_test('def complex256_array0(x): import numpy as np; return np.cos(x * 2j)',

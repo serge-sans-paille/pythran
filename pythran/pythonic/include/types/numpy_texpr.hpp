@@ -166,22 +166,24 @@ namespace types
                                     std::get<0>(indices)}];
     }
 
-    auto operator[](contiguous_slice const &s0) const
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
-                              s0));
-    auto operator[](contiguous_slice const &s0)
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
-                              s0));
-    auto operator[](slice const &s0) const
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
-                              s0));
-    auto operator[](slice const &s0)
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
-                              s0));
+    auto operator[](contiguous_slice const &s0) const -> numpy_texpr<
+        decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
+                                            pythonic::__builtin__::None),
+                           s0))>;
+    ;
+    auto operator[](contiguous_slice const &s0) -> numpy_texpr<
+        decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
+                                            pythonic::__builtin__::None),
+                           s0))>;
+
+    auto operator[](slice const &s0) const -> numpy_texpr<
+        decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
+                                            pythonic::__builtin__::None),
+                           s0))>;
+    auto operator[](slice const &s0) -> numpy_texpr<
+        decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
+                                            pythonic::__builtin__::None),
+                           s0))>;
 
     template <class S, size_t... I>
     auto _reverse_index(S const &indices, utils::index_sequence<I...>) const
@@ -245,6 +247,11 @@ namespace types
     numpy_texpr(numpy_texpr const &) = default;
     numpy_texpr(numpy_texpr &&) = default;
     numpy_texpr(numpy_gexpr<E, S...> const &arg);
+    template <class VE>
+    numpy_texpr(numpy_texpr<numpy_gexpr<VE, S...>> const &arg)
+        : numpy_texpr(arg.arg)
+    {
+    }
 
     using numpy_texpr_2<numpy_gexpr<E, S...>>::operator=;
   };
@@ -271,6 +278,11 @@ PYTHONIC_NS_END
 template <class E, class K>
 struct __combined<pythonic::types::numpy_texpr<E>, K> {
   using type = pythonic::types::numpy_texpr<E>;
+};
+template <class E0, class E1, class... S>
+struct __combined<pythonic::types::numpy_texpr<E0>,
+                  pythonic::types::numpy_gexpr<E1, S...>> {
+  using type = pythonic::types::numpy_texpr<E0>;
 };
 
 /*}*/

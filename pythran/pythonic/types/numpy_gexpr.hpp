@@ -386,7 +386,7 @@ namespace types
   numpy_gexpr<Arg, S...>::_copy(E const &expr)
   {
     static_assert(value >= utils::dim_of<E>::value, "dimensions match");
-    /* at this point, we could ! statically check that there is ! an
+    /* at this point, we could not statically check that there is not an
      * aliasing issue that would require an extra copy because of the vector
      * assignment
      * perform a fuzzy alias check dynamically!
@@ -395,7 +395,8 @@ namespace types
     if (may_overlap(*this, expr)) {
       return utils::broadcast_copy<
           numpy_gexpr &, ndarray<typename E::dtype, typename E::shape_t>, value,
-          value - utils::dim_of<E>::value, is_vectorizable>(*this, expr);
+          value - utils::dim_of<E>::value, is_vectorizable>(
+          *this, ndarray<typename E::dtype, typename E::shape_t>(expr));
     } else {
       // 100% sure there's no overlap
       return utils::broadcast_copy < numpy_gexpr &, E, value,

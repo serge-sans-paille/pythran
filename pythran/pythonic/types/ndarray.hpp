@@ -528,6 +528,15 @@ namespace types
     initialize_from_expr(expr);
   }
 
+  template <class T, class pS>
+  template <class Arg>
+  ndarray<T, pS>::ndarray(fast_range<Arg> const &expr)
+      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+        _strides(make_strides(_shape))
+  {
+    initialize_from_expr(expr);
+  }
+
   /* update operators */
 
   template <class T, class pS>
@@ -1413,11 +1422,15 @@ to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v)
 
 template <class Arg, class... S>
 PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
-    types::numpy_gexpr<Arg, S...> const &v)
+    types::numpy_gexpr<Arg, S...> const &v, bool transpose)
 {
   PyObject *slices = ::to_python(v.slices);
   PyObject *base = ::to_python(v.arg);
-  return PyObject_GetItem(base, slices);
+  PyObject *res = PyObject_GetItem(base, slices);
+  if (transpose)
+    return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
+  else
+    return res;
 }
 
 namespace impl

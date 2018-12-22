@@ -14,6 +14,15 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
+  template <class T>
+  types::numpy_texpr<types::ndarray<T, types::pshape<long, long>>>
+  transpose(types::ndarray<T, types::array<long, 2>> const &arr)
+  {
+    return {
+        reinterpret_cast<types::ndarray<T, types::pshape<long, long>> const &>(
+            arr)};
+  }
+
   template <class T, class pS0, class pS1>
   types::numpy_texpr<types::ndarray<T, types::pshape<pS0, pS1>>>
   transpose(types::ndarray<T, types::pshape<pS0, pS1>> const &arr)

@@ -231,7 +231,6 @@ def type_set_in_while():
     return a,b'''
         self.run_test(code, type_set_in_while=[])
 
-    @unittest.skip("issue #78")
     def test_recursive_interprocedural_typing0(self):
         code = '''
 from cmath import exp, pi
@@ -241,8 +240,8 @@ def fft(x):
     if N <= 1: return x
     even = fft(x[0::2])
     odd =  fft(x[1::2])
-    return [even[k] + exp(-2j*pi*k/N)*odd[k] for k in xrange(N/2)] + \
-           [even[k] - exp(-2j*pi*k/N)*odd[k] for k in xrange(N/2)]
+    return [even[k] + exp(-2j*pi*k/N)*odd[k] for k in range(N//2)] + \
+           [even[k] - exp(-2j*pi*k/N)*odd[k] for k in range(N//2)]
 
 def recursive_interprocedural_typing0():
    l = [1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]

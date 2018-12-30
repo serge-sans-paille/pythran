@@ -1,5 +1,6 @@
 from subprocess import check_call
 import os
+import re
 import shutil
 import sys
 import sysconfig
@@ -57,6 +58,23 @@ class TestDistutils(unittest.TestCase):
         demo_so = find("demo{}.so".format(so_version), dist_path)
         self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)
+
+    def test_setup_wheel_install(self):
+        check_call(['python', 'setup.py', 'bdist_wheel', "--dist-dir=bdist_wheel"],
+                   cwd=os.path.join(cwd, 'test_distutils_setuptools'))
+        dist_path = os.path.join(cwd, 'test_distutils_setuptools', 'bdist_wheel')
+        wheel_dir = 'wheeeeeeel'
+        whl = [f for f in os.listdir(dist_path) if f.endswith(".whl")][0]
+        check_call(['unzip', whl, '-d', wheel_dir], cwd=dist_path)
+
+        def find(name, path):
+            for root, dirs, files in os.walk(path):
+                if name in files:
+                    return os.path.join(root, name)
+        demo_so = find("demo{}.so".format(so_version), os.path.join(dist_path, wheel_dir))
+        self.assertIsNotNone(demo_so)
+        shutil.rmtree(dist_path)
+
 
     def test_setup_build2(self):
         check_call(['python', 'setup.py', 'build'],

@@ -283,7 +283,6 @@ def test_copy0(x):
     def test_ascontiguousarray0(self):
         self.run_test("def np_ascontiguousarray0(a):\n from numpy import ascontiguousarray\n return ascontiguousarray(a)", (1,2,3), np_ascontiguousarray0=[Tuple[int, int, int]])
 
-    @unittest.skip("Only list are 'array like' not tuple")
     def test_asarray_chkfinite0(self):
         self.run_test("def np_asarray_chkfinite0(a):\n from numpy import asarray_chkfinite\n return asarray_chkfinite(a)", (1,2,3), np_asarray_chkfinite0=[Tuple[int, int, int]])
 

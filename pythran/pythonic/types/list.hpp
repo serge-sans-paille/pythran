@@ -251,8 +251,8 @@ namespace types
     std::copy(other.begin(), other.end(), begin());
   }
   template <class T>
-  template <class S>
-  list<T>::list(sliced_list<T, S> const &other)
+  template <class Tp, class S>
+  list<T>::list(sliced_list<Tp, S> const &other)
       : data(other.begin(), other.end())
   {
   }
@@ -285,8 +285,8 @@ namespace types
     return *this;
   }
   template <class T>
-  template <class S>
-  list<T> &list<T>::operator=(sliced_list<T, S> const &other)
+  template <class Tp, class S>
+  list<T> &list<T>::operator=(sliced_list<Tp, S> const &other)
   {
     if (other.data == data) {
       auto it = std::copy(other.begin(), other.end(), data->begin());

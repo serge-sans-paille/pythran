@@ -21,17 +21,30 @@ ASMODULE = mangle(MODULE)
 
 
 class ComprehensionPatterns(Transformation):
-    '''
-    Transforms list comprehension into intrinsics.
-    >>> import gast as ast
-    >>> from pythran import passmanager, backend
-    >>> node = ast.parse("def foo(y) : return [x for x in y]")
-    >>> pm = passmanager.PassManager("test")
-    >>> _, node = pm.apply(ComprehensionPatterns, node)
-    >>> print(pm.dump(backend.Python, node))
-    def foo(y):
-        return __builtin__.map((lambda x: x), y)
-    '''
+    if sys.version_info.major == 3:
+        '''
+        Transforms list comprehension into intrinsics.
+        >>> import gast as ast
+        >>> from pythran import passmanager, backend
+        >>> node = ast.parse("def foo(y) : return (x for x in y)")
+        >>> pm = passmanager.PassManager("test")
+        >>> _, node = pm.apply(ComprehensionPatterns, node)
+        >>> print(pm.dump(backend.Python, node))
+        def foo(y):
+            return __builtin__.map((lambda x: x), y)
+        '''
+    else:
+        '''
+        Transforms list comprehension into intrinsics.
+        >>> import gast as ast
+        >>> from pythran import passmanager, backend
+        >>> node = ast.parse("def foo(y) : return [x for x in y]")
+        >>> pm = passmanager.PassManager("test")
+        >>> _, node = pm.apply(ComprehensionPatterns, node)
+        >>> print(pm.dump(backend.Python, node))
+        def foo(y):
+            return itertools.map((lambda x: x), y)
+        '''
 
     def __init__(self):
         Transformation.__init__(self, OptimizableComprehension)
@@ -92,30 +105,37 @@ class ComprehensionPatterns(Transformation):
                 varAST = ast.arguments([ast.Name(varid, ast.Param(), None)],
                                        None, [], [], None, [])
 
-            mapName = make_attr()
             ldBodymap = node.elt
             ldmap = ast.Lambda(varAST, ldBodymap)
 
-            return ast.Call(mapName, [ldmap, iterAST], [])
+            return make_attr(ldmap, iterAST)
 
         else:
             return self.generic_visit(node)
 
     def visit_ListComp(self, node):
-        def makeattr():
-            return ast.Attribute(
+        def makeattr(*args):
+            r = ast.Attribute(
                 value=ast.Name(id='__builtin__',
                                ctx=ast.Load(),
                                annotation=None),
                 attr='map', ctx=ast.Load())
+            r = ast.Call(r, list(args), [])
+            if sys.version_info.major == 3:
+                r = ast.Call(ast.Attribute(ast.Name('__builtin__', ast.Load(),
+                                                    None),
+                                           'list', ast.Load()),
+                             [r], [])
+            return r
+
         return self.visitComp(node, makeattr)
 
     def visit_GeneratorExp(self, node):
-        def makeattr():
+        def makeattr(*args):
             self.use_itertools |= MODULE == 'itertools'
-            return ast.Attribute(
+            return ast.Call(ast.Attribute(
                 value=ast.Name(id=ASMODULE,
                                ctx=ast.Load(),
                                annotation=None),
-                attr=IMAP, ctx=ast.Load())
+                attr=IMAP, ctx=ast.Load()), list(args), [])
         return self.visitComp(node, makeattr)

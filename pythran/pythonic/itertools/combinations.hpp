@@ -3,7 +3,7 @@
 
 #include "pythonic/include/itertools/combinations.hpp"
 
-#include "pythonic/types/list.hpp"
+#include "pythonic/types/dynamic_tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
 #include <numeric>
@@ -23,7 +23,7 @@ namespace itertools
       assert(r >= 0 && "r must be non-negative");
       if (!stopped) {
         std::iota(indices.begin(), indices.end(), 0);
-        result = types::list<typename T::value_type>(this->pool.begin(),
+        result = std::vector<typename T::value_type>(this->pool.begin(),
                                                      this->pool.begin() + r);
       }
     }
@@ -35,7 +35,7 @@ namespace itertools
     }
 
     template <class T>
-    types::list<typename T::value_type> combination_iterator<T>::
+    types::dynamic_tuple<typename T::value_type> combination_iterator<T>::
     operator*() const
     {
       assert(!stopped && "! stopped");

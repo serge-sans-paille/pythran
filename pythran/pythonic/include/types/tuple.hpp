@@ -69,9 +69,6 @@ namespace types
     }
   }
 
-  template <class T>
-  class list; // forward declared for array slicing
-
   template <class T, size_t N>
   struct array;
 

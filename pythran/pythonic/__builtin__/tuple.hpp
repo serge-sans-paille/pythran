@@ -3,7 +3,7 @@
 
 #include "pythonic/include/__builtin__/tuple.hpp"
 
-#include "pythonic/types/list.hpp"
+#include "pythonic/types/dynamic_tuple.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
@@ -24,7 +24,7 @@ namespace __builtin__
       typename std::enable_if <
       types::len_of<typename std::remove_cv<
           typename std::remove_reference<Iterable>::type>::type>::
-          value<0, types::list<typename std::iterator_traits<
+          value<0, types::dynamic_tuple<typename std::iterator_traits<
                        typename std::remove_cv<typename std::remove_reference<
                            Iterable>::type>::type::iterator>::value_type>>::type
           tuple(Iterable &&i)

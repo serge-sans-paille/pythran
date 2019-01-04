@@ -30,6 +30,7 @@
 #include "pythonic/include/numpy/complex64.hpp"
 #include "pythonic/include/numpy/complex128.hpp"
 
+#include "pythonic/include/types/dynamic_tuple.hpp"
 #include "pythonic/include/types/vectorizable_type.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 #include "pythonic/include/types/numpy_expr.hpp"
@@ -549,11 +550,9 @@ namespace types
       return _fwdindex(indices, utils::make_index_sequence<M>());
     }
     template <class S>
-    auto operator[](list<S> const &indices) const -> typename std::enable_if<
-        std::is_same<S, slice>::value ||
-            std::is_same<S, contiguous_slice>::value,
-        decltype(this->_fwdindex(indices,
-                                 utils::make_index_sequence<value>()))>::type
+    auto operator[](dynamic_tuple<S> const &indices) const
+        -> decltype(this->_fwdindex(indices,
+                                    utils::make_index_sequence<value>()))
     {
       return _fwdindex(indices, utils::make_index_sequence<value>());
     }

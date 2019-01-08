@@ -3975,6 +3975,7 @@ MODULES = {
         "unravel_index": ConstFunctionIntr(),
         "var": ConstMethodIntr(),
         "vstack": ConstFunctionIntr(),
+        "stack": ConstFunctionIntr(),
         "where": ConstFunctionIntr(),
         "zeros": ConstFunctionIntr(args=('shape', 'dtype'),
                                    defaults=("numpy.float64",),

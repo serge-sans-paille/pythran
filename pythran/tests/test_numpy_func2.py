@@ -200,6 +200,28 @@ def test_copy0(x):
                       numpy.array(([2],[3],[4])),
                       np_vstack1=[NDArray[int,:,:],NDArray[int,:,:]])
 
+    def test_stack0(self):
+        self.run_test("def np_stack0(A): import numpy as np; return np.stack(A,axis=0)",
+                      [numpy.ones((2,2)), 2*numpy.ones((2,2))],
+                      np_stack0=[List[NDArray[float,:,:],NDArray[float,:,:]]])
+
+    def test_stack1(self):
+        self.run_test("def np_stack1(A): import numpy as np; return np.stack(A,axis=1)",
+                      [numpy.ones((2,2,2)), 2*numpy.ones((2,2,2))],
+                      np_stack1=[List[NDArray[float,:,:,:],NDArray[float,:,:,:]]])
+
+    def test_stack2(self):
+        self.run_test("def np_stack2(a,b): import numpy as np; return np.stack([a,b],axis=0)",
+                      numpy.ones((2,2)), 
+                      2*numpy.ones((2,2)),
+                      np_stack2=[NDArray[float,:,:],NDArray[float,:,:]])
+
+    def test_stack3(self):
+        self.run_test("def np_stack3(a,b): import numpy as np; return np.stack((a,b),axis=0)",
+                      numpy.ones((2,2)), 
+                      2*numpy.ones((2,2)),
+                      np_stack3=[NDArray[float,:,:],NDArray[float,:,:]])
+
     def test_bincount0(self):
         self.run_test("def np_bincount0(a): from numpy import bincount ; return bincount(a)", numpy.arange(5), np_bincount0=[NDArray[int,:]])
 

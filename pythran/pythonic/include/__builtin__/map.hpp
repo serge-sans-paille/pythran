@@ -25,8 +25,8 @@ namespace __builtin__
                                                   *iterators...))>;
 
     template <typename List0>
-    types::list<
-        typename std::remove_reference<List0>::type::iterator::value_type>
+    types::list<typename std::iterator_traits<
+        typename std::remove_reference<List0>::type::iterator>::value_type>
     map(types::none_type, List0 &&seq);
 
     template <long N, typename Operator, typename List0, typename... ListN>

@@ -19,7 +19,6 @@ namespace __builtin__
       type operator()(types::str const &t, int base) const;
       template <class T>
       type operator()(T &&t) const;
-      type operator()(char t) const;
       type operator()() const;
     };
   }

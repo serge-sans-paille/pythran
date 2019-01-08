@@ -21,26 +21,13 @@ PYTHONIC_NS_END
 
 /* pythran attribute system { */
 PYTHONIC_NS_BEGIN
-namespace types
-{
-  namespace __finfo
-  {
-
-    template <class T>
-    auto getattr<attr::EPS, T>::operator()(finfo<T> const &f)
-        -> decltype(f.eps()) const
-    {
-      return f.eps();
-    }
-  }
-}
 namespace __builtin__
 {
-  template <int I, class T>
-  auto getattr(pythonic::types::finfo<T> const &f)
-      -> decltype(pythonic::types::__finfo::getattr<I, T>()(f))
+  template <class T>
+  T getattr(pythonic::types::finfo<T> const &f,
+            std::integral_constant<size_t, types::attr::EPS>)
   {
-    return pythonic::types::__finfo::getattr<I, T>()(f);
+    return f.eps();
   }
 }
 PYTHONIC_NS_END

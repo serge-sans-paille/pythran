@@ -17,12 +17,13 @@ namespace __builtin__
     inline types::empty_dict dict();
 
     template <class Iterable>
-    inline types::dict<typename std::tuple_element<
-                           0, typename std::remove_reference<
-                                  Iterable>::type::iterator::value_type>::type,
-                       typename std::tuple_element<
-                           1, typename std::remove_reference<
-                                  Iterable>::type::iterator::value_type>::type>
+    inline types::dict<
+        typename std::tuple_element<
+            0, typename std::iterator_traits<typename std::remove_reference<
+                   Iterable>::type::iterator>::value_type>::type,
+        typename std::tuple_element<
+            1, typename std::iterator_traits<typename std::remove_reference<
+                   Iterable>::type::iterator>::value_type>::type>
     dict(Iterable &&iterable);
   }
 

@@ -6,41 +6,62 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  struct attr {
-    enum {
-      /* exception attributes */
-      ARGS,
-      ERRNO,
-      STRERROR,
-      FILENAME,
-      /* complex attributes */
-      REAL,
-      IMAG,
-      /* file attributes */
-      CLOSED,
-      MODE,
-      NAME,
-      NEWLINES,
-      /* fileinfo attributes */
-      EPS,
-      /* ndarray attributes */
-      SHAPE,
-      NDIM,
-      STRIDES,
-      SIZE,
-      ITEMSIZE,
-      NBYTES,
-      FLAT,
-      DTYPE,
-      T,
-      /* slice attributes */
-      START,
-      STOP,
-      STEP,
-      /* */
-      SUPERCALIGRAFILISTICEXPIDELILICIOUS
+  namespace attr
+  {
+    /* exception attributes */
+    struct ARGS {
     };
-  };
+    struct ERRNO {
+    };
+    struct STRERROR {
+    };
+    struct FILENAME {
+    };
+    /* complex attributes */
+    struct REAL {
+    };
+    struct IMAG {
+    };
+    /* file attributes */
+    struct CLOSED {
+    };
+    struct MODE {
+    };
+    struct NAME {
+    };
+    struct NEWLINES {
+    };
+    /* fileinfo attributes */
+    struct EPS {
+    };
+    /* ndarray attributes */
+    struct SHAPE {
+    };
+    struct NDIM {
+    };
+    struct STRIDES {
+    };
+    struct SIZE {
+    };
+    struct ITEMSIZE {
+    };
+    struct NBYTES {
+    };
+    struct FLAT {
+    };
+    struct DTYPE {
+    };
+    struct T {
+    };
+    /* slice attributes */
+    struct START {
+    };
+    struct STOP {
+    };
+    struct STEP {
+    };
+    /* */
+  }
 }
 PYTHONIC_NS_END
 

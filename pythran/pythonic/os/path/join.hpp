@@ -37,13 +37,13 @@ namespace os
       template <class T, class... Types>
       void _join(types::str &buffer, T &&head, Types &&... tail)
       {
-        if (head[0] == '/')
+        if (((types::str)head)[0] == "/")
           buffer = std::forward<T>(head);
-        else if (!buffer || *buffer.rbegin() == OS_SEP ||
-                 *buffer.rbegin() == '/')
+        else if (!buffer || *buffer.chars().rbegin() == OS_SEP ||
+                 *buffer.rbegin() == "/")
           buffer += std::forward<T>(head);
         else {
-          buffer += OS_SEP;
+          buffer.chars() += OS_SEP;
           buffer += std::forward<T>(head);
         }
         _join(buffer, std::forward<Types>(tail)...);

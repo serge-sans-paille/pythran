@@ -19,9 +19,9 @@ namespace __builtin__
     {
       auto &&val0 = std::forward<T0>(v0)();
       if (val0)
-        return std::forward<T1>(v1)();
+        return (types::lazy_combined_t<T0, T1>)std::forward<T1>(v1)();
       else
-        return val0;
+        return (types::lazy_combined_t<T0, T1>)val0;
     }
   }
 }

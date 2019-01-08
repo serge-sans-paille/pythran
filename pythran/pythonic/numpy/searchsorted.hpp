@@ -23,9 +23,9 @@ namespace numpy
   typename std::enable_if<!types::is_numexpr_arg<T>::value, long>::type
   searchsorted(U const &a, T const &v, types::str const &side)
   {
-    if (side[0] == 'l')
+    if (side[0] == "l")
       return std::lower_bound(a.begin(), a.end(), v) - a.begin();
-    else if (side[0] == 'r')
+    else if (side[0] == "r")
       return std::upper_bound(a.begin(), a.end(), v) - a.begin();
     else
       throw types::ValueError("'" + side +

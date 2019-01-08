@@ -16,6 +16,8 @@ namespace numpy
     std::complex<float> complex64();
     template <class V>
     std::complex<float> complex64(V v);
+    template <class T>
+    std::complex<float> complex64(std::complex<T> v);
   }
 
 #define NUMPY_NARY_FUNC_NAME complex64

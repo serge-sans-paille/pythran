@@ -348,6 +348,11 @@ def np_trim_zeros2(x):
                       numpy.arange(100, dtype=float).reshape((10, 10)),
                       numpy_pow2=[NDArray[float,:,:]])
 
+    def test_numpy_pow3(self):
+        self.run_test('def numpy_pow3(a): return a ** -0.2',
+                      numpy.arange(100, dtype=int),
+                      numpy_pow3=[NDArray[int,:]])
+
     def test_add0(self):
         self.run_test("def np_add0(a, b): return a + b", numpy.ones(10), numpy.ones(10), np_add0=[NDArray[float,:], NDArray[float,:]])
 

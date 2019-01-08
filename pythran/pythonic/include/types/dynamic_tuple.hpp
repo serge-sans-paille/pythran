@@ -1,0 +1,202 @@
+#ifndef PYTHONIC_INCLUDE_TYPES_DYNAMIC_TUPLE_HPP
+#define PYTHONIC_INCLUDE_TYPES_DYNAMIC_TUPLE_HPP
+
+#include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/types/traits.hpp"
+#include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/utils/int_.hpp"
+#include "pythonic/include/utils/seq.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
+#include "pythonic/include/utils/nested_container.hpp"
+
+PYTHONIC_NS_BEGIN
+
+namespace types
+{
+
+  template <typename T>
+  struct dynamic_tuple {
+    using container_type = std::vector<T>;
+    utils::shared_ref<container_type> buffer;
+
+    using value_type = T;
+    using pointer = value_type *;
+    using const_pointer = const value_type *;
+    using reference = value_type &;
+    using const_reference = const value_type &;
+    using iterator = typename container_type::const_iterator;
+    using const_iterator = typename container_type::const_iterator;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
+    using reverse_iterator = typename container_type::reverse_iterator;
+    using const_reverse_iterator =
+        typename container_type::const_reverse_iterator;
+
+    // minimal ndarray interface
+    using dtype =
+        typename utils::nested_container_value_type<dynamic_tuple>::type;
+    static const size_t value =
+        utils::nested_container_depth<dynamic_tuple>::value;
+    static const bool is_vectorizable = true;
+    static const bool is_strided = false;
+
+    // flat_size implementation
+    template <class E>
+    long _flat_size(E const &e, utils::int_<1>) const;
+    template <class E, size_t L>
+    long _flat_size(E const &e, utils::int_<L>) const;
+
+    long flat_size() const;
+
+    dynamic_tuple() = default;
+    dynamic_tuple(dynamic_tuple const &) = default;
+    dynamic_tuple(dynamic_tuple &&) = default;
+    dynamic_tuple &operator=(dynamic_tuple &&other) = default;
+    dynamic_tuple &operator=(dynamic_tuple const &other) = default;
+
+    template <class Iter>
+    dynamic_tuple(Iter start, Iter end)
+        : buffer(start, end)
+    {
+    }
+
+    // Iterators.
+    const_iterator begin() const noexcept
+    {
+      return buffer->begin();
+    }
+
+    const_iterator end() const noexcept
+    {
+      return buffer->end();
+    }
+
+    const_reverse_iterator rbegin() const noexcept
+    {
+      return buffer->rbegin();
+    }
+
+    const_reverse_iterator rend() const noexcept
+    {
+      return buffer->rend();
+    }
+
+    // Capacity.
+    size_type size() const noexcept
+    {
+      return buffer->size();
+    }
+    constexpr bool empty() const noexcept
+    {
+      return buffer->empty();
+    }
+
+    intptr_t id() const;
+
+    // Element access.
+    const_reference fast(long n) const
+    {
+      return (*buffer)[n];
+    }
+#ifdef USE_XSIMD
+    using simd_iterator = const_simd_nditerator<dynamic_tuple>;
+    using simd_iterator_nobroadcast = simd_iterator;
+    template <class vectorizer>
+    simd_iterator vbegin(vectorizer) const;
+    template <class vectorizer>
+    simd_iterator vend(vectorizer) const;
+#endif
+
+    const_reference operator[](size_type __n) const
+    {
+      return (*buffer)[__n < 0 ? __n + size() : __n];
+    }
+
+    // operator
+    bool operator==(dynamic_tuple<T> const &other) const;
+
+    bool operator!=(dynamic_tuple<T> const &other) const;
+
+    bool operator<(dynamic_tuple<T> const &other) const;
+
+    dynamic_tuple<T> operator+(dynamic_tuple<T> const &other) const;
+
+    numpy_gexpr<dynamic_tuple, normalized_slice>
+    operator[](slice const &s) const
+    {
+      return {*this, s.normalize(size())};
+    }
+    numpy_gexpr<dynamic_tuple, contiguous_normalized_slice>
+    operator[](contiguous_slice const &s) const
+    {
+      return {*this, s.normalize(size())};
+    }
+
+    using shape_t = array<long, value>;
+    shape_t shape() const
+    {
+      array<long, value> res;
+      details::init_shape(res, *this, utils::int_<value>{});
+      return res;
+    }
+  };
+  template <class T>
+  std::ostream &operator<<(std::ostream &os,
+
+                           types::dynamic_tuple<T> const &v)
+  {
+    os << '(';
+    size_t n = v.size();
+    if (n) {
+      os << v.fast(0);
+      for (size_t i = 1; i < n; ++i)
+        os << ", " << v.fast(i);
+    }
+    return os << ')';
+  }
+}
+
+PYTHONIC_NS_END
+
+namespace std
+{
+
+  template <size_t I, class T>
+  typename pythonic::types::dynamic_tuple<T>::const_reference
+  get(pythonic::types::dynamic_tuple<T> const &t)
+  {
+    return t[I];
+  }
+
+  template <size_t I, class T>
+  struct tuple_element<I, pythonic::types::dynamic_tuple<T>> {
+    using type = typename pythonic::types::dynamic_tuple<T>::value_type;
+  };
+}
+
+/* specialize std::hash */
+namespace std
+{
+  template <class T>
+  struct hash<pythonic::types::dynamic_tuple<T>> {
+    size_t operator()(pythonic::types::dynamic_tuple<T> const &l) const;
+  };
+}
+
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/include/utils/seq.hpp"
+#include "pythonic/include/utils/fwd.hpp"
+#include "pythonic/python/core.hpp"
+
+PYTHONIC_NS_BEGIN
+
+template <typename T>
+struct to_python<types::dynamic_tuple<T>> {
+  static PyObject *convert(types::dynamic_tuple<T> const &t);
+};
+
+PYTHONIC_NS_END
+#endif
+
+#endif

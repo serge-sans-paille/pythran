@@ -6,6 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
+#include "pythonic/types/complex.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -24,6 +25,12 @@ namespace numpy
     std::complex<float> complex64(V v)
     {
       return v;
+    }
+
+    template <class T>
+    std::complex<float> complex64(std::complex<T> v)
+    {
+      return {(float)v.real(), (float)v.imag()};
     }
   }
 

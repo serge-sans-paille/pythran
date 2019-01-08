@@ -331,17 +331,17 @@ namespace types
   }
 
   template <size_t L>
-  template <size_t M>
+  template <class Ty, size_t M>
   long noffset<L>::operator()(array<long, M> const &strides,
-                              array<long, M> const &indices) const
+                              array<Ty, M> const &indices) const
   {
     return noffset<L - 1>{}(strides, indices) + strides[M - L] * indices[M - L];
   }
 
   template <size_t L>
-  template <size_t M, class pS>
+  template <class Ty, size_t M, class pS>
   long noffset<L>::operator()(array<long, M> const &strides,
-                              array<long, M> const &indices,
+                              array<Ty, M> const &indices,
                               pS const &shape) const
   {
     return noffset<L - 1>{}(strides, indices, shape) +
@@ -351,17 +351,17 @@ namespace types
   }
 
   template <>
-  template <size_t M>
+  template <class Ty, size_t M>
   long noffset<1>::operator()(array<long, M> const &,
-                              array<long, M> const &indices) const
+                              array<Ty, M> const &indices) const
   {
     return indices[M - 1];
   }
 
   template <>
-  template <size_t M, class pS>
+  template <class Ty, size_t M, class pS>
   long noffset<1>::operator()(array<long, M> const &,
-                              array<long, M> const &indices,
+                              array<Ty, M> const &indices,
                               pS const &shape) const
   {
     return (indices[M - 1] < 0) ? indices[M - 1] + std::get<M - 1>(shape)
@@ -528,6 +528,15 @@ namespace types
     initialize_from_expr(expr);
   }
 
+  template <class T, class pS>
+  template <class Arg>
+  ndarray<T, pS>::ndarray(fast_range<Arg> const &expr)
+      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
+        _strides(make_strides(_shape))
+  {
+    initialize_from_expr(expr);
+  }
+
   /* update operators */
 
   template <class T, class pS>
@@ -603,72 +612,78 @@ namespace types
    * */
 
   template <class T, class pS>
-  T &ndarray<T, pS>::fast(array<long, value> const &indices)
+  template <class Ty>
+  typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+  ndarray<T, pS>::fast(array<Ty, value> const &indices)
   {
     return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
   }
 
   template <class T, class pS>
-  T ndarray<T, pS>::fast(array<long, value> const &indices) const
+  template <class Ty>
+  typename std::enable_if<std::is_integral<Ty>::value, T>::type
+  ndarray<T, pS>::fast(array<Ty, value> const &indices) const
   {
     return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
   }
 
   template <class T, class pS>
-  template <size_t M>
-  auto ndarray<T, pS>::fast(array<long, M> const &indices) const
-      & -> decltype(nget<M - 1>().fast(*this, indices))
+  template <class Ty, size_t M>
+  auto ndarray<T, pS>::fast(array<Ty, M> const &indices) const & ->
+      typename std::enable_if<std::is_integral<Ty>::value,
+                              decltype(nget<M - 1>().fast(*this,
+                                                          indices))>::type
   {
     return nget<M - 1>().fast(*this, indices);
   }
 
   template <class T, class pS>
-      template <size_t M>
-      auto ndarray<T, pS>::fast(array<long, M> const &indices) &&
-      -> decltype(nget<M - 1>().fast(std::move(*this), indices))
+      template <class Ty, size_t M>
+      auto ndarray<T, pS>::fast(array<Ty, M> const &indices) &&
+      -> typename std::enable_if<std::is_integral<Ty>::value,
+                                 decltype(nget<M - 1>().fast(std::move(*this),
+                                                             indices))>::type
   {
     return nget<M - 1>().fast(std::move(*this), indices);
   }
 
   template <class T, class pS>
-  T const &ndarray<T, pS>::operator[](array<long, value> const &indices) const
+  template <class Ty>
+  typename std::enable_if<std::is_integral<Ty>::value, T const &>::type
+      ndarray<T, pS>::
+      operator[](array<Ty, value> const &indices) const
   {
     return *(buffer +
              noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
   }
 
   template <class T, class pS>
-  T &ndarray<T, pS>::operator[](array<long, value> const &indices)
+  template <class Ty>
+  typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+      ndarray<T, pS>::
+      operator[](array<Ty, value> const &indices)
   {
     return *(buffer +
              noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
   }
 
   template <class T, class pS>
-  template <size_t M>
-  auto ndarray<T, pS>::operator[](array<long, M> const &indices) const
-      & -> decltype(nget<M - 1>()(*this, indices))
+  template <class Ty, size_t M>
+  auto ndarray<T, pS>::operator[](array<Ty, M> const &indices) const & ->
+      typename std::enable_if<std::is_integral<Ty>::value,
+                              decltype(nget<M - 1>()(*this, indices))>::type
   {
     return nget<M - 1>()(*this, indices);
   }
 
   template <class T, class pS>
-      template <size_t M>
-      auto ndarray<T, pS>::operator[](array<long, M> const &indices) &&
-      -> decltype(nget<M - 1>()(std::move(*this), indices))
+      template <class Ty, size_t M>
+      auto ndarray<T, pS>::operator[](array<Ty, M> const &indices) &&
+      -> typename std::enable_if<std::is_integral<Ty>::value,
+                                 decltype(nget<M - 1>()(std::move(*this),
+                                                        indices))>::type
   {
     return nget<M - 1>()(std::move(*this), indices);
-  }
-
-  template <class T, class pS>
-  template <class Ty0, class Ty1, class... Tys>
-  auto ndarray<T, pS>::
-  operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
-      typename std::enable_if<!std::is_same<Ty0, long>::value &&
-                                  !is_numexpr_arg<Ty0>::value,
-                              decltype((*this)[to_array<long>(indices)])>::type
-  {
-    return (*this)[to_array<long>(indices)];
   }
 
 #ifdef USE_XSIMD
@@ -834,10 +849,10 @@ namespace types
   }
 
   template <class T, class pS>
-  template <class L, class Ty, class... Tys>
+  template <class Ty0, class Ty1, class... Tys>
   auto ndarray<T, pS>::
-  operator[](std::tuple<L, Ty, Tys...> const &indices) const ->
-      typename std::enable_if<is_numexpr_arg<L>::value,
+  operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
+      typename std::enable_if<is_numexpr_arg<Ty0>::value,
                               decltype((*this)[tuple_tail(indices)])>::type
   {
     return ndarray<T, pS>
@@ -1069,131 +1084,68 @@ namespace std
 /* pythran attribute system { */
 #include "pythonic/numpy/transpose.hpp"
 PYTHONIC_NS_BEGIN
-namespace types
+namespace __builtin__
 {
-  namespace __ndarray
+  namespace details
   {
-
-    template <class E>
-    auto getattr<attr::SHAPE, E>::operator()(E const &a)
-        -> decltype(sutils::array(a.shape()))
+    template <size_t N>
+    template <class E, class... S>
+    auto _build_gexpr<N>::operator()(E const &a, S const &... slices)
+        -> decltype(_build_gexpr<N - 1>{}(a, types::contiguous_slice(),
+                                          slices...))
     {
-      return sutils::array(a.shape());
+      return _build_gexpr<N - 1>{}(a, types::contiguous_slice(0, a.size()),
+                                   slices...);
+    }
+
+    template <class E, class... S>
+    types::numpy_gexpr<E, types::normalize_t<S>...> _build_gexpr<1>::
+    operator()(E const &a, S const &... slices)
+    {
+      return E(a)(slices...);
     }
 
     template <class E>
-    long getattr<attr::NDIM, E>::operator()(E const &a)
-    {
-      return E::value;
-    }
-
-    template <class E>
-    array<long, E::value> getattr<attr::STRIDES, E>::operator()(E const &a)
-    {
-      array<long, E::value> strides;
-      strides[E::value - 1] = sizeof(typename E::dtype);
-      auto shape = sutils::array(a.shape());
-      std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin(),
-                     strides.rbegin() + 1, std::multiplies<long>());
-      return strides;
-    }
-
-    template <class E>
-    long getattr<attr::SIZE, E>::operator()(E const &a)
-    {
-      return a.flat_size();
-    }
-
-    template <class E>
-    long getattr<attr::ITEMSIZE, E>::operator()(E const &a)
-    {
-      return sizeof(typename E::dtype);
-    }
-
-    template <class E>
-    long getattr<attr::NBYTES, E>::operator()(E const &a)
-    {
-      return a.flat_size() * sizeof(typename E::dtype);
-    }
-
-    template <class E>
-    auto getattr<attr::FLAT, E>::operator()(E const &a) -> decltype(a.flat())
-    {
-      return a.flat();
-    }
-
-    template <class E>
-    dtype_t<typename E::dtype> getattr<attr::DTYPE, E>::operator()(E const &a)
-    {
-      return {};
-    }
-
-    namespace
-    {
-      template <size_t N>
-      template <class E, class... S>
-      auto _build_gexpr<N>::operator()(E const &a, S const &... slices)
-          -> decltype(_build_gexpr<N - 1>{}(a, contiguous_slice(), slices...))
-      {
-        return _build_gexpr<N - 1>{}(a, contiguous_slice(0, a.size()),
-                                     slices...);
-      }
-
-      template <class E, class... S>
-      numpy_gexpr<E, normalize_t<S>...> _build_gexpr<1>::
-      operator()(E const &a, S const &... slices)
-      {
-        return E(a)(slices...);
-      }
-    }
-
-    template <class E>
-    E getattr<attr::REAL, E>::make_real(E const &a, utils::int_<0>)
+    E _make_real(E const &a, utils::int_<0>)
     {
       return a;
     }
 
     template <class E>
-    auto getattr<attr::REAL, E>::make_real(E const &a, utils::int_<1>)
+    auto _make_real(E const &a, utils::int_<1>)
         -> decltype(_build_gexpr<E::value>{}(
-            ndarray<typename types::is_complex<typename E::dtype>::type,
-                    types::array<long, E::value>>{},
-            slice()))
+            types::ndarray<typename types::is_complex<typename E::dtype>::type,
+                           types::array<long, E::value>>{},
+            types::slice()))
     {
       using stype = typename types::is_complex<typename E::dtype>::type;
       auto new_shape = sutils::array(a.shape());
       std::get<E::value - 1>(new_shape) *= 2;
       // this is tricky && dangerous!
       auto translated_mem =
-          reinterpret_cast<utils::shared_ref<raw_array<stype>> const &>(a.mem);
-      ndarray<stype, types::array<long, E::value>> translated{translated_mem,
-                                                              new_shape};
+          reinterpret_cast<utils::shared_ref<types::raw_array<stype>> const &>(
+              a.mem);
+      types::ndarray<stype, types::array<long, E::value>> translated{
+          translated_mem, new_shape};
       return _build_gexpr<E::value>{}(
-          translated, slice{0, std::get<E::value - 1>(new_shape), 2});
+          translated, types::slice{0, std::get<E::value - 1>(new_shape), 2});
     }
-
-    template <class E>
-    auto getattr<attr::REAL, E>::operator()(E const &a)
-        -> decltype(this->make_real(
-            a, utils::int_<types::is_complex<typename E::dtype>::value>{}))
+    template <class Op, class... Args>
+    auto _make_real(types::numpy_expr<Op, Args...> const &a, utils::int_<1>)
+        -> decltype(_make_real(
+            types::ndarray<typename types::numpy_expr<Op, Args...>::dtype,
+                           typename types::numpy_expr<Op, Args...>::shape_t>(a),
+            utils::int_<1>{}))
     {
-      return make_real(
-          a, utils::int_<types::is_complex<typename E::dtype>::value>{});
-    }
-
-    template <class E>
-    auto getattr<attr::REAL, types::numpy_texpr<E>>::
-    operator()(types::numpy_texpr<E> const &a) -> decltype(
-        types::numpy_texpr<decltype(getattr<attr::REAL, E>{}(a.arg))>{
-            getattr<attr::REAL, E>{}(a.arg)})
-    {
-      auto ta = getattr<attr::REAL, E>{}(a.arg);
-      return types::numpy_texpr<decltype(ta)>{ta};
+      return _make_real(
+          types::ndarray<typename types::numpy_expr<Op, Args...>::dtype,
+                         typename types::numpy_expr<Op, Args...>::shape_t>(a),
+          utils::int_<1>{});
     }
 
     template <class E>
     types::ndarray<typename E::dtype, typename E::shape_t>
-    getattr<attr::IMAG, E>::make_imag(E const &a, utils::int_<0>)
+    _make_imag(E const &a, utils::int_<0>)
     {
       // cannot use numpy.zero: forward declaration issue
       return {
@@ -1201,87 +1153,147 @@ namespace types
           a.shape(), types::ownership::owned};
     }
 
+    template <class Op, class... Args>
+    auto _make_imag(types::numpy_expr<Op, Args...> const &a, utils::int_<1>)
+        -> decltype(_make_imag(
+            types::ndarray<typename types::numpy_expr<Op, Args...>::dtype,
+                           typename types::numpy_expr<Op, Args...>::shape_t>(a),
+            utils::int_<1>{}))
+    {
+      return _make_imag(
+          types::ndarray<typename types::numpy_expr<Op, Args...>::dtype,
+                         typename types::numpy_expr<Op, Args...>::shape_t>(a),
+          utils::int_<1>{});
+    }
+
     template <class E>
-    auto getattr<attr::IMAG, E>::make_imag(E const &a, utils::int_<1>)
+    auto _make_imag(E const &a, utils::int_<1>)
         -> decltype(_build_gexpr<E::value>{}(
-            ndarray<typename types::is_complex<typename E::dtype>::type,
-                    types::array<long, E::value>>{},
-            slice()))
+            types::ndarray<typename types::is_complex<typename E::dtype>::type,
+                           types::array<long, E::value>>{},
+            types::slice()))
     {
       using stype = typename types::is_complex<typename E::dtype>::type;
       auto new_shape = sutils::array(a.shape());
       std::get<E::value - 1>(new_shape) *= 2;
       // this is tricky && dangerous!
       auto translated_mem =
-          reinterpret_cast<utils::shared_ref<raw_array<stype>> const &>(a.mem);
-      ndarray<stype, types::array<long, E::value>> translated{translated_mem,
-                                                              new_shape};
+          reinterpret_cast<utils::shared_ref<types::raw_array<stype>> const &>(
+              a.mem);
+      types::ndarray<stype, types::array<long, E::value>> translated{
+          translated_mem, new_shape};
       return _build_gexpr<E::value>{}(
-          translated, slice{1, std::get<E::value - 1>(new_shape), 2});
-    }
-
-    template <class E>
-    auto getattr<attr::IMAG, E>::operator()(E const &a)
-        -> decltype(this->make_imag(
-            a, utils::int_<types::is_complex<typename E::dtype>::value>{}))
-    {
-      return make_imag(
-          a, utils::int_<types::is_complex<typename E::dtype>::value>{});
-    }
-
-    template <class E>
-    auto getattr<attr::IMAG, types::numpy_texpr<E>>::
-    operator()(types::numpy_texpr<E> const &a) -> decltype(
-        types::numpy_texpr<decltype(getattr<attr::IMAG, E>{}(a.arg))>{
-            getattr<attr::IMAG, E>{}(a.arg)})
-    {
-      auto ta = getattr<attr::IMAG, E>{}(a.arg);
-      return types::numpy_texpr<decltype(ta)>{ta};
+          translated, types::slice{1, std::get<E::value - 1>(new_shape), 2});
     }
   }
-}
-namespace __builtin__
-{
-  template <int I, class T, class pS>
-  auto getattr(types::ndarray<T, pS> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::ndarray<T, pS>>()(f))
+
+  template <class E>
+  auto getattr(types::attr::SHAPE, E const &a)
+      -> decltype(sutils::array(a.shape()))
   {
-    return types::__ndarray::getattr<I, types::ndarray<T, pS>>()(f);
+    return sutils::array(a.shape());
   }
 
-  template <int I, class O, class... Args>
-  auto getattr(types::numpy_expr<O, Args...> const &f) -> decltype(
-      types::__ndarray::getattr<I, types::numpy_expr<O, Args...>>()(f))
+  template <class E>
+  long getattr(types::attr::NDIM, E const &a)
   {
-    return types::__ndarray::getattr<I, types::numpy_expr<O, Args...>>()(f);
+    return E::value;
   }
 
-  template <int I, class A, class... S>
-  auto getattr(types::numpy_gexpr<A, S...> const &f) -> decltype(
-      types::__ndarray::getattr<I, types::numpy_gexpr<A, S...>>()(f))
+  template <class E>
+  types::array<long, E::value> getattr(types::attr::STRIDES, E const &a)
   {
-    return types::__ndarray::getattr<I, types::numpy_gexpr<A, S...>>()(f);
+    types::array<long, E::value> strides;
+    strides[E::value - 1] = sizeof(typename E::dtype);
+    auto shape = sutils::array(a.shape());
+    std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin(),
+                   strides.rbegin() + 1, std::multiplies<long>());
+    return strides;
   }
 
-  template <int I, class A>
-  auto getattr(types::numpy_iexpr<A> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_iexpr<A>>()(f))
+  template <class E>
+  long getattr(types::attr::SIZE, E const &a)
   {
-    return types::__ndarray::getattr<I, types::numpy_iexpr<A>>()(f);
+    return a.flat_size();
   }
 
-  template <int I, class A>
-  auto getattr(types::numpy_texpr<A> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_texpr<A>>()(f))
+  template <class E>
+  long getattr(types::attr::ITEMSIZE, E const &a)
   {
-    return types::__ndarray::getattr<I, types::numpy_texpr<A>>()(f);
+    return sizeof(typename E::dtype);
   }
 
-  template <int I, class T, class F>
-  auto getattr(types::numpy_vexpr<T, F> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_vexpr<T, F>>()(f))
+  template <class E>
+  long getattr(types::attr::NBYTES, E const &a)
   {
-    return types::__ndarray::getattr<I, types::numpy_vexpr<T, F>>()(f);
+    return a.flat_size() * sizeof(typename E::dtype);
+  }
+
+  template <class E>
+  auto getattr(types::attr::FLAT, E const &a) -> decltype(a.flat())
+  {
+    return a.flat();
+  }
+
+  template <class T, class pS>
+  auto getattr(types::attr::REAL, types::ndarray<T, pS> const &a) -> decltype(
+      details::_make_real(a, utils::int_<types::is_complex<T>::value>{}))
+  {
+    return details::_make_real(a, utils::int_<types::is_complex<T>::value>{});
+  }
+
+  template <class Op, class... Args>
+  auto getattr(types::attr::REAL, types::numpy_expr<Op, Args...> const &a)
+      -> decltype(details::_make_real(
+          a, utils::int_<types::is_complex<
+                 typename types::numpy_expr<Op, Args...>::dtype>::value>{}))
+  {
+    return details::_make_real(
+        a, utils::int_<types::is_complex<
+               typename types::numpy_expr<Op, Args...>::dtype>::value>{});
+  }
+
+  template <class E>
+  auto getattr(types::attr::REAL, types::numpy_texpr<E> const &a) -> decltype(
+      types::numpy_texpr<decltype(getattr(types::attr::REAL{}, a.arg))>{
+          getattr(types::attr::REAL{}, a.arg)})
+  {
+    auto ta = getattr(types::attr::REAL{}, a.arg);
+    return types::numpy_texpr<decltype(ta)>{ta};
+  }
+
+  template <class T, class pS>
+  auto getattr(types::attr::IMAG, types::ndarray<T, pS> const &a) -> decltype(
+      details::_make_imag(a, utils::int_<types::is_complex<T>::value>{}))
+  {
+    return details::_make_imag(a, utils::int_<types::is_complex<T>::value>{});
+  }
+
+  template <class Op, class... Args>
+  auto getattr(types::attr::IMAG, types::numpy_expr<Op, Args...> const &a)
+      -> decltype(details::_make_imag(
+          a, utils::int_<types::is_complex<
+                 typename types::numpy_expr<Op, Args...>::dtype>::value>{}))
+  {
+    return details::_make_imag(
+        a, utils::int_<types::is_complex<
+               typename types::numpy_expr<Op, Args...>::dtype>::value>{});
+  }
+
+  template <class E>
+  auto getattr(types::attr::IMAG, types::numpy_texpr<E> const &a) -> decltype(
+      types::numpy_texpr<decltype(getattr(types::attr::IMAG{}, a.arg))>{
+          getattr(types::attr::IMAG{}, a.arg)})
+  {
+    auto ta = getattr(types::attr::IMAG{}, a.arg);
+    return types::numpy_texpr<decltype(ta)>{ta};
+  }
+
+  template <class E>
+  types::dtype_t<typename types::dtype_of<E>::type> getattr(types::attr::DTYPE,
+                                                            E const &a)
+  {
+    return {};
   }
 }
 PYTHONIC_NS_END
@@ -1292,104 +1304,9 @@ PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
+#include "pythonic/types/int.hpp"
+
 PYTHONIC_NS_BEGIN
-
-namespace details
-{
-  constexpr int signed_int_types[] = {0, NPY_INT8, NPY_INT16, 0, NPY_INT32, 0,
-                                      0, 0,        NPY_INT64};
-  constexpr int unsigned_int_types[] = {
-      0, NPY_UINT8, NPY_UINT16, 0, NPY_UINT32, 0, 0, 0, NPY_UINT64};
-}
-
-template <class T>
-struct c_type_to_numpy_type
-    : c_type_to_numpy_type<decltype(std::declval<T>()())> {
-};
-
-template <>
-struct c_type_to_numpy_type<long double>
-    : std::integral_constant<int, NPY_LONGDOUBLE> {
-};
-
-template <>
-struct c_type_to_numpy_type<double> : std::integral_constant<int, NPY_DOUBLE> {
-};
-
-template <>
-struct c_type_to_numpy_type<float> : std::integral_constant<int, NPY_FLOAT> {
-};
-
-template <>
-struct c_type_to_numpy_type<std::complex<float>>
-    : std::integral_constant<int, NPY_CFLOAT> {
-};
-
-template <>
-struct c_type_to_numpy_type<std::complex<double>>
-    : std::integral_constant<int, NPY_CDOUBLE> {
-};
-
-template <>
-struct c_type_to_numpy_type<std::complex<long double>>
-    : std::integral_constant<int, NPY_CLONGDOUBLE> {
-};
-
-template <>
-struct c_type_to_numpy_type<signed long long> {
-  static const int value = details::signed_int_types[sizeof(signed long long)];
-};
-
-template <>
-struct c_type_to_numpy_type<unsigned long long> {
-  static const int value =
-      details::unsigned_int_types[sizeof(unsigned long long)];
-};
-
-template <>
-struct c_type_to_numpy_type<signed long> {
-  static const int value = details::signed_int_types[sizeof(signed long)];
-};
-
-template <>
-struct c_type_to_numpy_type<unsigned long> {
-  static const int value = details::unsigned_int_types[sizeof(unsigned long)];
-};
-
-template <>
-struct c_type_to_numpy_type<signed int> {
-  static const int value = details::signed_int_types[sizeof(signed int)];
-};
-
-template <>
-struct c_type_to_numpy_type<unsigned int> {
-  static const int value = details::unsigned_int_types[sizeof(unsigned int)];
-};
-
-template <>
-struct c_type_to_numpy_type<signed short> {
-  static const int value = details::signed_int_types[sizeof(signed short)];
-};
-
-template <>
-struct c_type_to_numpy_type<unsigned short> {
-  static const int value = details::unsigned_int_types[sizeof(unsigned short)];
-};
-
-template <>
-struct c_type_to_numpy_type<signed char> {
-  static const int value = details::signed_int_types[sizeof(signed char)];
-};
-
-template <>
-struct c_type_to_numpy_type<unsigned char> {
-  static const int value = details::unsigned_int_types[sizeof(unsigned char)];
-};
-
-template <>
-struct c_type_to_numpy_type<bool> {
-  static const int value = NPY_BOOL;
-};
 
 /* wrapper around Python array creation
  * its purpose is to hide the difference between the shape stored in pythran
@@ -1505,11 +1422,15 @@ to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v)
 
 template <class Arg, class... S>
 PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
-    types::numpy_gexpr<Arg, S...> const &v)
+    types::numpy_gexpr<Arg, S...> const &v, bool transpose)
 {
   PyObject *slices = ::to_python(v.slices);
   PyObject *base = ::to_python(v.arg);
-  return PyObject_GetItem(base, slices);
+  PyObject *res = PyObject_GetItem(base, slices);
+  if (transpose)
+    return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
+  else
+    return res;
 }
 
 namespace impl

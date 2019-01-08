@@ -30,6 +30,7 @@
 #include "pythonic/include/numpy/complex64.hpp"
 #include "pythonic/include/numpy/complex128.hpp"
 
+#include "pythonic/include/types/dynamic_tuple.hpp"
 #include "pythonic/include/types/vectorizable_type.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 #include "pythonic/include/types/numpy_expr.hpp"
@@ -211,21 +212,20 @@ namespace types
 
   template <size_t L>
   struct noffset {
-    template <size_t M>
+    template <class Ty, size_t M>
     long operator()(array<long, M> const &strides,
-                    array<long, M> const &indices) const;
-    template <size_t M, class pS>
-    long operator()(array<long, M> const &strides,
-                    array<long, M> const &indices, pS const &shape) const;
+                    array<Ty, M> const &indices) const;
+    template <class Ty, size_t M, class pS>
+    long operator()(array<long, M> const &strides, array<Ty, M> const &indices,
+                    pS const &shape) const;
   };
 
   template <>
   struct noffset<0> {
-    template <size_t M>
-    long operator()(array<long, M> const &,
-                    array<long, M> const &indices) const;
-    template <size_t M, class pS>
-    long operator()(array<long, M> const &, array<long, M> const &indices,
+    template <class Ty, size_t M>
+    long operator()(array<long, M> const &, array<Ty, M> const &indices) const;
+    template <class Ty, size_t M, class pS>
+    long operator()(array<long, M> const &, array<Ty, M> const &indices,
                     pS const &shape) const;
   };
 
@@ -337,6 +337,9 @@ namespace types
     template <class Arg, class F>
     ndarray(numpy_vexpr<Arg, F> const &expr);
 
+    template <class Arg>
+    ndarray(fast_range<Arg> const &expr);
+
     /* update operators */
     template <class Op, class Expr>
     ndarray &update_(Expr const &expr);
@@ -376,16 +379,24 @@ namespace types
       return type_helper<ndarray>::get(std::move(*this), i);
     }
 
-    T &fast(array<long, value> const &indices);
-    T fast(array<long, value> const &indices) const;
+    template <class Ty>
+    typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+    fast(array<Ty, value> const &indices);
+    template <class Ty>
+    typename std::enable_if<std::is_integral<Ty>::value, T>::type
+    fast(array<Ty, value> const &indices) const;
 
-    template <size_t M>
-    auto fast(array<long, M> const &indices) const
-        & -> decltype(nget<M - 1>().fast(*this, indices));
+    template <class Ty, size_t M>
+    auto fast(array<Ty, M> const &indices) const & ->
+        typename std::enable_if<std::is_integral<Ty>::value,
+                                decltype(nget<M - 1>().fast(*this,
+                                                            indices))>::type;
 
-    template <size_t M>
-        auto fast(array<long, M> const &indices) &&
-        -> decltype(nget<M - 1>().fast(std::move(*this), indices));
+    template <class Ty, size_t M>
+        auto fast(array<Ty, M> const &indices) &&
+        -> typename std::enable_if<std::is_integral<Ty>::value,
+                                   decltype(nget<M - 1>().fast(std::move(*this),
+                                                               indices))>::type;
 
 #ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<ndarray>;
@@ -482,17 +493,24 @@ namespace types
       return std::move(*this).fast(i);
     }
 
-    T const &operator[](array<long, value> const &indices) const;
+    template <class Ty>
+    typename std::enable_if<std::is_integral<Ty>::value, T const &>::type
+    operator[](array<Ty, value> const &indices) const;
 
-    T &operator[](array<long, value> const &indices);
+    template <class Ty>
+    typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+    operator[](array<Ty, value> const &indices);
 
-    template <size_t M>
-    auto operator[](array<long, M> const &indices) const
-        & -> decltype(nget<M - 1>()(*this, indices));
+    template <class Ty, size_t M>
+    auto operator[](array<Ty, M> const &indices) const & ->
+        typename std::enable_if<std::is_integral<Ty>::value,
+                                decltype(nget<M - 1>()(*this, indices))>::type;
 
-    template <size_t M>
-        auto operator[](array<long, M> const &indices) &&
-        -> decltype(nget<M - 1>()(std::move(*this), indices));
+    template <class Ty, size_t M>
+        auto operator[](array<Ty, M> const &indices) &&
+        -> typename std::enable_if<std::is_integral<Ty>::value,
+                                   decltype(nget<M - 1>()(std::move(*this),
+                                                          indices))>::type;
 
     template <class Ty>
     auto operator[](std::tuple<Ty> const &indices) const
@@ -504,20 +522,40 @@ namespace types
     template <class Ty0, class Ty1, class... Tys>
     auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
         typename std::enable_if<
-            !std::is_same<Ty0, long>::value && !is_numexpr_arg<Ty0>::value,
-            decltype((*this)[to_array<long>(indices)])>::type;
-
-    template <class Ty, class... Tys>
-    auto operator[](std::tuple<long, Ty, Tys...> const &indices) const
-        -> decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])
+            std::is_integral<Ty0>::value,
+            decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>::type
     {
       return (*this)[std::get<0>(indices)][tuple_tail(indices)];
     }
 
-    template <class L, class Ty, class... Tys>
-    auto operator[](std::tuple<L, Ty, Tys...> const &indices) const ->
-        typename std::enable_if<is_numexpr_arg<L>::value,
+    template <class Ty0, class Ty1, class... Tys>
+    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
+        typename std::enable_if<is_numexpr_arg<Ty0>::value,
                                 decltype((*this)[tuple_tail(indices)])>::type;
+
+    template <class Slices, size_t... Is>
+    auto _fwdindex(Slices const &indices, utils::index_sequence<Is...>) const
+        & -> decltype((*this)(std::get<Is>(indices)...))
+    {
+      return (*this)((indices.size() > Is ? std::get<Is>(indices)
+                                          : contiguous_slice())...);
+    }
+    template <class Ty, size_t M>
+    auto operator[](array<Ty, M> const &indices) const & ->
+        typename std::enable_if<
+            !std::is_integral<Ty>::value,
+            decltype(this->_fwdindex(indices,
+                                     utils::make_index_sequence<M>()))>::type
+    {
+      return _fwdindex(indices, utils::make_index_sequence<M>());
+    }
+    template <class S>
+    auto operator[](dynamic_tuple<S> const &indices) const
+        -> decltype(this->_fwdindex(indices,
+                                    utils::make_index_sequence<value>()))
+    {
+      return _fwdindex(indices, utils::make_index_sequence<value>());
+    }
 
     /* through iterators */
     iterator begin();
@@ -671,218 +709,167 @@ namespace types
     struct dtype_helper<std::complex<double>> {
       using type = pythonic::numpy::functor::complex128;
     };
+    template <>
+    struct dtype_helper<std::complex<long double>> {
+      using type = pythonic::numpy::functor::complex256;
+    };
   }
   template <class T>
   using dtype_t = typename details::dtype_helper<T>::type;
-
-  namespace __ndarray
-  {
-
-    template <int I, class E>
-    struct getattr;
-
-    template <class E>
-    struct getattr<attr::SHAPE, E> {
-      auto operator()(E const &a) -> decltype(sutils::array(a.shape()));
-    };
-
-    template <class E>
-    struct getattr<attr::NDIM, E> {
-      long operator()(E const &a);
-    };
-
-    template <class E>
-    struct getattr<attr::STRIDES, E> {
-      array<long, E::value> operator()(E const &a);
-    };
-
-    template <class E>
-    struct getattr<attr::SIZE, E> {
-      long operator()(E const &a);
-    };
-
-    template <class E>
-    struct getattr<attr::ITEMSIZE, E> {
-      long operator()(E const &a);
-    };
-
-    template <class E>
-    struct getattr<attr::NBYTES, E> {
-      long operator()(E const &a);
-    };
-
-    template <class E>
-    struct getattr<attr::FLAT, E> {
-      auto operator()(E const &a) -> decltype(a.flat());
-    };
-
-    template <class E>
-    struct getattr<attr::DTYPE, E> {
-      dtype_t<typename E::dtype> operator()(E const &);
-    };
-
-    template <class E>
-    struct getattr<attr::T, E> {
-      auto operator()(E const &a) -> decltype(numpy::transpose(a))
-      {
-        return numpy::transpose(a);
-      }
-    };
-
-    namespace
-    {
-      template <size_t N>
-      struct _build_gexpr {
-        template <class E, class... S>
-        auto operator()(E const &a, S const &... slices)
-            -> decltype(_build_gexpr<N - 1>{}(a, contiguous_slice(),
-                                              slices...));
-      };
-
-      template <>
-      struct _build_gexpr<1> {
-        template <class E, class... S>
-        numpy_gexpr<E, normalize_t<S>...> operator()(E const &a,
-                                                     S const &... slices);
-      };
-    }
-
-    template <class E>
-    struct getattr<attr::REAL, E> {
-
-      E make_real(E const &a, utils::int_<0>);
-
-      auto make_real(E const &a, utils::int_<1>)
-          -> decltype(_build_gexpr<E::value>{}(
-              ndarray<typename types::is_complex<typename E::dtype>::type,
-                      types::array<long, E::value>>{},
-              slice()));
-
-      auto operator()(E const &a) -> decltype(this->make_real(
-          a, utils::int_<types::is_complex<typename E::dtype>::value>{}));
-    };
-
-    template <class E>
-    struct getattr<attr::REAL, types::numpy_texpr<E>> {
-
-      auto operator()(types::numpy_texpr<E> const &a) -> decltype(
-          types::numpy_texpr<decltype(getattr<attr::REAL, E>{}(a.arg))>{
-              getattr<attr::REAL, E>{}(a.arg)});
-    };
-
-    template <class E>
-    struct getattr<attr::REAL, types::numpy_iexpr<E>> {
-
-      auto operator()(types::numpy_iexpr<E> const &a) -> decltype(
-          types::numpy_iexpr<decltype(getattr<attr::REAL, E>{}(a.arg))>{
-              getattr<attr::REAL, E>{}(a.arg)})
-      {
-        return {getattr<attr::REAL, E>{}(a.arg)};
-      }
-    };
-
-    template <class E, class... S>
-    struct getattr<attr::REAL, types::numpy_gexpr<E, S...>> {
-
-      template <class T, class Ss, size_t... Is>
-      auto get(T &&expr, Ss const &indices, utils::index_sequence<Is...>)
-          -> decltype(std::forward<T>(expr)(std::get<Is>(indices)...))
-      {
-        return std::forward<T>(expr)(std::get<Is>(indices)...);
-      }
-      auto operator()(types::numpy_gexpr<E, S...> const &a)
-          -> decltype(this->get(
-              getattr<attr::REAL, typename std::decay<E>::type>{}(a.arg),
-              a.slices, utils::make_index_sequence<
-                            std::tuple_size<decltype(a.slices)>::value>()))
-      {
-        return get(getattr<attr::REAL, typename std::decay<E>::type>{}(a.arg),
-                   a.slices, utils::make_index_sequence<
-                                 std::tuple_size<decltype(a.slices)>::value>());
-      }
-    };
-
-    template <class E>
-    struct getattr<attr::IMAG, E> {
-
-      types::ndarray<typename E::dtype, typename E::shape_t>
-      make_imag(E const &a, utils::int_<0>);
-
-      auto make_imag(E const &a, utils::int_<1>)
-          -> decltype(_build_gexpr<E::value>{}(
-              ndarray<typename types::is_complex<typename E::dtype>::type,
-                      types::array<long, E::value>>{},
-              slice()));
-
-      auto operator()(E const &a) -> decltype(this->make_imag(
-          a, utils::int_<types::is_complex<typename E::dtype>::value>{}));
-    };
-
-    template <class E>
-    struct getattr<attr::IMAG, types::numpy_texpr<E>> {
-      auto operator()(types::numpy_texpr<E> const &a) -> decltype(
-          types::numpy_texpr<decltype(getattr<attr::IMAG, E>{}(a.arg))>{
-              getattr<attr::IMAG, E>{}(a.arg)});
-    };
-
-    template <class E>
-    struct getattr<attr::IMAG, types::numpy_iexpr<E>> {
-
-      auto operator()(types::numpy_iexpr<E> const &a) -> decltype(
-          types::numpy_iexpr<decltype(getattr<attr::IMAG, E>{}(a.arg))>{
-              getattr<attr::IMAG, E>{}(a.arg)})
-      {
-        return {getattr<attr::IMAG, E>{}(a.arg)};
-      }
-    };
-
-    template <class E, class... S>
-    struct getattr<attr::IMAG, types::numpy_gexpr<E, S...>> {
-
-      template <class T, class Ss, size_t... Is>
-      auto get(T &&expr, Ss const &indices, utils::index_sequence<Is...>)
-          -> decltype(std::forward<T>(expr)(std::get<Is>(indices)...))
-      {
-        return std::forward<T>(expr)(std::get<Is>(indices)...);
-      }
-      auto operator()(types::numpy_gexpr<E, S...> const &a)
-          -> decltype(this->get(
-              getattr<attr::IMAG, typename std::decay<E>::type>{}(a.arg),
-              a.slices, utils::make_index_sequence<
-                            std::tuple_size<decltype(a.slices)>::value>()))
-      {
-        return get(getattr<attr::IMAG, typename std::decay<E>::type>{}(a.arg),
-                   a.slices, utils::make_index_sequence<
-                                 std::tuple_size<decltype(a.slices)>::value>());
-      }
-    };
-  }
 }
 namespace __builtin__
 {
-  template <int I, class T, class pS>
-  auto getattr(types::ndarray<T, pS> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::ndarray<T, pS>>()(f));
+  namespace details
+  {
+    template <size_t N>
+    struct _build_gexpr {
+      template <class E, class... S>
+      auto operator()(E const &a, S const &... slices)
+          -> decltype(_build_gexpr<N - 1>{}(a, types::contiguous_slice(),
+                                            slices...));
+    };
 
-  template <int I, class O, class... Args>
-  auto getattr(types::numpy_expr<O, Args...> const &f) -> decltype(
-      types::__ndarray::getattr<I, types::numpy_expr<O, Args...>>()(f));
+    template <>
+    struct _build_gexpr<1> {
+      template <class E, class... S>
+      types::numpy_gexpr<E, types::normalize_t<S>...>
+      operator()(E const &a, S const &... slices);
+    };
 
-  template <int I, class A, class... S>
-  auto getattr(types::numpy_gexpr<A, S...> const &f) -> decltype(
-      types::__ndarray::getattr<I, types::numpy_gexpr<A, S...>>()(f));
+    template <class E>
+    E _make_real(E const &a, utils::int_<0>);
 
-  template <int I, class A>
-  auto getattr(types::numpy_iexpr<A> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_iexpr<A>>()(f));
+    template <class E>
+    auto _make_real(E const &a, utils::int_<1>)
+        -> decltype(_build_gexpr<E::value>{}(
+            types::ndarray<typename types::is_complex<typename E::dtype>::type,
+                           types::array<long, E::value>>{},
+            types::slice()));
+    template <class T, class Ss, size_t... Is>
+    auto real_get(T &&expr, Ss const &indices, utils::index_sequence<Is...>)
+        -> decltype(std::forward<T>(expr)(std::get<Is>(indices)...))
+    {
+      return std::forward<T>(expr)(std::get<Is>(indices)...);
+    }
+    template <class E>
+    types::ndarray<typename E::dtype, typename E::shape_t>
+    _make_imag(E const &a, utils::int_<0>);
 
-  template <int I, class A>
-  auto getattr(types::numpy_texpr<A> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_texpr<A>>()(f));
+    template <class E>
+    auto _make_imag(E const &a, utils::int_<1>)
+        -> decltype(_build_gexpr<E::value>{}(
+            types::ndarray<typename types::is_complex<typename E::dtype>::type,
+                           types::array<long, E::value>>{},
+            types::slice()));
+    template <class T, class Ss, size_t... Is>
+    auto imag_get(T &&expr, Ss const &indices, utils::index_sequence<Is...>)
+        -> decltype(std::forward<T>(expr)(std::get<Is>(indices)...))
+    {
+      return std::forward<T>(expr)(std::get<Is>(indices)...);
+    }
+  }
 
-  template <int I, class T, class F>
-  auto getattr(types::numpy_vexpr<T, F> const &f)
-      -> decltype(types::__ndarray::getattr<I, types::numpy_vexpr<T, F>>()(f));
+  template <class E>
+  auto getattr(types::attr::SHAPE, E const &a)
+      -> decltype(sutils::array(a.shape()));
+
+  template <class E>
+  long getattr(types::attr::NDIM, E const &a);
+
+  template <class E>
+  types::array<long, E::value> getattr(types::attr::STRIDES, E const &a);
+
+  template <class E>
+  long getattr(types::attr::SIZE, E const &a);
+
+  template <class E>
+  long getattr(types::attr::ITEMSIZE, E const &a);
+
+  template <class E>
+  long getattr(types::attr::NBYTES, E const &a);
+
+  template <class E>
+  auto getattr(types::attr::FLAT, E const &a) -> decltype(a.flat());
+
+  template <class E>
+  auto getattr(types::attr::T, E const &a) -> decltype(numpy::transpose(a))
+  {
+    return numpy::transpose(a);
+  }
+
+  template <class T, class pS>
+  auto getattr(types::attr::REAL, types::ndarray<T, pS> const &a) -> decltype(
+      details::_make_real(a, utils::int_<types::is_complex<T>::value>{}));
+
+  template <class Op, class... Args>
+  auto getattr(types::attr::REAL, types::numpy_expr<Op, Args...> const &a)
+      -> decltype(details::_make_real(
+          a, utils::int_<types::is_complex<
+                 typename types::numpy_expr<Op, Args...>::dtype>::value>{}));
+
+  template <class E>
+  auto getattr(types::attr::REAL, types::numpy_texpr<E> const &a) -> decltype(
+      types::numpy_texpr<decltype(getattr(types::attr::REAL{}, a.arg))>{
+          getattr(types::attr::REAL{}, a.arg)});
+
+  template <class E>
+  auto getattr(types::attr::REAL, types::numpy_iexpr<E> const &a) -> decltype(
+      types::numpy_iexpr<decltype(getattr(types::attr::REAL{}, a.arg))>{
+          getattr(types::attr::REAL{}, a.arg)})
+  {
+    return {getattr(types::attr::REAL{}, a.arg)};
+  }
+
+  template <class E, class... S>
+  auto getattr(types::attr::REAL, types::numpy_gexpr<E, S...> const &a)
+      -> decltype(
+          details::real_get(getattr(types::attr::REAL{}, a.arg), a.slices,
+                            utils::make_index_sequence<
+                                std::tuple_size<decltype(a.slices)>::value>()))
+  {
+    return details::real_get(getattr(types::attr::REAL{}, a.arg), a.slices,
+                             utils::make_index_sequence<
+                                 std::tuple_size<decltype(a.slices)>::value>());
+  }
+
+  template <class T, class pS>
+  auto getattr(types::attr::IMAG, types::ndarray<T, pS> const &a) -> decltype(
+      details::_make_imag(a, utils::int_<types::is_complex<T>::value>{}));
+
+  template <class Op, class... Args>
+  auto getattr(types::attr::IMAG, types::numpy_expr<Op, Args...> const &a)
+      -> decltype(details::_make_imag(
+          a, utils::int_<types::is_complex<
+                 typename types::numpy_expr<Op, Args...>::dtype>::value>{}));
+
+  template <class E>
+  auto getattr(types::attr::IMAG, types::numpy_texpr<E> const &a) -> decltype(
+      types::numpy_texpr<decltype(getattr(types::attr::IMAG{}, a.arg))>{
+          getattr(types::attr::IMAG{}, a.arg)});
+
+  template <class E>
+  auto geatttr(types::attr::IMAG, types::numpy_iexpr<E> const &a) -> decltype(
+      types::numpy_iexpr<decltype(getattr(types::attr::IMAG{}, a.arg))>{
+          getattr(types::attr::IMAG{}, a.arg)})
+  {
+    return {getattr(types::attr::IMAG{}, a.arg)};
+  }
+
+  template <class E, class... S>
+  auto getattr(types::attr::IMAG, types::numpy_gexpr<E, S...> const &a)
+      -> decltype(
+          details::imag_get(getattr(types::attr::IMAG{}, a.arg), a.slices,
+                            utils::make_index_sequence<
+                                std::tuple_size<decltype(a.slices)>::value>()))
+  {
+    return details::imag_get(getattr(types::attr::IMAG{}, a.arg), a.slices,
+                             utils::make_index_sequence<
+                                 std::tuple_size<decltype(a.slices)>::value>());
+  }
+
+  template <class E>
+  types::dtype_t<typename types::dtype_of<E>::type> getattr(types::attr::DTYPE,
+                                                            E const &);
 }
 PYTHONIC_NS_END
 
@@ -939,17 +926,16 @@ struct to_python<types::numpy_iexpr<Arg>> {
 
 template <class Arg, class... S>
 struct to_python<types::numpy_gexpr<Arg, S...>> {
-  static PyObject *convert(types::numpy_gexpr<Arg, S...> const &v);
+  static PyObject *convert(types::numpy_gexpr<Arg, S...> const &v,
+                           bool transpose = false);
 };
 
-template <class T, class S0, class S1>
-struct to_python<types::numpy_texpr<types::ndarray<T, types::pshape<S0, S1>>>> {
-  static PyObject *
-  convert(types::numpy_texpr<types::ndarray<T, types::pshape<S0, S1>>> const &t)
+template <class E>
+struct to_python<types::numpy_texpr<E>> {
+  static PyObject *convert(types::numpy_texpr<E> const &t)
   {
     auto const &n = t.arg;
-    PyObject *result =
-        to_python<types::ndarray<T, types::pshape<S0, S1>>>::convert(n, true);
+    PyObject *result = to_python<E>::convert(n, true);
     return result;
   }
 };

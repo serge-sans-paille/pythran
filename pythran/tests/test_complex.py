@@ -27,6 +27,14 @@ class TestComplex(TestEnv):
                           complex(-4, np.nan), complex(4, -np.inf),
                           test_complex_limited_range=[complex, complex])
 
+    def test_complex128_to_complex64(self):
+        self.run_test("""
+            import numpy as np
+            def complex128_to_complex64(a):
+                return np.complex64(a)""",
+            complex(-4.4, 4.4),
+            complex128_to_complex64=[complex])
+
     def test_conjugate(self):
         """
         Check complex conjugate.
@@ -102,6 +110,16 @@ class TestComplex(TestEnv):
                       np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
                       test_complex_array_iexpr_real_assign=[NDArray[np.complex64, :, :]])
 
+    def test_complex_broadcast_scalar0(self):
+        self.run_test('def complex_broadcast_scalar0(x): return x + 1.5, 1.3 +x, 3.1 - x, x - 3.7, x * 5.4, 7.6 * x',
+                      5.1 + 3j,
+                      complex_broadcast_scalar0=[complex])
+
+    def test_complex_broadcast_scalar1(self):
+        self.run_test('def complex_broadcast_scalar1(x): return x + 1.5, 1.3 +x, 3.1 - x, x - 3.7, x * 5.4, 7.6 * x',
+                      np.complex64(5.1 + 3j),
+                      complex_broadcast_scalar1=[np.complex64])
+
     def test_complex_array_imag_assign(self):
         self.run_test('def test_complex_array_imag_assign(a): a.imag = 1; return a',
                       np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
@@ -116,6 +134,16 @@ class TestComplex(TestEnv):
         self.run_test('def test_complex_array_iexpr_imag_assign(a): a.imag[1] = 1; return a',
                       np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
                       test_complex_array_iexpr_imag_assign=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_expr_imag(self):
+        self.run_test('def test_complex_array_expr_imag(a): return (2.j*a).imag',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_expr_imag=[NDArray[np.complex64, :, :]])
+
+    def test_complex_array_expr_real(self):
+        self.run_test('def test_complex_array_expr_real(a): return (2+a).real',
+                      np.array([[3 + 2j, 2, 1, 0]] * 3,dtype=np.complex64),
+                      test_complex_array_expr_real=[NDArray[np.complex64, :, :]])
 
     @unittest.skipIf(not has_float128, "not float128")
     def test_complex256_array0(self):

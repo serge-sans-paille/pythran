@@ -1,5 +1,6 @@
 from subprocess import check_call
 import os
+import re
 import shutil
 import sys
 import sysconfig
@@ -22,9 +23,13 @@ class TestDistutils(unittest.TestCase):
                    cwd=os.path.join(cwd, 'test_distutils'))
         check_call(['python', 'setup.py', 'install', '--prefix=demo_install'],
                    cwd=os.path.join(cwd, 'test_distutils'))
+
+        base = os.path.join(cwd, 'test_distutils', 'demo_install',)
+        libdir = os.path.join(base, 'lib')
+        if not os.path.isdir(libdir):
+            libdir = os.path.join(base, 'lib64')
         check_call(['python', '-c', 'import demo'],
-                   cwd=os.path.join(cwd, 'test_distutils', 'demo_install',
-                                    'lib', python_version, 'site-packages'))
+                   cwd=os.path.join(libdir, python_version, 'site-packages'))
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'demo_install'))
@@ -54,14 +59,35 @@ class TestDistutils(unittest.TestCase):
         self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)
 
+    def test_setup_wheel_install(self):
+        check_call(['python', 'setup.py', 'bdist_wheel', "--dist-dir=bdist_wheel"],
+                   cwd=os.path.join(cwd, 'test_distutils_setuptools'))
+        dist_path = os.path.join(cwd, 'test_distutils_setuptools', 'bdist_wheel')
+        wheel_dir = 'wheeeeeeel'
+        whl = [f for f in os.listdir(dist_path) if f.endswith(".whl")][0]
+        check_call(['unzip', whl, '-d', wheel_dir], cwd=dist_path)
+
+        def find(name, path):
+            for root, dirs, files in os.walk(path):
+                if name in files:
+                    return os.path.join(root, name)
+        demo_so = find("demo{}.so".format(so_version), os.path.join(dist_path, wheel_dir))
+        self.assertIsNotNone(demo_so)
+        shutil.rmtree(dist_path)
+
+
     def test_setup_build2(self):
         check_call(['python', 'setup.py', 'build'],
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
         check_call(['python', 'setup.py', 'install', '--prefix=demo_install2'],
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
+
+        base = os.path.join(cwd, 'test_distutils_packaged', 'demo_install2',)
+        libdir = os.path.join(base, 'lib')
+        if not os.path.isdir(libdir):
+            libdir = os.path.join(base, 'lib64')
         check_call(['python', '-c', 'import demo2.a'],
-                   cwd=os.path.join(cwd, 'test_distutils_packaged', 'demo_install2',
-                                    'lib', python_version, 'site-packages'))
+                   cwd=os.path.join(libdir, python_version, 'site-packages'))
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils_packaged', 'demo_install2'))

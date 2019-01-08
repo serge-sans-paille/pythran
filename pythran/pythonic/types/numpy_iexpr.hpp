@@ -242,28 +242,6 @@ namespace types
     return buffer + flat_size();
   }
 
-  template <class Arg>
-  auto numpy_iexpr<Arg>::fast(long i) const
-      & -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>, value>::get(*this, i))
-  {
-    return numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i);
-  }
-
-  template <class Arg>
-      auto numpy_iexpr<Arg>::fast(long i) &
-      -> decltype(numpy_iexpr_helper<numpy_iexpr<Arg>, value>::get(*this, i))
-  {
-    return numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i);
-  }
-
-  template <class Arg>
-      auto numpy_iexpr<Arg>::fast(long i) &&
-      -> decltype(
-          numpy_iexpr_helper<numpy_iexpr<Arg>, value>::get(std::move(*this), i))
-  {
-    return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
-  }
-
   template <class T0, class T1>
   size_t compute_fast_offset(size_t offset, long mult, T0 const &indices,
                              T1 const &shape, std::integral_constant<long, 0>)
@@ -390,14 +368,6 @@ namespace types
                                    S const &... s) const
   {
     return make_gexpr(*this, s0, s...);
-  }
-
-  template <class Arg>
-  template <class... S>
-  auto numpy_iexpr<Arg>::operator()(long s0, S const &... s) const
-      -> decltype(std::declval<numpy_iexpr<numpy_iexpr<Arg>>>()(s...))
-  {
-    return (*this)[s0](s...);
   }
 
   template <class Arg>

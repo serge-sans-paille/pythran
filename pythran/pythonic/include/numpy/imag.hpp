@@ -11,8 +11,8 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  auto imag(E &&expr) -> decltype(
-      __builtin__::getattr<types::attr::IMAG>(std::forward<E>(expr)));
+  auto imag(E &&expr) -> decltype(__builtin__::getattr(types::attr::IMAG{},
+                                                       std::forward<E>(expr)));
 
   template <class T>
   auto imag(types::list<T> const &expr)

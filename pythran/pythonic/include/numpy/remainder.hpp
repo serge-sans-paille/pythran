@@ -12,8 +12,18 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+  namespace wrapper
+  {
+    template <class T0, class T1>
+    auto remainder(T0 const &x, T1 const &y)
+        -> decltype(x - y * xsimd::floor(x / y))
+    {
+      return x - y * xsimd::floor(x / y);
+    }
+  }
+
 #define NUMPY_NARY_FUNC_NAME remainder
-#define NUMPY_NARY_FUNC_SYM xsimd::remainder
+#define NUMPY_NARY_FUNC_SYM wrapper::remainder
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

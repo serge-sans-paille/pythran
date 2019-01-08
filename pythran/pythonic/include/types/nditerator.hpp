@@ -68,10 +68,32 @@ namespace types
     {
       return fast_end(container_);
     }
+#ifdef USE_XSIMD
+    template <class vectorizer>
+    auto vbegin(vectorizer v) const -> decltype(this->container_.vbegin(v))
+    {
+      return container_.vbegin(v);
+    }
+    template <class vectorizer>
+    auto vend(vectorizer v) const -> decltype(this->container_.vend(v))
+    {
+      return container_.vend(v);
+    }
+#endif
 
     auto size() const -> decltype(this->container_.size())
     {
       return this->container_.size();
+    }
+
+    auto flat_size() const -> decltype(this->container_.flat_size())
+    {
+      return container_.flat_size();
+    }
+
+    auto shape() const -> decltype(this->container_.shape())
+    {
+      return container_.shape();
     }
   };
 

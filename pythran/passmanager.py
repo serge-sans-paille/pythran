@@ -12,6 +12,7 @@ There are two kinds of passes: transformations and analysis.
 """
 
 import gast as ast
+import os
 import re
 
 
@@ -185,7 +186,7 @@ class PassManager(object):
     '''
     def __init__(self, module_name, module_dir=None):
         self.module_name = module_name
-        self.module_dir = module_dir
+        self.module_dir = module_dir or os.getcwd()
         self._cache = {}
 
     def gather(self, analysis, node, ctx=None):

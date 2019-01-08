@@ -113,8 +113,7 @@ namespace types
 
   types::str const &file::getnewlines() const
   {
-    // Python seems to always return none... Doing the same in
-    // getattr<newlines>
+    // Python seems to always return none... Doing the same here
     return newlines;
   }
 
@@ -188,7 +187,7 @@ namespace types
       // +1 because we read the last chunk so we don't want to count \0
       if (fgets(read_str, std::min(BUFFER_SIZE - 1, size - i) + 1, **data))
         res += read_str;
-      if (feof(**data) || res[-1] == '\n')
+      if (feof(**data) || res[res.size() - 1] == "\n")
         break;
     }
     return res;
@@ -300,41 +299,28 @@ PYTHONIC_NS_END
 
 /* pythran attribute system { */
 PYTHONIC_NS_BEGIN
-namespace types
-{
-  namespace __file
-  {
-
-    bool getattr<attr::CLOSED>::operator()(file const &f)
-    {
-      return f.closed();
-    }
-
-    str const &getattr<attr::MODE>::operator()(file const &f)
-    {
-      return f.getmode();
-    }
-
-    str const &getattr<attr::NAME>::operator()(file const &f)
-    {
-      return f.getname();
-    }
-
-    // Python seems to always return none... Doing the same.
-    none_type getattr<attr::NEWLINES>::operator()(file const &f)
-    {
-      return __builtin__::None;
-    }
-  }
-}
 
 namespace __builtin__
 {
-  template <int I>
-  auto getattr(pythonic::types::file const &f)
-      -> decltype(pythonic::types::__file::getattr<I>()(f))
+  bool getattr(types::attr::CLOSED, types::file const &f)
   {
-    return pythonic::types::__file::getattr<I>()(f);
+    return f.closed();
+  }
+
+  types::str const &getattr(types::attr::MODE, types::file const &f)
+  {
+    return f.getmode();
+  }
+
+  types::str const &getattr(types::attr::NAME, types::file const &f)
+  {
+    return f.getname();
+  }
+
+  // Python seems to always return none... Doing the same.
+  types::none_type getattr(types::attr::NEWLINES, types::file const &f)
+  {
+    return __builtin__::None;
   }
 }
 PYTHONIC_NS_END

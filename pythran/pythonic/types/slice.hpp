@@ -418,6 +418,21 @@ namespace types
     }
     return {new_lower, new_upper, new_step};
   }
+  template <class T>
+  std::ostream &operator<<(std::ostream &os, bound<T> const &b)
+  {
+    return (b.is_none() ? (os << "None") : (os << (T)b));
+  }
+  std::ostream &operator<<(std::ostream &os, slice const &s)
+  {
+    return os << "slice(" << s.lower << ", " << s.upper << ", " << s.step
+              << ")";
+  }
+  std::ostream &operator<<(std::ostream &os, contiguous_slice const &s)
+  {
+    return os << "slice(" << s.lower << ", " << s.upper << ", " << s.step
+              << ")";
+  }
 }
 PYTHONIC_NS_END
 

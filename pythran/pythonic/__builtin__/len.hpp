@@ -19,11 +19,6 @@ namespace __builtin__
     return sizeof...(Types);
   }
 
-  constexpr long len(char)
-  {
-    return 1;
-  }
-
   template <class T>
   typename std::enable_if<types::has_size<T>::value, long>::type len(T const &t)
   {

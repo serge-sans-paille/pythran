@@ -42,9 +42,10 @@ try:
                             extra_compile_args=['-fopenmp'],
                             extra_link_args=['-fopenmp'])
     import omp
-    TestOpenMP4.populate(TestOpenMP4)
-    TestOpenMP.populate(TestOpenMP)
-    TestOpenMPLegacy.populate(TestOpenMPLegacy)
+    if '-fopenmp' in pythran.config.cfg.get('compiler', 'ldflags'):
+        TestOpenMP4.populate(TestOpenMP4)
+        TestOpenMP.populate(TestOpenMP)
+        TestOpenMPLegacy.populate(TestOpenMPLegacy)
 except PythranSyntaxError:
     raise
 except (CompileError, ImportError):

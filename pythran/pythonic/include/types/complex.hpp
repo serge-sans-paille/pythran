@@ -2,56 +2,105 @@
 #define PYTHONIC_INCLUDE_TYPES_COMPLEX_HPP
 
 #include <complex>
+PYTHONIC_NS_BEGIN
+namespace numpy
+{
+  namespace functor
+  {
+    struct complex64;
+    struct complex128;
+    struct complex256;
+  }
+}
+
+PYTHONIC_NS_END
 
 namespace std
 {
-  std::complex<double> operator+(std::complex<double> self, long other);
-  std::complex<double> operator+(long self, std::complex<double> other);
-  std::complex<double> operator-(std::complex<double> self, long other);
-  std::complex<double> operator-(long self, std::complex<double> other);
-  std::complex<double> operator*(std::complex<double> self, long other);
-  std::complex<double> operator*(long self, std::complex<double> other);
-  std::complex<double> operator/(std::complex<double> self, long other);
-  std::complex<double> operator/(long self, std::complex<double> other);
-  bool operator==(std::complex<double> self, long other);
-  bool operator==(long self, std::complex<double> other);
-  bool operator!=(std::complex<double> self, long other);
-  bool operator!=(long self, std::complex<double> other);
-  template <class T>
-  bool operator<(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator<=(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator>(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator>=(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator&&(std::complex<T> self, std::complex<T> other);
-  template <class T>
-  bool operator||(std::complex<T> self, std::complex<T> other);
+
+  template <class T, class S>
+  using complex_broadcast_t = typename std::enable_if<
+      std::is_scalar<S>::value && !std::is_same<T, S>::value,
+      std::complex<typename std::common_type<T, S>::type>>::type;
+  template <class T, class S>
+  using complex_bool_t = typename std::enable_if<
+      std::is_scalar<S>::value && !std::is_same<T, S>::value, bool>::type;
+
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator+(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator+(S self, std::complex<T> other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator-(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator-(S self, std::complex<T> other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator*(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator*(S self, std::complex<T> other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator/(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_broadcast_t<T, S> operator/(S self, std::complex<T> other);
+
+  template <class T, class S>
+  complex_bool_t<T, S> operator==(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_bool_t<T, S> operator==(S self, std::complex<T> other);
+  template <class T, class S>
+  complex_bool_t<T, S> operator!=(std::complex<T> self, S other);
+  template <class T, class S>
+  complex_bool_t<T, S> operator!=(S self, std::complex<T> other);
+
+  template <class T, class S>
+  bool operator<(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator<=(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator>(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator>=(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator&&(std::complex<T> self, std::complex<S> other);
+  template <class T, class S>
+  bool operator||(std::complex<T> self, std::complex<S> other);
+
   template <class T>
   bool operator!(std::complex<T> self);
+
+  template <class T>
+  struct hash<std::complex<T>> {
+    size_t operator()(std::complex<T> const &x) const;
+  };
 }
 
 PYTHONIC_NS_BEGIN
 namespace __builtin__
 {
-  template <size_t AttributeID>
-  double getattr(std::complex<double> const &self);
+  template <class T>
+  T getattr(types::attr::REAL, std::complex<T> const &self);
+  template <class T>
+  T getattr(types::attr::IMAG, std::complex<T> const &self);
+  numpy::functor::complex64 getattr(types::attr::DTYPE,
+                                    std::complex<float> const &self);
+  numpy::functor::complex128 getattr(types::attr::DTYPE,
+                                     std::complex<double> const &self);
+  numpy::functor::complex256 getattr(types::attr::DTYPE,
+                                     std::complex<long double> const &self);
 }
 PYTHONIC_NS_END
 
 /* for type inference { */
 
 #include "pythonic/include/types/combined.hpp"
-template <class K>
-struct __combined<indexable<K>, std::complex<double>> {
-  using type = std::complex<double>;
+template <class K, class T>
+struct __combined<indexable<K>, std::complex<T>> {
+  using type = std::complex<T>;
 };
 
-template <class K>
-struct __combined<std::complex<double>, indexable<K>> {
-  using type = std::complex<double>;
+template <class K, class T>
+struct __combined<std::complex<T>, indexable<K>> {
+  using type = std::complex<T>;
 };
 
 /* } */
@@ -62,7 +111,11 @@ struct __combined<std::complex<double>, indexable<K>> {
       ->std::complex<typename std::common_type<T, U>::type>                    \
   {                                                                            \
     using ctype = std::complex<typename std::common_type<T, U>::type>;         \
-    return ctype{lhs} + ctype{rhs};                                            \
+    return ctype                                                               \
+    {                                                                          \
+      lhs                                                                      \
+    }                                                                          \
+    op ctype{rhs};                                                             \
   }
 
 STD_COMPLEX_IMPLICT_OPERATOR_CAST(+)

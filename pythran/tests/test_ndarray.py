@@ -24,17 +24,17 @@ class TestNdarray(TestEnv):
 
     def test_ndarray_uintc(self):
         self.run_test('def ndarray_uintc(a): import numpy as np; return np.uintc(a), np.array([a, a], dtype=np.uintc)',
-                      5,
+                      numpy.uintc(5),
                       ndarray_uintc=[numpy.uintc])
 
     def test_ndarray_intp(self):
         self.run_test('def ndarray_intp(a): import numpy as np; return np.intp(a), np.array([a, a], dtype=np.intp)',
-                      numpy.intp(5),
+                      numpy.intp(-5),
                       ndarray_intp=[numpy.intp])
 
     def test_ndarray_uintp(self):
         self.run_test('def ndarray_uintp(a): import numpy as np; return np.uintp(a), np.array([a, a], dtype=np.uintp)',
-                      5,
+                      numpy.uintp(5),
                       ndarray_uintp=[numpy.uintp])
 
     def test_ndarray_real_attr_read(self):
@@ -777,6 +777,41 @@ def assign_ndarray(t):
             [1],
             numpy_indexing_ex4=[NDArray[int, :, :], List[int]])
 
+    def test_numpy_indexing_ex10(self):
+        self.run_test(
+            'def numpy_indexing_ex10(x, y): return (2*x)[y]',
+            numpy.array([1,2,3,4]),
+            (0,),
+            numpy_indexing_ex10=[NDArray[int, :], Tuple[int]])
+
+    def test_numpy_indexing_ex11(self):
+        self.run_test(
+            'def numpy_indexing_ex11(x, y): return (2*x)[y]',
+            numpy.array([[1,2],[3,4]]),
+            (0, 1),
+            numpy_indexing_ex11=[NDArray[int, :, :], Tuple[int, int]])
+
+    def test_numpy_indexing_ex12(self):
+        self.run_test(
+            'def numpy_indexing_ex12(x, y): return (2*x)[y, :]',
+            numpy.array([[1,2],[3,4]]),
+            0,
+            numpy_indexing_ex12=[NDArray[int, :, :], int])
+
+    def test_numpy_indexing_ex13(self):
+        self.run_test(
+            'def numpy_indexing_ex13(x, y): return (2*x)[y]',
+            numpy.array([[1,2],[3,4]]),
+            [1],
+            numpy_indexing_ex13=[NDArray[int, :, :], List[int]])
+
+    def test_numpy_indexing_ex14(self):
+        self.run_test(
+            'def numpy_indexing_ex14(x, y): return (2*x)[:,:][y]',
+            numpy.array([[1,2],[3,4]]),
+            [1],
+            numpy_indexing_ex14=[NDArray[int, :, :], List[int]])
+
     def test_numpy_expr_combiner(self):
         code = '''
             import numpy as np
@@ -927,6 +962,15 @@ def assign_ndarray(t):
                       numpy.arange(10, dtype=numpy.uint8).reshape(5,2),
                       indexing_through_int8=[NDArray[numpy.uint8,:,:]])
 
+    def test_indexing_through_uint8(self):
+        code = '''
+            def indexing_through_uint8(x):
+                import numpy as np
+                return x[np.uint8(2), np.uint8(1)]'''
+        self.run_test(code,
+                      numpy.arange(9).reshape(3,3),
+                      indexing_through_uint8=[NDArray[int,:,:]])
+
     def test_complex_scalar_broadcast(self):
         self.run_test('def complex_scalar_broadcast(a): return (a**2 * (1 + a) + 2) / 5.',
                       numpy.ones((10,10), dtype=complex),
@@ -956,3 +1000,40 @@ def assign_ndarray(t):
                       1,
                       numpy.arange(10).reshape(5, 2),
                       texpr_expr_combined=[int, NDArray[int,:,:]])
+
+    def test_built_slice_indexing(self):
+        self.run_test('''
+            def built_slice_indexing(x,n,axis,val=0.):
+                import numpy as np
+                y = np.roll(x,n,axis)
+                S = [slice(None,None)]*x.ndim
+                if n>0: S[axis] = slice(0, n)
+                elif n<0: S[axis] = slice(n, None)
+                if n: y[tuple(S)] = val
+                return y''',
+            numpy.array([-1.2, 1, 1.2]),
+            1,
+            0,
+            5.,
+            built_slice_indexing=[NDArray[float, :], int, int, float])
+
+    def test_dtype_type(self):
+        self.run_test('''
+            def dtype_type(x):
+                import numpy as np
+                c = np.complex64(x)
+                f = np.float32(x)
+                u = np.uint8(x)
+                return c.dtype.type(1), f.dtype.type(2), u.dtype.type(3)''',
+            2,
+            dtype_type=[int])
+
+    def test_transposed_slice_assign(self):
+                self.run_test("""def transposed_slice_assign(shape):
+                                  import numpy as np
+                                  xx = np.empty(shape, dtype=int)
+                                  xx.T[:] = np.arange(0, shape[0], 1, dtype=int)
+                                  return xx""",
+                              (3, 3),
+                              transposed_slice_assign=[Tuple[int, int]])
+ 

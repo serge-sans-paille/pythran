@@ -468,3 +468,26 @@ class TestAnalyses(TestEnv):
         self.run_test(code,
                       1,
                       global_effects_unknown=[int])
+
+    def test_argument_effects_unknown(self):
+        code = '''
+            def int_datatype(n):
+                return list, str, n
+
+            def list_datatype(parent):
+                def parser(value):
+                    return parent[0](value)
+
+                def formatter(value):
+                    return parent[1](value)
+
+                return parser, formatter
+
+
+            def argument_effects_unknown(n):
+                list_datatype(int_datatype(n))'''
+
+        self.run_test(code,
+                      1,
+                      argument_effects_unknown=[int])
+

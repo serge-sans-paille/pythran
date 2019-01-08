@@ -1176,7 +1176,21 @@ namespace xsimd
         using kernel = detail::batch_kernel<value_type, simd_batch_traits<X>::size>;
         return kernel::neg(rhs());
     }
-    
+
+    /**
+     * @ingroup simd_batch_arithmetic
+     *
+     * No-op on \c rhs.
+     * @tparam X the actual type of batch.
+     * @param rhs batch involved in the operation.
+     * @return \c rhs.
+     */
+    template <class X>
+    inline X operator+(const simd_batch<X>& rhs)
+    {
+        return rhs();
+    }
+
     /**
      * @ingroup simd_batch_arithmetic
      *

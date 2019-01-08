@@ -25,6 +25,17 @@ namespace operator_
   }
 }
 
+namespace __builtin__
+{
+  namespace pythran
+  {
+    namespace functor
+    {
+      struct abssqr;
+    }
+  }
+}
+
 namespace numpy
 {
   namespace functor
@@ -115,6 +126,7 @@ namespace types
               is_complex<typename dtype_of<Args>::type>::value...>::value &&
           (std::is_same<O, numpy::functor::floor_divide>::value ||
            std::is_same<O, numpy::functor::maximum>::value ||
+           std::is_same<O, __builtin__::pythran::functor::abssqr>::value ||
            std::is_same<O, numpy::functor::minimum>::value)) &&
         // transtyping
         !std::is_same<O, numpy::functor::bool_>::value &&

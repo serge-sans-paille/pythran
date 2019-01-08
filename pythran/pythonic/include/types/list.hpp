@@ -210,15 +210,15 @@ namespace types
     list(list<T> const &other);
     template <class F>
     list(list<F> const &other);
-    template <class S>
-    list(sliced_list<T, S> const &other);
+    template <class Tp, class S>
+    list(sliced_list<Tp, S> const &other);
     list<T> &operator=(list<T> &&other);
     template <class F>
     list<T> &operator=(list<F> const &other);
     list<T> &operator=(list<T> const &other);
     list<T> &operator=(empty_list const &);
-    template <class S>
-    list<T> &operator=(sliced_list<T, S> const &other);
+    template <class Tp, class S>
+    list<T> &operator=(sliced_list<Tp, S> const &other);
 
     template <class pS>
     list &
@@ -530,6 +530,17 @@ template <class T, class S>
 struct __combined<pythonic::types::empty_list,
                   pythonic::types::sliced_list<T, S>> {
   typedef pythonic::types::list<T> type;
+};
+
+template <class T0, class T1, class S>
+struct __combined<pythonic::types::sliced_list<T1, S>,
+                  pythonic::types::list<T0>> {
+  typedef pythonic::types::list<typename __combined<T0, T1>::type> type;
+};
+template <class T0, class T1, class S>
+struct __combined<pythonic::types::list<T0>,
+                  pythonic::types::sliced_list<T1, S>> {
+  typedef pythonic::types::list<typename __combined<T0, T1>::type> type;
 };
 
 template <class T, size_t N>

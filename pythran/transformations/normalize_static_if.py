@@ -177,6 +177,8 @@ class NormalizeStaticIf(Transformation):
         expected_return = [ast.Name(ii, ast.Load(), None)
                            for ii in assigned_ids]
 
+        self.update = True
+
         if has_return:
             n = len(self.new_functions)
             fast_return = [ast.Name("$status{}".format(n), ast.Load(), None),
@@ -321,6 +323,7 @@ class SplitStaticExpression(Transformation):
             raise PythranSyntaxError("operator not supported in a static if",
                                      node)
 
+        self.update = True
         return self.visit(node)
 
     visit_If = visit_IfExp = visit_Cond

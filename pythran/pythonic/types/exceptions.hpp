@@ -85,72 +85,50 @@ PYTHONIC_NS_END
 /* pythran attribute system { */
 #define IMPL_EXCEPTION_GETATTR(name)                                           \
   PYTHONIC_NS_BEGIN                                                            \
-  namespace types                                                              \
-  {                                                                            \
-    namespace __##name                                                         \
-    {                                                                          \
-                                                                               \
-      none<list<str>> getattr<attr::ARGS>::operator()(name const &e)           \
-      {                                                                        \
-        return e.args;                                                         \
-      }                                                                        \
-    }                                                                          \
-  }                                                                            \
   namespace __builtin__                                                        \
   {                                                                            \
-    template <int I>                                                           \
-    auto getattr(types::name const &f)                                         \
-        -> decltype(types::__##name::getattr<I>()(f))                          \
+    types::none<types::list<types::str>> getattr(types::attr::ARGS,            \
+                                                 types::name const &f)         \
     {                                                                          \
-      return types::__##name::getattr<I>()(f);                                 \
+      return f.args;                                                           \
     }                                                                          \
   }                                                                            \
   PYTHONIC_NS_END
 
 #define IMPL_EXCEPTION_GETATTR_FULL(name)                                      \
   PYTHONIC_NS_BEGIN                                                            \
-  namespace types                                                              \
-  {                                                                            \
-    namespace __##name                                                         \
-    {                                                                          \
-                                                                               \
-      none<list<str>> getattr<attr::ARGS>::operator()(name const &e)           \
-      {                                                                        \
-        if (e.args.size() > 3 || e.args.size() < 2)                            \
-          return e.args;                                                       \
-        else                                                                   \
-          return list<str>(e.args.begin(), e.args.begin() + 2);                \
-      }                                                                        \
-      none<str> getattr<attr::ERRNO>::operator()(name const &e)                \
-      {                                                                        \
-        if (e.args.size() > 3 || e.args.size() < 2)                            \
-          return __builtin__::None;                                            \
-        else                                                                   \
-          return e.args[0];                                                    \
-      }                                                                        \
-      none<str> getattr<attr::STRERROR>::operator()(name const &e)             \
-      {                                                                        \
-        if (e.args.size() > 3 || e.args.size() < 2)                            \
-          return __builtin__::None;                                            \
-        else                                                                   \
-          return e.args[1];                                                    \
-      }                                                                        \
-      none<str> getattr<attr::FILENAME>::operator()(name const &e)             \
-      {                                                                        \
-        if (e.args.size() != 3)                                                \
-          return __builtin__::None;                                            \
-        else                                                                   \
-          return e.args[2];                                                    \
-      }                                                                        \
-    }                                                                          \
-  }                                                                            \
   namespace __builtin__                                                        \
   {                                                                            \
-    template <int I>                                                           \
-    auto getattr(types::name const &f)                                         \
-        -> decltype(types::__##name::getattr<I>()(f))                          \
+    types::none<types::list<types::str>> getattr(types::attr::ARGS,            \
+                                                 types::name const &e)         \
     {                                                                          \
-      return types::__##name::getattr<I>()(f);                                 \
+      if (e.args.size() > 3 || e.args.size() < 2)                              \
+        return e.args;                                                         \
+      else                                                                     \
+        return types::list<types::str>(e.args.begin(), e.args.begin() + 2);    \
+    }                                                                          \
+    types::none<types::str> getattr(types::attr::ERRNO, types::name const &e)  \
+    {                                                                          \
+      if (e.args.size() > 3 || e.args.size() < 2)                              \
+        return __builtin__::None;                                              \
+      else                                                                     \
+        return e.args[0];                                                      \
+    }                                                                          \
+    types::none<types::str> getattr(types::attr::STRERROR,                     \
+                                    types::name const &e)                      \
+    {                                                                          \
+      if (e.args.size() > 3 || e.args.size() < 2)                              \
+        return __builtin__::None;                                              \
+      else                                                                     \
+        return e.args[1];                                                      \
+    }                                                                          \
+    types::none<types::str> getattr(types::attr::FILENAME,                     \
+                                    types::name const &e)                      \
+    {                                                                          \
+      if (e.args.size() != 3)                                                  \
+        return __builtin__::None;                                              \
+      else                                                                     \
+        return e.args[2];                                                      \
     }                                                                          \
   }                                                                            \
   PYTHONIC_NS_END

@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_ITERTOOLS_PERMUTATIONS_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/dynamic_tuple.hpp"
 
 #include <iterator>
 #include <vector>
@@ -14,7 +14,8 @@ namespace itertools
   /** Permutation iterator
    *
    *  It wraps a vector && provide an iteration over every possible
-   *  permutation of the vector. The permutations are represented as lists
+   *  permutation of the vector. The permutations are represented as
+   *dynamic_tuple
    *  of elements.
    *
    *  The following iterator:
@@ -29,17 +30,17 @@ namespace itertools
   template <class T>
   struct permutations_iterator
       : std::iterator<std::forward_iterator_tag,
-                      types::list<typename T::value_type>, ptrdiff_t,
-                      types::list<typename T::value_type> *,
-                      types::list<typename T::value_type> /* no ref*/
+                      types::dynamic_tuple<typename T::value_type>, ptrdiff_t,
+                      types::dynamic_tuple<typename T::value_type> *,
+                      types::dynamic_tuple<typename T::value_type> /* no ref*/
                       > {
     // Vector of inputs, contains elements to permute
     std::vector<typename T::value_type> pool;
 
-    // The current permutation as a list of index in the pool
+    // The current permutation as a dynamic_tuple of index in the pool
     // Internally it always has the same size as the pool, even if the
     // external view is limited
-    types::list<int> curr_permut;
+    std::vector<long> curr_permut;
 
     // Size of the "visible" permutation
     size_t _size;
@@ -50,7 +51,7 @@ namespace itertools
                           size_t num_elts, bool end);
 
     /** Build the permutation visible from the "outside" */
-    types::list<typename T::value_type> operator*() const;
+    types::dynamic_tuple<typename T::value_type> operator*() const;
 
     /*  Generate next permutation
      *
@@ -66,11 +67,11 @@ namespace itertools
   template <class T>
   // FIXME document why this inheritance???
   struct _permutations : permutations_iterator<T> {
-    using value_type = T;
     using iterator = permutations_iterator<T>;
+    using value_type = typename iterator::value_type;
 
     _permutations();
-    _permutations(T iter, int elts);
+    _permutations(T iter, long elts);
 
     iterator const &begin() const;
     iterator begin();
@@ -78,7 +79,7 @@ namespace itertools
   };
 
   template <typename T0>
-  _permutations<T0> permutations(T0 iter, int num_elts);
+  _permutations<T0> permutations(T0 iter, long num_elts);
 
   template <typename T0>
   _permutations<T0> permutations(T0 iter);

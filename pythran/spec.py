@@ -32,17 +32,15 @@ def ambiguous_types(ty0, ty1):
             return False
         return all(ambiguous_types(t0, t1) for t0, t1 in zip(ty0, ty1))
 
-    ambiguous_float_types = float, float32, float64, float128
+    ambiguous_float_types = float, float64
     if ty0 in ambiguous_float_types and ty1 in ambiguous_float_types:
         return True
 
-    ambiguous_cplx_types = complex, complex64, complex128, complex256
+    ambiguous_cplx_types = complex, complex128
     if ty0 in ambiguous_cplx_types and ty1 in ambiguous_cplx_types:
         return True
 
-    ambiguous_int_types = (int8, int16, int32, int64, intp, intc,
-                           uint8, uint16, uint32, uint64, uintp, uintc,
-                           int,)
+    ambiguous_int_types = int64, int
     if ty0 in ambiguous_int_types and ty1 in ambiguous_int_types:
         return True
 
@@ -213,12 +211,6 @@ class SpecParser(object):
         ('left', 'OR'),
         ('left', 'LIST', 'DICT', 'SET'),
     )
-
-    # regexp to extract pythran specs from comments
-    # the first part matches lines with a comment and the pythran keyword
-    # the second part matches lines with comments following the pythran ones
-    FILTER = re.compile(r'^\s*#\s*pythran[^\n\r]*[\n\r]*'
-                        r'^(?:\s*#[^\n\r]*[\n\r]*)*', re.MULTILINE)
 
     def t_IDENTIFER(self, t):
         r'\#?[a-zA-Z_][a-zA-Z_0-9]*'
@@ -416,11 +408,24 @@ class SpecParser(object):
         self.input_file = None
 
         data = self.read_path_or_text(path_or_text)
+        lines = []
+        in_pythran_export = False
+        for line in data.split("\n"):
+            if re.match(r'\s*#\s*pythran', line):
+                in_pythran_export = True
+                lines.append(re.sub(r'\s*#\s*pythran', '#pythran', line))
+            elif in_pythran_export:
+                stripped = line.strip()
+                if stripped.startswith('#'):
+                    lines.append(line.replace('#', ''))
+                else:
+                    in_pythran_export = not stripped
+                    lines.append('')
+            else:
+                in_pythran_export &= not line.strip()
+                lines.append('')
 
-        raw = "\n".join(SpecParser.FILTER.findall(data))
-        pythran_data = (re.sub(r'#\s*pythran', '\_o< pythran >o_/', raw)
-                        .replace('#', '')
-                        .replace('\_o< pythran >o_/', '#pythran'))
+        pythran_data = '\n'.join(lines)
         self.parser.parse(pythran_data, lexer=self.lexer, debug=False)
 
         for key, overloads in self.native_exports.items():

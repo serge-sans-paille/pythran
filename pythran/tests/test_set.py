@@ -1,5 +1,5 @@
 from test_env import TestEnv
-from pythran.typing import Set, List
+from pythran.typing import Set, List, Tuple
 
 class TestSet(TestEnv):
 
@@ -197,4 +197,7 @@ def are_equal(s1):
 
     def test_print_empty_set(self):
         self.run_test("def print_empty_set(s): return str(s)", set(), print_empty_set=[Set[int]])
+
+    def test_set_of_tuple(self):
+        self.run_test("def set_of_tuple(s): return set(s)", (1,2,2,3), set_of_tuple=[Tuple[int,int, int, int]])
 

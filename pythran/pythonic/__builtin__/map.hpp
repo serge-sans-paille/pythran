@@ -47,12 +47,12 @@ namespace __builtin__
     }
 
     template <typename List0>
-    types::list<
-        typename std::remove_reference<List0>::type::iterator::value_type>
+    types::list<typename std::iterator_traits<
+        typename std::remove_reference<List0>::type::iterator>::value_type>
     map(types::none_type, List0 &&seq)
     {
-      types::list<typename std::remove_reference<
-          List0>::type::iterator::value_type> s(0);
+      types::list<typename std::iterator_traits<typename std::remove_reference<
+          List0>::type::iterator>::value_type> s(0);
       utils::reserve(s, seq);
       for (auto const &iseq : seq)
         s.push_back(iseq);

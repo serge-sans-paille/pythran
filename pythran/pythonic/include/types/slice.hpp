@@ -2,8 +2,10 @@
 #define PYTHONIC_INCLUDE_TYPES_SLICE_HPP
 
 #include "pythonic/include/types/NoneType.hpp"
+#include "pythonic/include/types/attr.hpp"
 
 #include <limits>
+#include <ostream>
 
 PYTHONIC_NS_BEGIN
 
@@ -171,50 +173,25 @@ namespace types
     return s.normalize(n);
   }
 
-  namespace __slice
-  {
-    template <int I, class T>
-    struct getattr;
-
-    template <class T>
-    struct getattr<attr::START, T> {
-      auto operator()(T const &s) -> decltype(s.lower) const
-      {
-        return s.lower;
-      }
-    };
-    template <class T>
-    struct getattr<attr::STOP, T> {
-      auto operator()(T const &s) -> decltype(s.upper) const
-      {
-        return s.upper;
-      }
-    };
-    template <class T>
-    struct getattr<attr::STEP, T> {
-      auto operator()(T const &s) -> decltype(s.step) const
-      {
-        return s.step;
-      }
-    };
-  }
+  std::ostream &operator<<(std::ostream &os, slice const &s);
+  std::ostream &operator<<(std::ostream &os, contiguous_slice const &s);
 }
 namespace __builtin__
 {
-  template <int I>
-  auto getattr(pythonic::types::slice const &s) -> decltype(
-      pythonic::types::__slice::getattr<I, pythonic::types::slice>()(s))
+  template <class T>
+  auto getattr(types::attr::START, T const &s) -> decltype(s.lower)
   {
-    return pythonic::types::__slice::getattr<I, pythonic::types::slice>()(s);
+    return s.lower;
   }
-
-  template <int I>
-  auto getattr(pythonic::types::contiguous_slice const &s) -> decltype(
-      pythonic::types::__slice::getattr<I, pythonic::types::contiguous_slice>()(
-          s))
+  template <class T>
+  auto getattr(types::attr::STOP, T const &s) -> decltype(s.upper)
   {
-    return pythonic::types::__slice::getattr<
-        I, pythonic::types::contiguous_slice>()(s);
+    return s.upper;
+  }
+  template <class T>
+  auto getattr(types::attr::STEP, T const &s) -> decltype(s.step)
+  {
+    return s.step;
   }
 }
 PYTHONIC_NS_END

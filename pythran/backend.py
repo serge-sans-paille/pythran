@@ -895,7 +895,7 @@ class CxxFunction(Backend):
         func = self.visit(node.func)
         # special hook for getattr, as we cannot represent it in C++
         if func == 'pythonic::__builtin__::functor::getattr{}':
-            return ('pythonic::__builtin__::getattr<{}>({})'
+            return ('pythonic::__builtin__::getattr({}{{}}, {})'
                     .format('pythonic::types::attr::' + node.args[1].s.upper(),
                             args[0]))
         else:
@@ -916,7 +916,7 @@ class CxxFunction(Backend):
         if node in self.immediates:
             assert isinstance(node.n, int)
             return "std::integral_constant<%s, %s>{}" % (
-                PYTYPE_TO_CTYPE_TABLE[type(node.n)], ret)
+                PYTYPE_TO_CTYPE_TABLE[type(node.n)], node.n)
         return ret
 
     def visit_Str(self, node):

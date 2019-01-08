@@ -173,6 +173,9 @@ def update_effects(self, node):
 BINARY_UFUNC = {"accumulate": FunctionIntr()}
 
 CLASSES = {
+    "dtype": {
+        "type": ConstMethodIntr(),
+    },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "extend": MethodIntr(update_effects),
@@ -3393,6 +3396,7 @@ MODULES = {
             signature=_numpy_int_binary_op_signature
         ),
         "bool_": ConstFunctionIntr(signature=_bool_signature),
+        "broadcast_to": ConstFunctionIntr(),
         "ceil": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "clip": ConstMethodIntr(signature=_numpy_ternary_op_signature),
         "concatenate": ConstFunctionIntr(
@@ -3691,6 +3695,7 @@ MODULES = {
         "divide": UFunc(BINARY_UFUNC),
         "dot": ConstMethodIntr(),
         "double_": ConstFunctionIntr(signature=_float_signature),
+        "dtype": ClassWithConstConstructor(CLASSES["dtype"]),
         "e": ConstantIntr(),
         "ediff1d": ConstFunctionIntr(),
         "empty": ConstFunctionIntr(args=('shape', 'dtype'),

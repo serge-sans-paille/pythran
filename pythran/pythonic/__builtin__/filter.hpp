@@ -12,12 +12,13 @@ namespace __builtin__
 {
 
   template <class F, class Iterable>
-  types::list<typename Iterable::iterator::value_type>
+  types::list<
+      typename std::iterator_traits<typename Iterable::iterator>::value_type>
   filter(F const &f, Iterable const &iterable)
   {
     /* TODO: it does ! implement the full standard (for string && tuple)*/
-    types::list<typename Iterable::iterator::value_type> out =
-        types::empty_list();
+    types::list<typename std::iterator_traits<
+        typename Iterable::iterator>::value_type> out = types::empty_list();
     std::copy_if(iterable.begin(), iterable.end(), std::back_inserter(out), f);
     return out;
   }

@@ -25,7 +25,7 @@ namespace types
   template <class T>
   intptr_t dynamic_tuple<T>::id() const
   {
-    return reinterpret_cast<intptr_t>(&(*buffer));
+    return reinterpret_cast<intptr_t>(&(*data));
   }
 
   template <typename T>
@@ -64,7 +64,8 @@ namespace types
   operator+(dynamic_tuple<T> const &other) const
   {
     dynamic_tuple<T> result(begin(), end());
-    std::copy(other.begin(), other.end(), end());
+    result.data->resize(size() + other.size());
+    std::copy(other.begin(), other.end(), result.data->begin() + size());
     return result;
   }
 }

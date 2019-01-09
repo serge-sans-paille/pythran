@@ -40,6 +40,9 @@ namespace types
   struct array;
 
   template <class T>
+  struct dynamic_tuple;
+
+  template <class T>
   struct broadcasted;
 
   template <class T, class B>
@@ -147,6 +150,12 @@ namespace types
 
   template <class T, size_t N>
   struct is_numexpr_arg<array<T, N>> {
+    static constexpr bool value =
+        is_numexpr_arg<T>::value || is_dtype<T>::value;
+  };
+
+  template <class T>
+  struct is_numexpr_arg<dynamic_tuple<T>> {
     static constexpr bool value =
         is_numexpr_arg<T>::value || is_dtype<T>::value;
   };

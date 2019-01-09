@@ -17,7 +17,7 @@ namespace types
   template <typename T>
   struct dynamic_tuple {
     using container_type = std::vector<T>;
-    utils::shared_ref<container_type> buffer;
+    utils::shared_ref<container_type> data;
 
     using value_type = T;
     using pointer = value_type *;
@@ -56,39 +56,39 @@ namespace types
 
     template <class Iter>
     dynamic_tuple(Iter start, Iter end)
-        : buffer(start, end)
+        : data(start, end)
     {
     }
 
     // Iterators.
     const_iterator begin() const noexcept
     {
-      return buffer->begin();
+      return data->begin();
     }
 
     const_iterator end() const noexcept
     {
-      return buffer->end();
+      return data->end();
     }
 
     const_reverse_iterator rbegin() const noexcept
     {
-      return buffer->rbegin();
+      return data->rbegin();
     }
 
     const_reverse_iterator rend() const noexcept
     {
-      return buffer->rend();
+      return data->rend();
     }
 
     // Capacity.
     size_type size() const noexcept
     {
-      return buffer->size();
+      return data->size();
     }
     constexpr bool empty() const noexcept
     {
-      return buffer->empty();
+      return data->empty();
     }
 
     intptr_t id() const;
@@ -96,7 +96,7 @@ namespace types
     // Element access.
     const_reference fast(long n) const
     {
-      return (*buffer)[n];
+      return (*data)[n];
     }
 #ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<dynamic_tuple>;
@@ -109,7 +109,7 @@ namespace types
 
     const_reference operator[](size_type __n) const
     {
-      return (*buffer)[__n < 0 ? __n + size() : __n];
+      return (*data)[__n < 0 ? __n + size() : __n];
     }
 
     // operator
@@ -121,15 +121,21 @@ namespace types
 
     dynamic_tuple<T> operator+(dynamic_tuple<T> const &other) const;
 
-    numpy_gexpr<dynamic_tuple, normalized_slice>
-    operator[](slice const &s) const
+    dynamic_tuple operator[](slice const &s) const
     {
-      return {*this, s.normalize(size())};
+      auto ns = s.normalize(size());
+      dynamic_tuple res;
+      res.data->reserve(ns.size());
+      for (auto i = ns.lower, step = ns.step, n = ns.upper; i < n; i += step) {
+        res.data->emplace_back(fast(i));
+      }
+      return res;
     }
-    numpy_gexpr<dynamic_tuple, contiguous_normalized_slice>
-    operator[](contiguous_slice const &s) const
+
+    dynamic_tuple operator[](contiguous_slice const &s) const
     {
-      return {*this, s.normalize(size())};
+      auto ns = s.normalize(size());
+      return {begin() + ns.lower, begin() + ns.upper};
     }
 
     using shape_t = array<long, value>;

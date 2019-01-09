@@ -10,6 +10,11 @@ namespace numpy
     template <class E>
     types::ndarray<typename E::dtype, types::array<long, E::value+1>>
     stack(types::list<E> const &args, long axis = 0);
+    
+   template <class E, size_t M>
+    types::ndarray<typename E::dtype, types::array<long, E::value+1>>
+    stack(types::array<E, M> const &args, long axis = 0);
+
 
   DEFINE_FUNCTOR(pythonic::numpy, stack);
 }

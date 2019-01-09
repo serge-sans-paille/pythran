@@ -30,7 +30,7 @@ def get_paths_cfg(
 
 def init_cfg(sys_file, platform_file, user_file):
     paths = get_paths_cfg(sys_file, platform_file, user_file)
-    sys_config_path, platform_config_path, user_config_path = paths.values()
+    sys_config_path, platform_config_path, user_config_path = paths["sys"], paths["platform"], paths["user"]
 
     cfgp = ConfigParser()
     for required in (sys_config_path, platform_config_path):

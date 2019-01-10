@@ -322,4 +322,22 @@ def returned_none_member(a):
                 return a'''
         self.run_test(code, 0, is_none_attribute=[int])
 
+    def test_none_combine_tuple(self):
+        code = '''
+            def none_combine_tuple(n):
+                def get_header(name):
+                    if name:
+                        return 1
+                    else:
+                        return None
 
+                a = None
+
+                lpix = get_header(n)
+
+                # Don't work
+                if lpix is None:
+                    a = 3
+
+                return a'''
+        self.run_test(code, 'hello', none_combine_tuple=[str])

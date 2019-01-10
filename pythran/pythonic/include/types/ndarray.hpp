@@ -421,6 +421,14 @@ namespace types
     long size() const;
 
     /* extended slice indexing */
+    template <class Ty>
+    auto operator()(Ty s) const ->
+        typename std::enable_if<std::is_integral<Ty>::value,
+                                decltype((*this)[s])>::type
+    {
+      return (*this)[s];
+    }
+
     template <class S0, class... S>
     auto operator()(S0 const &s0, S const &... s) const & -> decltype(
         extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...));

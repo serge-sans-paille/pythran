@@ -136,9 +136,27 @@ namespace types
     using type = broadcast<typename C::dtype, typename std::decay<T>::type>;
   };
 
+  template <class T, size_t N>
+  struct broadcasted_n;
+  template <class T>
+  struct broadcasted_n<T, 1> {
+    using type = broadcasted<typename std::decay<T>::type>;
+  };
+  template <class T, size_t N>
+  struct broadcasted_n {
+    using type = broadcasted<typename broadcasted_n<T, N - 1>::type>;
+  };
+
+  constexpr size_t absdiff(size_t x, size_t y)
+  {
+    return x > y ? x - y : y - x;
+  }
+
   template <class T, class C>
   struct adapted_type<T, C, false, false> {
-    using type = broadcasted<T>;
+    using type = typename broadcasted_n<
+        T, absdiff(std::remove_reference<T>::type::value,
+                   std::remove_reference<C>::type::value)>::type;
   };
 
   template <class T, class... OtherTypes>
@@ -158,7 +176,7 @@ namespace types
 
   /* A reshaped type create a type that has the same shape as C && the same
    * dtype as T
-   * To the opposite of an adapted type, it does *!* changes constants type
+   * To the opposite of an adapted type, it does *not* changes constants type
    */
   template <class T, class C, bool same, bool scalar>
   struct reshaped_type;
@@ -176,7 +194,7 @@ namespace types
 
   template <class T, class C>
   struct reshaped_type<T, C, false, false> {
-    using type = broadcasted<T>;
+    using type = broadcasted<typename std::decay<T>::type>;
   };
 
   template <class T, class... OtherTypes>

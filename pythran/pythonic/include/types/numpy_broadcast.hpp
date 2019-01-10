@@ -84,6 +84,12 @@ namespace types
     broadcasted() = default;
 
     broadcasted(T const &ref);
+    template <class E>
+    broadcasted(E const &other)
+        : broadcasted(broadcasted<E>{other})
+    {
+    }
+
     const_iterator begin() const
     {
       return {ref};
@@ -94,13 +100,13 @@ namespace types
     }
 
     T const &operator[](long i) const;
-    auto operator[](slice s) const -> broadcasted<decltype(ref[s])>
+    broadcasted const &operator[](slice s) const
     {
-      return {ref[s]};
+      return *this;
     }
-    auto operator[](contiguous_slice s) const -> broadcasted<decltype(ref[s])>
+    broadcasted const &operator[](contiguous_slice s) const
     {
-      return {ref[s]};
+      return *this;
     }
     T const &fast(long i) const;
 #ifdef USE_XSIMD
@@ -112,10 +118,30 @@ namespace types
     simd_iterator vend(vectorizer) const;
 #endif
 
-    template <class Arg0, class... Args>
-    auto operator()(Arg0 &&arg0, Args &&... args) const
-        -> decltype(ref(std::forward<Args>(args)...));
+    broadcasted const &operator()(slice s) const
+    {
+      return *this;
+    }
+    broadcasted const &operator()(contiguous_slice s) const
+    {
+      return *this;
+    }
+    T operator()(long) const
+    {
+      return ref;
+    }
 
+    template <class Arg1, class... Args>
+    auto operator()(long arg0, Arg1 &&arg1, Args &&... args) const
+        -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
+
+    template <class Arg1, class... Args>
+    auto operator()(slice arg0, Arg1 &&arg1, Args &&... args) const
+        -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
+
+    template <class Arg1, class... Args>
+    auto operator()(contiguous_slice arg0, Arg1 &&arg1, Args &&... args) const
+        -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
     long flat_size() const;
   };
 

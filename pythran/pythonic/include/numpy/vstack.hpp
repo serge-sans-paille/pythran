@@ -23,7 +23,7 @@ namespace numpy
   //  that
   //      are at least 2-dimensional.
   //
-  // the enable if is tehre to match this behavior
+  // the enable if is there to match this behavior
   template <class ArraySequence>
   auto vstack(ArraySequence &&seq) -> typename std::enable_if<
       (impl::vstack_helper<ArraySequence>::value == 1),

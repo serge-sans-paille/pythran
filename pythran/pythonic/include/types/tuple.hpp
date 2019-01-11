@@ -609,6 +609,12 @@ struct __combined<std::tuple<Types...>, indexable<K>> {
   using type = std::tuple<Types...>;
 };
 
+template <class T0, class T1, size_t N>
+struct __combined<pythonic::types::array<T0, N>,
+                  pythonic::types::array<T1, N>> {
+  using type = pythonic::types::array<typename __combined<T0, T1>::type, N>;
+};
+
 template <class K, class T, size_t N>
 struct __combined<indexable<K>, pythonic::types::array<T, N>> {
   using type = pythonic::types::array<T, N>;
@@ -661,12 +667,12 @@ struct __combined<container<t>, std::tuple<t0...>> {
 
 template <class t, size_t n, class... types>
 struct __combined<pythonic::types::array<t, n>, std::tuple<types...>> {
-  using type = std::tuple<types...>;
+  using type = std::tuple<typename __combined<t, types>::type...>;
 };
 
 template <class t, size_t n, class... types>
 struct __combined<std::tuple<types...>, pythonic::types::array<t, n>> {
-  using type = std::tuple<types...>;
+  using type = std::tuple<typename __combined<types, t>::type...>;
 };
 template <class t00, class t01, class t10, class t11>
 struct __combined<std::pair<t00, t01>, std::pair<t10, t11>> {

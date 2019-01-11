@@ -605,12 +605,6 @@ namespace types
       return _shape;
     }
 
-    template <size_t M>
-    numpy_gexpr reshape(array<long, M> const &shape) const
-    {
-      static_assert(M == 0, "should never be instanciated");
-    }
-
     template <class E>
     long buffer_offset(E const &e, long n) const
     {
@@ -870,6 +864,12 @@ namespace types
     ndarray<dtype, shape_t> copy() const
     {
       return {*this};
+    }
+
+    template <class pS>
+    ndarray<dtype, pS> reshape(pS const &shape) const
+    {
+      return copy().reshape(shape);
     }
   };
 

@@ -228,6 +228,10 @@ def test_copy0(x):
                       2*numpy.ones((4,2,3)),
                       np_stack4=[NDArray[float,:,:,:],NDArray[float,:,:,:]])
 
+    def test_stack5(self):
+        self.run_test("def np_stack5(a): import numpy as np; return np.stack((a[:,1:],a[:,1:]),axis=1)",
+                      numpy.ones((4,3,3)),
+                      np_stack5=[NDArray[float,:,:,:]])
 
     def test_bincount0(self):
         self.run_test("def np_bincount0(a): from numpy import bincount ; return bincount(a)", numpy.arange(5), np_bincount0=[NDArray[int,:]])

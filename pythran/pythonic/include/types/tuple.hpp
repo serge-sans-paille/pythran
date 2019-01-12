@@ -369,6 +369,11 @@ namespace types
     {
       return {*this, s.normalize(size())};
     }
+    template <class S>
+    auto operator()(S const &s) const -> decltype((*this)[s])
+    {
+      return (*this)[s];
+    }
 
     /* array */
     template <class T1, size_t N1>

@@ -3757,7 +3757,6 @@ MODULES = {
         "Inf": ConstantIntr(),
         "inner": ConstFunctionIntr(),
         "insert": ConstFunctionIntr(),
-        "interp": ConstFunctionIntr(),
         "intersect1d": ConstFunctionIntr(),
         "int16": ConstFunctionIntr(signature=_int_signature),
         "int32": ConstFunctionIntr(signature=_int_signature),

@@ -19,13 +19,10 @@ namespace numpy
   types::ndarray<T3, types::array<long, 1>>
   interp(types::ndarray<T1, types::array<long, 1>> x, types::ndarray<T2, types::array<long, 1>> xp, types::ndarray<T3, types::array<long, 1>> fp);
 
-  template <class T1, class T2, class T3>
+  template <class T1, class T2, class T3, class L, class R, class P>
   types::ndarray<T3, types::array<long, 1>>
-  interp(types::ndarray<T1, types::pshape<long>> x, types::ndarray<T2, types::pshape<long>> xp, types::ndarray<T3, types::pshape<long>> fp);
-
-  //template <class T>
-  //types::ndarray<T, types::pshape<long>>
-  //interp(x, xp, fp, left=None, right=None, period=None);
+  interp(types::ndarray<T1, types::pshape<long>> x, types::ndarray<T2, types::pshape<long>> xp, types::ndarray<T3, types::pshape<long>> fp,
+    L left, R right, P period);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(interp);
   DEFINE_FUNCTOR(pythonic::numpy, interp);

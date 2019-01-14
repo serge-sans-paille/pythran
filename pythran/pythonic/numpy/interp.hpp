@@ -29,9 +29,10 @@ namespace numpy
         return fp;
     }
     
-    template <class T1, class T2, class T3>
+    template <class T1, class T2, class T3, class L, class R, class P>
     types::ndarray<T3, types::array<long, 1>>
-    interp(types::ndarray<T1, types::pshape<long>> x, types::ndarray<T2, types::pshape<long>> xp, types::ndarray<T3, types::pshape<long>> fp){
+    interp(types::ndarray<T1, types::pshape<long>> x, types::ndarray<T2, types::pshape<long>> xp, types::ndarray<T3, types::pshape<long>> fp,
+        L left, R right, P period){
 
         assert(std::get<0>(xp.shape())==std::get<0>(fp.shape()));
         //long nPoints = sutils::array(xp.shape())[0];
@@ -44,7 +45,13 @@ namespace numpy
         for (long i=0; i<nPoints; i++) {
             float xx = x[i];
             while(j<nPointsXP-1 && xp[j+1] < xx) j++;
-            foo[i] = fp[j] + (xx-floor(xx)) * (fp[j+1]-fp[j])/(xp[j+1]-xp[j]);
+            if (xp[j]>xx)
+                foo[i] = left;
+            else if (xp[j+1]<xx)
+                foo[i] = right;
+            else
+                foo[i] = fp[j] + (xx-floor(xx)) * (fp[j+1]-fp[j])/(xp[j+1]-xp[j]);
+
         }
         
         return foo;

@@ -7,6 +7,7 @@
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
+#include <math.h>
 
 PYTHONIC_NS_BEGIN
 
@@ -24,6 +25,7 @@ namespace numpy
     types::ndarray<T3, types::array<long, 1>>
     interp(types::ndarray<T1, types::array<long, 1>> x, types::ndarray<T2, types::array<long, 1>> xp, types::ndarray<T3, types::array<long, 1>> fp){
         
+
         return fp;
     }
     
@@ -31,7 +33,21 @@ namespace numpy
     types::ndarray<T3, types::array<long, 1>>
     interp(types::ndarray<T1, types::pshape<long>> x, types::ndarray<T2, types::pshape<long>> xp, types::ndarray<T3, types::pshape<long>> fp){
 
-        return fp;
+        assert(std::get<0>(xp.shape())==std::get<0>(fp.shape()));
+        //long nPoints = sutils::array(xp.shape())[0];
+        long nPoints = std::get<0>(x.shape());
+        long nPointsXP = std::get<0>(xp.shape());
+        printf("INTERP %d points\n",nPoints);
+        types::ndarray<T3, types::pshape<long>> foo = {x.shape(), T3()};
+        
+        long j=0;
+        for (long i=0; i<nPoints; i++) {
+            float xx = x[i];
+            while(j<nPointsXP-1 && xp[j+1] < xx) j++;
+            foo[i] = fp[j] + (xx-floor(xx)) * (fp[j+1]-fp[j])/(xp[j+1]-xp[j]);
+        }
+        
+        return foo;
     }
 
 

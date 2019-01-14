@@ -35,7 +35,7 @@ namespace numpy
             else if (xp[j+1]<xx)
                 out[i] = right;
             else
-                out[i] = fp[j] + (xx-floor(xx)) * (fp[j+1]-fp[j])/(xp[j+1]-xp[j]);
+                out[i] = fp[j] + (xx-xp[j]) * (fp[j+1]-fp[j])/(xp[j+1]-xp[j]);
 
         }
         

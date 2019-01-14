@@ -10,19 +10,25 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-//  template <class T1, class T2, class T3>
-//  types::ndarray<T3, types::array<long, 1>>
-//  interp(types::ndarray<T1, types::array<long, 1>> x, types::ndarray<T2, types::array<long, 1>> xp, types::ndarray<T3, types::array<long, 1>> fp,
-//    T3 left=__builtin__::None, T3 right=__builtin__::None, T2 period=__builtin__::None);
-    
-  template <class T1, class T2, class T3>
-  types::ndarray<T3, types::array<long, 1>>
-  interp(types::ndarray<T1, types::array<long, 1>> x, types::ndarray<T2, types::array<long, 1>> xp, types::ndarray<T3, types::array<long, 1>> fp);
 
-  template <class T1, class T2, class T3, class L, class R, class P>
-  types::ndarray<T3, types::array<long, 1>>
-  interp(types::ndarray<T1, types::pshape<long>> x, types::ndarray<T2, types::pshape<long>> xp, types::ndarray<T3, types::pshape<long>> fp,
-    L left, R right, P period);
+    // None,None,None
+    template <class T1, class T2, class T3>
+    T3 interp(T1 x, T2 xp, T3 fp, types::none_type left = types::none_type{}, types::none_type right = types::none_type{}, types::none_type period = types::none_type{});
+
+    // left None None
+    template <class T1, class T2, class T3, typename t1>
+    T3 interp(T1 x, T2 xp, T3 fp, t1 left, types::none_type right = types::none_type{}, types::none_type period = types::none_type{});
+
+    // None right None
+    template <class T1, class T2, class T3, typename t1>
+    T3 interp(T1 x, T2 xp, T3 fp, types::none_type left, t1 right, types::none_type period = types::none_type{});
+    // None None period
+    template <class T1, class T2, class T3, typename t1>
+    T3 interp(T1 x, T2 xp, T3 fp, types::none_type left, types::none_type right, t1 period);
+
+    // left right None
+    template <class T1, class T2, class T3, typename t1, typename t2>
+    T3 interp(T1 x, T2 xp, T3 fp, t1 left, t2 right, types::none_type period = types::none_type{});
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(interp);
   DEFINE_FUNCTOR(pythonic::numpy, interp);

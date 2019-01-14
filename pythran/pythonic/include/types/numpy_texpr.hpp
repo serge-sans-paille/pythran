@@ -224,6 +224,12 @@ namespace types
     numpy_texpr_2 &operator|=(Expr const &expr);
     template <class Expr>
     numpy_texpr_2 &operator^=(Expr const &expr);
+
+    template <class NewShape>
+    ndarray<dtype, NewShape> reshape(NewShape const &shape) const
+    {
+      return copy().reshape(shape);
+    }
   };
 
   // only implemented for N = 2

@@ -57,11 +57,29 @@ namespace types
 #endif
 
   template <class T>
-  template <class Arg0, class... Args>
-  auto broadcasted<T>::operator()(Arg0 &&arg0, Args &&... args) const
-      -> decltype(ref(std::forward<Args>(args)...))
+  template <class Arg1, class... Args>
+  auto broadcasted<T>::operator()(long arg0, Arg1 &&arg1, Args &&... args) const
+      -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...))
   {
-    return ref(std::forward<Args>(args)...);
+    return ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...);
+  }
+
+  template <class T>
+  template <class Arg1, class... Args>
+  auto broadcasted<T>::operator()(slice arg0, Arg1 &&arg1,
+                                  Args &&... args) const
+      -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...))
+  {
+    return {ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...)};
+  }
+
+  template <class T>
+  template <class Arg1, class... Args>
+  auto broadcasted<T>::operator()(contiguous_slice arg0, Arg1 &&arg1,
+                                  Args &&... args) const
+      -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...))
+  {
+    return {ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...)};
   }
 
   template <class T>

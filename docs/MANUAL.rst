@@ -429,6 +429,11 @@ Customizing Your ``.pythranrc``
 Pythran checks for a file named ``.pythranrc`` and use it to *replace* the site
 configuration. Here are a few tricks!
 
+You can change the default location of the pythran configuration file using the
+environment variable ``PYTHRANRC``::
+
+    PYTHRANRC=/opt/company/pythran/config.pythranrc pythran arc_distance.py
+
 
 ``[compiler]``
 **************

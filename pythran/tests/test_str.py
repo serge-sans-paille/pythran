@@ -209,3 +209,11 @@ class TestStr(TestEnv):
 
     def test_str_id(self):
         self.run_test("def str_id(x): return id(x) != 0", "hello", str_id=[str])
+
+    def test_str_slice_assign(self):
+        self.run_test('''
+            def str_slice_assign(s, c):
+                if s.startswith(c):
+                    s = s[len(c):];
+                return s''', "LEFT-B6", "LEFT-",
+                      str_slice_assign=[str, str])

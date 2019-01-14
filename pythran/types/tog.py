@@ -977,7 +977,7 @@ def analyse(node, env, non_generic=None):
             raise PythranTypeError(
                 "Invalid update operand for `{}`: `{}` and `{}`".format(
                     symbol_of[type(node.op)],
-                    value_type,
+                    res_type,
                     target_type
                 ),
                 node

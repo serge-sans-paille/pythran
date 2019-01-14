@@ -334,11 +334,19 @@ namespace types
   template <class S>
   str &str::operator=(sliced_str<S> const &other)
   {
-    if (other.get_data() == *data) {
-      auto it = std::copy(other.begin(), other.end(), begin());
-      resize(it - this->begin());
-    } else
-      *this = other.get_data();
+    auto &other_data = other.get_data();
+    auto &other_slice = other.get_slice();
+    auto other_size = other.size();
+    auto &my_data = *data;
+    long j = 0L;
+
+    if (other_size > size())
+      resize(other_size);
+    for (long i = other_slice.lower; i < other_slice.upper;
+         i = i + other_slice.step, j++)
+      my_data[j] = other_data[i];
+    if (j < size())
+      resize(j);
     return *this;
   }
 

@@ -179,13 +179,6 @@ CLASSES = {
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "extend": MethodIntr(update_effects),
-        "index": ConstMethodIntr(
-            signature=Union[
-                Fun[[List[T0], T0], int],
-                Fun[[List[T0], T0, int], int],
-                Fun[[List[T0], T0, int, int], int],
-            ]
-        ),
         "pop": MethodIntr(
             signature=Union[
                 Fun[[List[T0]], T0],
@@ -4450,6 +4443,14 @@ MODULES = {
         "conjugate": ConstMethodIntr(),
         "copy": ConstMethodIntr(signature=Fun[[T0], T0]),
         "count": ConstMethodIntr(
+            signature=Union[
+                Fun[[Iterable[T0], T0], int],
+                Fun[[Iterable[T0], T0, int], int],
+                Fun[[Iterable[T0], T0, int, int], int],
+            ],
+            return_range=interval.positive_values
+        ),
+        "index": ConstMethodIntr(
             signature=Union[
                 Fun[[Iterable[T0], T0], int],
                 Fun[[Iterable[T0], T0, int], int],

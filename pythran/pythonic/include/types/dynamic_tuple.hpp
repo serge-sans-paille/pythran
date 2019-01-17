@@ -126,7 +126,7 @@ namespace types
       auto ns = s.normalize(size());
       dynamic_tuple res;
       res.data->reserve(ns.size());
-      for (auto i = ns.lower, step = ns.step, n = ns.upper; i < n; i += step) {
+      for (auto i = ns.lower, step = ns.step, n = ns.upper; i != n; i += step) {
         res.data->emplace_back(fast(i));
       }
       return res;

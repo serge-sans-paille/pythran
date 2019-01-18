@@ -1,3 +1,34 @@
+2019-01-18 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Honor PYTHRANRC environment variable for config file lookup
+
+	* Stricter type checking for export parameters
+
+	* Allow some kind of list to tuple conversion
+
+	* Lazy slicing of broadcasted expression and transposed expression
+
+	* Support numpy.stack, numpy.rollaxis, numpy.broadcast_to,
+	  numpy.ndarray.dtype.type
+
+	* Better support of array of complex numbers
+
+	* Verbose mode in pythran-config to debug compiler backend issues
+
+	* Config file linting
+
+	* Evaluate numpy.arange lazily when valid
+
+	* Faster PRNG, namely pcg
+
+	* Favor Python3 support in various places
+
+	* Fix Numpy.remainder implementation
+
+	* Better support for importing user modules
+
+	* More vectorized operations support
+
 2018-11-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Moving to xsimd as vectorization engine, requires -DUSE_XSIMD

@@ -433,9 +433,16 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     >>> cpp_path = compile_pythranfile('pythran_test.py', cpponly=True)
 
     Usage with an existing spec file:
+
     >>> with open('pythran_test.pythran', 'w') as fd:
     ...    _ = fd.write('export foo(int)')
     >>> so_path = compile_pythranfile('pythran_test.py')
+
+    Specify the output file:
+
+    >>> import sysconfig
+    >>> ext = sysconfig.get_config_vars()["SO"]
+    >>> so_path = compile_pythranfile('pythran_test.py', output_file='foo'+ext)
     """
     if not output_file:
         # derive module name from input file name
@@ -445,7 +452,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     else:
         # derive module name from destination output_file name
         _, basename = os.path.split(output_file)
-        module_name = module_name or os.path.splitext(basename)[0]
+        module_name = module_name or basename.split(".", 1)[0]
 
     module_dir = os.path.dirname(file_path)
 

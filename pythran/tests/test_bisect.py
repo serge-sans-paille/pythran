@@ -1,5 +1,5 @@
 import unittest
-from test_env import TestEnv
+from pythran.tests import TestEnv
 from pythran.typing import List
 
 

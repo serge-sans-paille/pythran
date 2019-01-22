@@ -1,7 +1,7 @@
 import numpy as np
 
 from pythran.config import cfg
-from test_env import TestEnv
+from pythran.tests import TestEnv
 from pythran.typing import NDArray
 
 import unittest

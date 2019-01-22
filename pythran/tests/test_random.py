@@ -1,5 +1,5 @@
 """ Check the random module behavior. """
-from test_env import TestEnv
+from pythran.tests import TestEnv
 
 
 @TestEnv.module

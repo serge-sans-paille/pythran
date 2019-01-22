@@ -1,5 +1,5 @@
 #encoding: utf8
-from test_env import TestEnv
+from pythran.tests import TestEnv
 
 from unittest import skip, skipIf
 import sys

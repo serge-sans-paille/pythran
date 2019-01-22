@@ -1,4 +1,4 @@
-from test_env import TestEnv
+from pythran.tests import TestEnv
 from unittest import skip
 from pythran.typing import List
 import pythran

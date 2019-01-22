@@ -1,5 +1,5 @@
 from tempfile import mkstemp
-from test_env import TestEnv
+from pythran.tests import TestEnv
 
 import unittest
 import sys

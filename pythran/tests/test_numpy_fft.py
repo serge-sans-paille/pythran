@@ -1,5 +1,5 @@
 import unittest
-from test_env import TestEnv
+from pythran.tests import TestEnv
 import numpy
 from pythran.typing import NDArray
 

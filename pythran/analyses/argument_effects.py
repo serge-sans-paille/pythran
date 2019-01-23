@@ -4,7 +4,8 @@ from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
-import pythran.intrinsic as intrinsic
+# FIXME: investigate why we need to import it that way
+from pythran import intrinsic
 
 import gast as ast
 import networkx as nx

@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from test_env import TestFromDir
+from pythran.tests import TestFromDir
 
 
 class TestCases(TestFromDir):

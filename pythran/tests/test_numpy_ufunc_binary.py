@@ -3,7 +3,7 @@
 import numpy
 import scipy
 
-from test_env import TestEnv
+from pythran.tests import TestEnv
 from pythran.tables import MODULES
 from pythran.intrinsic import UFunc
 from pythran.typing import NDArray

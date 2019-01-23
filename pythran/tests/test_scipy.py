@@ -1,5 +1,5 @@
 from pythran.typing import List
-from test_env import TestFromDir
+from pythran.tests import TestFromDir
 
 import os
 

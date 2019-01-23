@@ -3,7 +3,7 @@
 import numpy
 from pythran.typing import List, NDArray
 
-from test_env import TestEnv
+from pythran.tests import TestEnv
 
 
 class TestSlice(TestEnv):

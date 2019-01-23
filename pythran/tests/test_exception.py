@@ -1,4 +1,4 @@
-from test_env import TestEnv
+from pythran.tests import TestEnv
 import __builtin__
 import unittest
 import sys

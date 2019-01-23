@@ -1,6 +1,6 @@
 import unittest
 from distutils.errors import CompileError
-from test_env import TestFromDir
+from pythran.tests import TestFromDir
 import os
 import pythran
 from pythran.syntax import PythranSyntaxError

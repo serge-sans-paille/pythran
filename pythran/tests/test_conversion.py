@@ -2,7 +2,7 @@ import numpy as np
 import unittest
 from pythran.typing import *
 
-from test_env import TestEnv
+from pythran.tests import TestEnv
 
 try:
     np.float128

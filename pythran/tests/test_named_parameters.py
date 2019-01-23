@@ -1,4 +1,4 @@
-from test_env import TestEnv
+from pythran.tests import TestEnv
 from pythran.syntax import PythranSyntaxError
 
 class TestNamedParameters(TestEnv):

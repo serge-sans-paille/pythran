@@ -3,7 +3,7 @@
 import pytest
 import sys
 
-from test_env import TestEnv
+from pythran.tests import TestEnv
 
 
 @TestEnv.module

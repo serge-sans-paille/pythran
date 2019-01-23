@@ -5,7 +5,7 @@ import unittest
 import numpy
 from pythran.typing import List, NDArray, Tuple
 
-from test_env import TestEnv
+from pythran.tests import TestEnv
 
 
 @TestEnv.module

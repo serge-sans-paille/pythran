@@ -3866,8 +3866,12 @@ MODULES = {
             signature=_numpy_float_unary_op_float_signature
         ),
         "fft": {
-            "rfft": FunctionIntr(args=(), global_effects=True),
-            "irfft": FunctionIntr(args=(), global_effects=True),
+            "rfft": FunctionIntr(args=('input','NFFT','axis','norm'), 
+                                defaults=(None,None,None),
+                                global_effects=True),
+            "irfft": FunctionIntr(args=('input','NFFT','axis','norm'), 
+                                defaults=(None,None,None),
+                                global_effects=True),
         },
         "random": {
             "binomial": FunctionIntr(args=('n', 'p', 'size'),

@@ -90,43 +90,35 @@ namespace numpy
       return out_array;
     }
 
-    template <class T, class pS>
+    // These functions help handle None inputs for default values without relying on the C++ default mechanism.
+    bool testNorm(types::none_type param) { return false; }
+    bool testNorm(types::str param) { return param == "ortho"; }
+    
+    long testLong(types::none_type param, long def_val) { return def_val;}
+    long testLong(long N, long def_val) { return N;}
+
+    template <class T, class pS, typename U, typename V, typename W>
     types::ndarray<std::complex<typename std::common_type<T, double>::type>,
                    types::array<long, std::tuple_size<pS>::value>>
-    rfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis)
+    rfft(types::ndarray<T, pS> const &in_array, U _NFFT, V _axis, W normalize)
     {
-      return rfft(in_array, NFFT, axis, "");
-    }
-
-    // This is kludgy, and I'm sure there's a better way to do this. Jeanl
-    bool testThis(types::none_type param)
-    {
-      return false;
-    }
-    bool testThis(types::str param)
-    {
-      return param == "ortho";
-    }
-
-    template <class T, class pS, typename U>
-    types::ndarray<std::complex<typename std::common_type<T, double>::type>,
-                   types::array<long, std::tuple_size<pS>::value>>
-    rfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis,
-         U normalize)
-    {
-      bool norm = testThis(normalize);
-      auto constexpr N = std::tuple_size<pS>::value;
-
-      if (NFFT == -1)
-        NFFT = std::get<N - 1>(in_array.shape());
-      if (axis != -1 && axis != N - 1) {
-        // Swap axis if the FFT must be computed on an axis that's not the last
-        // one.
-        auto swapped_array = swapaxes(in_array, axis, N - 1);
-        return swapaxes(_rfft(swapped_array, NFFT, norm), axis, N - 1);
-      } else {
-        return _rfft(in_array, NFFT, norm);
-      }
+        bool norm = testNorm(normalize);
+        auto constexpr N = std::tuple_size<pS>::value;
+        // Handle None for axis input.
+        long axis = testLong(_axis,-1);
+        // Handle None for NFFT. Map -1 -> N-1 etc...
+        long idx = (axis%N+N)%N;
+        long def_val = sutils::array(in_array.shape())[idx];
+        long NFFT = testLong(_NFFT,def_val);
+        if (axis != -1 && axis != N - 1) {
+            // Swap axis if the FFT must be computed on an axis that's not the last
+            // one.
+            auto swapped_array = swapaxes(in_array, axis, N - 1);
+            return swapaxes(_rfft(swapped_array, NFFT, norm), axis, N - 1);
+            }
+        else {
+            return _rfft(in_array, NFFT, norm);
+        }
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(rfft);

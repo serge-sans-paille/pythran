@@ -11,10 +11,9 @@ namespace numpy
   namespace fft
   {
 
-    template <class T, class pS>
+    template <class T, class pS, typename U, typename V, typename W >
     types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
-    irfft(types::ndarray<T, pS> const &, long NFFT = -1, long axis = -1,
-          types::str renorm = "");
+    irfft(types::ndarray<T, pS> const &, U NFFT, V axis, W renorm);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(irfft);
     DEFINE_FUNCTOR(pythonic::numpy::fft, irfft);

@@ -75,8 +75,8 @@ namespace xsimd
         using base_type::store_aligned;
         using base_type::store_unaligned;
 
-        XSIMD_DECLARE_LOAD_STORE_INT8(int8_t, 16);
-        XSIMD_DECLARE_LOAD_STORE_LONG(int8_t, 16);
+        XSIMD_DECLARE_LOAD_STORE_INT8(int8_t, 16)
+        XSIMD_DECLARE_LOAD_STORE_LONG(int8_t, 16)
 
         int8_t operator[](std::size_t index) const;
 
@@ -161,7 +161,7 @@ namespace xsimd
 
     inline batch<int8_t, 16>& batch<int8_t, 16>::load_aligned(const uint8_t* src)
     {
-        m_value = vld1q_u8(src);
+        m_value = vreinterpretq_s8_u8(vld1q_u8(src));
         return *this;
     }
 
@@ -182,7 +182,7 @@ namespace xsimd
 
     inline void batch<int8_t, 16>::store_aligned(uint8_t* dst) const
     {
-        vst1q_u8(dst, m_value);
+        vst1q_u8(dst, vreinterpretq_u8_s8(m_value));
     }
 
     inline void batch<int8_t, 16>::store_unaligned(uint8_t* dst) const

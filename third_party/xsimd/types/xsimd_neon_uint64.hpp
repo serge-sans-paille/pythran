@@ -52,8 +52,8 @@ namespace xsimd
 
         operator simd_type() const;
 
-        XSIMD_DECLARE_LOAD_STORE_ALL(uint64_t, 2);
-        XSIMD_DECLARE_LOAD_STORE_LONG(uint64_t, 2);
+        XSIMD_DECLARE_LOAD_STORE_ALL(uint64_t, 2)
+        XSIMD_DECLARE_LOAD_STORE_LONG(uint64_t, 2)
 
         using base_type::load_aligned;
         using base_type::load_unaligned;
@@ -116,65 +116,10 @@ namespace xsimd
         return *this;
     }
 
-    inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_aligned(const int8_t* src)
-    {
-        int8x8_t tmp = vld1_s8((const int8_t*)src);
-        int16x8_t tmp2 = vmovl_s8(tmp);
-        int16x4_t tmp3 = vget_low_s16(tmp2);
-        int32x4_t tmp4 = vmovl_s16(tmp3);
-        int32x2_t tmp5 = vget_low_s32(tmp4);
-        m_value = vreinterpretq_u64_s64(vmovl_s32(tmp5));
-        return *this;
-    }
-
-    inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_unaligned(const int8_t* src)
-    {
-        return load_aligned(src);
-    }
-
-    inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_aligned(const uint8_t* src)
-    {
-        uint8x8_t tmp = vld1_u8((const uint8_t*)src);
-        uint16x8_t tmp2 = vmovl_u8(tmp);
-        uint16x4_t tmp3 = vget_low_u16(tmp2);
-        uint32x4_t tmp4 = vmovl_u16(tmp3);
-        uint32x2_t tmp5 = vget_low_u32(tmp4);
-        m_value = vmovl_u32(tmp5);
-        return *this;
-    }
-
-    inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_unaligned(const uint8_t* src)
-    {
-        return load_aligned(src);
-    }
-
-    inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_aligned(const int16_t* src)
-    {
-        int16x4_t tmp1 = vld1_s16((const int16_t*)src);
-        int32x4_t tmp2 = vmovl_s16(tmp1);
-        int32x2_t tmp3 = vget_low_s32(tmp2);
-        m_value = vreinterpretq_u64_s64(vmovl_s32(tmp3));
-        return *this;
-    }
-
-    inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_unaligned(const int16_t* src)
-    {
-        return load_aligned(src);
-    }
-
-    inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_aligned(const uint16_t* src)
-    {
-        uint16x4_t tmp1 = vld1_u8((const uint8_t*)src);
-        uint32x4_t tmp2 = vmovl_u16(tmp1);
-        uint32x2_t tmp3 = vget_low_u32(tmp2);
-        m_value = vmovl_u32(tmp3);
-        return *this;
-    }
-
-    inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_unaligned(const uint16_t* src)
-    {
-        return load_aligned(src);
-    }
+    XSIMD_DEFINE_LOAD_STORE(uint64_t, 2, int8_t, XSIMD_DEFAULT_ALIGNMENT)
+    XSIMD_DEFINE_LOAD_STORE(uint64_t, 2, uint8_t, XSIMD_DEFAULT_ALIGNMENT)
+    XSIMD_DEFINE_LOAD_STORE(uint64_t, 2, int16_t, XSIMD_DEFAULT_ALIGNMENT)
+    XSIMD_DEFINE_LOAD_STORE(uint64_t, 2, uint16_t, XSIMD_DEFAULT_ALIGNMENT)
 
     inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_aligned(const int32_t* src)
     {
@@ -258,62 +203,6 @@ namespace xsimd
     inline batch<uint64_t, 2>& batch<uint64_t, 2>::load_unaligned(const double* src)
     {
         return load_aligned(src);
-    }
-
-    inline void batch<uint64_t, 2>::store_aligned(int8_t* dst) const
-    {
-        int32x2_t tmp2 = vmovn_s64(vreinterpretq_s64_u64(m_value));
-        int32x4_t tmp3 = vcombine_s32(tmp2, vdup_n_s32(0));
-        int16x4_t tmp4 = vmovn_s32(tmp3);
-        int16x8_t tmp5 = vcombine_s16(tmp4, vdup_n_s16(0));
-        int8x8_t tmp6 = vmovn_s16(tmp5);
-        vst1_s8((int8_t*)dst, tmp6);
-    }
-
-    inline void batch<uint64_t, 2>::store_unaligned(int8_t* dst) const
-    {
-        store_aligned(dst);
-    }
-
-    inline void batch<uint64_t, 2>::store_aligned(uint8_t* dst) const
-    {
-        uint32x2_t tmp2 = vmovn_u64(m_value);
-        uint32x4_t tmp3 = vcombine_u32(tmp2, vdup_n_u32(0));
-        uint16x4_t tmp4 = vmovn_u32(tmp3);
-        uint16x8_t tmp5 = vcombine_u16(tmp4, vdup_n_u16(0));
-        uint8x8_t tmp6 = vmovn_u16(tmp5);
-        vst1_u8((uint8_t*)dst, tmp6);
-    }
-
-    inline void batch<uint64_t, 2>::store_unaligned(uint8_t* dst) const
-    {
-        store_aligned(dst);
-    }
-
-    inline void batch<uint64_t, 2>::store_aligned(int16_t* dst) const
-    {
-        int32x2_t tmp1 = vmovn_s64(vreinterpretq_s64_u64(m_value));
-        int32x4_t tmp2 = vcombine_s32(tmp1, vdup_n_s32(0));
-        int16x4_t tmp3 = vmovn_s32(tmp2);
-        vst1_s16((int16_t*)dst, tmp3);
-    }
-
-    inline void batch<uint64_t, 2>::store_unaligned(int16_t* dst) const
-    {
-        store_aligned(dst);
-    }
-
-    inline void batch<uint64_t, 2>::store_aligned(uint16_t* dst) const
-    {
-        uint32x2_t tmp1 = vmovn_u64(m_value);
-        uint32x4_t tmp2 = vcombine_u32(tmp1, vdup_n_u32(0));
-        uint16x4_t tmp3 = vmovn_u32(tmp2);
-        vst1_u16((uint16_t*)dst, tmp3);
-    }
-
-    inline void batch<uint64_t, 2>::store_unaligned(uint16_t* dst) const
-    {
-        store_aligned(dst);
     }
 
     inline void batch<uint64_t, 2>::store_aligned(int32_t* dst) const
@@ -428,7 +317,43 @@ namespace xsimd
 
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
             {
+#if XSIMD_ARM_INSTR_SET >= XSIMD_ARM8_64_NEON_VERSION
                 return { lhs[0] * rhs[0], lhs[1] * rhs[1] };
+#else
+                /*
+                 * Clang 7 and GCC 8 both generate highly inefficient code here for
+                 * ARMv7. They will repeatedly extract and reinsert lanes.
+                 * While bug reports have been opened, for now, this is an efficient
+                 * workaround.
+                 *
+                 * It is unknown if there is a benefit for aarch64 (I do not have
+                 * a device), but I presume it would be lower considering aarch64
+                 * has a native uint64_t multiply.
+                 *
+                 * Effective code:
+                 *
+                 *     uint32x2_t lhs_lo = lhs & 0xFFFFFFFF;
+                 *     uint32x2_t lhs_hi = lhs >> 32;
+                 *     uint32x2_t rhs_lo = rhs & 0xFFFFFFFF;
+                 *     uint32x2_t rhs_hi = rhs >> 32;
+                 *
+                 *     uint64x2_t result   = (uint64x2_t)lhs_hi * (uint64x2_t)rhs_lo;
+                 *                result  += (uint64x2_t)lhs_lo * (uint64x2_t)rhs_hi;
+                 *                result <<= 32;
+                 *                result  += (uint64x2_t)lhs_lo * (uint64x2_t)rhs_lo;
+                 *     return result;
+                 */
+                uint32x2_t lhs_lo = vmovn_u64   (lhs);
+                uint32x2_t lhs_hi = vshrn_n_u64 (lhs,    32);
+                uint32x2_t rhs_lo = vmovn_u64   (rhs);
+                uint32x2_t rhs_hi = vshrn_n_u64 (rhs,    32);
+
+                uint64x2_t result = vmull_u32   (lhs_hi, rhs_lo);
+                           result = vmlal_u32   (result, lhs_lo, rhs_hi);
+                           result = vshlq_n_u64 (result, 32);
+                           result = vmlal_u32   (result, lhs_lo, rhs_lo);
+                return result;
+#endif
             }
 
             static batch_type div(const batch_type& lhs, const batch_type& rhs)

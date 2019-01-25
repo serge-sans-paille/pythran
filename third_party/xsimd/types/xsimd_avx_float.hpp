@@ -11,6 +11,7 @@
 
 #include "xsimd_base.hpp"
 #include "xsimd_int_conversion.hpp"
+#include <array>
 
 namespace xsimd
 {
@@ -45,8 +46,13 @@ namespace xsimd
         bool operator[](std::size_t index) const;
 
     private:
+        union storage_t
+        {
+            std::array<std::uint32_t, 8> arr;
+            __m256                       reg;
+        };
 
-        __m256 m_value;
+        storage_t m_value;
     };
 
     /*******************
@@ -82,8 +88,8 @@ namespace xsimd
 
         operator __m256() const;
 
-        XSIMD_DECLARE_LOAD_STORE_ALL(float, 8);
-        XSIMD_DECLARE_LOAD_STORE_LONG(float, 8);
+        XSIMD_DECLARE_LOAD_STORE_ALL(float, 8)
+        XSIMD_DECLARE_LOAD_STORE_LONG(float, 8)
 
         using base_type::load_aligned;
         using base_type::load_unaligned;
@@ -106,39 +112,37 @@ namespace xsimd
     }
 
     inline batch_bool<float, 8>::batch_bool(bool b)
-        : m_value(_mm256_castsi256_ps(_mm256_set1_epi32(-(int)b)))
     {
+        m_value.reg = _mm256_castsi256_ps(_mm256_set1_epi32(-(int)b));
     }
 
     inline batch_bool<float, 8>::batch_bool(bool b0, bool b1, bool b2, bool b3,
                                             bool b4, bool b5, bool b6, bool b7)
-        : m_value(_mm256_castsi256_ps(
-              _mm256_setr_epi32(-(int)b0, -(int)b1, -(int)b2, -(int)b3,
-                                -(int)b4, -(int)b5, -(int)b6, -(int)b7)))
     {
+        m_value.reg = _mm256_castsi256_ps(
+              _mm256_setr_epi32(-(int)b0, -(int)b1, -(int)b2, -(int)b3,
+                                -(int)b4, -(int)b5, -(int)b6, -(int)b7));
     }
 
     inline batch_bool<float, 8>::batch_bool(const __m256& rhs)
-        : m_value(rhs)
     {
+        m_value.reg = rhs;
     }
 
     inline batch_bool<float, 8>& batch_bool<float, 8>::operator=(const __m256& rhs)
     {
-        m_value = rhs;
+        m_value.reg = rhs;
         return *this;
     }
 
     inline batch_bool<float, 8>::operator __m256() const
     {
-        return m_value;
+        return m_value.reg;
     }
 
     inline bool batch_bool<float, 8>::operator[](std::size_t index) const
     {
-        alignas(32) float x[8];
-        _mm256_store_ps(x, m_value);
-        return static_cast<bool>(x[index & 7]);
+        return bool(m_value.arr[index & 7]);
     }
 
     namespace detail

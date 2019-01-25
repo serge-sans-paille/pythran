@@ -90,36 +90,50 @@ namespace numpy
       return out_array;
     }
 
-    template <class T, class pS>
-    types::ndarray<std::complex<typename std::common_type<T, double>::type>,
-                   types::array<long, std::tuple_size<pS>::value>>
-    rfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis)
-    {
-      return rfft(in_array, NFFT, axis, "");
-    }
-
-    // This is kludgy, and I'm sure there's a better way to do this. Jeanl
-    bool testThis(types::none_type param)
+    // These functions help handle None inputs for default values without
+    // relying on the C++ default mechanism.
+    bool testNorm(types::none_type param)
     {
       return false;
     }
-    bool testThis(types::str param)
+    bool testNorm(types::str param)
     {
-      return param == "ortho";
+      if (param == "ortho")
+        return 1;
+      else {
+        throw types::ValueError("norm should be None or \"ortho\"");
+        return 0;
+      }
     }
 
-    template <class T, class pS, typename U>
+    long testLong(types::none_type param, long def_val)
+    {
+      return def_val;
+    }
+    long testLong(long N, long def_val)
+    {
+      return N;
+    }
+
+    template <class T, class pS, typename U, typename V, typename W>
     types::ndarray<std::complex<typename std::common_type<T, double>::type>,
                    types::array<long, std::tuple_size<pS>::value>>
-    rfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis,
-         U normalize)
+    rfft(types::ndarray<T, pS> const &in_array, U _NFFT, V _axis, W normalize)
     {
-      bool norm = testThis(normalize);
+      bool norm = testNorm(normalize);
       auto constexpr N = std::tuple_size<pS>::value;
-
-      if (NFFT == -1)
-        NFFT = std::get<N - 1>(in_array.shape());
-      if (axis != -1 && axis != N - 1) {
+      // Handle None for axis input.
+      long axis = testLong(_axis, -1);
+      // Handle None for NFFT. Map -1 -> N-1 etc...
+      long LN = (long)N;
+      if (axis >= LN)
+        throw types::ValueError("axis out of bounds1");
+      if (axis <= -LN - 1)
+        throw types::ValueError("axis out of bounds");
+      axis = (axis + LN) % LN;
+      long def_val = sutils::array(in_array.shape())[axis];
+      long NFFT = testLong(_NFFT, def_val);
+      if (axis != LN - 1) {
         // Swap axis if the FFT must be computed on an axis that's not the last
         // one.
         auto swapped_array = swapaxes(in_array, axis, N - 1);

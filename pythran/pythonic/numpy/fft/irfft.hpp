@@ -86,16 +86,49 @@ namespace numpy
       return out_array;
     }
 
-    template <class T, class pS>
+    // These functions help handle None inputs for default values without
+    // relying on the C++ default mechanism.
+    bool testNorm(types::none_type param)
+    {
+      return false;
+    }
+    bool testNorm(types::str param)
+    {
+      if (param == "ortho")
+        return 1;
+      else {
+        throw types::ValueError("norm should be None or \"ortho\"");
+        return 0;
+      }
+    }
+
+    long testLong(types::none_type param, long def_val)
+    {
+      return def_val;
+    }
+    long testLong(long N, long def_val)
+    {
+      return N;
+    }
+
+    template <class T, class pS, typename U, typename V, typename W>
     types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
-    irfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis,
-          types::str normalize)
+    irfft(types::ndarray<T, pS> const &in_array, U _NFFT, V _axis, W renorm)
     {
       auto constexpr N = std::tuple_size<pS>::value;
-      bool norm = (normalize == "ortho");
-      if (NFFT == -1)
-        NFFT = 2 * (std::get<N - 1>(in_array.shape()) - 1);
-      if (axis != -1 && axis != N - 1) {
+      bool norm = testNorm(renorm);
+      // Handle None for axis input.
+      long axis = testLong(_axis, -1);
+      long LN = (long)N;
+      if (axis >= LN)
+        throw types::ValueError("axis out of bounds1");
+      if (axis <= -LN - 1)
+        throw types::ValueError("axis out of bounds");
+      // Handle None for NFFT. Map -1 -> N-1 etc...
+      axis = (axis + N) % N;
+      long def_val = 2 * (sutils::array(in_array.shape())[axis] - 1);
+      long NFFT = testLong(_NFFT, def_val);
+      if (axis != N - 1) {
         // Swap axis if the FFT must be computed on an axis that's not the last
         // one.
         auto swapped_array = swapaxes(in_array, axis, N - 1);

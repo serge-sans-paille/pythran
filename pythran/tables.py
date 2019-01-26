@@ -19,7 +19,7 @@ from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran import interval
 from functools import reduce
 
-if sys.version_info.major == 3:
+if sys.version_info.major == 3: 
     sys.modules['__builtin__'] = sys.modules['builtins']
 
     import functools

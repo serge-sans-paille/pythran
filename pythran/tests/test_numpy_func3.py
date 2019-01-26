@@ -9,7 +9,7 @@ from pythran.tests import TestEnv
 
 
 @TestEnv.module
-class TestNumpyFunc3(TestEnv):
+class TestNumpyFunc3(TestEnv): 
 
     """
     This module includes tests for multiple numpy module function.

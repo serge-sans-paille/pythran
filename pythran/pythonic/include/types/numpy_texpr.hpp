@@ -170,12 +170,10 @@ namespace types
         decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
                                             pythonic::__builtin__::None),
                            s0))>;
-    ;
     auto operator[](contiguous_slice const &s0) -> numpy_texpr<
         decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
                                             pythonic::__builtin__::None),
                            s0))>;
-
     auto operator[](slice const &s0) const -> numpy_texpr<
         decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
                                             pythonic::__builtin__::None),
@@ -236,7 +234,7 @@ namespace types
   template <class T, class S0, class S1>
   struct numpy_texpr<ndarray<T, pshape<S0, S1>>>
       : numpy_texpr_2<ndarray<T, pshape<S0, S1>>> {
-    numpy_texpr();
+    numpy_texpr() = default;
     numpy_texpr(numpy_texpr const &) = default;
     numpy_texpr(numpy_texpr &&) = default;
     numpy_texpr(ndarray<T, pshape<S0, S1>> const &arg);
@@ -245,17 +243,29 @@ namespace types
 
     using numpy_texpr_2<ndarray<T, pshape<S0, S1>>>::operator=;
   };
+  template <class T>
+  struct numpy_texpr<ndarray<T, array<long, 2>>>
+      : numpy_texpr_2<ndarray<T, array<long, 2>>> {
+    numpy_texpr() = default;
+    numpy_texpr(numpy_texpr const &) = default;
+    numpy_texpr(numpy_texpr &&) = default;
+    numpy_texpr(ndarray<T, array<long, 2>> const &arg);
+
+    numpy_texpr &operator=(numpy_texpr const &) = default;
+
+    using numpy_texpr_2<ndarray<T, array<long, 2>>>::operator=;
+  };
 
   template <class E, class... S>
   struct numpy_texpr<numpy_gexpr<E, S...>>
       : numpy_texpr_2<numpy_gexpr<E, S...>> {
-    numpy_texpr();
+    numpy_texpr() = default;
     numpy_texpr(numpy_texpr const &) = default;
     numpy_texpr(numpy_texpr &&) = default;
     numpy_texpr(numpy_gexpr<E, S...> const &arg);
-    template <class VE>
-    numpy_texpr(numpy_texpr<numpy_gexpr<VE, S...>> const &arg)
-        : numpy_texpr(arg.arg)
+    template <class F>
+    numpy_texpr(numpy_texpr<F> const &other)
+        : numpy_texpr(numpy_gexpr<E, S...>(other.arg))
     {
     }
 
@@ -285,6 +295,7 @@ template <class E, class K>
 struct __combined<pythonic::types::numpy_texpr<E>, K> {
   using type = pythonic::types::numpy_texpr<E>;
 };
+
 template <class E0, class E1, class... S>
 struct __combined<pythonic::types::numpy_texpr<E0>,
                   pythonic::types::numpy_gexpr<E1, S...>> {

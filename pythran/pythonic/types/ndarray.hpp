@@ -527,7 +527,6 @@ namespace types
   {
     initialize_from_expr(expr);
   }
-
   template <class T, class pS>
   template <class Arg>
   ndarray<T, pS>::ndarray(fast_range<Arg> const &expr)
@@ -1413,11 +1412,16 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
 
 template <class Arg>
 PyObject *
-to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v)
+to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v,
+                                            bool transpose)
 {
-  return ::to_python(
-      types::ndarray<typename types::numpy_iexpr<Arg>::dtype,
-                     typename types::numpy_iexpr<Arg>::shape_t>(v));
+  PyObject *res =
+      ::to_python(types::ndarray<typename types::numpy_iexpr<Arg>::dtype,
+                                 typename types::numpy_iexpr<Arg>::shape_t>(v));
+  if (transpose)
+    return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
+  else
+    return res;
 }
 
 template <class Arg, class... S>

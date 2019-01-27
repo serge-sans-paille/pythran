@@ -12,7 +12,7 @@ namespace numpy
 {
 
   template <class T>
-  types::numpy_texpr<types::ndarray<T, types::pshape<long, long>>>
+  types::numpy_texpr<types::ndarray<T, types::array<long, 2>>>
   transpose(types::ndarray<T, types::array<long, 2>> const &arr);
 
   template <class T, class pS0, class pS1>

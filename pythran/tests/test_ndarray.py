@@ -1028,12 +1028,38 @@ def assign_ndarray(t):
             2,
             dtype_type=[int])
 
-    def test_transposed_slice_assign(self):
-                self.run_test("""def transposed_slice_assign(shape):
+    def test_transposed_slice_assign0(self):
+                self.run_test("""def transposed_slice_assign0(shape):
                                   import numpy as np
                                   xx = np.empty(shape, dtype=int)
                                   xx.T[:] = np.arange(0, shape[0], 1, dtype=int)
                                   return xx""",
-                              (3, 3),
-                              transposed_slice_assign=[Tuple[int, int]])
+                              (3, 5),
+                              transposed_slice_assign0=[Tuple[int, int]])
+
+    def test_transposed_slice_assign1(self):
+                self.run_test("""def transposed_slice_assign1(shape):
+                                  import numpy as np
+                                  xx = np.ones(shape, dtype=int)
+                                  xx.T[:] = 3
+                                  return xx""",
+                              (3, 5),
+                              transposed_slice_assign1=[Tuple[int, int]])
+
+    def test_transposed_slice_assign2(self):
+                self.run_test("""def transposed_slice_assign2(shape):
+                                  import numpy as np
+                                  xx = np.ones(shape, dtype=int)
+                                  xx.T[:1] = 3
+                                  return xx""",
+                              (10, 20),
+                              transposed_slice_assign2=[Tuple[int, int]])
+
+    def test_transposed_array(self):
+                self.run_test("""def transposed_array(shape):
+                                  import numpy as np
+                                  xx = np.ones(shape, dtype=int)
+                                  return xx.T""",
+                              (3, 5),
+                              transposed_array=[Tuple[int, int]])
  

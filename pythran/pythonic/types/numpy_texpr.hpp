@@ -355,10 +355,6 @@ namespace types
   }
 
   // only implemented for N = 2
-  template <class T, class S0, class S1>
-  numpy_texpr<ndarray<T, pshape<S0, S1>>>::numpy_texpr()
-  {
-  }
 
   template <class T, class S0, class S1>
   numpy_texpr<ndarray<T, pshape<S0, S1>>>::numpy_texpr(
@@ -367,8 +363,10 @@ namespace types
   {
   }
 
-  template <class E, class... S>
-  numpy_texpr<numpy_gexpr<E, S...>>::numpy_texpr()
+  template <class T>
+  numpy_texpr<ndarray<T, array<long, 2>>>::numpy_texpr(
+      ndarray<T, array<long, 2>> const &arg)
+      : numpy_texpr_2<ndarray<T, array<long, 2>>>{arg}
   {
   }
 

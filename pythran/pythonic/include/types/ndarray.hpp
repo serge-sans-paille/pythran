@@ -339,7 +339,6 @@ namespace types
 
     template <class Arg>
     ndarray(fast_range<Arg> const &expr);
-
     /* update operators */
     template <class Op, class Expr>
     ndarray &update_(Expr const &expr);
@@ -929,7 +928,8 @@ struct to_python<types::ndarray<T, pS>> {
 
 template <class Arg>
 struct to_python<types::numpy_iexpr<Arg>> {
-  static PyObject *convert(types::numpy_iexpr<Arg> const &v);
+  static PyObject *convert(types::numpy_iexpr<Arg> const &v,
+                           bool transpose = false);
 };
 
 template <class Arg, class... S>
@@ -940,10 +940,11 @@ struct to_python<types::numpy_gexpr<Arg, S...>> {
 
 template <class E>
 struct to_python<types::numpy_texpr<E>> {
-  static PyObject *convert(types::numpy_texpr<E> const &t)
+  static PyObject *convert(types::numpy_texpr<E> const &t,
+                           bool transpose = false)
   {
     auto const &n = t.arg;
-    PyObject *result = to_python<E>::convert(n, true);
+    PyObject *result = to_python<E>::convert(n, !transpose);
     return result;
   }
 };

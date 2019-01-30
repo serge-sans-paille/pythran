@@ -1,3 +1,11 @@
+2019-01-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Fix np.transpose regression
+
+	* Updgrade xsimd to 7.1.2
+
+	* Fix setup.py test target
+
 2019-01-18 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Honor PYTHRANRC environment variable for config file lookup

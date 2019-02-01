@@ -341,3 +341,17 @@ def returned_none_member(a):
 
                 return a'''
         self.run_test(code, 'hello', none_combine_tuple=[str])
+
+    def test_none_tuple(self):
+        code = '''
+            def test_none_tuple(i):
+                a = 0
+                b = 0
+                c = 0
+                h = None
+                if i % 2 == 0:
+                    h = (1, 2, 3)
+                if h is not None:
+                    a, b, c = h
+                return a'''
+        self.run_test(code, 10, test_none_tuple=[int])

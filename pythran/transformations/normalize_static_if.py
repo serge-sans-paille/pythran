@@ -1,6 +1,7 @@
 """ NormalizeStaticIf adds support for static guards. """
 
 from pythran.analyses import (ImportedIds, IsAssigned, HasReturn,
+                              HasBreak, HasContinue,
                               StaticExpressions, HasStaticExpression)
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
@@ -8,8 +9,12 @@ from pythran.syntax import PythranSyntaxError
 import gast as ast
 from copy import deepcopy
 
+LOOP_NONE, EARLY_RET, LOOP_BREAK, LOOP_CONT = range(4)
 
-def outline(name, formal_parameters, out_parameters, stmts, has_return):
+
+def outline(name, formal_parameters, out_parameters, stmts,
+            has_return, has_break, has_cont):
+
     args = ast.arguments(
         [ast.Name(fp, ast.Param(), None) for fp in formal_parameters],
         None, [], [], None, [])
@@ -40,22 +45,33 @@ def outline(name, formal_parameters, out_parameters, stmts, has_return):
             )
         )
         if has_return:
-            pr = PatchReturn(stmts[-1])
+            pr = PatchReturn(stmts[-1], has_break or has_cont)
             pr.visit(fdef)
+
+        if has_break or has_cont:
+            if not has_return:
+                stmts[-1].value = ast.Tuple([ast.Num(LOOP_NONE),
+                                             stmts[-1].value],
+                                            ast.Load())
+            pbc = PatchBreakContinue(stmts[-1])
+            pbc.visit(fdef)
 
     return fdef
 
 
 class PatchReturn(ast.NodeTransformer):
 
-    def __init__(self, guard):
+    def __init__(self, guard, has_break_or_cont):
         self.guard = guard
+        self.has_break_or_cont = has_break_or_cont
 
     def visit_Return(self, node):
         if node is self.guard:
             holder = "StaticIfNoReturn"
         else:
             holder = "StaticIfReturn"
+
+        value = node.value
 
         return ast.Return(
             ast.Call(
@@ -65,7 +81,39 @@ class PatchReturn(ast.NodeTransformer):
                         "pythran",
                         ast.Load()),
                     holder,
-                    ast.Load()), [node.value], []))
+                    ast.Load()),
+                [value],
+                []))
+
+
+class PatchBreakContinue(ast.NodeTransformer):
+
+    def __init__(self, guard):
+        self.guard = guard
+
+    def visit_For(self, _):
+        pass
+
+    def visit_While(self, _):
+        pass
+
+    def patch_Control(self, node, flag):
+        new_node = deepcopy(self.guard)
+        ret_val = new_node.value
+        if isinstance(ret_val, ast.Call):
+            if flag == LOOP_BREAK:
+                ret_val.func.attr = "StaticIfBreak"
+            else:
+                ret_val.func.attr = "StaticIfCont"
+        else:
+            new_node.value.elts[0].n = flag
+        return new_node
+
+    def visit_Break(self, node):
+        return self.patch_Control(node, LOOP_BREAK)
+
+    def visit_Continue(self, node):
+        return self.patch_Control(node, LOOP_CONT)
 
 
 class NormalizeStaticIf(Transformation):
@@ -123,15 +171,43 @@ class NormalizeStaticIf(Transformation):
                                                       node, self.ctx))
 
         func_true = outline(self.true_name(), imported_ids, [],
-                            node.body, False)
+                            node.body, False, False, False)
         func_false = outline(self.false_name(), imported_ids, [],
-                             node.orelse, False)
+                             node.orelse, False, False, False)
         self.new_functions.extend((func_true, func_false))
 
         actual_call = self.make_dispatcher(node.test, func_true,
                                            func_false, imported_ids)
 
         return actual_call
+
+    def make_control_flow_handlers(self, cont_n, status_n, expected_return,
+                                   has_cont, has_break):
+        '''
+        Create the statements in charge of gathering control flow information
+        for the static_if result, and executes the expected control flow
+        instruction
+        '''
+        if expected_return:
+            assign = cont_ass = [ast.Assign(
+                [ast.Tuple(expected_return, ast.Store())],
+                ast.Name(cont_n, ast.Load(), None))]
+        else:
+            assign = cont_ass = []
+
+        if has_cont:
+            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
+                               [ast.Eq()], [ast.Num(LOOP_CONT)])
+            cont_ass = [ast.If(cmpr,
+                               deepcopy(assign) + [ast.Continue()],
+                               cont_ass)]
+        if has_break:
+            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
+                               [ast.Eq()], [ast.Num(LOOP_BREAK)])
+            cont_ass = [ast.If(cmpr,
+                               deepcopy(assign) + [ast.Break()],
+                               cont_ass)]
+        return cont_ass
 
     def visit_If(self, node):
         self.generic_visit(node)
@@ -156,48 +232,68 @@ class NormalizeStaticIf(Transformation):
 
         assigned_ids = sorted(assigned_ids_both)
 
-        true_has_return = self.passmanager.gather(HasReturn,
-                                                  self.make_fake(node.body),
-                                                  self.ctx)
-        false_has_return = self.passmanager.gather(HasReturn,
-                                                   self.make_fake(node.orelse),
-                                                   self.ctx)
+        fbody = self.make_fake(node.body)
+        true_has_return = self.passmanager.gather(HasReturn, fbody, self.ctx)
+        true_has_break = self.passmanager.gather(HasBreak, fbody, self.ctx)
+        true_has_cont = self.passmanager.gather(HasContinue, fbody, self.ctx)
+
+        felse = self.make_fake(node.orelse)
+        false_has_return = self.passmanager.gather(HasReturn, felse, self.ctx)
+        false_has_break = self.passmanager.gather(HasBreak, felse, self.ctx)
+        false_has_cont = self.passmanager.gather(HasContinue, felse, self.ctx)
 
         has_return = true_has_return or false_has_return
+        has_break = true_has_break or false_has_break
+        has_cont = true_has_cont or false_has_cont
 
         func_true = outline(self.true_name(), imported_ids, assigned_ids,
-                            node.body, has_return)
+                            node.body, has_return, has_break, has_cont)
         func_false = outline(self.false_name(), imported_ids, assigned_ids,
-                             node.orelse, has_return)
+                             node.orelse, has_return, has_break, has_cont)
         self.new_functions.extend((func_true, func_false))
 
         actual_call = self.make_dispatcher(node.test,
                                            func_true, func_false, imported_ids)
 
+        # variable modified within the static_if
         expected_return = [ast.Name(ii, ast.Load(), None)
                            for ii in assigned_ids]
 
         self.update = True
 
+        # name for various variables resulting from the static_if
+        n = len(self.new_functions)
+        status_n = "$status{}".format(n)
+        return_n = "$return{}".format(n)
+        cont_n = "$cont{}".format(n)
+
         if has_return:
-            n = len(self.new_functions)
-            fast_return = [ast.Name("$status{}".format(n), ast.Load(), None),
-                           ast.Name("$return{}".format(n), ast.Load(), None),
-                           ast.Name("$cont{}".format(n), ast.Load(), None)]
 
-            if expected_return:
-                cont_ass = [ast.Assign(
-                    [ast.Tuple(expected_return, ast.Store())],
-                    ast.Name("$cont{}".format(n), ast.Load(), None))]
-            else:
-                cont_ass = []
+            cont_ass = self.make_control_flow_handlers(cont_n, status_n,
+                                                       expected_return,
+                                                       has_cont, has_break)
 
-            return [
-                ast.Assign([ast.Tuple(fast_return, ast.Store())], actual_call),
-                ast.If(ast.Name("$status{}".format(n), ast.Load(), None),
-                       [ast.Return(
-                           ast.Name("$return{}".format(n), ast.Load(), None))],
-                       cont_ass)]
+            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
+                               [ast.Eq()], [ast.Num(EARLY_RET)])
+
+            fast_return = [ast.Name(status_n, ast.Load(), None),
+                           ast.Name(return_n, ast.Load(), None),
+                           ast.Name(cont_n, ast.Load(), None)]
+
+            return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
+                               actual_call),
+                    ast.If(cmpr,
+                           [ast.Return(ast.Name(return_n, ast.Load(), None))],
+                           cont_ass)]
+        elif has_break or has_cont:
+            cont_ass = self.make_control_flow_handlers(cont_n, status_n,
+                                                       expected_return,
+                                                       has_cont, has_break)
+
+            fast_return = [ast.Name(status_n, ast.Load(), None),
+                           ast.Name(cont_n, ast.Load(), None)]
+            return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
+                               actual_call)] + cont_ass
         elif expected_return:
             return ast.Assign([ast.Tuple(expected_return, ast.Store())],
                               actual_call)

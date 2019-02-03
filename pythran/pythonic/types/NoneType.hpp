@@ -34,13 +34,6 @@ namespace types
   }
 
   template <class T>
-  template <class... Types>
-  none<T, false>::none(Types &&... args)
-      : T(std::forward<Types>(args)...), is_none(false)
-  {
-  }
-
-  template <class T>
   bool none<T, false>::operator==(none_type const &) const
   {
     return is_none;

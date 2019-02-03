@@ -355,3 +355,87 @@ def returned_none_member(a):
                     a, b, c = h
                 return a'''
         self.run_test(code, 10, test_none_tuple=[int])
+
+    def test_none_loop_break(self):
+        code = '''
+            def none_loop_break(n):
+                x = [None if i%2 else 1 for i in range(n)]
+                s = 3
+                for j in x:
+                    if j is None:
+                        break
+                    s += 1
+                return s'''
+        self.run_test(code, 7, none_loop_break=[int])
+
+    def test_none_loop_continue(self):
+        code = '''
+            def none_loop_continue(n):
+                x = [None if i%2 else 1 for i in range(n)]
+                s = 3
+                for j in x:
+                    if j is None:
+                        continue
+                    s += 1
+                return s'''
+        self.run_test(code, 7, none_loop_continue=[int])
+
+    def test_none_loop_break_continue(self):
+        code = '''
+            def none_loop_break_continue(n):
+                x = [None if i%2 else 1 for i in range(n)]
+                s = 3
+                for j in x:
+                    if j is None:
+                        s *= 9
+                        continue
+                    else:
+                        s += 1
+                        break
+                return s'''
+        self.run_test(code, 7, none_loop_break_continue=[int])
+
+    def test_none_loop_break_or_ret(self):
+        code = '''
+            def none_loop_break_or_ret(n):
+                x = [None if i%2 else 1 for i in range(n)]
+                s = 3
+                for j in x:
+                    if j is None:
+                        break
+                    else:
+                        return 3
+                    s += 1
+                return s'''
+        self.run_test(code, 7, none_loop_break_or_ret=[int])
+
+    def test_none_loop_continue_or_ret(self):
+        code = '''
+            def none_loop_continue_or_ret(n):
+                x = [None if i%2 else 1 for i in range(n)]
+                s = 3
+                for j in x:
+                    if j is None:
+                        continue
+                    else:
+                        return 3
+                    s += 1
+                return s'''
+        self.run_test(code, 7, none_loop_continue_or_ret=[int])
+
+    def test_none_loop_break_continue_or_ret(self):
+        code = '''
+            def none_loop_break_continue_or_ret(n):
+                x = [None if i%2 else 1 for i in range(n)]
+                s = 3
+                for j in x:
+                    if j is None:
+                        s *= 9
+                        break
+                    elif j < 5:
+                        s += 1
+                        continue
+                    else:
+                        return 8
+                return s'''
+        self.run_test(code, 7, none_loop_break_continue_or_ret=[int])

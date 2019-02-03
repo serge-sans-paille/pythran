@@ -23,7 +23,7 @@ from .global_effects import GlobalEffects
 from .globals_analysis import Globals
 from .has_break import HasBreak
 from .has_continue import HasContinue
-from .has_return import HasReturn
+from .has_return import HasReturn, HasBreak, HasContinue
 from .identifiers import Identifiers
 from .immediates import Immediates
 from .imported_ids import ImportedIds

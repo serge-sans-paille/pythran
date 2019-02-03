@@ -83,6 +83,16 @@ struct __combined<T0, T1 const &> {
 };
 
 template <class T0, class T1>
+struct __combined<T0 &, T1 const &> {
+  using type = typename __combined<T0, T1>::type;
+};
+
+template <class T0, class T1>
+struct __combined<T0 const &, T1 &> {
+  using type = typename __combined<T0, T1>::type;
+};
+
+template <class T0, class T1>
 struct __combined<T0 &, T1 &> {
   using type = typename std::add_lvalue_reference<
       typename __combined<T0, T1>::type>::type;

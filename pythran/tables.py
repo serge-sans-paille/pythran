@@ -3731,7 +3731,8 @@ MODULES = {
         "fmod": UFunc(BINARY_UFUNC),
         "frexp": ConstFunctionIntr(),
         "fromfunction": ConstFunctionIntr(),
-        "fromiter": ConstFunctionIntr(),
+        "fromiter": ConstFunctionIntr(args=("iterable", "dtype", "count"),
+                                      defaults=(-1,)),
         "fromstring": ConstFunctionIntr(),
         "greater": UFunc(
             BINARY_UFUNC,

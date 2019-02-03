@@ -613,6 +613,9 @@ def np_rosen_der(x):
     def test_fromiter1(self):
         self.run_test("def np_fromiter1(): from numpy import fromiter, float32 ; iterable = (x*x for x in range(5)) ; return fromiter(iterable, float32, 5)", np_fromiter1=[])
 
+    def test_fromiter2(self):
+        self.run_test("def np_fromiter2(): from numpy import fromiter, float64 ; iterable = (x-x for x in range(5)) ; return fromiter(iterable, count=2, dtype=float64)", np_fromiter2=[])
+
     def test_fromfunction0(self):
         self.run_test("def np_fromfunction0(s): from numpy import fromfunction ; return fromfunction(lambda i: i == 1, s)", (3,), np_fromfunction0=[Tuple[int]])
 

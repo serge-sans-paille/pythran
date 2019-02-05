@@ -207,7 +207,7 @@ set), introduced by the ``list`` (resp. ``set``) keyword::
                   | argument_type [:,...,3]+ # this is a ndarray, some dimension fixed
                   | argument_type:argument_type dict    # this is a dictionary
 
-    basic_type = bool | int | float | str | None
+    basic_type = bool | byte | int | float | str | None
                | uint8 | uint16 | uint32 | uint64 | uintp
                | int8 | int16 | int32 | int64 | intp
                | float32 | float64 | float128

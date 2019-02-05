@@ -962,6 +962,14 @@ def assign_ndarray(t):
                       numpy.arange(10, dtype=numpy.uint8).reshape(5,2),
                       indexing_through_int8=[NDArray[numpy.uint8,:,:]])
 
+    def test_indexing_through_byte(self):
+        code = '''
+            def indexing_through_byte(x):
+                return x[x[0,0],x[0,1]]'''
+        self.run_test(code,
+                      numpy.arange(10, dtype=numpy.byte).reshape(5,2),
+                      indexing_through_byte=[NDArray[numpy.byte,:,:]])
+
     def test_indexing_through_uint8(self):
         code = '''
             def indexing_through_uint8(x):

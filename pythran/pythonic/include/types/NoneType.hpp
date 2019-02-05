@@ -35,8 +35,18 @@ namespace types
 
     none(none_type const &);
 
-    template <class... Types>
-    none(Types &&... args);
+    none() : T(), is_none{true}
+    {
+    }
+    none(none const &other) = default;
+    none(T const &arg) : T(arg), is_none(false)
+    {
+    }
+    template <class OT>
+    none(OT const &arg)
+        : none(T(arg))
+    {
+    }
 
     bool operator==(none_type const &) const;
 
@@ -212,35 +222,52 @@ namespace std
 #include "pythonic/include/types/combined.hpp"
 
 template <class T0, class T1>
-struct __combined<pythonic::types::none<T0>, T1>
-    : std::enable_if<!pythonic::types::is_none<T1>::value,
-                     pythonic::dummy>::type {
+struct __combined<pythonic::types::none<T0>, T1> {
+  static_assert(!pythonic::types::is_none<T1>::value,
+                "none of none should'nt exist");
   using type = pythonic::types::none<typename __combined<T0, T1>::type>;
 };
 
 template <class T0, class T1>
-struct __combined<T1, pythonic::types::none<T0>>
-    : std::enable_if<!pythonic::types::is_none<T0>::value,
-                     pythonic::dummy>::type {
+struct __combined<T1, pythonic::types::none<T0>> {
+  static_assert(!pythonic::types::is_none<T0>::value,
+                "none of none should'nt exist");
   using type = pythonic::types::none<typename __combined<T0, T1>::type>;
 };
 
 template <class T0, class T1>
 struct __combined<pythonic::types::none<T1>, pythonic::types::none<T0>> {
+  static_assert(!pythonic::types::is_none<T0>::value,
+                "none of none should'nt exist");
+  static_assert(!pythonic::types::is_none<T1>::value,
+                "none of none should'nt exist");
   using type = pythonic::types::none<typename __combined<T0, T1>::type>;
 };
 
 template <class T>
-struct __combined<typename std::enable_if<!pythonic::types::is_none<T>::value,
-                                          pythonic::types::none_type>::type,
-                  T> {
+struct __combined<pythonic::types::none_type, T> {
+  static_assert(!pythonic::types::is_none<T>::value,
+                "none of none should'nt exist");
   using type = pythonic::types::none<T>;
 };
 
 template <class T>
-struct __combined<T,
-                  typename std::enable_if<!pythonic::types::is_none<T>::value,
-                                          pythonic::types::none_type>::type> {
+struct __combined<pythonic::types::none_type, pythonic::types::none<T>> {
+  static_assert(!pythonic::types::is_none<T>::value,
+                "none of none should'nt exist");
+  using type = pythonic::types::none<T>;
+};
+
+template <class T>
+struct __combined<T, pythonic::types::none_type> {
+  static_assert(!pythonic::types::is_none<T>::value,
+                "none of none should'nt exist");
+  using type = pythonic::types::none<T>;
+};
+template <class T>
+struct __combined<pythonic::types::none<T>, pythonic::types::none_type> {
+  static_assert(!pythonic::types::is_none<T>::value,
+                "none of none should'nt exist");
   using type = pythonic::types::none<T>;
 };
 

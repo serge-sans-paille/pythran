@@ -76,6 +76,13 @@ namespace __builtin__
     auto static_if_(T const &cond, F0 f0, F1 f1)
         -> decltype(details::static_if_<T>{cond}(f0, f1));
 
+    template <class F0, class F1>
+    auto static_if_(int const &cond, F0 f0, F1 f1)
+        -> decltype(details::static_if_<bool>{(bool)cond}(f0, f1))
+    {
+      return details::static_if_<bool>{(bool)cond}(f0, f1);
+    }
+
     DEFINE_FUNCTOR(pythonic::__builtin__::pythran, static_if_);
   }
 }

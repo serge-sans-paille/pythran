@@ -1,6 +1,7 @@
 """ NormalizeIsNone detects is None patterns. """
 
 from pythran.passmanager import Transformation
+from pythran.analyses import Ancestors
 from pythran.syntax import PythranSyntaxError
 from functools import reduce
 
@@ -62,6 +63,9 @@ class NormalizeIsNone(Transformation):
 
     table = {ast.And: ast.BitAnd, ast.Or: ast.BitOr}
 
+    def __init__(self):
+        super(NormalizeIsNone, self).__init__(Ancestors)
+
     @staticmethod
     def match_is_none(node):
         noned_var = is_is_none(node)
@@ -77,10 +81,11 @@ class NormalizeIsNone(Transformation):
         self.generic_visit(node)
         if any(x != y for x, y in zip(values, node.values)):
             self.update = True
-            return reduce(lambda x, y:
+            expr = reduce(lambda x, y:
                           ast.BinOp(x,
                                     NormalizeIsNone.table[type(node.op)](), y),
                           node.values)
+            return expr
         else:
             return node
 

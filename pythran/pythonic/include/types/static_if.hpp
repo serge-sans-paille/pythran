@@ -15,9 +15,13 @@ namespace types
   template <class T>
   struct StaticIfNoReturn {
     T arg;
-    bool get(std::integral_constant<size_t, 0>)
+    StaticIfNoReturn() = default;
+    StaticIfNoReturn(T const &arg) : arg(arg)
     {
-      return false;
+    }
+    long get(std::integral_constant<size_t, 0>)
+    {
+      return 0;
     }
     StaticIfNoReturn &get(std::integral_constant<size_t, 1>)
     {
@@ -35,11 +39,65 @@ namespace types
     }
   };
 
+  template <class T>
+  struct StaticIfBreak {
+    T arg;
+    StaticIfBreak() = default;
+    StaticIfBreak(T const &arg) : arg(arg)
+    {
+    }
+    long get(std::integral_constant<size_t, 0>)
+    {
+      return 1;
+    }
+    T &get(std::integral_constant<size_t, 1>)
+    {
+      return arg;
+    }
+    T &get(std::integral_constant<size_t, 2>)
+    {
+      return arg;
+    }
+
+    template <class OT>
+    operator OT() const
+    {
+      return OT();
+    }
+  };
+
+  template <class T>
+  struct StaticIfCont {
+    T arg;
+    StaticIfCont() = default;
+    StaticIfCont(T const &arg) : arg(arg)
+    {
+    }
+    long get(std::integral_constant<size_t, 0>)
+    {
+      return 2;
+    }
+    StaticIfCont &get(std::integral_constant<size_t, 1>)
+    {
+      return *this;
+    }
+    T &get(std::integral_constant<size_t, 2>)
+    {
+      return arg;
+    }
+
+    template <class OT>
+    operator OT() const
+    {
+      return OT();
+    }
+  };
+
   template <class T0, class T1>
   struct StaticIfReturnHolder {
-    std::tuple<bool, T0, T1> args;
+    std::tuple<int, T0, T1> args;
 
-    StaticIfReturnHolder() : args(false, T0(), T1())
+    StaticIfReturnHolder() : args(0, T0(), T1())
     {
     }
     StaticIfReturnHolder(StaticIfReturnHolder<T0, T1> const &) = default;
@@ -52,11 +110,17 @@ namespace types
 
     template <class Tp0>
     StaticIfReturnHolder(StaticIfReturn<Tp0> const &arg)
-        : args(true, arg.arg, T1())
+        : args(1, arg.arg, T1())
     {
     }
     StaticIfReturnHolder(StaticIfNoReturn<T1> const &arg)
-        : args(false, T0(), arg.arg)
+        : args(0, T0(), arg.arg)
+    {
+    }
+    StaticIfReturnHolder(StaticIfBreak<T1> const &arg) : args(2, T0(), arg.arg)
+    {
+    }
+    StaticIfReturnHolder(StaticIfCont<T1> const &arg) : args(3, T0(), arg.arg)
     {
     }
   };
@@ -91,6 +155,32 @@ namespace std
   {
     return t.get(std::integral_constant<size_t, I>{});
   }
+
+  template <size_t I, class T>
+  struct tuple_element<I, pythonic::types::StaticIfBreak<T>> {
+    using type = decltype(std::declval<pythonic::types::StaticIfBreak<T>>().get(
+        std::integral_constant<size_t, I>{}));
+  };
+
+  template <size_t I, class T>
+  auto get(pythonic::types::StaticIfBreak<T> &t)
+      -> decltype(t.get(std::integral_constant<size_t, I>{}))
+  {
+    return t.get(std::integral_constant<size_t, I>{});
+  }
+
+  template <size_t I, class T>
+  struct tuple_element<I, pythonic::types::StaticIfCont<T>> {
+    using type = decltype(std::declval<pythonic::types::StaticIfCont<T>>().get(
+        std::integral_constant<size_t, I>{}));
+  };
+
+  template <size_t I, class T>
+  auto get(pythonic::types::StaticIfCont<T> &t)
+      -> decltype(t.get(std::integral_constant<size_t, I>{}))
+  {
+    return t.get(std::integral_constant<size_t, I>{});
+  }
 }
 
 /* type inference stuff { */
@@ -101,9 +191,29 @@ struct __combined<pythonic::types::StaticIfReturn<T0>,
                   pythonic::types::StaticIfNoReturn<T1>> {
   using type = pythonic::types::StaticIfReturnHolder<T0, T1>;
 };
+template <class T0, class T1>
+struct __combined<pythonic::types::StaticIfReturn<T0>,
+                  pythonic::types::StaticIfBreak<T1>> {
+  using type = pythonic::types::StaticIfReturnHolder<T0, T1>;
+};
+template <class T0, class T1>
+struct __combined<pythonic::types::StaticIfReturn<T0>,
+                  pythonic::types::StaticIfCont<T1>> {
+  using type = pythonic::types::StaticIfReturnHolder<T0, T1>;
+};
 
 template <class T0, class T1>
 struct __combined<pythonic::types::StaticIfNoReturn<T1>,
+                  pythonic::types::StaticIfReturn<T0>> {
+  using type = pythonic::types::StaticIfReturnHolder<T0, T1>;
+};
+template <class T0, class T1>
+struct __combined<pythonic::types::StaticIfBreak<T1>,
+                  pythonic::types::StaticIfReturn<T0>> {
+  using type = pythonic::types::StaticIfReturnHolder<T0, T1>;
+};
+template <class T0, class T1>
+struct __combined<pythonic::types::StaticIfCont<T1>,
                   pythonic::types::StaticIfReturn<T0>> {
   using type = pythonic::types::StaticIfReturnHolder<T0, T1>;
 };
@@ -117,11 +227,42 @@ struct __combined<pythonic::types::StaticIfReturnHolder<T0, T1>,
 };
 template <class T0, class T1, class T2>
 struct __combined<pythonic::types::StaticIfReturnHolder<T0, T1>,
+                  pythonic::types::StaticIfCont<T2>> {
+  using type =
+      pythonic::types::StaticIfReturnHolder<typename __combined<T0, T2>::type,
+                                            T1>;
+};
+template <class T0, class T1, class T2>
+struct __combined<pythonic::types::StaticIfReturnHolder<T0, T1>,
+                  pythonic::types::StaticIfBreak<T2>> {
+  using type =
+      pythonic::types::StaticIfReturnHolder<typename __combined<T0, T2>::type,
+                                            T1>;
+};
+template <class T0, class T1, class T2>
+struct __combined<pythonic::types::StaticIfReturnHolder<T0, T1>,
                   pythonic::types::StaticIfReturn<T2>> {
   using type =
       pythonic::types::StaticIfReturnHolder<typename __combined<T0, T2>::type,
                                             T1>;
 };
+
+template <class T0, class T1, class T2>
+struct __combined<pythonic::types::StaticIfCont<T2>,
+                  pythonic::types::StaticIfReturnHolder<T0, T1>> {
+  using type =
+      pythonic::types::StaticIfReturnHolder<typename __combined<T0, T2>::type,
+                                            T1>;
+};
+
+template <class T0, class T1, class T2>
+struct __combined<pythonic::types::StaticIfBreak<T2>,
+                  pythonic::types::StaticIfReturnHolder<T0, T1>> {
+  using type =
+      pythonic::types::StaticIfReturnHolder<typename __combined<T0, T2>::type,
+                                            T1>;
+};
+
 template <class T0, class T1, class T2>
 struct __combined<pythonic::types::StaticIfReturn<T2>,
                   pythonic::types::StaticIfReturnHolder<T0, T1>> {

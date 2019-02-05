@@ -68,6 +68,24 @@ class ImportedIds(NodeAnalysis):
     def visit_Import(self, node):
         self.current_locals.update(alias.name for alias in node.names)
 
+    def visit_StoredTuple(self, node):
+        for elt in node.elts:
+            if isinstance(elt, ast.Name):
+                self.current_locals.add(elt.id)
+                continue
+            if isinstance(elt, ast.Subscript):
+                self.visit(elt)
+            if isinstance(elt, ast.Tuple):
+                self.visit_StoredTuple(node)
+
+    def visit_Tuple(self, node):
+        if isinstance(node.ctx, ast.Load):
+            self.generic_visit(node)
+        else:
+            self.visit_StoredTuple(node)
+
+    visit_List = visit_Tuple
+
     def visit_ImportFrom(self, node):
         self.current_locals.update(alias.name for alias in node.names)
 

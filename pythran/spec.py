@@ -154,6 +154,7 @@ class SpecParser(object):
     # lex part
     dtypes = {
         'bool': 'BOOL',
+        'byte': 'BYTE',
         'complex': 'COMPLEX',
         'int': 'INT',
         'float': 'FLOAT',

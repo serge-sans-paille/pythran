@@ -10,7 +10,7 @@ import os.path
 #pythran export a( float )
 #pythran export a( int8[] )
 #pythran export a( int8[][] )
-#pythran export a( int8 )
+#pythran export a( byte )
 #pythran export a0( uint8 )
 #pythran export a1( int16 )
 #pythran export a2( uint16 )

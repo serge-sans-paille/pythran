@@ -306,9 +306,10 @@ PYTHONIC_NS_END
 namespace std
 {
   template <size_t I, class T0>
-  auto get(pythonic::types::none<T0> const &t) -> decltype(std::get<I>((T0)t))
+  auto get(pythonic::types::none<T0> const &t)
+      -> decltype(std::get<I>((T0 const &)t))
   {
-    return std::get<I>((T0)t);
+    return std::get<I>((T0 const &)t);
   }
 }
 

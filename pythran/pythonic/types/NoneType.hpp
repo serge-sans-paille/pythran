@@ -47,6 +47,19 @@ namespace types
   }
 
   template <class T>
+  bool none<T, false>::operator!=(none_type const &other) const
+  {
+    return !(*this == other);
+  }
+
+  template <class T>
+  template <class O>
+  bool none<T, false>::operator!=(O const &other) const
+  {
+    return !(*this == other);
+  }
+
+  template <class T>
   none<T, false>::operator bool() const
   {
     return !is_none &&
@@ -97,6 +110,19 @@ namespace types
   bool none<T, true>::operator==(O const &t) const
   {
     return !is_none && data == t;
+  }
+
+  template <class T>
+  bool none<T, true>::operator!=(none_type const &other) const
+  {
+    return !(*this == other);
+  }
+
+  template <class T>
+  template <class O>
+  bool none<T, true>::operator!=(O const &other) const
+  {
+    return !(*this == other);
   }
 
   template <class T>

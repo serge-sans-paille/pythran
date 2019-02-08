@@ -14,6 +14,14 @@ def returned_none(a):
     return dummy(a)'''
         self.run_test(code, [1, 2], returned_none=[List[int]])
 
+    def test_eq_neq_scalar(self):
+        code = 'def eq_neq_scalar(x): return x == 1, x!= 1'
+        self.run_test(code, 1, eq_neq_scalar=[int])
+
+    def test_eq_neq_nonscalar(self):
+        code = 'def eq_neq_nonscalar(x): return x == [1], x!= [1]'
+        self.run_test(code, [1], eq_neq_nonscalar=[List[int]])
+
     def test_returned_none_member(self):
         code = '''
 def dummy(l):

@@ -337,6 +337,7 @@ namespace types
     auto &other_data = other.get_data();
     auto &other_slice = other.get_slice();
     auto other_size = other.size();
+    data = decltype(data)(); // Don't use the original buffer
     auto &my_data = *data;
     long j = 0L;
 

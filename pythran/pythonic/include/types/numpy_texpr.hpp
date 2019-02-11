@@ -205,6 +205,8 @@ namespace types
     }
     template <class Expr>
     numpy_texpr_2 &operator=(Expr const &expr);
+    template <class Expr>
+    numpy_texpr_2 &operator=(numpy_texpr<Expr> const &expr);
 
     template <class Op, class Expr>
     numpy_texpr_2 &update_(Expr const &expr);
@@ -269,6 +271,8 @@ namespace types
     {
     }
 
+    numpy_texpr &operator=(numpy_texpr const &) = default;
+
     using numpy_texpr_2<numpy_gexpr<E, S...>>::operator=;
   };
 }
@@ -291,6 +295,17 @@ PYTHONIC_NS_END
 
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"
+template <class E>
+struct __combined<pythonic::types::numpy_texpr<E>,
+                  pythonic::types::numpy_texpr<E>> {
+  using type = pythonic::types::numpy_texpr<E>;
+};
+template <class E0, class E1>
+struct __combined<pythonic::types::numpy_texpr<E0>,
+                  pythonic::types::numpy_texpr<E1>> {
+  using type = pythonic::types::numpy_texpr<typename __combined<E0, E1>::type>;
+};
+
 template <class E, class K>
 struct __combined<pythonic::types::numpy_texpr<E>, K> {
   using type = pythonic::types::numpy_texpr<E>;

@@ -4,7 +4,7 @@ import numpy as np
 import pythran
 from textwrap import dedent
 
-from pythran.typing import List, Dict, NDArray
+from pythran.typing import List, Dict, NDArray, Tuple
 
 class TestTyping(TestEnv):
 
@@ -480,3 +480,14 @@ def recursive_interprocedural_typing1(c):
                 x = lambda y:y+c
               return x(a)'''
         return self.run_test(code, 1, 2, "A", lambda_partial_merge=[int, int, str])
+
+    def test_unpacking_aliasing(self):
+        code = '''
+            def effect(c, v):
+              a, _ = c
+              a[0] += v
+            def unpacking_aliasing(v, c):
+              effect(c, v)
+              a, _ = c
+              return a'''
+        return self.run_test(code, 2, ([10, 20], [30]), unpacking_aliasing=[int, Tuple[List[int], List[int]]])

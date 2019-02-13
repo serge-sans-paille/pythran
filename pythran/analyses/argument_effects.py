@@ -100,6 +100,8 @@ class ArgumentEffects(ModuleAnalysis):
         while isinstance(node, ast.Subscript):
             node = node.value
         for node_alias in self.aliases[node]:
+            while isinstance(node_alias, ast.Subscript):
+                node_alias = node_alias.value
             if node_alias in self.current_arguments:
                 return self.current_arguments[node_alias]
             if node_alias in self.current_subscripted_arguments:

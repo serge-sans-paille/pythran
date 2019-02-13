@@ -149,6 +149,8 @@ namespace types
     {
       return *data;
     }
+    
+    intptr_t id() const;
     auto resize(long n) -> decltype(data->resize(n));
     long find(str const &s, size_t pos = 0) const;
     bool contains(str const &v) const;

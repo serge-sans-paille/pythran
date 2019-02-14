@@ -109,7 +109,7 @@ namespace types
   template <class O>
   bool none<T, true>::operator==(O const &t) const
   {
-    return !is_none && data == t;
+    return !is_none && t == data;
   }
 
   template <class T>

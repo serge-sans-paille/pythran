@@ -1070,4 +1070,23 @@ def assign_ndarray(t):
                                   return xx.T""",
                               (3, 5),
                               transposed_array=[Tuple[int, int]])
- 
+
+    def test_assign_transposed(self):
+        params = [numpy.arange(30.).reshape(5,6), 3, 1, -1]
+        code = '''
+            def helper(signal, N, A, B):
+
+                if B == -1:
+                    xx=signal[N:N-A:-1]
+                elif B == 1:
+                    xx=signal[N:N+A]
+                else:
+                    xx=signal[N-A:N+A]
+                return xx
+            def assign_transposed(signal, N, A, B=0):
+                return helper(signal, N, A, B), helper(signal[:,:], N, A, B), helper(signal.T, N, A, B)'''
+        self.run_test(code, *params, assign_transposed=[NDArray[float,:,:], int, int, int])
+        params[-1] = 0
+        self.run_test(code, *params, assign_transposed=[NDArray[float,:,:], int, int, int])
+        params[-1] = 1
+        self.run_test(code, *params, assign_transposed=[NDArray[float,:,:], int, int, int])

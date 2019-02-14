@@ -1018,7 +1018,14 @@ struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
 template <class Arg, class... S, class Argp, class... Sp>
 struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
                   pythonic::types::numpy_gexpr<Argp, Sp...>> {
-  using type = pythonic::types::numpy_gexpr<Arg, S...>;
+  using t0 = pythonic::types::numpy_gexpr<Arg, S...>;
+  using t1 = pythonic::types::numpy_gexpr<Argp, Sp...>;
+  using type =
+      pythonic::types::ndarray <
+      typename __combined<typename t0::dtype, typename t1::dtype>::type,
+        pythonic::types::array < long,
+        t0::value < t1::value ? t1::value : t0::value >>
+      ;
 };
 
 template <class Arg, class... S, class O>

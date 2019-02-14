@@ -285,6 +285,14 @@ namespace types
                std::is_same<dtype, typename dtype_of<Expr>::type>::value &&
                types::is_vectorizable<Expr>::value > (*this, expr);
   }
+  template <class Arg>
+  template <class Expr>
+  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::
+  operator=(numpy_texpr<Expr> const &expr)
+  {
+    arg = expr.arg;
+    return *this;
+  }
 
   template <class Arg>
   template <class Op, class Expr>

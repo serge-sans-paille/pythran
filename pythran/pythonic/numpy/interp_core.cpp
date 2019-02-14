@@ -185,8 +185,6 @@ static npy_intp binary_search_with_guess(const npy_double key, const T &arr,
 
 // xp->dx   fp->dy  x -> dz
 
-#define PyArray_malloc malloc
-#define PyArray_free delete
 template <typename npy_intp, typename npy_double, class T1, class T2, class T3,
           class T4>
 void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
@@ -210,10 +208,8 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
 
     /* only pre-calculate slopes if there are relatively few of them. */
     if (lenxp <= lenx) {
-      slopes = (npy_double *)PyArray_malloc((lenxp - 1) * sizeof(npy_double));
-      if (slopes == NULL) {
-        // goto fail;
-      }
+      auto slope_vect = std::vector<double>(lenxp - 1);
+      slopes = slope_vect.data();
     }
 
     //        NPY_BEGIN_THREADS;
@@ -252,5 +248,4 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
 
     //        NPY_END_THREADS;
   }
-  PyArray_free(slopes);
 }

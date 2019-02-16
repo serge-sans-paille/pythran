@@ -502,3 +502,34 @@ def np_trim_zeros2(x):
 
     def test_fill_diagonal_3(self):
         self.run_test("def fill_diagonal_3(n): import numpy ; a = numpy.ones((n, n, 2, 2));numpy.fill_diagonal(a[0,1:3], 0); return a", 4, fill_diagonal_3=[int])
+
+    def test_interp_0(self):
+        self.run_test('def interp0(x,xp,fp): import numpy as np; return np.interp(x,xp,fp)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000),
+                      interp0=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
+    def test_interp_1(self):
+        self.run_test('def interp1(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,-10.,10.)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000),
+                      interp1=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
+    def test_interp_2(self):
+        self.run_test('def interp2(x,xp,fp): import numpy as np; return np.interp(x,xp[::2],fp[::2],-10.,10.)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000),
+                      interp2=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
+    def test_interp_3(self):
+        self.run_test('def interp3(x,xp,fp): import numpy as np; return np.interp(x[::3],xp[::2],fp[::2],-10.)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000),
+                      interp3=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
+    def test_interp_4(self):
+        self.run_test('def interp4(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,period=1.1)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000),
+                      interp4=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])

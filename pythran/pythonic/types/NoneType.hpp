@@ -6,6 +6,7 @@
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/__builtin__/id.hpp"
 #include "pythonic/__builtin__/bool_.hpp"
+#include "pythonic/operator_/mod.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -316,6 +317,66 @@ namespace types
       return none_type{};
     else
       return {t0.data / t1.data};
+  }
+
+  template <class T0, class T1>
+  decltype(operator_::mod(std::declval<T0>(), std::declval<T1>()))
+  operator%(none<T0, true> const &t0, T1 const &t1)
+  {
+    return operator_::mod(t0.data, t1);
+  }
+
+  template <class T0, class T1>
+  decltype(operator_::mod(std::declval<T0>(), std::declval<T1>()))
+  operator%(T0 const &t0, none<T1, true> const &t1)
+  {
+    return operator_::mod(t0, t1.data);
+  }
+
+  template <class T0, class T1>
+  none<decltype(operator_::mod(std::declval<T0>(), std::declval<T1>())), true>
+  operator%(none<T0, true> const &t0, none<T1, true> const &t1)
+  {
+    if (t0.is_none && t1.is_none)
+      return none_type{};
+    else
+      return {operator_::mod(t0, t1.data)};
+  }
+
+  template <class T>
+  template <class T1>
+  none<T, true> &none<T, true>::operator+=(T1 other)
+  {
+    if (!is_none)
+      data += other;
+    return *this;
+  }
+
+  template <class T>
+  template <class T1>
+  none<T, true> &none<T, true>::operator-=(T1 other)
+  {
+    if (!is_none)
+      data -= other;
+    return *this;
+  }
+
+  template <class T>
+  template <class T1>
+  none<T, true> &none<T, true>::operator*=(T1 other)
+  {
+    if (!is_none)
+      data *= other;
+    return *this;
+  }
+
+  template <class T>
+  template <class T1>
+  none<T, true> &none<T, true>::operator/=(T1 other)
+  {
+    if (!is_none)
+      data /= other;
+    return *this;
   }
 
   template <class T>

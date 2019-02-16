@@ -2,6 +2,7 @@
 #define PYTHONIC_OPERATOR_IFLOORDIV_HPP
 
 #include "pythonic/include/operator_/ifloordiv.hpp"
+#include "pythonic/operator_/mod.hpp"
 
 #include "pythonic/utils/functor.hpp"
 
@@ -13,14 +14,14 @@ namespace operator_
   template <class A, class B>
   A &ifloordiv(A &a, B const &b)
   {
-    a -= a % b;
+    a -= mod(a, b);
     a /= b;
     return a;
   }
   template <class A, class B>
   A ifloordiv(A const &a, B const &b)
   {
-    return (a - a % b) / b;
+    return (a - mod(a, b)) / b;
   }
 }
 PYTHONIC_NS_END

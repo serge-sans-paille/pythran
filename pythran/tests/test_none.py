@@ -447,3 +447,30 @@ def returned_none_member(a):
                         return 8
                 return s'''
         self.run_test(code, 7, none_loop_break_continue_or_ret=[int])
+
+    def test_none_operators0(self):
+        code = '''
+            def helper(x):
+                if x is not None:
+                    x = 3.5
+                x += 1
+                x *= 5
+                x -= 3
+                x /= 2
+                x //= 2
+                return (x + 1,
+                        x - 1,
+                        x / 3,
+                        x // 3,
+                        x % 3,
+                        x * 3,
+                        x ** 3)
+            def none_operators0(x):
+                if x > 1:
+                    y = None
+                else:
+                    y = 2
+                return helper(x), helper(y)'''
+
+        self.run_test(code, 0, none_operators0=[int])
+

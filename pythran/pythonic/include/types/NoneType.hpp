@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_NONE_HPP
 
 #include "pythonic/include/types/assignable.hpp"
+#include "pythonic/include/operator_/mod.hpp"
 #include <ostream>
 
 PYTHONIC_NS_BEGIN
@@ -130,6 +131,15 @@ namespace types
     friend none<T1, true> operator/(none<T1, true> const &t0,
                                     none<T1, true> const &t1);
 
+    template <class T1>
+    none &operator+=(T1 other);
+    template <class T1>
+    none &operator-=(T1 other);
+    template <class T1>
+    none &operator*=(T1 other);
+    template <class T1>
+    none &operator/=(T1 other);
+
   public:
     bool is_none;
     none();
@@ -145,6 +155,14 @@ namespace types
     operator T const &() const;
     T &operator=(T const &t);
     intptr_t id() const;
+    template <class T1>
+    operator none<T1, true>() const
+    {
+      if (is_none)
+        return {none_type{}};
+      else
+        return {static_cast<T1>(data)};
+    }
   };
   template <class T>
   T operator+(none<T, true> const &t0, T const &t1);
@@ -194,6 +212,15 @@ namespace types
   T operator/(T const &t0, none<T, true> const &t1);
   template <class T>
   none<T, true> operator/(none<T, true> const &t0, none<T, true> const &t1);
+  template <class T0, class T1>
+  decltype(operator_::mod(std::declval<T0>(), std::declval<T1>()))
+  operator%(none<T0, true> const &t0, T1 const &t1);
+  template <class T0, class T1>
+  decltype(operator_::mod(std::declval<T0>(), std::declval<T1>()))
+  operator%(T0 const &t0, none<T1, true> const &t1);
+  template <class T0, class T1>
+  none<decltype(operator_::mod(std::declval<T0>(), std::declval<T1>())), true>
+  operator%(none<T0, true> const &t0, none<T1, true> const &t1);
   template <class T>
   std::ostream &operator<<(std::ostream &os, none<T, true> const &v);
 

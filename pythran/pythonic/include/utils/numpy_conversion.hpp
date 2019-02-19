@@ -5,7 +5,7 @@
 
 #include <utility>
 
-#if _MSC_VER
+#if _MSC_VER && !__clang__
 #define NUMPY_EXPR_TO_NDARRAY0_DECL(fname)                                     \
   template <class E, class... Types,                                           \
             typename std::enable_if<!types::is_ndarray<E>::value &&            \

@@ -245,7 +245,8 @@ namespace std
 {
   /* std::get overload */
   template <size_t I, class T0>
-  auto get(pythonic::types::none<T0> const &t) -> decltype(std::get<I>((T0)t));
+  auto get(pythonic::types::none<T0> const &t)
+      -> decltype(std::get<I>((T0 const &)t));
 
   template <size_t I, class T0>
   struct tuple_element<I, pythonic::types::none<T0>> {

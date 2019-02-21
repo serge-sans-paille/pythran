@@ -13,7 +13,7 @@ namespace types
   template <class T, size_t N>
   struct array;
   template <class T>
-  class dynamic_tuple;
+  struct dynamic_tuple;
 }
 
 namespace utils

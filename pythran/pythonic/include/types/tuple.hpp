@@ -494,7 +494,7 @@ namespace types
 
   template <class... Types>
   auto make_tuple(Types &&... types)
-#ifndef _MSC_VER
+#if !_MSC_VER || __clang__
       -> decltype(_make_tuple<alike<Types...>::value, Types...>()(
           std::forward<Types>(types)...))
 #endif

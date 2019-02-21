@@ -4,7 +4,7 @@
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#if _MSC_VER
+#if _MSC_VER && !__clang__
 #define NUMPY_EXPR_TO_NDARRAY0_IMPL(fname)                                     \
   template <class E, class... Types,                                           \
             typename std::enable_if<!types::is_ndarray<E>::value &&            \

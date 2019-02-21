@@ -40,6 +40,18 @@ class TestNumpyFFT(TestEnv):
     def test_rfft_11(self):
         self.run_test("def test_rfft_11(x,n): from numpy.fft import rfft ; return rfft(x,n)", numpy.arange(0,8.).astype(numpy.float32),16,test_rfft_11=[NDArray[numpy.float32,:],int])
 
+    # Test parallel:
+    def test_rfft_12(self):
+        self.run_test('''
+import numpy as np
+def test_rfft_12(x):
+    out = out = [np.empty_like(x, dtype=complex) for i in range(20)] 
+    #omp parallel for
+    for ii in range(20):
+        out[ii] = np.fft.rfft(x)
+    return np.concatenate(out)
+''',numpy.random.random((4,128)), test_rfft_12=[NDArray[float,:,:]])
+
     ############# IRFFT
     # Basic test
     def test_irfft_0(self):
@@ -73,3 +85,15 @@ class TestNumpyFFT(TestEnv):
         self.run_test("def test_irfft_10(x): from numpy.fft import irfft ; return irfft(x)", numpy.exp(1j*numpy.random.random(8)).astype(numpy.complex64), test_irfft_10=[NDArray[numpy.complex64,:]])
     def test_irfft_11(self):
         self.run_test("def test_irfft_11(x,n): from numpy.fft import irfft ; return irfft(x,n)", numpy.exp(1j*numpy.random.random(8)).astype(numpy.complex64),16,test_irfft_11=[NDArray[numpy.complex64,:],int])
+
+    # Test parallel:
+    def test_irfft_12(self):
+        self.run_test('''
+import numpy as np
+def test_irfft_12(x):
+    out = [np.empty_like(x, dtype=float) for i in range(20)] 
+    #omp parallel for
+    for ii in range(20):
+        out[ii] = np.fft.irfft(x)
+    return np.concatenate(out)
+''',numpy.exp(1j*numpy.random.random((4,128))).astype(numpy.complex64), test_irfft_12=[NDArray[numpy.complex64,:,:]])

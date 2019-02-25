@@ -128,6 +128,8 @@ namespace python
         oss << " dict";
       } else
         oss << "empty dict";
+    } else if (PyCapsule_CheckExact(obj)) {
+      oss << PyCapsule_GetName(obj);
     } else {
       auto *repr = PyObject_GetAttrString((PyObject *)Py_TYPE(obj), "__name__");
       oss << PyString_AS_STRING(repr);

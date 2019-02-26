@@ -111,7 +111,7 @@ class LazynessAnalysis(FunctionAnalysis):
         super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases,
                                                PureExpressions)
 
-    def modify(self, name, loc):
+    def modify(self, name):
         # if we modify a variable, all variables that needed it
         # to be compute are dead and its aliases too
         dead_vars = [var for var, deps in self.use.items() if name in deps]
@@ -121,7 +121,7 @@ class LazynessAnalysis(FunctionAnalysis):
                             if isinstance(alias, ast.Name)]
             self.dead.update(dead_aliases)
 
-    def assign_to(self, node, from_, loc):
+    def assign_to(self, node, from_):
         if isinstance(node, ast.Name):
             self.name_to_nodes.setdefault(node.id, set()).add(node)
         # a reassigned variable is not dead anymore
@@ -137,7 +137,7 @@ class LazynessAnalysis(FunctionAnalysis):
         if not pre_loop[1]:
             self.pre_loop_count[node.id] = (pre_loop[0], True)
         # note this variable as modified
-        self.modify(node.id, loc)
+        self.modify(node.id)
         # prepare a new variable count
         self.name_count[node.id] = 0
         self.use[node.id] = set(from_)
@@ -163,7 +163,7 @@ class LazynessAnalysis(FunctionAnalysis):
         ids = self.passmanager.gather(Identifiers, node.value, self.ctx)
         for target in node.targets:
             if isinstance(target, ast.Name):
-                self.assign_to(target, ids, node.value)
+                self.assign_to(target, ids)
                 if node.value not in self.pure_expressions:
                     self.result[target.id] = LazynessAnalysis.INF
             elif isinstance(target, ast.Subscript):
@@ -171,7 +171,7 @@ class LazynessAnalysis(FunctionAnalysis):
                 var_name = get_variable(target)
                 if isinstance(var_name, ast.Name):
                     # variable is modified so other variables that use it dies
-                    self.modify(var_name.id, node.value)
+                    self.modify(var_name.id)
                     # and this variable can't be lazy
                     self.result[var_name.id] = LazynessAnalysis.INF
             else:
@@ -183,7 +183,7 @@ class LazynessAnalysis(FunctionAnalysis):
         self.visit(node.value)
         if isinstance(node.target, ast.Name):
             # variable is modified so other variables that use it dies
-            self.modify(node.target.id, node.value)
+            self.modify(node.target.id)
             # and this variable can't be lazy
             self.result[node.target.id] = LazynessAnalysis.INF
         elif isinstance(node.target, ast.Subscript):
@@ -191,7 +191,7 @@ class LazynessAnalysis(FunctionAnalysis):
             while isinstance(var_name, ast.Subscript):
                 var_name = var_name.value
             # variable is modified so other variables that use it dies
-            self.modify(var_name.id, node.value)
+            self.modify(var_name.id)
             # and this variable can't be lazy
             self.result[var_name.id] = LazynessAnalysis.INF
         else:
@@ -314,7 +314,7 @@ class LazynessAnalysis(FunctionAnalysis):
         md.visit(self, node)
         ids = self.passmanager.gather(Identifiers, node.iter, self.ctx)
         if isinstance(node.target, ast.Name):
-            self.assign_to(node.target, ids, node.iter)
+            self.assign_to(node.target, ids)
             self.result[node.target.id] = LazynessAnalysis.INF
         else:
             err = "Assignation in for loop not to a Name"
@@ -344,7 +344,7 @@ class LazynessAnalysis(FunctionAnalysis):
                     # check len of args as default is 11 args
                     if arg and len(args) > i:
                         if isinstance(args[i], ast.Name):
-                            self.modify(args[i].id, node)
+                            self.modify(args[i].id)
             elif isinstance(fun, ast.Name):
                 # it may be a variable to a function. Lazyness will be compute
                 # correctly thanks to aliasing
@@ -352,7 +352,7 @@ class LazynessAnalysis(FunctionAnalysis):
             else:
                 # conservative choice
                 for arg in args:
-                    self.modify(arg, node)
+                    self.modify(arg)
 
     def visit_Call(self, node):
         """

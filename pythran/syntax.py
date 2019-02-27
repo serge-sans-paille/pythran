@@ -184,7 +184,7 @@ def check_syntax(node):
     SyntaxChecker().visit(node)
 
 
-def check_specs(mod, specs, renamings, types):
+def check_specs(specs, renamings, types):
     '''
     Does nothing but raising PythranSyntaxError if specs
     are incompatible with the actual code

@@ -129,7 +129,6 @@ def run():
     if args.warn_off:
         logger.setLevel(logging.ERROR)
 
-
     if args.verbose and not args.warn_off:
         pythran.config.lint_cfg(pythran.config.cfg)
 
@@ -186,7 +185,7 @@ def run():
         logger.critical("Cover me Jack. Jack? Jaaaaack!!!!\n"
                         "E: " + str(e))
         sys.exit(1)
-    except NotImplementedError as e:
+    except NotImplementedError:
         logger.critical("MAYDAY, MAYDAY, MAYDAY; pythran compiler; "
                         "code area out of control\n"
                         "E: not implemented feature needed, "

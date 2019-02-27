@@ -485,8 +485,7 @@ class CxxFunction(Backend):
                    Block([loop_body_prelude, loop_body]))
         return [self.process_omp_attachements(node, loop)]
 
-    def handle_real_loop_comparison(self, args, stmts, target, upper_bound,
-                                    step):
+    def handle_real_loop_comparison(self, args, target, upper_bound):
         """
         Handle comparison for real loops.
 
@@ -558,8 +557,8 @@ class CxxFunction(Backend):
             loop = [If("{} == {}".format(local_iter, upper_bound),
                     Statement("{} -= {}".format(local_iter, step)))]
 
-        comparison = self.handle_real_loop_comparison(args, loop, local_iter,
-                                                      upper_bound, step)
+        comparison = self.handle_real_loop_comparison(args, local_iter,
+                                                      upper_bound)
 
         forloop = For("{0} {1}={2}".format(iter_type, local_iter, lower_bound),
                       comparison,

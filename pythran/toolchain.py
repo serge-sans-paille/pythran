@@ -168,7 +168,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
 
         def error_checker():
             types = tog.typecheck(ir)
-            check_specs(ir, specs, renamings, types)
+            check_specs(specs, renamings, types)
 
         specs.to_docstrings(docstrings)
         check_exports(ir, specs, renamings)

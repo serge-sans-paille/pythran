@@ -346,7 +346,7 @@ class SplitStaticExpression(Transformation):
         if not isinstance(node.test, ast.BinOp):
             return node
 
-        before, static, after = [], [], []
+        before, static = [], []
         values = [node.test.right, node.test.left]
 
         def has_static_expression(n):

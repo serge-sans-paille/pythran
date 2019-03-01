@@ -533,3 +533,27 @@ def np_trim_zeros2(x):
                       numpy.sort(numpy.random.randn(1000)),
                       numpy.random.randn(1000),
                       interp4=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
+
+    def test_setdiff1d0(self):
+        self.run_test('def setdiff1d0(x,y): import numpy as np; return np.setdiff1d(x,y)',
+                      numpy.random.randn(100),
+                      numpy.random.randn(1000),
+                      setdiff1d0=[NDArray[float,:],NDArray[float,:]])
+
+    def test_setdiff1d1(self):
+        self.run_test('def setdiff1d0(x,y): import numpy as np; return np.setdiff1d(x,y, True)',
+                      numpy.unique(numpy.random.randn(1000)),
+                      numpy.unique(numpy.random.randn(1000)),
+                      setdiff1d0=[NDArray[float,:],NDArray[float,:]])
+
+    def test_setdiff1d2(self):
+        self.run_test('def setdiff1d2(x,y): import numpy as np; return np.setdiff1d(x,y)',
+                      numpy.random.randn(100),
+                      numpy.array([[1,2],[2,4]]),
+                      setdiff1d2=[NDArray[float,:],NDArray[int,:,:]])
+
+    def test_setdiff1d3(self):
+        self.run_test('def setdiff1d3(x,y): import numpy as np; return np.setdiff1d(x,y, True)',
+                      numpy.unique(numpy.random.randn(1000)),
+                      numpy.array([[3,2],[5,4]]),
+                      setdiff1d3=[NDArray[float,:],NDArray[int,:,:]])

@@ -26,7 +26,7 @@ namespace numpy
     template <class Op, size_t N, class A>
     struct _partial_sum {
       template <class E, class F>
-      A operator()(E e, F &o)
+      A operator()(E const &e, F &o)
       {
         auto it_begin = e.begin();
         A acc = _partial_sum<Op, N - 1, A>{}((*it_begin), o);
@@ -36,7 +36,7 @@ namespace numpy
         return acc;
       }
       template <class E, class F>
-      A operator()(E e, F &o, A acc)
+      A operator()(E const &e, F &o, A acc)
       {
         for (auto const &value : e)
           acc = _partial_sum<Op, N - 1, A>{}(value, o, acc);
@@ -47,7 +47,7 @@ namespace numpy
     template <class Op, class A>
     struct _partial_sum<Op, 1, A> {
       template <class E, class F>
-      A operator()(E e, F &o)
+      A operator()(E const &e, F &o)
       {
         auto it_begin = e.begin();
         A acc = *it_begin;

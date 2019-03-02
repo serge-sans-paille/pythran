@@ -150,7 +150,7 @@ namespace types
     template <size_t I>
     bool _lt(numpy_expr_iterator const &other, utils::int_<I>) const
     {
-      if (steps_[I - 1] &&
+      if (!steps_[I - 1] ||
           (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_)))
         return _lt(other, utils::int_<I - 1>{});
       else

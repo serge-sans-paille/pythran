@@ -975,15 +975,26 @@ namespace types
   namespace impl
   {
     template <class T, class pS>
-    int get_spacing(ndarray<T, pS> const &e)
+    size_t get_spacing(ndarray<T, pS> const &e)
     {
       std::ostringstream oss;
-      if (e.flat_size())
+      if (e.flat_size()) {
         oss << *std::max_element(e.fbegin(), e.fend());
-      return oss.str().length();
+        size_t s = oss.str().length();
+        for (auto iter = e.fbegin(), end = e.fend(); iter != end; ++iter) {
+          oss.str("");
+          oss.width(s);
+          oss << *iter;
+          size_t ts = oss.str().length();
+          if (ts > s)
+            s = ts;
+        }
+        return s;
+      }
+      return 0;
     }
     template <class T, class pS>
-    int get_spacing(ndarray<std::complex<T>, pS> const &e)
+    size_t get_spacing(ndarray<std::complex<T>, pS> const &e)
     {
       std::ostringstream oss;
       if (e.flat_size())
@@ -1006,7 +1017,7 @@ namespace types
                    strides.rbegin() + 1, std::multiplies<long>());
     size_t depth = std::tuple_size<pS>::value;
     int step = -1;
-    int size = impl::get_spacing(e);
+    size_t size = impl::get_spacing(e);
     auto iter = e.fbegin();
     int max_modulo = 1000;
 

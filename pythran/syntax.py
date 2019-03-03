@@ -94,6 +94,9 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Call(self, node):
         self.generic_visit(node)
 
+    def visit_Ellipsis(self, node):
+        raise PythranSyntaxError("Ellipsis are not supported", node)
+
     def visit_Num(self, node):
         if sys.version_info[0] == 2 and isinstance(node.n, long):
             raise PythranSyntaxError("long int not supported", node)

@@ -3926,6 +3926,7 @@ MODULES = {
         "round_": ConstMethodIntr(),
         "searchsorted": ConstFunctionIntr(),
         "select": ConstFunctionIntr(),
+        "setdiff1d": ConstFunctionIntr(),
         "shape": ConstFunctionIntr(),
         "sign": ConstFunctionIntr(),
         "signbit": ConstFunctionIntr(),

@@ -5,7 +5,10 @@ from pythran.analyses.pure_expressions import PureExpressions
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.intrinsic import FunctionIntr
+from pythran.utils import path_to_attr, path_to_node
+from pythran.syntax import PythranSyntaxError
 
+from copy import deepcopy
 import gast as ast
 import sys
 
@@ -112,4 +115,120 @@ class InlineBuiltins(Transformation):
         node = self.inlineBuiltinsMap(node)
         if sys.version_info.major == 2:
             node = self.inlineBuiltinsIMap(node)
+        return node
+
+    def make_array_index(self, base, size, index):
+        if isinstance(base, ast.Num):
+            return ast.Num(base.n)
+        if size == 1:
+            return deepcopy(base.elts[0])
+        return base.elts[index]
+
+    def fixedSizeArray(self, node):
+        if isinstance(node, ast.Num):
+            return node, 1
+
+        if not isinstance(node, ast.Call):
+            return None, 0
+
+        func_aliases = self.aliases[node.func]
+        if len(func_aliases) != 1:
+            return None, 0
+
+        obj = next(iter(func_aliases))
+        if obj not in (MODULES['numpy']['array'], MODULES['numpy']['asarray']):
+            return None, 0
+
+        if len(node.args) != 1:
+            return None, 0
+
+        if isinstance(node.args[0], (ast.List, ast.Tuple)):
+            return node.args[0], len(node.args[0].elts)
+
+        return None, 0
+
+    def inlineFixedSizeArrayBinOp(self, node):
+        lbase, lsize = self.fixedSizeArray(node.left)
+        rbase, rsize = self.fixedSizeArray(node.right)
+        if not lbase or not rbase:
+            return node
+
+        if isinstance(node.left, ast.Num) and isinstance(node.right, ast.Num):
+            return node
+
+        if rsize != 1 and lsize != 1 and rsize != lsize:
+            raise PythranSyntaxError("Invalid numpy broadcasting", node)
+
+        self.update = True
+
+        operands = [ast.BinOp(self.make_array_index(lbase, lsize, i),
+                              type(node.op)(),
+                              self.make_array_index(rbase, rsize, i))
+                    for i in range(max(lsize, rsize))]
+        res = ast.Call(path_to_attr(('numpy', 'array')),
+                       [ast.Tuple(operands, ast.Load())],
+                       [])
+        self.aliases[res.func] = {path_to_node(('numpy', 'array'))}
+        return res
+
+    def visit_BinOp(self, node):
+        node = self.generic_visit(node)
+        node = self.inlineFixedSizeArrayBinOp(node)
+        return node
+
+    def inlineFixedSizeArrayUnaryOp(self, node):
+        base, size = self.fixedSizeArray(node.operand)
+        if not base:
+            return node
+
+        if isinstance(base, ast.Num):
+            return node
+
+        self.update = True
+
+        operands = [ast.UnaryOp(type(node.op)(),
+                                self.make_array_index(base, size, i))
+                    for i in range(size)]
+        res = ast.Call(path_to_attr(('numpy', 'array')),
+                       [ast.Tuple(operands, ast.Load())],
+                       [])
+        self.aliases[res.func] = {path_to_node(('numpy', 'array'))}
+        return res
+
+    def visit_UnaryOp(self, node):
+        node = self.generic_visit(node)
+        node = self.inlineFixedSizeArrayUnaryOp(node)
+        return node
+
+    def inlineFixedSizeArrayCompare(self, node):
+        if len(node.comparators) != 1:
+            return node
+
+        node_right = node.comparators[0]
+        lbase, lsize = self.fixedSizeArray(node.left)
+        rbase, rsize = self.fixedSizeArray(node_right)
+        if not lbase or not rbase:
+            return node
+
+        if isinstance(node.left, ast.Num) and isinstance(node_right, ast.Num):
+            return node
+
+        if rsize != 1 and lsize != 1 and rsize != lsize:
+            raise PythranSyntaxError("Invalid numpy broadcasting", node)
+
+        self.update = True
+
+        operands = [ast.Compare(self.make_array_index(lbase, lsize, i),
+                                [type(node.ops[0])()],
+                                [self.make_array_index(rbase, rsize, i)])
+                    for i in range(max(lsize, rsize))]
+        res = ast.Call(path_to_attr(('numpy', 'array')),
+                       [ast.Tuple(operands, ast.Load())],
+                       [])
+        self.aliases[res.func] = {path_to_node(('numpy', 'array'))}
+        return res
+
+    def visit_Compare(self, node):
+        node = self.generic_visit(node)
+        node = self.inlineFixedSizeArrayCompare(node)
         return node

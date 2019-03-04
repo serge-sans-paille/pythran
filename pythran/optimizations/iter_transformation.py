@@ -3,21 +3,25 @@
 from pythran.analyses import PotentialIterator, Aliases
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
-from pythran.utils import path_to_attr
+from pythran.utils import path_to_attr, path_to_node
 from pythran.conversion import mangle
 
 import gast as ast
 import sys
 
-EQUIVALENT_ITERATORS = {}
+EQUIVALENT_ITERATORS = {
+    ('__builtin__', "list"): None,
+    ('numpy', "array"): None,
+    ('numpy', "asarray"): None,
+}
 
 if sys.version_info.major == 2:
 
     EQUIVALENT_ITERATORS.update({
-        "range": ("__builtin__", "xrange"),
-        "filter": ("itertools", "ifilter"),
-        "map": ("itertools", "imap"),
-        "zip": ("itertools", "izip")
+        ('__builtin__', "range"): ("__builtin__", "xrange"),
+        ('__builtin__', "filter"): ("itertools", "ifilter"),
+        ('__builtin__', "map"): ("itertools", "imap"),
+        ('__builtin__', "zip"): ("itertools", "izip")
     })
 
 
@@ -57,10 +61,10 @@ class IterTransformation(Transformation):
 
         If the node alias on a correct keyword (and only it), it matches.
         """
-        for keyword in EQUIVALENT_ITERATORS.keys():
-            correct_alias = set([MODULES["__builtin__"][keyword]])
+        for path in EQUIVALENT_ITERATORS.keys():
+            correct_alias = {path_to_node(path)}
             if self.aliases[node.func] == correct_alias:
-                return keyword
+                return path
 
     def visit_Module(self, node):
         """Add itertools import for imap, izip or ifilter iterator."""
@@ -74,17 +78,28 @@ class IterTransformation(Transformation):
     def visit_Call(self, node):
         """Replace function call by its correct iterator if it is possible."""
         if node in self.potential_iterator:
-            match_keyword = self.find_matching_builtin(node)
+            matched_path = self.find_matching_builtin(node)
+            if matched_path is None:
+                return self.generic_visit(node)
+
             # Special handling for map which can't be turn to imap with None as
             # a parameter as map(None, [1, 2]) == [1, 2] while
             # list(imap(None, [1, 2])) == [(1,), (2,)]
-            if (match_keyword == "map" and
+            if (matched_path[1] == "map" and
                     MODULES["__builtin__"]["None"] in
                     self.aliases[node.args[0]]):
                 return self.generic_visit(node)
-            if match_keyword:
-                path = EQUIVALENT_ITERATORS[match_keyword]
+
+            # if a dtype conversion is implied
+            if matched_path[1] in ('array', 'asarray') and len(node.args) != 1:
+                return self.generic_visit(node)
+
+            path = EQUIVALENT_ITERATORS[matched_path]
+            if path:
                 node.func = path_to_attr(path)
                 self.use_itertools |= path[0] == 'itertools'
-                self.update = True
+            else:
+                node = node.args[0]
+
+            self.update = True
         return self.generic_visit(node)

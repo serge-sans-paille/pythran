@@ -223,6 +223,22 @@ def readonce_cycle2(n):
     return foo(range(n),0)
 """, 5, readonce_cycle2=[int])
 
+    def test_readonce_list(self):
+        init = "def foo(l): return sum(list(l))"
+        ref = """def foo(l):
+    return __builtin__.sum(l)"""
+
+        self.check_ast(init, ref, ["pythran.optimizations.IterTransformation"])
+
+    def test_readonce_array(self):
+        init = "def foo(l): import numpy as np; return sum(np.array(l))"
+        ref = """import numpy as __pythran_import_numpy
+def foo(l):
+    return __builtin__.sum(l)"""
+
+        self.check_ast(init, ref, ["pythran.optimizations.IterTransformation"])
+
+
     def test_omp_forwarding(self):
         init = """
 from __future__ import print_function
@@ -394,6 +410,43 @@ def foo(a):
     return (a ** 2)"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
+    def test_inline_builtins_broadcasting0(self):
+        init = """
+import numpy as np
+def foo(a):
+    return np.array([a, 1]) == 1"""
+        ref = """import numpy as __pythran_import_numpy
+def foo(a):
+    return __pythran_import_numpy.array(((a == 1), (1 == 1)))"""
+        self.check_ast(init, ref, ["pythran.optimizations.InlineBuiltins"])
+
+    def test_inline_builtins_broadcasting1(self):
+        init = """
+import numpy as np
+def foo(a):
+    return np.asarray([a, 1]) + 1"""
+        ref = """import numpy as __pythran_import_numpy
+def foo(a):
+    return __pythran_import_numpy.array(((a + 1), (1 + 1)))"""
+        self.check_ast(init, ref, ["pythran.optimizations.InlineBuiltins"])
+
+    def test_inline_builtins_broadcasting2(self):
+        init = """
+import numpy as np
+def foo(a):
+    return - np.asarray([a, 1])"""
+        ref = """import numpy as __pythran_import_numpy
+def foo(a):
+    return __pythran_import_numpy.array(((- a), (- (1))))"""
+        self.check_ast(init, ref, ["pythran.optimizations.InlineBuiltins"])
+
+    def test_patternmatching3(self):
+        init = """
+def foo(a):
+    return a * a"""
+        ref = """def foo(a):
+    return (a ** 2)"""
+        self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
 class TestConstantUnfolding(TestEnv):
 

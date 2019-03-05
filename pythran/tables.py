@@ -24,9 +24,9 @@ if sys.version_info.major == 3:
 
     import functools
     sys.modules['__builtin__'].reduce = functools.reduce
-    getargspec = inspect.getfullargspec
+    getfullargspec = inspect.getfullargspec
 else:
-    getargspec = inspect.getargspec
+    getfullargspec = inspect.getargspec
 
 logger = logging.getLogger("pythran")
 
@@ -4555,13 +4555,14 @@ def save_arguments(module_name, elements):
             try:
                 themodule = __import__(".".join(module_name))
                 obj = getattr(themodule, elem)
-                spec = getargspec(obj)
+                spec = getfullargspec(obj)
                 assert not signature.args.args
 
-                signature.args.args
-
                 args = [ast.Name(arg, ast.Param(), None) for arg in spec.args]
-                defaults = spec.defaults
+                defaults = list(spec.defaults or [])
+                if sys.version_info.major == 3:
+                    args += [ast.Name(arg, ast.Param(), None) for arg in spec.kwonlyargs]
+                    defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
 
                 # Avoid use of comprehension to fill "as much args/defauls" as
                 # possible

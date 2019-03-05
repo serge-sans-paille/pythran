@@ -468,8 +468,18 @@ def nested_def(a):
     def test_round(self):
         self.run_test("def round_(v): return round(v) + round(v,2)", 0.1234, round_=[float])
 
-    def test_sorted(self):
-        self.run_test("def sorted_(l): return [x for x in sorted(l)]", [1,2,3], sorted_=[List[int]])
+    def test_sorted0(self):
+        self.run_test("def sorted0(l): return [x for x in sorted(l)]", [4, 1,2,3], sorted0=[List[int]])
+
+    if sys.version_info.major == 3:
+        def test_sorted1(self):
+            self.run_test("def sorted1(l): return [x for x in sorted(l, reverse=True)]", [4, 1,2,3], sorted1=[List[int]])
+
+        def test_sorted2(self):
+            self.run_test("def sorted2(l): return [x for x in sorted(l, key=lambda x:-x)]", [4, 1,2,3], sorted2=[List[int]])
+
+        def test_sorted3(self):
+            self.run_test("def sorted3(l): return [x for x in sorted(l,reverse=True,key=lambda x:-x)]", [4, 1,2,3], sorted3=[List[int]])
 
     def test_str(self):
         self.run_test("def str_(l): return str(l)", [1,2,3], str_=[List[int]])

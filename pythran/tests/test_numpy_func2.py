@@ -462,10 +462,22 @@ def test_copy0(x):
         self.run_test("def np_append2(a): from numpy import append,array ; b = array([[4, 5, 6], [7, 8, 9]]) ; return append(a,b)", numpy.array([1, 2, 3]), np_append2=[NDArray[int,:]])
 
     def test_append3(self):
-        self.run_test("def np_append3(a): from numpy import append,array ; b = array([[4, 5, 6], [7, 8, 9]]) ; return append(a, 1)", numpy.array([1, 2, 3]), np_append3=[NDArray[int,:]])
+        self.run_test("def np_append3(a): from numpy import append,array ; return append(a, 1)", numpy.array([1, 2, 3]), np_append3=[NDArray[int,:]])
 
     def test_append4(self):
         self.run_test("def np_append4(a): from numpy import append ; b = 4 ; return append(a,b)", [1, 2, 3], np_append4=[List[int]])
+
+    def test_append5(self):
+        self.run_test("def np_append5(a): from numpy import append,array ; return append(a, 1)", numpy.array([[1], [2], [3]]), np_append5=[NDArray[int,:, :]])
+
+    def test_append6(self):
+        self.run_test("def np_append6(a): from numpy import append,array ; b = array([[4, 5, 6], [7, 8, 9]]) ; return append(a.T, b)", numpy.array([[1], [2], [3]]), np_append6=[NDArray[int,:, :]])
+
+    def test_append7(self):
+        self.run_test("def np_append7(a): from numpy import append,array ; b = array([[4, 5, 6], [7, 8, 9]]) ; return append(a[0], b)", numpy.array([[1], [2], [3]]), np_append7=[NDArray[int,:, :]])
+
+    def test_append8(self):
+        self.run_test("def np_append8(a): from numpy import append,array ; b = array([[4, 5, 6], [7, 8, 9]]) ; return append(a[:], b)", numpy.array([[1], [2], [3]]), np_append8=[NDArray[int,:, :]])
 
     def test_angle0(self):
         self.run_test("def np_angle0(a): from numpy import angle ; return angle(a)", [1.0+0j, 1.0j, 1+1j], np_angle0=[List[complex]])

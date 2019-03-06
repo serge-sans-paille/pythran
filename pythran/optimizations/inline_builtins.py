@@ -128,6 +128,9 @@ class InlineBuiltins(Transformation):
         if isinstance(node, ast.Num):
             return node, 1
 
+        if isinstance(node, (ast.List, ast.Tuple)):
+            return node, len(node.elts)
+
         if not isinstance(node, ast.Call):
             return None, 0
 
@@ -148,12 +151,14 @@ class InlineBuiltins(Transformation):
         return None, 0
 
     def inlineFixedSizeArrayBinOp(self, node):
+
+        alike = ast.List, ast.Tuple, ast.Num
+        if isinstance(node.left, alike) and isinstance(node.right, alike):
+            return node
+
         lbase, lsize = self.fixedSizeArray(node.left)
         rbase, rsize = self.fixedSizeArray(node.right)
         if not lbase or not rbase:
-            return node
-
-        if isinstance(node.left, ast.Num) and isinstance(node.right, ast.Num):
             return node
 
         if rsize != 1 and lsize != 1 and rsize != lsize:
@@ -177,11 +182,12 @@ class InlineBuiltins(Transformation):
         return node
 
     def inlineFixedSizeArrayUnaryOp(self, node):
-        base, size = self.fixedSizeArray(node.operand)
-        if not base:
+
+        if isinstance(node.operand, (ast.Num, ast.List, ast.Tuple)):
             return node
 
-        if isinstance(base, ast.Num):
+        base, size = self.fixedSizeArray(node.operand)
+        if not base:
             return node
 
         self.update = True
@@ -205,12 +211,14 @@ class InlineBuiltins(Transformation):
             return node
 
         node_right = node.comparators[0]
+
+        alike = ast.Num, ast.List, ast.Tuple
+        if isinstance(node.left, alike) and isinstance(node_right, alike):
+            return node
+
         lbase, lsize = self.fixedSizeArray(node.left)
         rbase, rsize = self.fixedSizeArray(node_right)
         if not lbase or not rbase:
-            return node
-
-        if isinstance(node.left, ast.Num) and isinstance(node_right, ast.Num):
             return node
 
         if rsize != 1 and lsize != 1 and rsize != lsize:

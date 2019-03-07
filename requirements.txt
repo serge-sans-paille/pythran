@@ -3,3 +3,4 @@ networkx>=2
 decorator
 gast
 six
+numpy

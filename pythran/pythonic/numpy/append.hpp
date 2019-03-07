@@ -5,6 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/numpy/asarray.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -14,20 +15,14 @@ namespace numpy
   typename std::enable_if<
       !types::is_dtype<F>::value,
       types::ndarray<
-          typename std::remove_cv<typename std::remove_reference<
-              decltype(std::declval<T>() +
-                       std::declval<typename utils::nested_container_value_type<
-                           F>::type>())>::type>::type,
+          typename __combined<T, typename types::dtype_of<F>::type>::type,
           types::pshape<long>>>::type
   append(types::ndarray<T, pS> const &nto, F const &data)
   {
-    types::ndarray<typename F::dtype, typename F::shape_t> ndata(data);
+    auto ndata = numpy::functor::asarray{}(data);
     long nsize = nto.flat_size() + ndata.flat_size();
     types::ndarray<
-        typename std::remove_cv<typename std::remove_reference<decltype(
-            std::declval<T>() +
-            std::declval<typename utils::nested_container_value_type<
-                F>::type>())>::type>::type,
+        typename __combined<T, typename types::dtype_of<F>::type>::type,
         types::pshape<long>>
     out(types::pshape<long>(nsize), __builtin__::None);
     auto out_back = std::copy(nto.fbegin(), nto.fend(), out.fbegin());
@@ -38,15 +33,13 @@ namespace numpy
   typename std::enable_if<
       types::is_dtype<F>::value,
       types::ndarray<
-          typename std::remove_cv<typename std::remove_reference<
-              decltype(std::declval<T>() + std::declval<F>())>::type>::type,
+          typename __combined<T, typename types::dtype_of<F>::type>::type,
           types::pshape<long>>>::type
   append(types::ndarray<T, pS> const &nto, F const &data)
   {
     long nsize = nto.flat_size() + 1;
     types::ndarray<
-        typename std::remove_cv<typename std::remove_reference<decltype(
-            std::declval<T>() + std::declval<F>())>::type>::type,
+        typename __combined<T, typename types::dtype_of<F>::type>::type,
         types::pshape<long>>
     out(types::pshape<long>(nsize), __builtin__::None);
     auto out_back = std::copy(nto.fbegin(), nto.fend(), out.fbegin());
@@ -55,35 +48,12 @@ namespace numpy
   }
 
   template <class T, class F>
-  typename std::enable_if<
-      !types::is_dtype<F>::value,
-      types::ndarray<
-          typename std::remove_cv<typename std::remove_reference<
-              decltype(std::declval<typename utils::nested_container_value_type<
-                           types::list<T>>::type>() +
-                       std::declval<typename utils::nested_container_value_type<
-                           F>::type>())>::type>::type,
-          types::pshape<long>>>::type
-  append(types::list<T> const &to, F const &data)
+  types::ndarray<typename __combined<typename types::dtype_of<T>::type,
+                                     typename types::dtype_of<F>::type>::type,
+                 types::pshape<long>>
+  append(T const &to, F const &data)
   {
-    return append(types::ndarray<typename types::list<T>::dtype,
-                                 types::array<long, types::list<T>::value>>(to),
-                  data);
-  }
-  template <class T, class F>
-  typename std::enable_if<
-      types::is_dtype<F>::value,
-      types::ndarray<
-          typename std::remove_cv<typename std::remove_reference<
-              decltype(std::declval<typename utils::nested_container_value_type<
-                           types::list<T>>::type>() +
-                       std::declval<F>())>::type>::type,
-          types::pshape<long>>>::type
-  append(types::list<T> const &to, F const &data)
-  {
-    return append(types::ndarray<typename types::list<T>::dtype,
-                                 types::array<long, types::list<T>::value>>(to),
-                  data);
+    return append(numpy::functor::asarray{}(to), data);
   }
 }
 PYTHONIC_NS_END

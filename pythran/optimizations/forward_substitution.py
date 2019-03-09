@@ -3,48 +3,34 @@ Replace variable that can be lazy evaluated and used only once by their full
 computation code.
 """
 
-from pythran.analyses import LazynessAnalysis, UseDefChain, Literals, Ancestors
+from pythran.analyses import LazynessAnalysis, UseDefChains, DefUseChains
+from pythran.analyses import Literals, Ancestors
 from pythran.passmanager import Transformation
 
 import gast as ast
-from copy import deepcopy
+
+try:
+    from math import isfinite
+except ImportError:
+    from math import isinf, isnan
+    isfinite = lambda x: not isinf(x) and not isnan(x)
 
 
-class _LazyRemover(Transformation):
-    """
-        Helper removing D node and replacing U node by D node assigned value.
-        Search value of the D (define) node provided in the constructor (which
-        is in an Assign) and replace the U node provided in the constructor too
-        by this value.
+class Remover(ast.NodeTransformer):
 
-        Assign Stmt is removed if only one value was assigned.
-    """
-    def __init__(self, ctx, U, D):
-        super(_LazyRemover, self).__init__()
-        self.U = U
-        self.ctx = ctx
-        self.D = D
-        self.capture = None
+    def __init__(self, nodes):
+        self.nodes = nodes
 
-    def visit_Name(self, node):
-        if node in self.U:
-            return self.capture
-        return node
-
-    def visit_Assign(self, node):
-        self.generic_visit(node)
-        if self.D in node.targets:
-            self.capture = node.value
-            if len(node.targets) == 1:
-                return ast.Pass()
-            node.targets.remove(self.D)
-        return node
+    def generic_visit(self, node):
+        if node in self.nodes:
+            return ast.Pass()
+        return super(Remover, self).generic_visit(node)
 
 
 class ForwardSubstitution(Transformation):
 
     """
-    Replace variable that can be compute later.
+    Replace variable that can be computed later.
 
     >>> import gast as ast
     >>> from pythran import passmanager, backend
@@ -63,87 +49,78 @@ def foo(): a = 2; __builtin__.print(a + a)")
     >>> print(pm.dump(backend.Python, node))
     from __future__ import print_function
     def foo():
-        pass
+        a = 2
         __builtin__.print((2 + 2))
     """
 
     def __init__(self):
         """ Satisfy dependencies on others analyses. """
         super(ForwardSubstitution, self).__init__(LazynessAnalysis,
-                                                  UseDefChain,
+                                                  UseDefChains,
+                                                  DefUseChains,
                                                   Ancestors,
                                                   Literals)
+        self.to_remove = set()
 
     def visit_FunctionDef(self, node):
-        """ Forward variable in the function when it is possible. """
-        for name, udgraph in self.use_def_chain.items():
-            # 1. check if the usedefchains have only two nodes (a def and an
-            # use) and if it can be forwarded (lazyness == 1 means variables
-            # used to define the variable are not modified and the variable is
-            # use only once
-            # 2. Check if variable is forwardable and if it is literal
-            if ((len(udgraph.nodes()) == 2 and
-                 self.lazyness_analysis[name] == 1) or
-                    (self.lazyness_analysis[name] != float('inf') and
-                     name in self.literals)):
-                def get(udgraph, action):
-                    """ Return list of used/def variables. """
-                    return [udgraph.node[n]['name'] for n in udgraph.nodes()
-                            if udgraph.node[n]['action'] == action]
-                U = get(udgraph, "U")
-                D = get(udgraph, "D")
-                # we can't forward if multiple definition for a variable are
-                # possible or if this variable is a parameter from a function
-                if (len(D) == 1 and len(get(udgraph, "UD")) == 0 and
-                        not isinstance(D[0].ctx, ast.Param)):
-                    node = _LazyRemover(self.ctx, U, D[0]).visit(node)
-                    self.update = True
-        return self.generic_visit(node)
+        self.to_remove = set()
+        self.locals = self.def_use_chains.locals[node]
 
-    def visit_Assign(self, node):
-        """
-        >>> import gast as ast
-        >>> from pythran import passmanager, backend
-        >>> pm = passmanager.PassManager("test")
-        >>> node = ast.parse("def foo(a): b = a[2:];return b[0], b[1]")
-        >>> _, node = pm.apply(ForwardSubstitution, node)
-        >>> print(pm.dump(backend.Python, node))
-        def foo(a):
-            b = a
-            return (b[2:][0], b[2:][1])
-        """
-        if not isinstance(node.value, ast.Subscript):
-            return node
-        if not isinstance(node.value.slice, ast.Slice):
-            return node
-        if not isinstance(node.targets[0], ast.Name):
-            return node
-        name = node.targets[0].id
-        udgraph = self.use_def_chain[name]
-        uses = [udgraph.node[n]['name'] for n in udgraph.nodes()
-                if udgraph.node[n]['action'] == 'U']
-        can_fold = True
-        targets = []
-        for use in uses:
-            parent = self.ancestors[use][-1]
-            if not isinstance(parent, ast.Subscript):
-                can_fold = False
-                break
-            if not isinstance(parent.slice, ast.Index):
-                can_fold = False
-                break
-            if not isinstance(parent.slice.value, ast.Num):
-                can_fold = False
-                break
+        # prune some assignment as a second phase, as an assignment could be
+        # forward-substituted several times (in the case of constants)
+        self.generic_visit(node)
+        Remover(self.to_remove).visit(node)
+        return node
 
-            targets.append(parent)
+    def visit_Name(self, node):
+        if not isinstance(node.ctx, ast.Load):
+            return node
 
-        if can_fold:
-            slice_ = node.value.slice
-            node.value = node.value.value
-            for target in targets:
-                target.value = ast.Subscript(target.value,
-                                           deepcopy(slice_),
-                                           ast.Load())
-            self.update = True
+        # OpenMP metdata are not handled by beniget, which is fine in our case
+        if node not in self.use_def_chains:
+            if __debug__:
+                from pythran.openmp import OMPDirective
+                assert any(isinstance(p, OMPDirective)
+                           for p in self.ancestors[node])
+            return node
+        defuses = self.use_def_chains[node]
+
+        if len(defuses) != 1:
+            return node
+
+        defuse = defuses[0]
+
+        dnode = defuse.node
+        if not isinstance(dnode, ast.Name):
+            return node
+
+        # multiple definition, which one should we forward?
+        if sum(1 for d in self.locals if d.name() == dnode.id) > 1:
+            return node
+
+        # either a constant or a value
+        fwd = (dnode in self.literals and
+               isfinite(self.lazyness_analysis[dnode.id]))
+        fwd |= self.lazyness_analysis[dnode.id] == 1
+
+        if not fwd:
+            return node
+
+        parent = self.ancestors[dnode][-1]
+        if isinstance(parent, ast.Assign):
+            value = parent.value
+            if dnode in self.literals:
+                self.update = True
+                if len(defuse.users()) == 1:
+                    self.to_remove.add(parent)
+                    return value
+                else:
+                    # FIXME: deepcopy here creates an unknown node
+                    # for alias computations
+                    return value
+            elif len(parent.targets) == 1:
+                self.update = True
+                self.to_remove.add(parent)
+                return value
+
         return node

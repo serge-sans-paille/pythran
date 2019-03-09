@@ -42,6 +42,6 @@ from .pure_expressions import PureExpressions
 from .range_values import RangeValues
 from .scope import Scope
 from .static_expressions import StaticExpressions, HasStaticExpression
-from .use_def_chain import UseDefChain
+from .use_def_chain import DefUseChains, UseDefChains
 from .use_omp import UseOMP
 from .yield_points import YieldPoints

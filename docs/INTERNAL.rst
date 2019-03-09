@@ -125,12 +125,16 @@ directives, using a dedicated pass::
 Then let's have a look to ::
 
     >>> scopes = pm.gather(analyses.Scope, foo_tree)
-    >>> scopes[foo_tree.body[0].body[2]] == set(['i'])  # 3nd element: omp got parsed
-    True
-    >>> scopes[foo_tree.body[0]] == set(['a', 's', 'n'])
-    True
+    >>> list(scopes[foo_tree.body[0].body[2]])  # 3nd element: omp got parsed
+    ['i']
+    >>> list(scopes[foo_tree.body[0]])
+    ['n']
+    >>> list(scopes[foo_tree.body[0].body[0]])
+    ['s']
+    >>> list(scopes[foo_tree.body[0].body[1]])
+    ['a']
 
-``a`` now has function scope, which keeps the OpenMP directive legal.
+``a`` now has function body scope, which keeps the OpenMP directive legal.
 
 When the scope can be attached to an assignment, Pythran uses this piece of information::
 

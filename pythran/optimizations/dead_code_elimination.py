@@ -1,11 +1,22 @@
 """ DeadCodeElimination remove useless code. """
 
-from pythran.analyses import PureExpressions, UseDefChain
+from pythran.analyses import PureExpressions, DefUseChains
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
 
 import gast as ast
+
+class ClumsyOpenMPDependencyHandler(ast.NodeVisitor):
+
+    def __init__(self):
+        self.blacklist = set()
+
+    def visit_OMPDirective(self, node):
+        for dep in node.deps:
+            if isinstance(dep, ast.Name):
+                self.blacklist.add(dep.id)
+        return node
 
 
 class DeadCodeElimination(Transformation):
@@ -46,24 +57,32 @@ class DeadCodeElimination(Transformation):
     """
     def __init__(self):
         super(DeadCodeElimination, self).__init__(PureExpressions,
-                                                  UseDefChain)
+                                                  DefUseChains)
+        self.blacklist = set()
 
     def used_target(self, node):
         if isinstance(node, ast.Name):
-            udc = self.use_def_chain[node.id]
-
-            def is_use(x):
-                return udc.node[x]['action'] in ("U", "UD")
-            use_count = len([n for n in udc.nodes() if is_use(n)])
-            return use_count != 0
+            if node.id in self.blacklist:
+                return True
+            chain = self.def_use_chains.chains[node]
+            return bool(chain.users())
         return True
 
+    def visit_FunctionDef(self, node):
+        codh = ClumsyOpenMPDependencyHandler()
+        codh.visit(node)
+        self.blacklist = codh.blacklist
+        return self.generic_visit(node)
+
     def visit_Assign(self, node):
-        node.targets = [target for target in node.targets
-                        if self.used_target(target)]
-        if node.targets:
+        targets = [target for target in node.targets
+                   if self.used_target(target)]
+        if len(targets) == len(node.targets):
             return node
+        node.targets = targets
         self.update = True
+        if targets:
+            return node
         if node.value in self.pure_expressions:
             return ast.Pass()
         else:

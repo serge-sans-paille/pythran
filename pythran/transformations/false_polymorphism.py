@@ -1,10 +1,9 @@
 """ FalsePolymorphism try to rename variable to avoid false polymorphism."""
 
 from pythran.passmanager import Transformation
-from pythran.analyses import UseDefChain, UseOMP, Identifiers
+from pythran.analyses import DefUseChains, UseDefChains, UseOMP, Identifiers
 
-import networkx as nx
-import sys
+import gast as ast
 
 
 class FalsePolymorphism(Transformation):
@@ -23,54 +22,64 @@ class FalsePolymorphism(Transformation):
         a_ = 'babar'
     """
 
-    if sys.version_info.major == 3:
-        __doc__ = None  # FIXME: output non reproducible
-
     def __init__(self):
-        super(FalsePolymorphism, self).__init__(UseDefChain, UseOMP)
+        super(FalsePolymorphism, self).__init__(DefUseChains, UseOMP,
+                                                UseDefChains)
 
     def visit_FunctionDef(self, node):
         # function using openmp are ignored
-        if not self.use_omp:
-            identifiers = self.passmanager.gather(Identifiers, node, self.ctx)
-            for name, udgraph_ in self.use_def_chain.items():
-                udgraph = nx.DiGraph(udgraph_)  # Shallow copy
-                group_variable = list()
-                # changing the result of an analyse disturbs caching -> COPY
-                while udgraph:
-                    e = next(iter(udgraph.nodes))
-                    to_change = set()
-                    to_analyse_pred = set([e])
-                    to_analyse_succ = set()
-                    while to_analyse_pred or to_analyse_succ:
-                        if to_analyse_pred:
-                            n = to_analyse_pred.pop()
-                            to_change.add(n)
-                            to_analyse_succ.update(udgraph.successors(n))
-                            to_analyse_succ -= to_change
-                        else:
-                            n = to_analyse_succ.pop()
-                            if (udgraph.node[n]['action'] == 'U' or
-                                    udgraph.node[n]['action'] == 'UD'):
-                                to_change.add(n)
-                                to_analyse_succ.update(udgraph.successors(n))
-                                to_analyse_succ -= to_change
-                        if (udgraph.node[n]['action'] == 'U' or
-                                udgraph.node[n]['action'] == 'UD'):
-                            to_analyse_pred.update(udgraph.predecessors(n))
-                            to_analyse_pred -= to_change
-                    nodes_to_change = [udgraph.node[k]['name']
-                                       for k in to_change]
-                    group_variable.append(nodes_to_change)
-                    udgraph.remove_nodes_from(to_change)
+        if self.use_omp:
+            return node
 
-                if len(group_variable) > 1:
-                    identifiers.remove(name)
-                    for group in group_variable:
-                        while name in identifiers:
-                            name += "_"
-                        for var in group:
-                            self.update |= var.id != name
-                            var.id = name
-                        identifiers.add(name)
+        # reset available identifier names
+        # removing local identifiers from the list so that first occurence can
+        # actually use the slot
+        identifiers = self.passmanager.gather(Identifiers, node, self.ctx)
+        for def_ in self.def_use_chains.locals[node]:
+            try:
+                identifiers.remove(def_.name())
+            except KeyError:
+                pass
+
+        # compute all reachable nodes from each def. This builds a bag of def
+        # that should have the same name
+        visited_defs = set()
+        for def_ in self.def_use_chains.locals[node]:
+            if def_ in visited_defs:
+                continue
+
+            associated_defs = set()
+
+            # fill the bag of associated defs, going through users and defs
+            to_process = [def_]
+            while to_process:
+                curr = to_process.pop()
+                if curr in associated_defs:
+                    continue
+                associated_defs.add(curr)
+                if not isinstance(curr.node, ast.Name):
+                    continue
+                for u in curr.users():
+                    to_process.append(u)
+                to_process.extend(self.use_def_chains.get(curr.node, []))
+
+            visited_defs.update(associated_defs)
+
+            # find a new identifier
+            local_identifier = def_.name()
+            name = local_identifier
+            while name in identifiers:
+                name += "_"
+
+            # don't rename first candidate
+            if name == local_identifier:
+                identifiers.add(name)
+                continue
+
+            # actual renaming of each node in the bag
+            self.update = True
+            for d in associated_defs:
+                dn = d.node
+                if isinstance(dn, ast.Name) and dn.id == local_identifier:
+                    dn.id = name
         return node

@@ -4655,3 +4655,15 @@ def save_attribute(elements, module_path):
 
 
 save_attribute(MODULES, ())
+
+# patch beniget with pythran-specific builtins
+import beniget
+if sys.version_info.major > 2:
+    beniget.beniget.Builtins['__builtin__'] = __import__('builtins')
+else:
+    beniget.beniget.Builtins['__builtin__'] = __import__('__builtin__')
+beniget.beniget.Builtins['__dispatch__'] = object()
+for k, v in MODULES['__builtin__'].items():
+    if k not in beniget.beniget.Builtins:
+        beniget.beniget.Builtins[k] = v
+

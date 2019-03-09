@@ -16,9 +16,11 @@ patterns = (MODULES['numpy']['ones'],
 def istuple(node):
     return isinstance(node, ast.Tuple)
 
+
 def toshape(node):
     b = pythran_builtin_attr("make_shape")
     return ast.Call(b, node.elts, [])
+
 
 class TupleToShape(Transformation):
 
@@ -41,7 +43,7 @@ class TupleToShape(Transformation):
 
     def visit_Call(self, node):
         func_aliases = self.aliases.get(node.func, None)
-        if not func_aliases is None and func_aliases.issubset(patterns):
+        if func_aliases is not None and func_aliases.issubset(patterns):
             if istuple(node.args[0]):
                 self.update = True
                 node.args[0] = toshape(node.args[0])

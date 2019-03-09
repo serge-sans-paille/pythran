@@ -20,6 +20,6 @@ class Literals(FunctionAnalysis):
         # a constructor which may be costly and they can be updated using
         # function call
         if isinstance(node.value, (ast.Num, ast.Lambda, ast.Str)):
-            targets_id = {target.id for target in node.targets
-                          if isinstance(target, ast.Name)}
-            self.result.update(targets_id)
+            targets = [target for target in node.targets
+                       if isinstance(target, ast.Name)]
+            self.result.update(targets)

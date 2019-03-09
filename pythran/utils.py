@@ -56,6 +56,11 @@ def path_to_node(path):
         return path_to_node(path[:-1])[path[-1]]
 
 
+def isattr(node):
+    return (isinstance(node, ast.Call) and
+            getattr(node.func, 'attr', None) == 'getattr')
+
+
 def get_variable(assignable):
     """
     Return modified variable name.
@@ -74,16 +79,22 @@ def get_variable(assignable):
     """
     msg = "Only name and subscript can be assigned."
     assert isinstance(assignable, (ast.Name, ast.Subscript)), msg
-    while isinstance(assignable, ast.Subscript):
-        assignable = assignable.value
+    while isinstance(assignable, ast.Subscript) or isattr(assignable):
+        if isattr(assignable):
+            assignable = assignable.args[0]
+        else:
+            assignable = assignable.value
     return assignable
+
 
 def pythran_builtin(name):
     return MODULES['__builtin__']['pythran'][name]
 
+
 def pythran_builtin_path(name):
     assert name in MODULES['__builtin__']['pythran']
     return ('__builtin__', 'pythran', name)
+
 
 def pythran_builtin_attr(name):
     return path_to_attr(pythran_builtin_path(name))

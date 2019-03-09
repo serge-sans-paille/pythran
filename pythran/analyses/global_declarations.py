@@ -1,6 +1,9 @@
 """ GlobalDeclarations gathers top-level declarations. """
 
 from pythran.passmanager import ModuleAnalysis
+from beniget import DefUseChains
+import sys
+
 
 
 class GlobalDeclarations(ModuleAnalysis):
@@ -28,20 +31,9 @@ class GlobalDeclarations(ModuleAnalysis):
         self.result = dict()
         super(GlobalDeclarations, self).__init__()
 
-    def visit_Import(self, node):
+    def visit_Module(self, node):
         """ Import module define a new variable name. """
-        self.result.update((a.asname or a.name, a) for a in node.names)
-
-    def visit_ImportFrom(self, node):
-        """ Imported functions define a new variable name. """
-        self.result.update((a.asname or a.name, a) for a in node.names)
-
-    def visit_FunctionDef(self, node):
-        """ Function definition defined a new identifier. """
-        self.result[node.name] = node
-        # no generic visit here, so no diving into function body
-
-    def visit_Assign(self, node):
-        """ Assigned global variable define a new identifier. """
-        for target in node.targets:
-            self.result[target.id] = node
+        duc = DefUseChains()
+        duc.visit(node)
+        for d in duc.locals[node]:
+            self.result[d.name()] = d.node

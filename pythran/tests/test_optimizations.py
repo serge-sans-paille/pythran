@@ -440,6 +440,16 @@ def foo(a):
     return __pythran_import_numpy.array(((- a), (- (1))))"""
         self.check_ast(init, ref, ["pythran.optimizations.InlineBuiltins"])
 
+    def test_inline_builtins_broadcasting3(self):
+        init = """
+import numpy as np
+def foo(a):
+    return np.asarray([a, 1]) + (3, 3)"""
+        ref = """import numpy as __pythran_import_numpy
+def foo(a):
+    return __pythran_import_numpy.array(((a + 3), (1 + 3)))"""
+        self.check_ast(init, ref, ["pythran.optimizations.InlineBuiltins"])
+
     def test_patternmatching3(self):
         init = """
 def foo(a):

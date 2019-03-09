@@ -59,7 +59,7 @@ Using brew (http://brew.sh/)::
 
     $> easy_install pip
 
-    $> pip install numpy pythran
+    $> pip install pythran
 
 Depending on your setup, you may need to add the following to your \\~/.pythranrc`` file::
 

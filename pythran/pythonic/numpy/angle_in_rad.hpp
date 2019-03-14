@@ -21,12 +21,9 @@ namespace numpy
   {
     template <class T>
     auto angle_in_rad(T const &t)
-        -> decltype(std::atan(std::imag(t) / std::real(t)))
+        -> decltype(std::atan2(std::imag(t), std::real(t)))
     {
-      if (std::real(t))
-        return std::atan(std::imag(t) / std::real(t));
-      else
-        return pythonic::numpy::pi / 2;
+      return std::atan2(std::imag(t), std::real(t));
     }
   }
 

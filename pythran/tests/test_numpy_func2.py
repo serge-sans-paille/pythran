@@ -480,10 +480,10 @@ def test_copy0(x):
         self.run_test("def np_append8(a): from numpy import append,array ; b = array([[4, 5, 6], [7, 8, 9]]) ; return append(a[:], b)", numpy.array([[1], [2], [3]]), np_append8=[NDArray[int,:, :]])
 
     def test_angle0(self):
-        self.run_test("def np_angle0(a): from numpy import angle ; return angle(a)", [1.0+0j, 1.0j, 1+1j], np_angle0=[List[complex]])
+        self.run_test("def np_angle0(a): from numpy import angle ; return angle(a)", [1.0+0j, 1.0j, 1+1j, -1.0+0j, -1.0j, -1-1j], np_angle0=[List[complex]])
 
     def test_angle1(self):
-                      self.run_test("def np_angle1(a): from numpy import angle ; return angle(a)", numpy.array([1.0, 1.0j, 1+1j]), np_angle1=[NDArray[complex,:]])
+                      self.run_test("def np_angle1(a): from numpy import angle ; return angle(a)", numpy.array([1.0+0j, 1.0j, 1+1j, -1.0+0j, -1.0j, -1-1j]), np_angle1=[NDArray[complex,:]])
 
     def test_angle2(self):
         self.run_test("def np_angle2(a): from numpy import angle ; return angle(a,True)", 1 + 1j, np_angle2=[complex])

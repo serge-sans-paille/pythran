@@ -2,7 +2,7 @@
 This module provides a dummy parser for pythran annotations.
     * spec_parser reads the specs from a python module and returns them.
 '''
-
+from __future__ import division
 from pythran.types.conversion import pytype_to_pretty_type
 
 from collections import defaultdict
@@ -191,14 +191,14 @@ class SpecParser(object):
         }
     reserved.update(dtypes)
 
-    tokens = ('IDENTIFIER', 'COMMA', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP',
-              'LARRAY', 'RARRAY', 'STAR', 'NUM') + tuple(reserved.values())
+    tokens = ('IDENTIFIER', 'NUM', 'COLUMN', 'LPAREN', 'RPAREN', 'CRAP', 'OPT',
+              'LARRAY', 'RARRAY', 'STAR', 'COMMA') + tuple(reserved.values())
 
     crap = [tok for tok in tokens if tok != 'PYTHRAN']
     some_crap = [tok for tok in crap if tok not in ('LPAREN', 'COMMA')]
 
     # token <> regexp binding
-    t_CRAP = r'[^,:\(\)\[\]*0-9]'
+    t_CRAP = r'[^,:\(\)\[\]*?0-9]'
     t_COMMA = r','
     t_COLUMN = r':'
     t_LPAREN = r'\('
@@ -206,6 +206,7 @@ class SpecParser(object):
     t_RARRAY = r'\]'
     t_LARRAY = r'\['
     t_STAR = r'\*'
+    t_OPT = r'\?'
     t_NUM = r'[1-9][0-9]*'
 
     precedence = (
@@ -247,9 +248,9 @@ class SpecParser(object):
         p[0] = (p[1],) if len(p) == 2 else (p[1] + (p[3],))
 
     def p_export(self, p):
-        '''export : IDENTIFIER LPAREN opt_types RPAREN
+        '''export : IDENTIFIER LPAREN opt_param_types RPAREN
                   | IDENTIFIER
-                  | EXPORT LPAREN opt_types RPAREN'''
+                  | EXPORT LPAREN opt_param_types RPAREN'''
         # in the unlikely case where the IDENTIFIER is... export
         if len(p) > 2:
             sigs = p[3] or ((),)
@@ -281,10 +282,40 @@ class SpecParser(object):
 
     p_dtype.__doc__ += '\n| '.join(dtypes.values())
 
+    def p_opt_param_types(self, p):
+        '''opt_param_types :
+                     | param_types'''
+        p[0] = p[1] if len(p) == 2 else tuple()
+
     def p_opt_types(self, p):
         '''opt_types :
                      | types'''
         p[0] = p[1] if len(p) == 2 else tuple()
+
+    def p_param_types(self, p):
+        '''param_types : type
+                       | type OPT
+                       | type COMMA param_types
+                       | type OPT COMMA default_types'''
+        if len(p) == 2:
+            p[0] = tuple((t,) for t in p[1])
+        elif len(p) == 3:
+            p[0] = tuple((t,) for t in p[1]) + ((),)
+        elif len(p) == 4:
+            p[0] = tuple((t,) + ts for t in p[1] for ts in p[3])
+        else:
+            non_defaults = [t for t in p[4] if len(t) == len(p[4][0])]
+            p[0] = tuple((t,) + ts for t in p[1] for ts in non_defaults) + p[4]
+
+    def p_default_types(self, p):
+        '''default_types : type OPT
+                       | type OPT COMMA default_types'''
+        if len(p) == 3:
+            p[0] = tuple((t,) for t in p[1]) + ((),)
+        else:
+            non_defaults = [t for t in p[4] if len(t) == len(p[4][0])]
+            p[0] = tuple((t,) + ts for t in p[1] for ts in non_defaults) + p[4]
+
 
     def p_types(self, p):
         '''types : type
@@ -316,7 +347,6 @@ class SpecParser(object):
                 | LARRAY type RARRAY
                 | type OR type
                 '''
-
         if len(p) == 2:
             if isinstance(p[1], tuple):
                 p[0] = p[1]

@@ -188,14 +188,18 @@ this complex language!
 
 There is currently only one Pythran command, the ``export`` command. Its syntax is::
 
-    #pythran export function_name(argument_type*)
+    #pythran export function_name(argument_type* [, argument_type ? *])
 
 where ``function_name`` is the name of a function defined in the module, and
 ``argument_type*`` is a comma separated list of argument types, composed of any
-combination of basic types and constructed types. What is a basic type?
-Anything that looks like a Python basic type! Constructed types are either
-tuples, introduced by parenthesis, like ``(int, (float, str))`` or lists (resp.
-set), introduced by the ``list`` (resp. ``set``) keyword::
+combination of basic types and constructed types. ``argument_type ? *`` is a
+comma separated list of optional argument types, similar to ``argument_type``
+but followed by a ``?``.
+
+What is an ``argument_type``? Anything that looks like a Python basic type!
+Constructed types are either tuples, introduced by parenthesis, like ``(int,
+(float, str))`` or lists (resp.  set), introduced by the ``list`` (resp.
+``set``) keyword::
 
     argument_type = basic_type
                   | (argument_type+)    # this is a tuple
@@ -221,7 +225,7 @@ In a similar manner to the Python import statement, it's possible to chain the e
 
     #pythran export var_name0, var_name1, function_name(argument_type0)
 
-If you want to specify multiple overloads, instead of listing them, you can use the ``or`` operator to list the alteranives, as in::
+If you want to specify multiple overloads, instead of listing them, you can use the ``or`` operator to list the alternatives, as in::
 
     #pythran export function_name(type0 or type1, type2, type3 or type4)
 
@@ -373,7 +377,7 @@ Tired of typing the same compiler switches again and again? Store them in
 ``$XDG_CONFIG_HOME/.pythranrc``!
 
 Wants to try your own compiler? Update the `CC` and `CXX` fields from your
-`pythranrc`, or set the same env variables to the right compilers. Environment
+`pythranrc`, or set the same environment variables to the right compilers. Environment
 variables have greater precedence than configuration file.
 
 The careful reader might have noticed the ``-p`` flag from the command line. It
@@ -473,7 +477,7 @@ This section contains compiler flags configuration. For education purpose, the d
 
     Preprocessor definitions. Pythran is sensible to ``USE_XSIMD`` and
     ``PYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on `xsimd <https://github.com/QuantStack/xsimd>`_
-    vectorization and the latter controls the mimimal loop trip count to turn a
+    vectorization and the latter controls the minimal loop trip count to turn a
     sequential loop into a parallel loop.
 
 :``undefs``:
@@ -567,7 +571,7 @@ Troubleshooting
 
 Plenty of them! Seriously, Pythran is software, so it will crash. You
 may make it abort in unusual ways! And more importantly, please provide
-feedback to serge_sans_paille using its email serge.guelton@telecom-bretagne.eu,
+feedback to serge_sans_paille using its email ``serge.guelton@telecom-bretagne.eu``,
 the IRC channel ``#pythran`` on FreeNode, or the mailing list ``pythran@freelists.org``
 
 **glhf!**

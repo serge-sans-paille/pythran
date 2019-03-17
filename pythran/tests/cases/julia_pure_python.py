@@ -1,7 +1,7 @@
 # --- Python / Numpy imports -------------------------------------------------
 import numpy as np
 from time import time
-#pythran export compute_julia(float, float, int, float, float, int)
+#pythran export compute_julia(float, float, int, float?, float?, int?)
 
 def kernel(zr, zi, cr, ci, lim, cutoff):
     ''' Computes the number of iterations `n` such that 

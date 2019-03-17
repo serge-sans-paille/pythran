@@ -23,6 +23,7 @@ import os.path
 #pythran export a9( complex64 )
 #pythran export a10( complex128 )
 #pythran export a( int8 set )
+#pythran export b( int8 set? )
 #pythran export a( uint8 list)
 #pythran export a( int16 [])
 #pythran export a( uint16 [][])
@@ -52,6 +53,11 @@ class TestSpecParser(unittest.TestCase):
 
     def test_invalid_specs2(self):
         code = '#pythran export bar(int)\ndef foo(): pass'
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumber", code)
+
+    def test_invalid_specs3(self):
+        code = '#pythran export bar(int, int?, int)\ndef bar(x, y=1, z=1): pass'
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumber", code)
 

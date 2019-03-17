@@ -1,4 +1,4 @@
-#pythran export weights(uint8[:,:])
+#pythran export weights(uint8[:,:],float?)
 #runas import numpy as np; x = np.arange(10, dtype=np.uint8).reshape(5,2); weights(x)
 
 import numpy as np

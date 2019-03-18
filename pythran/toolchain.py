@@ -34,6 +34,7 @@ import os.path
 import shutil
 import glob
 import hashlib
+import sys
 from functools import reduce
 
 logger = logging.getLogger('pythran')
@@ -395,6 +396,8 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     if 'ENABLE_PYTHON_MODULE' in kwargs.get('undef_macros', []):
         module.preamble.insert(0, Line('#undef ENABLE_PYTHON_MODULE'))
+        module.preamble.insert(0, Line('#define PY_MAJOR_VERSION {}'.
+                                       format(sys.version_info.major)))
 
     if cpponly:
         # User wants only the C++ code

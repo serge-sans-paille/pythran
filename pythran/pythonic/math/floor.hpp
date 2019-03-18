@@ -10,6 +10,11 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
+  template <class T>
+  long floor(T x)
+  {
+    return std::floor(x);
+  }
 }
 PYTHONIC_NS_END
 

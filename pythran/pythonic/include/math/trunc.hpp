@@ -2,13 +2,15 @@
 #define PYTHONIC_INCLUDE_MATH_TRUNC_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include <cmath>
 
 PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  DEFINE_FUNCTOR_2(trunc, std::trunc);
+  template <class T>
+  long trunc(T x);
+
+  DEFINE_FUNCTOR(pythonic::math, trunc);
 }
 PYTHONIC_NS_END
 

@@ -17,8 +17,11 @@ import math
 import glob
 import numpy.testing as npt
 import os
+import numbers
 import sys
 import unittest
+from functools import reduce
+from operator import add
 
 import pytest
 
@@ -48,6 +51,36 @@ def may_convert_2_to_3(code):
     return code
 
 
+def harmonize_containers(value):
+    if isinstance(value, list):
+        def flatten(l, flat):
+            for e in l:
+                if isinstance(e, list):
+                    flatten(e, flat)
+                else:
+                    flat.append(e)
+        flat = []
+        flatten(value, flat)
+
+        if not flat:
+            return
+
+        if any(not isinstance(v, numbers.Number) for v in flat):
+            return
+
+
+        common_type = type(reduce(add, flat))
+
+        def rec_visit_values(l):
+            for i, e in enumerate(l):
+                if isinstance(e, list):
+                    rec_visit_values(e)
+                else:
+                    l[i] = common_type(e)
+
+        rec_visit_values(value)
+
+
 class TestEnv(unittest.TestCase):
 
     """ Test environment to validate a pythran execution against python. """
@@ -64,16 +97,6 @@ class TestEnv(unittest.TestCase):
         """ Check if type between reference and result match. """
         print("Type of Pythran res : ", type(res))
         print("Type of Python ref : ", type(ref))
-        type_matching = (((list, tuple), (list, tuple)),
-                         ((float, float64, float128), (int, float, float32,
-                                             float64, float128)),
-                         (float32, (int, float, float32, float128)),
-                         (float128, (int, float, float32, float128)),
-                         ((uint64, int64), (int, uint32, int32, uint64, int64)),
-                         (bool, (bool, bool_)),
-                         # FIXME combiner for boolean doesn't work
-                         (int, (int, bool, bool_, int8, int16, int32, int64,
-                                uint8, uint16, uint32, uint64)))
         if isinstance(ref, ndarray):
             # res can be an ndarray of dim 0 because of isneginf call
             if ref.ndim == 0 and (not isinstance(res, ndarray)
@@ -81,17 +104,15 @@ class TestEnv(unittest.TestCase):
                 self.check_type(ref.item(0), res)
             else:
                 self.assertIsInstance(res, type(ref))
-        elif isinstance(res, complex):
-            if res.imag == 0:
-                self.assertIsInstance(ref, (int, float, complex, complex256))
-            else:
-                self.assertIsInstance(ref, (complex, complex256))
+        elif isinstance(ref, (int, int64)):
+            self.assertIsInstance(res, (int, int64))
+        elif isinstance(ref, (float, float64)):
+            self.assertIsInstance(res, (float, float64))
+        elif isinstance(ref, (complex, complex128)):
+            self.assertIsInstance(res, (complex, complex128))
+        elif isinstance(ref, (bool, bool_)):
+            self.assertIsInstance(res, (bool, bool_))
         else:
-            for res_type, ref_type in type_matching:
-                if isinstance(res, res_type):
-                    self.assertIsInstance(ref, ref_type)
-                    return
-
             self.assertIsInstance(res, type(ref))
 
     def assertAlmostEqual(self, ref, res):
@@ -246,6 +267,7 @@ class TestEnv(unittest.TestCase):
 
             print("Python result: ", python_ref)
             print("Pythran result: ", pythran_res)
+            harmonize_containers(python_ref)
             self.assertAlmostEqual(python_ref, pythran_res)
 
     def run_test(self, code, *params, **interface):
@@ -302,6 +324,7 @@ class TestEnv(unittest.TestCase):
 
         print("Python result: ", python_ref)
         print("Pythran result: ", pythran_res)
+        harmonize_containers(python_ref)
         self.assertAlmostEqual(python_ref, pythran_res)
 
         if thread_count > 1:

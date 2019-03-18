@@ -12,7 +12,7 @@ namespace numpy
 {
 
   template <class dtype, class E>
-  auto _count_nonzero(E begin, E end, size_t &count, utils::int_<1>) ->
+  auto _count_nonzero(E begin, E end, long &count, utils::int_<1>) ->
       typename std::enable_if<std::is_same<dtype, bool>::value>::type
   {
     for (; begin != end; ++begin)
@@ -21,7 +21,7 @@ namespace numpy
   }
 
   template <class dtype, class E>
-  auto _count_nonzero(E begin, E end, size_t &count, utils::int_<1>) ->
+  auto _count_nonzero(E begin, E end, long &count, utils::int_<1>) ->
       typename std::enable_if<!std::is_same<dtype, bool>::value>::type
   {
     for (; begin != end; ++begin)
@@ -30,7 +30,7 @@ namespace numpy
   }
 
   template <class dtype, class E, size_t N>
-  void _count_nonzero(E begin, E end, size_t &count, utils::int_<N>)
+  void _count_nonzero(E begin, E end, long &count, utils::int_<N>)
   {
     for (; begin != end; ++begin)
       _count_nonzero<dtype>((*begin).begin(), (*begin).end(), count,
@@ -38,9 +38,9 @@ namespace numpy
   }
 
   template <class E>
-  size_t count_nonzero(E const &array)
+  long count_nonzero(E const &array)
   {
-    size_t count(0);
+    long count(0);
     _count_nonzero<typename E::dtype>(array.begin(), array.end(), count,
                                       utils::int_<E::value>());
     return count;

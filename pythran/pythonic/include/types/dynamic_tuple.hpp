@@ -60,6 +60,10 @@ namespace types
     {
     }
 
+    dynamic_tuple(std::initializer_list<T> values) : data(values)
+    {
+    }
+
     // Iterators.
     const_iterator begin() const noexcept
     {

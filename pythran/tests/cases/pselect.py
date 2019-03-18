@@ -2,12 +2,13 @@
 #runas pselect(0)
 #runas pselect(1)
 def pselect(n):
-    if n:
-        a=sel0
-    else:
-        a=sel1
     l=list()
-    a(l)
+    for k in (n, not n):
+        if k:
+            a=sel0
+        else:
+            a=sel1
+        a(l)
     return l
 
 def sel0(n):

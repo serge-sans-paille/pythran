@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_EXCEPTIONS_HPP
 
 #include "pythonic/include/types/str.hpp"
-#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/dynamic_tuple.hpp"
 #include "pythonic/include/types/attr.hpp"
 #include "pythonic/include/__builtin__/str.hpp"
 
@@ -20,7 +20,7 @@ namespace types
     template <typename... Types>
     BaseException(Types const &... types);
     virtual ~BaseException() noexcept = default;
-    list<str> args;
+    dynamic_tuple<str> args;
   };
 
 // Use this to create a python exception class
@@ -99,8 +99,8 @@ PYTHONIC_NS_END
   PYTHONIC_NS_BEGIN                                                            \
   namespace __builtin__                                                        \
   {                                                                            \
-    types::none<types::list<types::str>> getattr(types::attr::ARGS,            \
-                                                 types::name const &f);        \
+    types::none<types::dynamic_tuple<types::str>>                              \
+    getattr(types::attr::ARGS, types::name const &f);                          \
   }                                                                            \
   PYTHONIC_NS_END
 
@@ -108,8 +108,8 @@ PYTHONIC_NS_END
   PYTHONIC_NS_BEGIN                                                            \
   namespace __builtin__                                                        \
   {                                                                            \
-    types::none<types::list<types::str>> getattr(types::attr::ARGS,            \
-                                                 types::name const &e);        \
+    types::none<types::dynamic_tuple<types::str>>                              \
+    getattr(types::attr::ARGS, types::name const &e);                          \
     types::none<types::str> getattr(types::attr::ERRNO, types::name const &e); \
     types::none<types::str> getattr(types::attr::STRERROR,                     \
                                     types::name const &e);                     \

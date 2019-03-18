@@ -9,7 +9,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  size_t rank(E const &expr);
+  long rank(E const &expr);
 
   DEFINE_FUNCTOR(pythonic::numpy, rank);
 }

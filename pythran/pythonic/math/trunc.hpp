@@ -10,6 +10,11 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
+  template <class T>
+  long trunc(T x)
+  {
+    return x;
+  }
 }
 PYTHONIC_NS_END
 

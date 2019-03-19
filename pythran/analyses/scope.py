@@ -3,7 +3,7 @@ Scope computes scope information
 """
 
 from pythran.analyses.ancestors import Ancestors
-from pythran.analyses.use_def_chain import UseDefChain
+from pythran.analyses.use_def_chain import DefUseChains
 from pythran.passmanager import FunctionAnalysis
 
 from collections import defaultdict
@@ -24,7 +24,7 @@ class Scope(FunctionAnalysis):
         self.result = defaultdict(set)
         self.decl_holders = (ast.FunctionDef, ast.For,
                              ast.While, ast.Try, ast.If)
-        super(Scope, self).__init__(Ancestors, UseDefChain)
+        super(Scope, self).__init__(Ancestors, DefUseChains)
 
     def visit_OMPDirective(self, node):
         for dep in node.deps:
@@ -36,11 +36,15 @@ class Scope(FunctionAnalysis):
         self.openmp_deps = dict()
         self.generic_visit(node)
 
+        name_to_defs = dict()
+        for def_ in self.def_use_chains.locals[node]:
+            name_to_defs.setdefault(def_.name(), []).append(def_)
+
         # then compute scope informations
         # unlike use-def chains, this takes OpenMP annotations into account
-        for name, udgraph in self.use_def_chain.items():
+        for name, defs in name_to_defs.items():
             # get all refs to that name
-            refs = [udgraph.node[n]['name'] for n in udgraph]
+            refs = [d.node for d in defs] + [u.node for d in defs for u in d.users()]
             # add OpenMP refs (well, the parent of the holding stmt)
             refs.extend(self.ancestors[d][-3]   # -3 to get the right parent
                         for d in self.openmp_deps.get(name, []))
@@ -54,8 +58,7 @@ class Scope(FunctionAnalysis):
             # This will be the first assignment found in the bloc
             if isinstance(common, self.decl_holders):
                 # get all refs that define that name
-                refs = [udgraph.node[n]['name']
-                        for n in udgraph if udgraph.node[n]['action'] == 'D']
+                refs = [d.node for d in defs]
                 refs.extend(self.openmp_deps.get(name, []))
 
                 # get their parent

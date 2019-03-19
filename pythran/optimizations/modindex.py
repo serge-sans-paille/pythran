@@ -1,6 +1,6 @@
 ''' Simplify modulo computation based on index'''
 
-from pythran.analyses import UseDefChain, Ancestors, Aliases, RangeValues
+from pythran.analyses import UseDefChains, Ancestors, Aliases, RangeValues
 from pythran.analyses import Identifiers
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
@@ -33,15 +33,13 @@ class ModIndex(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, UseDefChain, Ancestors, Aliases,
+        Transformation.__init__(self, UseDefChains, Ancestors, Aliases,
                                 RangeValues, Identifiers)
         self.loops_mod = dict()
 
     def single_def(self, node):
-        chain = self.use_def_chain[node.id]
-        head = [chain.node[n] for n in chain.nodes()
-                if chain.node[n]['action'] in ('D', 'UD')]
-        return len(head) == 1 and head[0]
+        chain = self.use_def_chains[node]
+        return len(chain) == 1 and chain[0].node
 
     def visit_BinOp(self, node):
         if not isinstance(node.op, ast.Mod):
@@ -68,7 +66,6 @@ class ModIndex(Transformation):
             return self.generic_visit(node)
 
         # check lhs is the actual index of a loop
-        head = head['name']
         loop = self.ancestors[head][-1]
 
         if not isinstance(loop, ast.For):
@@ -78,7 +75,7 @@ class ModIndex(Transformation):
             return self.generic_visit(node)
 
         # make sure rhs is defined out of the loop
-        if loop in self.ancestors[right_def['name']]:
+        if loop in self.ancestors[right_def]:
             return self.generic_visit(node)
 
         # gather range informations

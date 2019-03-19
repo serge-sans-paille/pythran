@@ -237,11 +237,11 @@ are updated, for instance using an augmented assign, or the ``append`` method::
 From this analyse and the ``GlobalEffects`` analyse, one can compute the set of
 pure functions, i.e. functions that have no side effects::
 
-  >>> code = 'def f():pass\ndef b(l): random.seed(0)'
+  >>> code = 'import random\ndef f():pass\ndef b(l): random.seed(0)'
   >>> tree = ast.parse(code)
   >>> pf = pm.gather(analyses.PureExpressions, tree)
-  >>> f = tree.body[0]
-  >>> b = tree.body[1]
+  >>> f = tree.body[1]
+  >>> b = tree.body[2]
   >>> f in pf
   True
   >>> b in pf

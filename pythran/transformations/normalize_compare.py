@@ -5,6 +5,7 @@ from pythran.passmanager import Transformation
 
 import gast as ast
 
+
 def is_trivially_copied(node):
     try:
         ast.literal_eval(node)

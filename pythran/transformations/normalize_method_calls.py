@@ -16,11 +16,11 @@ class NormalizeMethodCalls(Transformation):
 
     >>> import gast as ast
     >>> from pythran import passmanager, backend
-    >>> node = ast.parse("l.append(12)")
+    >>> node = ast.parse("[].append(12)")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeMethodCalls, node)
     >>> print(pm.dump(backend.Python, node))
-    __builtin__.list.append(l, 12)
+    __builtin__.list.append([], 12)
     '''
 
     def __init__(self):

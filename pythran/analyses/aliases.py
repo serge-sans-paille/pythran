@@ -677,8 +677,8 @@ class Aliases(ModuleAnalysis):
         >>> fun = """
         ... def foo(a):
         ...     while(a):
-        ...         if a==1: print(b)
-        ...         else: b=a"""
+        ...         if a == 1: print(b)
+        ...         else: b = a"""
         >>> module = ast.parse(fun)
         >>> result = pm.gather(Aliases, module)
         '''

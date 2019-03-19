@@ -252,7 +252,7 @@ def run():
 
         lint_cfg(cfg)
 
-    if args.compiler or args.verbose>=2:
+    if args.compiler or args.verbose >= 2:
         cxx = compiler() or 'c++'
         logger.info('CXX = '.rjust(10) + cxx)
         if args.compiler:

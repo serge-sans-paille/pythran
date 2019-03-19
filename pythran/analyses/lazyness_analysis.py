@@ -6,7 +6,7 @@ from pythran.analyses.identifiers import Identifiers
 from pythran.analyses.pure_expressions import PureExpressions
 from pythran.passmanager import FunctionAnalysis
 from pythran.syntax import PythranSyntaxError
-from pythran.utils import get_variable
+from pythran.utils import get_variable, isattr
 import pythran.metadata as md
 import pythran.openmp as openmp
 
@@ -166,7 +166,7 @@ class LazynessAnalysis(FunctionAnalysis):
                 self.assign_to(target, ids)
                 if node.value not in self.pure_expressions:
                     self.result[target.id] = LazynessAnalysis.INF
-            elif isinstance(target, ast.Subscript):
+            elif isinstance(target, (ast.Subscript)) or isattr(target):
                 # if we modify just a part of a variable, it can't be lazy
                 var_name = get_variable(target)
                 if isinstance(var_name, ast.Name):
@@ -186,10 +186,8 @@ class LazynessAnalysis(FunctionAnalysis):
             self.modify(node.target.id)
             # and this variable can't be lazy
             self.result[node.target.id] = LazynessAnalysis.INF
-        elif isinstance(node.target, ast.Subscript):
-            var_name = node.target.value
-            while isinstance(var_name, ast.Subscript):
-                var_name = var_name.value
+        elif isinstance(node.target, ast.Subscript) or isattr(node.target):
+            var_name = get_variable(node.target)
             # variable is modified so other variables that use it dies
             self.modify(var_name.id)
             # and this variable can't be lazy

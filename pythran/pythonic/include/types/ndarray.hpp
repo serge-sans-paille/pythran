@@ -697,7 +697,9 @@ namespace types
     };
 #if defined(_WIN32) || defined(__APPLE__)
     template <>
-    struct dtype_helper<long> : dtype_helper<int64_t> {
+    struct dtype_helper<long>
+        : dtype_helper<typename std::conditional<
+              sizeof(long) == sizeof(int64_t), int64_t, int32_t>::type> {
     };
 #endif
     template <>

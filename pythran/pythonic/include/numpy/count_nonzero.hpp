@@ -10,18 +10,18 @@ namespace numpy
 {
 
   template <class dtype, class E>
-  auto _count_nonzero(E begin, E end, size_t &count, utils::int_<1>) ->
+  auto _count_nonzero(E begin, E end, long &count, utils::int_<1>) ->
       typename std::enable_if<std::is_same<dtype, bool>::value>::type;
 
   template <class dtype, class E>
-  auto _count_nonzero(E begin, E end, size_t &count, utils::int_<1>) ->
+  auto _count_nonzero(E begin, E end, long &count, utils::int_<1>) ->
       typename std::enable_if<!std::is_same<dtype, bool>::value>::type;
 
   template <class dtype, class E, size_t N>
-  void _count_nonzero(E begin, E end, size_t &count, utils::int_<N>);
+  void _count_nonzero(E begin, E end, long &count, utils::int_<N>);
 
   template <class E>
-  size_t count_nonzero(E const &array);
+  long count_nonzero(E const &array);
 
   DEFINE_FUNCTOR(pythonic::numpy, count_nonzero);
 }

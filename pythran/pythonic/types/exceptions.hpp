@@ -4,7 +4,7 @@
 #include "pythonic/include/types/exceptions.hpp"
 
 #include "pythonic/types/str.hpp"
-#include "pythonic/types/list.hpp"
+#include "pythonic/types/dynamic_tuple.hpp"
 #include "pythonic/types/attr.hpp"
 #include "pythonic/__builtin__/None.hpp"
 #include "pythonic/__builtin__/str.hpp"
@@ -87,8 +87,8 @@ PYTHONIC_NS_END
   PYTHONIC_NS_BEGIN                                                            \
   namespace __builtin__                                                        \
   {                                                                            \
-    types::none<types::list<types::str>> getattr(types::attr::ARGS,            \
-                                                 types::name const &f)         \
+    types::none<types::dynamic_tuple<types::str>>                              \
+    getattr(types::attr::ARGS, types::name const &f)                           \
     {                                                                          \
       return f.args;                                                           \
     }                                                                          \
@@ -99,13 +99,14 @@ PYTHONIC_NS_END
   PYTHONIC_NS_BEGIN                                                            \
   namespace __builtin__                                                        \
   {                                                                            \
-    types::none<types::list<types::str>> getattr(types::attr::ARGS,            \
-                                                 types::name const &e)         \
+    types::none<types::dynamic_tuple<types::str>>                              \
+    getattr(types::attr::ARGS, types::name const &e)                           \
     {                                                                          \
       if (e.args.size() > 3 || e.args.size() < 2)                              \
         return e.args;                                                         \
       else                                                                     \
-        return types::list<types::str>(e.args.begin(), e.args.begin() + 2);    \
+        return types::dynamic_tuple<types::str>(e.args.begin(),                \
+                                                e.args.begin() + 2);           \
     }                                                                          \
     types::none<types::str> getattr(types::attr::ERRNO, types::name const &e)  \
     {                                                                          \

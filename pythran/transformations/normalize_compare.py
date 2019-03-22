@@ -2,6 +2,7 @@
 
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
+from pythran.utils import path_to_attr
 
 import gast as ast
 
@@ -34,12 +35,12 @@ class NormalizeCompare(Transformation):
         if (0 < $1):
             pass
         else:
-            return 0
+            return __builtin__.False
         if ($1 < 3):
             pass
         else:
-            return 0
-        return 1
+            return __builtin__.False
+        return __builtin__.True
     '''
 
     def visit_Module(self, node):
@@ -100,10 +101,10 @@ class NormalizeCompare(Transformation):
                                    [holder])
                 body.append(ast.If(cond,
                                    [ast.Pass()],
-                                   [ast.Return(ast.Num(0))]))
+                                   [ast.Return(path_to_attr(('__builtin__', 'False')))]))
                 prev_holder = holder
 
-            body.append(ast.Return(ast.Num(1)))
+            body.append(ast.Return(path_to_attr(('__builtin__', 'True'))))
 
             forged_fdef = ast.FunctionDef(forged_name, args, body, [], None)
             self.compare_functions.append(forged_fdef)

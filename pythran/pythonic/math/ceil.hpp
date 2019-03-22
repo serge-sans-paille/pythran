@@ -10,6 +10,11 @@ PYTHONIC_NS_BEGIN
 
 namespace math
 {
+  template <class T>
+  long ceil(T x)
+  {
+    return std::ceil(x);
+  }
 }
 PYTHONIC_NS_END
 

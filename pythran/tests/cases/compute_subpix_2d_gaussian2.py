@@ -1,5 +1,5 @@
 import numpy as np
-#runas import numpy as np; x = np.arange(16., dtype=np.float32).reshape(4,4); compute_subpix_2d_gaussian2(x, 1, 1)
+#runas import numpy as np; x = (np.arange(16., dtype=np.float32) - 8.).reshape(4,4); compute_subpix_2d_gaussian2(x, 1, 1)
 
 # pythran export compute_subpix_2d_gaussian2(float32[][], int, int)
 def compute_subpix_2d_gaussian2(correl, ix, iy):
@@ -28,6 +28,6 @@ def compute_subpix_2d_gaussian2(correl, ix, iy):
 
     c00, c10, c01, c11, c20, c02 = \
         c00/9, c10/6, c01/6, c11/4, c20/6, c02/6
-    deplx = (c11*c01-2*c10*c02)/(4*c20*c02-c11**2)
-    deply = (c11*c10-2*c01*c20)/(4*c20*c02-c11**2)
+    deplx = np.float32((c11*c01-2*c10*c02)/(4*c20*c02-c11**2))
+    deply = np.float32((c11*c10-2*c01*c20)/(4*c20*c02-c11**2))
     return deplx, deply, correl_crop

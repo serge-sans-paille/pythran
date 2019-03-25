@@ -28,6 +28,8 @@ class Scope(FunctionAnalysis):
 
     def visit_OMPDirective(self, node):
         for dep in node.deps:
+            if dep in node.private_deps:
+                continue
             if isinstance(dep, ast.Name):
                 self.openmp_deps.setdefault(dep.id, []).append(dep)
 

@@ -93,6 +93,8 @@ class OMPDirective(AST):
             return
 
         self.deps = []
+        self.private_deps = []
+        self.shared_deps = []
 
         def tokenize(s):
             '''A simple contextual "parser" for an OpenMP string'''
@@ -102,6 +104,7 @@ class OMPDirective(AST):
             curr_index = 0
             in_reserved_context = False
             in_declare = False
+            in_shared = in_private = False
             while curr_index < len(s):
                 m = re.match(r'^([a-zA-Z_]\w*)', s[curr_index:])
                 if m:
@@ -115,9 +118,15 @@ class OMPDirective(AST):
                         out += word
                         in_reserved_context = word in reserved_contex
                         in_declare |= word == 'declare'
+                        in_private |= word == 'private'
+                        in_shared |= word == 'shared'
                     else:
                         v = '{}'
                         self.deps.append(ast.Name(word, ast.Load(), None))
+                        if in_private:
+                            self.private_deps.append(self.deps[-1])
+                        if in_shared:
+                            self.shared_deps.append(self.deps[-1])
                         out += v
                 elif s[curr_index] == '(':
                     par_count += 1
@@ -129,6 +138,7 @@ class OMPDirective(AST):
                     out += ')'
                     if par_count == 0:
                         in_reserved_context = False
+                        in_shared = in_private = False
                 else:
                     if s[curr_index] in ',:':
                         in_reserved_context = False
@@ -137,7 +147,7 @@ class OMPDirective(AST):
             return out
 
         self.s = tokenize(args[0])
-        self._fields = ('deps',)
+        self._fields = ('deps', 'shared_deps', 'private_deps')
 
 
 ##

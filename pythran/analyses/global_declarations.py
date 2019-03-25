@@ -5,6 +5,11 @@ from beniget import DefUseChains
 import sys
 
 
+class SilentDefUseChains(DefUseChains):
+
+    def unbound_identifier(self, name, node):
+        pass
+
 
 class GlobalDeclarations(ModuleAnalysis):
 
@@ -33,7 +38,7 @@ class GlobalDeclarations(ModuleAnalysis):
 
     def visit_Module(self, node):
         """ Import module define a new variable name. """
-        duc = DefUseChains()
+        duc = SilentDefUseChains()
         duc.visit(node)
         for d in duc.locals[node]:
             self.result[d.name()] = d.node

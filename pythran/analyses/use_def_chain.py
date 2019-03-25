@@ -11,6 +11,18 @@ from itertools import product
 import gast as ast
 
 
+class ExtendedDefUseChains(beniget.DefUseChains):
+
+    def unbound_identifier(self, name, node):
+        # don't warn on unbound identifier
+        pass
+
+    def visit(self, node):
+        # be aware of metadata
+        md.visit(self, node)
+        return super(ExtendedDefUseChains, self).visit(node)
+
+
 class UseDefChains(ModuleAnalysis):
 
     """
@@ -36,6 +48,6 @@ class DefUseChains(ModuleAnalysis):
         super(DefUseChains, self).__init__()
 
     def visit_Module(self, node):
-        duc = beniget.DefUseChains()
+        duc = ExtendedDefUseChains()
         duc.visit(node)
         self.result = duc

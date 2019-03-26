@@ -209,6 +209,7 @@ class CxxFunction(Backend):
         self.break_handlers = []
         self.ldecls = None
         self.deps = parent.deps
+        self.openmp_deps = set()
         self.passmanager = parent.passmanager
         self.types = parent.types
         self.pure_expressions = parent.pure_expressions
@@ -233,6 +234,14 @@ class CxxFunction(Backend):
             locals_visited.append(decl)
         self.ldecls.difference_update(local_vars)
         return Block(locals_visited + [node_visited])
+
+    def visit_OMPDirective(self, node):
+        self.openmp_deps.update(d.id for d in node.private_deps)
+        self.openmp_deps.update(d.id for d in node.shared_deps)
+
+    def visit(self, node):
+        metadata.visit(self, node)
+        return super(CxxFunction, self).visit(node)
 
     def process_omp_attachements(self, node, stmt, index=None):
         """
@@ -408,7 +417,8 @@ class CxxFunction(Backend):
         alltargets = "= ".join(targets)
         islocal = (len(targets) == 1 and
                    isinstance(node.targets[0], ast.Name) and
-                   node.targets[0].id in self.scope[node])
+                   node.targets[0].id in self.scope[node] and
+                   node.targets[0].id not in self.openmp_deps)
         if islocal:
             # remove this decls from local decls
             self.ldecls.difference_update(t.id for t in node.targets)
@@ -477,7 +487,6 @@ class CxxFunction(Backend):
         # If variable is local to the for body it's a ref to the iterator value
         # type
         if node.target.id in self.scope[node] and not hasattr(self, 'yields'):
-            self.ldecls.remove(node.target.id)
             local_type = "auto&&"
         else:
             local_type = ""
@@ -635,6 +644,7 @@ class CxxFunction(Backend):
         auto_for = (isinstance(node.target, ast.Name) and
                     node.target.id in self.scope[node])
         auto_for &= not metadata.get(node, OMPDirective)
+        auto_for &= node.target.id not in self.openmp_deps
         return auto_for
 
     def can_use_c_for(self, node):

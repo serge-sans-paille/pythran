@@ -35,6 +35,9 @@ class RangeBasedSimplify(Transformation):
     def __init__(self):
         Transformation.__init__(self, RangeValues)
 
+    def visit_OMPDirective(self, node):
+        return node
+
     def visit_BinOp(self, node):
         node = self.generic_visit(node)
         if not isinstance(node.op, ast.Mod):

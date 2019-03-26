@@ -1,7 +1,7 @@
 """ FalsePolymorphism try to rename variable to avoid false polymorphism."""
 
 from pythran.passmanager import Transformation
-from pythran.analyses import DefUseChains, UseDefChains, UseOMP, Identifiers
+from pythran.analyses import DefUseChains, UseDefChains, Identifiers
 
 import gast as ast
 
@@ -23,13 +23,9 @@ class FalsePolymorphism(Transformation):
     """
 
     def __init__(self):
-        super(FalsePolymorphism, self).__init__(DefUseChains, UseOMP,
-                                                UseDefChains)
+        super(FalsePolymorphism, self).__init__(DefUseChains, UseDefChains)
 
     def visit_FunctionDef(self, node):
-        # function using openmp are ignored
-        if self.use_omp:
-            return node
 
         # reset available identifier names
         # removing local identifiers from the list so that first occurence can
@@ -56,12 +52,12 @@ class FalsePolymorphism(Transformation):
                 curr = to_process.pop()
                 if curr in associated_defs:
                     continue
-                associated_defs.add(curr)
-                if not isinstance(curr.node, ast.Name):
+                if curr.name() != def_.name():
                     continue
+                associated_defs.add(curr)
                 for u in curr.users():
                     to_process.append(u)
-                to_process.extend(self.use_def_chains.get(curr.node, []))
+                to_process.extend(d for d in self.use_def_chains.get(curr.node, []) if isinstance(d.node, ast.Name))
 
             visited_defs.update(associated_defs)
 

@@ -35,6 +35,16 @@ if sys.version_info.major == 2:
 else:
     import io
 
+def is_simple_expr(node):
+    class IsSimpleExpr(ast.NodeVisitor):
+        def visit_Call(self, node):
+            self.complex = True
+            return
+
+    walker = IsSimpleExpr()
+    walker.visit(node)
+    return not hasattr(walker, 'complex')
+
 
 class Python(Backend):
     '''
@@ -199,6 +209,7 @@ class CxxFunction(Backend):
         self.break_handlers = []
         self.ldecls = None
         self.deps = parent.deps
+        self.openmp_deps = set()
         self.passmanager = parent.passmanager
         self.types = parent.types
         self.pure_expressions = parent.pure_expressions
@@ -223,6 +234,14 @@ class CxxFunction(Backend):
             locals_visited.append(decl)
         self.ldecls.difference_update(local_vars)
         return Block(locals_visited + [node_visited])
+
+    def visit_OMPDirective(self, node):
+        self.openmp_deps.update(d.id for d in node.private_deps)
+        self.openmp_deps.update(d.id for d in node.shared_deps)
+
+    def visit(self, node):
+        metadata.visit(self, node)
+        return super(CxxFunction, self).visit(node)
 
     def process_omp_attachements(self, node, stmt, index=None):
         """
@@ -398,7 +417,8 @@ class CxxFunction(Backend):
         alltargets = "= ".join(targets)
         islocal = (len(targets) == 1 and
                    isinstance(node.targets[0], ast.Name) and
-                   node.targets[0].id in self.scope[node])
+                   node.targets[0].id in self.scope[node] and
+                   node.targets[0].id not in self.openmp_deps)
         if islocal:
             # remove this decls from local decls
             self.ldecls.difference_update(t.id for t in node.targets)
@@ -467,7 +487,6 @@ class CxxFunction(Backend):
         # If variable is local to the for body it's a ref to the iterator value
         # type
         if node.target.id in self.scope[node] and not hasattr(self, 'yields'):
-            self.ldecls.remove(node.target.id)
             local_type = "auto&&"
         else:
             local_type = ""
@@ -537,18 +556,21 @@ class CxxFunction(Backend):
         step = "1L" if len(args) <= 2 else self.visit(args[2])
         if len(args) == 1:
             lower_bound = "0L"
-            upper_value = self.visit(args[0])
+            upper_arg = 0
         else:
             lower_bound = self.visit(args[0])
-            upper_value = self.visit(args[1])
+            upper_arg = 1
 
-        upper_bound = "__target{0}".format(id(node))
 
         upper_type = iter_type = "long "
+        upper_value = self.visit(args[upper_arg])
+        if is_simple_expr(args[upper_arg]):
+            upper_bound = upper_value  # compatible with collapse
+        else:
+            upper_bound = "__target{0}".format(id(node))
 
         # If variable is local to the for body keep it local...
         if node.target.id in self.scope[node] and not hasattr(self, 'yields'):
-            self.ldecls.remove(node.target.id)
             loop = list()
         else:
             # For yield function, upper_bound is globals.
@@ -567,9 +589,12 @@ class CxxFunction(Backend):
 
         loop.insert(0, self.process_omp_attachements(node, forloop))
 
-        # Store upper bound value
-        assgnt = self.make_assign(upper_type, upper_bound, upper_value)
-        header = [Statement(assgnt)]
+        # Store upper bound value if needed
+        if upper_bound is upper_value:
+            header = []
+        else:
+            assgnt = self.make_assign(upper_type, upper_bound, upper_value)
+            header = [Statement(assgnt)]
         return header, loop
 
     def handle_omp_for(self, node, local_iter):
@@ -588,6 +613,7 @@ class CxxFunction(Backend):
                 # shared in the for loop (for every clause with datasharing)
                 directive.s += ' shared({})'
                 directive.deps.append(ast.Name(local_iter, ast.Load(), None))
+                directive.shared_deps.append(directive.deps[-1])
 
             target = node.target
             assert isinstance(target, ast.Name)
@@ -601,6 +627,7 @@ class CxxFunction(Backend):
                 # introduce an extra variable
                 directive.s += ' private({})'
                 directive.deps.append(ast.Name(target.id, ast.Load(), None))
+                directive.private_deps.append(directive.deps[-1])
 
     def can_use_autofor(self, node):
         """
@@ -617,6 +644,7 @@ class CxxFunction(Backend):
         auto_for = (isinstance(node.target, ast.Name) and
                     node.target.id in self.scope[node])
         auto_for &= not metadata.get(node, OMPDirective)
+        auto_for &= node.target.id not in self.openmp_deps
         return auto_for
 
     def can_use_c_for(self, node):

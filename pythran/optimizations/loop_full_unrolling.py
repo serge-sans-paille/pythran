@@ -54,18 +54,20 @@ class LoopFullUnrolling(Transformation):
     MAX_NODE_COUNT = 4096
 
     def visit_For(self, node):
+        # if the user added some OpenMP directive, trust him and no unroll
+        if metadata.get(node, OMPDirective):
+            return node  # don't visit children because of collapse
+
         # first unroll children if needed or possible
         self.generic_visit(node)
 
-        # if the user added some OpenMP directive, trust him and no unroll
-        has_omp = metadata.get(node, OMPDirective)
         # a break or continue in the loop prevents unrolling too
         has_break = any(self.passmanager.gather(HasBreak, n, self.ctx)
                         for n in node.body)
         has_cont = any(self.passmanager.gather(HasContinue, n, self.ctx)
                        for n in node.body)
 
-        if has_omp or has_break or has_cont:
+        if has_break or has_cont:
             return node
 
         # do not unroll too much to prevent code growth

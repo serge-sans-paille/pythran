@@ -24,7 +24,7 @@ namespace types
 
     numpy_vexpr() = default;
 
-    numpy_vexpr(T const &data, F const &view) : data_{data}, view_{view}
+    numpy_vexpr(T const &data, F const &view) : data_(data), view_(view)
     {
     }
 

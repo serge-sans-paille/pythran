@@ -92,14 +92,14 @@ namespace types
   template <>
   struct extended_slice<0> {
     template <class T, class pS, class... S>
-    auto operator()(ndarray<T, pS> &&a, long s0, S const &... s)
+    auto operator()(ndarray<T, pS> &&a, long const &s0, S const &... s)
         -> decltype(std::declval<numpy_iexpr<ndarray<T, pS>>>()(s...))
     {
       return std::move(a)[s0](s...);
     }
 
     template <class T, class pS, class... S>
-    auto operator()(ndarray<T, pS> const &a, long s0, S const &... s)
+    auto operator()(ndarray<T, pS> const &a, long const &s0, S const &... s)
         -> decltype(a[s0](s...))
     {
       return a[s0](s...);
@@ -152,6 +152,15 @@ namespace types
                S const &... s)
     {
       return make_gexpr(a, s0, s...);
+    }
+
+    template <class T, class pS, class F, class... S>
+    numpy_gexpr<ndarray<T, array<long, std::tuple_size<pS>::value>>,
+                contiguous_normalized_slice, normalize_t<S>...>
+    operator()(ndarray<T, pS> const &a, F const &s0, S const &... s)
+    {
+      return numpy_vexpr<ndarray<T, pS>, F>{a, s0}(
+          contiguous_slice(none_type{}, none_type{}), s...);
     }
   };
 

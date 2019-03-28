@@ -1063,6 +1063,44 @@ def assign_ndarray(t):
                               (10, 20),
                               transposed_slice_assign2=[Tuple[int, int]])
 
+    def test_slice_through_list0(self):
+                self.run_test("""def slice_through_list0(shape):
+                                  import numpy as np
+                                  xx = np.ones(shape, dtype=int)
+                                  return xx[[1,3,5],1]""",
+                              (10, 20),
+                              slice_through_list0=[Tuple[int, int]])
+
+    def test_slice_through_list1(self):
+                self.run_test("""def slice_through_list1(shape):
+                                  import numpy as np
+                                  xx = np.ones(shape, dtype=int)
+                                  return xx[[1,3,5],1:]""",
+                              (10, 20),
+                              slice_through_list1=[Tuple[int, int]])
+
+    def test_slice_through_list2(self):
+                self.run_test("""def slice_through_list2(arr):
+                                  import numpy as np;
+                                  return arr[np.array([1,3,5]),1:]""",
+                              numpy.ones((10, 20)),
+                              slice_through_list2=[NDArray[float, :,:]])
+
+    def test_slice_through_list3(self):
+                self.run_test("""def slice_through_list3(arr):
+                                  import numpy as np;
+                                  return arr[[1,3,5],1:]""",
+                              numpy.ones((10, 20)),
+                              slice_through_list3=[NDArray[float, :,:]])
+
+    def test_slice_through_list4(self):
+                self.run_test("""def slice_through_list4(arr):
+                                  import numpy as np;
+                                  return arr[(1,3,5),1:]""",
+                              numpy.ones((10, 20)),
+                              slice_through_list4=[NDArray[float, :,:]])
+
+
     def test_transposed_array(self):
                 self.run_test("""def transposed_array(shape):
                                   import numpy as np

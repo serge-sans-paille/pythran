@@ -851,14 +851,12 @@ namespace types
   template <class Ty0, class Ty1, class... Tys>
   auto ndarray<T, pS>::
   operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
-      typename std::enable_if<is_numexpr_arg<Ty0>::value,
-                              decltype((*this)[tuple_tail(indices)])>::type
+      typename std::enable_if<
+          is_numexpr_arg<Ty0>::value,
+          decltype(this->_fwdindex(
+              indices, utils::make_index_sequence<2 + sizeof...(Tys)>()))>::type
   {
-    return ndarray<T, pS>
-    {
-      (*this)[std::get<0>(indices)]
-    }
-    [tuple_tail(indices)];
+    return _fwdindex(indices, utils::make_index_sequence<2 + sizeof...(Tys)>());
   }
 
   /* through iterators */

@@ -189,20 +189,27 @@ namespace types
     {
       return arg(std::get<I>(indices)...);
     }
-
-    template <class S0, class... S>
-    auto operator()(S0 const &s0, S const &... s) const
-        -> decltype(this->_reverse_index(
-            std::tuple<S0 const &, S const &...>{s0, s...},
-            utils::make_reversed_index_sequence<1 + sizeof...(S)>()));
-
-    explicit operator bool() const;
-    long flat_size() const;
-    intptr_t id() const;
     ndarray<dtype, typename E::shape_t> copy() const
     {
       return *this;
     }
+
+    template <class S0, class... S>
+    auto
+    operator()(S0 const &s0, S const &... s) const -> typename std::enable_if<
+        !is_numexpr_arg<S0>::value,
+        decltype(this->_reverse_index(
+            std::tuple<S0 const &, S const &...>{s0, s...},
+            utils::make_reversed_index_sequence<1 + sizeof...(S)>()))>::type;
+
+    template <class S0, class... S>
+    auto operator()(S0 const &s0, S const &... s) const ->
+        typename std::enable_if<is_numexpr_arg<S0>::value,
+                                decltype(this->copy()(s0, s...))>::type;
+
+    explicit operator bool() const;
+    long flat_size() const;
+    intptr_t id() const;
     template <class Expr>
     numpy_texpr_2 &operator=(Expr const &expr);
     template <class Expr>

@@ -125,12 +125,14 @@ namespace types
 
   template <class T>
   struct is_numexpr_arg<list<T>> {
-    static constexpr bool value = true;
+    static constexpr bool value =
+        is_numexpr_arg<T>::value || is_dtype<T>::value;
   };
 
   template <class T, class S>
   struct is_numexpr_arg<sliced_list<T, S>> {
-    static constexpr bool value = true;
+    static constexpr bool value =
+        is_numexpr_arg<T>::value || is_dtype<T>::value;
   };
 
   template <>
@@ -140,12 +142,14 @@ namespace types
 
   template <class T>
   struct is_numexpr_arg<broadcasted<T>> {
-    static constexpr bool value = true;
+    static constexpr bool value =
+        is_numexpr_arg<T>::value || is_dtype<T>::value;
   };
 
   template <class T, class Tp>
   struct is_numexpr_arg<broadcast<T, Tp>> {
-    static constexpr bool value = true;
+    static constexpr bool value =
+        is_numexpr_arg<T>::value || is_dtype<T>::value;
   };
 
   template <class T, size_t N>

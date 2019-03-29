@@ -19,7 +19,7 @@ namespace numpy
     long length = 0;
     if (minlength)
       length = (long)minlength;
-    length = std::max(length, 1 + max(expr));
+    length = std::max<long>(length, 1 + max(expr));
     types::ndarray<long, types::pshape<long>> out(types::pshape<long>(length),
                                                   0L);
     for (auto iter = expr.fbegin(), end = expr.fend(); iter != end; ++iter)
@@ -39,7 +39,7 @@ namespace numpy
     long length = 0;
     if (minlength)
       length = (long)minlength;
-    length = std::max(length, 1 + max(expr));
+    length = std::max<long>(length, 1 + max(expr));
     typename std::enable_if<
         std::tuple_size<pS>::value == 1,
         types::ndarray<decltype(std::declval<long>() *

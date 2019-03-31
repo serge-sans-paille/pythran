@@ -535,18 +535,28 @@ namespace types
       return (*this)[std::get<0>(indices)][tuple_tail(indices)];
     }
 
-    template <class Ty0, class Ty1, class... Tys>
-    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
-        typename std::enable_if<is_numexpr_arg<Ty0>::value,
-                                decltype((*this)[tuple_tail(indices)])>::type;
-
     template <class Slices, size_t... Is>
     auto _fwdindex(Slices const &indices, utils::index_sequence<Is...>) const
+        & -> decltype((*this)(std::get<Is>(indices)...))
+    {
+      return (*this)(std::get<Is>(indices)...);
+    }
+    template <class S, size_t... Is>
+    auto _fwdindex(dynamic_tuple<S> const &indices,
+                   utils::index_sequence<Is...>) const
         & -> decltype((*this)(std::get<Is>(indices)...))
     {
       return (*this)((indices.size() > Is ? std::get<Is>(indices)
                                           : contiguous_slice())...);
     }
+
+    template <class Ty0, class Ty1, class... Tys>
+    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
+        typename std::enable_if<is_numexpr_arg<Ty0>::value,
+                                decltype(this->_fwdindex(
+                                    indices, utils::make_index_sequence<
+                                                 2 + sizeof...(Tys)>()))>::type;
+
     template <class Ty, size_t M>
     auto operator[](array<Ty, M> const &indices) const & ->
         typename std::enable_if<

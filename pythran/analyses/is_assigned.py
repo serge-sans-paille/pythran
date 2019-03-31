@@ -24,3 +24,14 @@ class IsAssigned(NodeAnalysis):
         """ Stored variable have new value. """
         if isinstance(node.ctx, ast.Store):
             self.result[node.id] = True
+
+    def visit_Tuple(self, node):
+        if isinstance(node.ctx, ast.Store):
+
+            def rec(n):
+                if isinstance(n, ast.Name):
+                    self.result[n.id] = True
+                elif isinstance(n, ast.Tuple):
+                    for elt in n.elts:
+                        rec(elt)
+            rec(node)

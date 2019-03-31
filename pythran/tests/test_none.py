@@ -474,3 +474,37 @@ def returned_none_member(a):
 
         self.run_test(code, 0, none_operators0=[int])
 
+    def test_none_diorcet(self):
+        code = '''
+            def none_diorcet(a):
+                x = None if a < 0 else 1
+                y = None if a % 2 else 2
+                z = -1
+
+                # Doesn't compile
+                if x is not None and y is not None:  # Without test on other than none it doesn't work
+                    z = 0
+
+                # Doesn't compile
+                if x is not None:
+                    if y is not None:
+                        return 0
+
+                # Doesn't compile
+                if x is not None:
+                    if y is not None and a != -666:
+                        z = 0
+
+                # Compile but wrong results
+                if x is not None:
+                    if y is not None:
+                        z = 0
+
+                # Compile but wrong results (not the same that previous one)
+                if x is not None and a != -666 and y is not None:
+                    z = 0
+                return z'''
+        self.run_test(code, 3, none_diorcet=[int])
+        self.run_test(code, 2, none_diorcet=[int])
+        self.run_test(code, -2, none_diorcet=[int])
+        self.run_test(code, -3, none_diorcet=[int])

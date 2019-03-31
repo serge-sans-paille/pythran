@@ -474,9 +474,9 @@ def returned_none_member(a):
 
         self.run_test(code, 0, none_operators0=[int])
 
-    def test_none_diorcet(self):
+    def test_none_diorcet0(self):
         code = '''
-            def none_diorcet(a):
+            def none_diorcet0(a):
                 x = None if a < 0 else 1
                 y = None if a % 2 else 2
                 z = -1
@@ -504,7 +504,14 @@ def returned_none_member(a):
                 if x is not None and a != -666 and y is not None:
                     z = 0
                 return z'''
-        self.run_test(code, 3, none_diorcet=[int])
-        self.run_test(code, 2, none_diorcet=[int])
-        self.run_test(code, -2, none_diorcet=[int])
-        self.run_test(code, -3, none_diorcet=[int])
+        self.run_test(code, 3, none_diorcet0=[int])
+        self.run_test(code, 2, none_diorcet0=[int])
+        self.run_test(code, -2, none_diorcet0=[int])
+        self.run_test(code, -3, none_diorcet0=[int])
+
+    def test_none_diorcet1(self):
+        code = '''
+            def none_diorcet1(l):
+                import numpy as np
+                return tuple([None if np.isnan(a) else a for a in l])'''
+        self.run_test(code, [3., float('nan')], none_diorcet1=[List[float]])

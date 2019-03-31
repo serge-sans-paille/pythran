@@ -83,6 +83,21 @@ struct __combined<T0, T1 const &> {
 };
 
 template <class T0, class T1>
+struct __combined<const T0, T1 const &> {
+  using type = typename __combined<T0, T1>::type;
+};
+
+template <class T0, class T1>
+struct __combined<const T0, T1 &> {
+  using type = typename __combined<T0, T1>::type;
+};
+
+template <class T0, class T1>
+struct __combined<T0 const &, T1 const> {
+  using type = typename __combined<T0, T1>::type;
+};
+
+template <class T0, class T1>
 struct __combined<T0 &, T1 const &> {
   using type = typename __combined<T0, T1>::type;
 };

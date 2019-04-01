@@ -217,6 +217,12 @@ Constructed types are either tuples, introduced by parenthesis, like ``(int,
                | float32 | float64 | float128
                | complex64 | complex128 | complex256
 
+.. note::
+
+    When using a 2D array, overlaods of the function involved are created to accept both C-style and Fortran-style arrays.
+    To avoid generating too many functions, one can force the memory layout using ``order(C)`` or ``order(F)`` after the
+    array decalaration, as in ``int[:,:] order(C)``.
+
 The same syntax can be used to export global variable (in read only mode)::
 
     #pythran export var_name

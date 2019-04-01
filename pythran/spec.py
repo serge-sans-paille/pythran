@@ -14,6 +14,7 @@ import ply.yacc as yacc
 
 from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun
 from pythran.syntax import PythranSyntaxError
+from pythran.config import cfg
 
 
 def ambiguous_types(ty0, ty1):
@@ -82,7 +83,7 @@ class Spec(object):
             if not isinstance(signatures, tuple):
                 self.functions[fname] = (signatures,)
 
-        self._expand_specs()
+        #self._expand_specs()
 
         if not self:
             import logging
@@ -104,39 +105,6 @@ class Spec(object):
                 if len(parts) == 2:
                     docstring += '\n\n' + parts[1]
             docstrings[func_name] = docstring
-
-    def _expand_specs(self):
-        '''
-        Expand a spec in its various variant
-
-        for a generic spec description, generate the possible variants,
-        esp. for ndarrays
-        '''
-        def spec_expander(args):
-            n = len(args)
-            if n == 0:
-                return [[]]
-            elif n == 1:
-                arg = args[0]
-                # handle f_contiguous storage as a transpose of two elements
-                # currently only supported by pythonic for 2D matrices :-/
-                # the trick is to use an array of two elements and transpose it
-                # so that its storage becomes f_contiguous only
-                if isinstance(arg, NDArray) and len(arg.__args__) - 1 == 2:
-                    return [[arg], [NDArray[arg.__args__[0], -1::, -1::]]]
-                else:
-                    return [[arg]]
-            else:
-                return [x + y for x in spec_expander(args[:1])
-                        for y in spec_expander(args[1:])]
-
-        all_specs = {}
-        for function, signatures in self.functions.items():
-            expanded_signatures = []
-            for signature in signatures:
-                expanded_signatures.extend(spec_expander(signature))
-            all_specs[function] = tuple(expanded_signatures)
-        self.functions = all_specs
 
 
 class SpecParser(object):
@@ -181,6 +149,7 @@ class SpecParser(object):
     reserved = {
         '#pythran': 'PYTHRAN',
         'export': 'EXPORT',
+        'order': 'ORDER',
         'capsule': 'CAPSULE',
         'or': 'OR',
         'list': 'LIST',
@@ -250,8 +219,9 @@ class SpecParser(object):
     def p_export(self, p):
         '''export : IDENTIFIER LPAREN opt_param_types RPAREN
                   | IDENTIFIER
-                  | EXPORT LPAREN opt_param_types RPAREN'''
-        # in the unlikely case where the IDENTIFIER is... export
+                  | EXPORT LPAREN opt_param_types RPAREN
+                  | ORDER LPAREN opt_param_types RPAREN'''
+        # unlikely case: the IDENTIFIER is an otherwise reserved name
         if len(p) > 2:
             sigs = p[3] or ((),)
         else:
@@ -337,7 +307,7 @@ class SpecParser(object):
 
     def p_type(self, p):
         '''type : term
-                | array_type
+                | array_type opt_order
                 | pointer_type
                 | type LIST
                 | type SET
@@ -348,14 +318,27 @@ class SpecParser(object):
                 | type OR type
                 '''
         if len(p) == 2:
-            if isinstance(p[1], tuple):
-                p[0] = p[1]
-            else:
-                p[0] = p[1],
+            p[0] = p[1],
         elif len(p) == 3 and p[2] == 'list':
             p[0] = tuple(List[t] for t in p[1])
         elif len(p) == 3 and p[2] == 'set':
             p[0] = tuple(Set[t] for t in p[1])
+        elif len(p) == 3:
+            if p[2] is None:
+                expanded = []
+                for nd in p[1]:
+                    expanded.append(nd)
+                    if isinstance(nd, NDArray) and len(nd.__args__) == 3:
+                        expanded.append(NDArray[nd.__args__[0], -1::, -1::])
+                p[0] = tuple(expanded)
+            elif p[2] == "F":
+                for nd in p[1]:
+                    if len(nd.__args__) != 3:
+                        raise PythranSyntaxError("Invalid Pythran spec. "
+                                                 "F order is only valid for 2D arrays")
+                p[0] = tuple(NDArray[nd.__args__[0], -1::, -1::] for nd in p[1])
+            else:
+                p[0] = p[1]
         elif len(p) == 5 and p[4] == ')':
             p[0] = tuple(Fun[args, r]
                          for r in p[1]
@@ -372,6 +355,17 @@ class SpecParser(object):
         else:
             raise PythranSyntaxError("Invalid Pythran spec. "
                                      "Unknown text '{0}'".format(p.value))
+
+    def p_opt_order(self, p):
+        '''opt_order :
+                     | ORDER LPAREN IDENTIFIER RPAREN'''
+        if len(p) > 1:
+            if p[3] not in 'CF':
+                raise PythranSyntaxError("Invalid Pythran spec. "
+                                         "Unknown order '{}'".format(p[3]))
+            p[0] = p[3]
+        else:
+            p[0] = None
 
     def p_pointer_type(self, p):
         '''pointer_type : dtype STAR'''
@@ -466,6 +460,9 @@ class SpecParser(object):
             self.native_exports[key] = overloads[0]
 
         for key, overloads in self.exports.items():
+            if len(overloads) > cfg.getint("typing", "max_export_overloads"):
+                raise PythranSyntaxError("Too many overloads for function '{}', probably due to automatic generation of C-style and Fortran-style memory layout. Please force a layout using `order(C)` or `order(F)` in the array signature".format(key))
+
             for i, ty_i in enumerate(overloads):
                 sty_i = spec_to_string(key, ty_i)
                 for ty_j in overloads[i+1:]:
@@ -504,6 +501,8 @@ def signatures_to_string(func_name, signatures):
     # and can generate very long docstring that break MSVC
     sigdocs = [spec_to_string(func_name, sig) for sig in signatures
                if not any(istransposed(t) for t in sig)]
+    if not sigdocs:
+        sigdocs = [spec_to_string(func_name, sig) for sig in signatures]
     return ''.join('\n    - ' + sigdoc for sigdoc in sigdocs)
 
 

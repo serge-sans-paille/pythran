@@ -1,6 +1,6 @@
 from pythran.tests import TestEnv
 from unittest import skip
-from pythran.typing import List
+from pythran.typing import List, Dict
 import pythran
 
 class TestNone(TestEnv):
@@ -515,3 +515,26 @@ def returned_none_member(a):
                 import numpy as np
                 return tuple([None if np.isnan(a) else a for a in l])'''
         self.run_test(code, [3., float('nan')], none_diorcet1=[List[float]])
+
+    def test_none_diorcet2(self):
+        code = '''
+            def none_diorcet2(headers):
+                errors = []
+                xxx = None
+
+                def add_error(type, args):
+                    errors.append((type, args))
+
+                if "DUMMY_PYTHRAN" in headers:
+                    xxx = True
+
+                if xxx is not None:
+                    add_error(1, ['AAAAA'])
+
+                if xxx is not None and xxx: # Can't compile
+                    add_error(1, ['AAAAA'])
+
+                if "DUMMY_PYTHRAN" in headers: # Without that we have a missing symbol at runtime
+                    add_error(2, ['DUMMY_PYTHRAN'])
+                return errors'''
+        self.run_test(code, {"DUMMY_PYTHRAN":"DUMMY_PYTHRAN"}, none_diorcet2=[Dict[str,str]])

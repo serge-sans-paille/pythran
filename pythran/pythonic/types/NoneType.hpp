@@ -127,18 +127,6 @@ namespace types
   }
 
   template <class T>
-  none<T, true>::operator bool() const
-  {
-    return !is_none && data;
-  }
-
-  template <class T>
-  none<T, true>::operator T const &() const
-  {
-    return data;
-  }
-
-  template <class T>
   T &none<T, true>::operator=(T const &t)
   {
     is_none = false;

@@ -115,7 +115,7 @@ def pytype_to_pretty_type(t):
                      for s in t.__args__[1:]))
         # it's a transpose!
         if t.__args__[1].start == -1:
-            return '{}.T'.format(arr)
+            return '{} order(F)'.format(arr)
         elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):
             return '{0}[{1}]'.format(dtype, ','.join(['::'] * ndim))
         else:

@@ -862,11 +862,7 @@ class CxxFunction(Backend):
         test = self.visit(node.test)
         body = self.visit(node.body)
         orelse = self.visit(node.orelse)
-
-        return ("pythonic::__builtin__::pythran::ifexp((bool){0}, {1}, {2})"
-                .format(test,
-                        make_lazy(body),
-                        make_lazy(orelse)))
+        return "(((bool){0}) ? typename __combined<decltype({1}), decltype({2})>::type({1}) : typename __combined<decltype({1}), decltype({2})>::type({2}))".format(test, body, orelse)
 
     def visit_List(self, node):
         if not node.elts:  # empty list

@@ -1,6 +1,6 @@
 from pythran.tests import TestEnv
 from unittest import skip
-from pythran.typing import List
+from pythran.typing import List, Dict
 import pythran
 
 class TestNone(TestEnv):
@@ -474,3 +474,67 @@ def returned_none_member(a):
 
         self.run_test(code, 0, none_operators0=[int])
 
+    def test_none_diorcet0(self):
+        code = '''
+            def none_diorcet0(a):
+                x = None if a < 0 else 1
+                y = None if a % 2 else 2
+                z = -1
+
+                # Doesn't compile
+                if x is not None and y is not None:  # Without test on other than none it doesn't work
+                    z = 0
+
+                # Doesn't compile
+                if x is not None:
+                    if y is not None:
+                        return 0
+
+                # Doesn't compile
+                if x is not None:
+                    if y is not None and a != -666:
+                        z = 0
+
+                # Compile but wrong results
+                if x is not None:
+                    if y is not None:
+                        z = 0
+
+                # Compile but wrong results (not the same that previous one)
+                if x is not None and a != -666 and y is not None:
+                    z = 0
+                return z'''
+        self.run_test(code, 3, none_diorcet0=[int])
+        self.run_test(code, 2, none_diorcet0=[int])
+        self.run_test(code, -2, none_diorcet0=[int])
+        self.run_test(code, -3, none_diorcet0=[int])
+
+    def test_none_diorcet1(self):
+        code = '''
+            def none_diorcet1(l):
+                import numpy as np
+                return tuple([None if np.isnan(a) else a for a in l])'''
+        self.run_test(code, [3., float('nan')], none_diorcet1=[List[float]])
+
+    def test_none_diorcet2(self):
+        code = '''
+            def none_diorcet2(headers):
+                errors = []
+                xxx = None
+
+                def add_error(type, args):
+                    errors.append((type, args))
+
+                if "DUMMY_PYTHRAN" in headers:
+                    xxx = True
+
+                if xxx is not None:
+                    add_error(1, ['AAAAA'])
+
+                if xxx is not None and xxx: # Can't compile
+                    add_error(1, ['AAAAA'])
+
+                if "DUMMY_PYTHRAN" in headers: # Without that we have a missing symbol at runtime
+                    add_error(2, ['DUMMY_PYTHRAN'])
+                return errors'''
+        self.run_test(code, {"DUMMY_PYTHRAN":"DUMMY_PYTHRAN"}, none_diorcet2=[Dict[str,str]])

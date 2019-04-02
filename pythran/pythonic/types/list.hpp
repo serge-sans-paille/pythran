@@ -488,7 +488,8 @@ namespace types
   template <class Tp>
   void list<T>::push_back(Tp &&x)
   {
-    data->emplace_back(std::forward<Tp>(x));
+    // FIXME: clang-3.4 doesn't support emplace_back for vector of bool
+    data->push_back(std::forward<Tp>(x));
   }
   template <class T>
   template <class Tp>

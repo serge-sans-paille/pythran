@@ -83,10 +83,6 @@ class Dependencies(ModuleAnalysis):
     def visit_Add(self, node):
         self.result.add(('operator_', 'add'))
 
-    def visit_IfExp(self, node):
-        self.result.add(('__builtin__', 'pythran', 'ifexp'))
-        self.generic_visit(node)
-
     def visit_And(self, node):
         self.result.add(('__builtin__', 'pythran', 'and_'))
         self.generic_visit(node)

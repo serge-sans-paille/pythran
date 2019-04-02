@@ -210,9 +210,8 @@ class NormalizeStaticIf(Transformation):
         return cont_ass
 
     def visit_If(self, node):
-        self.generic_visit(node)
         if node.test not in self.static_expressions:
-            return node
+            return self.generic_visit(node)
 
         imported_ids = self.passmanager.gather(ImportedIds, node, self.ctx)
 
@@ -246,6 +245,8 @@ class NormalizeStaticIf(Transformation):
         has_break = true_has_break or false_has_break
         has_cont = true_has_cont or false_has_cont
 
+        self.generic_visit(node)
+
         func_true = outline(self.true_name(), imported_ids, assigned_ids,
                             node.body, has_return, has_break, has_cont)
         func_false = outline(self.false_name(), imported_ids, assigned_ids,
@@ -256,7 +257,7 @@ class NormalizeStaticIf(Transformation):
                                            func_true, func_false, imported_ids)
 
         # variable modified within the static_if
-        expected_return = [ast.Name(ii, ast.Load(), None)
+        expected_return = [ast.Name(ii, ast.Store(), None)
                            for ii in assigned_ids]
 
         self.update = True
@@ -267,6 +268,7 @@ class NormalizeStaticIf(Transformation):
         return_n = "$return{}".format(n)
         cont_n = "$cont{}".format(n)
 
+
         if has_return:
 
             cont_ass = self.make_control_flow_handlers(cont_n, status_n,
@@ -276,9 +278,9 @@ class NormalizeStaticIf(Transformation):
             cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
                                [ast.Eq()], [ast.Num(EARLY_RET)])
 
-            fast_return = [ast.Name(status_n, ast.Load(), None),
-                           ast.Name(return_n, ast.Load(), None),
-                           ast.Name(cont_n, ast.Load(), None)]
+            fast_return = [ast.Name(status_n, ast.Store(), None),
+                           ast.Name(return_n, ast.Store(), None),
+                           ast.Name(cont_n, ast.Store(), None)]
 
             return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
                                actual_call),
@@ -290,8 +292,8 @@ class NormalizeStaticIf(Transformation):
                                                        expected_return,
                                                        has_cont, has_break)
 
-            fast_return = [ast.Name(status_n, ast.Load(), None),
-                           ast.Name(cont_n, ast.Load(), None)]
+            fast_return = [ast.Name(status_n, ast.Store(), None),
+                           ast.Name(cont_n, ast.Store(), None)]
             return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
                                actual_call)] + cont_ass
         elif expected_return:
@@ -362,15 +364,24 @@ class SplitStaticExpression(Transformation):
 
         test_before = NodeTy(None, None, None)
         if before:
+            assert len(before) == 1
             test_before.test = before[0]
 
         test_static = NodeTy(None, None, None)
         if static:
             test_static.test = static[0]
+            if len(static) > 1:
+                if after:
+                    assert len(after) == 1
+                    after = [ast.BinOp(static[1], node.test.op, after[0])]
+                else:
+                    after = static[1:]
 
         test_after = NodeTy(None, None, None)
         if after:
+            assert len(after) == 1
             test_after.test = after[0]
+
 
         if isinstance(node.test.op, ast.BitAnd):
             if after:

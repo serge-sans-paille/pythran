@@ -69,8 +69,28 @@ namespace types
 
   /* specialization of none for integral types we cannot derive from
   */
+  template <class P, class T>
+  struct none_data {
+    explicit operator bool() const
+    {
+      return !static_cast<P const *>(this)->is_none &&
+             static_cast<P const *>(this)->data;
+    }
+    operator T() const
+    {
+      return static_cast<P const *>(this)->data;
+    }
+  };
+  template <class P>
+  struct none_data<P, bool> {
+    operator bool() const
+    {
+      return !static_cast<P const *>(this)->is_none &&
+             static_cast<P const *>(this)->data;
+    }
+  };
   template <class T>
-  struct none<T, true> {
+  struct none<T, true> : none_data<none<T, true>, T> {
     T data;
     template <class T1>
     friend std::ostream &operator<<(std::ostream &, none<T1, true> const &);
@@ -151,8 +171,6 @@ namespace types
     bool operator!=(none_type const &) const;
     template <class O>
     bool operator!=(O const &t) const;
-    explicit operator bool() const;
-    operator T const &() const;
     T &operator=(T const &t);
     intptr_t id() const;
     template <class T1>

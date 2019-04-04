@@ -124,6 +124,142 @@ class TestNumpyFunc2(TestEnv):
     def test_cumprod5_(self):
         self.run_test("def np_cumprod5_(a):\n from numpy import cumprod\n return a.cumprod(0)", numpy.arange(10), np_cumprod5_=[NDArray[int,:]])
 
+    def test_correlate_1(self):
+        self.run_test("def np_correlate_1(a,b):\n from numpy import correlate\n return correlate(a,b)",
+                      numpy.arange(10,dtype=float),
+                      numpy.arange(12,dtype=float),
+                      np_correlate_1=[NDArray[float,:],NDArray[float,:]])
+    def test_correlate_2(self):
+        self.run_test("def np_correlate_2(a,b):\n from numpy import correlate\n return correlate(a,b)",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(10,dtype=float),
+                  np_correlate_2=[NDArray[float,:],NDArray[float,:]])
+
+    def test_correlate_3(self):
+        self.run_test("def np_correlate_3(a,b):\n from numpy import correlate\n return correlate(a,b,'valid')",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(10,dtype=float),
+                  np_correlate_3=[NDArray[float,:],NDArray[float,:]])
+
+    def test_correlate_4(self):
+        self.run_test("def np_correlate_4(a,b):\n from numpy import correlate\n return correlate(a,b,'same')",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(10,dtype=float),
+                  np_correlate_4=[NDArray[float,:],NDArray[float,:]])
+
+    def test_correlate_5(self):
+        self.run_test("def np_correlate_5(a,b):\n from numpy import correlate\n return correlate(a,b,'same')",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(7,dtype=float),
+                  np_correlate_5=[NDArray[float,:],NDArray[float,:]])
+
+    def test_correlate_6(self):
+        self.run_test("def np_correlate_6(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
+                  numpy.random.randn(12) + 1j*numpy.random.randn(12),
+                  numpy.random.randn(7) + 1j* numpy.random.randn(7),
+                  np_correlate_6=[NDArray[complex,:],NDArray[complex,:]])
+
+    def test_correlate_7(self):
+        dtype = numpy.float32
+        self.run_test("def np_correlate_7(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
+                  numpy.random.randn(12).astype(dtype) + 1j*numpy.random.randn(12).astype(dtype),
+                  numpy.random.randn(7).astype(dtype) + 1j* numpy.random.randn(7).astype(dtype),
+                  np_correlate_7=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
+
+    def test_correlate_8(self):
+        dtype = numpy.float32
+        self.run_test("def np_correlate_8(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
+                  numpy.random.randn(7).astype(dtype) + 1j*numpy.random.randn(7).astype(dtype),
+                  numpy.random.randn(12).astype(dtype) + 1j* numpy.random.randn(12).astype(dtype),
+                  np_correlate_8=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
+
+    def test_correlate_9(self):
+        dtype = numpy.float
+        self.run_test("def np_correlate_9(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
+                  numpy.random.randn(7).astype(dtype) + 1j*numpy.random.randn(7).astype(dtype),
+                  numpy.random.randn(12).astype(dtype) + 1j* numpy.random.randn(12).astype(dtype),
+                  np_correlate_9=[NDArray[numpy.complex128,:],NDArray[numpy.complex128,:]])
+
+    def test_correlate_10(self):
+        self.run_test("def np_correlate_10(a,b):\n from numpy import correlate\n return correlate(a,b,'same')",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(7,dtype=numpy.float32),
+                  np_correlate_10=[NDArray[float,:],NDArray[numpy.float32,:]])
+
+    def test_correlate_11(self):
+        self.run_test("def np_correlate_11(a,b):\n from numpy import correlate\n return correlate(a,b,'same')",
+                  numpy.arange(12,dtype=numpy.float32),
+                  numpy.arange(7,dtype=float),
+                  np_correlate_11=[NDArray[numpy.float32,:],NDArray[float,:]])
+
+    def test_convolve_1(self):
+        self.run_test("def np_convolve_1(a,b):\n from numpy import convolve\n return convolve(a,b)",
+                      numpy.arange(10,dtype=float),
+                      numpy.arange(12,dtype=float),
+                      np_convolve_1=[NDArray[float,:],NDArray[float,:]])
+    def test_convolve_2(self):
+        self.run_test("def np_convolve_2(a,b):\n from numpy import convolve\n return convolve(a,b)",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(10,dtype=float),
+                  np_convolve_2=[NDArray[float,:],NDArray[float,:]])
+
+    def test_convolve_3(self):
+        self.run_test("def np_convolve_3(a,b):\n from numpy import convolve\n return convolve(a,b,'valid')",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(10,dtype=float),
+                  np_convolve_3=[NDArray[float,:],NDArray[float,:]])
+
+    def test_convolve_4(self):
+        self.run_test("def np_convolve_4(a,b):\n from numpy import convolve\n return convolve(a,b,'same')",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(10,dtype=float),
+                  np_convolve_4=[NDArray[float,:],NDArray[float,:]])
+
+    def test_convolve_5(self):
+        self.run_test("def np_convolve_5(a,b):\n from numpy import convolve\n return convolve(a,b,'same')",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(7,dtype=float),
+                  np_convolve_5=[NDArray[float,:],NDArray[float,:]])
+
+    def test_convolve_6(self):
+        self.run_test("def np_convolve_6(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
+                  numpy.random.randn(12) + 1j*numpy.random.randn(12),
+                  numpy.random.randn(7) + 1j* numpy.random.randn(7),
+                  np_convolve_6=[NDArray[complex,:],NDArray[complex,:]])
+
+    def test_convolve_7(self):
+        dtype = numpy.float32
+        self.run_test("def np_convolve_7(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
+                  numpy.random.randn(12).astype(dtype) + 1j*numpy.random.randn(12).astype(dtype),
+                  numpy.random.randn(7).astype(dtype) + 1j* numpy.random.randn(7).astype(dtype),
+                  np_convolve_7=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
+
+    def test_convolve_8(self):
+        dtype = numpy.float32
+        self.run_test("def np_convolve_8(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
+                  numpy.random.randn(7).astype(dtype) + 1j*numpy.random.randn(7).astype(dtype),
+                  numpy.random.randn(12).astype(dtype) + 1j* numpy.random.randn(12).astype(dtype),
+                  np_convolve_8=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
+
+    def test_convolve_9(self):
+        dtype = numpy.float
+        self.run_test("def np_convolve_9(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
+                  numpy.random.randn(7).astype(dtype) + 1j*numpy.random.randn(7).astype(dtype),
+                  numpy.random.randn(12).astype(dtype) + 1j* numpy.random.randn(12).astype(dtype),
+                  np_convolve_9=[NDArray[numpy.complex128,:],NDArray[numpy.complex128,:]])
+
+    def test_convolve_10(self):
+        self.run_test("def np_convolve_10(a,b):\n from numpy import convolve\n return convolve(a,b,'same')",
+                  numpy.arange(12,dtype=float),
+                  numpy.arange(7,dtype=numpy.float32),
+                  np_convolve_10=[NDArray[float,:],NDArray[numpy.float32,:]])
+
+    def test_convolve_11(self):
+        self.run_test("def np_convolve_11(a,b):\n from numpy import convolve\n return convolve(a,b,'same')",
+                  numpy.arange(12,dtype=numpy.float32),
+                  numpy.arange(7,dtype=float),
+                  np_convolve_11=[NDArray[numpy.float32,:],NDArray[float,:]])
+        
     def test_copy0(self):
         code= '''
 def test_copy0(x):

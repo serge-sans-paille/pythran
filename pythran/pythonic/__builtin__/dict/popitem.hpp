@@ -16,16 +16,10 @@ namespace __builtin__
   namespace dict
   {
 
-    template <class K, class V>
-    std::tuple<K, V> popitem(types::dict<K, V> &d)
+    template <class D>
+    auto popitem(D &&d) -> decltype(std::forward<D>(d).popitem())
     {
-      return d.popitem();
-    }
-
-    template <class K, class V>
-    std::tuple<K, V> popitem(types::dict<K, V> &&d)
-    {
-      return d.popitem();
+      return std::forward<D>(d).popitem();
     }
   }
 }

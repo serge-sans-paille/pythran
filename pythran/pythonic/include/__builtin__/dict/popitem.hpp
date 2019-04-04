@@ -14,11 +14,8 @@ namespace __builtin__
   namespace dict
   {
 
-    template <class K, class V>
-    std::tuple<K, V> popitem(types::dict<K, V> &d);
-
-    template <class K, class V>
-    std::tuple<K, V> popitem(types::dict<K, V> &&d);
+    template <class D>
+    auto popitem(D &&d) -> decltype(std::forward<D>(d).popitem());
 
     DEFINE_FUNCTOR(pythonic::__builtin__::dict, popitem);
   }

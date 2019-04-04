@@ -150,6 +150,10 @@ class LazynessAnalysis(FunctionAnalysis):
         super(LazynessAnalysis, self).visit(node)
         if omp_nodes:
             new_nodes = set(self.name_count).difference(self.in_omp)
+            for omp_node in omp_nodes:
+                for n in omp_node.deps:
+                    if isinstance(n, ast.Name):
+                        self.result[n.id] = LazynessAnalysis.INF
             self.dead.update(new_nodes)
         self.in_omp = old_omp
 

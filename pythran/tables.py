@@ -4556,7 +4556,10 @@ def save_arguments(module_name, elements):
                 themodule = __import__(".".join(module_name))
                 obj = getattr(themodule, elem)
                 spec = getfullargspec(obj)
-                assert not signature.args.args
+                if signature.args.args:
+                    logger.warn(
+                        "Overriding pythran description with argspec information for: {}".format(".".join(module_name + (elem,)))
+                    )
 
                 args = [ast.Name(arg, ast.Param(), None) for arg in spec.args]
                 defaults = list(spec.defaults or [])

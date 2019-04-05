@@ -16,13 +16,10 @@ namespace __builtin__
     // We need a copy here for lvalue like :
     // for i in {"a": "b", "c": "d"}.iterkeys():
     //     pass
-    // TODO : Could be fix if we provide an overload as it is "costly"
-    // (shared ptr copying) while it is really a corner case
-    // FIXME : Copy here is ! enough to keep the dict alive!!
-    template <class K, class V>
-    auto iterkeys(types::dict<K, V> d) -> decltype(d.iterkeys())
+    template <class D>
+    auto iterkeys(D &&d) -> decltype(std::forward<D>(d).iterkeys())
     {
-      return d.iterkeys();
+      return std::forward<D>(d).iterkeys();
     }
   }
 }

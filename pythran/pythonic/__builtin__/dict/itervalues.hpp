@@ -14,11 +14,10 @@ namespace __builtin__
   namespace dict
   {
 
-    // See iterkeys for copy explication && TODOs
-    template <class K, class V>
-    auto itervalues(types::dict<K, V> d) -> decltype(d.itervalues())
+    template <class D>
+    auto itervalues(D &&d) -> decltype(std::forward<D>(d).itervalues())
     {
-      return d.itervalues();
+      return std::forward<D>(d).itervalues();
     }
   }
 }

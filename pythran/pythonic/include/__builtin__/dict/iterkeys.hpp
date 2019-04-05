@@ -11,8 +11,8 @@ namespace __builtin__
 
   namespace dict
   {
-    template <class K, class V>
-    auto iterkeys(types::dict<K, V> d) -> decltype(d.iterkeys());
+    template <class D>
+    auto iterkeys(D &&d) -> decltype(std::forward<D>(d).iterkeys());
 
     DEFINE_FUNCTOR(pythonic::__builtin__::dict, iterkeys);
   }

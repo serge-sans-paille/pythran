@@ -224,6 +224,7 @@ class CxxFunction(Backend):
         Not possible for function yielding values.
         """
         local_vars = self.scope[node].difference(skipped)
+        local_vars = local_vars.difference(self.openmp_deps)
         if not local_vars:
             return node_visited  # no processing
 
@@ -642,7 +643,8 @@ class CxxFunction(Backend):
                whole function.
         """
         auto_for = (isinstance(node.target, ast.Name) and
-                    node.target.id in self.scope[node])
+                    node.target.id in self.scope[node] and
+                    node.target.id not in self.openmp_deps)
         auto_for &= not metadata.get(node, OMPDirective)
         auto_for &= node.target.id not in self.openmp_deps
         return auto_for

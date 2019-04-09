@@ -2568,6 +2568,8 @@ MODULES = {
     "__builtin__": {
         "pythran": {
             "abssqr": ConstFunctionIntr(),
+            "static_list": ReadOnceFunctionIntr(
+                signature=Fun[[Iterable[T0]], List[T0]]),
             "is_none": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
             "make_shape": ConstFunctionIntr(),
@@ -2764,7 +2766,7 @@ MODULES = {
             ],
             global_effects=True
         ),
-        "print": FunctionIntr(global_effects=True),
+        "print": ConstFunctionIntr(global_effects=True),
         "pow": ConstFunctionIntr(
             signature=Union[
                 Fun[[int, int], int],

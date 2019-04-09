@@ -31,20 +31,21 @@ namespace __builtin__
 
     template <long N, typename Operator, typename List0, typename... ListN>
     auto mapN(Operator &op, List0 &&seq, ListN &&... lists)
-        -> types::array<decltype(op(*seq.begin(), *lists.begin()...)), N>;
+        -> types::static_list<decltype(op(*seq.begin(), *lists.begin()...)), N>;
 
     template <long N, typename List0, typename... ListN>
-    auto mapN(types::none_type, List0 &&seq, ListN &&... lists) -> types::array<
-        decltype(types::make_tuple(*seq.begin(), *lists.begin()...)), N>;
+    auto mapN(types::none_type, List0 &&seq, ListN &&... lists)
+        -> types::static_list<
+            decltype(types::make_tuple(*seq.begin(), *lists.begin()...)), N>;
   }
 
   template <typename Operator, typename List0, typename... ListN>
   auto map(Operator op, List0 &&seq, ListN &&... lists) ->
       typename std::enable_if<
           !utils::all_of<
-              types::is_pod_array<typename std::decay<List0>::type>::value,
-              types::is_pod_array<typename std::decay<ListN>::type>::value...>::
-              value,
+              types::len_of<typename std::decay<List0>::type>::value != -1,
+              (types::len_of<typename std::decay<ListN>::type>::value !=
+               -1)...>::value,
           decltype(details::map(op, std::forward<List0>(seq),
                                 lists.begin()...))>::type;
 
@@ -52,9 +53,9 @@ namespace __builtin__
   auto map(Operator op, List0 &&seq, ListN &&... lists) ->
       typename std::enable_if<
           utils::all_of<
-              types::is_pod_array<typename std::decay<List0>::type>::value,
-              types::is_pod_array<typename std::decay<ListN>::type>::value...>::
-              value,
+              types::len_of<typename std::decay<List0>::type>::value != -1,
+              (types::len_of<typename std::decay<ListN>::type>::value !=
+               -1)...>::value,
           decltype(details::mapN<
               types::len_of<typename std::decay<List0>::type>::value>(
               op, std::forward<List0>(seq),

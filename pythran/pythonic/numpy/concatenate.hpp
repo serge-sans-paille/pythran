@@ -44,9 +44,34 @@ namespace numpy
           }
         }
       }
-      // tuple version
+      // array version
       template <class Out, class A, size_t... I>
       void operator()(Out &&out, A const &from, long axis,
+                      utils::index_sequence<I...>) const
+      {
+        if (axis == 0) {
+          auto out_iter = out.begin();
+          int _[] = {(out_iter = std::copy(std::get<I>(from).begin(),
+                                           std::get<I>(from).end(), out_iter),
+                      1)...};
+        } else {
+          types::array<typename A::value_type::const_iterator, sizeof...(I)>
+              ifroms = {std::get<I>(from).begin()...};
+
+          for (auto &&iout : out) {
+            types::array<
+                typename std::iterator_traits<
+                    typename A::value_type::const_iterator>::value_type,
+                sizeof...(I)> difroms = {*std::get<I>(ifroms)...};
+            concatenate_helper<N - 1>()(iout, difroms, axis - 1,
+                                        utils::index_sequence<I...>{});
+            int _[] = {(++std::get<I>(ifroms), 0)...};
+          }
+        }
+      }
+      // tuple version
+      template <class Out, class... Ts, size_t... I>
+      void operator()(Out &&out, std::tuple<Ts...> const &from, long axis,
                       utils::index_sequence<I...>) const
       {
         if (axis == 0) {
@@ -74,9 +99,15 @@ namespace numpy
       void operator()(Out &&buffer, A const &from, long axis) const
       {
       }
-      // tuple version - sentinel
+      // array version
       template <class Out, class E, size_t... I>
       void operator()(Out &&, E const &, long,
+                      utils::index_sequence<I...>) const
+      {
+      }
+      // tuple version - sentinel
+      template <class Out, class... Ts, size_t... I>
+      void operator()(Out &&, std::tuple<Ts...> const &, long,
                       utils::index_sequence<I...>) const
       {
       }
@@ -116,9 +147,9 @@ namespace numpy
     return result;
   }
 
-  template <class E, size_t M>
+  template <class E, size_t M, class V>
   types::ndarray<typename E::dtype, types::array<long, E::value>>
-  concatenate(types::array<E, M> const &args, long axis)
+  concatenate(types::array_base<E, M, V> const &args, long axis)
   {
     using T = typename E::dtype;
     auto constexpr N = E::value;

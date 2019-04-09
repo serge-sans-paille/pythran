@@ -322,8 +322,21 @@ struct __combined<pythonic::types::empty_dict, pythonic::types::list<T>> {
                                      typename std::tuple_element<1, T>::type>;
 };
 
+template <class T, size_t N>
+struct __combined<pythonic::types::empty_dict,
+                  pythonic::types::static_list<T, N>> {
+  using type = pythonic::types::dict<typename std::tuple_element<0, T>::type,
+                                     typename std::tuple_element<1, T>::type>;
+};
+
 template <class T>
 struct __combined<pythonic::types::list<T>, pythonic::types::empty_dict> {
+  using type = pythonic::types::dict<typename std::tuple_element<0, T>::type,
+                                     typename std::tuple_element<1, T>::type>;
+};
+template <class T, size_t N>
+struct __combined<pythonic::types::static_list<T, N>,
+                  pythonic::types::empty_dict> {
   using type = pythonic::types::dict<typename std::tuple_element<0, T>::type,
                                      typename std::tuple_element<1, T>::type>;
 };
@@ -335,8 +348,24 @@ struct __combined<pythonic::types::dict<K0, V0>, pythonic::types::list<T>> {
       typename __combined<V0, typename std::tuple_element<1, T>::type>::type>;
 };
 
+template <class K0, class V0, class T, size_t N>
+struct __combined<pythonic::types::dict<K0, V0>,
+                  pythonic::types::static_list<T, N>> {
+  using type = pythonic::types::dict<
+      typename __combined<K0, typename std::tuple_element<0, T>::type>::type,
+      typename __combined<V0, typename std::tuple_element<1, T>::type>::type>;
+};
+
 template <class K0, class V0, class T>
 struct __combined<pythonic::types::list<T>, pythonic::types::dict<K0, V0>> {
+  using type = pythonic::types::dict<
+      typename __combined<K0, typename std::tuple_element<0, T>::type>::type,
+      typename __combined<V0, typename std::tuple_element<1, T>::type>::type>;
+};
+
+template <class K0, class V0, class T, size_t N>
+struct __combined<pythonic::types::static_list<T, N>,
+                  pythonic::types::dict<K0, V0>> {
   using type = pythonic::types::dict<
       typename __combined<K0, typename std::tuple_element<0, T>::type>::type,
       typename __combined<V0, typename std::tuple_element<1, T>::type>::type>;

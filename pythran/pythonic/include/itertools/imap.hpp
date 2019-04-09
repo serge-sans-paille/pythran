@@ -90,6 +90,9 @@ namespace itertools
                   imap_iterator<Operator, Iters...> {
       using value_type = typename imap_res<Operator, Iters...>::type;
       using iterator = imap_iterator<Operator, Iters...>;
+      using dtype = typename types::dtype_of<value_type>::type;
+      static constexpr long value =
+          1 + utils::nested_container_depth<value_type>::value;
 
       iterator end_iter;
 

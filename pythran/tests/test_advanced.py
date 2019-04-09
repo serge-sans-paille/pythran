@@ -313,3 +313,52 @@ def combiner_on_empty_list():
                 x,y = testFunc()[0:n]
                 return x,y'''
         self.run_test(code, 2, slicing_tuple=[int])
+
+    def test_static_list0(self):
+        code = '''
+            def static_list0(n):
+                s = list(n)
+                s[1] = 1
+                return tuple(s)'''
+        self.run_test(code, (2, 2), static_list0=[Tuple[int, int]])
+
+    def test_static_list1(self):
+        code = '''
+            def foo(x, y):
+                return len(y) + x
+            def static_list1(n):
+                s = list(n)
+                s[1] = foo(len(s), s)
+                return tuple(s)'''
+        self.run_test(code, (2, 2), static_list1=[Tuple[int, int]])
+
+    def test_static_list2(self):
+        code = '''
+            def static_list2(t0, t1):
+                s = [slice(x, y) for x,y in zip(t0, t1)]
+                return tuple(s)'''
+        self.run_test(code, (2, 2), (3,3), static_list2=[Tuple[int, int], Tuple[int, int]])
+
+    def test_static_list3(self):
+        code = '''
+            import numpy as np
+
+            def StridedSlice(x,begins, ends, strides):
+                slices = tuple([slice(b, e if e else None, s) for b, e, s in zip(begins,ends, strides)])
+                return x[slices]
+
+            def static_list3(x):
+                return StridedSlice(x,[0,2,3], [5,0,7], [1,1,1])'''
+        self.run_test(code, numpy.arange(1000).reshape(10,10,10), static_list3=[NDArray[int, :,:,:]])
+
+    def test_static_list4(self):
+        code = '''
+            import numpy as np
+
+            def StridedSlice(x,begins, ends, strides):
+                slices = tuple([slice(b, e if e else None, s) for b, e, s in zip(begins,ends, strides)])
+                return x[slices]
+
+            def static_list4(x):
+                return StridedSlice(x,np.array([0,2,3]), np.array([5,0,7]), [1,1,1])'''
+        self.run_test(code, numpy.arange(1000).reshape(10,10,10), static_list4=[NDArray[int, :,:,:]])

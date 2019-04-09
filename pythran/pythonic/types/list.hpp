@@ -148,8 +148,8 @@ namespace types
     return out;
   }
   template <class T, class S>
-  template <size_t N>
-  list<T> sliced_list<T, S>::operator+(array<T, N> const &s) const
+  template <size_t N, class V>
+  list<T> sliced_list<T, S>::operator+(array_base<T, N, V> const &s) const
   {
     list<T> out(size() + s.size());
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
@@ -316,8 +316,8 @@ namespace types
   }
 
   template <class T>
-  template <size_t N>
-  list<T> list<T>::operator+(array<T, N> const &other) const
+  template <size_t N, class V>
+  list<T> list<T>::operator+(array_base<T, N, V> const &other) const
   {
     list<T> new_list(begin(), end());
     new_list.reserve(data->size() + other.size());
@@ -597,8 +597,8 @@ namespace types
   }
 
   template <class T>
-  template <class Tp, size_t N>
-  list<T> &list<T>::operator+=(array<Tp, N> const &s)
+  template <class Tp, size_t N, class V>
+  list<T> &list<T>::operator+=(array_base<Tp, N, V> const &s)
   {
     reserve(size() + s.size());
     std::copy(s.begin(), s.end(), std::back_inserter(*this));
@@ -658,10 +658,10 @@ namespace types
   {
     return s;
   }
-  template <class T, size_t N>
-  array<T, N> empty_list::operator+(array<T, N> const &s) const
+  template <class T, size_t N, class V>
+  static_list<T, N> empty_list::operator+(array_base<T, N, V> const &s) const
   {
-    return s;
+    return s.template to_array<list_version>();
   }
   empty_list empty_list::operator+(empty_list const &) const
   {

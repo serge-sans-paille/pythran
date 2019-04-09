@@ -1,14 +1,16 @@
 """ ListToTuple transforms some List node into more Efficient Tuple nodes. """
 
-from pythran.analyses import Aliases
+from pythran.analyses import Aliases, FixedSizeList
 from pythran.tables import MODULES
 from pythran.passmanager import Transformation
+from pythran.utils import path_to_attr
 
 import gast as ast
 
 patterns = (MODULES['numpy']['ones'],
             MODULES['numpy']['zeros'],
             MODULES['numpy']['empty'],
+            MODULES['__builtin__']['tuple'],
             )
 
 
@@ -37,7 +39,7 @@ class ListToTuple(Transformation):
     """
     def __init__(self):
         self.update = False
-        super(ListToTuple, self).__init__(Aliases)
+        super(ListToTuple, self).__init__(Aliases, FixedSizeList)
 
     def visit_AugAssign(self, node):
         if not islist(node.value):
@@ -47,9 +49,61 @@ class ListToTuple(Transformation):
         return self.generic_visit(node)
 
     def visit_Call(self, node):
-        func_aliases = self.aliases[node.func]
+        func_aliases = self.aliases.get(node.func, set())
         if func_aliases.issubset(patterns):
             if islist(node.args[0]):
                 self.update = True
                 node.args[0] = totuple(node.args[0])
         return self.generic_visit(node)
+
+    def visit_List(self, node):
+        self.generic_visit(node)
+        if node in self.fixed_size_list:
+            return self.convert(node)
+        else:
+            return node
+
+    def visit_Assign(self, node):
+        """
+        Replace list calls by static_list calls when possible
+
+        >>> import gast as ast
+        >>> from pythran import passmanager, backend
+        >>> node = ast.parse("def foo(n): x = __builtin__.list(n); x[0] = 0; return __builtin__.tuple(x)")
+        >>> pm = passmanager.PassManager("test")
+        >>> _, node = pm.apply(ListToTuple, node)
+        >>> print(pm.dump(backend.Python, node))
+        def foo(n):
+            x = __builtin__.pythran.static_list(n)
+            x[0] = 0
+            return __builtin__.tuple(x)
+
+        >>> node = ast.parse("def foo(n): x = __builtin__.list(n); x[0] = 0; return x")
+        >>> pm = passmanager.PassManager("test")
+        >>> _, node = pm.apply(ListToTuple, node)
+        >>> print(pm.dump(backend.Python, node))
+        def foo(n):
+            x = __builtin__.list(n)
+            x[0] = 0
+            return x
+        """
+        self.generic_visit(node)
+        if node.value not in self.fixed_size_list:
+            return node
+
+        node.value = self.convert(node.value)
+        return node
+
+    def convert(self, node):
+        self.update = True
+
+        if isinstance(node, ast.Call):
+            if not node.args:
+                node = ast.Tuple([])
+            else:
+                node = node.args[0]
+        elif isinstance(node, ast.List):
+            node = ast.Tuple(node.elts, ast.Load())
+
+        return ast.Call(path_to_attr(('__builtin__', 'pythran', 'static_list')),
+                        [node], [])

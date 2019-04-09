@@ -72,167 +72,176 @@ namespace types
                               utils::make_index_sequence<sizeof...(Stail)>{});
   }
 
-  template <class T, size_t N, class A, size_t... I>
-  array<T, N> array_to_array(A const &a, utils::index_sequence<I...>)
+  template <class T, size_t N, class V, class A, size_t... I>
+  array_base<T, N, V> array_to_array(A const &a, utils::index_sequence<I...>)
   {
     return {std::get<I>(a)...};
   }
 
   /* inspired by std::array implementation */
-  template <typename T, size_t N>
+  template <typename T, size_t N, class V>
   template <class E>
-  long array<T, N>::_flat_size(E const &e, utils::int_<1>) const
+  long array_base<T, N, V>::_flat_size(E const &e, utils::int_<1>) const
   {
     return N;
   }
 
-  template <typename T, size_t N>
+  template <typename T, size_t N, class V>
   template <class E, size_t L>
-  long array<T, N>::_flat_size(E const &e, utils::int_<L>) const
+  long array_base<T, N, V>::_flat_size(E const &e, utils::int_<L>) const
   {
     return N * _flat_size(e[0], utils::int_<L - 1>{});
   }
 
-  template <typename T, size_t N>
-  long array<T, N>::flat_size() const
+  template <typename T, size_t N, class V>
+  long array_base<T, N, V>::flat_size() const
   {
     return _flat_size(*this, utils::int_<value>{});
   }
 
-  template <typename T, size_t N>
-  intptr_t array<T, N>::id() const
+  template <typename T, size_t N, class V>
+  intptr_t array_base<T, N, V>::id() const
   {
     return reinterpret_cast<intptr_t>(&(buffer[0]));
   }
 
-  template <typename T, size_t N>
-  void array<T, N>::fill(const value_type &__u)
+  template <typename T, size_t N, class V>
+  void array_base<T, N, V>::fill(const value_type &__u)
   {
     std::fill_n(begin(), size(), __u);
   }
 
   // Iterators.
-  template <typename T, size_t N>
-  typename array<T, N>::iterator array<T, N>::begin() noexcept
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::iterator array_base<T, N, V>::begin() noexcept
   {
-    return typename array<T, N>::iterator(data());
+    return {data()};
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::const_iterator array<T, N>::begin() const noexcept
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_iterator
+  array_base<T, N, V>::begin() const noexcept
   {
-    return typename array<T, N>::const_iterator(data());
+    return {data()};
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::iterator array<T, N>::end() noexcept
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::iterator array_base<T, N, V>::end() noexcept
   {
-    return typename array<T, N>::iterator(data() + N);
+    return {data() + N};
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::const_iterator array<T, N>::end() const noexcept
-  {
-    return typename array<T, N>::const_iterator(data() + N);
-  }
-
-  template <typename T, size_t N>
-  typename array<T, N>::reverse_iterator array<T, N>::rbegin() noexcept
-  {
-    return typename array<T, N>::reverse_iterator(end());
-  }
-
-  template <typename T, size_t N>
-  typename array<T, N>::const_reverse_iterator array<T, N>::rbegin() const
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_iterator array_base<T, N, V>::end() const
       noexcept
   {
-    return typename array<T, N>::const_reverse_iterator(end());
+    return {data() + N};
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::reverse_iterator array<T, N>::rend() noexcept
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::reverse_iterator
+  array_base<T, N, V>::rbegin() noexcept
   {
-    return typename array<T, N>::reverse_iterator(begin());
+    return reverse_iterator(end());
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::const_reverse_iterator array<T, N>::rend() const
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_reverse_iterator
+  array_base<T, N, V>::rbegin() const noexcept
+  {
+    return const_reverse_iterator(end());
+  }
+
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::reverse_iterator
+  array_base<T, N, V>::rend() noexcept
+  {
+    return reverse_iterator(begin());
+  }
+
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_reverse_iterator
+  array_base<T, N, V>::rend() const noexcept
+  {
+    return const_reverse_iterator(begin());
+  }
+
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_iterator
+  array_base<T, N, V>::cbegin() const noexcept
+  {
+    return {&(buffer[0])};
+  }
+
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_iterator array_base<T, N, V>::cend() const
       noexcept
   {
-    return typename array<T, N>::const_reverse_iterator(begin());
+    return {&(buffer[N])};
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::const_iterator array<T, N>::cbegin() const noexcept
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_reverse_iterator
+  array_base<T, N, V>::crbegin() const noexcept
   {
-    return typename array<T, N>::const_iterator(&(buffer[0]));
+    return const_reverse_iterator(end());
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::const_iterator array<T, N>::cend() const noexcept
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_reverse_iterator
+  array_base<T, N, V>::crend() const noexcept
   {
-    return typename array<T, N>::const_iterator(&(buffer[N]));
-  }
-
-  template <typename T, size_t N>
-  typename array<T, N>::const_reverse_iterator array<T, N>::crbegin() const
-      noexcept
-  {
-    return typename array<T, N>::const_reverse_iterator(end());
-  }
-
-  template <typename T, size_t N>
-  typename array<T, N>::const_reverse_iterator array<T, N>::crend() const
-      noexcept
-  {
-    return typename array<T, N>::const_reverse_iterator(begin());
+    return const_reverse_iterator(begin());
   }
 
   // Capacity.
-  template <typename T, size_t N>
-  constexpr typename array<T, N>::size_type array<T, N>::size() const noexcept
+  template <typename T, size_t N, class V>
+  constexpr typename array_base<T, N, V>::size_type
+  array_base<T, N, V>::size() const noexcept
   {
     return N;
   }
 
-  template <typename T, size_t N>
-  constexpr typename array<T, N>::size_type array<T, N>::max_size() const
-      noexcept
+  template <typename T, size_t N, class V>
+  constexpr typename array_base<T, N, V>::size_type
+  array_base<T, N, V>::max_size() const noexcept
   {
     return N;
   }
 
-  template <typename T, size_t N>
-  constexpr bool array<T, N>::empty() const noexcept
+  template <typename T, size_t N, class V>
+  constexpr bool array_base<T, N, V>::empty() const noexcept
   {
     return size() == 0;
   }
 
   // Element access.
-  template <typename T, size_t N>
-  typename array<T, N>::reference array<T, N>::fast(long n)
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::reference array_base<T, N, V>::fast(long n)
   {
     return buffer[n];
   }
 
-  template <typename T, size_t N>
-  constexpr typename array<T, N>::const_reference
-  array<T, N>::fast(long n) const noexcept
+  template <typename T, size_t N, class V>
+  constexpr typename array_base<T, N, V>::const_reference
+  array_base<T, N, V>::fast(long n) const noexcept
   {
     return buffer[n];
   }
 
 #ifdef USE_XSIMD
-  template <class T, size_t N>
+  template <typename T, size_t N, class V>
   template <class vectorizer>
-  typename array<T, N>::simd_iterator array<T, N>::vbegin(vectorizer) const
+  typename array_base<T, N, V>::simd_iterator
+      array_base<T, N, V>::vbegin(vectorizer) const
   {
     return {&buffer[0]};
   }
 
-  template <class T, size_t N>
+  template <typename T, size_t N, class V>
   template <class vectorizer>
-  typename array<T, N>::simd_iterator array<T, N>::vend(vectorizer) const
+  typename array_base<T, N, V>::simd_iterator
+      array_base<T, N, V>::vend(vectorizer) const
   {
     using vector_type = typename xsimd::simd_type<dtype>;
     static const std::size_t vector_size = vector_type::size;
@@ -240,103 +249,107 @@ namespace types
   }
 #endif
 
-  template <typename T, size_t N>
-  typename array<T, N>::reference array<T, N>::
-  operator[](typename array<T, N>::size_type __n)
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::reference array_base<T, N, V>::
+  operator[](long __n)
   {
-    return buffer[__n];
+    return buffer[__n < 0 ? (__n + size()) : __n];
   }
 
-  template <typename T, size_t N>
-  constexpr typename array<T, N>::const_reference array<T, N>::
-  operator[](typename array<T, N>::size_type __n) const noexcept
+  template <typename T, size_t N, class V>
+  constexpr typename array_base<T, N, V>::const_reference array_base<T, N, V>::
+  operator[](long __n) const noexcept
   {
-    return buffer[__n];
+    return buffer[__n < 0 ? (__n + size()) : __n];
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::reference array<T, N>::front()
-  {
-    return *begin();
-  }
-
-  template <typename T, size_t N>
-  typename array<T, N>::const_reference array<T, N>::front() const
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::reference array_base<T, N, V>::front()
   {
     return *begin();
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::reference array<T, N>::back()
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_reference
+  array_base<T, N, V>::front() const
+  {
+    return *begin();
+  }
+
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::reference array_base<T, N, V>::back()
   {
     return N ? *(end() - 1) : *end();
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::const_reference array<T, N>::back() const
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_reference
+  array_base<T, N, V>::back() const
   {
     return N ? *(end() - 1) : *end();
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::pointer array<T, N>::data() noexcept
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::pointer array_base<T, N, V>::data() noexcept
   {
     return &(buffer[0]);
   }
 
-  template <typename T, size_t N>
-  typename array<T, N>::const_pointer array<T, N>::data() const noexcept
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::const_pointer array_base<T, N, V>::data() const
+      noexcept
   {
     return &(buffer[0]);
   }
 
-  template <typename T, size_t N>
+  template <typename T, size_t N, class V>
   template <size_t M>
-  bool array<T, N>::operator==(array<T, M> const &other) const
+  bool array_base<T, N, V>::operator==(array_base<T, M, V> const &other) const
   {
     return N == M && std::equal(begin(), end(), other.begin());
   }
 
-  template <typename T, size_t N>
+  template <typename T, size_t N, class V>
   template <size_t M>
-  bool array<T, N>::operator!=(array<T, M> const &other) const
+  bool array_base<T, N, V>::operator!=(array_base<T, M, V> const &other) const
   {
     return !(*this == other);
   }
 
-  template <typename T, size_t N>
+  template <typename T, size_t N, class V>
   template <size_t M>
-  bool array<T, N>::operator<(array<T, M> const &other) const
+  bool array_base<T, N, V>::operator<(array_base<T, M, V> const &other) const
   {
     return std::lexicographical_compare(begin(), end(), other.begin(),
                                         other.end());
   }
 
-  template <typename T, size_t N>
-  template <size_t M>
-  array<T, N + M> array<T, N>::operator+(array<T, M> const &other) const
+  template <typename T, size_t N, class V>
+  template <class Tp, size_t M>
+  array_base<typename __combined<T, Tp>::type, N + M, V> array_base<T, N, V>::
+  operator+(array_base<Tp, M, V> const &other) const
   {
-    array<T, N + M> result;
+    array_base<typename __combined<T, Tp>::type, N + M, V> result;
     auto next = std::copy(begin(), end(), result.begin());
     std::copy(other.begin(), other.end(), next);
     return result;
   }
-  template <typename T, size_t N>
+  template <typename T, size_t N, class V>
   template <class... Types>
-  array<T, N>::operator std::tuple<Types...>() const
+  array_base<T, N, V>::operator std::tuple<Types...>() const
   {
     return array_to_tuple(*this, utils::make_index_sequence<N>{},
                           typename utils::type_sequence<Types...>{});
   }
-  template <typename T, size_t N>
+  template <typename T, size_t N, class V>
   template <typename Tp>
-  array<T, N>::operator array<Tp, N>() const
+  array_base<T, N, V>::operator array_base<Tp, N, V>() const
   {
-    return array_to_array<Tp, N>(*this, utils::make_index_sequence<N>{});
+    return array_to_array<Tp, N, V>(*this, utils::make_index_sequence<N>{});
   }
 
-  template <typename T, size_t N>
-  auto array<T, N>::to_tuple() const
+  template <typename T, size_t N, class V>
+  auto array_base<T, N, V>::to_tuple() const
       -> decltype(array_to_tuple(*this, utils::make_index_sequence<N>{},
                                  utils::make_repeated_type<T, N>()))
   {
@@ -344,53 +357,52 @@ namespace types
                           utils::make_repeated_type<T, N>());
   }
 
-  /* array */
-  template <class T, size_t N>
-  std::ostream &operator<<(std::ostream &os, types::array<T, N> const &v)
+  template <typename T, size_t N, class V>
+  template <class W>
+  array_base<T, N, W> array_base<T, N, V>::to_array() const
   {
-    os << '(';
+    return reinterpret_cast<array_base<T, N, W> const &>(*this);
+  }
+  template <typename T, size_t N, class V>
+  typename array_base<T, N, V>::shape_t array_base<T, N, V>::shape() const
+  {
+    shape_t res;
+    details::init_shape(res, *this, utils::int_<value>{});
+    return res;
+  }
+
+  /* array */
+  template <typename T, size_t N, class V>
+  std::ostream &operator<<(std::ostream &os,
+                           types::array_base<T, N, V> const &v)
+  {
+    os << "(["[std::is_same<V, types::list_version>::value];
     auto iter = v.begin();
     if (iter != v.end()) {
       while (iter + 1 != v.end())
         os << *iter++ << ", ";
       os << *iter;
     }
-    return os << ')';
+    return os << ")]"[std::is_same<V, types::list_version>::value];
   }
 
-  template <class T, size_t N, class... Types>
-  auto operator+(std::tuple<Types...> const &t, types::array<T, N> const &lt)
+  template <class T, size_t N, class V, class... Types>
+  auto operator+(std::tuple<Types...> const &t,
+                 types::array_base<T, N, V> const &lt)
       -> decltype(std::tuple_cat(t, lt.to_tuple()))
   {
     return std::tuple_cat(t, lt.to_tuple());
   }
 
-  template <class T, size_t N, class... Types>
-  auto operator+(types::array<T, N> const &lt, std::tuple<Types...> const &t)
+  template <class T, size_t N, class V, class... Types>
+  auto operator+(types::array_base<T, N, V> const &lt,
+                 std::tuple<Types...> const &t)
       -> decltype(std::tuple_cat(lt.to_tuple(), t))
   {
     return std::tuple_cat(lt.to_tuple(), t);
   }
 }
 PYTHONIC_NS_END
-
-/* specialize std::get */
-namespace std
-{
-  template <size_t I, class T, size_t N>
-  typename pythonic::types::array<T, N>::reference
-  get(pythonic::types::array<T, N> &t)
-  {
-    return t[I];
-  }
-
-  template <size_t I, class T, size_t N>
-  typename pythonic::types::array<T, N>::const_reference
-  get(pythonic::types::array<T, N> const &t)
-  {
-    return t[I];
-  }
-}
 
 /* hashable tuples, as proposed in
  * http://stackoverflow.com/questions/7110301/generic-hash-for-tuples-in-unordered-map-unordered-set
@@ -435,9 +447,9 @@ namespace std
     return hash_impl<begin, Types...>()(1, t); // 1 should be some largervalue
   }
 
-  template <class T, size_t N>
-  size_t hash<pythonic::types::array<T, N>>::
-  operator()(pythonic::types::array<T, N> const &l) const
+  template <typename T, size_t N, class V>
+  size_t hash<pythonic::types::array_base<T, N, V>>::
+  operator()(pythonic::types::array_base<T, N, V> const &l) const
   {
     size_t seed = 0;
     hash<T> h;
@@ -532,7 +544,25 @@ PyObject *to_python<types::array<T, N>>::do_convert(types::array<T, N> const &t,
 }
 
 template <typename T, size_t N>
+template <size_t... S>
+PyObject *to_python<types::static_list<T, N>>::do_convert(
+    types::static_list<T, N> const &t, utils::index_sequence<S...>)
+{
+  PyObject *out = PyList_New(N);
+  std::initializer_list<void *> _ = {
+      PyList_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
+  return out;
+}
+
+template <typename T, size_t N>
 PyObject *to_python<types::array<T, N>>::convert(types::array<T, N> const &t)
+{
+  return do_convert(t, utils::make_index_sequence<N>());
+}
+
+template <typename T, size_t N>
+PyObject *
+to_python<types::static_list<T, N>>::convert(types::static_list<T, N> const &t)
 {
   return do_convert(t, utils::make_index_sequence<N>());
 }

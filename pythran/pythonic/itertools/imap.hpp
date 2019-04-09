@@ -179,8 +179,9 @@ namespace itertools
         : utils::iterator_reminder<true, Iters...>(
               std::forward<Types>(_iters)...),
           imap_iterator<Operator, Iters...>(
-              _op, this->value, utils::make_index_sequence<sizeof...(Iters)>{}),
-          end_iter(npos(), _op, this->value,
+              _op, this->values,
+              utils::make_index_sequence<sizeof...(Iters)>{}),
+          end_iter(npos(), _op, this->values,
                    utils::make_index_sequence<sizeof...(Iters)>{})
     {
     }

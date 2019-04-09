@@ -149,8 +149,9 @@ namespace types
                                                                    T *from,
                                                                    Iter &&iter)
   {
-    std::get<std::tuple_size<S>::value - std::tuple_size<pS>::value>(shape) =
-        iter.size();
+    sutils::assign(
+        std::get<std::tuple_size<S>::value - std::tuple_size<pS>::value>(shape),
+        iter.size());
     for (auto content : iter)
       from = type_helper<ndarray<T, sutils::pop_tail_t<pS>> const &>::
           initialize_from_iterable(shape, from, content);
@@ -193,7 +194,7 @@ namespace types
                                                                    T *from,
                                                                    Iter &&iter)
   {
-    std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
+    sutils::assign(std::get<std::tuple_size<S>::value - 1>(shape), iter.size());
     return std::copy(iter.begin(), iter.end(), from);
   }
 
@@ -232,7 +233,7 @@ namespace types
   T *type_helper<ndarray<T, pshape<pS>> const &>::initialize_from_iterable(
       S &shape, T *from, Iter &&iter)
   {
-    std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
+    sutils::assign(std::get<std::tuple_size<S>::value - 1>(shape), iter.size());
     return std::copy(iter.begin(), iter.end(), from);
   }
 
@@ -272,7 +273,7 @@ namespace types
   T *type_helper<ndarray<T, array<pS, 1>>>::initialize_from_iterable(
       S &shape, T *from, Iter &&iter)
   {
-    std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
+    sutils::assign(std::get<std::tuple_size<S>::value - 1>(shape), iter.size());
     return std::copy(iter.begin(), iter.end(), from);
   }
 
@@ -311,7 +312,7 @@ namespace types
   T *type_helper<ndarray<T, array<pS, 1>> const &>::initialize_from_iterable(
       S &shape, T *from, Iter &&iter)
   {
-    std::get<std::tuple_size<S>::value - 1>(shape) = iter.size();
+    sutils::assign(std::get<std::tuple_size<S>::value - 1>(shape), iter.size());
     return std::copy(iter.begin(), iter.end(), from);
   }
 
@@ -398,6 +399,8 @@ namespace types
       : mem(other.flat_size()), buffer(mem->data), _shape(other._shape),
         _strides(other._strides)
   {
+    static_assert(std::tuple_size<pS>::value == std::tuple_size<pSp>::value,
+                  "compatible shapes");
     std::copy(other.fbegin(), other.fend(), fbegin());
   }
 
@@ -1437,7 +1440,8 @@ template <class Arg, class... S>
 PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
     types::numpy_gexpr<Arg, S...> const &v, bool transpose)
 {
-  PyObject *slices = ::to_python(v.slices);
+  PyObject *slices = (sizeof...(S) == 1) ? ::to_python(std::get<0>(v.slices))
+                                         : ::to_python(v.slices);
   PyObject *base = ::to_python(v.arg);
   PyObject *res = PyObject_GetItem(base, slices);
   if (transpose)

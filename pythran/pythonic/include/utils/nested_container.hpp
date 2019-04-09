@@ -10,8 +10,8 @@ namespace types
 {
   template <class T>
   class list;
-  template <class T, size_t N>
-  struct array;
+  template <class T, size_t N, class V>
+  struct array_base;
   template <class T>
   struct dynamic_tuple;
 }
@@ -54,8 +54,8 @@ namespace utils
     static const int value = 1 + nested_container_depth<T>::value;
   };
 
-  template <class T, size_t N>
-  struct nested_container_depth<types::array<T, N>> {
+  template <class T, size_t N, class V>
+  struct nested_container_depth<types::array_base<T, N, V>> {
     static const int value = 1 + nested_container_depth<T>::value;
   };
 
@@ -113,8 +113,8 @@ namespace utils
     using type = typename nested_container_value_type<T>::type;
   };
 
-  template <class T, size_t N>
-  struct nested_container_value_type<types::array<T, N>> {
+  template <class T, size_t N, class V>
+  struct nested_container_value_type<types::array_base<T, N, V>> {
     using type = typename nested_container_value_type<T>::type;
   };
 

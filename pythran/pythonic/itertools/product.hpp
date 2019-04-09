@@ -105,8 +105,9 @@ namespace itertools
     template <typename... Iters>
     product<Iters...>::product(Iters const &... _iters)
         : utils::iterator_reminder<true, Iters...>(_iters...),
-          iterator(this->value, utils::make_index_sequence<sizeof...(Iters)>{}),
-          end_iter(npos(), this->value,
+          iterator(this->values,
+                   utils::make_index_sequence<sizeof...(Iters)>{}),
+          end_iter(npos(), this->values,
                    utils::make_index_sequence<sizeof...(Iters)>{})
     {
     }

@@ -26,8 +26,8 @@ namespace utils
     static const size_t value = T::value;
   };
 
-  template <class T, size_t N>
-  struct dim_of<types::array<T, N>, void> {
+  template <class T, size_t N, class V>
+  struct dim_of<types::array_base<T, N, V>, void> {
     static const size_t value = 1 + dim_of<T>::value;
   };
 

@@ -30,9 +30,9 @@ namespace __builtin__
     }
     template <long N, class... Tys>
     auto zip(Tys &&... arrays)
-        -> types::array<decltype(types::make_tuple(arrays[0]...)), N>
+        -> types::static_list<decltype(types::make_tuple(arrays[0]...)), N>
     {
-      types::array<decltype(types::make_tuple(arrays[0]...)), N> out;
+      types::static_list<decltype(types::make_tuple(arrays[0]...)), N> out;
       for (long i = 0; i < N; ++i)
         out.fast(i) = types::make_tuple(arrays[i]...);
       return out;
@@ -41,8 +41,8 @@ namespace __builtin__
 
   template <class... Lists>
   auto zip(Lists &&... lists) -> typename std::enable_if<
-      !utils::all_of<types::is_pod_array<
-          typename std::decay<Lists>::type>::value...>::value,
+      !utils::all_of<(types::len_of<typename std::decay<Lists>::type>::value !=
+                      -1)...>::value,
       types::list<decltype(types::make_tuple(*lists.begin()...))>>::type
   {
     size_t n = min(len(std::forward<Lists>(lists))...);
@@ -50,10 +50,11 @@ namespace __builtin__
   }
   template <class... Lists>
   auto zip(Lists &&... lists) -> typename std::enable_if<
-      utils::all_of<types::is_pod_array<
-          typename std::decay<Lists>::type>::value...>::value,
-      types::array<decltype(types::make_tuple(*lists.begin()...)),
-                   zip_len<typename std::decay<Lists>::type...>::value>>::type
+      utils::all_of<(types::len_of<typename std::decay<Lists>::type>::value !=
+                     -1)...>::value,
+      types::static_list<decltype(types::make_tuple(*lists.begin()...)),
+                         zip_len<typename std::decay<Lists>::type...>::value>>::
+      type
   {
     return details::zip<zip_len<typename std::decay<Lists>::type...>::value>(
         lists...);

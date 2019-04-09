@@ -8,9 +8,9 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class E, size_t M>
+  template <class E, size_t M, class V>
   types::ndarray<typename E::dtype, types::array<long, E::value>>
-  concatenate(types::array<E, M> const &args, long axis = 0);
+  concatenate(types::array_base<E, M, V> const &args, long axis = 0);
 
   template <class... Types>
   auto concatenate(std::tuple<Types...> const &args, long axis = 0)

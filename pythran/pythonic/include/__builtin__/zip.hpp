@@ -12,8 +12,8 @@ namespace __builtin__
 
   template <class... Lists>
   auto zip(Lists &&... lists) -> typename std::enable_if<
-      !utils::all_of<types::is_pod_array<
-          typename std::decay<Lists>::type>::value...>::value,
+      !utils::all_of<(types::len_of<typename std::decay<Lists>::type>::value !=
+                      -1)...>::value,
       types::list<decltype(types::make_tuple(*lists.begin()...))>>::type;
 
   template <class... Tys>
@@ -30,10 +30,11 @@ namespace __builtin__
 
   template <class... Lists>
   auto zip(Lists &&... lists) -> typename std::enable_if<
-      utils::all_of<types::is_pod_array<
-          typename std::decay<Lists>::type>::value...>::value,
-      types::array<decltype(types::make_tuple(*lists.begin()...)),
-                   zip_len<typename std::decay<Lists>::type...>::value>>::type;
+      utils::all_of<(types::len_of<typename std::decay<Lists>::type>::value !=
+                     -1)...>::value,
+      types::static_list<decltype(types::make_tuple(*lists.begin()...)),
+                         zip_len<typename std::decay<Lists>::type...>::value>>::
+      type;
 
   types::empty_list zip();
 

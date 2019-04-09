@@ -34,17 +34,11 @@ namespace __builtin__
   auto reduce(Operator op, Iterable s, T const &init)
       -> decltype(std::accumulate(
           s.begin(), s.end(),
-          static_cast<decltype(
-              op(init, std::declval<typename std::iterator_traits<
-                           typename Iterable::iterator>::value_type>()))>(init),
-          op))
+          static_cast<reduce_helper_t<Iterable, Operator, T>>(init), op))
   {
     return std::accumulate(
         s.begin(), s.end(),
-        static_cast<decltype(
-            op(init, std::declval<typename std::iterator_traits<
-                         typename Iterable::iterator>::value_type>()))>(init),
-        op);
+        static_cast<reduce_helper_t<Iterable, Operator, T>>(init), op);
   }
 }
 PYTHONIC_NS_END

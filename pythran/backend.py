@@ -190,7 +190,7 @@ def make_const_function_declaration(self, node, rtype, name, ftypes, fargs,
                                      defaults, ["const"])
 
 
-class CxxFunction(Backend):
+class CxxFunction(ast.NodeVisitor):
     '''
     Attributes
     ----------
@@ -205,16 +205,13 @@ class CxxFunction(Backend):
 
     def __init__(self, parent):
         """ Basic initialiser gathering analysis informations. """
-        self.ctx = parent.ctx
+        self.parent = parent
         self.break_handlers = []
         self.ldecls = None
-        self.deps = parent.deps
         self.openmp_deps = set()
-        self.passmanager = parent.passmanager
-        self.types = parent.types
-        self.pure_expressions = parent.pure_expressions
-        self.global_declarations = parent.global_declarations
-        self.immediates = parent.immediates
+
+    def __getattr__(self, attr):
+        return getattr(self.parent, attr)
 
     # local declaration processing
     def process_locals(self, node, node_visited, *skipped):
@@ -275,7 +272,7 @@ class CxxFunction(Backend):
         formal_args = [arg.id for arg in fargs]
         formal_types = ["argument_type" + str(i) for i in range(len(fargs))]
 
-        local_decls = set(self.passmanager.gather(LocalNodeDeclarations, node))
+        local_decls = set(self.gather(LocalNodeDeclarations, node))
         self.local_names = {sym.id: sym for sym in local_decls}
         self.local_names.update({arg.id: arg for arg in fargs})
 
@@ -668,7 +665,7 @@ class CxxFunction(Backend):
             attr=range_name, ctx=ast.Load()),
             args=AST_any(), keywords=[])
         is_assigned = {node.target.id: False}
-        [is_assigned.update(self.passmanager.gather(IsAssigned, stmt))
+        [is_assigned.update(self.gather(IsAssigned, stmt))
          for stmt in node.body]
 
         nodes = ASTMatcher(pattern_range).search(node.iter)
@@ -1031,7 +1028,7 @@ class CxxGenerator(CxxFunction):
 
         # 0 is used as initial_state, thus the +1
         self.yields = {k: (1 + v, "yield_point{0}".format(1 + v)) for (v, k) in
-                       enumerate(self.passmanager.gather(YieldPoints, node))}
+                       enumerate(self.gather(YieldPoints, node))}
         return super(CxxGenerator, self).prepare_functiondef_context(node)
 
     # stmt
@@ -1290,6 +1287,6 @@ result_type;
         self.result = CompilationUnit(headers + [ns])
 
     def visit_FunctionDef(self, node):
-        yields = self.passmanager.gather(YieldPoints, node)
+        yields = self.gather(YieldPoints, node)
         visitor = (CxxGenerator if yields else CxxFunction)(self)
         return visitor.visit(node)

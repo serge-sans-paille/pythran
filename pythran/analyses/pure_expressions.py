@@ -67,12 +67,10 @@ class PureExpressions(ModuleAnalysis):
             self.result.add(node)
         return is_pure
 
-    def run(self, node, ctx):
-        super(PureExpressions, self).prepare(node, ctx)
+    def prepare(self, node):
+        super(PureExpressions, self).prepare(node)
         no_arg_effect = set()
         for func, ae in self.argument_effects.items():
             if not any(ae):
                 no_arg_effect.add(func)
         self.result = no_arg_effect.difference(self.global_effects)
-        self.visit(node)
-        return self.result

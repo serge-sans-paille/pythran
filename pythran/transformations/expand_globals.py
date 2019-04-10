@@ -94,9 +94,8 @@ class ExpandGlobals(Transformation):
                     metadata.add(module_body[-1].body[0],
                                  metadata.StaticReturn())
             else:
-                self.local_decl = self.passmanager.gather(
-                    LocalNameDeclarations, stmt,
-                    self.ctx)
+                self.local_decl = self.gather(
+                    LocalNameDeclarations, stmt)
                 module_body.append(self.visit(stmt))
 
         self.update |= bool(self.to_expand)

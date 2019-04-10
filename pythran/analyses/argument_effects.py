@@ -59,31 +59,31 @@ class ArgumentEffects(ModuleAnalysis):
             self.result.add_node(fe)
         super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations)
 
-    def prepare(self, node, ctx):
+    def prepare(self, node):
         """
         Initialise arguments effects as this analyse is inter-procedural.
 
         Initialisation done for Pythonic functions and default value set for
         user defined functions.
         """
-        super(ArgumentEffects, self).prepare(node, ctx)
+        super(ArgumentEffects, self).prepare(node)
         for n in self.global_declarations.values():
             fe = FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
             self.result.add_node(fe)
 
-    def run(self, node, ctx):
-        super(ArgumentEffects, self).run(node, ctx)
+    def run(self, node):
+        result = super(ArgumentEffects, self).run(node)
         keep_going = True  # very naive approach
         while keep_going:
             keep_going = False
-            for function in self.result:
+            for function in result:
                 for ue in enumerate(function.update_effects):
                     update_effect_idx, update_effect = ue
                     if not update_effect:
                         continue
-                    for pred in self.result.predecessors(function):
-                        edge = self.result.edges[pred, function]
+                    for pred in result.predecessors(function):
+                        edge = result.edges[pred, function]
                         for fp in enumerate(edge["formal_parameters"]):
                             i, formal_parameter_idx = fp
                             # propagate the impurity backward if needed.
@@ -94,7 +94,8 @@ class ArgumentEffects(ModuleAnalysis):
                                 pred.update_effects[ith_effectiv] = True
                                 keep_going = True
 
-        return {f.func: f.update_effects for f in self.result}
+        self.result = {f.func: f.update_effects for f in result}
+        return self.result
 
     def argument_index(self, node):
         while isinstance(node, ast.Subscript):

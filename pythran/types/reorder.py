@@ -54,9 +54,9 @@ class Reorder(Transformation):
         super(Reorder, self).__init__(TypeDependencies,
                                       OrderedGlobalDeclarations)
 
-    def prepare(self, node, ctx):
+    def prepare(self, node):
         """ Format type dependencies information to use if for reordering. """
-        super(Reorder, self).prepare(node, ctx)
+        super(Reorder, self).prepare(node)
         candidates = self.type_dependencies.successors(
             TypeDependencies.NoDeps)
         # We first select function which may have a result without calling any

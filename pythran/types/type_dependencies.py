@@ -234,13 +234,13 @@ class TypeDependencies(ModuleAnalysis):
         self.in_cond = dict()
         ModuleAnalysis.__init__(self, GlobalDeclarations)
 
-    def prepare(self, node, ctx):
+    def prepare(self, node):
         """
         Add nodes for each global declarations in the result graph.
 
         No edges are added as there are no type builtin type dependencies.
         """
-        super(TypeDependencies, self).prepare(node, ctx)
+        super(TypeDependencies, self).prepare(node)
         for v in self.global_declarations.values():
             self.result.add_node(v)
         self.result.add_node(TypeDependencies.NoDeps)

@@ -23,7 +23,7 @@ class Inlinable(ModuleAnalysis):
         """ Determine this function definition can be inlined. """
         if (len(node.body) == 1 and
                 isinstance(node.body[0], (ast.Call, ast.Return))):
-            ids = self.passmanager.gather(Identifiers, node.body[0], self.ctx)
+            ids = self.gather(Identifiers, node.body[0])
             # FIXME : It mark "not inlinable" def foo(foo): return foo
             if node.name not in ids:
                 self.result[node.name] = copy.deepcopy(node)

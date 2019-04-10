@@ -92,14 +92,14 @@ class ImportedIds(NodeAnalysis):
     def visit_Attribute(self, node):
         pass
 
-    def prepare(self, node, ctx):
-        super(ImportedIds, self).prepare(node, ctx)
+    def prepare(self, node):
+        super(ImportedIds, self).prepare(node)
         if self.is_list:  # so that this pass can be called on list
             node = node.body[0]
         self.visible_globals = set(self.globals) - self.locals[node]
 
-    def run(self, node, ctx):
+    def run(self, node):
         if isinstance(node, list):  # so that this pass can be called on list
             self.is_list = True
             node = ast.If(ast.Num(1), node, [])
-        return super(ImportedIds, self).run(node, ctx)
+        return super(ImportedIds, self).run(node)

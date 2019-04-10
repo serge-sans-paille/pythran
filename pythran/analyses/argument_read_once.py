@@ -57,14 +57,14 @@ class ArgumentReadOnce(ModuleAnalysis):
         self.node_to_functioneffect = dict()
         super(ArgumentReadOnce, self).__init__(Aliases, GlobalDeclarations)
 
-    def prepare(self, node, ctx):
+    def prepare(self, node):
         """
         Initialise arguments effects as this analysis in inter-procedural.
 
         Initialisation done for Pythonic functions and default values set for
         user defined functions.
         """
-        super(ArgumentReadOnce, self).prepare(node, ctx)
+        super(ArgumentReadOnce, self).prepare(node)
         # global functions init
         for n in self.global_declarations.values():
             fe = ArgumentReadOnce.FunctionEffects(n)
@@ -87,12 +87,13 @@ class ArgumentReadOnce(ModuleAnalysis):
         for module in MODULES.values():
             save_effect(module)
 
-    def run(self, node, ctx):
-        ModuleAnalysis.run(self, node, ctx)
-        for fun in self.result:
+    def run(self, node):
+        result = super(ArgumentReadOnce, self).run(node)
+        for fun in result:
             for i in range(len(fun.read_effects)):
                 self.recursive_weight(fun, i, set())
-        return {f.func: f.read_effects for f in self.result}
+        self.result = {f.func: f.read_effects for f in result}
+        return self.result
 
     def recursive_weight(self, function, index, predecessors):
         # TODO : Find out why it happens in some cases

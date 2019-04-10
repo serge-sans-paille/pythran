@@ -68,18 +68,17 @@ class Types(ModuleAnalysis):
         self.combiners = defaultdict(UserFunction)
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
-        ModuleAnalysis.__init__(self, StrictAliases, LazynessAnalysis,
+        ModuleAnalysis.__init__(self, Reorder, StrictAliases, LazynessAnalysis,
                                 Immediates)
         self.curr_locals_declaration = None
 
-    def prepare(self, node, ctx):
+    def prepare(self, node):
         """
         Initialise values to prepare typing computation.
 
         Reorder functions to avoid dependencies issues and prepare typing
         computation setting typing values for Pythonic functions.
         """
-        self.passmanager.apply(Reorder, node, ctx)
 
         def register(name, module):
             """ Recursively save function typing and combiners for Pythonic."""
@@ -95,10 +94,10 @@ class Types(ModuleAnalysis):
 
         for mname, module in MODULES.items():
             register(mname, module)
-        super(Types, self).prepare(node, ctx)
+        super(Types, self).prepare(node)
 
-    def run(self, node, ctx):
-        super(Types, self).run(node, ctx)
+    def run(self, node):
+        super(Types, self).run(node)
         for head in self.current_global_declarations.values():
             if head not in self.result:
                 self.result[head] = "pythonic::types::none_type"
@@ -248,7 +247,7 @@ class Types(ModuleAnalysis):
             pass
 
     def visit_FunctionDef(self, node):
-        self.curr_locals_declaration = self.passmanager.gather(
+        self.curr_locals_declaration = self.gather(
             LocalNodeDeclarations,
             node)
         self.current = node
@@ -257,7 +256,7 @@ class Types(ModuleAnalysis):
         for arg in node.args.args:
             self.name_to_nodes[arg.id].append(arg)
 
-        self.yield_points = self.passmanager.gather(YieldPoints, node)
+        self.yield_points = self.gather(YieldPoints, node)
 
         # two stages, one for inter procedural propagation
         self.stage = 0
@@ -282,7 +281,7 @@ class Types(ModuleAnalysis):
             self.builder.NamedType("pythonic::types::none_type"))
 
         self.result[node] = self.builder.Returnable(return_type), self.typedefs
-        for k in self.passmanager.gather(LocalNodeDeclarations, node):
+        for k in self.gather(LocalNodeDeclarations, node):
             self.result[k] = self.get_qualifier(k)(self.result[k])
 
     def get_qualifier(self, node):

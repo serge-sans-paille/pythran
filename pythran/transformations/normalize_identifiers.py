@@ -33,8 +33,8 @@ class NormalizeIdentifiers(Transformation):
         self.update = True
         return self.renamings[name]
 
-    def run(self, node, ctx):
-        super(NormalizeIdentifiers, self).run(node, ctx)
+    def run(self, node):
+        super(NormalizeIdentifiers, self).run(node)
         return self.renamings
 
     def visit_Name(self, node):

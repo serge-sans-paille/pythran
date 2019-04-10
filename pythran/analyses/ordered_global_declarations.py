@@ -28,18 +28,19 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
                     for alias in self.strict_aliases[alias.args[0]]:
                         self.result[self.curr].add(alias)
 
-    def run(self, node, ctx):
+    def run(self, node):
         # compute the weight of each function
         # the weight of a function is the number functions it references
-        super(OrderedGlobalDeclarations, self).run(node, ctx)
+        result = super(OrderedGlobalDeclarations, self).run(node)
         old_count = -1
         new_count = 0
         # iteratively propagate weights
         while new_count != old_count:
-            for v in self.result.values():
-                [v.update(self.result[f]) for f in list(v)]
+            for v in result.values():
+                [v.update(result[f]) for f in list(v)]
             old_count = new_count
-            new_count = sum(len(value) for value in self.result.values())
+            new_count = sum(len(value) for value in result.values())
         # return functions, the one with the greatest weight first
-        return sorted(self.result.keys(), reverse=True,
-                      key=lambda s: len(self.result[s]))
+        self.result = sorted(self.result.keys(), reverse=True,
+                             key=lambda s: len(self.result[s]))
+        return self.result

@@ -30,7 +30,7 @@ class FalsePolymorphism(Transformation):
         # reset available identifier names
         # removing local identifiers from the list so that first occurence can
         # actually use the slot
-        identifiers = self.passmanager.gather(Identifiers, node, self.ctx)
+        identifiers = self.gather(Identifiers, node)
         for def_ in self.def_use_chains.locals[node]:
             try:
                 identifiers.remove(def_.name())

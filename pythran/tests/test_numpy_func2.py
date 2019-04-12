@@ -689,6 +689,34 @@ def np_reshape1(a):
 
     def test_reshape3(self):
         self.run_test("def np_reshape3(a): return (1 + a.reshape(1, a.size)), (1 + a[None])", numpy.arange(10), np_reshape3=[NDArray[int,:]])
+        
+    def test_expand_dims1(self):
+        code = """
+import numpy
+def np_expand_dims1(a,axis):
+    return numpy.expand_dims(a,axis)"""
+        self.run_test(code, numpy.arange(10,dtype=float),0, np_expand_dims1=[NDArray[float,:],int])
+        self.run_test(code, numpy.arange(10,dtype=float),1, np_expand_dims1=[NDArray[float,:],int])
+        
+    def test_expand_dims2(self):
+        code = """
+import numpy
+def np_expand_dims2(a,axis):
+    return numpy.expand_dims(a,axis)"""
+        self.run_test(code, numpy.random.randn(10,20),0, np_expand_dims2=[NDArray[float,:,:],int])
+        self.run_test(code, numpy.random.randn(10,20),1, np_expand_dims2=[NDArray[float,:,:],int])
+        self.run_test(code, numpy.random.randn(10,20),2, np_expand_dims2=[NDArray[float,:,:],int])
+        
+    def test_expand_dims3(self):
+        code = """
+import numpy
+def np_expand_dims3(a,axis):
+    return numpy.expand_dims(a,axis)"""
+        self.run_test(code, numpy.random.randn(10,20,30),0, np_expand_dims3=[NDArray[float,:,:,:],int])
+        self.run_test(code, numpy.random.randn(10,20,30),1, np_expand_dims3=[NDArray[float,:,:,:],int])
+        self.run_test(code, numpy.random.randn(10,20,30),2, np_expand_dims3=[NDArray[float,:,:,:],int])
+        self.run_test(code, numpy.random.randn(10,20,30),3, np_expand_dims3=[NDArray[float,:,:,:],int])
+        
 
     def test_duplicate(self):
         """Check array forwarded twice doesn't double free. """

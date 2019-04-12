@@ -3974,6 +3974,7 @@ MODULES = {
         "var": ConstMethodIntr(),
         "vstack": ConstFunctionIntr(),
         "stack": ConstFunctionIntr(),
+        "expand_dims": ConstFunctionIntr(),
         "where": ConstFunctionIntr(),
         "zeros": ConstFunctionIntr(args=('shape', 'dtype'),
                                    defaults=("numpy.float64",),

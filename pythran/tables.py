@@ -3190,7 +3190,7 @@ MODULES = {
             return_range=interval.positive_values
         ),
         "around": ConstFunctionIntr(signature=_numpy_around_signature),
-        "array": ConstFunctionIntr(signature=_numpy_array_signature,
+        "array": ReadOnceFunctionIntr(signature=_numpy_array_signature,
                                    args=('object', 'dtype'), defaults=(None,)),
         "array2string": ConstFunctionIntr(
             signature=_numpy_array_str_signature),
@@ -3205,7 +3205,7 @@ MODULES = {
             ]
         ),
         "array_str": ConstFunctionIntr(signature=_numpy_array_str_signature),
-        "asarray": ConstFunctionIntr(signature=_numpy_array_signature),
+        "asarray": ReadOnceFunctionIntr(signature=_numpy_array_signature),
         "asarray_chkfinite": ConstFunctionIntr(
             signature=_numpy_array_signature),
         "ascontiguousarray": ConstFunctionIntr(

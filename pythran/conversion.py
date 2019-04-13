@@ -25,6 +25,11 @@ class ToNotEval(Exception):
     It is case of too long expression for example.
     """
 
+def totuple(l):
+    try:
+        return tuple(map(totuple,l))
+    except TypeError:
+        return l
 
 def size_container_folding(value):
     """
@@ -48,7 +53,7 @@ def size_container_folding(value):
                 ast.Name(mangle('numpy'), ast.Load(), None),
                 'array',
                 ast.Load()),
-                args=[to_ast(value.tolist()),
+                args=[to_ast(totuple(value.tolist())),
                       ast.Attribute(
                           ast.Name(mangle('numpy'), ast.Load(), None),
                           value.dtype.name,

@@ -57,17 +57,15 @@ class TestNdarray(TestEnv):
                       1j * numpy.arange(10, dtype=numpy.complex64),
                       ndarray_imag_attr_read_complex64=[NDArray[numpy.complex64, :]])
 
-    @unittest.expectedFailure
     def test_ndarray_real_attr_write(self):
-        self.run_test('def ndarray_real_attr_read(a): a.real = 1 ; return a',
+        self.run_test('def ndarray_real_attr_write(a): a.real = 1 ; return a',
                       numpy.arange(100, dtype=numpy.complex128).reshape((10, 10)),
-                      ndarray_real_attr_read=[NDArray[complex, :, :]])
+                      ndarray_real_attr_write=[NDArray[complex, :, :]])
 
-    @unittest.expectedFailure
     def test_ndarray_imag_attr_write(self):
-        self.run_test('def ndarray_imag_attr_read(a): a.imag = 1 ; return a',
+        self.run_test('def ndarray_imag_attr_write(a): a.imag = 1 ; return a',
                       1j * numpy.arange(10, dtype=numpy.complex128),
-                      ndarray_imag_attr_read=[NDArray[complex, :]])
+                      ndarray_imag_attr_write=[NDArray[complex, :]])
 
     def test_ndarray_real_fun_read(self):
         self.run_test('def ndarray_real_fun_read(a): import numpy as np ; return np.real(a)[1:]',

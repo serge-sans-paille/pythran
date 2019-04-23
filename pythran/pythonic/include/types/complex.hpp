@@ -102,6 +102,10 @@ template <class K, class T>
 struct __combined<std::complex<T>, indexable<K>> {
   using type = std::complex<T>;
 };
+template <class T0, class T1>
+struct __combined<std::complex<T0>, std::complex<T1>> {
+  using type = std::complex<typename __combined<T0, T1>::type>;
+};
 
 /* } */
 

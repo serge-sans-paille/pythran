@@ -452,14 +452,14 @@ PyObject *to_python<types::contiguous_normalized_slice>::convert(
     types::contiguous_normalized_slice const &v)
 {
   return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
-                     ::to_python(1));
+                     ::to_python(types::none_type{}));
 }
 
 PyObject *
 to_python<types::contiguous_slice>::convert(types::contiguous_slice const &v)
 {
   return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
-                     ::to_python(1));
+                     ::to_python(types::none_type{}));
 }
 
 PyObject *

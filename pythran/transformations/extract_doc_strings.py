@@ -26,8 +26,8 @@ class ExtractDocStrings(Transformation):
         super(ExtractDocStrings, self).__init__()
         self.docstrings = dict()
 
-    def run(self, node, ctx):
-        super(ExtractDocStrings, self).run(node, ctx)
+    def run(self, node):
+        super(ExtractDocStrings, self).run(node)
         return self.docstrings
 
     def visit_Expr(self, node):

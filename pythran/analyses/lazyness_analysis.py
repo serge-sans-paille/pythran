@@ -158,13 +158,13 @@ class LazynessAnalysis(FunctionAnalysis):
         self.in_omp = old_omp
 
     def visit_FunctionDef(self, node):
-        self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
+        self.ids = self.gather(Identifiers, node)
         self.generic_visit(node)
 
     def visit_Assign(self, node):
         md.visit(self, node)
         self.visit(node.value)
-        ids = self.passmanager.gather(Identifiers, node.value, self.ctx)
+        ids = self.gather(Identifiers, node.value)
         for target in node.targets:
             if isinstance(target, ast.Name):
                 self.assign_to(target, ids)
@@ -314,7 +314,7 @@ class LazynessAnalysis(FunctionAnalysis):
 
     def visit_For(self, node):
         md.visit(self, node)
-        ids = self.passmanager.gather(Identifiers, node.iter, self.ctx)
+        ids = self.gather(Identifiers, node.iter)
         if isinstance(node.target, ast.Name):
             self.assign_to(node.target, ids)
             self.result[node.target.id] = LazynessAnalysis.INF
@@ -370,11 +370,12 @@ class LazynessAnalysis(FunctionAnalysis):
         self.func_args_lazyness(node.func, node.args, node)
         self.visit(node.func)
 
-    def run(self, node, ctx):
-        super(LazynessAnalysis, self).run(node, ctx)
+    def run(self, node):
+        result = super(LazynessAnalysis, self).run(node)
 
         # update result with last name_count values
         for name, val in self.name_count.items():
-            old_val = self.result.get(name, 0)
-            self.result[name] = max(old_val, val)
+            old_val = result.get(name, 0)
+            result[name] = max(old_val, val)
+        self.result = result
         return self.result

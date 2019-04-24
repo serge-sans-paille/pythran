@@ -26,7 +26,7 @@ class NormalizeReturn(Transformation):
         super(NormalizeReturn, self).__init__(CFG)
 
     def visit_FunctionDef(self, node):
-        self.yield_points = self.passmanager.gather(YieldPoints, node)
+        self.yield_points = self.gather(YieldPoints, node)
         for stmt in node.body:
             self.visit(stmt)
         # Look for nodes that have no successors; the predecessors of

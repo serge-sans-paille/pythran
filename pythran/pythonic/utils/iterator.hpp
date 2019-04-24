@@ -28,20 +28,20 @@ namespace utils
 
   template <class T>
   iterator_reminder<false, T>::iterator_reminder(T const &v)
-      : value(v)
+      : values(v)
   {
   }
 
   template <class T>
   iterator_reminder<true, T>::iterator_reminder(T const &v)
-      : value(v)
+      : values(v)
   {
   }
 
   template <class T, class... Others>
   iterator_reminder<true, T, Others...>::iterator_reminder(
       T const &v, Others const &... others)
-      : value(v, others...)
+      : values(v, others...)
   {
   }
 }

@@ -89,7 +89,7 @@ namespace itertools
     template <typename Operator, typename List0>
     ifilter<Operator, List0>::ifilter(Operator _op, List0 const &_seq)
         : utils::iterator_reminder<false, List0>(_seq),
-          iterator(_op, this->value), end_iter(npos(), _op, this->value)
+          iterator(_op, this->values), end_iter(npos(), _op, this->values)
     {
     }
 

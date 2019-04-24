@@ -61,7 +61,7 @@ class NormalizeCompare(Transformation):
             # in case we have more than one compare operator
             # we generate an auxiliary function
             # that lazily evaluates the needed parameters
-            imported_ids = self.passmanager.gather(ImportedIds, node, self.ctx)
+            imported_ids = self.gather(ImportedIds, node)
             imported_ids = sorted(imported_ids)
             binded_args = [ast.Name(i, ast.Load(), None) for i in imported_ids]
 

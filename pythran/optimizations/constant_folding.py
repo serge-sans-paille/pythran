@@ -30,7 +30,7 @@ class ConstantFolding(Transformation):
     def __init__(self):
         Transformation.__init__(self, ConstantExpressions)
 
-    def prepare(self, node, ctx):
+    def prepare(self, node):
         assert isinstance(node, ast.Module)
         self.env = {
             '__builtin__': __import__('__builtin__'),
@@ -69,7 +69,7 @@ class ConstantFolding(Transformation):
                      '<constant_folding>', 'exec'),
              self.env)
 
-        super(ConstantFolding, self).prepare(node, ctx)
+        super(ConstantFolding, self).prepare(node)
 
     def skip(self, node):
         return node

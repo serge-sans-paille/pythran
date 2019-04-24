@@ -54,32 +54,32 @@ namespace types
     using type = T;
   };
 
-  namespace details
-  {
-    template <class E, size_t Value>
-    void init_shape(array<long, Value> &res, E const &e, utils::int_<1>)
-    {
-      res[Value - 1] = e.size();
-    }
-    template <class E, size_t Value, size_t L>
-    void init_shape(array<long, Value> &res, E const &e, utils::int_<L>)
-    {
-      res[Value - L] = e.size();
-      init_shape(res, e[0], utils::int_<L - 1>{});
-    }
-  }
+  template <typename T, size_t N, class V>
+  struct array_base;
+
+  struct tuple_version {
+  };
+  struct list_version {
+  };
 
   template <class T, size_t N>
-  struct array;
+  using array = array_base<T, N, tuple_version>;
+  template <class T, size_t N>
+  using static_list = array_base<T, N, list_version>;
 
   template <class T>
   struct is_pod_array {
     static constexpr bool value = false;
   };
-  template <class T, size_t N>
-  struct is_pod_array<types::array<T, N>> {
+  template <typename T, size_t N, class V>
+  struct is_pod_array<types::array_base<T, N, V>> {
     static constexpr bool value = true;
   };
+
+  template <class... Tys>
+  struct pshape;
+  template <class T, class pS>
+  struct ndarray;
 
   class str;
 
@@ -209,8 +209,8 @@ namespace types
       static_assert(sizeof...(TyOs) == sizeof...(Tys), "compatible sizes");
     }
 
-    template <class S>
-    pshape(pythonic::types::array<S, sizeof...(Tys)> data)
+    template <class S, class V>
+    pshape(pythonic::types::array_base<S, sizeof...(Tys), V> data)
         : pshape(data.data())
     {
     }
@@ -247,10 +247,53 @@ namespace types
       return std::get<I>(values);
     }
   };
+  template <class P, size_t M, class... Ss>
+  struct shape_builder;
+
+  template <class P, size_t I, class V, size_t M, class... Ss>
+  struct shape_builder<array_base<P, I, V>, M, Ss...>
+      : shape_builder<P, M - 1, Ss..., std::integral_constant<long, I>> {
+  };
+
+  template <class P, class... Ss>
+  struct shape_builder<P, 0, Ss...> {
+    using type = pshape<Ss...>;
+  };
+
+  template <class P, size_t M, class... Ss>
+  struct shape_builder
+      : shape_builder<typename P::value_type, M - 1, Ss..., long> {
+  };
+
+  struct array_base_slicer {
+    template <class T, size_t N>
+    numpy_gexpr<array<T, N>, normalized_slice> operator()(array<T, N> const &b,
+                                                          slice const &s)
+    {
+      return {b, s.normalize(b.size())};
+    }
+    template <class T, size_t N>
+    numpy_gexpr<array<T, N>, contiguous_normalized_slice>
+    operator()(array<T, N> const &b, contiguous_slice const &s)
+    {
+      return {b, s.normalize(b.size())};
+    }
+    template <class T, size_t N>
+    sliced_list<T, slice> operator()(static_list<T, N> const &b, slice const &s)
+    {
+      return {b, s};
+    }
+    template <class T, size_t N>
+    sliced_list<T, contiguous_slice> operator()(static_list<T, N> const &b,
+                                                contiguous_slice const &s)
+    {
+      return {b, s};
+    }
+  };
 
   /* inspired by std::array implementation */
-  template <typename T, size_t N>
-  struct array {
+  template <typename T, size_t N, typename Version>
+  struct array_base {
     using value_type = T;
     using pointer = value_type *;
     using const_pointer = const value_type *;
@@ -264,8 +307,9 @@ namespace types
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     // minimal ndarray interface
-    using dtype = typename utils::nested_container_value_type<array>::type;
-    static const size_t value = utils::nested_container_depth<array>::value;
+    using dtype = typename utils::nested_container_value_type<array_base>::type;
+    static const size_t value =
+        utils::nested_container_depth<array_base>::value;
     static const bool is_vectorizable = true;
     static const bool is_strided = false;
 
@@ -283,6 +327,11 @@ namespace types
     // No explicit construct/copy/destroy for aggregate type.
 
     void fill(const value_type &__u);
+
+    long count(value_type const &u) const
+    {
+      return std::count(begin(), end(), u);
+    }
 
     // Iterators.
     iterator begin() noexcept;
@@ -314,7 +363,7 @@ namespace types
     reference fast(long n);
     constexpr const_reference fast(long n) const noexcept;
 #ifdef USE_XSIMD
-    using simd_iterator = const_simd_nditerator<array>;
+    using simd_iterator = const_simd_nditerator<array_base>;
     using simd_iterator_nobroadcast = simd_iterator;
     template <class vectorizer>
     simd_iterator vbegin(vectorizer) const;
@@ -322,9 +371,20 @@ namespace types
     simd_iterator vend(vectorizer) const;
 #endif
 
-    reference operator[](size_type __n);
+    reference operator[](long __n);
 
-    constexpr const_reference operator[](size_type __n) const noexcept;
+    constexpr const_reference operator[](long __n) const noexcept;
+
+    auto operator[](slice s) const -> decltype(array_base_slicer{}(*this, s))
+    {
+      return array_base_slicer{}(*this, s);
+    }
+
+    auto operator[](contiguous_slice s) const
+        -> decltype(array_base_slicer{}(*this, s))
+    {
+      return array_base_slicer{}(*this, s);
+    }
 
     reference front();
     const_reference front() const;
@@ -337,38 +397,33 @@ namespace types
 
     // operator
     template <size_t M>
-    bool operator==(array<T, M> const &other) const;
+    bool operator==(array_base<T, M, Version> const &other) const;
 
     template <size_t M>
-    bool operator!=(array<T, M> const &other) const;
+    bool operator!=(array_base<T, M, Version> const &other) const;
 
     template <size_t M>
-    bool operator<(array<T, M> const &other) const;
+    bool operator<(array_base<T, M, Version> const &other) const;
 
-    template <size_t M>
-    array<T, N + M> operator+(array<T, M> const &other) const;
+    template <class Tp, size_t M>
+    array_base<typename __combined<T, Tp>::type, N + M, Version>
+    operator+(array_base<Tp, M, Version> const &other) const;
 
     // tuple conversion
     template <class... Types>
     operator std::tuple<Types...>() const;
 
     template <class Tp>
-    operator array<Tp, N>() const;
+    operator array_base<Tp, N, Version>() const;
 
     auto to_tuple() const
         -> decltype(array_to_tuple(*this, utils::make_index_sequence<N>{},
 
                                    utils::make_repeated_type<T, N>()));
 
-    numpy_gexpr<array, normalized_slice> operator[](slice const &s) const
-    {
-      return {*this, s.normalize(size())};
-    }
-    numpy_gexpr<array, contiguous_normalized_slice>
-    operator[](contiguous_slice const &s) const
-    {
-      return {*this, s.normalize(size())};
-    }
+    template <class W>
+    array_base<T, N, W> to_array() const;
+
     template <class S>
     auto operator()(S const &s) const -> decltype((*this)[s])
     {
@@ -376,17 +431,12 @@ namespace types
     }
 
     /* array */
-    template <class T1, size_t N1>
-    friend std::ostream &operator<<(std::ostream &os,
-                                    types::array<T1, N1> const &v);
+    template <class T1, size_t N1, class Version1>
+    friend std::ostream &
+    operator<<(std::ostream &os, types::array_base<T1, N1, Version1> const &v);
 
-    using shape_t = array<long, value>;
-    shape_t shape() const
-    {
-      array<long, value> res;
-      details::init_shape(res, *this, utils::int_<value>{});
-      return res;
-    }
+    using shape_t = typename shape_builder<array_base, value>::type;
+    shape_t shape() const;
   };
 
   // Implementation for detection of "same type".
@@ -441,8 +491,8 @@ namespace types
       using type = str;
     };
 
-    template <class T, size_t N, class... Types>
-    struct alike<std::tuple<Types...>, array<T, N>> {
+    template <class T, size_t N, class V, class... Types>
+    struct alike<std::tuple<Types...>, array_base<T, N, V>> {
       static bool const value =
           sizeof...(Types) == N &&
           alike<T, typename std::remove_cv<typename std::remove_reference<
@@ -454,9 +504,9 @@ namespace types
           void>::type;
     };
 
-    template <class T, size_t N, class... Types>
-    struct alike<array<T, N>, std::tuple<Types...>>
-        : alike<std::tuple<Types...>, array<T, N>> {
+    template <class T, size_t N, class V, class... Types>
+    struct alike<array_base<T, N, V>, std::tuple<Types...>>
+        : alike<std::tuple<Types...>, array_base<T, N, V>> {
     };
 
     template <class T, class... Types>
@@ -507,7 +557,7 @@ namespace types
   types::array<T, sizeof...(S)> _to_array(Tuple const &t,
                                           utils::index_sequence<S...>)
   {
-    return {{T{std::get<S>(t)}...}};
+    return {{static_cast<T>(std::get<S>(t))...}};
   }
 
   template <class T, class... Tys>
@@ -517,12 +567,14 @@ namespace types
   }
 
   // Tuple concatenation for array && tuple
-  template <class T, size_t N, class... Types>
-  auto operator+(std::tuple<Types...> const &t, types::array<T, N> const &lt)
+  template <class T, size_t N, class V, class... Types>
+  auto operator+(std::tuple<Types...> const &t,
+                 types::array_base<T, N, V> const &lt)
       -> decltype(std::tuple_cat(t, lt.to_tuple()));
 
-  template <class T, size_t N, class... Types>
-  auto operator+(types::array<T, N> const &lt, std::tuple<Types...> const &t)
+  template <class T, size_t N, class V, class... Types>
+  auto operator+(types::array_base<T, N, V> const &lt,
+                 std::tuple<Types...> const &t)
       -> decltype(std::tuple_cat(lt.to_tuple(), t));
 }
 
@@ -531,9 +583,9 @@ struct assignable<std::tuple<Types...>> {
   using type = std::tuple<typename assignable<Types>::type...>;
 };
 
-template <class T, size_t N>
-struct assignable<pythonic::types::array<T, N>> {
-  using type = pythonic::types::array<typename assignable<T>::type, N>;
+template <typename T, size_t N, class V>
+struct assignable<pythonic::types::array_base<T, N, V>> {
+  using type = pythonic::types::array_base<typename assignable<T>::type, N, V>;
 };
 
 template <class... Types>
@@ -541,9 +593,9 @@ struct returnable<std::tuple<Types...>> {
   using type = std::tuple<typename returnable<Types>::type...>;
 };
 
-template <class T, size_t N>
-struct returnable<pythonic::types::array<T, N>> {
-  using type = pythonic::types::array<typename returnable<T>::type, N>;
+template <typename T, size_t N, class V>
+struct returnable<pythonic::types::array_base<T, N, V>> {
+  using type = pythonic::types::array_base<typename returnable<T>::type, N, V>;
 };
 PYTHONIC_NS_END
 
@@ -551,21 +603,27 @@ PYTHONIC_NS_END
 namespace std
 {
 
-  template <size_t I, class T, size_t N>
-  typename pythonic::types::array<T, N>::reference
-  get(pythonic::types::array<T, N> &t);
+  template <size_t I, class T, size_t N, class V>
+  typename pythonic::types::array_base<T, N, V>::reference
+  get(pythonic::types::array_base<T, N, V> &t)
+  {
+    return t[I];
+  }
 
-  template <size_t I, class T, size_t N>
-  typename pythonic::types::array<T, N>::const_reference
-  get(pythonic::types::array<T, N> const &t);
+  template <size_t I, class T, size_t N, class V>
+  typename pythonic::types::array_base<T, N, V>::const_reference
+  get(pythonic::types::array_base<T, N, V> const &t)
+  {
+    return t[I];
+  }
 
-  template <size_t I, class T, size_t N>
-  struct tuple_element<I, pythonic::types::array<T, N>> {
-    using type = typename pythonic::types::array<T, N>::value_type;
+  template <size_t I, class T, size_t N, class V>
+  struct tuple_element<I, pythonic::types::array_base<T, N, V>> {
+    using type = typename pythonic::types::array_base<T, N, V>::value_type;
   };
 
-  template <class T, size_t N>
-  struct tuple_size<pythonic::types::array<T, N>> {
+  template <typename T, size_t N, class V>
+  struct tuple_size<pythonic::types::array_base<T, N, V>> {
     static const size_t value = N;
   };
 }
@@ -596,9 +654,9 @@ namespace std
     size_t operator()(std::tuple<Types...> const &t) const;
   };
 
-  template <class T, size_t N>
-  struct hash<pythonic::types::array<T, N>> {
-    size_t operator()(pythonic::types::array<T, N> const &l) const;
+  template <typename T, size_t N, class V>
+  struct hash<pythonic::types::array_base<T, N, V>> {
+    size_t operator()(pythonic::types::array_base<T, N, V> const &l) const;
   };
 }
 
@@ -614,30 +672,10 @@ struct __combined<std::tuple<Types...>, indexable<K>> {
   using type = std::tuple<Types...>;
 };
 
-template <class T0, class T1, size_t N>
-struct __combined<pythonic::types::array<T0, N>,
-                  pythonic::types::array<T1, N>> {
-  using type = pythonic::types::array<typename __combined<T0, T1>::type, N>;
-};
-
-template <class K, class T, size_t N>
-struct __combined<indexable<K>, pythonic::types::array<T, N>> {
-  using type = pythonic::types::array<T, N>;
-};
-
-template <class K, class T, size_t N>
-struct __combined<pythonic::types::array<T, N>, indexable<K>> {
-  using type = pythonic::types::array<T, N>;
-};
-
-template <class K, class T, size_t N>
-struct __combined<container<K>, pythonic::types::array<T, N>> {
-  using type = pythonic::types::array<typename __combined<T, K>::type, N>;
-};
-
-template <class K, class T, size_t N>
-struct __combined<pythonic::types::array<T, N>, container<K>> {
-  using type = pythonic::types::array<typename __combined<T, K>::type, N>;
+template <class T, size_t N>
+struct __combined<pythonic::types::static_list<T, N>,
+                  pythonic::types::static_list<T, N>> {
+  using type = pythonic::types::static_list<T, N>;
 };
 
 template <class T, size_t N>
@@ -645,14 +683,60 @@ struct __combined<pythonic::types::array<T, N>, pythonic::types::array<T, N>> {
   using type = pythonic::types::array<T, N>;
 };
 
-template <class K, class V, class T, size_t N>
-struct __combined<indexable_container<K, V>, pythonic::types::array<T, N>> {
-  using type = pythonic::types::array<typename __combined<V, T>::type, N>;
+template <class T0, class T1, size_t N, class V>
+struct __combined<pythonic::types::array_base<T0, N, V>,
+                  pythonic::types::array_base<T1, N, V>> {
+  using type =
+      pythonic::types::array_base<typename __combined<T0, T1>::type, N, V>;
+};
+
+template <class T0, class T1, size_t N>
+struct __combined<pythonic::types::static_list<T0, N>,
+                  pythonic::types::static_list<T1, N>> {
+  using type =
+      pythonic::types::static_list<typename __combined<T0, T1>::type, N>;
+};
+
+template <class T0, class T1, size_t N0, size_t N1>
+struct __combined<pythonic::types::static_list<T0, N0>,
+                  pythonic::types::static_list<T1, N1>> {
+  using type = pythonic::types::list<typename __combined<T0, T1>::type>;
+};
+
+template <class K, class T, size_t N, class V>
+struct __combined<indexable<K>, pythonic::types::array_base<T, N, V>> {
+  using type = pythonic::types::array_base<T, N, V>;
+};
+
+template <class K, class T, size_t N, class V>
+struct __combined<pythonic::types::array_base<T, N, V>, indexable<K>> {
+  using type = pythonic::types::array_base<T, N, V>;
+};
+
+template <class K, class T, size_t N, class V>
+struct __combined<container<K>, pythonic::types::array_base<T, N, V>> {
+  using type =
+      pythonic::types::array_base<typename __combined<T, K>::type, N, V>;
+};
+
+template <class K, class T, size_t N, class V>
+struct __combined<pythonic::types::array_base<T, N, V>, container<K>> {
+  using type =
+      pythonic::types::array_base<typename __combined<T, K>::type, N, V>;
 };
 
 template <class K, class V, class T, size_t N>
-struct __combined<pythonic::types::array<T, N>, indexable_container<K, V>> {
-  using type = pythonic::types::array<typename __combined<T, V>::type, N>;
+struct __combined<indexable_container<K, V>,
+                  pythonic::types::array_base<T, N, V>> {
+  using type =
+      pythonic::types::array_base<typename __combined<V, T>::type, N, V>;
+};
+
+template <class K, class V, class T, size_t N>
+struct __combined<pythonic::types::array_base<T, N, V>,
+                  indexable_container<K, V>> {
+  using type =
+      pythonic::types::array_base<typename __combined<T, V>::type, N, V>;
 };
 
 template <class... t0, class... t1>
@@ -673,6 +757,17 @@ struct __combined<container<t>, std::tuple<t0...>> {
 template <class t, size_t n, class... types>
 struct __combined<pythonic::types::array<t, n>, std::tuple<types...>> {
   using type = std::tuple<typename __combined<t, types>::type...>;
+};
+
+template <class t, size_t n, class... types>
+struct __combined<pythonic::types::array<t, n>,
+                  pythonic::types::pshape<types...>> {
+  using type = pythonic::types::array<t, n>;
+};
+template <class t, size_t n, class... types>
+struct __combined<pythonic::types::pshape<types...>,
+                  pythonic::types::array<t, n>> {
+  using type = pythonic::types::array<t, n>;
 };
 
 template <class t, size_t n, class... types>
@@ -699,9 +794,13 @@ namespace types
   template <class Tuple>
   void print_tuple(std::ostream &os, Tuple const &t, utils::int_<0>);
 
-  template <class T, size_t N>
-  struct len_of<array<T, N>> {
+  template <typename T, size_t N, class V>
+  struct len_of<array_base<T, N, V>> {
     static constexpr long value = N;
+  };
+  template <typename T, long I, class... Is>
+  struct len_of<ndarray<T, pshape<std::integral_constant<long, I>, Is...>>> {
+    static constexpr long value = I;
   };
 
   template <class... Types>
@@ -757,8 +856,8 @@ namespace sutils
     using type = T;
   };
 
-  template <class T, size_t N>
-  struct make_shape<types::array<T, N>> {
+  template <typename T, size_t N, class V>
+  struct make_shape<types::array_base<T, N, V>> {
     using type = types::array<long, N>;
   };
 
@@ -816,6 +915,49 @@ namespace sutils
       typename merged_shapes<std::tuple<Ss...>,
                              utils::make_index_sequence<N>>::type;
 
+  template <class... Ss>
+  struct shape_commonifier;
+  template <class Ss>
+  struct shape_commonifier<Ss> {
+    using type = Ss;
+  };
+  template <class S1, class... Ss>
+  struct shape_commonifier<long, S1, Ss...> {
+    using type = long;
+  };
+  template <long N, class... Ss>
+  struct shape_commonifier<std::integral_constant<long, N>, long, Ss...> {
+    using type = long;
+  };
+  template <long N0, long N1, class... Ss>
+  struct shape_commonifier<std::integral_constant<long, N0>,
+                           std::integral_constant<long, N1>, Ss...> {
+    using type = typename std::conditional<
+        N0 == N1, typename shape_commonifier<std::integral_constant<long, N0>,
+                                             Ss...>::type,
+        long>::type;
+  };
+
+  template <size_t I, class Ss>
+  struct common_shape;
+  template <size_t I, class... Ss>
+  struct common_shape<I, std::tuple<Ss...>> {
+    using type = typename shape_commonifier<
+        typename std::tuple_element<I, Ss>::type...>::type;
+  };
+
+  template <class Ss, class T>
+  struct common_shapes;
+
+  template <class Ss, size_t... Is>
+  struct common_shapes<Ss, utils::index_sequence<Is...>> {
+    using type = types::pshape<typename common_shape<Is, Ss>::type...>;
+  };
+  template <size_t N, class... Ss>
+  using common_shapes_t =
+      typename common_shapes<std::tuple<Ss...>,
+                             utils::make_index_sequence<N>>::type;
+
   template <class T>
   struct transpose;
   template <class T>
@@ -868,8 +1010,8 @@ namespace sutils
   struct pop_tail<types::pshape<Tys...>> {
     using type = typename pop_type<types::pshape<>, Tys...>::type;
   };
-  template <class T, size_t N>
-  struct pop_tail<types::array<T, N>> {
+  template <typename T, size_t N, class V>
+  struct pop_tail<types::array_base<T, N, V>> {
     using type = types::array<T, N - 1>;
   };
 
@@ -880,8 +1022,8 @@ namespace sutils
   struct pop_head<types::pshape<Ty, Tys...>> {
     using type = types::pshape<Tys...>;
   };
-  template <class T, size_t N>
-  struct pop_head<types::array<T, N>> {
+  template <typename T, size_t N, class V>
+  struct pop_head<types::array_base<T, N, V>> {
     using type = types::array<T, N - 1>;
   };
 
@@ -897,8 +1039,8 @@ namespace sutils
     return pS.array();
   }
 
-  template <class T, size_t N>
-  types::array<T, N> array(types::array<T, N> const &pS)
+  template <typename T, size_t N, class V>
+  types::array_base<T, N, V> array(types::array_base<T, N, V> const &pS)
   {
     return pS;
   }
@@ -1146,6 +1288,20 @@ namespace sutils
 
 namespace types
 {
+  namespace details
+  {
+    template <class E, class S>
+    void init_shape(S &res, E const &e, utils::int_<1>)
+    {
+      sutils::assign(std::get<std::tuple_size<S>::value - 1>(res), e.size());
+    }
+    template <class E, class S, size_t L>
+    void init_shape(S &res, E const &e, utils::int_<L>)
+    {
+      sutils::assign(std::get<std::tuple_size<S>::value - L>(res), e.size());
+      init_shape(res, e[0], utils::int_<L - 1>{});
+    }
+  }
   template <class T, class... Tys>
   bool operator==(T const &self, pshape<Tys...> const &other)
   {
@@ -1215,6 +1371,15 @@ struct to_python<types::array<T, N>> {
                               utils::index_sequence<S...>);
 
   static PyObject *convert(types::array<T, N> const &t);
+};
+
+template <typename T, size_t N>
+struct to_python<types::static_list<T, N>> {
+  template <size_t... S>
+  static PyObject *do_convert(types::static_list<T, N> const &t,
+                              utils::index_sequence<S...>);
+
+  static PyObject *convert(types::static_list<T, N> const &t);
 };
 
 template <typename... Types>

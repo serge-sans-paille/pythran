@@ -49,8 +49,11 @@ class ContextManager(object):
         """ Create default context and save all dependencies. """
         self.deps = dependencies
         self.verify_dependencies()
-        self.ctx = AnalysisContext()
         super(ContextManager, self).__init__()
+
+    def attach(self, pm, ctx=None):
+        self.passmanager = pm
+        self.ctx = ctx or AnalysisContext()
 
     def verify_dependencies(self):
         """
@@ -64,55 +67,39 @@ class ContextManager(object):
                    ), "invalid dep order for %s" % self
 
     def visit(self, node):
+        if isinstance(node, ast.FunctionDef):
+            self.ctx.function = node
+            for D in self.deps:
+                if issubclass(D, FunctionAnalysis):
+                    # this should have already been computed as part of the run
+                    # method of function analysis triggered by prepare
+                    result = self.passmanager._cache[node, D]
+                    setattr(self, uncamel(D.__name__), result)
+        return super(ContextManager, self).visit(node)
+
+    def prepare(self, node):
+        '''Gather analysis result required by this analysis'''
         if isinstance(node, ast.Module):
             self.ctx.module = node
         elif isinstance(node, ast.FunctionDef):
             self.ctx.function = node
-            for D in self.deps:
-                if issubclass(D, FunctionAnalysis):
-                    key = D, node
-                    if key not in self.passmanager._cache:
-                        d = D()
-                        d.passmanager = self.passmanager
-                        d.ctx = self.ctx
-                        self.passmanager._cache[key] = d.run(node, self.ctx)
-                    setattr(self, uncamel(D.__name__),
-                            self.passmanager._cache[key])
-        return super(ContextManager, self).visit(node)
 
-    def prepare(self, node, ctx):
-        '''Gather analysis result required by this analysis'''
-        if not self.ctx.module and ctx and ctx.module:
-            self.ctx.module = ctx.module
-        if not self.ctx.function and ctx and ctx.function:
-            self.ctx.function = ctx.function
         for D in self.deps:
-            if issubclass(D, ModuleAnalysis):
-                rnode = node if isinstance(node, ast.Module) else ctx.module
-            elif issubclass(D, FunctionAnalysis):
-                if ctx and ctx.function:
-                    rnode = ctx.function
-                else:
-                    continue
-            else:
-                rnode = node
-            key = node, D
-            if key in self.passmanager._cache:
-                result = self.passmanager._cache[key]
-            else:
-                d = D()
-                d.passmanager = self.passmanager
-                result = d.run(rnode, ctx)
-                if getattr(d, 'update', False):
-                    self.passmanager._cache.clear()
-                else:
-                    self.passmanager._cache[key] = result
+            d = D()
+            d.attach(self.passmanager, self.ctx)
+            result = d.run(node)
             setattr(self, uncamel(D.__name__), result)
 
-    def run(self, node, ctx):
+    def run(self, node):
         """Override this to add special pre or post processing handlers."""
-        self.prepare(node, ctx)
+        self.prepare(node)
         return self.visit(node)
+
+    def gather(self, analysis, node):
+        a = analysis()
+        a.attach(self.passmanager, self.ctx)
+        return a.run(node)
+
 
 
 class Analysis(ContextManager, ast.NodeVisitor):
@@ -125,27 +112,53 @@ class Analysis(ContextManager, ast.NodeVisitor):
             constructor.'''
         assert hasattr(self, "result"), (
             "An analysis must have a result attribute when initialized")
+        self.update = False
         ContextManager.__init__(self, *dependencies)
 
-    def run(self, node, ctx):
-        super(Analysis, self).run(node, ctx)
+    def run(self, node):
+        key = node, type(self)
+        if key not in self.passmanager._cache:
+            super(Analysis, self).run(node)
+            self.passmanager._cache[key] = self.result
+        else:
+            self.result = self.passmanager._cache[key]
         return self.result
 
     def display(self, data):
         print(data)
 
-    def apply(self, node, ctx):
-        self.display(self.run(node, ctx))
+    def apply(self, node):
+        self.display(self.run(node))
 
 
 class ModuleAnalysis(Analysis):
 
     """An analysis that operates on a whole module."""
+    def run(self, node):
+        if not isinstance(node, ast.Module):
+            if self.ctx.module is None:
+                raise ValueError("{} called in an uninitialized context".format(type(self).__name__))
+            node = self.ctx.module
+        return super(ModuleAnalysis, self).run(node)
 
 
 class FunctionAnalysis(Analysis):
 
     """An analysis that operates on a function."""
+
+    def run(self, node):
+        if isinstance(node, ast.Module):
+            self.ctx.module = node
+            last = None
+            for stmt in node.body:
+                if isinstance(stmt, ast.FunctionDef):
+                    last = self.gather(type(self), stmt)
+            return last
+        elif not isinstance(node, ast.FunctionDef):
+            if self.ctx.function is None:
+                raise ValueError("{} called in an uninitialized context".format(type(self).__name__))
+            node = self.ctx.function
+        return super(FunctionAnalysis, self).run(node)
 
 
 class NodeAnalysis(Analysis):
@@ -167,16 +180,17 @@ class Transformation(ContextManager, ast.NodeTransformer):
         super(Transformation, self).__init__(*args, **kwargs)
         self.update = False
 
-    def run(self, node, ctx):
+    def run(self, node):
         """ Apply transformation and dependencies and fix new node location."""
-        n = super(Transformation, self).run(node, ctx)
+        n = super(Transformation, self).run(node)
         if self.update:
             ast.fix_missing_locations(n)
+            self.passmanager._cache.clear()
         return n
 
-    def apply(self, node, ctx):
+    def apply(self, node):
         """ Apply transformation and return if an update happened. """
-        new_node = self.run(node, ctx)
+        new_node = self.run(node)
         return self.update, new_node
 
 
@@ -189,33 +203,31 @@ class PassManager(object):
         self.module_dir = module_dir or os.getcwd()
         self._cache = {}
 
-    def gather(self, analysis, node, ctx=None):
-        '''High-level function to call an `analysis' on a `node', eventually
-        using a `ctx'.'''
+    def gather(self, analysis, node):
+        "High-level function to call an `analysis' on a `node'"
         assert issubclass(analysis, Analysis)
         a = analysis()
-        a.passmanager = self
-        return a.run(node, ctx)
+        a.attach(self)
+        return a.run(node)
 
     def dump(self, backend, node):
         '''High-level function to call a `backend' on a `node' to generate
         code for module `module_name'.'''
         assert issubclass(backend, Backend)
         b = backend()
-        b.passmanager = self
-        return b.run(node, None)
+        b.attach(self)
+        return b.run(node)
 
-    def apply(self, transformation, node, ctx=None):
+    def apply(self, transformation, node):
         '''
-        High-level function to call a `transformation' on a `node',
-        eventually using a `ctx'.
+        High-level function to call a `transformation' on a `node'.
         If the transformation is an analysis, the result of the analysis
         is displayed.
         '''
         assert issubclass(transformation, (Transformation, Analysis))
         a = transformation()
-        a.passmanager = self
-        res = a.apply(node, ctx)
+        a.attach(self)
+        res = a.apply(node)
 
         # the transformation updated the AST, so analyse may need to be rerun
         # we could use a finer-grain caching system, and provide a way to flag

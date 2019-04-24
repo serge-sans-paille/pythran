@@ -9,16 +9,15 @@ from copy import copy
 import gast as ast
 
 
-class _LambdaRemover(Transformation):
+class _LambdaRemover(ast.NodeTransformer):
 
-    def __init__(self, pm, name, ctx, lambdas, imports, global_decls):
-        Transformation.__init__(self)
-        self.passmanager = pm
-        self.ctx = ctx
-        self.prefix = name
-        self.lambda_functions = lambdas
-        self.imports = imports
-        self.global_declarations = global_decls
+    def __init__(self, parent, prefix):
+        super(_LambdaRemover, self).__init__()
+        self.prefix = prefix
+        self.parent = parent
+
+    def __getattr__(self, attr):
+        return getattr(self.parent, attr)
 
     def visit_Lambda(self, node):
         if MODULES['functools'] not in self.global_declarations.values():
@@ -32,7 +31,7 @@ class _LambdaRemover(Transformation):
             self.prefix,
             len(self.lambda_functions))
 
-        ii = self.passmanager.gather(ImportedIds, node, self.ctx)
+        ii = self.gather(ImportedIds, node)
         ii.difference_update(self.lambda_functions)  # remove current lambdas
 
         binded_args = [ast.Name(iin, ast.Load(), None) for iin in sorted(ii)]
@@ -90,8 +89,6 @@ class RemoveLambdas(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        lr = _LambdaRemover(self.passmanager, node.name, self.ctx,
-                            self.lambda_functions, self.imports,
-                            self.global_declarations)
+        lr = _LambdaRemover(self, node.name)
         node.body = [lr.visit(n) for n in node.body]
         return node

@@ -18,14 +18,22 @@ namespace __builtin__
                      std::declval<typename std::iterator_traits<
                          typename Iterable::iterator>::value_type>()));
 
+  // this convoluted expression computes the fixed-point type of the output
+  // it's required because, e.g. static_list<long, 1> + static_list<long, 1>
+  // returns array<long, 2>
+  // and this widens to list
+  template <class Iterable, class Operator, class T>
+  using reduce_helper_t = typename __combined<
+      T, decltype(std::declval<Operator>()(
+             std::declval<T const &>(),
+             std::declval<typename std::iterator_traits<
+                 typename Iterable::iterator>::value_type>()))>::type;
+
   template <class Iterable, class Operator, class T>
   auto reduce(Operator op, Iterable s, T const &init)
       -> decltype(std::accumulate(
           s.begin(), s.end(),
-          static_cast<decltype(
-              op(init, std::declval<typename std::iterator_traits<
-                           typename Iterable::iterator>::value_type>()))>(init),
-          op));
+          static_cast<reduce_helper_t<Iterable, Operator, T>>(init), op));
 
   DEFINE_FUNCTOR(pythonic::__builtin__, reduce);
 }

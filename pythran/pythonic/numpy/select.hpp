@@ -20,9 +20,10 @@ namespace numpy
     long _select(Ichoice ibegin, Ichoice iend, Iout obegin, Isel sbegin,
                  Icond cbegin, long size, utils::int_<1>)
     {
+      static_assert(std::is_same<Ichoice, int>::value, "");
       for (; ibegin != iend && size != 0;
-           ibegin++, obegin++, sbegin++, cbegin++) {
-        // If elements it ! already selected && condition match, copy it!
+           ++ibegin, ++obegin, ++sbegin, ++cbegin) {
+        // If elements it not already selected && condition match, copy it!
         if (!*sbegin && *cbegin) {
           *obegin = *ibegin;
           *sbegin = true;
@@ -37,7 +38,7 @@ namespace numpy
                  Icond cbegin, long size, utils::int_<N>)
     {
       for (; ibegin != iend && size != 0;
-           ibegin++, obegin++, sbegin++, cbegin++)
+           ++ibegin, ++obegin, ++sbegin, ++cbegin)
         size = _select((*ibegin).begin(), (*ibegin).end(), (*obegin).begin(),
                        (*sbegin).begin(), (*cbegin).begin(), size,
                        utils::int_<N - 1>());
@@ -45,16 +46,16 @@ namespace numpy
     }
   }
 
-  template <class T, class U>
-  types::ndarray<typename U::type, types::array<long, U::value>>
-  select(types::list<T> const &condlist, types::list<U> const &choicelist,
-         typename U::dtype _default)
+  template <class C, class L>
+  types::ndarray<typename L::dtype, types::array<long, L::value - 1>>
+  select(C const &condlist, L const &choicelist, typename L::dtype _default)
   {
-    constexpr size_t N = U::value;
+    constexpr size_t N = L::value - 1;
     auto &&choicelist0_shape = choicelist[0].shape();
-    types::ndarray<T, types::array<long, N>> out(choicelist0_shape, _default);
-    types::ndarray<T, types::array<long, N>> selected(choicelist0_shape(),
-                                                      false);
+    types::ndarray<typename L::dtype, types::array<long, N>> out(
+        choicelist0_shape, _default);
+    types::ndarray<typename L::dtype, types::array<long, N>> selected(
+        choicelist0_shape, false);
     long size = selected.flat_size();
     for (long i = 0; i < condlist.size() && size != 0; i++)
       size =
@@ -63,16 +64,12 @@ namespace numpy
     return out;
   }
 
-  template <class T, class TpS, class U, class UpS>
-  typename std::enable_if<
-      std::tuple_size<TpS>::value == std::tuple_size<UpS>::value,
-      types::ndarray<T, types::array<long, std::tuple_size<TpS>::value>>>::type
-  select(types::list<types::ndarray<U, UpS>> const &condlist,
-         types::list<types::ndarray<T, TpS>> const &choicelist, T _default)
+  template <class C, class L, class T>
+  types::ndarray<typename L::dtype, sutils::pop_head_t<typename L::shape_t>>
+  select_helper(C const &condlist, L const &choicelist, T _default)
   {
-    auto constexpr N = std::tuple_size<UpS>::value;
-    types::ndarray<T, types::array<long, N>> out(
-        sutils::array(choicelist[0].shape()), _default);
+    types::ndarray<typename L::dtype, sutils::pop_head_t<typename L::shape_t>>
+        out(choicelist[0].shape(), _default);
     for (long i = 0; i < out.flat_size(); ++i)
       for (long j = 0; j < condlist.size(); ++j)
         if (condlist[j].buffer[i]) {
@@ -80,6 +77,45 @@ namespace numpy
           break;
         }
     return out;
+  }
+
+  template <class T, class TpS, class U, class UpS>
+  typename std::enable_if<std::tuple_size<TpS>::value ==
+                              std::tuple_size<UpS>::value,
+                          types::ndarray<T, TpS>>::type
+  select(types::list<types::ndarray<U, UpS>> const &condlist,
+         types::list<types::ndarray<T, TpS>> const &choicelist, T _default)
+  {
+    return select_helper(condlist, choicelist, _default);
+  }
+  template <class T, class TpS, class U, class UpS, size_t M>
+  typename std::enable_if<std::tuple_size<TpS>::value ==
+                              std::tuple_size<UpS>::value,
+                          types::ndarray<T, TpS>>::type
+  select(types::static_list<types::ndarray<U, UpS>, M> const &condlist,
+         types::static_list<types::ndarray<T, TpS>, M> const &choicelist,
+         T _default)
+  {
+    return select_helper(condlist, choicelist, _default);
+  }
+  template <class T, class TpS, class U, class UpS, size_t M>
+  typename std::enable_if<std::tuple_size<TpS>::value ==
+                              std::tuple_size<UpS>::value,
+                          types::ndarray<T, TpS>>::type
+  select(types::static_list<types::ndarray<U, UpS>, M> const &condlist,
+         types::list<types::ndarray<T, TpS>> const &choicelist, T _default)
+  {
+    return select_helper(condlist, choicelist, _default);
+  }
+  template <class T, class TpS, class U, class UpS, size_t M>
+  typename std::enable_if<std::tuple_size<TpS>::value ==
+                              std::tuple_size<UpS>::value,
+                          types::ndarray<T, TpS>>::type
+  select(types::list<types::ndarray<U, UpS>> const &condlist,
+         types::static_list<types::ndarray<T, TpS>, M> const &choicelist,
+         T _default)
+  {
+    return select_helper(condlist, choicelist, _default);
   }
 }
 PYTHONIC_NS_END

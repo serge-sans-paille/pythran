@@ -167,8 +167,8 @@ class NormalizeStaticIf(Transformation):
         if node.test not in self.static_expressions:
             return node
 
-        imported_ids = sorted(self.passmanager.gather(ImportedIds,
-                                                      node, self.ctx))
+        imported_ids = sorted(self.gather(ImportedIds,
+                                                      node))
 
         func_true = outline(self.true_name(), imported_ids, [],
                             node.body, False, False, False)
@@ -213,14 +213,12 @@ class NormalizeStaticIf(Transformation):
         if node.test not in self.static_expressions:
             return self.generic_visit(node)
 
-        imported_ids = self.passmanager.gather(ImportedIds, node, self.ctx)
+        imported_ids = self.gather(ImportedIds, node)
 
         assigned_ids_left = set(
-            self.passmanager.gather(IsAssigned, self.make_fake(node.body),
-                                    self.ctx).keys())
+            self.gather(IsAssigned, self.make_fake(node.body)).keys())
         assigned_ids_right = set(
-            self.passmanager.gather(IsAssigned, self.make_fake(node.orelse),
-                                    self.ctx).keys())
+            self.gather(IsAssigned, self.make_fake(node.orelse)).keys())
         assigned_ids_both = assigned_ids_left.union(assigned_ids_right)
 
         imported_ids.update(i for i in assigned_ids_left
@@ -232,14 +230,14 @@ class NormalizeStaticIf(Transformation):
         assigned_ids = sorted(assigned_ids_both)
 
         fbody = self.make_fake(node.body)
-        true_has_return = self.passmanager.gather(HasReturn, fbody, self.ctx)
-        true_has_break = self.passmanager.gather(HasBreak, fbody, self.ctx)
-        true_has_cont = self.passmanager.gather(HasContinue, fbody, self.ctx)
+        true_has_return = self.gather(HasReturn, fbody)
+        true_has_break = self.gather(HasBreak, fbody)
+        true_has_cont = self.gather(HasContinue, fbody)
 
         felse = self.make_fake(node.orelse)
-        false_has_return = self.passmanager.gather(HasReturn, felse, self.ctx)
-        false_has_break = self.passmanager.gather(HasBreak, felse, self.ctx)
-        false_has_cont = self.passmanager.gather(HasContinue, felse, self.ctx)
+        false_has_return = self.gather(HasReturn, felse)
+        false_has_break = self.gather(HasBreak, felse)
+        false_has_cont = self.gather(HasContinue, felse)
 
         has_return = true_has_return or false_has_return
         has_break = true_has_break or false_has_break
@@ -336,8 +334,7 @@ class SplitStaticExpression(Transformation):
             def UW(x):
                 return x[0]
 
-        has_static_expr = self.passmanager.gather(HasStaticExpression,
-                                                  node.test, self.ctx)
+        has_static_expr = self.gather(HasStaticExpression, node.test)
 
         if not has_static_expr:
             return node
@@ -352,7 +349,7 @@ class SplitStaticExpression(Transformation):
         values = [node.test.right, node.test.left]
 
         def has_static_expression(n):
-            return self.passmanager.gather(HasStaticExpression, n, self.ctx)
+            return self.gather(HasStaticExpression, n)
 
         while values and not has_static_expression(values[-1]):
             before.append(values.pop())

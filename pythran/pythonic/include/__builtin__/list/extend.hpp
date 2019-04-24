@@ -13,14 +13,17 @@ namespace __builtin__
   namespace list
   {
 
-    template <class T, class F>
-    types::none_type extend(types::list<T> &seq, types::list<F> const &add);
+    template <class T0, class T1>
+    typename std::enable_if<
+        !std::is_same<typename std::decay<T0>::type, types::empty_list>::value,
+        types::none_type>::type
+    extend(T0 &&seq, T1 const &add);
 
-    template <class T, class F>
-    types::none_type extend(types::list<T> &&seq, types::list<F> const &add);
-
-    template <class F>
-    types::none_type extend(types::empty_list, types::list<F> const &);
+    template <class T0, class T1>
+    typename std::enable_if<
+        std::is_same<typename std::decay<T0>::type, types::empty_list>::value,
+        types::none_type>::type
+    extend(T0 &&seq, T1 const &add);
 
     DEFINE_FUNCTOR(pythonic::__builtin__::list, extend);
   }

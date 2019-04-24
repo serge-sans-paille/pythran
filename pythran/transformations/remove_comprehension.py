@@ -76,7 +76,7 @@ class RemoveComprehension(Transformation):
         node.elt = self.visit(node.elt)
         name = "{0}_comprehension{1}".format(comp_type, self.count)
         self.count += 1
-        args = self.passmanager.gather(ImportedIds, node, self.ctx)
+        args = self.gather(ImportedIds, node)
         self.count_iter = 0
 
         starget = "__target"
@@ -139,7 +139,7 @@ class RemoveComprehension(Transformation):
         node.elt = self.visit(node.elt)
         name = "generator_expression{0}".format(self.count)
         self.count += 1
-        args = self.passmanager.gather(ImportedIds, node, self.ctx)
+        args = self.gather(ImportedIds, node)
         self.count_iter = 0
 
         body = reduce(self.nest_reducer,

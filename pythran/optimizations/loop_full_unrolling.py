@@ -62,16 +62,16 @@ class LoopFullUnrolling(Transformation):
         self.generic_visit(node)
 
         # a break or continue in the loop prevents unrolling too
-        has_break = any(self.passmanager.gather(HasBreak, n, self.ctx)
+        has_break = any(self.gather(HasBreak, n)
                         for n in node.body)
-        has_cont = any(self.passmanager.gather(HasContinue, n, self.ctx)
+        has_cont = any(self.gather(HasContinue, n)
                        for n in node.body)
 
         if has_break or has_cont:
             return node
 
         # do not unroll too much to prevent code growth
-        node_count = self.passmanager.gather(NodeCount, node, self.ctx)
+        node_count = self.gather(NodeCount, node)
 
         def unroll(elt):
             return ([ast.Assign([deepcopy(node.target)], elt)] +

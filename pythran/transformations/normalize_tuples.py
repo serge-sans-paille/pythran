@@ -192,5 +192,5 @@ class NormalizeTuples(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        self.ids = self.passmanager.gather(Identifiers, node, self.ctx)
+        self.ids = self.gather(Identifiers, node)
         return self.generic_visit(node)

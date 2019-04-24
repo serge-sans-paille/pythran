@@ -900,7 +900,9 @@ PYTHONIC_NS_END
 template <class T1, class T2, class pS1, class pS2>
 struct __combined<pythonic::types::ndarray<T1, pS1>,
                   pythonic::types::ndarray<T2, pS2>> {
-  using type = pythonic::types::ndarray<typename __combined<T1, T2>::type, pS1>;
+  using type = pythonic::types::ndarray<
+      typename __combined<T1, T2>::type,
+      pythonic::sutils::common_shapes_t<std::tuple_size<pS1>::value, pS1, pS2>>;
 };
 
 template <class pS, class T, class O>

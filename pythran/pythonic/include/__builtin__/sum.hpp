@@ -46,10 +46,10 @@ namespace __builtin__
     return details::tuple_sum<std::tuple<Types...>, sizeof...(Types)-1>()(t);
   }
 
-  template <class T, size_t N>
-  T sum(types::array<T, N> const &t)
+  template <class T, size_t N, class V>
+  T sum(types::array_base<T, N, V> const &t)
   {
-    return details::tuple_sum<types::array<T, N>, N - 1>()(t);
+    return details::tuple_sum<types::array_base<T, N, V>, N - 1>()(t);
   }
 
   DEFINE_FUNCTOR(pythonic::__builtin__, sum);

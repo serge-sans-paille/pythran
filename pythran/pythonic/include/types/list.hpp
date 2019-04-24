@@ -50,6 +50,10 @@ namespace types
   struct is_list<sliced_list<T, S>> {
     static const bool value = true;
   };
+  template <class T, size_t N>
+  struct is_list<static_list<T, N>> {
+    static const bool value = true;
+  };
 
   /* for type disambiguification */
   struct single_value {
@@ -119,8 +123,8 @@ namespace types
     sliced_list &operator=(list<T> const &);
     sliced_list &operator=(sliced_list<T, S> const &);
     list<T> operator+(list<T> const &) const;
-    template <size_t N>
-    list<T> operator+(array<T, N> const &) const;
+    template <size_t N, class V>
+    list<T> operator+(array_base<T, N, V> const &) const;
     template <class Tp, class Sp>
     list<typename __combined<T, Tp>::type>
     operator+(sliced_list<Tp, Sp> const &) const;
@@ -212,6 +216,16 @@ namespace types
     list(list<F> const &other);
     template <class Tp, class S>
     list(sliced_list<Tp, S> const &other);
+    template <class Tp, size_t N>
+    list(static_list<Tp, N> const &other)
+        : list(other.begin(), other.end())
+    {
+    }
+    template <class Tp, size_t N, class... S>
+    list(numpy_gexpr<static_list<Tp, N>, S...> const &other)
+        : list(other.begin(), other.end())
+    {
+    }
     list<T> &operator=(list<T> &&other);
     template <class F>
     list<T> &operator=(list<F> const &other);
@@ -228,8 +242,8 @@ namespace types
     list<T> &operator+=(sliced_list<T, S> const &other);
     template <class S>
     list<T> operator+(sliced_list<T, S> const &other) const;
-    template <size_t N>
-    list<T> operator+(array<T, N> const &other) const;
+    template <size_t N, class V>
+    list<T> operator+(array_base<T, N, V> const &other) const;
 
     // io
     template <class S>
@@ -310,8 +324,8 @@ namespace types
 
     template <class F>
     list<T> &operator+=(list<F> const &s);
-    template <class Tp, size_t N>
-    list<T> &operator+=(array<Tp, N> const &s);
+    template <class Tp, size_t N, class V>
+    list<T> &operator+=(array_base<Tp, N, V> const &s);
 
     long size() const;
     template <class E>
@@ -334,6 +348,14 @@ namespace types
     }
   };
 
+  template <class T0, size_t N, class T1>
+  list<typename __combined<T0, T1>::type>
+  operator+(static_list<T0, N> const &l0, list<T1> const &l1)
+  {
+    list<typename __combined<T0, T1>::type> out(l0.begin(), l0.end());
+    return out += l1;
+  }
+
   /* empty list implementation */
   struct empty_list {
     // minimal ndarray interface
@@ -354,8 +376,8 @@ namespace types
     list<T> operator+(list<T> const &s) const;
     template <class T, class S>
     sliced_list<T, S> operator+(sliced_list<T, S> const &s) const;
-    template <class T, size_t N>
-    array<T, N> operator+(array<T, N> const &s) const;
+    template <class T, size_t N, class V>
+    static_list<T, N> operator+(array_base<T, N, V> const &s) const;
     empty_list operator+(empty_list const &) const;
     explicit operator bool() const;
     template <class T>
@@ -395,6 +417,12 @@ namespace types
   };
 
   std::ostream &operator<<(std::ostream &os, empty_list const &);
+  template <class T, size_t N>
+  list<T> operator+(static_list<T, N> const &self, list<T> const &other)
+  {
+    list<T> res(self.begin(), self.end());
+    return res += other;
+  }
 }
 
 namespace utils
@@ -543,12 +571,14 @@ struct __combined<pythonic::types::list<T0>,
   typedef pythonic::types::list<typename __combined<T0, T1>::type> type;
 };
 
-template <class T, size_t N>
-struct __combined<pythonic::types::array<T, N>, pythonic::types::empty_list> {
+template <class T, size_t N, class V>
+struct __combined<pythonic::types::array_base<T, N, V>,
+                  pythonic::types::empty_list> {
   typedef pythonic::types::list<T> type;
 };
-template <class T, size_t N>
-struct __combined<pythonic::types::empty_list, pythonic::types::array<T, N>> {
+template <class T, size_t N, class V>
+struct __combined<pythonic::types::empty_list,
+                  pythonic::types::array_base<T, N, V>> {
   typedef pythonic::types::list<T> type;
 };
 

@@ -491,3 +491,30 @@ def recursive_interprocedural_typing1(c):
               a, _ = c
               return a'''
         return self.run_test(code, 2, ([10, 20], [30]), unpacking_aliasing=[int, Tuple[List[int], List[int]]])
+
+    @unittest.skip("bad typing: need higher order function handling")
+    def test_higher_order0(self):
+        code = '''
+            def b(x, y):
+                x(y, 1)
+
+            def higher_order0(n):
+                t = []
+                foo = list.append
+                b(foo, t)
+                return t'''
+        return self.run_test(code, 3, higher_order0=[int])
+
+    @unittest.skip("bad typing: need higher order function handling")
+    def test_higher_order1(self):
+        code = '''
+            def b(x, y):
+                x(y, 1)
+
+            def higher_order0(n):
+                t = []
+                def foo(g):
+                    t.append(g)
+                b(foo, t)
+                return t'''
+        return self.run_test(code, 3, higher_order0=[int])

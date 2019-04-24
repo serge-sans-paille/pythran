@@ -8,13 +8,14 @@ from pythran.conversion import mangle
 import gast as ast
 
 
-class _NestedFunctionRemover(Transformation):
-    def __init__(self, pm, ctx, global_declarations):
-        Transformation.__init__(self)
-        self.ctx = ctx
-        self.passmanager = pm
-        self.global_declarations = global_declarations
+class _NestedFunctionRemover(ast.NodeTransformer):
+    def __init__(self, parent):
+        ast.NodeTransformer.__init__(self)
+        self.parent = parent
         self.identifiers = set(self.global_declarations.keys())
+
+    def __getattr__(self, attr):
+        return getattr(self.parent, attr)
 
     def visit_FunctionDef(self, node):
         self.update = True
@@ -36,7 +37,7 @@ class _NestedFunctionRemover(Transformation):
         new_name = new_name.format(former_name, seed)
         self.identifiers.add(new_name)
 
-        ii = self.passmanager.gather(ImportedIds, node, self.ctx)
+        ii = self.gather(ImportedIds, node)
         binded_args = [ast.Name(iin, ast.Load(), None) for iin in sorted(ii)]
         node.args.args = ([ast.Name(iin, ast.Param(), None)
                            for iin in sorted(ii)] +
@@ -108,8 +109,7 @@ class RemoveNestedFunctions(Transformation):
         return node
 
     def visit_FunctionDef(self, node):
-        nfr = _NestedFunctionRemover(self.passmanager, self.ctx,
-                                     self.global_declarations)
+        nfr = _NestedFunctionRemover(self)
         node.body = [nfr.visit(stmt) for stmt in node.body]
         self.update |= nfr.update
         return node

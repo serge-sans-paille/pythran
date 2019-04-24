@@ -40,14 +40,14 @@ class GlobalEffects(ModuleAnalysis):
         self.node_to_functioneffect = dict()
         super(GlobalEffects, self).__init__(Aliases, GlobalDeclarations)
 
-    def prepare(self, node, ctx):
+    def prepare(self, node):
         """
         Initialise globals effects as this analyse is inter-procedural.
 
         Initialisation done for Pythonic functions and default value set for
         user defined functions.
         """
-        super(GlobalEffects, self).prepare(node, ctx)
+        super(GlobalEffects, self).prepare(node)
 
         def register_node(module):
             """ Recursively save globals effect for all functions. """
@@ -67,17 +67,18 @@ class GlobalEffects(ModuleAnalysis):
         self.node_to_functioneffect[intrinsic.UnboundValue] = \
             GlobalEffects.FunctionEffect(intrinsic.UnboundValue)
 
-    def run(self, node, ctx):
-        super(GlobalEffects, self).run(node, ctx)
+    def run(self, node):
+        result = super(GlobalEffects, self).run(node)
         keep_going = True
         while keep_going:
             keep_going = False
-            for function in self.result:
+            for function in result:
                 if function.global_effect:
                     for pred in self.result.predecessors(function):
                         if not pred.global_effect:
                             keep_going = pred.global_effect = True
-        return {f.func for f in self.result if f.global_effect}
+        self.result = {f.func for f in result if f.global_effect}
+        return self.result
 
     def visit_FunctionDef(self, node):
         self.current_function = self.node_to_functioneffect[node]

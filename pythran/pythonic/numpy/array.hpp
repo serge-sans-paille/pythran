@@ -12,11 +12,33 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class dtype>
-  types::ndarray<typename dtype::type,
-                 types::array<long, std::decay<T>::type::value>>
+  typename std::enable_if<
+      types::has_size<typename std::decay<T>::type>::value,
+      types::ndarray<typename dtype::type,
+                     types::array<long, std::decay<T>::type::value>>>::type
   array(T &&iterable, dtype d)
   {
     return {std::forward<T>(iterable)};
+  }
+  template <class T, class dtype>
+  typename std::enable_if<
+      !types::has_size<typename std::decay<T>::type>::value,
+      types::ndarray<typename dtype::type,
+                     types::array<long, std::decay<T>::type::value>>>::type
+  array(T &&iterable, dtype d)
+  {
+    types::list<typename std::decay<T>::type::value_type> tmp{iterable.begin(),
+                                                              iterable.end()};
+    return {tmp};
+  }
+
+  template <class dtype>
+  types::ndarray<typename dtype::type,
+                 types::pshape<std::integral_constant<long, 0>>>
+      array(std::tuple<>, dtype)
+  {
+    return {types::pshape<std::integral_constant<long, 0>>{},
+            types::none_type{}};
   }
 
   template <class T, class pS>
@@ -25,12 +47,20 @@ namespace numpy
     return arr.copy();
   }
 
-  template <class T, size_t N, class dtype>
+  template <class T, size_t N, class V, class dtype>
   types::ndarray<typename dtype::type,
-                 types::pshape<std::integral_constant<long, N>>>
-  array(types::array<T, N> const &a, dtype)
+                 typename types::array_base<T, N, V>::shape_t>
+  array(types::array_base<T, N, V> const &a, dtype)
   {
     return {a};
+  }
+
+  template <class T, size_t N, class V, class dtype>
+  types::ndarray<typename dtype::type,
+                 typename types::array_base<T, N, V>::shape_t>
+  array(types::array_base<T, N, V> &&a, dtype)
+  {
+    return {std::move(a)};
   }
 }
 PYTHONIC_NS_END

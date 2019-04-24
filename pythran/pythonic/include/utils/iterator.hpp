@@ -20,7 +20,7 @@ namespace utils
 
   template <class T, class... Others>
   struct iterator_reminder<true, T, Others...> {
-    std::tuple<T, Others...> value;
+    std::tuple<T, Others...> values;
     // FIXME : It works only because template arguments are ! references
     // so it trigger a copy.
     iterator_reminder() = default;
@@ -29,14 +29,14 @@ namespace utils
 
   template <class T>
   struct iterator_reminder<false, T> {
-    T value;
+    T values;
     iterator_reminder() = default;
     iterator_reminder(T const &v);
   };
 
   template <class T>
   struct iterator_reminder<true, T> {
-    std::tuple<T> value;
+    std::tuple<T> values;
     iterator_reminder() = default;
     iterator_reminder(T const &v);
   };

@@ -36,8 +36,8 @@ namespace types
 
   struct empty_list;
 
-  template <class T, size_t N>
-  struct array;
+  template <class T, size_t N, class V>
+  struct array_base;
 
   template <class T>
   struct dynamic_tuple;
@@ -152,8 +152,8 @@ namespace types
         is_numexpr_arg<T>::value || is_dtype<T>::value;
   };
 
-  template <class T, size_t N>
-  struct is_numexpr_arg<array<T, N>> {
+  template <class T, size_t N, class V>
+  struct is_numexpr_arg<array_base<T, N, V>> {
     static constexpr bool value =
         is_numexpr_arg<T>::value || is_dtype<T>::value;
   };

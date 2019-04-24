@@ -490,8 +490,8 @@ namespace types
       : std::integral_constant<bool, !is_dtype<E>::value> {
   };
 
-  template <class E, size_t N>
-  struct may_overlap_gexpr<array<E, N>> : may_overlap_gexpr<E> {
+  template <class E, size_t N, class V>
+  struct may_overlap_gexpr<array_base<E, N, V>> : may_overlap_gexpr<E> {
   };
 
   template <class Op, class... Args>
@@ -667,8 +667,7 @@ namespace types
     template <class _Arg, class... _S>
     friend struct details::make_gexpr;
 
-    template <class T, size_t N>
-    friend struct array;
+    friend struct array_base_slicer;
     template <class _Arg, class... _S>
     friend typename std::enable_if<count_new_axis<_S...>::value == 0,
                                    numpy_gexpr<_Arg, _S...>>::type
@@ -1041,10 +1040,32 @@ template <class Arg, class... S, class O>
 struct __combined<pythonic::types::numpy_gexpr<Arg, S...>, O> {
   using type = pythonic::types::numpy_gexpr<Arg, S...>;
 };
+template <class Arg, class... S, class T>
+struct __combined<pythonic::types::list<T>,
+                  pythonic::types::numpy_gexpr<Arg, S...>> {
+  using type = pythonic::types::list<typename __combined<
+      typename pythonic::types::numpy_gexpr<Arg, S...>::value_type, T>::type>;
+};
+template <class Arg, class... S, class T>
+struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
+                  pythonic::types::list<T>> {
+  using type = pythonic::types::list<typename __combined<
+      typename pythonic::types::numpy_gexpr<Arg, S...>::value_type, T>::type>;
+};
+template <class Arg, class... S>
+struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
+                  pythonic::types::none_type> {
+  using type = pythonic::types::none<pythonic::types::numpy_gexpr<Arg, S...>>;
+};
 
 template <class Arg, class... S, class O>
 struct __combined<O, pythonic::types::numpy_gexpr<Arg, S...>> {
   using type = pythonic::types::numpy_gexpr<Arg, S...>;
+};
+template <class Arg, class... S>
+struct __combined<pythonic::types::none_type,
+                  pythonic::types::numpy_gexpr<Arg, S...>> {
+  using type = pythonic::types::none<pythonic::types::numpy_gexpr<Arg, S...>>;
 };
 
 /* combined are sorted such that the assigned type comes first */

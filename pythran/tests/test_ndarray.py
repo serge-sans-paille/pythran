@@ -1126,3 +1126,17 @@ def assign_ndarray(t):
         self.run_test(code, *params, assign_transposed=[NDArray[float,:,:], int, int, int])
         params[-1] = 1
         self.run_test(code, *params, assign_transposed=[NDArray[float,:,:], int, int, int])
+
+    def test_hanning(self):
+        code = '''
+import numpy as np
+def hanning(M):
+    if M < 1:
+        return np.array([])
+    if M == 1:
+        return np.ones(1, float)
+    n = np.arange(0,float(M))
+    return 0.5 - 0.5*np.cos(2.0*np.pi*n/(M-1))'''
+        self.run_test(code, 4, hanning=[int])
+        self.run_test(code, 0, hanning=[int])
+

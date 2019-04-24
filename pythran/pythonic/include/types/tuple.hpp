@@ -915,6 +915,49 @@ namespace sutils
       typename merged_shapes<std::tuple<Ss...>,
                              utils::make_index_sequence<N>>::type;
 
+  template <class... Ss>
+  struct shape_commonifier;
+  template <class Ss>
+  struct shape_commonifier<Ss> {
+    using type = Ss;
+  };
+  template <class S1, class... Ss>
+  struct shape_commonifier<long, S1, Ss...> {
+    using type = long;
+  };
+  template <long N, class... Ss>
+  struct shape_commonifier<std::integral_constant<long, N>, long, Ss...> {
+    using type = long;
+  };
+  template <long N0, long N1, class... Ss>
+  struct shape_commonifier<std::integral_constant<long, N0>,
+                           std::integral_constant<long, N1>, Ss...> {
+    using type = typename std::conditional<
+        N0 == N1, typename shape_commonifier<std::integral_constant<long, N0>,
+                                             Ss...>::type,
+        long>::type;
+  };
+
+  template <size_t I, class Ss>
+  struct common_shape;
+  template <size_t I, class... Ss>
+  struct common_shape<I, std::tuple<Ss...>> {
+    using type = typename shape_commonifier<
+        typename std::tuple_element<I, Ss>::type...>::type;
+  };
+
+  template <class Ss, class T>
+  struct common_shapes;
+
+  template <class Ss, size_t... Is>
+  struct common_shapes<Ss, utils::index_sequence<Is...>> {
+    using type = types::pshape<typename common_shape<Is, Ss>::type...>;
+  };
+  template <size_t N, class... Ss>
+  using common_shapes_t =
+      typename common_shapes<std::tuple<Ss...>,
+                             utils::make_index_sequence<N>>::type;
+
   template <class T>
   struct transpose;
   template <class T>

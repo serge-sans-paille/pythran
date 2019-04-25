@@ -18,6 +18,23 @@ template <>
 struct is_blas_type<double> : std::true_type {
 };
 
+template <class E>
+struct is_strided {
+  template <class T>
+  static decltype(T::is_strided, std::true_type{}) get(T *);
+  static std::false_type get(...);
+  static constexpr bool value = decltype(get((E *)nullptr))::value;
+};
+
+template <class E>
+struct is_blas_array {
+  // FIXME: also support gexpr with stride?
+  static constexpr bool value =
+      pythonic::types::is_array<E>::value &&
+      is_blas_type<pythonic::types::dtype_of<E>>::value &&
+      !is_strided<E>::value;
+};
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy
@@ -31,25 +48,50 @@ namespace numpy
   /// Vector / Vector multiplication
   template <class E, class F>
   typename std::enable_if<
-      types::is_numexpr_arg<E>::value &&
-          types::is_numexpr_arg<F>::value    // Arguments are array_like
-          && E::value == 1 && F::value == 1, // It is a two vectors.
+      types::is_numexpr_arg<E>::value && types::is_numexpr_arg<F>::value &&
+          E::value == 1 && F::value == 1 &&
+          (!is_blas_array<E>::value || !is_blas_array<F>::value ||
+           !std::is_same<typename E::dtype, typename F::dtype>::value),
       typename __combined<typename E::dtype, typename F::dtype>::type>::type
   dot(E const &e, F const &f);
 
-  template <class pS0, class pS1>
-  typename std::enable_if<std::tuple_size<pS0>::value == 1 &&
-                              std::tuple_size<pS1>::value == 1,
+  template <class E, class F>
+  typename std::enable_if<E::value == 1 && F::value == 1 &&
+                              std::is_same<typename E::dtype, float>::value &&
+                              std::is_same<typename F::dtype, float>::value &&
+                              is_blas_array<E>::value &&
+                              is_blas_array<F>::value,
                           float>::type
-  dot(types::ndarray<float, pS0> const &e, types::ndarray<float, pS1> const &f);
-  template <class pS0, class pS1>
-  typename std::enable_if<std::tuple_size<pS0>::value == 1 &&
-                              std::tuple_size<pS1>::value == 1,
-                          double>::type
-  dot(types::ndarray<double, pS0> const &e,
-      types::ndarray<double, pS1> const &f);
+  dot(E const &e, F const &f);
 
-  /// Matrice / Vector multiplication
+  template <class E, class F>
+  typename std::enable_if<E::value == 1 && F::value == 1 &&
+                              std::is_same<typename E::dtype, double>::value &&
+                              std::is_same<typename F::dtype, double>::value &&
+                              is_blas_array<E>::value &&
+                              is_blas_array<F>::value,
+                          double>::type
+  dot(E const &e, F const &f);
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, std::complex<float>>::value &&
+          std::is_same<typename F::dtype, std::complex<float>>::value &&
+          is_blas_array<E>::value && is_blas_array<F>::value,
+      std::complex<float>>::type
+  dot(E const &e, F const &f);
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, std::complex<double>>::value &&
+          std::is_same<typename F::dtype, std::complex<double>>::value &&
+          is_blas_array<E>::value && is_blas_array<F>::value,
+      std::complex<double>>::type
+  dot(E const &e, F const &f);
+
+  /// Matrix / Vector multiplication
 
   // We transpose the matrix to reflect our C order
   template <class E, class pS0, class pS1>

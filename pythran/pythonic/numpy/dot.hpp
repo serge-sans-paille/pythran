@@ -29,34 +29,97 @@ namespace numpy
     return e * f;
   }
 
+  template <class E>
+  struct blas_buffer_t {
+    typename E::dtype const *operator()(E const &e) const
+    {
+      return e.buffer;
+    }
+  };
+  template <class T>
+  struct blas_buffer_t<types::list<T>> {
+    T const *operator()(types::list<T> const &e) const
+    {
+      return &e.fast(0);
+    }
+  };
+  template <class T, size_t N>
+  struct blas_buffer_t<types::array<T, N>> {
+    T const *operator()(types::array<T, N> const &e) const
+    {
+      return e.data();
+    }
+  };
+
+  template <class E>
+  auto blas_buffer(E const &e) -> decltype(blas_buffer_t<E>{}(e))
+  {
+    return blas_buffer_t<E>{}(e);
+  }
+
   template <class E, class F>
   typename std::enable_if<
       types::is_numexpr_arg<E>::value &&
-          types::is_numexpr_arg<F>::value    // Arguments are array_like
-          && E::value == 1 && F::value == 1, // It is a two vectors.
+          types::is_numexpr_arg<F>::value   // Arguments are array_like
+          && E::value == 1 && F::value == 1 // It is a two vectors.
+          && (!is_blas_array<E>::value || !is_blas_array<F>::value ||
+              !std::is_same<typename E::dtype, typename F::dtype>::value),
       typename __combined<typename E::dtype, typename F::dtype>::type>::type
   dot(E const &e, F const &f)
   {
     return sum(functor::multiply{}(e, f));
   }
 
-  template <class pS0, class pS1>
-  typename std::enable_if<std::tuple_size<pS0>::value == 1 &&
-                              std::tuple_size<pS1>::value == 1,
+  template <class E, class F>
+  typename std::enable_if<E::value == 1 && F::value == 1 &&
+                              std::is_same<typename E::dtype, float>::value &&
+                              std::is_same<typename F::dtype, float>::value &&
+                              is_blas_array<E>::value &&
+                              is_blas_array<F>::value,
                           float>::type
-  dot(types::ndarray<float, pS0> const &e, types::ndarray<float, pS1> const &f)
+  dot(E const &e, F const &f)
   {
-    return cblas_sdot(e.size(), e.buffer, 1, f.buffer, 1);
+    return cblas_sdot(e.size(), blas_buffer(e), 1, blas_buffer(f), 1);
   }
 
-  template <class pS0, class pS1>
-  typename std::enable_if<std::tuple_size<pS0>::value == 1 &&
-                              std::tuple_size<pS1>::value == 1,
+  template <class E, class F>
+  typename std::enable_if<E::value == 1 && F::value == 1 &&
+                              std::is_same<typename E::dtype, double>::value &&
+                              std::is_same<typename F::dtype, double>::value &&
+                              is_blas_array<E>::value &&
+                              is_blas_array<F>::value,
                           double>::type
-  dot(types::ndarray<double, pS0> const &e,
-      types::ndarray<double, pS1> const &f)
+  dot(E const &e, F const &f)
   {
-    return cblas_ddot(e.size(), e.buffer, 1, f.buffer, 1);
+    return cblas_ddot(e.size(), blas_buffer(e), 1, blas_buffer(f), 1);
+  }
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, std::complex<float>>::value &&
+          std::is_same<typename F::dtype, std::complex<float>>::value &&
+          is_blas_array<E>::value && is_blas_array<F>::value,
+      std::complex<float>>::type
+  dot(E const &e, F const &f)
+  {
+    std::complex<float> out;
+    cblas_cdotu_sub(e.size(), blas_buffer(e), 1, blas_buffer(f), 1, &out);
+    return out;
+  }
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, std::complex<double>>::value &&
+          std::is_same<typename F::dtype, std::complex<double>>::value &&
+          is_blas_array<E>::value && is_blas_array<F>::value,
+      std::complex<double>>::type
+  dot(E const &e, F const &f)
+  {
+    std::complex<double> out;
+    cblas_zdotu_sub(e.size(), blas_buffer(e), 1, blas_buffer(f), 1, &out);
+    return out;
   }
 
 /// Matrice / Vector multiplication

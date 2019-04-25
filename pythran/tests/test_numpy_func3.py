@@ -41,18 +41,32 @@ class TestNumpyFunc3(TestEnv):
     def test_dot3(self):
         self.run_test("def np_dot3(x): from numpy import array ; y = array([2, 3]) ; return y.dot(x+x)", numpy.array([2, 3]), np_dot3=[NDArray[int,:]])
 
-    def test_dot4(self):
-        self.run_test("def np_dot4(x): from numpy import dot ; y = [2, 3] ; return dot(x,y)", numpy.array([2, 3]), np_dot4=[NDArray[int,:]])
+    def test_dot4a(self):
+        self.run_test("def np_dot4a(x): from numpy import dot ; y = [2, 3] ; return dot(x,y)", numpy.array([2, 3]), np_dot4a=[NDArray[int,:]])
 
-    @unittest.skip("Illegal instruction on Travis")
+    def test_dot4b(self):
+        self.run_test("def np_dot4b(x): from numpy import dot ; y = [2., 3.] ; return dot(x[1:],y)", numpy.array([2, 3, 4], dtype=numpy.float32), np_dot4b=[NDArray[numpy.float32,:]])
+
+    def test_dot4c(self):
+        self.run_test("def np_dot4c(x): from numpy import dot ; return dot(x[1:],x[:-1])", numpy.array([2, 3, 4], dtype=numpy.float64), np_dot4c=[NDArray[float,:]])
+
+    def test_dot4d(self):
+        self.run_test("def np_dot4d(x): from numpy import dot ; return dot(x, x)", numpy.array([2j, 3j, 4.]), np_dot4d=[NDArray[complex,:]])
+
+    def test_dot4e(self):
+        self.run_test("def np_dot4e(x): from numpy import dot ; y = (2.j, 3.j) ; return dot(x[:-1],y)", numpy.array([2.j, 3.j, 4.j], dtype=numpy.complex64), np_dot4e=[NDArray[numpy.complex64,:]])
+
+    def test_dot4f(self):
+        self.run_test("def np_dot4f(x): from numpy import dot ; y = (1., 2., 3.) ; return dot(2*x, y)", numpy.array([2., 3., 4.]), np_dot4f=[NDArray[float,:]])
+
     def test_dot5(self):
         """ Check for dgemm version of dot. """
         self.run_test("""
         def np_dot5(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
-                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                      [[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],
+                      [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]],
                       np_dot5=[List[List[float]], List[List[float]]])
 
     def test_dot6(self):
@@ -65,15 +79,14 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(9, 18).reshape(3, 3),
                       np_dot6=[NDArray[int,:,:], NDArray[int,:,:]])
 
-    @unittest.skip("Illegal instruction on Travis")
     def test_dot7(self):
         """ Check for dgemm version of dot with rectangular shape. """
         self.run_test("""
         def np_dot7(x, y):
             from numpy import dot
             return dot(x,y)""",
-                      [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
-                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                      [[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],
+                      [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]],
                       np_dot7=[List[List[float]], List[List[float]]])
 
     def test_dot8(self):

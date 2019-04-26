@@ -3572,6 +3572,8 @@ MODULES = {
         "complex256": ConstFunctionIntr(signature=_complex_signature),
         "conj": ConstMethodIntr(signature=_numpy_unary_op_signature),
         "conjugate": ConstMethodIntr(signature=_numpy_unary_op_signature),
+        "convolve": ConstMethodIntr(),
+        "correlate": ConstMethodIntr(),
         "copy": ConstMethodIntr(signature=_numpy_array_signature),
         "copyto": FunctionIntr(
             argument_effects=[UpdateEffect(), ReadEffect(),

@@ -3183,7 +3183,7 @@ MODULES = {
             signature=_numpy_unary_op_int_axis_signature,
             return_range=interval.positive_values
         ),
-        "argsort": ConstFunctionIntr(
+        "argsort": ConstMethodIntr(
             signature=_numpy_unary_op_int_axis_signature,
             return_range=interval.positive_values
         ),

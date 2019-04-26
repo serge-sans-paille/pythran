@@ -426,7 +426,7 @@ def test_copy0(x):
         self.run_test("def np_argsort0(x): from numpy import argsort ; return argsort(x)", numpy.array([3, 1, 2]), np_argsort0=[NDArray[int,:]])
 
     def test_argsort1(self):
-        self.run_test("def np_argsort1(x): from numpy import argsort ; return argsort(x)", numpy.array([[3, 1, 2], [1 , 2, 3]]), np_argsort1=[NDArray[int,:,:]])
+        self.run_test("def np_argsort1(x): return x.argsort()", numpy.array([[3, 1, 2], [1 , 2, 3]]), np_argsort1=[NDArray[int,:,:]])
 
     def test_argmax0(self):
         self.run_test("def np_argmax0(a): return a.argmax()", numpy.arange(6).reshape(2,3), np_argmax0=[NDArray[int,:,:]])

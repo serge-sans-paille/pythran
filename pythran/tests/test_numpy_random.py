@@ -274,7 +274,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [normal(3.) for x in range(size)]
             print(mean(a))
-            return (abs(mean(a)) < 3.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)-3) < 0.05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_normal0a=[int])
 
@@ -329,7 +329,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [poisson() for x in range(size)]
             print(mean(a))
-            return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0=[int])
 
@@ -341,7 +341,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [poisson(3.) for x in range(size)]
             print(mean(a))
-            return (abs(mean(a)) < 3.05 and abs(var(a) - 3) < .05)
+            return (abs(mean(a)-3) < .05 and abs(var(a) - 3) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0a=[int])
 
@@ -354,7 +354,7 @@ class TestNumpyRandom(TestEnv):
             lam = 10
             a = poisson(lam, size)
             print(mean(a))
-            return (abs(mean(a)) < (lam + 0.05) and abs(sqrt(lam) - sqrt(var(a,ddof=1))) < .05)
+            return (abs(mean(a)-lam) < 0.05 and abs(sqrt(lam) - sqrt(var(a,ddof=1))) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0b=[int])
 
@@ -368,7 +368,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = poisson(size=size)
             print(mean(a))
-            return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_poisson1=[int])
 
@@ -380,7 +380,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             a = poisson(size=(size, size))
             print(mean(a))
-            return (abs(mean(a)) < 1.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_poisson2=[int])
 

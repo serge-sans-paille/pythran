@@ -1140,3 +1140,12 @@ def hanning(M):
         self.run_test(code, 4, hanning=[int])
         self.run_test(code, 0, hanning=[int])
 
+    def test_ones_on_updated_shape(self):
+        code = '''
+            import numpy as np
+            def ones_on_updated_shape(array,n,axis,padVal):
+                shape = list(array.shape)
+                shape[axis]=n
+                toPad = padVal*np.ones(shape,dtype=array.dtype)
+                return np.concatenate((np.diff(array, n, axis=axis), toPad), axis=axis)'''
+        self.run_test(code, numpy.arange(10.).reshape(5, 2), 1, 0, 3., ones_on_updated_shape=[NDArray[float,:,:], int, int, float])

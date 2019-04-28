@@ -353,6 +353,15 @@ When distributing a Python application with Pythran modules, you can either:
 ``PythranBuildExt`` is optional, but necessary to build extensions with
 different C++ compilers.
 
+.. note::
+
+    There's no strong compatibility guarantee between Pythran version at C++ level. As a
+    consequence, a code distrubuted under pythran version 0.x should depend on that exact
+    version, as version 0.y may introduce some changes.
+
+    This behavior is likely to change with revisions >= 1.
+
+
 Capsule Corp
 ------------
 

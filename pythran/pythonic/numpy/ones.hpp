@@ -15,7 +15,7 @@ namespace numpy
   types::ndarray<typename dtype::type, sutils::shape_t<pS>>
   ones(pS const &shape, dtype d)
   {
-    return {shape, typename dtype::type(1)};
+    return {(sutils::shape_t<pS>)shape, typename dtype::type(1)};
   }
 
   template <class dtype>

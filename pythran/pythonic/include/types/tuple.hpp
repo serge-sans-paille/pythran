@@ -424,6 +424,12 @@ namespace types
     template <class W>
     array_base<T, N, W> to_array() const;
 
+    template <class W>
+    explicit operator array_base<T, N, W>() const
+    {
+      return to_array<W>();
+    }
+
     template <class S>
     auto operator()(S const &s) const -> decltype((*this)[s])
     {

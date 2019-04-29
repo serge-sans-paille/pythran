@@ -25,11 +25,13 @@ class ToNotEval(Exception):
     It is case of too long expression for example.
     """
 
+
 def totuple(l):
     try:
-        return tuple(map(totuple,l))
+        return tuple(map(totuple, l))
     except TypeError:
         return l
+
 
 def size_container_folding(value):
     """
@@ -37,7 +39,10 @@ def size_container_folding(value):
 
     Converter for sized container.
     """
-    if len(value) < MAX_LEN:
+    def size(x):
+        return len(getattr(x, 'flatten', lambda: x)())
+
+    if size(value) < MAX_LEN:
         if isinstance(value, list):
             return ast.List([to_ast(elt) for elt in value], ast.Load())
         elif isinstance(value, tuple):

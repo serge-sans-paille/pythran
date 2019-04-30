@@ -438,6 +438,8 @@ class Aliases(ModuleAnalysis):
                     aliases.add(alias.containee)
                 elif isinstance(getattr(alias, 'ctx', None), ast.Param):
                     aliases.add(ast.Subscript(alias, node.slice, node.ctx))
+            if not aliases:
+                aliases = None
         else:
             # could be enhanced through better handling of containers
             aliases = None

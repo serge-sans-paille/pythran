@@ -1409,7 +1409,7 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
         pyarray_new<long, std::tuple_size<pS>::value>{}.from_data(
             array.data(), c_type_to_numpy_type<T>::value, n.buffer);
     n.mark_memory_external(result);
-    Py_INCREF(result);
+    Py_INCREF(result); // because it's going to be decrefed when n is destroyed
     if (!result)
       return nullptr;
     PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject *>(result),
@@ -1444,6 +1444,7 @@ PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
                                          : ::to_python(v.slices);
   PyObject *base = ::to_python(v.arg);
   PyObject *res = PyObject_GetItem(base, slices);
+  Py_DECREF(base);
   if (transpose)
     return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
   else

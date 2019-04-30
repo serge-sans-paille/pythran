@@ -66,6 +66,14 @@ def istransposed(t):
     return t.__args__[1] == t.__args__[2] == slice(-1, None, None)
 
 
+def istransposable(t):
+    if not isinstance(t, NDArray):
+        return False
+    if len(t.__args__) - 1 != 2:
+        return False
+    return all(s.step == 1 for s in t.__args__[1:])
+
+
 class Spec(object):
     '''
     Result of spec parsing.
@@ -328,14 +336,15 @@ class SpecParser(object):
                 expanded = []
                 for nd in p[1]:
                     expanded.append(nd)
-                    if isinstance(nd, NDArray) and len(nd.__args__) == 3:
+                    if istransposable(nd):
                         expanded.append(NDArray[nd.__args__[0], -1::, -1::])
                 p[0] = tuple(expanded)
             elif p[2] == "F":
                 for nd in p[1]:
-                    if len(nd.__args__) != 3:
+                    if not istransposable(nd):
                         raise PythranSyntaxError("Invalid Pythran spec. "
-                                                 "F order is only valid for 2D arrays")
+                                                 "F order is only valid for "
+                                                 "2D plain arrays")
                 p[0] = tuple(NDArray[nd.__args__[0], -1::, -1::] for nd in p[1])
             else:
                 p[0] = p[1]

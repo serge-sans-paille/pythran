@@ -313,17 +313,14 @@ namespace types
       auto operator()(long const *s, std::tuple<S0, T0...> const &t0,
                       std::tuple<none_type, T1...> const &t1)
           -> decltype(tuple_push_head(
-              std::get<0>(t0),
-              tuple_push_head(
-                  std::get<0>(t1),
-                  merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                      s + 1, tuple_tail(t0), tuple_tail(t1)))))
+              std::get<0>(t1),
+              merge_gexpr<std::tuple<S0, T0...>, std::tuple<T1...>>{}(
+                  s + 1, t0, tuple_tail(t1))))
       {
         return tuple_push_head(
-            std::get<0>(t0),
-            tuple_push_head(std::get<0>(t1),
-                            merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}(
-                                s + 1, tuple_tail(t0), tuple_tail(t1))));
+            std::get<0>(t1),
+            merge_gexpr<std::tuple<S0, T0...>, std::tuple<T1...>>{}(
+                s + 1, t0, tuple_tail(t1)));
       }
     };
 
@@ -551,6 +548,8 @@ namespace types
                        std::is_same<S, contiguous_normalized_slice>::value ||
                        std::is_same<S, normalized_slice>::value)...>::value,
         "all slices are valid");
+    static_assert(std::decay<Arg>::type::value >= sizeof...(S),
+                  "slicing respects array shape");
 
     // numpy_gexpr is a wrapper for extended sliced array around a numpy
     // expression.

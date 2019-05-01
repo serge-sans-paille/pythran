@@ -554,3 +554,61 @@ class TestAnalyses(TestEnv):
                       1,
                       argument_effects_unknown=[int])
 
+    def test_subscript_function_aliasing(self):
+        code = '''
+            SP = 0x20
+            STX = 0x02
+            ETX = 0x03
+
+
+            def _div_tuple(base, div):
+                a = base // div
+                b = base % div
+                return a, b
+
+
+            def number_datatype(base, dc, fs=6):
+                def parser(value):
+                    if not value.isdigit():
+                        raise ValueError("Invalid number")
+                    value = int(value)
+                    ret = []
+                    while value > 0:
+                        a, b = _div_tuple(value, len(base))
+                        ret.insert(0, ord(base[b]))
+                        value = a
+                    ret = [ord('0')] * (dc - len(ret)) + ret
+                    ret = [SP] * (fs - len(ret)) + ret
+                    return ret
+
+                def formatter(v):
+                    ret = 0
+                    for a in [chr(c) for c in v][-dc:]:
+                        ret = ret * len(base) + base.index(a)
+                    return str(int(ret))
+
+                return parser, formatter
+
+
+            def int_datatype(dc, fs=6):
+                return number_datatype(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], dc, fs)
+
+
+            def hex_datatype(dc, fs=6):
+                return number_datatype(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'], dc, fs)
+
+            simple_commands = [('aa', 107, int_datatype(4)),
+                               ('bb', 112, int_datatype(1)),
+                               ]
+
+            str_commands = {c: (c, v, f) for c, v, f in simple_commands}
+
+
+            def subscript_function_aliasing(id, ai, pfc, value):
+                data = [0x0] * 16
+                _, pfc, fcts = str_commands[pfc]
+                data[5:9] = int_datatype(4, 4)[0](str(pfc))
+                data[9:15] = fcts[0](value)
+                return data'''
+        self.run_test(code, 'aa', 2, 'bb', '3', subscript_function_aliasing=[str, int, str, str])
+

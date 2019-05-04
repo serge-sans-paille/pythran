@@ -1,3 +1,60 @@
+2019-05-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Better support for `is None` pattern
+
+	* Support numpy.byte in code and annotation
+
+	* Fix string slice assignment
+
+	* Support numpy.interp
+
+	* Improved Windows support
+
+	* Fix numpy.fft in presence of threading
+
+	* Better error message upon type mismatch
+
+	* Extended support for numpy.append
+
+	* Fix ndarray printing
+
+	* Property report error on Elippsis
+
+	* Optimize away some uses of np.array
+
+	* Properly support keyword-only arguments from Python3
+
+	* Improved fixed-size array broadcasting
+
+	* New annotation syntax for default argument through the '?' qualifier
+
+	* Stricter type checking between Python and Pythran result type
+
+	* Rely on beniget <https://github.com/serge-sans-paille/beniget> for some
+	  analyses
+
+	* Fix dtype inference for OSX and Windows, wrt 32/64 bits
+
+	* Generate code compatible with OpenMP collapse clause
+
+	* Fix np.bincount, np.angle, np.fromiter  implementation
+
+	* Improved (but still incomplete) support of slicing of an array through
+	  an array
+
+	* Allow specification of memory layout for 2D array parameters in
+	  annotations
+
+	* Avoid useless copies for some dict operations
+
+	* Support np.expand_dims, np.correlate, np.convolve, np.setdiff1d
+
+	* Detect and specialize code for fixed-size list
+
+	* Support more dot-idiom-to-blas forwarding
+
+	* Fix important memory leak in numpy_gexpr to_python
+
 2019-01-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix np.transpose regression

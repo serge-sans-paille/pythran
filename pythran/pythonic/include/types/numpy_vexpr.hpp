@@ -50,8 +50,8 @@ namespace types
     using shape_t = array<long, value>;
     shape_t shape() const
     {
-      auto res = data_.shape();
-      std::get<0>(res) = std::get<0>(view_.shape());
+      shape_t res = data_.shape();
+      std::get<0>(res) = (long)std::get<0>(view_.shape());
       return res;
     }
 

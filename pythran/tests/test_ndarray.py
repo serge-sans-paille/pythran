@@ -1149,3 +1149,14 @@ def hanning(M):
                 toPad = padVal*np.ones(shape,dtype=array.dtype)
                 return np.concatenate((np.diff(array, n, axis=axis), toPad), axis=axis)'''
         self.run_test(code, numpy.arange(10.).reshape(5, 2), 1, 0, 3., ones_on_updated_shape=[NDArray[float,:,:], int, int, float])
+
+    def test_numpy_vexpr_static_shape(self):
+        code = '''
+            import numpy as np
+            def numpy_vexpr_static_shape(A):
+                x_transFrames = np.array([3,6,20,40,70,245])
+                x_transScores = A[x_transFrames]
+                x_transList = np.array([0,2,3,4])
+                B = x_transScores[x_transList]
+                return  x_transFrames[x_transList].astype(int),B'''
+        self.run_test(code, numpy.arange(300.), numpy_vexpr_static_shape=[NDArray[float, :]])

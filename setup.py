@@ -76,7 +76,7 @@ class BuildWithThirdParty(build_py):
         "Install boost deps from the third_party directory"
 
         if getattr(self, 'no_' + pkg) is None:
-            print('Copying boost dependencies')
+            print('Copying', pkg, 'dependencies')
             to_copy = pkg,
         else:
             return

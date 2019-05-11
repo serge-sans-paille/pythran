@@ -1,8 +1,6 @@
 //
-//  interp_core.cpp
-//  From /Users/jlaroche/temp/NumpySrc/numpy/core/src/multiarray/compiled_base.c
+//  From NumpySrc/numpy/core/src/multiarray/compiled_base.c
 
-#include <stdio.h>
 /** @brief find index of a sorted array such that arr[i] <= key < arr[i + 1].
  *
  * If an starting index guess is in-range, the array values around this

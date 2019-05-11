@@ -14,7 +14,7 @@
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/__builtin__/None.hpp"
-#include "pythonic/numpy/interp_core.cpp"
+#include "pythonic/numpy/interp_core.hpp"
 
 PYTHONIC_NS_BEGIN
 

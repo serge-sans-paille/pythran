@@ -28,16 +28,16 @@ namespace xsimd
         static constexpr std::size_t size = 16;
         using batch_bool_type = batch_bool<int8_t, 16>;
         static constexpr std::size_t align = XSIMD_DEFAULT_ALIGNMENT;
+        using storage_type = int8x16_t;
     };
 
     template <>
     class batch<int8_t, 16> : public simd_batch<batch<int8_t, 16>>
     {
-        using simd_type = int8x16_t;
-
     public:
 
         using base_type = simd_batch<batch<int8_t, 16>>;
+        using storage_type = typename base_type::storage_type;
 
         batch();
         explicit batch(int8_t d);
@@ -53,10 +53,10 @@ namespace xsimd
         batch(const char* src, aligned_mode);
         batch(const char* src, unaligned_mode);
 
-        batch(const simd_type& rhs);
-        batch& operator=(const simd_type& rhs);
+        batch(const storage_type& rhs);
+        batch& operator=(const storage_type& rhs);
 
-        operator simd_type() const;
+        operator storage_type() const;
 
         batch& load_aligned(const int8_t* src);
         batch& load_unaligned(const int8_t* src);
@@ -77,12 +77,6 @@ namespace xsimd
 
         XSIMD_DECLARE_LOAD_STORE_INT8(int8_t, 16)
         XSIMD_DECLARE_LOAD_STORE_LONG(int8_t, 16)
-
-        int8_t operator[](std::size_t index) const;
-
-    private:
-
-        simd_type m_value;
     };
 
     batch<int8_t, 16> operator<<(const batch<int8_t, 16>& lhs, int8_t rhs);
@@ -97,18 +91,18 @@ namespace xsimd
     }
 
     inline batch<int8_t, 16>::batch(int8_t d)
-        : m_value(vdupq_n_s8(d))
+        : base_type(vdupq_n_s8(d))
     {
     }
 
     template <class... Args, class>
     inline batch<int8_t, 16>::batch(Args... args)
-        : m_value{static_cast<int8_t>(args)...}
+        : base_type(storage_type{static_cast<int8_t>(args)...})
     {
     }
 
     inline batch<int8_t, 16>::batch(const int8_t* d)
-        : m_value(vld1q_s8(d))
+        : base_type(vld1q_s8(d))
     {
     }
 
@@ -137,20 +131,20 @@ namespace xsimd
     {
     }
 
-    inline batch<int8_t, 16>::batch(const simd_type& rhs)
-        : m_value(rhs)
+    inline batch<int8_t, 16>::batch(const storage_type& rhs)
+        : base_type(rhs)
     {
     }
 
-    inline batch<int8_t, 16>& batch<int8_t, 16>::operator=(const simd_type& rhs)
+    inline batch<int8_t, 16>& batch<int8_t, 16>::operator=(const storage_type& rhs)
     {
-        m_value = rhs;
+        this->m_value = rhs;
         return *this;
     }
 
     inline batch<int8_t, 16>& batch<int8_t, 16>::load_aligned(const int8_t* src)
     {
-        m_value = vld1q_s8(src);
+        this->m_value = vld1q_s8(src);
         return *this;
     }
 
@@ -161,7 +155,7 @@ namespace xsimd
 
     inline batch<int8_t, 16>& batch<int8_t, 16>::load_aligned(const uint8_t* src)
     {
-        m_value = vreinterpretq_s8_u8(vld1q_u8(src));
+        this->m_value = vreinterpretq_s8_u8(vld1q_u8(src));
         return *this;
     }
 
@@ -172,7 +166,7 @@ namespace xsimd
 
     inline void batch<int8_t, 16>::store_aligned(int8_t* dst) const
     {
-        vst1q_s8(dst, m_value);
+        vst1q_s8(dst, this->m_value);
     }
 
     inline void batch<int8_t, 16>::store_unaligned(int8_t* dst) const
@@ -182,7 +176,7 @@ namespace xsimd
 
     inline void batch<int8_t, 16>::store_aligned(uint8_t* dst) const
     {
-        vst1q_u8(dst, vreinterpretq_u8_s8(m_value));
+        vst1q_u8(dst, vreinterpretq_u8_s8(this->m_value));
     }
 
     inline void batch<int8_t, 16>::store_unaligned(uint8_t* dst) const
@@ -195,12 +189,7 @@ namespace xsimd
 
     inline batch<int8_t, 16>::operator int8x16_t() const
     {
-        return m_value;
-    }
-
-    inline int8_t batch<int8_t, 16>::operator[](std::size_t index) const
-    {
-        return m_value[index];
+        return this->m_value;
     }
 
     namespace detail

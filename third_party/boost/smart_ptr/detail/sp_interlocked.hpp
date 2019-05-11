@@ -32,6 +32,11 @@
 // MinGW-w64 provides intrin.h for both 32 and 64-bit targets.
 # define BOOST_SP_HAS_INTRIN_H
 
+#elif defined( __LP64__ )
+
+// We have to use intrin.h on Cygwin 64
+# define BOOST_SP_HAS_INTRIN_H
+
 // Intel C++ on Windows on VC10+ stdlib
 #elif defined( BOOST_INTEL_WIN ) && defined( _CPPLIB_VER ) && _CPPLIB_VER >= 520
 

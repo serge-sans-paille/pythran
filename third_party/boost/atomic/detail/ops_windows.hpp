@@ -23,12 +23,13 @@
 #ifndef BOOST_ATOMIC_DETAIL_OPS_WINDOWS_HPP_INCLUDED_
 #define BOOST_ATOMIC_DETAIL_OPS_WINDOWS_HPP_INCLUDED_
 
+#include <cstddef>
 #include <boost/memory_order.hpp>
-#include <boost/type_traits/make_signed.hpp>
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/interlocked.hpp>
 #include <boost/atomic/detail/storage_type.hpp>
 #include <boost/atomic/detail/operations_fwd.hpp>
+#include <boost/atomic/detail/type_traits/make_signed.hpp>
 #include <boost/atomic/capabilities.hpp>
 #include <boost/atomic/detail/ops_msvc_common.hpp>
 #include <boost/atomic/detail/ops_extending_cas_based.hpp>
@@ -43,6 +44,9 @@ namespace detail {
 
 struct windows_operations_base
 {
+    static BOOST_CONSTEXPR_OR_CONST bool full_cas_based = false;
+    static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
+
     static BOOST_FORCEINLINE void hardware_full_fence() BOOST_NOEXCEPT
     {
         long tmp;
@@ -60,11 +64,15 @@ struct windows_operations_base
     }
 };
 
-template< typename T, typename Derived >
+template< std::size_t Size, bool Signed, typename Derived >
 struct windows_operations :
     public windows_operations_base
 {
-    typedef T storage_type;
+    typedef typename make_storage_type< Size >::type storage_type;
+    typedef typename make_storage_type< Size >::aligned aligned_storage_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t storage_size = Size;
+    static BOOST_CONSTEXPR_OR_CONST bool is_signed = Signed;
 
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
@@ -78,7 +86,7 @@ struct windows_operations :
 
     static BOOST_FORCEINLINE storage_type fetch_sub(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
-        typedef typename make_signed< storage_type >::type signed_storage_type;
+        typedef typename boost::atomics::detail::make_signed< storage_type >::type signed_storage_type;
         return Derived::fetch_add(storage, static_cast< storage_type >(-static_cast< signed_storage_type >(v)), order);
     }
 
@@ -97,20 +105,14 @@ struct windows_operations :
     {
         store(storage, (storage_type)0, order);
     }
-
-    static BOOST_FORCEINLINE bool is_lock_free(storage_type const volatile&) BOOST_NOEXCEPT
-    {
-        return true;
-    }
 };
 
 template< bool Signed >
 struct operations< 4u, Signed > :
-    public windows_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > >
+    public windows_operations< 4u, Signed, operations< 4u, Signed > >
 {
-    typedef windows_operations< typename make_storage_type< 4u, Signed >::type, operations< 4u, Signed > > base_type;
+    typedef windows_operations< 4u, Signed, operations< 4u, Signed > > base_type;
     typedef typename base_type::storage_type storage_type;
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
 
     static BOOST_FORCEINLINE storage_type fetch_add(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {

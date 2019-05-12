@@ -12,7 +12,7 @@
 #include "xsimd_align.hpp"
 
 #define XSIMD_VERSION_MAJOR 7
-#define XSIMD_VERSION_MINOR 1
+#define XSIMD_VERSION_MINOR 2
 #define XSIMD_VERSION_PATCH 2
 
 #ifndef XSIMD_DEFAULT_ALLOCATOR

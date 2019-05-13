@@ -37,7 +37,7 @@ namespace range_detail
         // primary template
         //////////////////////////////////////////////////////////////////////
         template< typename C >
-        inline BOOST_DEDUCED_TYPENAME range_iterator<C>::type
+        BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<C>::type
         range_end( C& c )
         {
             //
@@ -53,13 +53,13 @@ namespace range_detail
         //////////////////////////////////////////////////////////////////////
 
         template< typename Iterator >
-        inline Iterator range_end( const std::pair<Iterator,Iterator>& p )
+        BOOST_CONSTEXPR inline Iterator range_end( const std::pair<Iterator,Iterator>& p )
         {
             return p.second;
         }
 
         template< typename Iterator >
-        inline Iterator range_end( std::pair<Iterator,Iterator>& p )
+        BOOST_CONSTEXPR inline Iterator range_end( std::pair<Iterator,Iterator>& p )
         {
             return p.second;
         }
@@ -69,13 +69,13 @@ namespace range_detail
         //////////////////////////////////////////////////////////////////////
 
         template< typename T, std::size_t sz >
-        inline const T* range_end( const T (&a)[sz] )
+        BOOST_CONSTEXPR inline const T* range_end( const T (&a)[sz] ) BOOST_NOEXCEPT
         {
             return range_detail::array_end<T,sz>( a );
         }
 
         template< typename T, std::size_t sz >
-        inline T* range_end( T (&a)[sz] )
+        BOOST_CONSTEXPR inline T* range_end( T (&a)[sz] ) BOOST_NOEXCEPT
         {
             return range_detail::array_end<T,sz>( a );
         }
@@ -88,7 +88,7 @@ namespace range_adl_barrier
 {
 
 template< class T >
-inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type end( T& r )
+BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type end( T& r )
 {
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
     using namespace range_detail;
@@ -97,7 +97,7 @@ inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type end( T& r )
 }
 
 template< class T >
-inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type end( const T& r )
+BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type end( const T& r )
 {
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
     using namespace range_detail;
@@ -115,7 +115,7 @@ namespace boost
     namespace range_adl_barrier
     {
         template< class T >
-        inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type
+        BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type
         const_end( const T& r )
         {
             return boost::range_adl_barrier::end( r );

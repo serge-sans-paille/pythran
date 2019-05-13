@@ -36,7 +36,7 @@ namespace range_detail
     //////////////////////////////////////////////////////////////////////
 
     template< typename C >
-    inline BOOST_DEDUCED_TYPENAME range_iterator<C>::type
+    BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<C>::type
     range_begin( C& c )
     {
         //
@@ -52,13 +52,13 @@ namespace range_detail
     //////////////////////////////////////////////////////////////////////
 
     template< typename Iterator >
-    inline Iterator range_begin( const std::pair<Iterator,Iterator>& p )
+    BOOST_CONSTEXPR inline Iterator range_begin( const std::pair<Iterator,Iterator>& p )
     {
         return p.first;
     }
 
     template< typename Iterator >
-    inline Iterator range_begin( std::pair<Iterator,Iterator>& p )
+    BOOST_CONSTEXPR inline Iterator range_begin( std::pair<Iterator,Iterator>& p )
     {
         return p.first;
     }
@@ -71,13 +71,13 @@ namespace range_detail
     // May this be discarded? Or is it needed for bad compilers?
     //
     template< typename T, std::size_t sz >
-    inline const T* range_begin( const T (&a)[sz] )
+    BOOST_CONSTEXPR inline const T* range_begin( const T (&a)[sz] ) BOOST_NOEXCEPT
     {
         return a;
     }
 
     template< typename T, std::size_t sz >
-    inline T* range_begin( T (&a)[sz] )
+    BOOST_CONSTEXPR inline T* range_begin( T (&a)[sz] ) BOOST_NOEXCEPT
     {
         return a;
     }
@@ -94,7 +94,7 @@ namespace range_adl_barrier
 {
 
 template< class T >
-inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& r )
+BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& r )
 {
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
     using namespace range_detail;
@@ -103,7 +103,7 @@ inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& r )
 }
 
 template< class T >
-inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type begin( const T& r )
+BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type begin( const T& r )
 {
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
     using namespace range_detail;

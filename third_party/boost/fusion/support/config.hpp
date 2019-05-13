@@ -1,6 +1,6 @@
 /*=============================================================================
     Copyright (c) 2014 Eric Niebler
-    Copyright (c) 2014 Kohei Takahashi
+    Copyright (c) 2014,2015,2018 Kohei Takahashi
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -94,6 +94,26 @@ namespace std
 #define BOOST_FUSION_CONSTEXPR_THIS
 #else
 #define BOOST_FUSION_CONSTEXPR_THIS BOOST_CONSTEXPR
+#endif
+
+
+// Workaround for compiler which doesn't compile decltype(expr)::type.
+// It expects decltype(expr) deduced as mpl::identity<T>.
+#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1913)) || BOOST_WORKAROUND(BOOST_GCC, < 40700)
+#   include <boost/mpl/identity.hpp>
+#   define BOOST_FUSION_IDENTIFIED_TYPE(parenthesized_expr) \
+        boost::mpl::identity<decltype parenthesized_expr>::type::type
+#else
+#   define BOOST_FUSION_IDENTIFIED_TYPE(parenthesized_expr) \
+        decltype parenthesized_expr ::type
+#endif
+
+
+// Workaround for GCC 4.6 that rejects defaulted function with noexcept.
+#if BOOST_WORKAROUND(BOOST_GCC, / 100 == 406)
+#   define BOOST_FUSION_NOEXCEPT_ON_DEFAULTED
+#else
+#   define BOOST_FUSION_NOEXCEPT_ON_DEFAULTED BOOST_NOEXCEPT
 #endif
 
 #endif

@@ -461,9 +461,12 @@ class PythonModule(object):
         self.metadata['moduledoc'] = moduledoc
 
     def docstring(self, doc):
-        return '"%s"' % (dedent(doc).replace('"', '\\"')
-                                    .replace('\n', '\\n')
-                                    .replace('\r', '\\r'))
+        return self.splitstring(dedent(doc).replace('"', '\\"')
+                                           .replace('\n', '\\n')
+                                           .replace('\r', '\\r'))
+
+    def splitstring(self, doc):
+        return '"{}"'.format('\\n""'.join(doc.split('\\n')))
 
     def add_to_preamble(self, *pa):
         self.preamble.extend(pa)
@@ -583,12 +586,14 @@ class PythonModule(object):
                 -> PyObject* {{
                 {tryall}
                 return pythonic::python::raise_invalid_argument(
-                               "{name}", "{candidates}", args, kw);
+                               "{name}", {candidates}, args, kw);
                 }});
             }}
             '''.format(name=fname,
                        tryall="\n".join(tryall),
-                       candidates=candidates.replace('\n', '\\n'),
+                       candidates=self.splitstring(
+                           candidates.replace('\n', '\\n')
+                       ),
                        wname=wrapper_name))
 
             fdoc = self.docstring(self.docstrings.get(fname, ''))

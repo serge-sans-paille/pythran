@@ -3,8 +3,8 @@
 
 #include "pythonic/include/numpy/isnan.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -18,10 +18,20 @@ namespace numpy
     {
       return std::isnan(v.real()) || std::isnan(v.imag());
     }
+
     template <class T>
-    bool isnan(T const &v)
+    auto isnan(T const &v) -> typename std::enable_if<
+        std::is_floating_point<typename std::decay<T>::type>::value, bool>::type
     {
       return std::isnan(v);
+    }
+
+    template <class T>
+    auto isnan(T const &v) -> typename std::enable_if<
+        !std::is_floating_point<typename std::decay<T>::type>::value,
+        bool>::type
+    {
+      return false;
     }
   }
 

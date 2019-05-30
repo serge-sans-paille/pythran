@@ -155,29 +155,29 @@ class TestNumpyFunc2(TestEnv):
 
     def test_correlate_6(self):
         self.run_test("def np_correlate_6(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
-                  numpy.random.randn(12) + 1j*numpy.random.randn(12),
-                  numpy.random.randn(7) + 1j* numpy.random.randn(7),
+                  numpy.arange(12) + 1j*numpy.arange(12.),
+                  numpy.arange(7.) + 1j* numpy.arange(7.),
                   np_correlate_6=[NDArray[complex,:],NDArray[complex,:]])
 
     def test_correlate_7(self):
         dtype = numpy.float32
         self.run_test("def np_correlate_7(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
-                  numpy.random.randn(12).astype(dtype) + 1j*numpy.random.randn(12).astype(dtype),
-                  numpy.random.randn(7).astype(dtype) + 1j* numpy.random.randn(7).astype(dtype),
+                  numpy.arange(12).astype(dtype) + 1j*numpy.arange(12).astype(dtype),
+                  numpy.arange(7).astype(dtype) + 1j* numpy.arange(7).astype(dtype),
                   np_correlate_7=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
     def test_correlate_8(self):
         dtype = numpy.float32
         self.run_test("def np_correlate_8(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
-                  numpy.random.randn(7).astype(dtype) + 1j*numpy.random.randn(7).astype(dtype),
-                  numpy.random.randn(12).astype(dtype) + 1j* numpy.random.randn(12).astype(dtype),
+                  numpy.arange(7).astype(dtype) +  1j*numpy.arange(7).astype(dtype),
+                  numpy.arange(12).astype(dtype) + 1j*numpy.arange(12).astype(dtype),
                   np_correlate_8=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
     def test_correlate_9(self):
         dtype = numpy.float
         self.run_test("def np_correlate_9(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
-                  numpy.random.randn(7).astype(dtype) + 1j*numpy.random.randn(7).astype(dtype),
-                  numpy.random.randn(12).astype(dtype) + 1j* numpy.random.randn(12).astype(dtype),
+                  numpy.arange(7).astype(dtype)  + 1j*numpy.arange(7).astype(dtype),
+                  numpy.arange(12).astype(dtype) + 1j*numpy.arange(12).astype(dtype),
                   np_correlate_9=[NDArray[numpy.complex128,:],NDArray[numpy.complex128,:]])
 
     def test_correlate_10(self):

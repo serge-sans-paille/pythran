@@ -4,7 +4,7 @@ a dynamic library, see __init__.py for exported interfaces.
 '''
 
 from pythran.backend import Cxx, Python
-from pythran.config import cfg, make_extension
+from pythran.config import cfg
 from pythran.cxxgen import PythonModule, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.cxxgen import ReturnStatement
@@ -295,11 +295,9 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     builddir = mkdtemp()
     buildtmp = mkdtemp()
 
-    extension_args = make_extension(python=True, **kwargs)
-
     extension = PythranExtension(module_name,
                                  [cxxfile],
-                                 **extension_args)
+                                 **kwargs)
 
     try:
         setup(name=module_name,

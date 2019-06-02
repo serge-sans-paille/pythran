@@ -321,7 +321,7 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
             with open(dest_file, 'wb') as dest:
                 dest.write(src.read())
 
-    ext = sysconfig.get_config_var('SO')
+    ext = sysconfig.get_config_var('SO' if sys.version_info.major == 2 else 'EXT_SUFFIX')
     # Copy all generated files including the module name prefix (.pdb, ...)
     for f in glob.glob(os.path.join(builddir, module_name + "*")):
         if f.endswith(ext):

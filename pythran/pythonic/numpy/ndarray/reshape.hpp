@@ -13,15 +13,26 @@ namespace numpy
 {
   namespace ndarray
   {
+    namespace misc
+    {
+      template <class P, size_t... Is>
+      void set(P &p, long i, long v, utils::index_sequence<Is...>)
+      {
+        std::initializer_list<int> _{
+            ((i == Is && (sutils::assign(std::get<Is>(p), v), true)), 1)...};
+      }
+    }
     template <class T, class pS, class NpS>
     typename std::enable_if<!std::is_integral<NpS>::value,
                             types::ndarray<T, NpS>>::type
     reshape(types::ndarray<T, pS> const &expr, NpS const &new_shape)
     {
-      auto auto_shape = new_shape;
-      auto where = sutils::find(auto_shape, -1);
-      if (where) {
-        *where = expr.flat_size() / -sutils::prod(new_shape);
+      long where = sutils::find(new_shape, -1);
+      if (where >= 0) {
+        auto auto_shape = new_shape;
+        misc::set(auto_shape, where,
+                  expr.flat_size() / -sutils::prod(new_shape),
+                  utils::make_index_sequence<std::tuple_size<NpS>::value>());
         return expr.reshape(auto_shape);
       } else {
         auto nshape = sutils::prod(new_shape);
@@ -34,7 +45,7 @@ namespace numpy
           std::copy(out.fbegin(), out.fbegin() + nshape % n, iter);
           return out;
         } else {
-          return expr.reshape(auto_shape);
+          return expr.reshape(new_shape);
         }
       }
     }

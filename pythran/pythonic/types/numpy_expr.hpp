@@ -187,11 +187,11 @@ namespace types
   template <class Op, class... Args>
   template <class... Indices>
   auto numpy_expr<Op, Args...>::map_fast(Indices... indices) const -> decltype(
-      this->_map_fast(std::array<long, sizeof...(Indices)>{{indices...}},
+      this->_map_fast(array<long, sizeof...(Indices)>{{indices...}},
                       utils::make_index_sequence<sizeof...(Args)>{}))
   {
     static_assert(sizeof...(Indices) == sizeof...(Args), "compatible call");
-    return _map_fast(std::array<long, sizeof...(Indices)>{{indices...}},
+    return _map_fast(array<long, sizeof...(Indices)>{{indices...}},
                      utils::make_index_sequence<sizeof...(Args)>{});
   }
 

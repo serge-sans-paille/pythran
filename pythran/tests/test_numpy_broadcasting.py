@@ -169,6 +169,11 @@ class TestBroadcasting(TestEnv):
                       np.arange(100).reshape(100, 1),
                       broadcast_compute_both_dims=[NDArray[int, :, :], NDArray[int, :, :]])
 
+    def test_broadcast_with_reshape(self):
+        self.run_test('def broadcast_with_reshape(x): n = x.shape[0]; return x.reshape(1, n) + x.reshape(n, 1)',
+                      np.arange(100),
+                      broadcast_with_reshape=[NDArray[int, :]])
+
     def test_broadcast_sum(self):
         code = '''
         def broadcast_sum(x, y):

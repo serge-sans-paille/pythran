@@ -121,26 +121,14 @@ namespace types
     return {0, 1};
   }
 
-  /* helper to build a new shape out of a shape && a slice with new axis
+  /* helper to build a new shape out of a shape and a slice with new axis
    */
-  template <size_t N, class pS, size_t C>
-  types::array<long, N> make_reshape(pS const &shape,
-                                     array<bool, C> const &is_new_axis)
+  template <size_t N, class pS, class IsNewAxis>
+  auto make_reshape(pS const &shape, IsNewAxis is_new_axis) -> decltype(
+      sutils::copy_new_axis<std::tuple_size<pS>::value + N>(shape, is_new_axis))
   {
-    array<long, N> new_shape;
-    return sutils::copy_new_axis(new_shape, shape, is_new_axis);
-    /*
-        size_t j = 0;
-        for (size_t i = 0; i < C; ++i)
-          if (is_new_axis[i])
-            new_shape[i] = 1;
-          else
-            new_shape[i] = shape[j++];
-
-        for (size_t i = C; i < N; ++i)
-          new_shape[i] = shape[i + j - C];
-        return new_shape;
-        */
+    return sutils::copy_new_axis<std::tuple_size<pS>::value + N>(shape,
+                                                                 is_new_axis);
   }
 
   /* helper to build an extended slice aka numpy_gexpr out of a subscript
@@ -214,16 +202,15 @@ namespace types
         typename std::enable_if<
             count_new_axis<Sp...>::value != 0,
             decltype(_make_gexpr_helper(
-                arg.reshape(make_reshape<Arg::value +
-                                         count_new_axis<Sp...>::value>(
-                    arg.shape(),
-                    array<bool, sizeof...(Sp)>{to_slice<Sp>::is_new_axis...})),
+                arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
+                    arg.shape(), std::tuple<std::integral_constant<
+                                     bool, to_slice<Sp>::is_new_axis>...>())),
                 s, utils::make_index_sequence<sizeof...(Sp)>()))>::type
     {
       return _make_gexpr_helper(
-          arg.reshape(make_reshape<Arg::value + count_new_axis<Sp...>::value>(
-              arg.shape(),
-              array<bool, sizeof...(Sp)>{to_slice<Sp>::is_new_axis...})),
+          arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
+              arg.shape(), std::tuple<std::integral_constant<
+                               bool, to_slice<Sp>::is_new_axis>...>())),
           s, utils::make_index_sequence<sizeof...(Sp)>());
     }
 

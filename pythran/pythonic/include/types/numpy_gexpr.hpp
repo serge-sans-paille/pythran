@@ -58,33 +58,45 @@ namespace types
     contiguous_normalized_slice operator()(none_type);
   };
 
-  /* helper to build a new shape out of a shape && a slice with new axis
+  /* helper to build a new shape out of a shape and a slice with new axis
    */
-  template <size_t N, class pS, size_t C>
-  array<long, N> make_reshape(pS const &shape,
-                              array<bool, C> const &is_new_axis);
+  template <size_t N, class pS, class IsNewAxis>
+  auto make_reshape(pS const &shape, IsNewAxis is_new_axis)
+      -> decltype(sutils::copy_new_axis<std::tuple_size<pS>::value + N>(
+          shape, is_new_axis));
 
   /* helper to build an extended slice aka numpy_gexpr out of a subscript
    */
   template <size_t C>
   struct extended_slice {
     template <class T, class pS, class... S>
-    auto operator()(ndarray<T, pS> &&a, S const &... s) -> decltype(
-        std::declval<ndarray<T, array<long, std::tuple_size<pS>::value + C>>>()(
-            std::declval<typename to_slice<S>::type>()...))
+    auto operator()(ndarray<T, pS> &&a, S const &... s)
+        -> decltype(std::move(a).reshape(make_reshape<C>(
+            a.shape(),
+            std::tuple<
+                std::integral_constant<bool, to_slice<S>::is_new_axis>...>()))(
+            to_slice<S>{}(s)...))
+
     {
-      return std::move(a).reshape(make_reshape<std::tuple_size<pS>::value + C>(
-          a.shape(), array<bool, sizeof...(S)>{to_slice<S>::is_new_axis...}))(
+      return std::move(a).reshape(make_reshape<C>(
+          a.shape(),
+          std::tuple<
+              std::integral_constant<bool, to_slice<S>::is_new_axis>...>()))(
           to_slice<S>{}(s)...);
     }
 
     template <class T, class pS, class... S>
-    auto operator()(ndarray<T, pS> const &a, S const &... s) -> decltype(
-        std::declval<ndarray<T, array<long, std::tuple_size<pS>::value + C>>>()(
-            std::declval<typename to_slice<S>::type>()...))
+    auto operator()(ndarray<T, pS> const &a, S const &... s)
+        -> decltype(a.reshape(make_reshape<C>(
+            a.shape(),
+            std::tuple<
+                std::integral_constant<bool, to_slice<S>::is_new_axis>...>()))(
+            to_slice<S>{}(s)...))
     {
-      return a.reshape(make_reshape<std::tuple_size<pS>::value + C>(
-          a.shape(), array<bool, sizeof...(S)>{{to_slice<S>::is_new_axis...}}))(
+      return a.reshape(make_reshape<C>(
+          a.shape(),
+          std::tuple<
+              std::integral_constant<bool, to_slice<S>::is_new_axis>...>()))(
           to_slice<S>{}(s)...);
     }
   };
@@ -402,10 +414,9 @@ namespace types
         typename std::enable_if<
             count_new_axis<Sp...>::value != 0,
             decltype(_make_gexpr_helper(
-                arg.reshape(make_reshape<Arg::value +
-                                         count_new_axis<Sp...>::value>(
-                    arg.shape(),
-                    array<bool, sizeof...(Sp)>{to_slice<Sp>::is_new_axis...})),
+                arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
+                    arg.shape(), std::tuple<std::integral_constant<
+                                     bool, to_slice<Sp>::is_new_axis>...>())),
                 s, utils::make_index_sequence<sizeof...(Sp)>()))>::type;
 
     template <class Arg, class... S>

@@ -174,7 +174,7 @@ namespace types
     T &operator=(T const &t);
     intptr_t id() const;
     template <class T1>
-    operator none<T1, true>() const
+    operator none<T1, true>()
     {
       if (is_none)
         return {none_type{}};

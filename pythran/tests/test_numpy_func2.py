@@ -223,29 +223,29 @@ class TestNumpyFunc2(TestEnv):
 
     def test_convolve_6(self):
         self.run_test("def np_convolve_6(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
-                  numpy.random.randn(12) + 1j*numpy.random.randn(12),
-                  numpy.random.randn(7) + 1j* numpy.random.randn(7),
+                  numpy.arange(12.) + 1j*numpy.arange(12.),
+                  numpy.arange(7.) + 1j* numpy.arange(7.),
                   np_convolve_6=[NDArray[complex,:],NDArray[complex,:]])
 
     def test_convolve_7(self):
         dtype = numpy.float32
         self.run_test("def np_convolve_7(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
-                  numpy.random.randn(12).astype(dtype) + 1j*numpy.random.randn(12).astype(dtype),
-                  numpy.random.randn(7).astype(dtype) + 1j* numpy.random.randn(7).astype(dtype),
+                  numpy.arange(12).astype(dtype) + 1j*numpy.arange(12).astype(dtype),
+                  numpy.arange(7).astype(dtype) +  1j*numpy.arange(7).astype(dtype),
                   np_convolve_7=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
     def test_convolve_8(self):
         dtype = numpy.float32
         self.run_test("def np_convolve_8(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
-                  numpy.random.randn(7).astype(dtype) + 1j*numpy.random.randn(7).astype(dtype),
-                  numpy.random.randn(12).astype(dtype) + 1j* numpy.random.randn(12).astype(dtype),
+                  numpy.arange(7).astype(dtype) + 1j*numpy.arange(7).astype(dtype),
+                  numpy.arange(12).astype(dtype) +1j*numpy.arange(12).astype(dtype),
                   np_convolve_8=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
     def test_convolve_9(self):
         dtype = numpy.float
         self.run_test("def np_convolve_9(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
-                  numpy.random.randn(7).astype(dtype) + 1j*numpy.random.randn(7).astype(dtype),
-                  numpy.random.randn(12).astype(dtype) + 1j* numpy.random.randn(12).astype(dtype),
+                  numpy.arange(7).astype(dtype) + 1j*  numpy.arange(7).astype(dtype),
+                  numpy.arange(12).astype(dtype) + 1j* numpy.arange(12).astype(dtype),
                   np_convolve_9=[NDArray[numpy.complex128,:],NDArray[numpy.complex128,:]])
 
     def test_convolve_10(self):
@@ -825,6 +825,9 @@ def np_reshape1(a):
 
     def test_reshape3(self):
         self.run_test("def np_reshape3(a): return (1 + a.reshape(1, a.size)), (1 + a[None])", numpy.arange(10), np_reshape3=[NDArray[int,:]])
+        
+    def test_reshape4(self):
+        self.run_test("def np_reshape4(a): return (1 + a.reshape(5, -1)), (1 + a[None])", numpy.arange(10), np_reshape4=[NDArray[int,:]])
         
     def test_expand_dims1(self):
         code = """

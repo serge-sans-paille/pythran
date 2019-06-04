@@ -178,6 +178,11 @@ namespace types
         : values{check_type(std::get<Is>(v), std::get<Is>(values))...}
     {
     }
+    template <class... Args>
+    pshape(std::tuple<Args...> const &v)
+        : pshape(v, utils::make_index_sequence<sizeof...(Args)>())
+    {
+    }
 
     template <class... Args>
     pshape(long arg, Args... args)
@@ -1034,10 +1039,25 @@ namespace sutils
   };
 
   template <class T>
+  struct head;
+
+  template <class Ty, class... Tys>
+  struct head<types::pshape<Ty, Tys...>> {
+    using type = Ty;
+  };
+  template <typename T, size_t N, class V>
+  struct head<types::array_base<T, N, V>> {
+    using type = T;
+  };
+
+  template <class T>
   using pop_head_t = typename pop_head<T>::type;
 
   template <class T>
   using pop_tail_t = typename pop_tail<T>::type;
+
+  template <class T>
+  using head_t = typename head<T>::type;
 
   template <class... Tys>
   types::array<long, sizeof...(Tys)> array(types::pshape<Tys...> const &pS)
@@ -1085,20 +1105,20 @@ namespace sutils
   using push_front_t = concat_t<types::pshape<T>, P>;
 
   template <class S>
-  long *find(S &s, long v, std::integral_constant<size_t, 0>)
+  long find(S &s, long v, std::integral_constant<size_t, 0>)
   {
-    return v == std::get<0>(s) ? &std::get<0>(s) : nullptr;
+    return v == std::get<0>(s) ? 0 : -1;
   }
   template <class S, size_t I>
-  long *find(S &s, long v, std::integral_constant<size_t, I>)
+  long find(S &s, long v, std::integral_constant<size_t, I>)
   {
     return v == std::get<I>(s)
-               ? (&std::get<I>(s))
+               ? I
                : find(s, v, std::integral_constant<size_t, I - 1>());
   }
 
   template <class S>
-  long *find(S &s, long v)
+  long find(S &s, long v)
   {
     return find(
         s, v, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
@@ -1230,65 +1250,118 @@ namespace sutils
         s, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
   }
 
-  template <class S0, class S1, class S2, size_t J>
-  typename std::enable_if<(0 < std::tuple_size<S2>::value), void>::type
-  copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis,
-                std::integral_constant<size_t, J>,
-                std::integral_constant<size_t, 0>)
-  {
-    if (std::get<0>(new_axis)) {
-      std::get<0>(s) = 1;
-    } else {
-      std::get<0>(s) = std::get<0>(shape);
+  template <size_t I, class P>
+  struct safe_tuple_element {
+    using type =
+        typename std::tuple_element<(I < std::tuple_size<P>::value ? I : 0),
+                                    P>::type;
+  };
+
+  template <size_t I>
+  struct copy_new_axis_helper;
+
+  template <>
+  struct copy_new_axis_helper<0> {
+    template <class S0, class S1, class S2, size_t J>
+    typename std::enable_if<
+        (0 != std::tuple_size<S2>::value) &&
+            std::tuple_element<0, S2>::type::value,
+        sutils::push_front_t<S0, std::integral_constant<long, 1>>>::type
+    doit(S0 s, S1 const &shape, S2 const &new_axis,
+         std::integral_constant<size_t, J>)
+    {
+      return {std::tuple_cat(std::tuple<std::integral_constant<long, 1>>(),
+                             s.values)};
     }
-  }
-
-  template <class S0, class S1, class S2, size_t J>
-  typename std::enable_if<(0 >= std::tuple_size<S2>::value), void>::type
-  copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis,
-                std::integral_constant<size_t, J>,
-                std::integral_constant<size_t, 0>)
-  {
-    std::get<0>(s) = std::get<J>(shape);
-  }
-
-  template <class S0, class S1, class S2, size_t J, size_t I>
-  typename std::enable_if<(I < std::tuple_size<S2>::value), void>::type
-  copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis,
-                std::integral_constant<size_t, J>,
-                std::integral_constant<size_t, I>)
-  {
-    if (std::get<I>(new_axis)) {
-      std::get<I>(s) = 1;
-      copy_new_axis(s, shape, new_axis, std::integral_constant<size_t, J>(),
-                    std::integral_constant<size_t, I - 1>());
-    } else {
-      std::get<I>(s) = std::get<J>(shape);
-      copy_new_axis(s, shape, new_axis, std::integral_constant < size_t,
-                    J == 0 ? J : J - 1 > (),
-                    std::integral_constant<size_t, I - 1>());
+    template <class S0, class S1, class S2, size_t J>
+    typename std::enable_if<
+        (0 != std::tuple_size<S2>::value) &&
+            !std::tuple_element<0, S2>::type::value,
+        sutils::push_front_t<S0,
+                             typename std::tuple_element<0, S1>::type>>::type
+    doit(S0 s, S1 const &shape, S2 const &new_axis,
+         std::integral_constant<size_t, J>)
+    {
+      return {std::tuple_cat(std::make_tuple(std::get<0>(shape)), s.values)};
     }
-  }
 
-  template <class S0, class S1, class S2, size_t J, size_t I>
-  typename std::enable_if<(I >= std::tuple_size<S2>::value), void>::type
-  copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis,
-                std::integral_constant<size_t, J>,
-                std::integral_constant<size_t, I>)
-  {
-    std::get<I>(s) = std::get<J>(shape);
-    copy_new_axis(s, shape, new_axis, std::integral_constant<size_t, J - 1>(),
-                  std::integral_constant<size_t, I - 1>());
-  }
+    template <class S0, class S1, class S2, size_t J>
+    typename std::enable_if<
+        (0 == std::tuple_size<S2>::value),
+        sutils::push_front_t<S0,
+                             typename std::tuple_element<J, S1>::type>>::type
+    doit(S0 s, S1 const &shape, S2 const &new_axis,
+         std::integral_constant<size_t, J>)
+    {
+      return {std::tuple_cat(std::make_tuple(std::get<J>(shape)), s.values)};
+    }
+  };
 
-  template <class S0, class S1, class S2>
-  S0 copy_new_axis(S0 &s, S1 const &shape, S2 const &new_axis)
+  template <size_t I>
+  struct copy_new_axis_helper {
+    template <class S0, class S1, class S2, size_t J>
+    auto doit(S0 s, S1 const &shape, S2 const &new_axis,
+              std::integral_constant<size_t, J>) ->
+        typename std::enable_if<
+            (I < std::tuple_size<S2>::value) &&
+                safe_tuple_element<I, S2>::type::value,
+            decltype(copy_new_axis_helper<I - 1>{}.doit(
+                sutils::push_front_t<S0, std::integral_constant<long, 1>>(),
+                shape, new_axis, std::integral_constant<size_t, J>()))>::type
+    {
+      return copy_new_axis_helper<I - 1>{}.doit(
+          sutils::push_front_t<S0, std::integral_constant<long, 1>>(
+              std::tuple_cat(std::tuple<std::integral_constant<long, 1>>(),
+                             s.values)),
+          shape, new_axis, std::integral_constant<size_t, J>());
+    }
+
+    template <class S0, class S1, class S2, size_t J>
+    auto doit(S0 s, S1 const &shape, S2 const &new_axis,
+              std::integral_constant<size_t, J>) ->
+        typename std::enable_if<
+            (I >= std::tuple_size<S2>::value),
+            decltype(copy_new_axis_helper<I - 1>{}.doit(
+                sutils::push_front_t<
+                    S0, typename std::tuple_element<J, S1>::type>(),
+                shape, new_axis, std::integral_constant < size_t,
+                J == 0 ? J : J - 1 > ()))>::type
+    {
+      return copy_new_axis_helper<I - 1>{}.doit(
+          sutils::push_front_t<S0, typename std::tuple_element<J, S1>::type>(
+              std::tuple_cat(std::make_tuple(std::get<J>(shape)), s.values)),
+          shape, new_axis, std::integral_constant < size_t,
+          J == 0 ? J : J - 1 > ());
+    }
+    template <class S0, class S1, class S2, size_t J>
+    auto doit(S0 s, S1 const &shape, S2 const &new_axis,
+              std::integral_constant<size_t, J>) ->
+        typename std::enable_if<
+            (I < std::tuple_size<S2>::value) &&
+                !safe_tuple_element<I, S2>::type::value,
+            decltype(copy_new_axis_helper<I - 1>{}.doit(
+                sutils::push_front_t<
+                    S0, typename std::tuple_element<J, S1>::type>(),
+                shape, new_axis, std::integral_constant < size_t,
+                J == 0 ? J : J - 1 > ()))>::type
+    {
+      return copy_new_axis_helper<I - 1>{}.doit(
+          sutils::push_front_t<S0, typename std::tuple_element<J, S1>::type>(
+              std::tuple_cat(std::make_tuple(std::get<J>(shape)), s.values)),
+          shape, new_axis, std::integral_constant < size_t,
+          J == 0 ? J : J - 1 > ());
+    }
+  };
+
+  template <size_t N, class S1, class S2>
+  auto copy_new_axis(S1 const &shape, S2 const &new_axis)
+      -> decltype(copy_new_axis_helper<N - 1>{}.doit(
+          types::pshape<>(), shape, new_axis,
+          std::integral_constant<size_t, std::tuple_size<S1>::value - 1>()))
   {
-    copy_new_axis(
-        s, shape, new_axis,
-        std::integral_constant<size_t, std::tuple_size<S1>::value - 1>(),
-        std::integral_constant<size_t, std::tuple_size<S0>::value - 1>());
-    return s;
+    return copy_new_axis_helper<N - 1>{}.doit(
+        types::pshape<>(), shape, new_axis,
+        std::integral_constant<size_t, std::tuple_size<S1>::value - 1>());
   }
 }
 

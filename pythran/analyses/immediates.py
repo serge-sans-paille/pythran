@@ -20,7 +20,8 @@ class Immediates(NodeAnalysis):
         if len(func_aliases) == 1 and next(iter(func_aliases)) is _make_shape:
             self.result.update(a for a in node.args
                                if isinstance(a, ast.Num)
-                               and isinstance(a.n, int))
+                               and isinstance(a.n, int)
+                               and a.n >= 0)
             return
 
         return self.generic_visit(node)

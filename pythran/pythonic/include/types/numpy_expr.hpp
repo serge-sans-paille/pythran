@@ -8,6 +8,26 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
+  template <class... Tys>
+  struct count_non_integral;
+  template <>
+  struct count_non_integral<long> : std::integral_constant<long, 1> {
+  };
+  template <class T>
+  struct count_non_integral<T> : std::integral_constant<long, 0> {
+  };
+  template <class Ty0, class Ty1, class... Tys>
+  struct count_non_integral<Ty0, Ty1, Tys...>
+      : std::integral_constant<long,
+                               count_non_integral<Ty0>::value +
+                                   count_non_integral<Ty1, Tys...>::value> {
+  };
+  template <class P>
+  struct is_perfect_stepping;
+  template <class... Tys>
+  struct is_perfect_stepping<pshape<Tys...>>
+      : std::integral_constant<bool, count_non_integral<Tys...>::value == 1> {
+  };
 
   template <class Expr>
   struct is_numexpr_arg;
@@ -24,17 +44,20 @@ namespace types
       return Op{}(*std::get<I>(iters)...);
     }
   };
+  template <class T>
+  struct step {
+    using type = typename T::step_type;
+  };
 
-  template <class Op, class... Iters>
+  template <class Op, class Steps, class... Iters>
   struct numpy_expr_iterator
       : std::iterator<std::random_access_iterator_tag,
                       typename std::remove_reference<decltype(std::declval<
                           Op>()(*std::declval<Iters>()...))>::type> {
-    std::array<long, sizeof...(Iters)> steps_;
+    Steps steps_;
     std::tuple<Iters...> iters_;
 
-    numpy_expr_iterator(std::array<long, sizeof...(Iters)> steps,
-                        Iters... iters)
+    numpy_expr_iterator(array<long, sizeof...(Iters)> steps, Iters... iters)
         : steps_(steps), iters_(iters...)
     {
     }
@@ -63,11 +86,30 @@ namespace types
       return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
     }
 
+    template <size_t I>
+    bool _incr_opt(std::integral_constant<bool, true> long_step)
+    {
+      if (is_perfect_stepping<Steps>::value)
+        ++std::get<I>(iters_);
+      else
+        std::get<I>(iters_) += std::get<I>(steps_);
+      return true;
+    }
+
+    template <size_t I>
+    bool _incr_opt(std::integral_constant<bool, false> long_step)
+    {
+      if (std::tuple_element<I, Steps>::type::value)
+        ++std::get<I>(iters_);
+      return true;
+    }
+
     template <size_t... I>
     void _incr(utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> _{
-          (std::get<I>(iters_) += steps_[I], true)...};
+      std::initializer_list<bool> _{_incr_opt<I>(std::integral_constant<
+          bool, std::is_same<long, typename std::tuple_element<
+                                       I, Steps>::type>::value>{})...};
     }
     numpy_expr_iterator &operator++()
     {
@@ -85,7 +127,7 @@ namespace types
     void _update(long i, utils::index_sequence<I...>)
     {
       std::initializer_list<bool> _{
-          (std::get<I>(iters_) += steps_[I] * i, true)...};
+          (std::get<I>(iters_) += std::get<I>(steps_) * i, true)...};
     }
     numpy_expr_iterator &operator+=(long i)
     {
@@ -115,7 +157,7 @@ namespace types
     template <size_t I>
     bool _neq(numpy_expr_iterator const &other, utils::int_<I>) const
     {
-      return (steps_[I - 1] &&
+      return (std::get<I - 1>(steps_) &&
               (std::get<I - 1>(iters_) != std::get<I - 1>(other.iters_))) ||
              _neq(other, utils::int_<I - 1>{});
     }
@@ -132,7 +174,7 @@ namespace types
     template <size_t I>
     bool _eq(numpy_expr_iterator const &other, utils::int_<I>) const
     {
-      return (!steps_[I - 1] ||
+      return (!std::get<I - 1>(steps_) ||
               (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_))) &&
              _eq(other, utils::int_<I - 1>{});
     }
@@ -150,11 +192,11 @@ namespace types
     template <size_t I>
     bool _lt(numpy_expr_iterator const &other, utils::int_<I>) const
     {
-      if (!steps_[I - 1] ||
+      if (!std::get<I - 1>(steps_) ||
           (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_)))
         return _lt(other, utils::int_<I - 1>{});
       else
-        return steps_[I - 1] &&
+        return std::get<I - 1>(steps_) &&
                (std::get<I - 1>(iters_) < std::get<I - 1>(other.iters_));
     }
 
@@ -164,16 +206,16 @@ namespace types
     }
   };
 #ifdef USE_XSIMD
-  template <class E, class Op, class SIters, class... Iters>
+  template <class E, class Op, class Steps, class SIters, class... Iters>
   struct numpy_expr_simd_iterator
       : std::iterator<std::random_access_iterator_tag,
                       typename std::remove_reference<decltype(std::declval<
                           Op>()(*std::declval<Iters>()...))>::type> {
-    std::array<long, sizeof...(Iters)> steps_;
+    Steps steps_;
     std::tuple<Iters...> iters_;
     SIters siters_;
 
-    numpy_expr_simd_iterator(std::array<long, sizeof...(Iters)> steps,
+    numpy_expr_simd_iterator(array<long, sizeof...(Iters)> steps,
                              SIters const &siters, Iters... iters)
         : steps_(steps), iters_(iters...), siters_(siters)
     {
@@ -195,7 +237,7 @@ namespace types
     auto _dereference(utils::index_sequence<I...>) const
         -> decltype(Op{}(*std::get<I>(iters_)...))
     {
-      return Op{}(((steps_[I])
+      return Op{}(((std::get<I>(steps_))
                        ? (*std::get<I>(iters_))
                        : (xsimd::simd_type<decltype(*std::get<I>(iters_))>(
                              *std::get<I>(siters_))))...);
@@ -207,11 +249,30 @@ namespace types
       return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
     }
 
+    template <size_t I>
+    bool _incr_opt(std::integral_constant<bool, true> long_step)
+    {
+      if (is_perfect_stepping<Steps>::value)
+        ++std::get<I>(iters_);
+      else
+        std::get<I>(iters_) += std::get<I>(steps_);
+      return true;
+    }
+
+    template <size_t I>
+    bool _incr_opt(std::integral_constant<bool, false> long_step)
+    {
+      if (std::tuple_element<I, Steps>::type::value)
+        ++std::get<I>(iters_);
+      return true;
+    }
+
     template <size_t... I>
     void _incr(utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> _{
-          (std::get<I>(iters_) += steps_[I], true)...};
+      std::initializer_list<bool> _{_incr_opt<I>(std::integral_constant<
+          bool, std::is_same<long, typename std::tuple_element<
+                                       I, Steps>::type>::value>{})...};
     }
     numpy_expr_simd_iterator &operator++()
     {
@@ -229,7 +290,7 @@ namespace types
     void _update(long i, utils::index_sequence<I...>)
     {
       std::initializer_list<bool> _{
-          (std::get<I>(iters_) += steps_[I] * i, true)...};
+          (std::get<I>(iters_) += std::get<I>(steps_) * i, true)...};
     }
     numpy_expr_simd_iterator &operator+=(long i)
     {
@@ -259,7 +320,7 @@ namespace types
     template <size_t I>
     bool _neq(numpy_expr_simd_iterator const &other, utils::int_<I>) const
     {
-      return (steps_[I - 1] &&
+      return (std::get<I - 1>(steps_) &&
               (std::get<I - 1>(iters_) != std::get<I - 1>(other.iters_))) ||
              _neq(other, utils::int_<I - 1>{});
     }
@@ -277,7 +338,7 @@ namespace types
     template <size_t I>
     bool _eq(numpy_expr_simd_iterator const &other, utils::int_<I>) const
     {
-      return (steps_[I - 1] &&
+      return (std::get<I - 1>(steps_) &&
               (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_))) &&
              _eq(other, utils::int_<I - 1>{});
     }
@@ -295,11 +356,11 @@ namespace types
     template <size_t I>
     bool _lt(numpy_expr_simd_iterator const &other, utils::int_<I>) const
     {
-      if (steps_[I - 1] &&
+      if (std::get<I - 1>(steps_) &&
           (std::get<I - 1>(iters_) == std::get<I - 1>(other.iters_)))
         return _lt(other, utils::int_<I - 1>{});
       else
-        return steps_[I - 1] &&
+        return std::get<I - 1>(steps_) &&
                (std::get<I - 1>(iters_) < std::get<I - 1>(other.iters_));
     }
 
@@ -449,6 +510,22 @@ namespace types
   };
 #endif
 
+  template <class T>
+  struct integral_value : std::integral_constant<long, 0> {
+  };
+  template <long N>
+  struct integral_value<std::integral_constant<long, N>>
+      : std::integral_constant<long, (N == 1 ? 0 : 1)> {
+  };
+
+  template <class T>
+  using step_type_t = typename std::conditional<
+      std::is_same<long, typename std::tuple_element<
+                             0, typename T::shape_t>::type>::value,
+      long, std::integral_constant<
+                long, integral_value<typename std::tuple_element<
+                          0, typename T::shape_t>::type>::value>>::type;
+
   /* Expression template for numpy expressions - binary operators
    */
   template <class Op, class... Args>
@@ -467,9 +544,11 @@ namespace types
     static const bool is_strided =
         utils::any_of<std::remove_reference<Args>::type::is_strided...>::value;
     using const_iterator = numpy_expr_iterator<
-        Op, typename std::remove_reference<Args>::type::const_iterator...>;
+        Op, pshape<step_type_t<typename std::remove_reference<Args>::type>...>,
+        typename std::remove_reference<Args>::type::const_iterator...>;
     using iterator = numpy_expr_iterator<
-        Op, typename std::remove_reference<Args>::type::iterator...>;
+        Op, pshape<step_type_t<typename std::remove_reference<Args>::type>...>,
+        typename std::remove_reference<Args>::type::iterator...>;
     using const_fast_iterator = const_nditerator<numpy_expr>;
 
     static constexpr size_t value =
@@ -528,7 +607,7 @@ namespace types
                                 utils::make_index_sequence<sizeof...(Args)>{}));
 
     template <size_t... I>
-    auto _map_fast(std::array<long, sizeof...(I)> const &indices,
+    auto _map_fast(array<long, sizeof...(I)> const &indices,
                    utils::index_sequence<I...>) const
         -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...))
     {
@@ -537,7 +616,7 @@ namespace types
 
     template <class... Indices>
     auto map_fast(Indices... indices) const -> decltype(
-        this->_map_fast(std::array<long, sizeof...(Indices)>{{indices...}},
+        this->_map_fast(array<long, sizeof...(Indices)>{{indices...}},
                         utils::make_index_sequence<sizeof...(Args)>{}));
 
   public:
@@ -551,8 +630,10 @@ namespace types
 
 #ifdef USE_XSIMD
     using simd_iterator = numpy_expr_simd_iterator<
-        numpy_expr, Op, std::tuple<typename std::remove_reference<
-                            Args>::type::const_iterator...>,
+        numpy_expr, Op,
+        pshape<step_type_t<typename std::remove_reference<Args>::type>...>,
+        std::tuple<
+            typename std::remove_reference<Args>::type::const_iterator...>,
         typename std::remove_reference<Args>::type::simd_iterator...>;
     using simd_iterator_nobroadcast = numpy_expr_simd_iterator_nobroadcast<
         numpy_expr, Op, typename std::remove_reference<

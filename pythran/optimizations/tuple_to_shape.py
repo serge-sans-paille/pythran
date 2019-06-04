@@ -11,6 +11,8 @@ patterns = (MODULES['numpy']['ones'],
             MODULES['numpy']['zeros'],
             MODULES['numpy']['empty'],
             )
+reshape_patterns = (MODULES['numpy']['ndarray']['reshape'],
+                   )
 
 
 def istuple(node):
@@ -43,8 +45,14 @@ class TupleToShape(Transformation):
 
     def visit_Call(self, node):
         func_aliases = self.aliases.get(node.func, None)
-        if func_aliases is not None and func_aliases.issubset(patterns):
-            if istuple(node.args[0]):
-                self.update = True
-                node.args[0] = toshape(node.args[0])
+        if func_aliases is not None:
+            if func_aliases.issubset(patterns):
+                if istuple(node.args[0]):
+                    self.update = True
+                    node.args[0] = toshape(node.args[0])
+            elif func_aliases.issubset(reshape_patterns):
+                if len(node.args) > 2:
+                    self.update = True
+                    node.args[1:] = [toshape(ast.List(node.args[1:],
+                                                      ast.Load()))]
         return self.generic_visit(node)

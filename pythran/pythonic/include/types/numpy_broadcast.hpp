@@ -74,7 +74,9 @@ namespace types
     using iterator = const_iterator;
 
     T const ref;
-    using shape_t = types::array<long, value>;
+    using shape_t =
+        sutils::push_front_t<typename std::remove_reference<T>::type::shape_t,
+                             std::integral_constant<long, 1>>;
     shape_t _shape;
     shape_t const &shape() const
     {
@@ -104,7 +106,8 @@ namespace types
     {
       return *this;
     }
-    broadcasted const &operator[](contiguous_slice s) const
+    template <class L, class U>
+    broadcasted const &operator[](contiguous_slice<L, U> s) const
     {
       return *this;
     }
@@ -122,7 +125,8 @@ namespace types
     {
       return *this;
     }
-    broadcasted const &operator()(contiguous_slice s) const
+    template <class L, class U>
+    broadcasted const &operator()(contiguous_slice<L, U> s) const
     {
       return *this;
     }
@@ -139,8 +143,9 @@ namespace types
     auto operator()(slice arg0, Arg1 &&arg1, Args &&... args) const
         -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
 
-    template <class Arg1, class... Args>
-    auto operator()(contiguous_slice arg0, Arg1 &&arg1, Args &&... args) const
+    template <class L, class U, class Arg1, class... Args>
+    auto operator()(contiguous_slice<L, U> arg0, Arg1 &&arg1,
+                    Args &&... args) const
         -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
     long flat_size() const;
   };
@@ -288,7 +293,8 @@ namespace types
     {
       return *this;
     }
-    broadcast operator[](contiguous_slice) const
+    template <class L, class U>
+    broadcast operator[](contiguous_slice<L, U>) const
     {
       return *this;
     }

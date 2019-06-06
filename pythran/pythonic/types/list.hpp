@@ -96,7 +96,9 @@ namespace types
     return (*data)[slicing.get(i)];
   }
   template <class T, class S>
-  sliced_list<T, S> sliced_list<T, S>::operator[](contiguous_slice s) const
+  template <class L, class U>
+  sliced_list<T, S> sliced_list<T, S>::
+  operator[](contiguous_slice<L, U> s) const
   {
     return {data, slicing * s.normalize(this->size())};
   }
@@ -477,10 +479,11 @@ namespace types
     return sliced_list<T, slice>(*this, s);
   }
   template <class T>
-  sliced_list<T, contiguous_slice> list<T>::
-  operator[](contiguous_slice const &s) const
+  template <class L, class U>
+  sliced_list<T, contiguous_slice<L, U>> list<T>::
+  operator[](contiguous_slice<L, U> const &s) const
   {
-    return sliced_list<T, contiguous_slice>(*this, s);
+    return {*this, s};
   }
 
   // modifiers

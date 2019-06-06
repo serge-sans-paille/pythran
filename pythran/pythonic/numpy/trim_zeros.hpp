@@ -11,7 +11,8 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T>
-  types::numpy_gexpr<T, types::contiguous_normalized_slice>
+  types::numpy_gexpr<
+      T, typename types::contiguous_slice<long, long>::normalized_type>
   trim_zeros(T const &expr, types::str const &trim)
   {
     static_assert(T::value == 1,
@@ -26,7 +27,7 @@ namespace numpy
     if (trim.find("b") != -1)
       while (*(expr.begin() + --end) != 0)
         ;
-    return make_gexpr(expr, types::contiguous_slice(begin, end));
+    return make_gexpr(expr, types::contiguous_slice<long, long>(begin, end));
   }
 }
 PYTHONIC_NS_END

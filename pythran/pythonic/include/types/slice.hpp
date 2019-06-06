@@ -50,8 +50,26 @@ namespace types
   };
 
   struct slice;
+  template <class L, class U>
   struct contiguous_slice;
+
+  template <class T>
+  struct is_contiguous_slice : std::false_type {
+  };
+  template <class L, class U>
+  struct is_contiguous_slice<contiguous_slice<L, U>> : std::true_type {
+  };
+
+  template <class L, class U>
   struct contiguous_normalized_slice;
+
+  template <class T>
+  struct is_contiguous_normalized_slice : std::false_type {
+  };
+  template <class L, class U>
+  struct is_contiguous_normalized_slice<contiguous_normalized_slice<L, U>>
+      : std::true_type {
+  };
 
   struct normalized_slice {
     long lower, upper, step;
@@ -59,9 +77,12 @@ namespace types
     normalized_slice(long lower, long upper, long step = 1);
 
     normalized_slice operator*(normalized_slice const &other) const;
-    normalized_slice operator*(contiguous_normalized_slice const &other) const;
+    template <class L, class U>
+    normalized_slice
+    operator*(contiguous_normalized_slice<L, U> const &other) const;
     normalized_slice operator*(slice const &other) const;
-    normalized_slice operator*(contiguous_slice const &other) const;
+    template <class L, class U>
+    normalized_slice operator*(contiguous_slice<L, U> const &other) const;
 
     long size() const;
     inline long get(long i) const;
@@ -76,7 +97,8 @@ namespace types
 
     slice operator*(slice const &other) const;
 
-    slice operator*(contiguous_slice const &other) const;
+    template <class L, class U>
+    slice operator*(contiguous_slice<L, U> const &other) const;
 
     /*
        Normalize change a[:-1] to a[:len(a)-1] to have positif index.
@@ -94,15 +116,27 @@ namespace types
     long get(long i) const;
   };
 
+  template <class L, class U>
   struct contiguous_normalized_slice {
-    long lower, upper;
+    long lower;
+    long upper;
     static constexpr long step = 1;
     contiguous_normalized_slice();
     contiguous_normalized_slice(long lower, long upper);
+    template <class L1, class U1>
+    contiguous_normalized_slice(
+        contiguous_normalized_slice<L1, U1> const &other)
+        : lower(other.lower), upper(other.upper)
+    {
+    }
 
-    contiguous_normalized_slice
-    operator*(contiguous_normalized_slice const &other) const;
-    contiguous_normalized_slice operator*(contiguous_slice const &other) const;
+    template <class L1, class U1>
+    contiguous_normalized_slice<long, long>
+    operator*(contiguous_normalized_slice<L1, U1> const &other) const;
+
+    template <class L1, class U1>
+    contiguous_normalized_slice<long, long>
+    operator*(contiguous_slice<L1, U1> const &other) const;
     normalized_slice operator*(normalized_slice const &other) const;
     normalized_slice operator*(slice const &other) const;
 
@@ -111,15 +145,22 @@ namespace types
     inline long get(long i) const;
   };
 
+  template <class L, class U>
   struct contiguous_slice {
-    using normalized_type = contiguous_normalized_slice;
-    long lower;
-    bound<long> upper;
+    using normalized_type = contiguous_normalized_slice<L, U>;
+    L lower;
+    U upper;
     static constexpr long step = 1;
-    contiguous_slice(none<long> lower, none<long> upper);
     contiguous_slice();
+    contiguous_slice(L lower, U upper);
+    template <class L1, class U1>
+    contiguous_slice(contiguous_slice<L1, U1> const &other);
 
-    contiguous_slice operator*(contiguous_slice const &other) const;
+    template <class L1, class U1>
+    contiguous_slice<long, long>
+    operator*(contiguous_slice<L1, U1> const &other) const;
+    template <class L1, class U1>
+    operator contiguous_slice<L1, U1>();
 
     slice operator*(slice const &other) const;
 
@@ -128,12 +169,14 @@ namespace types
        It also check for value bigger than len(a) to fit the size of the
        container
        */
-    contiguous_normalized_slice normalize(long max_size) const;
+    normalized_type normalize(long max_size) const;
 
     long size() const;
 
     inline long get(long i) const;
   };
+  template <class L, class U>
+  constexpr long contiguous_slice<L, U>::step;
 
   template <class T>
   struct normalized {
@@ -145,9 +188,9 @@ namespace types
     using type = normalized_slice;
   };
 
-  template <>
-  struct normalized<contiguous_slice> {
-    using type = contiguous_normalized_slice;
+  template <class L, class U>
+  struct normalized<contiguous_slice<L, U>> {
+    using type = typename contiguous_slice<L, U>::normalized_type;
   };
 
   template <class S>
@@ -168,13 +211,16 @@ namespace types
   {
     return s.normalize(n);
   }
-  contiguous_normalized_slice normalize(contiguous_slice s, long n)
+  template <class L, class U>
+  typename contiguous_slice<L, U>::normalized_type
+  normalize(contiguous_slice<L, U> s, long n)
   {
     return s.normalize(n);
   }
 
   std::ostream &operator<<(std::ostream &os, slice const &s);
-  std::ostream &operator<<(std::ostream &os, contiguous_slice const &s);
+  template <class L, class U>
+  std::ostream &operator<<(std::ostream &os, contiguous_slice<L, U> const &s);
 }
 namespace __builtin__
 {
@@ -193,8 +239,43 @@ namespace __builtin__
   {
     return s.step;
   }
+  template <class L, class U>
+  types::none_type getattr(types::attr::STEP,
+                           types::contiguous_slice<L, U> const &s)
+  {
+    return {};
+  }
 }
 PYTHONIC_NS_END
+
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <class L1, class U1>
+struct __combined<pythonic::types::contiguous_slice<long, long>,
+                  pythonic::types::contiguous_slice<U1, L1>> {
+  using type = pythonic::types::contiguous_slice<long, long>;
+};
+template <class L1, class U1>
+struct __combined<
+    pythonic::types::contiguous_slice<pythonic::types::none_type, long>,
+    pythonic::types::contiguous_slice<U1, L1>> {
+  using type = pythonic::types::contiguous_slice<U1, long>;
+};
+template <class L1, class U1>
+struct __combined<pythonic::types::contiguous_slice<pythonic::types::none_type,
+                                                    pythonic::types::none_type>,
+                  pythonic::types::contiguous_slice<U1, L1>> {
+  using type = pythonic::types::contiguous_slice<U1, L1>;
+};
+template <class L1, class U1>
+struct __combined<
+    pythonic::types::contiguous_slice<long, pythonic::types::none_type>,
+    pythonic::types::contiguous_slice<U1, L1>> {
+  using type = pythonic::types::contiguous_slice<long, L1>;
+};
+
+/* } */
 
 #ifdef ENABLE_PYTHON_MODULE
 
@@ -207,14 +288,14 @@ struct to_python<types::bound<T>> {
   static PyObject *convert(types::bound<T> const &n);
 };
 
-template <>
-struct to_python<types::contiguous_slice> {
-  static PyObject *convert(types::contiguous_slice const &n);
+template <class L, class U>
+struct to_python<types::contiguous_slice<L, U>> {
+  static PyObject *convert(types::contiguous_slice<L, U> const &n);
 };
 
-template <>
-struct to_python<types::contiguous_normalized_slice> {
-  static PyObject *convert(types::contiguous_normalized_slice const &n);
+template <class L, class U>
+struct to_python<types::contiguous_normalized_slice<L, U>> {
+  static PyObject *convert(types::contiguous_normalized_slice<L, U> const &n);
 };
 
 template <>

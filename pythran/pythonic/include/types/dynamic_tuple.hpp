@@ -136,7 +136,8 @@ namespace types
       return res;
     }
 
-    dynamic_tuple operator[](contiguous_slice const &s) const
+    template <class L, class U>
+    dynamic_tuple operator[](contiguous_slice<L, U> const &s) const
     {
       auto ns = s.normalize(size());
       return {begin() + ns.lower, begin() + ns.upper};

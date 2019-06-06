@@ -10,7 +10,7 @@ namespace numpy
 {
   template <class E>
   auto fliplr(E &&expr) -> decltype(std::forward<E>(expr)(
-      types::contiguous_slice{__builtin__::None, __builtin__::None},
+      types::contiguous_slice<types::none_type, types::none_type>{},
       types::slice{__builtin__::None, __builtin__::None, -1}));
 
   DEFINE_FUNCTOR(pythonic::numpy, fliplr);

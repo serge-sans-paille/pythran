@@ -75,7 +75,7 @@ namespace types
   template <class T, size_t N, class V, class A, size_t... I>
   array_base<T, N, V> array_to_array(A const &a, utils::index_sequence<I...>)
   {
-    return {std::get<I>(a)...};
+    return {(T)std::get<I>(a)...};
   }
 
   /* inspired by std::array implementation */

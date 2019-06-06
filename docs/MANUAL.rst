@@ -524,7 +524,12 @@ This section contains compiler flags configuration. For education purpose, the d
 
 :``blas``:
 
-    BLAS library to use. Default is ``blas``, but ``atlas`` or ``mkl`` are also viable choices.
+    BLAS library to use. ``pythran-openblas``, ``blas``,
+    ``openblas``, ``atlas`` or ``mkl`` are viable choices.
+    ``pythran-openblas`` requires the `pythran-openblas
+    <https://pypi.org/project/pythran-openblas/>`_ package, which provides a
+    statically linked version of `OpenBLAS <https://www.openblas.net/>`_. Other
+    options are system dependant.
 
 :``ignoreflags``:
 

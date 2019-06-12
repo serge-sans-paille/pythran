@@ -301,7 +301,6 @@ def combiner_on_empty_list():
                       numpy.arange(15),
                       builtin_slices=[NDArray[int,:]])
 
-    @skipIf(sys.platform == 'win32', "Fails on AppVeyor")
     def test_slicing_tuple(self):
         code = '''
             def testFunc():

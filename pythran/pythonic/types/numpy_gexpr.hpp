@@ -322,7 +322,7 @@ namespace types
   template <class Arg, class... S>
   numpy_gexpr<Arg, S...>::numpy_gexpr(Arg const &arg,
                                       std::tuple<S const &...> const &values)
-      : arg(arg), slices(values), buffer(const_cast<dtype *>(arg.buffer))
+      : arg(arg), slices(values), buffer(const_cast<dtype *>(this->arg.buffer))
   {
     init_shape(std::get<0>(slices), utils::int_<sizeof...(S)>(),
                utils::int_<0>());

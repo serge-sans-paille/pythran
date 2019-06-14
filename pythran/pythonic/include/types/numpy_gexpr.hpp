@@ -674,19 +674,20 @@ namespace types
 
     // private because we must use the make_gexpr factory to create a gexpr
   private:
-    template <class _Arg, class... _S>
+    template <class _Arg, class... _other_classes>
     friend struct details::make_gexpr;
 
     friend struct array_base_slicer;
-    template <class _Arg, class... _S>
-    friend typename std::enable_if<count_new_axis<_S...>::value == 0,
-                                   numpy_gexpr<_Arg, _S...>>::type
-    details::_make_gexpr(_Arg arg, std::tuple<_S...> const &t);
-    template <class _Arg, class _S, size_t... Is>
+    template <class _Arg, class... _other_classes>
+    friend
+        typename std::enable_if<count_new_axis<_other_classes...>::value == 0,
+                                numpy_gexpr<_Arg, _other_classes...>>::type
+        details::_make_gexpr(_Arg arg, std::tuple<_other_classes...> const &t);
+    template <class _Arg, class _other_classes, size_t... Is>
     friend numpy_gexpr<_Arg,
-                       typename to_normalized_slice<
-                           typename std::tuple_element<Is, _S>::type>::type...>
-    details::_make_gexpr_helper(_Arg arg, _S const &s,
+                       typename to_normalized_slice<typename std::tuple_element<
+                           Is, _other_classes>::type>::type...>
+    details::_make_gexpr_helper(_Arg arg, _other_classes const &s,
                                 utils::index_sequence<Is...>);
 
     template <size_t C>

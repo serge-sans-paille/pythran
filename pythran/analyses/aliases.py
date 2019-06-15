@@ -602,7 +602,7 @@ class Aliases(ModuleAnalysis):
             node.return_alias = merge_return_aliases
 
     def visit_Assign(self, node):
-        '''
+        r'''
         Assignment creates aliasing between lhs and rhs
 
         >>> from pythran import passmanager

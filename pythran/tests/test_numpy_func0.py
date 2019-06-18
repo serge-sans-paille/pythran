@@ -552,7 +552,16 @@ def np_rosen_der(x):
         self.run_test("def np_sort3(a): from numpy import sort ; return sort(a, 0)", numpy.arange(2*3*4, 0, -1).reshape(2,3,4), np_sort3=[NDArray[int, :, :, :]])
 
     def test_sort4(self):
-        self.run_test("def np_sort4(a): from numpy import sort ; return sort(a, 1)", numpy.arange(2*3*4, 0, -1).reshape(2,3,4), np_sort4=[NDArray[int, :, :, :]])
+        self.run_test("def np_sort4(a): from numpy import sort ; return sort(a, 1, kind='quicksort')", numpy.arange(2*3*4, 0, -1).reshape(2,3,4), np_sort4=[NDArray[int, :, :, :]])
+
+    def test_sort5(self):
+        self.run_test("def np_sort5(a): from numpy import sort ; return sort(a, 1, kind='heapsort')", numpy.arange(2*3*5, 0, -1).reshape(2,3,5), np_sort5=[NDArray[int, :, :, :]])
+
+    def test_sort6(self):
+        self.run_test("def np_sort6(a): from numpy import sort ; return sort(a, 0, kind='stable')", numpy.arange(2*3*6, 0, -1).reshape(2,3,6), np_sort6=[NDArray[int, :, :, :]])
+
+    def test_sort7(self):
+        self.run_test("def np_sort7(a): from numpy import sort ; return sort(a, 2, kind='mergesort')", numpy.arange(2*3*7, 0, -1).reshape(2,3,7), np_sort7=[NDArray[int, :, :, :]])
 
     def test_sort_complex0(self):
         self.run_test("def np_sort_complex0(a): from numpy import sort_complex ; return sort_complex(a)", numpy.array([[1,6],[7,5]]), np_sort_complex0=[NDArray[int,:,:]])

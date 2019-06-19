@@ -3895,6 +3895,7 @@ MODULES = {
             "ranf": FunctionIntr(args=('size',),
                                  global_effects=True),
             "randint": FunctionIntr(args=("low", "high", "size"),
+                                    defaults=(None, None),
                                     global_effects=True),
             "randn": FunctionIntr(args=(),
                                   global_effects=True),

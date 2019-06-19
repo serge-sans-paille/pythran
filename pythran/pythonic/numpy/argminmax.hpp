@@ -184,10 +184,15 @@ namespace numpy
                   std::integral_constant<size_t, N>)
   {
     static_assert(N >= 1, "specialization ok");
-    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
-      _argminmax_tail<Op, Dim, Axis>(out.fast(i), expr.fast(i), curr,
-                                     curr_minmax.fast(i),
+    auto expr_iter = expr.begin();
+    auto curr_minmax_iter = curr_minmax.begin();
+    for (auto &&out_elt : out) {
+      _argminmax_tail<Op, Dim, Axis>(out_elt, *expr_iter, curr,
+                                     *curr_minmax_iter,
                                      std::integral_constant<size_t, N - 1>());
+      ++expr_iter;
+      ++curr_minmax_iter;
+    }
   }
 
   template <class Op, size_t Dim, size_t Axis, class T, class E>
@@ -195,8 +200,9 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, 1>)
   {
     typename E::dtype val = Op::limit();
-    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
-      _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr.fast(i), i, val,
+    long i = 0;
+    for (auto &&expr_elt : expr)
+      _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr_elt, i++, val,
                                      std::integral_constant<size_t, 0>());
   }
 
@@ -207,8 +213,9 @@ namespace numpy
     static_assert(N > 1, "specialization ok");
     types::ndarray<typename E::dtype, types::array<long, N - 1>> val{
         out.shape(), Op::limit()};
-    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
-      _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr.fast(i), i, val,
+    long i = 0;
+    for (auto &&expr_elt : expr)
+      _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr_elt, i++, val,
                                      std::integral_constant<size_t, N - 1>());
   }
 
@@ -217,9 +224,12 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, N>)
   {
     static_assert(N >= 1, "specialization ok");
-    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
-      _argminmax_head<Op, Dim, Axis>(out.fast(i), expr.fast(i),
+    auto expr_iter = expr.begin();
+    for (auto &&out_elt : out) {
+      _argminmax_head<Op, Dim, Axis>(out_elt, *expr_iter,
                                      std::integral_constant<size_t, N - 1>());
+      ++expr_iter;
+    }
   }
 
   template <class Op, size_t N, class T, class E, size_t... Axis>

@@ -414,8 +414,10 @@ namespace types
     operator[](slice const &s) const &;
     numpy_gexpr<ndarray, normalized_slice> operator[](slice const &s) && ;
 
-    numpy_gexpr<ndarray const &, contiguous_normalized_slice>
-    operator[](contiguous_slice const &s) const;
+    template <class L, class U>
+    numpy_gexpr<ndarray const &,
+                typename contiguous_slice<L, U>::normalized_type>
+    operator[](contiguous_slice<L, U> const &s) const;
 
     long size() const;
 
@@ -546,8 +548,9 @@ namespace types
                    utils::index_sequence<Is...>) const
         & -> decltype((*this)(std::get<Is>(indices)...))
     {
-      return (*this)((indices.size() > Is ? std::get<Is>(indices)
-                                          : contiguous_slice())...);
+      return (*this)((indices.size() > Is
+                          ? std::get<Is>(indices)
+                          : (S)contiguous_slice<none_type, none_type>())...);
     }
 
     template <class Ty0, class Ty1, class... Tys>
@@ -744,8 +747,8 @@ namespace __builtin__
     struct _build_gexpr {
       template <class E, class... S>
       auto operator()(E const &a, S const &... slices)
-          -> decltype(_build_gexpr<N - 1>{}(a, types::contiguous_slice(),
-                                            slices...));
+          -> decltype(_build_gexpr<N - 1>{}(
+              a, types::contiguous_slice<types::none_type, long>(), slices...));
     };
 
     template <>

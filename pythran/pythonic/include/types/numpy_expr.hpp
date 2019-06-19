@@ -89,10 +89,11 @@ namespace types
     template <size_t I>
     bool _incr_opt(std::integral_constant<bool, true> long_step)
     {
-      if (is_perfect_stepping<Steps>::value)
+      if (is_perfect_stepping<Steps>::value) {
         ++std::get<I>(iters_);
-      else
+      } else {
         std::get<I>(iters_) += std::get<I>(steps_);
+      }
       return true;
     }
 
@@ -715,7 +716,8 @@ namespace types
     {
       return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
     }
-    auto operator[](contiguous_slice s) const -> decltype(
+    template <class L, class U>
+    auto operator[](contiguous_slice<L, U> s) const -> decltype(
         (*this)._index(s, utils::make_index_sequence<sizeof...(Args)>{}))
     {
       return _index(s, utils::make_index_sequence<sizeof...(Args)>{});

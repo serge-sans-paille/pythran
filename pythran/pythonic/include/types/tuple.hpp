@@ -84,6 +84,7 @@ namespace types
   class str;
 
   struct slice;
+  template <class L, class U>
   struct contiguous_slice;
 
   /* helper to extract the tail of a tuple, && pop the head */
@@ -277,9 +278,9 @@ namespace types
     {
       return {b, s.normalize(b.size())};
     }
-    template <class T, size_t N>
-    numpy_gexpr<array<T, N>, contiguous_normalized_slice>
-    operator()(array<T, N> const &b, contiguous_slice const &s)
+    template <class T, size_t N, class L, class U>
+    numpy_gexpr<array<T, N>, typename contiguous_slice<L, U>::normalized_type>
+    operator()(array<T, N> const &b, contiguous_slice<L, U> const &s)
     {
       return {b, s.normalize(b.size())};
     }
@@ -288,9 +289,9 @@ namespace types
     {
       return {b, s};
     }
-    template <class T, size_t N>
-    sliced_list<T, contiguous_slice> operator()(static_list<T, N> const &b,
-                                                contiguous_slice const &s)
+    template <class T, size_t N, class L, class U>
+    sliced_list<T, contiguous_slice<L, U>>
+    operator()(static_list<T, N> const &b, contiguous_slice<L, U> const &s)
     {
       return {b, s};
     }
@@ -385,7 +386,8 @@ namespace types
       return array_base_slicer{}(*this, s);
     }
 
-    auto operator[](contiguous_slice s) const
+    template <class L, class U>
+    auto operator[](contiguous_slice<L, U> s) const
         -> decltype(array_base_slicer{}(*this, s))
     {
       return array_base_slicer{}(*this, s);

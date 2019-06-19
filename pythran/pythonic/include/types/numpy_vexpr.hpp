@@ -89,8 +89,9 @@ namespace types
     {
       return {*this, s.normalize(size())};
     }
-    numpy_gexpr<numpy_vexpr, contiguous_normalized_slice>
-    operator[](contiguous_slice s) const
+    template <class L, class U>
+    numpy_gexpr<numpy_vexpr, typename contiguous_slice<L, U>::normalized_type>
+    operator[](contiguous_slice<L, U> s) const
     {
       return {*this, s.normalize(size())};
     }

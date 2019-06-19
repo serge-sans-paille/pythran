@@ -251,6 +251,10 @@ namespace types
   struct is_none<none<T>> {
     static const bool value = true;
   };
+  template <>
+  struct is_none<none_type> {
+    static const bool value = true;
+  };
 }
 
 template <class T>

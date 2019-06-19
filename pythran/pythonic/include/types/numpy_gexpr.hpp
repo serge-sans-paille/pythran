@@ -41,9 +41,9 @@ namespace types
 
   template <>
   struct to_slice<none_type> {
-    using type = contiguous_slice;
+    using type = contiguous_slice<none_type, none_type>;
     static constexpr bool is_new_axis = true;
-    contiguous_slice operator()(none_type);
+    contiguous_slice<none_type, none_type> operator()(none_type);
   };
 
   template <class T>
@@ -54,8 +54,8 @@ namespace types
 
   template <>
   struct to_normalized_slice<none_type> {
-    using type = contiguous_normalized_slice;
-    contiguous_normalized_slice operator()(none_type);
+    using type = typename contiguous_slice<long, long>::normalized_type;
+    type operator()(none_type);
   };
 
   /* helper to build a new shape out of a shape and a slice with new axis
@@ -150,29 +150,35 @@ namespace types
                  utils::make_index_sequence<sizeof...(S) + 1>());
     }
 
-    template <class T, class pS, class... S>
-    numpy_gexpr<ndarray<T, pS>, contiguous_normalized_slice, normalize_t<S>...>
-    operator()(ndarray<T, pS> &&a, contiguous_slice const &s0, S const &... s)
+    template <class T, class pS, class L, class U, class... S>
+    numpy_gexpr<ndarray<T, pS>,
+                typename contiguous_slice<L, U>::normalized_type,
+                normalize_t<S>...>
+    operator()(ndarray<T, pS> &&a, contiguous_slice<L, U> const &s0,
+               S const &... s)
     {
       return make_gexpr(std::move(a), s0, s...);
     }
 
-    template <class T, class pS, class... S>
-    numpy_gexpr<ndarray<T, pS> const &, contiguous_normalized_slice,
+    template <class T, class pS, class L, class U, class... S>
+    numpy_gexpr<ndarray<T, pS> const &,
+                typename contiguous_slice<L, U>::normalized_type,
                 normalize_t<S>...>
-    operator()(ndarray<T, pS> const &a, contiguous_slice const &s0,
+    operator()(ndarray<T, pS> const &a, contiguous_slice<L, U> const &s0,
                S const &... s)
     {
       return make_gexpr(a, s0, s...);
     }
 
     template <class T, class pS, class F, class... S>
-    numpy_gexpr<ndarray<T, array<long, std::tuple_size<pS>::value>>,
-                contiguous_normalized_slice, normalize_t<S>...>
+    numpy_gexpr<
+        ndarray<T, array<long, std::tuple_size<pS>::value>>,
+        typename contiguous_slice<none_type, none_type>::normalized_type,
+        normalize_t<S>...>
     operator()(ndarray<T, pS> const &a, F const &s0, S const &... s)
     {
       return numpy_vexpr<ndarray<T, pS>, F>{a, s0}(
-          contiguous_slice(none_type{}, none_type{}), s...);
+          contiguous_slice<none_type, none_type>(), s...);
     }
   };
 
@@ -206,8 +212,8 @@ namespace types
     static constexpr size_t value = 0;
   };
 
-  template <>
-  struct count_long<contiguous_normalized_slice> {
+  template <class L, class U>
+  struct count_long<contiguous_normalized_slice<L, U>> {
     static constexpr size_t value = 0;
   };
 
@@ -232,19 +238,6 @@ namespace types
   template <class T>
   struct nth_value_type<T, 0> {
     using type = T;
-  };
-
-  /* helper that yields true if the first slice of a pack is a contiguous
-   * slice
-   */
-  template <class... S>
-  struct is_contiguous {
-    static const bool value = false;
-  };
-
-  template <class... S>
-  struct is_contiguous<contiguous_normalized_slice, S...> {
-    static const bool value = true;
   };
 
   /* numpy_gexpr factory
@@ -535,6 +528,11 @@ namespace types
   struct gexpr_shape<pshape<Tys...>, pshape<oT, oTys...>, cS, S...>
       : gexpr_shape<pshape<Tys..., long>, pshape<oTys...>, S...> {
   };
+  template <class... Tys, class oT, class... oTys, class... S>
+  struct gexpr_shape<pshape<Tys...>, pshape<oT, oTys...>,
+                     contiguous_normalized_slice<none_type, none_type>, S...>
+      : gexpr_shape<pshape<Tys..., oT>, pshape<oTys...>, S...> {
+  };
   template <class... Tys, size_t N, class... S>
   struct gexpr_shape<pshape<Tys...>, array<long, N>, long, S...>
       : gexpr_shape<pshape<Tys...>, array<long, N - 1>, S...> {
@@ -556,7 +554,7 @@ namespace types
         "all slices are normalized");
     static_assert(
         utils::all_of<(std::is_same<S, long>::value ||
-                       std::is_same<S, contiguous_normalized_slice>::value ||
+                       is_contiguous_normalized_slice<S>::value ||
                        std::is_same<S, normalized_slice>::value)...>::value,
         "all slices are valid");
     static_assert(std::decay<Arg>::type::value >= sizeof...(S),
@@ -569,7 +567,7 @@ namespace types
     // indices for long index are store in the indices array.
     // position for slice && long value in the extended slice can be found
     // through the S... template
-    // && compacted values as we know that first S is a slice.
+    // and compacted values as we know that first S is a slice.
 
     static_assert(
         utils::all_of<
@@ -588,15 +586,13 @@ namespace types
     static const bool is_vectorizable =
         std::remove_reference<Arg>::type::is_vectorizable &&
         (sizeof...(S) < std::remove_reference<Arg>::type::value ||
-         std::is_same<contiguous_normalized_slice,
-                      typename std::tuple_element<
-                          sizeof...(S)-1, std::tuple<S...>>::type>::value);
+         is_contiguous_normalized_slice<typename std::tuple_element<
+             sizeof...(S)-1, std::tuple<S...>>::type>::value);
     static const bool is_strided =
         std::remove_reference<Arg>::type::is_strided ||
         (((sizeof...(S)-count_long<S...>::value) == value) &&
-         !std::is_same<contiguous_normalized_slice,
-                       typename std::tuple_element<
-                           sizeof...(S)-1, std::tuple<S...>>::type>::value);
+         !is_contiguous_normalized_slice<typename std::tuple_element<
+             sizeof...(S)-1, std::tuple<S...>>::type>::value);
 
     using value_type = typename std::remove_reference<decltype(
         numpy_gexpr_helper<Arg, S...>::get(std::declval<numpy_gexpr>(),
@@ -653,17 +649,15 @@ namespace types
     numpy_gexpr(numpy_gexpr<Argp, S...> const &other);
 
     template <size_t J, class Slice>
-    typename std::enable_if<
-        std::is_same<Slice, normalized_slice>::value ||
-            std::is_same<Slice, contiguous_normalized_slice>::value,
-        void>::type
+    typename std::enable_if<std::is_same<Slice, normalized_slice>::value ||
+                                is_contiguous_normalized_slice<Slice>::value,
+                            void>::type
     init_shape(Slice const &s, utils::int_<1>, utils::int_<J>);
 
     template <size_t I, size_t J, class Slice>
-    typename std::enable_if<
-        std::is_same<Slice, normalized_slice>::value ||
-            std::is_same<Slice, contiguous_normalized_slice>::value,
-        void>::type
+    typename std::enable_if<std::is_same<Slice, normalized_slice>::value ||
+                                is_contiguous_normalized_slice<Slice>::value,
+                            void>::type
     init_shape(Slice const &s, utils::int_<I>, utils::int_<J>);
 
     template <size_t J>
@@ -794,18 +788,19 @@ namespace types
     simd_iterator vend(vectorizer) const;
 #endif
 
-    template <class... Sp>
-    auto operator()(contiguous_slice const &s0, Sp const &... s) const
+    template <class L, class U, class... Sp>
+    auto operator()(contiguous_slice<L, U> const &s0, Sp const &... s) const
         -> decltype(make_gexpr(*this, s0, s...));
 
-    template <class... Sp>
-    auto operator()(contiguous_normalized_slice const &s0,
+    template <class L, class U, class... Sp>
+    auto operator()(contiguous_normalized_slice<L, U> const &s0,
                     Sp const &... s) const
         -> decltype(make_gexpr(*this, s0, s...))
     {
     }
 
-    auto operator[](contiguous_slice const &s0) const
+    template <class L, class U>
+    auto operator[](contiguous_slice<L, U> const &s0) const
         -> decltype(make_gexpr(*this, s0));
 
     template <class... Sp>
@@ -911,10 +906,10 @@ namespace types
     struct finalize_numpy_gexpr_helper;
 
     // We reach a new slice so we have a new gexpr
-    template <size_t N, class Arg, class... S>
-    struct finalize_numpy_gexpr_helper<N, Arg, contiguous_normalized_slice,
-                                       S...> {
-      using type = numpy_gexpr<Arg, contiguous_normalized_slice, S...>;
+    template <size_t N, class Arg, class L, class U, class... S>
+    struct finalize_numpy_gexpr_helper<
+        N, Arg, contiguous_normalized_slice<L, U>, S...> {
+      using type = numpy_gexpr<Arg, contiguous_normalized_slice<L, U>, S...>;
       template <class E, class F>
       static type get(E const &e, F &&f);
     };

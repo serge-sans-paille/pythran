@@ -17,13 +17,8 @@ namespace types
   broadcasted<T>::broadcasted(T const &ref)
       : ref(ref), _shape()
   {
-    _shape[0] = 1;
-    auto &&ref_shape = ref.shape();
-    long *data = _shape.data() + 1;
-    sutils::copy_shape<0, 0>(
-        data, ref_shape,
-        utils::make_index_sequence<std::tuple_size<
-            typename std::decay<decltype(ref_shape)>::type>::value>());
+    sutils::copy_shape<1, -1>(_shape, ref.shape(),
+                              utils::make_index_sequence<T::value>());
   }
 
   template <class T>
@@ -74,8 +69,8 @@ namespace types
   }
 
   template <class T>
-  template <class Arg1, class... Args>
-  auto broadcasted<T>::operator()(contiguous_slice arg0, Arg1 &&arg1,
+  template <class L, class U, class Arg1, class... Args>
+  auto broadcasted<T>::operator()(contiguous_slice<L, U> arg0, Arg1 &&arg1,
                                   Args &&... args) const
       -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...))
   {

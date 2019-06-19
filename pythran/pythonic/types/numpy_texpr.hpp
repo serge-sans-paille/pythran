@@ -55,24 +55,24 @@ namespace types
   }
 
   template <class E>
-  auto numpy_texpr_2<E>::fast(long i) const
-      -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
+  auto numpy_texpr_2<E>::fast(long i) const -> decltype(this->arg(
+      contiguous_slice<none_type, none_type>(pythonic::__builtin__::None,
                                              pythonic::__builtin__::None),
-                            i))
+      i))
   {
-    return arg(contiguous_slice(pythonic::__builtin__::None,
-                                pythonic::__builtin__::None),
+    return arg(contiguous_slice<none_type, none_type>(
+                   pythonic::__builtin__::None, pythonic::__builtin__::None),
                i);
   }
 
   template <class E>
-  auto numpy_texpr_2<E>::fast(long i)
-      -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
+  auto numpy_texpr_2<E>::fast(long i) -> decltype(this->arg(
+      contiguous_slice<none_type, none_type>(pythonic::__builtin__::None,
                                              pythonic::__builtin__::None),
-                            i))
+      i))
   {
-    return arg(contiguous_slice(pythonic::__builtin__::None,
-                                pythonic::__builtin__::None),
+    return arg(contiguous_slice<none_type, none_type>(
+                   pythonic::__builtin__::None, pythonic::__builtin__::None),
                i);
   }
 
@@ -111,47 +111,52 @@ namespace types
   }
 
   template <class E>
-  auto numpy_texpr_2<E>::operator[](contiguous_slice const &s0) const
-      -> numpy_texpr<
-          decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                              pythonic::__builtin__::None),
-                             s0))>
+  template <class L, class U>
+  auto numpy_texpr_2<E>::operator[](contiguous_slice<L, U> const &s0) const
+      -> numpy_texpr<decltype(this->arg(
+          contiguous_slice<none_type, none_type>(pythonic::__builtin__::None,
+                                                 pythonic::__builtin__::None),
+          s0))>
   {
-    return {arg(contiguous_slice(pythonic::__builtin__::None,
-                                 pythonic::__builtin__::None),
+    return {arg(contiguous_slice<none_type, none_type>(
+                    pythonic::__builtin__::None, pythonic::__builtin__::None),
                 s0)};
   }
 
   template <class E>
-  auto numpy_texpr_2<E>::operator[](contiguous_slice const &s0) -> numpy_texpr<
-      decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                          pythonic::__builtin__::None),
-                         s0))>
+  template <class L, class U>
+  auto numpy_texpr_2<E>::operator[](contiguous_slice<L, U> const &s0)
+      -> numpy_texpr<decltype(this->arg(
+          contiguous_slice<none_type, none_type>(pythonic::__builtin__::None,
+                                                 pythonic::__builtin__::None),
+          s0))>
   {
-    return {arg(contiguous_slice(pythonic::__builtin__::None,
-                                 pythonic::__builtin__::None),
+    return {arg(contiguous_slice<none_type, none_type>(
+                    pythonic::__builtin__::None, pythonic::__builtin__::None),
                 s0)};
   }
 
   template <class E>
-  auto numpy_texpr_2<E>::operator[](slice const &s0) const -> numpy_texpr<
-      decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                          pythonic::__builtin__::None),
-                         s0))>
+  auto numpy_texpr_2<E>::operator[](slice const &s0) const
+      -> numpy_texpr<decltype(this->arg(
+          contiguous_slice<none_type, none_type>(pythonic::__builtin__::None,
+                                                 pythonic::__builtin__::None),
+          s0))>
   {
-    return {arg(contiguous_slice(pythonic::__builtin__::None,
-                                 pythonic::__builtin__::None),
+    return {arg(contiguous_slice<none_type, none_type>(
+                    pythonic::__builtin__::None, pythonic::__builtin__::None),
                 s0)};
   }
 
   template <class E>
-  auto numpy_texpr_2<E>::operator[](slice const &s0) -> numpy_texpr<
-      decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                          pythonic::__builtin__::None),
-                         s0))>
+  auto numpy_texpr_2<E>::operator[](slice const &s0)
+      -> numpy_texpr<decltype(this->arg(
+          contiguous_slice<none_type, none_type>(pythonic::__builtin__::None,
+                                                 pythonic::__builtin__::None),
+          s0))>
   {
-    return {arg(contiguous_slice(pythonic::__builtin__::None,
-                                 pythonic::__builtin__::None),
+    return {arg(contiguous_slice<none_type, none_type>(
+                    pythonic::__builtin__::None, pythonic::__builtin__::None),
                 s0)};
   }
 

@@ -15,6 +15,17 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
+  /* helper that yields true if the first slice of a pack is a contiguous
+   * slice
+   */
+  template <class... S>
+  struct is_contiguous : std::false_type {
+  };
+
+  template <class S, class... Ss>
+  struct is_contiguous<S, Ss...> : is_contiguous_normalized_slice<S> {
+  };
+
   template <class... S>
   struct count_leading_long;
   template <>
@@ -105,9 +116,10 @@ namespace types
     return value;
   }
 
-  contiguous_slice to_slice<none_type>::operator()(none_type)
+  contiguous_slice<none_type, none_type> to_slice<none_type>::
+  operator()(none_type)
   {
-    return {0, 1};
+    return {};
   }
   template <class T>
   T to_normalized_slice<T>::operator()(T value)
@@ -115,7 +127,7 @@ namespace types
     return value;
   }
 
-  contiguous_normalized_slice to_normalized_slice<none_type>::
+  typename to_normalized_slice<none_type>::type to_normalized_slice<none_type>::
   operator()(none_type)
   {
     return {0, 1};
@@ -275,10 +287,9 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t J, class Slice>
-  typename std::enable_if<
-      std::is_same<Slice, normalized_slice>::value ||
-          std::is_same<Slice, contiguous_normalized_slice>::value,
-      void>::type
+  typename std::enable_if<std::is_same<Slice, normalized_slice>::value ||
+                              is_contiguous_normalized_slice<Slice>::value,
+                          void>::type
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<1>,
                                      utils::int_<J>)
   {
@@ -288,10 +299,9 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t I, size_t J, class Slice>
-  typename std::enable_if<
-      std::is_same<Slice, normalized_slice>::value ||
-          std::is_same<Slice, contiguous_normalized_slice>::value,
-      void>::type
+  typename std::enable_if<std::is_same<Slice, normalized_slice>::value ||
+                              is_contiguous_normalized_slice<Slice>::value,
+                          void>::type
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<I>,
                                      utils::int_<J>)
   {
@@ -670,8 +680,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  template <class... Sp>
-  auto numpy_gexpr<Arg, S...>::operator()(contiguous_slice const &s0,
+  template <class L, class U, class... Sp>
+  auto numpy_gexpr<Arg, S...>::operator()(contiguous_slice<L, U> const &s0,
                                           Sp const &... s) const
       -> decltype(make_gexpr(*this, s0, s...))
   {
@@ -679,7 +689,9 @@ namespace types
   }
 
   template <class Arg, class... S>
-  auto numpy_gexpr<Arg, S...>::operator[](contiguous_slice const &s0) const
+  template <class L, class U>
+  auto numpy_gexpr<Arg, S...>::
+  operator[](contiguous_slice<L, U> const &s0) const
       -> decltype(make_gexpr(*this, s0))
   {
     return make_gexpr(*this, s0);
@@ -816,12 +828,12 @@ namespace types
   {
 
     // We reach a new slice so we have a new gexpr
-    template <size_t N, class Arg, class... S>
+    template <size_t N, class Arg, class L, class U, class... S>
     template <class E, class F>
-    typename finalize_numpy_gexpr_helper<N, Arg, contiguous_normalized_slice,
-                                         S...>::type
-    finalize_numpy_gexpr_helper<N, Arg, contiguous_normalized_slice, S...>::get(
-        E const &e, F &&f)
+    typename finalize_numpy_gexpr_helper<
+        N, Arg, contiguous_normalized_slice<L, U>, S...>::type
+    finalize_numpy_gexpr_helper<N, Arg, contiguous_normalized_slice<L, U>,
+                                S...>::get(E const &e, F &&f)
     {
       return {e, std::forward<F>(f)};
     }

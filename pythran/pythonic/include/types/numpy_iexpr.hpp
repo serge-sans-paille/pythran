@@ -185,9 +185,10 @@ namespace types
     numpy_gexpr<numpy_iexpr, normalized_slice, normalize_t<S>...>
     operator()(slice const &s0, S const &... s) const;
 
-    template <class... S>
-    numpy_gexpr<numpy_iexpr, contiguous_normalized_slice, normalize_t<S>...>
-    operator()(contiguous_slice const &s0, S const &... s) const;
+    template <class L, class U, class... S>
+    numpy_gexpr<numpy_iexpr, typename contiguous_slice<L, U>::normalized_type,
+                normalize_t<S>...>
+    operator()(contiguous_slice<L, U> const &s0, S const &... s) const;
 
     template <class... S>
     auto operator()(long s0, S const &... s) const
@@ -207,8 +208,9 @@ namespace types
     auto operator[](long i) && -> decltype(std::move(*this).fast(i));
     numpy_gexpr<numpy_iexpr, normalized_slice>
     operator[](slice const &s0) const;
-    numpy_gexpr<numpy_iexpr, contiguous_normalized_slice>
-    operator[](contiguous_slice const &s0) const;
+    template <class L, class U>
+    numpy_gexpr<numpy_iexpr, typename contiguous_slice<L, U>::normalized_type>
+    operator[](contiguous_slice<L, U> const &s0) const;
 
     dtype const &operator[](array<long, value> const &indices) const;
     dtype &operator[](array<long, value> const &indices);

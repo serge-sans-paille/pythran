@@ -125,6 +125,10 @@ class Dependencies(ModuleAnalysis):
 
         self.generic_visit(node)
 
+    def visit_Slice(self, node):
+        self.result.add(('__builtin__', 'slice'))
+        self.generic_visit(node)
+
     def visit_Attribute(self, node):
         def rec(n):
             if isinstance(n, ast.Name):

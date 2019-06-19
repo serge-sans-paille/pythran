@@ -10,7 +10,8 @@ namespace numpy
 {
   template <class T>
 
-  types::numpy_gexpr<T, types::contiguous_normalized_slice>
+  types::numpy_gexpr<
+      T, typename types::contiguous_slice<long, long>::normalized_type>
   trim_zeros(T const &expr, types::str const &trim = "fb");
 
   DEFINE_FUNCTOR(pythonic::numpy, trim_zeros)

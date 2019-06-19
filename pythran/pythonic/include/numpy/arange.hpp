@@ -54,7 +54,10 @@ namespace numpy
       {
         return operator[](s);
       }
-      types::ndarray<dtype, shape_t> operator[](types::contiguous_slice s) const
+
+      template <class L, class U>
+      types::ndarray<dtype, shape_t>
+      operator[](types::contiguous_slice<L, U> s) const
       {
         auto ns = s.normalize(size);
         arange_index r{start + s.lower * step, step, ns.size()};
@@ -62,7 +65,10 @@ namespace numpy
             types::numpy_expr<pythonic::operator_::functor::pos, arange_index>{
                 r}};
       }
-      types::ndarray<dtype, shape_t> operator()(types::contiguous_slice s) const
+
+      template <class L, class U>
+      types::ndarray<dtype, shape_t>
+      operator()(types::contiguous_slice<L, U> s) const
       {
         return operator[](s);
       }

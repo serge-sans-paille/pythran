@@ -347,8 +347,10 @@ namespace types
   }
 
   template <class Arg>
-  numpy_gexpr<numpy_iexpr<Arg>, contiguous_normalized_slice> numpy_iexpr<Arg>::
-  operator[](contiguous_slice const &s0) const
+  template <class L, class U>
+  numpy_gexpr<numpy_iexpr<Arg>,
+              typename contiguous_slice<L, U>::normalized_type>
+      numpy_iexpr<Arg>::operator[](contiguous_slice<L, U> const &s0) const
   {
     return make_gexpr(*this, s0);
   }
@@ -362,10 +364,11 @@ namespace types
   }
 
   template <class Arg>
-  template <class... S>
-  numpy_gexpr<numpy_iexpr<Arg>, contiguous_normalized_slice, normalize_t<S>...>
-      numpy_iexpr<Arg>::operator()(contiguous_slice const &s0,
-                                   S const &... s) const
+  template <class L, class U, class... S>
+  numpy_gexpr<numpy_iexpr<Arg>,
+              typename contiguous_slice<L, U>::normalized_type,
+              normalize_t<S>...> numpy_iexpr<Arg>::
+  operator()(contiguous_slice<L, U> const &s0, S const &... s) const
   {
     return make_gexpr(*this, s0, s...);
   }

@@ -482,13 +482,14 @@ class Types(ModuleAnalysis):
         Also visit subnodes as they may contains relevant typing information.
         """
         self.generic_visit(node)
-        if node.step is None or (isinstance(node.step, ast.Num) and
-                                 node.step.n == 1):
-            self.result[node] = self.builder.NamedType(
-                'pythonic::types::contiguous_slice')
-        else:
-            self.result[node] = self.builder.NamedType(
-                'pythonic::types::slice')
+        args = []
+        for field in ('lower', 'upper', 'step'):
+            nfield = getattr(node, field)
+            arg = (self.result[nfield] if nfield
+                   else self.builder.NamedType('pythonic::types::none_type'))
+            args.append(arg)
+        self.result[node] = self.builder.ReturnType(self.builder.NamedType("pythonic::__builtin__::functor::slice"),
+                                       args)
 
     def visit_Subscript(self, node):
         self.visit(node.value)

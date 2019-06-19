@@ -72,7 +72,9 @@ namespace types
     str operator[](long i) const;
     str fast(long i) const;
     sliced_str<slice> operator[](slice const &s) const;
-    sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
+    template <class L, class U>
+    sliced_str<contiguous_slice<L, U>>
+    operator[](contiguous_slice<L, U> const &s) const;
 
     // conversion
     operator long() const;
@@ -174,13 +176,17 @@ namespace types
     bool operator==(sliced_str<S> const &other) const;
 
     sliced_str<slice> operator()(slice const &s) const;
-    sliced_str<contiguous_slice> operator()(contiguous_slice const &s) const;
+    template <class L, class U>
+    sliced_str<contiguous_slice<L, U>>
+    operator()(contiguous_slice<L, U> const &s) const;
 
     str operator[](long i) const;
     str fast(long i) const;
 
     sliced_str<slice> operator[](slice const &s) const;
-    sliced_str<contiguous_slice> operator[](contiguous_slice const &s) const;
+    template <class L, class U>
+    sliced_str<contiguous_slice<L, U>>
+    operator[](contiguous_slice<L, U> const &s) const;
 
     explicit operator bool() const;
     long count(types::str const &sub) const;

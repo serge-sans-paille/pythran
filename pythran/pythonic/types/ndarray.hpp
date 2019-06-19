@@ -735,8 +735,10 @@ namespace types
   }
 
   template <class T, class pS>
-  numpy_gexpr<ndarray<T, pS> const &, contiguous_normalized_slice>
-      ndarray<T, pS>::operator[](contiguous_slice const &s) const
+  template <class L, class U>
+  numpy_gexpr<ndarray<T, pS> const &,
+              typename contiguous_slice<L, U>::normalized_type> ndarray<T, pS>::
+  operator[](contiguous_slice<L, U> const &s) const
   {
     return make_gexpr(*this, s);
   }
@@ -1102,11 +1104,12 @@ namespace __builtin__
     template <size_t N>
     template <class E, class... S>
     auto _build_gexpr<N>::operator()(E const &a, S const &... slices)
-        -> decltype(_build_gexpr<N - 1>{}(a, types::contiguous_slice(),
-                                          slices...))
+        -> decltype(_build_gexpr<N - 1>{}(
+            a, types::contiguous_slice<types::none_type, long>(), slices...))
     {
-      return _build_gexpr<N - 1>{}(a, types::contiguous_slice(0, a.size()),
-                                   slices...);
+      return _build_gexpr<N - 1>{}(
+          a, types::contiguous_slice<types::none_type, long>({}, a.size()),
+          slices...);
     }
 
     template <class E, class... S>
@@ -1496,8 +1499,9 @@ namespace impl
   {
   }
 
-  void set_slice(types::contiguous_normalized_slice &cs, long lower, long upper,
-                 long step)
+  template <class T, class U>
+  void set_slice(types::contiguous_normalized_slice<T, U> &cs, long lower,
+                 long upper, long step)
   {
     cs.lower = lower;
     cs.upper = upper;

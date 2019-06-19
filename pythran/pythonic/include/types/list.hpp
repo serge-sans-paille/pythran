@@ -100,9 +100,8 @@ namespace types
     static_assert(value != 0, "valid shape");
     static const bool is_vectorizable =
         types::is_vectorizable_dtype<dtype>::value &&
-        std::is_same<S, contiguous_slice>::value;
-    static const bool is_strided =
-        !std::is_same<contiguous_normalized_slice, S>::value;
+        types::is_contiguous_slice<S>::value;
+    static const bool is_strided = !is_contiguous_normalized_slice<S>::value;
 
     using shape_t = types::array<long, value>;
     shape_t shape() const
@@ -143,7 +142,8 @@ namespace types
     T const &fast(long i) const;
     T const &operator[](long i) const;
     T &operator[](long i);
-    sliced_list<T, S> operator[](contiguous_slice s) const;
+    template <class L, class U>
+    sliced_list<T, S> operator[](contiguous_slice<L, U> s) const;
     sliced_list<T, decltype(std::declval<S>() * std::declval<slice>())>
     operator[](slice s) const;
 
@@ -286,8 +286,9 @@ namespace types
     const_reference operator[](long n) const;
 
     sliced_list<T, slice> operator[](slice const &s) const;
-    sliced_list<T, contiguous_slice>
-    operator[](contiguous_slice const &s) const;
+    template <class L, class U>
+    sliced_list<T, contiguous_slice<L, U>>
+    operator[](contiguous_slice<L, U> const &s) const;
 
     // modifiers
     template <class Tp>
@@ -401,7 +402,8 @@ namespace types
     {
       return {};
     }
-    empty_list operator[](contiguous_slice) const
+    template <class L, class U>
+    empty_list operator[](contiguous_slice<L, U>) const
     {
       return {};
     }

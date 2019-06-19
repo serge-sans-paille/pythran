@@ -156,10 +156,11 @@ namespace types
   }
 
   template <class S>
-  sliced_str<contiguous_slice> sliced_str<S>::
-  operator[](contiguous_slice const &s) const
+  template <class L, class U>
+  sliced_str<contiguous_slice<L, U>> sliced_str<S>::
+  operator[](contiguous_slice<L, U> const &s) const
   {
-    return sliced_str<contiguous_slice>(*this, s.normalize(size()));
+    return sliced_str<contiguous_slice<L, U>>(*this, s.normalize(size()));
   }
 
   // conversion
@@ -509,7 +510,9 @@ namespace types
     return operator[](s);
   }
 
-  sliced_str<contiguous_slice> str::operator()(contiguous_slice const &s) const
+  template <class L, class U>
+  sliced_str<contiguous_slice<L, U>> str::
+  operator()(contiguous_slice<L, U> const &s) const
   {
     return operator[](s);
   }
@@ -531,9 +534,11 @@ namespace types
     return sliced_str<slice>(*this, s.normalize(size()));
   }
 
-  sliced_str<contiguous_slice> str::operator[](contiguous_slice const &s) const
+  template <class L, class U>
+  sliced_str<contiguous_slice<L, U>> str::
+  operator[](contiguous_slice<L, U> const &s) const
   {
-    return sliced_str<contiguous_slice>(*this, s.normalize(size()));
+    return {*this, s.normalize(size())};
   }
 
   str::operator bool() const

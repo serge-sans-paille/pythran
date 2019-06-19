@@ -58,37 +58,40 @@ namespace numpy
     if (out_inc == 1) {
       // Incomplete overlap left
       for (int i = iLeft; i < 0; i++, out_ptr++) {
-        *out_ptr = numpy::dot(inA_(types::contiguous_slice(0, NB + i)),
-                              inB_(types::contiguous_slice(-i, NB)));
+        *out_ptr = numpy::dot(
+            inA_(types::contiguous_slice<types::none_type, long>({}, NB + i)),
+            inB_(types::contiguous_slice<long, long>(-i, NB)));
       }
       // Complete overlap middle
       for (int i = 0; i <= NA - NB; i++, out_ptr++) {
-        *out_ptr = numpy::dot(inA_(types::contiguous_slice(i, i + NB)),
-                              inB_(types::contiguous_slice(0, NB)));
+        *out_ptr = numpy::dot(
+            inA_(types::contiguous_slice<long, long>(i, i + NB)),
+            inB_(types::contiguous_slice<types::none_type, long>({}, NB)));
       }
       // Incomplete overlap right.
       for (int i = NA - NB + 1; i < iRight; i++, out_ptr++) {
-        *out_ptr = numpy::dot(inA_(types::contiguous_slice(i, NA)),
-                              inB_(types::contiguous_slice(0, NA - i)));
+        *out_ptr = numpy::dot(
+            inA_(types::contiguous_slice<long, long>(i, NA)),
+            inB_(types::contiguous_slice<types::none_type, long>({}, NA - i)));
       }
     } else {
       // Incomplete overlap left
       for (int i = iLeft; i < 0; i++, out_ptr += out_inc) {
-        *out_ptr = wrapper::conjugate(
-            numpy::dot(inA_(types::contiguous_slice(0, NB + i)),
-                       inB_(types::contiguous_slice(-i, NB))));
+        *out_ptr = wrapper::conjugate(numpy::dot(
+            inA_(types::contiguous_slice<types::none_type, long>({}, NB + i)),
+            inB_(types::contiguous_slice<long, long>(-i, NB))));
       }
       // Complete overlap middle
       for (int i = 0; i <= NA - NB; i++, out_ptr += out_inc) {
-        *out_ptr = wrapper::conjugate(
-            numpy::dot(inA_(types::contiguous_slice(i, i + NB)),
-                       inB_(types::contiguous_slice(0, NB))));
+        *out_ptr = wrapper::conjugate(numpy::dot(
+            inA_(types::contiguous_slice<long, long>(i, i + NB)),
+            inB_(types::contiguous_slice<types::none_type, long>({}, NB))));
       }
       // Incomplete overlap right.
       for (int i = NA - NB + 1; i < iRight; i++, out_ptr += out_inc) {
-        *out_ptr = wrapper::conjugate(
-            numpy::dot(inA_(types::contiguous_slice(i, NA)),
-                       inB_(types::contiguous_slice(0, NA - i))));
+        *out_ptr = wrapper::conjugate(numpy::dot(
+            inA_(types::contiguous_slice<long, long>(i, NA)),
+            inB_(types::contiguous_slice<types::none_type, long>({}, NA - i))));
       }
     }
 

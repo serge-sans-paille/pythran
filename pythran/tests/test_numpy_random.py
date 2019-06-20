@@ -452,6 +452,16 @@ class TestNumpyRandom(TestEnv):
                 return (abs(mean(a) - 15) < .05)""",
                       10 ** 3, numpy_randint3=[int])
 
+    def test_numpy_randint4(self):
+        """ Check numpy randint with shape argument. """
+        self.run_test("""
+            def numpy_randint4(n):
+                from numpy.random import randint
+                from numpy import mean, var
+                a = randint(10, size=n)
+                return (abs(mean(a) - 5) < .05)""",
+                      10 ** 3, numpy_randint4=[int])
+
     ###########################################################################
     # Tests for numpy.random.random_integer
     ###########################################################################

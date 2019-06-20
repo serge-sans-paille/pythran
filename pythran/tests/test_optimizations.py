@@ -490,6 +490,9 @@ class TestConstantUnfolding(TestEnv):
     def test_constant_folding_too_expansive_calls(self):
         self.run_test("def constant_folding_too_expansive_calls(): return range(2**16)", constant_folding_too_expansive_calls=[])
 
+    def test_constant_folding_bool_array(self):
+        self.run_test("def constant_folding_bool_array(): import numpy as np; return np.concatenate([np.array([True]),np.array([True])])", constant_folding_bool_array=[])
+
 
 class TestAnalyses(TestEnv):
 

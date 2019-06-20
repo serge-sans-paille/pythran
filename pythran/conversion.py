@@ -39,6 +39,9 @@ def size_container_folding(value):
 
     Converter for sized container.
     """
+
+    from pythran.utils import pythran_id
+
     def size(x):
         return len(getattr(x, 'flatten', lambda: x)())
 
@@ -61,7 +64,7 @@ def size_container_folding(value):
                 args=[to_ast(totuple(value.tolist())),
                       ast.Attribute(
                           ast.Name(mangle('numpy'), ast.Load(), None),
-                          value.dtype.name,
+                          pythran_id(value.dtype.name),
                           ast.Load())],
                 keywords=[])
         else:

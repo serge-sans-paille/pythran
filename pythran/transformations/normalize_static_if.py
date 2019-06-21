@@ -1,7 +1,7 @@
 """ NormalizeStaticIf adds support for static guards. """
 
-from pythran.analyses import (ImportedIds, IsAssigned, HasReturn,
-                              HasBreak, HasContinue,
+from pythran.analyses import (ImportedIds, HasReturn, IsAssigned,
+                              HasBreak, HasContinue, DefUseChains, Ancestors,
                               StaticExpressions, HasStaticExpression)
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
@@ -119,13 +119,30 @@ class PatchBreakContinue(ast.NodeTransformer):
 class NormalizeStaticIf(Transformation):
 
     def __init__(self):
-        super(NormalizeStaticIf, self).__init__(StaticExpressions)
+        super(NormalizeStaticIf, self).__init__(StaticExpressions, Ancestors,
+                                                DefUseChains)
 
     def visit_Module(self, node):
         self.new_functions = []
+        self.funcs = []
         self.generic_visit(node)
         node.body.extend(self.new_functions)
         return node
+
+    def escaping_ids(self, scope_stmt, stmts):
+        'gather sets of identifiers defined in stmts and used out of it'
+        assigned_ids = self.gather(IsAssigned, self.make_fake(stmts))
+        escaping = set()
+        for stmt in stmts:
+            for head in self.def_use_chains.locals[self.funcs[-1]]:
+                # FIXME: this also considers names defined outside scope_stmt
+                # in order to include augassign
+                if head.name() not in assigned_ids:
+                    continue
+                for user in head.users():
+                    if scope_stmt not in self.ancestors[user.node]:
+                        escaping.add(head.name())
+        return escaping
 
     @staticmethod
     def make_fake(stmts):
@@ -161,14 +178,19 @@ class NormalizeStaticIf(Transformation):
     def false_name(self):
         return "$isstatic{}".format(len(self.new_functions) + 1)
 
+    def visit_FunctionDef(self, node):
+        self.funcs.append(node)
+        onode = self.generic_visit(node)
+        self.funcs.pop()
+        return onode
+
     def visit_IfExp(self, node):
         self.generic_visit(node)
 
         if node.test not in self.static_expressions:
             return node
 
-        imported_ids = sorted(self.gather(ImportedIds,
-                                                      node))
+        imported_ids = sorted(self.gather(ImportedIds, node))
 
         func_true = outline(self.true_name(), imported_ids, [],
                             node.body, False, False, False)
@@ -215,10 +237,8 @@ class NormalizeStaticIf(Transformation):
 
         imported_ids = self.gather(ImportedIds, node)
 
-        assigned_ids_left = set(
-            self.gather(IsAssigned, self.make_fake(node.body)).keys())
-        assigned_ids_right = set(
-            self.gather(IsAssigned, self.make_fake(node.orelse)).keys())
+        assigned_ids_left = self.escaping_ids(node, node.body)
+        assigned_ids_right = self.escaping_ids(node, node.orelse)
         assigned_ids_both = assigned_ids_left.union(assigned_ids_right)
 
         imported_ids.update(i for i in assigned_ids_left
@@ -265,7 +285,6 @@ class NormalizeStaticIf(Transformation):
         status_n = "$status{}".format(n)
         return_n = "$return{}".format(n)
         cont_n = "$cont{}".format(n)
-
 
         if has_return:
 
@@ -378,7 +397,6 @@ class SplitStaticExpression(Transformation):
         if after:
             assert len(after) == 1
             test_after.test = after[0]
-
 
         if isinstance(node.test.op, ast.BitAnd):
             if after:

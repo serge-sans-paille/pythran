@@ -13,7 +13,7 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
 from pythran.types.conversion import pytype_to_ctype
 from pythran.types.reorder import Reorder
-from pythran.utils import attr_to_path
+from pythran.utils import attr_to_path, cxxid
 
 from collections import defaultdict
 from functools import partial
@@ -473,7 +473,7 @@ class Types(ModuleAnalysis):
             typename = pytype_to_ctype(obj.signature)
             self.result[node] = self.builder.NamedType(typename)
         else:
-            self.result[node] = self.builder.DeclType('::'.join(path) + '{}')
+            self.result[node] = self.builder.DeclType('::'.join(map(cxxid,path)) + '{}')
 
     def visit_Slice(self, node):
         """

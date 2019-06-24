@@ -20,6 +20,7 @@ from pythran.spec import load_specfile, Spec
 from pythran.spec import spec_to_string
 from pythran.syntax import check_specs, check_exports
 from pythran.version import __version__
+from pythran.utils import cxxid
 import pythran.frontend as frontend
 
 from datetime import datetime
@@ -92,7 +93,7 @@ class HasArgument(ast.NodeVisitor):
     def visit_Module(self, node):
         for n in node.body:
             if isinstance(n, ast.FunctionDef) and n.name == self.fname:
-                return [arg.id for arg in n.args.args]
+                return [cxxid(arg.id) for arg in n.args.args]
         return []
 
 
@@ -101,7 +102,7 @@ def front_middle_end(module_name, code, optimizations=None, module_dir=None):
     pm = PassManager(module_name, module_dir)
 
     # front end
-    ir, renamings, docstrings = frontend.parse(pm, code)
+    ir, docstrings = frontend.parse(pm, code)
 
     # middle-end
     if optimizations is None:
@@ -109,7 +110,7 @@ def front_middle_end(module_name, code, optimizations=None, module_dir=None):
     optimizations = [_parse_optimization(opt) for opt in optimizations]
     refine(pm, ir, optimizations)
 
-    return pm, ir, renamings, docstrings
+    return pm, ir, docstrings
 
 
 # PUBLIC INTERFACE STARTS HERE
@@ -122,7 +123,7 @@ def generate_py(module_name, code, optimizations=None, module_dir=None):
 
     '''
 
-    pm, ir, _, _ = front_middle_end(module_name, code, optimizations,
+    pm, ir, _ = front_middle_end(module_name, code, optimizations,
                                     module_dir)
 
     return pm.dump(Python, ir)
@@ -138,8 +139,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
 
     '''
 
-    pm, ir, renamings, docstrings = front_middle_end(module_name, code,
-                                                     optimizations, module_dir)
+    pm, ir, docstrings = front_middle_end(module_name, code, optimizations,
+                                          module_dir)
 
     # back-end
     content = pm.dump(Cxx, ir)
@@ -169,10 +170,10 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
 
         def error_checker():
             types = tog.typecheck(ir)
-            check_specs(specs, renamings, types)
+            check_specs(specs, types)
 
         specs.to_docstrings(docstrings)
-        check_exports(ir, specs, renamings)
+        check_exports(ir, specs)
 
         if isinstance(code, bytes):
             code_bytes = code
@@ -202,8 +203,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
             return pythran_ward + '{0}::{1}'.format(module_name, internal_name)
 
         for function_name, signatures in specs.functions.items():
-            internal_func_name = renamings.get(function_name,
-                                               function_name)
+            internal_func_name = cxxid(function_name)
             # global variables are functions with no signatures :-)
             if not signatures:
                 mod.add_global_var(function_name,
@@ -214,7 +214,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                 numbered_function_name = "{0}{1}".format(internal_func_name,
                                                          sigid)
                 arguments_types = [pytype_to_ctype(t) for t in signature]
-                arguments_names = HasArgument(internal_func_name).visit(ir)
+                arguments_names = HasArgument(function_name).visit(ir)
                 arguments = [n for n, _ in
                              zip(arguments_names, arguments_types)]
                 name_fmt = pythran_ward + "{0}::{1}::type{2}"
@@ -253,11 +253,10 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                 )
 
         for function_name, signature in specs.capsules.items():
-            internal_func_name = renamings.get(function_name,
-                                               function_name)
+            internal_func_name = cxxid(function_name)
 
             arguments_types = [pytype_to_ctype(t) for t in signature]
-            arguments_names = HasArgument(internal_func_name).visit(ir)
+            arguments_names = HasArgument(function_name).visit(ir)
             arguments = [n for n, _ in
                          zip(arguments_names, arguments_types)]
             name_fmt = pythran_ward + "{0}::{1}::type{2}"

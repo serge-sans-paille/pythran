@@ -2,7 +2,6 @@
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES, pythran_ward
 from pythran.syntax import PythranSyntaxError
-from pythran.utils import pythran_id
 
 import gast as ast
 import logging
@@ -30,13 +29,13 @@ def demangle(name):
 
 def is_builtin_function(func_name):
     """Test if a function is a builtin (like len(), map(), ...)."""
-    return pythran_id(func_name) in MODULES["__builtin__"]
+    return func_name in MODULES["__builtin__"]
 
 
 def is_builtin_module(module_name):
     """Test if a module is a builtin module (numpy, math, ...)."""
     module_name = module_name.split(".")[0]
-    return pythran_id(module_name) in MODULES
+    return module_name in MODULES
 
 
 def is_mangled_module(name):

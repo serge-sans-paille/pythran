@@ -99,10 +99,9 @@ def pythran_builtin_path(name):
 def pythran_builtin_attr(name):
     return path_to_attr(pythran_builtin_path(name))
 
-
-def pythran_id(name):
+def cxxid(name):
     from pythran.tables import cxx_keywords
-    return name if name not in cxx_keywords else name + '_'
+    return name + '_' * (name in cxx_keywords)
 
 
 @contextmanager

@@ -144,7 +144,7 @@ class NormalizeStaticIf(Transformation):
                     ast.Name("__builtin__", ast.Load(), None),
                     "pythran",
                     ast.Load()),
-                "static_if_",
+                "static_if",
                 ast.Load()),
             dispatcher_args, [])
 

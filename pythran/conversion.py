@@ -33,14 +33,25 @@ def totuple(l):
         return l
 
 
+def dtype_to_ast(name):
+    if name in ('bool',):
+        return ast.Attribute(
+            ast.Name('__builtin__', ast.Load(), None),
+            name,
+            ast.Load())
+    else:
+        return ast.Attribute(
+            ast.Name(mangle('numpy'), ast.Load(), None),
+            name,
+            ast.Load())
+
+
 def size_container_folding(value):
     """
     Convert value to ast expression if size is not too big.
 
     Converter for sized container.
     """
-
-    from pythran.utils import pythran_id
 
     def size(x):
         return len(getattr(x, 'flatten', lambda: x)())
@@ -62,10 +73,7 @@ def size_container_folding(value):
                 'array',
                 ast.Load()),
                 args=[to_ast(totuple(value.tolist())),
-                      ast.Attribute(
-                          ast.Name(mangle('numpy'), ast.Load(), None),
-                          pythran_id(value.dtype.name),
-                          ast.Load())],
+                      dtype_to_ast(value.dtype.name)],
                 keywords=[])
         else:
             raise ConversionError()
@@ -77,8 +85,6 @@ def builtin_folding(value):
     """ Convert builtin function to ast expression. """
     if isinstance(value, (type(None), bool)):
         name = str(value)
-    elif value.__name__ in ("bool", "float", "int"):
-        name = value.__name__ + "_"
     else:
         name = value.__name__
     return ast.Attribute(ast.Name('__builtin__', ast.Load(), None),

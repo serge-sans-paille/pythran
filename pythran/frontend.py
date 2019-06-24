@@ -4,7 +4,6 @@
 
 from pythran.openmp import GatherOMPData
 from pythran.syntax import check_syntax
-from pythran.transformations import NormalizeIdentifiers
 from pythran.transformations import ExtractDocStrings, HandleImport
 
 import gast as ast
@@ -33,6 +32,5 @@ def parse(pm, code):
     _, docstrings = pm.apply(ExtractDocStrings, ir)
 
     # avoid conflicts with cxx keywords
-    _, renamings = pm.apply(NormalizeIdentifiers, ir)
     check_syntax(ir)
-    return ir, renamings, docstrings
+    return ir, docstrings

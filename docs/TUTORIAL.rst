@@ -130,14 +130,6 @@ There are many small passes used iteratively to produce the Pythran AST. For ins
       pass
       return __builtin__.None
 
-There are many other passes in Pythran. For instance one can prevent clashes with C++ keywords::
-
-  >>> tree = ast.parse('namespace_ = new = 1\nnamespace = namespace_ + new')
-  >>> _ = pm.apply(transformations.NormalizeIdentifiers, tree)  # out is a renaming table
-  >>> print(pm.dump(backend.Python, tree))
-  namespace_ = new_ = 1
-  namespace__ = (namespace_ + new_)
-
 More complex ones rely on introspection to implement constant folding::
 
   >>> from __future__ import print_function

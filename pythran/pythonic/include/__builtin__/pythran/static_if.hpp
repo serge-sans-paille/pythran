@@ -14,11 +14,11 @@ namespace __builtin__
     namespace details
     {
       template <class IsSame>
-      struct static_if_;
+      struct static_if;
 
       template <>
-      struct static_if_<types::true_type> {
-        static_if_(types::true_type)
+      struct static_if<types::true_type> {
+        static_if(types::true_type)
         {
         }
         template <class F0, class F1>
@@ -28,8 +28,8 @@ namespace __builtin__
         }
       };
       template <>
-      struct static_if_<types::false_type> {
-        static_if_(types::false_type)
+      struct static_if<types::false_type> {
+        static_if(types::false_type)
         {
         }
         template <class F0, class F1>
@@ -39,9 +39,9 @@ namespace __builtin__
         }
       };
       template <>
-      struct static_if_<bool> {
+      struct static_if<bool> {
         bool state_;
-        static_if_(bool state) : state_(state)
+        static_if(bool state) : state_(state)
         {
         }
 
@@ -73,17 +73,17 @@ namespace __builtin__
       };
     }
     template <class T, class F0, class F1>
-    auto static_if_(T const &cond, F0 f0, F1 f1)
-        -> decltype(details::static_if_<T>{cond}(f0, f1));
+    auto static_if(T const &cond, F0 f0, F1 f1)
+        -> decltype(details::static_if<T>{cond}(f0, f1));
 
     template <class F0, class F1>
-    auto static_if_(int const &cond, F0 f0, F1 f1)
-        -> decltype(details::static_if_<bool>{(bool)cond}(f0, f1))
+    auto static_if(int const &cond, F0 f0, F1 f1)
+        -> decltype(details::static_if<bool>{(bool)cond}(f0, f1))
     {
-      return details::static_if_<bool>{(bool)cond}(f0, f1);
+      return details::static_if<bool>{(bool)cond}(f0, f1);
     }
 
-    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, static_if_);
+    DEFINE_FUNCTOR(pythonic::__builtin__::pythran, static_if);
   }
 }
 PYTHONIC_NS_END

@@ -187,7 +187,7 @@ def check_syntax(node):
     SyntaxChecker().visit(node)
 
 
-def check_specs(specs, renamings, types):
+def check_specs(specs, types):
     '''
     Does nothing but raising PythranSyntaxError if specs
     are incompatible with the actual code
@@ -195,8 +195,7 @@ def check_specs(specs, renamings, types):
     from pythran.types.tog import unify, clone, tr
     from pythran.types.tog import Function, TypeVariable, InferenceError
 
-    functions = {renamings.get(k, k): v for k, v in specs.functions.items()}
-    for fname, signatures in functions.items():
+    for fname, signatures in specs.functions.items():
         ftype = types[fname]
         for signature in signatures:
             sig_type = Function([tr(p) for p in signature], TypeVariable())
@@ -213,17 +212,15 @@ def check_specs(specs, renamings, types):
                 )
 
 
-def check_exports(mod, specs, renamings):
+def check_exports(mod, specs):
     '''
     Does nothing but raising PythranSyntaxError if specs
     references an undefined global
     '''
-    functions = {renamings.get(k, k): v for k, v in specs.functions.items()}
-
     mod_functions = {node.name: node for node in mod.body
                      if isinstance(node, ast.FunctionDef)}
 
-    for fname, signatures in functions.items():
+    for fname, signatures in specs.functions.items():
         try:
             fnode = mod_functions[fname]
         except KeyError:

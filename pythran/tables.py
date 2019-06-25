@@ -289,7 +289,7 @@ CLASSES = {
         "remove": MethodIntr(signature=Fun[[Set[T0], T0], None]),
         "isdisjoint": ConstMethodIntr(
             signature=Fun[[Set[T0], Set[T0]], bool]),
-        "union_": ConstMethodIntr(
+        "union": ConstMethodIntr(
             signature=Union[
                 Fun[[Set[T0], Iterable[T0]], Set[T0]],
                 Fun[[Set[T0], Iterable[T0], Iterable[T0]], Set[T0]],
@@ -2573,7 +2573,7 @@ MODULES = {
             "is_none": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
             "make_shape": ConstFunctionIntr(),
-            "static_if_": ConstFunctionIntr(),
+            "static_if": ConstFunctionIntr(),
             "StaticIfBreak": ConstFunctionIntr(),
             "StaticIfCont": ConstFunctionIntr(),
             "StaticIfNoReturn": ConstFunctionIntr(),
@@ -2649,7 +2649,7 @@ MODULES = {
         "all": ReadOnceFunctionIntr(signature=Fun[[Iterable[T0]], bool]),
         "any": ReadOnceFunctionIntr(signature=Fun[[Iterable[T0]], bool]),
         "bin": ConstFunctionIntr(signature=Fun[[int], str]),
-        "bool_": ConstFunctionIntr(signature=_bool_signature),
+        "bool": ConstFunctionIntr(signature=_bool_signature),
         "chr": ConstFunctionIntr(signature=Fun[[int], str]),
         "cmp": ConstFunctionIntr(
             signature=Fun[[T0, T0], int],
@@ -2694,14 +2694,14 @@ MODULES = {
                 Fun[[Fun[[T0], bool], Iterable[T0]], List[T0]],
             ],
         ),
-        "float_": ClassWithConstConstructor(
+        "float": ClassWithConstConstructor(
             CLASSES['float'],
             signature=_float_signature
         ),
         "getattr": ConstFunctionIntr(),
         "hex": ConstFunctionIntr(signature=Fun[[int], str]),
         "id": ConstFunctionIntr(signature=Fun[[T0], int]),
-        "int_": ConstFunctionIntr(signature=_int_signature),
+        "int": ConstFunctionIntr(signature=_int_signature),
         "iter": FunctionIntr(
             signature=Fun[[Iterable[T0]], Generator[T0]]),  # not const
         "len": ConstFunctionIntr(
@@ -3392,7 +3392,7 @@ MODULES = {
             BINARY_UFUNC,
             signature=_numpy_int_binary_op_signature
         ),
-        "bool_": ConstFunctionIntr(signature=_bool_signature),
+        "bool": ConstFunctionIntr(signature=_bool_signature),
         "broadcast_to": ConstFunctionIntr(),
         "ceil": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "clip": ConstMethodIntr(signature=_numpy_ternary_op_signature),
@@ -3685,7 +3685,7 @@ MODULES = {
         "degrees": ConstFunctionIntr(
             signature=_numpy_float_unary_op_float_signature
         ),
-        "delete_": ConstFunctionIntr(),
+        "delete": ConstFunctionIntr(),
         "diag": ConstFunctionIntr(),
         "diagflat": ConstFunctionIntr(),
         "diagonal": ConstMethodIntr(),
@@ -3693,7 +3693,7 @@ MODULES = {
         "digitize": ConstFunctionIntr(),
         "divide": UFunc(BINARY_UFUNC),
         "dot": ConstMethodIntr(),
-        "double_": ConstFunctionIntr(signature=_float_signature),
+        "double": ConstFunctionIntr(signature=_float_signature),
         "dtype": ClassWithConstConstructor(CLASSES["dtype"]),
         "e": ConstantIntr(),
         "ediff1d": ConstFunctionIntr(),
@@ -3729,7 +3729,7 @@ MODULES = {
         "float32": ConstFunctionIntr(signature=_float_signature),
         "float64": ConstFunctionIntr(signature=_float_signature),
         "float128": ConstFunctionIntr(signature=_float_signature),
-        "float_": ConstFunctionIntr(signature=_float_signature),
+        "float": ConstFunctionIntr(signature=_float_signature),
         "floor": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "floor_divide": UFunc(BINARY_UFUNC),
         "fmax": UFunc(BINARY_UFUNC),
@@ -3945,8 +3945,7 @@ MODULES = {
         "split": ConstFunctionIntr(),
         "sqrt": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
         "square": ConstFunctionIntr(),
-        "std_": ConstMethodIntr(args=('a', 'axis', 'dtype'),
-                                defaults=(None, None)),
+        "std": ConstMethodIntr(),
         "subtract": UFunc(
             BINARY_UFUNC,
             signature=_numpy_binary_op_signature,
@@ -4305,7 +4304,7 @@ MODULES = {
         "get_wtime": FunctionIntr(global_effects=True),
         "get_wtick": FunctionIntr(global_effects=True),
     },
-    "operator_": {
+    "operator": {
         "lt": ConstFunctionIntr(signature=_operator_eq_signature),
         "le": ConstFunctionIntr(signature=_operator_eq_signature),
         "eq": ConstFunctionIntr(signature=_operator_eq_signature),
@@ -4363,7 +4362,7 @@ MODULES = {
         "__sub__": ConstFunctionIntr(signature=_operator_sub_signature),
         "truediv": ConstFunctionIntr(),
         "__truediv__": ConstFunctionIntr(),
-        "xor_": ConstFunctionIntr(),
+        "xor": ConstFunctionIntr(),
         "__xor__": ConstFunctionIntr(),
         "concat": ConstFunctionIntr(),
         "__concat__": ConstFunctionIntr(),
@@ -4416,7 +4415,7 @@ MODULES = {
         "__theitemgetter__": ConstFunctionIntr(),
         "itemgetter": MethodIntr(
             return_alias=lambda _: {
-                MODULES['operator_']['__theitemgetter__']}
+                MODULES['operator']['__theitemgetter__']}
         ),
 
     },
@@ -4481,10 +4480,10 @@ if sys.version_info.major == 3:
     del MODULES['itertools']['imap']
     del MODULES['itertools']['izip']
     del MODULES['itertools']['ifilter']
-    del MODULES['operator_']['idiv']
-    del MODULES['operator_']['__idiv__']
-    del MODULES['operator_']['div']
-    del MODULES['operator_']['__div__']
+    del MODULES['operator']['idiv']
+    del MODULES['operator']['__idiv__']
+    del MODULES['operator']['div']
+    del MODULES['operator']['__div__']
     del MODULES['__builtin__']['cmp']
     del MODULES['__builtin__']['file']
     del MODULES['__builtin__']['xrange']
@@ -4496,11 +4495,11 @@ if sys.version_info.major == 3:
         }
     }
     if sys.version_info.minor < 5:
-        del MODULES['operator_']['matmul']
-        del MODULES['operator_']['__matmul__']
+        del MODULES['operator']['matmul']
+        del MODULES['operator']['__matmul__']
 else:
-    del MODULES['operator_']['matmul']
-    del MODULES['operator_']['__matmul__']
+    del MODULES['operator']['matmul']
+    del MODULES['operator']['__matmul__']
 
 # OMP version
 try:
@@ -4544,9 +4543,7 @@ for module_name in ["omp", "scipy.special", "scipy"]:
 
 # check and delete unimplemented numpy methods
 for method in list(MODULES['numpy'].keys()):
-    if (method not in sys.modules['numpy'].__dict__ and not
-            (method[-1:] == '_' and method[:-1] in cxx_keywords and
-             method[:-1] in sys.modules['numpy'].__dict__)):
+    if method not in sys.modules['numpy'].__dict__:
         del MODULES['numpy'][method]
 
 

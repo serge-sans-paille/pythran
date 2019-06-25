@@ -3,7 +3,7 @@ from __future__ import print_function
 
 from pythran.analyses import ConstantExpressions, ASTMatcher
 from pythran.passmanager import Transformation
-from pythran.tables import MODULES, cxx_keywords
+from pythran.tables import MODULES
 from pythran.conversion import to_ast, ConversionError, ToNotEval, mangle
 from pythran.analyses.ast_matcher import DamnTooLongPattern
 from pythran.syntax import PythranSyntaxError
@@ -41,10 +41,6 @@ class ConstantFolding(Transformation):
             if module_name != '__dispatch__':
                 import_name = module_name
 
-                # handle module name conflicting with c++ keywords
-                if(module_name.endswith("_") and
-                   module_name[:-1] in cxx_keywords):
-                    import_name = module_name[:-1]
                 alias_module_name = mangle(module_name)
                 self.env[alias_module_name] = __import__(import_name)
 
@@ -53,12 +49,6 @@ class ConstantFolding(Transformation):
                     if fun in ("__theitemgetter__", "pythran"):
                         # these ones do not exist in Python
                         continue
-                    # Set attributs pointing to another for C++ keyword
-                    # case of __builtin__.int_ that point on __builtin__.int
-                    if not hasattr(self.env[alias_module_name], fun):
-                        setattr(self.env[alias_module_name], fun,
-                                getattr(self.env[alias_module_name],
-                                        fun.strip("_")))
 
         # we need to parse the whole code to be able to apply user-defined pure
         # function but import are resolved before so we remove them to avoid
@@ -108,7 +98,7 @@ class ConstantFolding(Transformation):
                 return Transformation.generic_visit(self, node)
             except AttributeError as e:
                 # FIXME union_ function is not handle by constant folding
-                if "union_" in e.args[0]:
+                if "union" in e.args[0]:
                     return Transformation.generic_visit(self, node)
                 elif "pythran" in e.args[0]:
                     # FIXME: Can be fix giving a Python implementation for

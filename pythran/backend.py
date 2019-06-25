@@ -21,7 +21,7 @@ from pythran.tables import operator_to_lambda, update_operator_to_lambda
 from pythran.tables import pythran_ward, make_lazy
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
-from pythran.utils import attr_to_path, pushpop
+from pythran.utils import attr_to_path, pushpop, cxxid
 from pythran import metadata, unparse
 
 from math import isnan, isinf
@@ -44,6 +44,7 @@ def is_simple_expr(node):
     walker = IsSimpleExpr()
     walker.visit(node)
     return not hasattr(walker, 'complex')
+
 
 
 class Python(Backend):
@@ -270,7 +271,7 @@ class CxxFunction(ast.NodeVisitor):
         # prepare context and visit function body
         fargs = node.args.args
 
-        formal_args = [arg.id for arg in fargs]
+        formal_args = [cxxid(arg.id) for arg in fargs]
         formal_types = ["argument_type" + str(i) for i in range(len(fargs))]
 
         local_decls = set(self.gather(LocalNodeDeclarations, node))
@@ -304,7 +305,7 @@ class CxxFunction(ast.NodeVisitor):
     # stmt
     def visit_FunctionDef(self, node):
 
-        self.fname = node.name
+        self.fname = cxxid(node.name)
         tmp = self.prepare_functiondef_context(node)
         operator_body, formal_types, formal_args = tmp
 
@@ -316,7 +317,7 @@ class CxxFunction(ast.NodeVisitor):
         fscope = "type{0}::".format("<{0}>".format(", ".join(formal_types))
                                     if formal_types
                                     else "")
-        ffscope = "{0}::{1}".format(node.name, fscope)
+        ffscope = "{0}::{1}".format(self.fname, fscope)
 
         operator_declaration = [
             templatize(
@@ -332,7 +333,7 @@ class CxxFunction(ast.NodeVisitor):
         operator_signature = make_const_function_declaration(
             self, node,
             "typename {0}result_type".format(ffscope),
-            "{0}::operator()".format(node.name),
+            "{0}::operator()".format(self.fname),
             formal_types, formal_args)
         ctx = CachedTypeVisitor(self.lctx)
         operator_local_declarations = (
@@ -364,7 +365,7 @@ class CxxFunction(ast.NodeVisitor):
                 dflt_argt
                 )
             ]
-        topstruct = Struct(node.name,
+        topstruct = Struct(self.fname,
                            [callable_type, pure_type] +
                            return_declaration +
                            operator_declaration)
@@ -947,7 +948,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Attribute(self, node):
         obj, path = attr_to_path(node)
-        sattr = '::'.join(path)
+        sattr = '::'.join(map(cxxid,path))
         if not obj.isliteral():
             sattr += '{}'
         return sattr
@@ -985,11 +986,11 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Name(self, node):
         if node.id in self.local_names:
-            return node.id
+            return cxxid(node.id)
         elif node.id in self.global_declarations:
-            return "{0}()".format(node.id)
+            return "{0}()".format(cxxid(node.id))
         else:
-            return node.id
+            return cxxid(node.id)
 
     # other
     def visit_ExtSlice(self, node):
@@ -1002,12 +1003,14 @@ class CxxFunction(ast.NodeVisitor):
             arg = (self.visit(nfield) if nfield
                    else 'pythonic::__builtin__::None')
             args.append(arg)
+
         if node.step is None or (isinstance(node.step, ast.Num) and
                                  node.step.n == 1):
             return "pythonic::types::contiguous_slice({},{})".format(args[0],
                                                                      args[1])
         else:
             return "pythonic::types::slice({},{},{})".format(*args)
+
 
     def visit_Index(self, node):
         return self.visit(node.value)
@@ -1042,7 +1045,7 @@ class CxxGenerator(CxxFunction):
         dflt_argv, dflt_argt, result_type, callable_type, pure_type = tmp
 
         # a generator has a call operator that returns the iterator
-        next_name = "__generator__{0}".format(node.name)
+        next_name = "__generator__{0}".format(cxxid(node.name))
         instanciated_next_name = "{0}{1}".format(
             next_name,
             "<{0}>".format(", ".join(formal_types)) if formal_types else "")
@@ -1178,7 +1181,7 @@ class CxxGenerator(CxxFunction):
             EmptyStatement()]
         operator_signature = make_const_function_declaration(
             self, node, instanciated_next_name,
-            "{0}::operator()".format(node.name),
+            "{0}::operator()".format(cxxid(node.name)),
             formal_types, formal_args)
         operator_definition = FunctionBody(
             templatize(operator_signature, formal_types),
@@ -1191,7 +1194,7 @@ class CxxGenerator(CxxFunction):
             Struct("type", extra_typedefs),
             formal_types)
         topstruct = Struct(
-            node.name,
+            cxxid(node.name),
             [topstruct_type, callable_type, pure_type] +
             operator_declaration)
 
@@ -1275,11 +1278,12 @@ result_type;
     def visit_Module(self, node):
         """ Build a compilation unit. """
         # build all types
-        deps = sorted(self.dependencies)
-        headers = [Include(os.path.join("pythonic", "include",  *t) + ".hpp")
-                   for t in deps]
-        headers += [Include(os.path.join("pythonic", *t) + ".hpp")
-                    for t in deps]
+        header_deps = sorted(self.dependencies)
+        headers = [Include(os.path.join("pythonic", "include",
+                                        *map(cxxid, t)) + ".hpp")
+                   for t in header_deps]
+        headers += [Include(os.path.join("pythonic", *map(cxxid, t)) + ".hpp")
+                    for t in header_deps]
 
         decls_n_defns = [self.visit(stmt) for stmt in node.body]
         decls, defns = zip(*[s for s in decls_n_defns if s])

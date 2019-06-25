@@ -141,12 +141,7 @@ class NormalizeMethodCalls(Transformation):
         Rename function path to fit Pythonic naming.
         """
         mname = demangle(v)
-
-        name = v + '_'
-        if name in cur_module:
-            return name, mname
-        else:
-            return v, mname
+        return v, mname
 
     def visit_Call(self, node):
         """

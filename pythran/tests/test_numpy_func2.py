@@ -312,6 +312,9 @@ def test_copy0(x):
             numpy.array([[1, 2], [3, 4]]),
             np_concatenate2=[NDArray[int,:,:]])
 
+    def test_concatenate3(self):
+        self.run_test("def np_concatenate3(a): from numpy import array, concatenate ; return concatenate([[1],a + a])", numpy.array([1, 2]), np_concatenate3=[NDArray[int,:]])
+
     def test_hstack0(self):
         self.run_test("def np_hstack0(a,b): import numpy as np; return np.hstack((a,b))",
                       numpy.array((1,2,3)),

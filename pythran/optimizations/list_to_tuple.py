@@ -10,6 +10,7 @@ import gast as ast
 patterns = (MODULES['numpy']['ones'],
             MODULES['numpy']['zeros'],
             MODULES['numpy']['empty'],
+            MODULES['numpy']['concatenate'],
             MODULES['__builtin__']['tuple'],
             )
 

@@ -121,13 +121,6 @@ xsimd_headers = ['xsimd/' + '*/' * i + '*.hpp' for i in range(1, 20)]
 pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
 sfmt_headers = ['sfmt/*.h', 'sfmt/*.c']
 
-# rename pythran into pythran3 for python3 version
-if sys.version_info[0] == 3:
-    pythran_cmd = 'pythran3'
-else:
-    pythran_cmd = 'pythran'
-
-
 # read longdescr from README
 def longdescr(readme_path):
     with open(readme_path) as readme:
@@ -156,10 +149,12 @@ setup(name='pythran',
           'License :: OSI Approved :: BSD License',
           'Natural Language :: English',
           'Operating System :: POSIX :: Linux',
+          'Operating System :: MacOS',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: C++',
+          'Topic :: Software Development :: Compilers',
           'Topic :: Software Development :: Code Generators'
       ],
       license="BSD 3-Clause",

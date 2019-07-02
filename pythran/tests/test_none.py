@@ -538,3 +538,32 @@ def returned_none_member(a):
                     add_error(2, ['DUMMY_PYTHRAN'])
                 return errors'''
         self.run_test(code, {"DUMMY_PYTHRAN":"DUMMY_PYTHRAN"}, none_diorcet2=[Dict[str,str]])
+
+    def test_none_escaping0(self):
+        code = '''
+            def none_escaping0(i):
+                a = 0 
+                c = None
+                if i % 2 == 0:
+                    c = 1
+                if c is not None:
+                    a = 2 
+                    b = 3 
+                    if i < 5:
+                        print(b + i)
+                return a'''
+        self.run_test(code, 3, none_escaping0=[int])
+
+    def test_none_escaping1(self):
+        code = '''
+            def none_escaping1(headers):
+                def get_header():
+                        return None
+
+                lpix = float(headers.get('a'))
+
+                diameter = None
+                if lpix is not None and lpix > 0.0:
+                    diameter = 20.0
+                return diameter'''
+        self.run_test(code, {'a': '10'}, none_escaping1=[Dict[str,str]])

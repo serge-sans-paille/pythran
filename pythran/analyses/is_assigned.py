@@ -2,7 +2,6 @@
 
 from pythran.passmanager import NodeAnalysis
 
-from collections import defaultdict
 import gast as ast
 
 
@@ -17,20 +16,20 @@ class IsAssigned(NodeAnalysis):
 
     def __init__(self):
         """ Basic initialiser. """
-        self.result = defaultdict(bool)
+        self.result = set()
         super(IsAssigned, self).__init__()
 
     def visit_Name(self, node):
         """ Stored variable have new value. """
         if isinstance(node.ctx, ast.Store):
-            self.result[node.id] = True
+            self.result.add(node.id)
 
     def visit_Tuple(self, node):
         if isinstance(node.ctx, ast.Store):
 
             def rec(n):
                 if isinstance(n, ast.Name):
-                    self.result[n.id] = True
+                    self.result.add(n.id)
                 elif isinstance(n, ast.Tuple):
                     for elt in n.elts:
                         rec(elt)

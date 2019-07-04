@@ -190,6 +190,7 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
 {
   npy_intp i;
   npy_double *slopes = NULL;
+  std::vector<npy_double> slope_vect;
   /* binary_search_with_guess needs at least a 3 item long array */
   if (lenxp == 1) {
     const npy_double xp_val = dx[0];
@@ -206,7 +207,7 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
 
     /* only pre-calculate slopes if there are relatively few of them. */
     if (lenxp <= lenx) {
-      auto slope_vect = std::vector<double>(lenxp - 1);
+      slope_vect.resize(lenxp - 1);
       slopes = slope_vect.data();
     }
 

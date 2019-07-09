@@ -1,6 +1,6 @@
 """ Checking if a number is a perfect square. """
 # pythran export is_square(int)
-# runas is_square(1234** 5)
+# runas is_square(12** 5)
 # from http://stackoverflow.com/questions/2489435/\
 # how-could-i-check-if-a-number-is-a-perfect-square
 

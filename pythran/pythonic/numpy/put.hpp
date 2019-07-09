@@ -30,7 +30,7 @@ namespace numpy
   }
 
   template <class T, class pS>
-  types::none_type put(types::ndarray<T, pS> &expr, long int ind, T const &v)
+  types::none_type put(types::ndarray<T, pS> &expr, long ind, T const &v)
   {
     if (ind >= expr.flat_size() || ind < 0)
       throw types::ValueError("indice out of bound");

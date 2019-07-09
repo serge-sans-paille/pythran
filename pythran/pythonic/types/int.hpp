@@ -1,5 +1,6 @@
 #ifndef PYTHONIC_TYPES_INT_HPP
 #define PYTHONIC_TYPES_INT_HPP
+#include <iostream>
 
 #include "pythonic/include/types/int.hpp"
 #include "pythonic/types/attr.hpp"
@@ -28,14 +29,6 @@ PYTHONIC_NS_END
 #include "numpy/arrayobject.h"
 
 PYTHONIC_NS_BEGIN
-
-namespace details
-{
-  constexpr int signed_int_types[] = {0, NPY_INT8, NPY_INT16, 0, NPY_INT32, 0,
-                                      0, 0,        NPY_INT64};
-  constexpr int unsigned_int_types[] = {
-      0, NPY_UINT8, NPY_UINT16, 0, NPY_UINT32, 0, 0, 0, NPY_UINT64};
-}
 
 template <class T>
 struct c_type_to_numpy_type
@@ -71,59 +64,56 @@ struct c_type_to_numpy_type<std::complex<long double>>
 };
 
 template <>
-struct c_type_to_numpy_type<signed long long> {
-  static const int value = details::signed_int_types[sizeof(signed long long)];
+struct c_type_to_numpy_type<signed long long>
+    : std::integral_constant<int, NPY_LONGLONG> {
 };
 
 template <>
-struct c_type_to_numpy_type<unsigned long long> {
-  static const int value =
-      details::unsigned_int_types[sizeof(unsigned long long)];
+struct c_type_to_numpy_type<unsigned long long>
+    : std::integral_constant<int, NPY_ULONGLONG> {
 };
 
 template <>
-struct c_type_to_numpy_type<signed long> {
-  static const int value = details::signed_int_types[sizeof(signed long)];
+struct c_type_to_numpy_type<signed long>
+    : std::integral_constant<int, NPY_LONG> {
 };
 
 template <>
-struct c_type_to_numpy_type<unsigned long> {
-  static const int value = details::unsigned_int_types[sizeof(unsigned long)];
+struct c_type_to_numpy_type<unsigned long>
+    : std::integral_constant<int, NPY_ULONG> {
 };
 
 template <>
-struct c_type_to_numpy_type<signed int> {
-  static const int value = details::signed_int_types[sizeof(signed int)];
+struct c_type_to_numpy_type<signed int> : std::integral_constant<int, NPY_INT> {
 };
 
 template <>
-struct c_type_to_numpy_type<unsigned int> {
-  static const int value = details::unsigned_int_types[sizeof(unsigned int)];
+struct c_type_to_numpy_type<unsigned int>
+    : std::integral_constant<int, NPY_UINT> {
 };
 
 template <>
-struct c_type_to_numpy_type<signed short> {
-  static const int value = details::signed_int_types[sizeof(signed short)];
+struct c_type_to_numpy_type<signed short>
+    : std::integral_constant<int, NPY_SHORT> {
 };
 
 template <>
-struct c_type_to_numpy_type<unsigned short> {
-  static const int value = details::unsigned_int_types[sizeof(unsigned short)];
+struct c_type_to_numpy_type<unsigned short>
+    : std::integral_constant<int, NPY_USHORT> {
 };
 
 template <>
-struct c_type_to_numpy_type<signed char> {
-  static const int value = details::signed_int_types[sizeof(signed char)];
+struct c_type_to_numpy_type<signed char>
+    : std::integral_constant<int, NPY_BYTE> {
 };
 
 template <>
-struct c_type_to_numpy_type<unsigned char> {
-  static const int value = details::unsigned_int_types[sizeof(unsigned char)];
+struct c_type_to_numpy_type<unsigned char>
+    : std::integral_constant<int, NPY_UBYTE> {
 };
 
 template <>
-struct c_type_to_numpy_type<bool> {
-  static const int value = NPY_BOOL;
+struct c_type_to_numpy_type<bool> : std::integral_constant<int, NPY_BOOL> {
 };
 
 #if PY_MAJOR_VERSION >= 3
@@ -165,7 +155,8 @@ PYTHONIC_INT_TO_PYTHON(signed long long)
 #define PYTHONIC_INT_FROM_PYTHON(TYPE, NTYPE)                                  \
   bool from_python<TYPE>::is_convertible(PyObject *obj)                        \
   {                                                                            \
-    return PyObject_TypeCheck(obj, &Py##NTYPE##ArrType_Type);                  \
+    return PyInt_CheckExact(obj) ||                                            \
+           PyObject_TypeCheck(obj, &Py##NTYPE##ArrType_Type);                  \
   }                                                                            \
   TYPE from_python<TYPE>::convert(PyObject *obj)                               \
   {                                                                            \
@@ -179,14 +170,7 @@ PYTHONIC_INT_FROM_PYTHON(signed short, Short)
 PYTHONIC_INT_FROM_PYTHON(unsigned int, UInt)
 PYTHONIC_INT_FROM_PYTHON(signed int, Int)
 PYTHONIC_INT_FROM_PYTHON(unsigned long, ULong)
-bool from_python<signed long>::is_convertible(PyObject *obj)
-{
-  return PyInt_CheckExact(obj) || PyObject_TypeCheck(obj, &PyLongArrType_Type);
-}
-signed long from_python<signed long>::convert(PyObject *obj)
-{
-  return PyLong_AsLong(obj);
-}
+PYTHONIC_INT_FROM_PYTHON(signed long, Long)
 PYTHONIC_INT_FROM_PYTHON(unsigned long long, ULongLong)
 PYTHONIC_INT_FROM_PYTHON(signed long long, LongLong)
 

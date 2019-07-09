@@ -129,7 +129,7 @@ namespace types
     fflush(**data);
   }
 
-  int file::fileno() const
+  long file::fileno() const
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -153,7 +153,7 @@ namespace types
     return readline();
   }
 
-  types::str file::read(int size)
+  types::str file::read(long size)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -161,7 +161,7 @@ namespace types
       throw IOError("File ! open for reading");
     if (size == 0 || (feof(**data) && mode.find_first_of("ra") == -1))
       return types::str();
-    int curr_pos = tell();
+    long curr_pos = tell();
     seek(0, SEEK_END);
     size = size < 0 ? tell() - curr_pos : size;
     seek(curr_pos);
@@ -193,7 +193,7 @@ namespace types
     return res;
   }
 
-  types::list<types::str> file::readlines(int sizehint)
+  types::list<types::str> file::readlines(long sizehint)
   {
     // Official python doc specifies that sizehint is used as a max of chars
     // But it has ! been implemented in the standard python interpreter...
@@ -204,7 +204,7 @@ namespace types
     return lst;
   }
 
-  void file::seek(int offset, int whence)
+  void file::seek(long offset, long whence)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -213,14 +213,14 @@ namespace types
     fseek(**data, offset, whence);
   }
 
-  int file::tell() const
+  long file::tell() const
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     return ftell(**data);
   }
 
-  void file::truncate(int size)
+  void file::truncate(long size)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -228,7 +228,7 @@ namespace types
       throw IOError("file.write() :  File ! opened for writing.");
     if (size < 0)
       size = this->tell();
-    int error = ftruncate(fileno(), size);
+    long error = ftruncate(fileno(), size);
     if (error == -1)
       throw RuntimeError(strerror(errno));
   }

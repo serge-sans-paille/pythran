@@ -32,12 +32,12 @@ namespace numpy
   template <class T, class pS>
   types::ndarray<T, pS> array(types::ndarray<T, pS> const &arr);
 
-  template <class T, size_t N, class V, class dtype = types::dtype_t<T>>
+  template <class T, size_t N, class V, class dtype = types::dtype_of<T>>
   types::ndarray<typename dtype::type,
                  typename types::array_base<T, N, V>::shape_t>
   array(types::array_base<T, N, V> const &, dtype d = dtype());
 
-  template <class T, size_t N, class V, class dtype = types::dtype_t<T>>
+  template <class T, size_t N, class V, class dtype = types::dtype_of<T>>
   types::ndarray<typename dtype::type,
                  typename types::array_base<T, N, V>::shape_t>
   array(types::array_base<T, N, V> &&, dtype d = dtype());

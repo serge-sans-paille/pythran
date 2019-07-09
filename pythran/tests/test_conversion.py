@@ -19,7 +19,12 @@ class TestConversion(TestEnv):
         self.run_test('def set_of_int32(l): return l', {np.int32(1),np.int32(-4)}, set_of_int32=[Set[np.int32]])
 
     def test_dict_of_int64_and_int8(self):
-        self.run_test('def dict_of_int64_and_int8(l): return l', {1:np.int8(1),2:np.int8(3),3:np.int8(4),-4:np.int8(-5)}, dict_of_int64_and_int8=[Dict[np.int64,np.int8]])
+        self.run_test('def dict_of_int64_and_int8(l): return l',
+                      {np.int64(1):np.int8(1),
+                       np.int64(2):np.int8(3),
+                       np.int64(3):np.int8(4),
+                       np.int64(-4):np.int8(-5)},
+                      dict_of_int64_and_int8=[Dict[np.int64,np.int8]])
 
     def test_tuple_of_uint8_and_int16(self):
         self.run_test('def tuple_of_uint8_and_int16(l): return l', (np.uint8(5), np.int16(-146)), tuple_of_uint8_and_int16=[Tuple[np.uint8, np.int16]])

@@ -1,5 +1,5 @@
 # pythran export solve(int, int)
-# runas solve(1, 20)
+# runas solve(1, 10)
 
 
 def solve(start, end):

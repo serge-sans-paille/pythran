@@ -1,4 +1,5 @@
 import unittest
+import sys
 from pythran.tests import TestEnv
 import numpy
 
@@ -44,6 +45,7 @@ class TestNumpyFunc1(TestEnv):
     def test_sum11_(self):
         self.run_test("def np_sum11_(a): import numpy as np ; return np.sum(a+a,2)", numpy.arange(12).reshape(2,3,2), np_sum11_=[NDArray[int,:,:,:]])
 
+    @unittest.skipIf(sys.maxsize == (2**31 - 1), "overflow test")
     def test_sum12_(self):
         self.run_test("def np_sum12_(a): import numpy as np ; return np.sum(a)",
                       numpy.array([2**32-1, -2**32 +1 , -2**32 + 1], dtype=numpy.uint32), np_sum12_=[NDArray[numpy.uint32,:]])
@@ -52,6 +54,7 @@ class TestNumpyFunc1(TestEnv):
         self.run_test("def np_sum13_(a): import numpy as np ; return np.sum(a)",
                       numpy.array([2**31-1, -2**31 +1 , -2**31 + 1], dtype=numpy.int32), np_sum13_=[NDArray[numpy.int32,:]])
 
+    @unittest.skipIf(sys.maxsize == (2**31 - 1), "overflow test")
     def test_sum14_(self):
         self.run_test("def np_sum14_(a): import numpy as np ; return np.sum(a)",
                       numpy.array([2**31-1, 2**31 +1 , 2**31 + 1], dtype=numpy.int32), np_sum14_=[NDArray[numpy.int32,:]])

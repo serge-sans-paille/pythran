@@ -533,12 +533,12 @@ class TestNumpyRandom(TestEnv):
     def test_numpy_random_choice2(self):
         """ Check numpy.random.choice with one numpy_expr argument. """
         self.run_test("""
-            def numpy_random_choice2(n):
+            def numpy_random_choice2(n, x):
                 from numpy.random import choice
                 from numpy import mean, var, arange
                 a = [choice(arange(11) + n) for _ in range(n)]
-                return (abs(mean(a) - (5 + n)) < .05)""",
-                      10 ** 5, numpy_random_choice2=[int])
+                return (abs(mean(a) - (5 + x)) < .05)""",
+                      10 ** 5, 1, numpy_random_choice2=[int, int])
 
     def test_numpy_random_choice3(self):
         """ Check numpy.random.choice with int and int argument. """

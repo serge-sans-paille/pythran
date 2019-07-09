@@ -1,5 +1,5 @@
-#runas import numpy as np; x = np.array([[1,0],[0, 1]]); ising_step(x)
-#pythran export ising_step(int64[:,:])
+#runas import numpy as np; x = np.array([[1,0],[0, 1]], dtype=np.intp); ising_step(x)
+#pythran export ising_step(intp[:,:])
 
 import numpy as np
 def ising_step(field, beta=0.4):

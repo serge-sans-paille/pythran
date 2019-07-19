@@ -17,7 +17,11 @@ namespace numpy
   arange(T begin, U end, S step, dtype d)
   {
     using R = typename dtype::type;
-    long size = std::max(R(0), R(std::ceil((end - begin) / step)));
+    long size;
+    if (std::is_integral<R>::value)
+      size = std::max(R(0), R((end - begin + step - 1) / step));
+    else
+      size = std::max(R(0), R(std::ceil((end - begin) / step)));
     return {details::arange_index<R>{(R)begin, (R)step, size}};
   }
 

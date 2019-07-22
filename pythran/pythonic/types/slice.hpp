@@ -488,6 +488,40 @@ PyObject *to_python<types::slice>::convert(types::slice const &v)
                        ::to_python(v.step));
   }
 }
+
+bool from_python<types::slice>::is_convertible(PyObject *obj)
+{
+  return PySlice_Check(obj);
+}
+
+types::slice from_python<types::slice>::convert(PyObject *obj)
+{
+  Py_ssize_t start, stop, step;
+#if PY_MAJOR_VERSION >= 3
+  PySlice_Unpack(obj, &start, &stop, &step);
+#else
+  PySlice_GetIndices((PySliceObject *)obj, PY_SSIZE_T_MAX, &start, &stop,
+                     &step);
+#endif
+  types::none<long> nstart, nstop, nstep;
+  if (start != PY_SSIZE_T_MAX)
+    nstart = start;
+  else
+    nstart = types::none_type{};
+
+  if (stop != PY_SSIZE_T_MAX)
+    nstop = stop;
+  else
+    nstop = types::none_type{};
+
+  if (step != PY_SSIZE_T_MAX)
+    nstep = step;
+  else
+    nstep = types::none_type{};
+
+  return {nstart, nstop, nstep};
+}
+
 PYTHONIC_NS_END
 
 #endif

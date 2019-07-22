@@ -211,7 +211,7 @@ Constructed types are either tuples, introduced by parenthesis, like ``(int,
                   | argument_type [:,...,3]+ # this is a ndarray, some dimension fixed
                   | argument_type:argument_type dict    # this is a dictionary
 
-    basic_type = bool | byte | int | float | str | None
+    basic_type = bool | byte | int | float | str | None | slice
                | uint8 | uint16 | uint32 | uint64 | uintp
                | int8 | int16 | int32 | int64 | intp
                | float32 | float64 | float128

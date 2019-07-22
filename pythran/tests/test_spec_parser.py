@@ -25,7 +25,7 @@ import os.path
 #pythran export a( int8 set )
 #pythran export b( int8 set? )
 #pythran export a( uint8 list)
-#pythran export a( int16 [])
+#pythran export a( int16 [], slice)
 #pythran export a( uint16 [][] order(C))
 #pythran export a( uint16 [::][])
 #pythran export a( uint16 [:,:,:])

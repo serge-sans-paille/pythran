@@ -11,6 +11,7 @@ PYTYPE_TO_CTYPE_TABLE = {
     int: 'long',
     float: 'double',
     str: 'pythonic::types::str',
+    slice: 'pythonic::types::slice',
     type(None): 'pythonic::types::none_type',
     int8: 'int8_t',
     int16: 'int16_t',

@@ -227,6 +227,12 @@ struct to_python<types::normalized_slice> {
   static PyObject *convert(types::normalized_slice const &n);
 };
 
+template <>
+struct from_python<types::slice> {
+  static bool is_convertible(PyObject *obj);
+  static types::slice convert(PyObject *obj);
+};
+
 PYTHONIC_NS_END
 
 #endif

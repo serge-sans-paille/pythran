@@ -768,3 +768,11 @@ def add_slice_to_list(l):
         self.run_test("def int_base_lit(x, y): return int(x, 8), int('A', y)",
                       "14", 16,
                       int_base_lit=[str, int])
+
+    def test_slice0(self):
+        self.run_test("""
+        def slice0(a, x):
+            return a[x], x, slice(1,1,1)""",
+                      numpy.array([-1.3, 2.3, -4]),
+                      slice(0,2,1),
+                      slice0=[NDArray[float, :], slice])

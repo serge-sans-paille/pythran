@@ -163,6 +163,7 @@ class SpecParser(object):
         'list': 'LIST',
         'set': 'SET',
         'dict': 'DICT',
+        'slice': 'SLICE',
         'str': 'STR',
         'None': 'NONE',
         }
@@ -403,9 +404,12 @@ class SpecParser(object):
     def p_term(self, p):
         '''term : STR
                 | NONE
+                | SLICE
                 | dtype'''
         if p[1] == 'str':
             p[0] = str
+        elif p[1] == 'slice':
+            p[0] = slice
         elif p[1] == 'None':
             p[0] = type(None)
         else:

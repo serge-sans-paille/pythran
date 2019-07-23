@@ -866,7 +866,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_List(self, node):
         if not node.elts:  # empty list
-            return "pythonic::__builtin__::functor::list{}()"
+            return '{}(pythonic::types::empty_list())'.format(self.types[node])
         else:
             elts = [self.visit(n) for n in node.elts]
             elts_type = reduce(
@@ -877,23 +877,26 @@ class CxxFunction(ast.NodeVisitor):
             if len(elts) == 1:
                 elts.append('pythonic::types::single_value()')
 
-            node_type = self.types.builder.ListType(elts_type)
+            node_type = self.types.builder.CombinedTypes(self.types[node],
+                                                         self.types.builder.ListType(elts_type))
             return "{0}({{{1}}})".format(
                 self.types.builder.Assignable(node_type),
                 ", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
-            return "pythonic::__builtin__::functor::set{}()"
+            return '{}(pythonic::types::empty_set())'.format(self.types[node])
         else:
             elts = [self.visit(n) for n in node.elts]
+            node_type = self.types.builder.Assignable(self.types[node])
             return "{0}{{{{{1}}}}}".format(
-                self.types.builder.Assignable(self.types[node]),
-                ", ".join(elts))
+                node_type,
+                ", ".join("static_cast<{}::value_type>({})"
+                          .format(node_type, elt) for elt in elts))
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
-            return "pythonic::__builtin__::functor::dict{}()"
+            return '{}(pythonic::types::empty_dict())'.format(self.types[node])
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]

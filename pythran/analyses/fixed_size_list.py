@@ -28,10 +28,16 @@ class FixedSizeList(FunctionAnalysis):
                    for alias in self.aliases[node.func])
 
     def is_safe_call(self, node, index):
-        func_aliases = self.aliases[node.func]
-        for func_alias in func_aliases:
-            if func_alias in self.argument_effects:
-                func_aes = self.argument_effects[func_alias]
+        func_aliases = list(self.aliases[node])
+        for alias in func_aliases:
+            if isinstance(alias, ast.Call):
+                if not self.is_safe_call(alias.args[0],
+                                         index + len(alias.args) - 1):
+                    return False
+
+
+            if alias in self.argument_effects:
+                func_aes = self.argument_effects[alias]
                 if func_aes[index]:
                     return False
         return True
@@ -45,7 +51,7 @@ class FixedSizeList(FunctionAnalysis):
 
         if isinstance(parent, ast.Call):
             n = parent.args.index(use.node)
-            return self.is_safe_call(parent, n)
+            return self.is_safe_call(parent.func, n)
 
         return False
 
@@ -68,5 +74,5 @@ class FixedSizeList(FunctionAnalysis):
     def visit_Call(self, node):
         self.generic_visit(node)
         for i, arg in enumerate(node.args):
-            if self.is_safe_call(node, i):
+            if self.is_safe_call(node.func, i):
                 self.result.add(arg)

@@ -518,3 +518,24 @@ def recursive_interprocedural_typing1(c):
                 b(foo, t)
                 return t'''
         return self.run_test(code, 3, higher_order0=[int])
+
+    def test_rvalue_type_update_list(self):
+        code = '''
+          def rvalue_type_update_list(x):
+              def foo(x): x.append(1.5); return x
+              return foo([x])'''
+        return self.run_test(code, 3, rvalue_type_update_list=[int])
+
+    def test_rvalue_type_update_set(self):
+        code = '''
+          def rvalue_type_update_set(x):
+              def foo(x): x.add(1.5); return x
+              return foo({x})'''
+        return self.run_test(code, 3, rvalue_type_update_set=[int])
+
+    def test_rvalue_type_update_dict(self):
+        code = '''
+          def rvalue_type_update_dict(x):
+              def foo(x): x[1.5] = 1.5; return x
+              return foo({x:x})'''
+        return self.run_test(code, 3, rvalue_type_update_dict=[int])

@@ -21,8 +21,7 @@ def dep_builder(type_var, ppal_index, index, t, self, node):
                                 if index == ppal_index
                                 else self.result[node.args[index]])
     elif isinstance(t, (List, Set, Iterable, Dict)):
-        return lambda arg: self.builder.cxxtypes.ElementType(
-            0,
+        return lambda arg: self.builder.IteratorContentType(
             dep_builder(type_var,
                         ppal_index,
                         index,

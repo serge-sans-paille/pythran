@@ -170,25 +170,28 @@ class Types(ModuleAnalysis):
         try:
             if register:    # this comes from an assignment,
                             # so we must check where the value is assigned
-                node_id, depth = self.node_to_id(node)
-                if depth > 0:
-                    node = ast.Name(node_id, ast.Load(), None)
-                    former_unary_op = unary_op
+                try:
+                    node_id, depth = self.node_to_id(node)
+                    if depth > 0:
+                        node = ast.Name(node_id, ast.Load(), None)
+                        former_unary_op = unary_op
 
-                    # update the type to reflect container nesting
-                    def unary_op(x):
-                        return reduce(lambda t, n:
-                                      self.builder.ContainerType(t),
-                                      range(depth), former_unary_op(x))
+                        # update the type to reflect container nesting
+                        def unary_op(x):
+                            return reduce(lambda t, n:
+                                          self.builder.ContainerType(t),
+                                          range(depth), former_unary_op(x))
 
-                    # patch the op, as we no longer apply op, but infer content
-                    def op(*types):
-                        if len(types) == 1:
-                            return types[0]
-                        else:
-                            return self.builder.CombinedTypes(*types)
+                        # patch the op, as we no longer apply op, but infer content
+                        def op(*types):
+                            if len(types) == 1:
+                                return types[0]
+                            else:
+                                return self.builder.CombinedTypes(*types)
 
-                self.name_to_nodes[node_id].append(node)
+                    self.name_to_nodes[node_id].append(node)
+                except UnboundableRValue:
+                    pass
 
             # only perform inter procedural combination upon stage 0
             if register and self.isargument(node) and self.stage == 0:
@@ -242,7 +245,10 @@ class Types(ModuleAnalysis):
                 if node not in self.result or self.result[node] is UnknownType:
                     self.result[node] = new_type
                 else:
+                    if isinstance(self.result[node], tuple):
+                        raise UnboundableRValue
                     self.result[node] = op(self.result[node], new_type)
+
         except UnboundableRValue:
             pass
 

@@ -83,8 +83,17 @@ def dict_copy(a):
     def test_dict_pop(self):
         return self.run_test("def dict_pop(a): return a.pop(1), a.pop(3,'e'), a", { 1:'a', 2:'b' }, dict_pop=[Dict[int, str]])
 
-    def test_dict_popitem(self):
-        return self.run_test("def dict_popitem(a): return a.popitem(), a", { 1:'a' }, dict_popitem=[Dict[int, str]])
+    def test_dict_popitem0(self):
+        return self.run_test(
+            "def dict_popitem0(a): return a.popitem(), a",
+            {1:'a' },
+            dict_popitem0=[Dict[int, str]])
+
+    def test_dict_popitem1(self):
+        return self.run_test(
+            "def dict_popitem1(a): return a.popitem(), a",
+            { 1: 2 },
+            dict_popitem1=[Dict[int, int]])
 
     def test_dict_setdefault(self):
         return self.run_test("def dict_setdefault():\n a={1.5:2 }\n return a.setdefault(1.5) + a.setdefault(2, 18)", dict_setdefault=[])
@@ -115,3 +124,14 @@ def dict_copy(a):
 
     def test_dict_setdefault_combiner(self):
         return self.run_test("def dict_setdefault_combiner():\n a=dict()\n a.setdefault(1,'e')\n return a", dict_setdefault_combiner=[])
+
+    def test_dict_iterate_item(self):
+        return self.run_test(
+            """def dict_iterate_item(d):
+                s = 0
+                for kv in d.items():
+                 for e in kv:
+                  s += e
+                return s""",
+            {1:2,3:4},
+            dict_iterate_item=[Dict[int, int]])

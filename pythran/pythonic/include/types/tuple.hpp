@@ -401,6 +401,17 @@ namespace types
     const_pointer data() const noexcept;
 
     // operator
+
+    // for conversion to dict item type
+    template <class K, class V>
+    operator std::pair<const K, V>() const
+    {
+      static_assert(std::is_same<K, T>::value && std::is_same<V, T>::value &&
+                        N == 2,
+                    "compatible conversion");
+      return {data()[0], data()[1]};
+    }
+
     template <size_t M>
     bool operator==(array_base<T, M, Version> const &other) const;
 
@@ -563,6 +574,9 @@ namespace types
     return _make_tuple<alike<Types...>::value, Types...>()(
         std::forward<Types>(types)...);
   }
+
+  template <class... Tys>
+  using make_tuple_t = decltype(types::make_tuple(std::declval<Tys>()...));
 
   template <class T, class Tuple, size_t... S>
   types::array<T, sizeof...(S)> _to_array(Tuple const &t,

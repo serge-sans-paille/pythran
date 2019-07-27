@@ -32,7 +32,8 @@ namespace types
   typename item_iterator_adaptator<I>::value_type item_iterator_adaptator<I>::
   operator*()
   {
-    return I::operator*();
+    auto &&tmp = I::operator*();
+    return make_tuple(tmp.first, tmp.second);
   }
 
   /// key_iterator_adaptator implementation
@@ -189,7 +190,7 @@ namespace types
   template <class K, class V>
   template <class Kp, class Vp>
   dict<K, V>::dict(dict<Kp, Vp> const &other)
-      : data(other.item_begin(), other.item_end())
+      : data(other.data->begin(), other.data->end())
   {
   }
 
@@ -445,15 +446,15 @@ namespace types
   }
 
   template <class K, class V>
-  std::tuple<K, V> dict<K, V>::popitem()
+  make_tuple_t<K, V> dict<K, V>::popitem()
   {
     auto b = data->begin();
     if (b == data->end())
       throw std::range_error("KeyError");
     else {
-      std::tuple<K, V> r = *b;
+      auto r = *b;
       data->erase(b);
-      return r;
+      return make_tuple_t<K, V>{r.first, r.second};
     }
   }
 

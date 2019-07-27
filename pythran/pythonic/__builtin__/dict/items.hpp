@@ -18,7 +18,7 @@ namespace __builtin__
   {
 
     template <class K, class V>
-    types::list<std::tuple<K, V>> items(types::dict<K, V> const &d)
+    types::list<types::make_tuple_t<K, V>> items(types::dict<K, V> const &d)
     {
       return {d.item_begin(), d.item_end()};
     }

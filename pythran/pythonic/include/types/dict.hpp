@@ -29,7 +29,7 @@ namespace types
 
   template <class I>
   struct item_iterator_adaptator : public I {
-    using value_type = std::pair<
+    using value_type = make_tuple_t<
         typename std::remove_cv<typename I::value_type::first_type>::type,
         typename I::value_type::second_type>;
     using pointer = value_type *;
@@ -111,6 +111,8 @@ namespace types
     using container_type = std::unordered_map<_key_type, _value_type>;
 
     utils::shared_ref<container_type> data;
+    template <class Kp, class Vp>
+    friend class dict;
 
   public:
     // types
@@ -212,7 +214,7 @@ namespace types
 
     V pop(K const &key);
 
-    std::tuple<K, V> popitem();
+    make_tuple_t<K, V> popitem();
 
     long size() const;
 

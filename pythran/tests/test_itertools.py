@@ -120,6 +120,18 @@ def ifiltern_(l0):
     def test_izip_on_generator(self):
         self.run_test("def izipg_(l0,l1): from itertools import izip; return sum(map(lambda (x,y) : x*y, izip((z for x in l0 for z in xrange(x)),(z for x in l1 for z in xrange(x)))))", [0,1,2,3], [3,2,1,0], izipg_=[List[int],List[int]])
 
+    def test_zip_iter(self):
+        self.run_test("""
+            def zip_iter(l0):
+              from itertools import izip
+              s = 0
+              for x in izip(l0, l0):
+                for y in x:
+                  s += y
+              return s""",
+            [0,1,2],
+            zip_iter=[List[int]])
+
     def test_islice0(self):
         self.run_test("def islice0(l): from itertools import islice ; return [x for x in islice(l, 1,30,3)]", list(range(100)), islice0=[List[int]])
 
@@ -160,8 +172,19 @@ def ifiltern_(l0):
     def test_next_ifilter_none(self):
         self.run_test("def next_ifilter_none(n): from itertools import ifilter ; x = ifilter(None,n) ; next(x) ; return map(None, x)", range(-5,5), next_ifilter_none=[List[int]])
 
-    def test_next_product(self):
+    def test_product_next(self):
         self.run_test("def next_product(n): from itertools import product ; x = product(n,n) ; next(x) ; return map(None, x)", list(range(-5,5)), next_product=[List[int]])
+
+    def test_product_iter(self):
+        self.run_test("""
+                      def product_iter(n):
+                        from itertools import product
+                        s = 0
+                        for x in product(n,n):
+                          for y in x:
+                            s += y
+                        return s""",
+                      list(range(-5,5)), product_iter=[List[int]])
 
     @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_next_izip(self):

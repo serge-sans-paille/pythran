@@ -2903,6 +2903,10 @@ MODULES = {
                 BINARY_UFUNC,
                 signature=_numpy_binary_op_float_signature
             ),
+            "spherical_jn": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
         }
     },
     "numpy": {
@@ -4674,4 +4678,3 @@ beniget.beniget.Builtins['__dispatch__'] = object()
 for k, v in MODULES['__builtin__'].items():
     if k not in beniget.beniget.Builtins:
         beniget.beniget.Builtins[k] = v
-

@@ -29,21 +29,32 @@ for ns, f in binary_ufunc:
             setattr(TestNumpyUFuncBinary, 'test_accumulate_' + f, eval("lambda self: self.run_test('def np_{0}_accumulate(a): from {1} import {0} ; return {0}.accumulate(a)', numpy.ones(10, numpy.int32), np_{0}_accumulate=[NDArray[numpy.int32, :]])".format(f, ns)))
             setattr(TestNumpyUFuncBinary, 'test_accumulate_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix_accumulate(a): from {1} import {0} ; return {0}.accumulate(a)', numpy.ones((2,5), numpy.int32), np_{0}_matrix_accumulate=[NDArray[numpy.int32,:,:]])".format(f, ns)))
     else:
-        setattr(TestNumpyUFuncBinary, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from {1} import {0} ; return {0}(a,a)', numpy.ones(10), np_{0}=[NDArray[float, :]])".format(f, ns)))
-        setattr(TestNumpyUFuncBinary, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from {1} import {0} ; return {0}(a+0.5, a+0.5)', 0.5, np_{0}_scalar=[float])".format(f, ns)))
-        setattr(TestNumpyUFuncBinary, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from {1} import {0} ; return {0}(a,a)', numpy.ones((2,5)) - 0.2 , np_{0}_matrix=[NDArray[float,:,:]])".format(f, ns)))
-        ## Tests for complex numbers
-        try:
-            eval('{1}.{0}(1.j, 1.j)'.format(f, ns))
-            setattr(TestNumpyUFuncBinary, 'test_' + f + '_complex', eval("lambda self: self.run_test('def np_{0}_complex(a): from {1} import {0} ; return {0}(a,a)', numpy.ones(10)*1.j, np_{0}_complex=[NDArray[complex, :]])".format(f, ns)))
-        except TypeError:
-            pass
-        ## Tests for integral numbers
-        try:
-            eval('{1}.{0}(1, 1)'.format(f, ns))
-            setattr(TestNumpyUFuncBinary, 'test_' + f + '_integer', eval("lambda self: self.run_test('def np_{0}_integer(a): from {1} import {0} ; return {0}(a, a)', numpy.ones(10,dtype=int), np_{0}_integer=[NDArray[int, :]])".format(f, ns)))
-        except TypeError:
-            pass
+        if 'spherical' in f and 'scipy' in ns:
+            setattr(TestNumpyUFuncBinary, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from {1} import {0}; import numpy; return {0}(numpy.array(a, dtype=int) +2 ,a)', numpy.ones(10), np_{0}=[NDArray[float, :]])".format(f, ns)))
+            setattr(TestNumpyUFuncBinary, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from {1} import {0} ; return {0}(int(a+3), a+0.5)', 0.5, np_{0}_scalar=[float])".format(f, ns)))
+            setattr(TestNumpyUFuncBinary, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from {1} import {0}; import numpy; return {0}(numpy.array(a, dtype=int),a)', numpy.ones((2,5)) - 0.2 , np_{0}_matrix=[NDArray[float,:,:]])".format(f, ns)))
+            ## Tests for integral numbers
+            try:
+                eval('{1}.{0}(1, 1)'.format(f, ns))
+                setattr(TestNumpyUFuncBinary, 'test_' + f + '_integer', eval("lambda self: self.run_test('def np_{0}_integer(a): from {1} import {0} ; return {0}(a, a)', numpy.ones(10,dtype=int), np_{0}_integer=[NDArray[int, :]])".format(f, ns)))
+            except TypeError:
+                pass
+        else:
+            setattr(TestNumpyUFuncBinary, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from {1} import {0} ; return {0}(a,a)', numpy.ones(10), np_{0}=[NDArray[float, :]])".format(f, ns)))
+            setattr(TestNumpyUFuncBinary, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from {1} import {0} ; return {0}(a+0.5, a+0.5)', 0.5, np_{0}_scalar=[float])".format(f, ns)))
+            setattr(TestNumpyUFuncBinary, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from {1} import {0} ; return {0}(a,a)', numpy.ones((2,5)) - 0.2 , np_{0}_matrix=[NDArray[float,:,:]])".format(f, ns)))
+            ## Tests for complex numbers
+            try:
+                eval('{1}.{0}(1.j, 1.j)'.format(f, ns))
+                setattr(TestNumpyUFuncBinary, 'test_' + f + '_complex', eval("lambda self: self.run_test('def np_{0}_complex(a): from {1} import {0} ; return {0}(a,a)', numpy.ones(10)*1.j, np_{0}_complex=[NDArray[complex, :]])".format(f, ns)))
+            except TypeError:
+                pass
+            ## Tests for integral numbers
+            try:
+                eval('{1}.{0}(1, 1)'.format(f, ns))
+                setattr(TestNumpyUFuncBinary, 'test_' + f + '_integer', eval("lambda self: self.run_test('def np_{0}_integer(a): from {1} import {0} ; return {0}(a, a)', numpy.ones(10,dtype=int), np_{0}_integer=[NDArray[int, :]])".format(f, ns)))
+            except TypeError:
+                pass
 
         ## Tests for accumulation
         if 'scipy' not in ns:

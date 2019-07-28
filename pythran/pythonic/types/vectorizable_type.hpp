@@ -86,6 +86,8 @@ namespace scipy
       struct ivp;
       struct kvp;
       struct yvp;
+      struct spherical_jn;
+      struct spherical_yn;
     }
   }
 }
@@ -166,6 +168,8 @@ namespace types
         !std::is_same<O, scipy::special::functor::ivp>::value &&
         !std::is_same<O, scipy::special::functor::kvp>::value &&
         !std::is_same<O, scipy::special::functor::yvp>::value &&
+        !std::is_same<O, scipy::special::functor::spherical_jn>::value &&
+        !std::is_same<O, scipy::special::functor::spherical_yn>::value &&
         //
         true;
   };

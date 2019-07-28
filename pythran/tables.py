@@ -4558,6 +4558,8 @@ def save_arguments(module_name, elements):
             try:
                 themodule = __import__(".".join(module_name))
                 obj = getattr(themodule, elem)
+                while hasattr(obj, '__wrapped__'):
+                    obj = obj.__wrapped__
                 spec = getfullargspec(obj)
                 if signature.args.args:
                     logger.warn(

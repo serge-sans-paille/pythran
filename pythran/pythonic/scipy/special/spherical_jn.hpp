@@ -9,6 +9,7 @@
 
 #define BOOST_MATH_THREAD_LOCAL thread_local
 #include <boost/math/special_functions/bessel.hpp>
+#include <boost/math/special_functions/bessel_prime.hpp>
 
 PYTHONIC_NS_BEGIN
 
@@ -19,19 +20,19 @@ namespace scipy
     namespace details
     {
       template <class T0, class T1>
-      double spherical_jn(T0 v, T1 x)
+      double spherical_jn(T0 v, T1 x, bool derivative)
       {
         using namespace boost::math::policies;
-        // if (derivative)
-        // {
-        //   return boost::math::sph_bessel_prime(
-        //     v, x, make_policy(promote_double<true>()));
-        // }
-        // else
-        // {
-        return boost::math::sph_bessel(
-          v, x, make_policy(promote_double<true>()));
-        // }
+        if (derivative)
+        {
+          return boost::math::sph_bessel_prime(
+            v, x, make_policy(promote_double<true>()));
+        }
+        else
+        {
+          return boost::math::sph_bessel(
+            v, x, make_policy(promote_double<true>()));
+        }
       }
     }
 

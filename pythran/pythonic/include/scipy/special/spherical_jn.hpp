@@ -11,10 +11,11 @@ namespace scipy
 {
   namespace special
   {
+
     namespace details
     {
       template <class T0, class T1>
-      double spherical_jn(T0 x, T1 y);
+      double spherical_jn(T0 v, T1 x, bool derivative = false);
     }
 
 #define NUMPY_NARY_FUNC_NAME spherical_jn

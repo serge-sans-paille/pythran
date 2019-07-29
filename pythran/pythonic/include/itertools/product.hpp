@@ -21,7 +21,7 @@ namespace itertools
     template <typename... Iters>
     struct product_iterator
         : std::iterator<std::forward_iterator_tag,
-                        std::tuple<typename Iters::value_type...>> {
+                        types::make_tuple_t<typename Iters::value_type...>> {
 
       std::tuple<typename Iters::iterator...> const it_begin;
       std::tuple<typename Iters::iterator...> const it_end;
@@ -35,7 +35,7 @@ namespace itertools
       template <size_t... I>
       product_iterator(npos, std::tuple<Iters...> &_iters,
                        utils::index_sequence<I...> const &);
-      std::tuple<typename Iters::value_type...> operator*() const;
+      types::make_tuple_t<typename Iters::value_type...> operator*() const;
       product_iterator &operator++();
       bool operator==(product_iterator const &other) const;
       bool operator!=(product_iterator const &other) const;
@@ -46,7 +46,7 @@ namespace itertools
       void advance(utils::int_<N>);
       void advance(utils::int_<0>);
       template <size_t... I>
-      std::tuple<typename Iters::value_type...>
+      types::make_tuple_t<typename Iters::value_type...>
       get_value(utils::index_sequence<I...> const &) const;
     };
 
@@ -54,7 +54,7 @@ namespace itertools
     struct product : utils::iterator_reminder<true, Iters...>,
                      product_iterator<Iters...> {
 
-      using value_type = std::tuple<typename Iters::value_type...>;
+      using value_type = types::make_tuple_t<typename Iters::value_type...>;
       using iterator = product_iterator<Iters...>;
 
       iterator end_iter;

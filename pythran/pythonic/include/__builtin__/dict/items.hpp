@@ -16,7 +16,7 @@ namespace __builtin__
   {
 
     template <class K, class V>
-    types::list<std::tuple<K, V>> items(types::dict<K, V> const &d);
+    types::list<types::make_tuple_t<K, V>> items(types::dict<K, V> const &d);
 
     DEFINE_FUNCTOR(pythonic::__builtin__::dict, items);
   }

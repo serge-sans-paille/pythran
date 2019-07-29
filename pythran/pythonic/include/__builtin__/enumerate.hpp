@@ -17,7 +17,8 @@ namespace __builtin__
     template <class Iterator>
     using enumerate_iterator_base = std::iterator<
         typename std::iterator_traits<Iterator>::iterator_category,
-        std::tuple<long, typename std::iterator_traits<Iterator>::value_type>>;
+        types::make_tuple_t<
+            long, typename std::iterator_traits<Iterator>::value_type>>;
 
     template <class Iterator>
     struct enumerate_iterator : public enumerate_iterator_base<Iterator> {
@@ -27,7 +28,7 @@ namespace __builtin__
       enumerate_iterator(Iterator const &iter, long first);
       typename enumerate_iterator_base<Iterator>::value_type operator*() const
       {
-        return std::make_tuple(value, *iter);
+        return types::make_tuple(value, *iter);
       }
       enumerate_iterator &operator++()
       {

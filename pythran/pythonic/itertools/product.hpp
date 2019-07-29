@@ -39,16 +39,16 @@ namespace itertools
 
     template <typename... Iters>
     template <size_t... I>
-    std::tuple<typename Iters::value_type...>
+    types::make_tuple_t<typename Iters::value_type...>
     product_iterator<Iters...>::get_value(
         utils::index_sequence<I...> const &) const
     {
-      return std::tuple<typename Iters::value_type...>(*std::get<I>(it)...);
+      return types::make_tuple(*std::get<I>(it)...);
     }
 
     template <typename... Iters>
-    std::tuple<typename Iters::value_type...> product_iterator<Iters...>::
-    operator*() const
+    types::make_tuple_t<typename Iters::value_type...>
+        product_iterator<Iters...>::operator*() const
     {
       return get_value(utils::make_index_sequence<sizeof...(Iters)>{});
     }

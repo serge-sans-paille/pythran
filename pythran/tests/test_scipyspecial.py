@@ -8,6 +8,13 @@ from pythran.typing import NDArray, List, Tuple
 
 @TestEnv.module
 class TestNumpyFunc0(TestEnv):
+    def test_jv_scalar(self):
+        self.run_test("""
+        from scipy.special import jv
+        def jv_scalar(v, x):
+            return jv(v, x)""",
+            5, 1.414,
+            jv_scalar=[int, float])
     def test_spherical_jn_scalar(self):
         self.run_test("""
         from scipy.special import spherical_jn
@@ -16,7 +23,7 @@ class TestNumpyFunc0(TestEnv):
                       5, 1.414,
                       spherical_bessel_j_scalar=[int, float])
 
-    def test_spherical_jn_1d(self):
+    def test_spherical_jn_arg1d(self):
         self.run_test("""
         from scipy.special import spherical_jn
         def spherical_bessel_j_1d(v, x):
@@ -32,7 +39,7 @@ class TestNumpyFunc0(TestEnv):
                       np.array([1, 2, 3]), 5.0,
                       spherical_bessel_j_order1d=[NDArray[int,:], float])
 
-    def test_spherical_jn_2d(self):
+    def test_spherical_jn_arg2d(self):
         self.run_test("""
         from scipy.special import spherical_jn
         def spherical_bessel_j_2d(v, x):

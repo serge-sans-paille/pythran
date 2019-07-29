@@ -2907,6 +2907,10 @@ MODULES = {
                 BINARY_UFUNC,
                 signature=_numpy_binary_op_float_signature
             ),
+            "spherical_yn": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
         }
     },
     "numpy": {

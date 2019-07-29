@@ -2911,6 +2911,10 @@ MODULES = {
                 BINARY_UFUNC,
                 signature=_numpy_binary_op_float_signature
             ),
+            "sph_harm": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
         }
     },
     "numpy": {

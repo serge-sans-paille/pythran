@@ -2915,6 +2915,10 @@ MODULES = {
                 BINARY_UFUNC,
                 signature=_numpy_binary_op_float_signature
             ),
+            "eval_legendre": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
         }
     },
     "numpy": {

@@ -2,7 +2,7 @@
 #pythran export timeloop(float, float, float, float, float, float list list, float list list, float list list)
 #pythran export timeloop(float, float, float, float, float, int list list, int list list, int list list)
 #bench A=[list(range(70)) for i in range(100)] ; B=[list(range(70)) for i in range(100)] ; C=[list(range(70)) for i in range(100)] ; timeloop(1.,2.,.01,.1,.18, A,B,C )
-#runas A=[list(range(20)) for i in range(10)] ; B=[list(range(20)) for i in range(10)] ; C=[list(range(20)) for i in range(10)] ; timeloop(1.,2.,.01,.1,.18, A,B,C )
+#runas A=[list(range(10)) for i in range(5)] ; B=[list(range(10)) for i in range(5)] ; C=[list(range(10)) for i in range(5)] ; timeloop(1.,2.,.1,.1,.2, A,B,C )
 def timeloop(t, t_stop, dt, dx, dy, u, um, k):
     while t <= t_stop:
         t += dt

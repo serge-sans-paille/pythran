@@ -155,7 +155,7 @@ namespace itertools
     long imap_iterator<Operator, Iters...>::min_len(
         imap_iterator<Operator, Iters...> const &other, utils::int_<N>) const
     {
-      return std::min(std::get<N>(it) - std::get<N>(other.it),
+      return std::min((long)(std::get<N>(it) - std::get<N>(other.it)),
                       min_len(other, utils::int_<N - 1>()));
     }
 

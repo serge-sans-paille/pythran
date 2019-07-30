@@ -14,11 +14,11 @@ namespace __builtin__
 
   namespace functor
   {
-    int_::type int_::operator()(char const t[], int base) const
+    int_::type int_::operator()(char const t[], long base) const
     {
       return std::strtol(t, nullptr, base);
     }
-    int_::type int_::operator()(types::str const &t, int base) const
+    int_::type int_::operator()(types::str const &t, long base) const
     {
       return (*this)(t.c_str(), base);
     }

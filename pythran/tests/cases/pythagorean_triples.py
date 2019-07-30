@@ -1,5 +1,5 @@
 #pythran export next_pythagorean_triples(int64[:,:])
-#runas import numpy as np; next_pythagorean_triples(np.array([[3, 4, 5]]))
+#runas import numpy as np; next_pythagorean_triples(np.array([[3, 4, 5]], dtype=np.int64))
 import numpy as np
 def next_pythagorean_triples(previous):
     matrices = np.array(

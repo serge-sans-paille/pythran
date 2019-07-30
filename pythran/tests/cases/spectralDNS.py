@@ -2,7 +2,7 @@ __all__ = ['add_pressure_diffusion', 'cross1', 'cross2']
 
 #runas import numpy as np; x = np.empty((3,2,5,7)); y = np.arange(210.).reshape(3,2,5,7); z = np.arange(210.).reshape(3,2,5,7) + 3; cross1(x,y,z)
 #runas import numpy as np; x = np.empty((3,2,5,7), dtype=complex); y = np.arange(210.).reshape(3,2,5,7); z = np.arange(210., dtype=complex).reshape(3,2,5,7) + 3; cross2(x,y,z)
-#runas import numpy as np; x = np.empty((3,2,5,7), dtype=complex); y = np.arange(210).reshape(3,2,5,7); z = np.arange(210., dtype=complex).reshape(3,2,5,7) + 3; cross2(x,y,z)
+#runas import numpy as np; x = np.empty((3,2,5,7), dtype=complex); y = np.arange(210, dtype=np.int64).reshape(3,2,5,7); z = np.arange(210., dtype=complex).reshape(3,2,5,7) + 3; cross2(x,y,z)
 #runas import numpy as np; x = np.ones((3,2,5,7), dtype=complex); y = np.arange(210, dtype=complex).reshape(3,2,5,7); z = np.arange(70.).reshape(2,5,7); w = np.arange(210.).reshape(3,2,5,7) + 3; t = np.arange(70., dtype=complex).reshape(2,5, 7) + 1 ; u = np.arange(210.).reshape(3,2,5,7) + 8; add_pressure_diffusion(x,y,z,w,t,u,3.)
 
 #pythran export cross1(float[:,:,:,:], float[:,:,:,:], float[:,:,:,:])

@@ -9,7 +9,7 @@ class TestNoGil(TestEnv):
         def list_param(l):
             return l, sum(i*j for i in l for j in l)
         """
-        self.run_test(code, list(range(3000)), list_param=[List[int]],
+        self.run_test(code, list(range(30)), list_param=[List[int]],
                       thread_count=4)
 
     def test_set_param(self):
@@ -17,15 +17,15 @@ class TestNoGil(TestEnv):
         def set_param(l):
             return {sum(l), sum(i*j for i in l for j in l)}, l
         """
-        self.run_test(code, set(range(3000)), set_param=[Set[int]],
+        self.run_test(code, set(range(30)), set_param=[Set[int]],
                       thread_count=4)
 
     def test_dict_param(self):
         code="""
         def dict_param(l):
-            return {sum(i*j for i in l.keys() for j in l.values()): l}, l
+            return {sum(i-j for i in l.keys() for j in l.values()): l}, l
         """
-        self.run_test(code, dict(zip(range(3000), range(3000))),
+        self.run_test(code, dict(zip(range(30), range(30))),
                       dict_param=[Dict[int, int]],
                       thread_count=4)
 

@@ -56,7 +56,8 @@ class TestDoctest(unittest.TestCase):
 
         # hack to support setuptools-generated pythran / pythran-config scripts
         for tool, sub in (('pythran-config', 'python -m pythran.config'),
-                          ('pythran', 'python -m pythran.run')):
+                          ('pythran', 'python -m pythran.run'),
+                          ('python', sys.executable)):
             sp = re.sub(r'(\$>.*?[^#])\b' + tool + r'\b([^-.].*)$',
                         r'\1' + sub + r'\2',
                         sp,

@@ -27,7 +27,7 @@ namespace types
   private:
     file &f;
     types::str curr;
-    int position;
+    long position;
 
   public:
     using value_type = types::str;
@@ -91,23 +91,23 @@ namespace types
 
     void flush();
 
-    int fileno() const;
+    long fileno() const;
 
     bool isatty() const;
 
     types::str next();
 
-    types::str read(int size = -1);
+    types::str read(long size = -1);
 
     types::str readline(long size = std::numeric_limits<long>::max());
 
-    types::list<types::str> readlines(int sizehint = -1);
+    types::list<types::str> readlines(long sizehint = -1);
 
-    void seek(int offset, int whence = SEEK_SET);
+    void seek(long offset, long whence = SEEK_SET);
 
-    int tell() const;
+    long tell() const;
 
-    void truncate(int size = -1);
+    void truncate(long size = -1);
 
     void write(types::str const &str);
 

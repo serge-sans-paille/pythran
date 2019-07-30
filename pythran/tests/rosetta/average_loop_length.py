@@ -1,7 +1,7 @@
 #from http://rosettacode.org/wiki/Average_loop_length#Python
 #pythran export analytical(int)
 #pythran export testing(int, int)
-#runas analytical(10)
+#runas analytical(5)
 #runas avg = testing(10, 10**5); theory = analytical(10); abs((avg / theory - 1)) < 0.01
 
 #from __future__ import division # Only necessary for Python 2.X

@@ -665,53 +665,32 @@ namespace types
 
   namespace details
   {
+    using dtype_table = std::tuple<void, pythonic::numpy::functor::int8,
+                                   pythonic::numpy::functor::int16, void,
+                                   pythonic::numpy::functor::int32, void, void,
+                                   void, pythonic::numpy::functor::int64>;
+    using dtype_utable =
+        std::tuple<void, pythonic::numpy::functor::uint8,
+                   pythonic::numpy::functor::uint16, void,
+                   pythonic::numpy::functor::uint32, void, void, void,
+                   pythonic::numpy::functor::uint64>;
+
     template <class T>
-    struct dtype_helper;
+    struct dtype_helper {
+      using table = typename std::conditional<std::is_signed<T>::value,
+                                              dtype_table, dtype_utable>::type;
+      using type = typename std::tuple_element <
+                           (sizeof(T) < std::tuple_size<table>::value)
+                       ? sizeof(T)
+                       : 0,
+            table > ::type;
+    };
 
     template <>
     struct dtype_helper<bool> {
       using type = pythonic::numpy::functor::bool_;
     };
 
-    template <>
-    struct dtype_helper<uint8_t> {
-      using type = pythonic::numpy::functor::uint8;
-    };
-    template <>
-    struct dtype_helper<int8_t> {
-      using type = pythonic::numpy::functor::int8;
-    };
-    template <>
-    struct dtype_helper<uint16_t> {
-      using type = pythonic::numpy::functor::uint16;
-    };
-    template <>
-    struct dtype_helper<int16_t> {
-      using type = pythonic::numpy::functor::int16;
-    };
-    template <>
-    struct dtype_helper<uint32_t> {
-      using type = pythonic::numpy::functor::uint32;
-    };
-    template <>
-    struct dtype_helper<int32_t> {
-      using type = pythonic::numpy::functor::int32;
-    };
-    template <>
-    struct dtype_helper<uint64_t> {
-      using type = pythonic::numpy::functor::uint64;
-    };
-    template <>
-    struct dtype_helper<int64_t> {
-      using type = pythonic::numpy::functor::int64;
-    };
-#if defined(_WIN32) || defined(__APPLE__)
-    template <>
-    struct dtype_helper<long>
-        : dtype_helper<typename std::conditional<
-              sizeof(long) == sizeof(int64_t), int64_t, int32_t>::type> {
-    };
-#endif
     template <>
     struct dtype_helper<float> {
       using type = pythonic::numpy::functor::float32;

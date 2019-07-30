@@ -283,7 +283,7 @@ Use Pythran exported capsule to interact with SciPy's ``LowLevelCallable``::
 
 When using a pointer type as argument, one can rely on ``numpy.ctypeslib.as_array``::
 
-    $> printf '#pythran export capsule transform(int64*, float64*, int32, int32, float64*)\nfrom numpy.ctypeslib import as_array\ndef transform(output_coordinates, input_coordinates, output_rank, input_rank, user_data):\n  shift = user_data[0]\n  input_data = as_array(input_coordinates, input_rank)\n  output_data = as_array(output_coordinates, output_rank)\n  input_data[:] = output_data - shift\n  return 1' > llc2.py
+    $> printf '#pythran export capsule transform(intp*, float64*, int32, int32, float64*)\nfrom numpy.ctypeslib import as_array\ndef transform(output_coordinates, input_coordinates, output_rank, input_rank, user_data):\n  shift = user_data[0]\n  input_data = as_array(input_coordinates, input_rank)\n  output_data = as_array(output_coordinates, output_rank)\n  input_data[:] = output_data - shift\n  return 1' > llc2.py
     $> pythran llc2.py
     $> python -c 'import ctypes; import numpy as np; from scipy import ndimage, LowLevelCallable; from llc2 import transform; shift = 0.5; user_data = ctypes.c_double(shift); ptr = ctypes.cast(ctypes.pointer(user_data), ctypes.c_void_p); callback = LowLevelCallable(transform, ptr, \"int (npy_intp *, double *, int, int, void *)\"); im = np.arange(12).reshape(4, 3).astype(np.float64); print(int(np.sum(ndimage.geometric_transform(im, callback))))'
     33

@@ -8,7 +8,7 @@ except ImportError:
     float128 = float64
     complex256 = complex128
 
-from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64
+from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64, intc, uintc
 from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
 from textwrap import dedent
 from threading import Thread
@@ -97,6 +97,14 @@ class TestEnv(unittest.TestCase):
         """ Check if type between reference and result match. """
         print("Type of Pythran res : ", type(res))
         print("Type of Python ref : ", type(ref))
+
+        # cope with subtle situation under Windows where numpy.uint32 have same
+        # name but different value
+        if type(res).__name__ == type(ref).__name__:
+            return
+
+        intn = int64 if sys.maxsize > 2**32 else int32
+
         if isinstance(ref, ndarray):
             # res can be an ndarray of dim 0 because of isneginf call
             if ref.ndim == 0 and (not isinstance(res, ndarray)
@@ -104,14 +112,20 @@ class TestEnv(unittest.TestCase):
                 self.check_type(ref.item(0), res)
             else:
                 self.assertIsInstance(res, type(ref))
-        elif isinstance(ref, (int, int64)):
-            self.assertIsInstance(res, (int, int64))
+        elif isinstance(ref, (int, intn)):
+            self.assertIsInstance(res, (int, intn))
         elif isinstance(ref, (float, float64)):
             self.assertIsInstance(res, (float, float64))
         elif isinstance(ref, (complex, complex128)):
             self.assertIsInstance(res, (complex, complex128))
         elif isinstance(ref, (bool, bool_)):
             self.assertIsInstance(res, (bool, bool_))
+        elif sys.version_info[0] == 2 and isinstance(ref, long):
+            self.assertIsInstance(res, (int, int64, long))
+        elif isinstance(ref, intc):
+            self.assertIsInstance(res, (int, intc, int32, int64))
+        elif isinstance(ref, uintc):
+            self.assertIsInstance(res, (uintc, uint32, uint64))
         else:
             self.assertIsInstance(res, type(ref))
 

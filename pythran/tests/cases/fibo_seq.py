@@ -1,6 +1,6 @@
 """ Nom recursive version of fibo. """
 # pythran export fibo(int)
-# runas fibo(70)
+# runas fibo(7)
 
 
 def fibo(n):

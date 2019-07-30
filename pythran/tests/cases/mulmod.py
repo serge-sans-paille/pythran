@@ -1,6 +1,6 @@
 # from http://stackoverflow.com/questions/19350395/python-jit-for-known-bottlenecks
 # pythran export gf2mulmod(int, int, int)
-# runas x, y, m = 2**32 , 2**16-1, 2**15-1; gf2mulmod(x, y, m)
+# runas x, y, m = 2**10 , 2**6-1, 2**5-1; gf2mulmod(x, y, m)
 
 def gf2mulmod(x,y,m):
     z = 0

@@ -133,13 +133,11 @@ namespace types
   };
 
   template <long N>
-  std::integral_constant<long, N> check_type(long value,
-                                             std::integral_constant<long, N>)
+  long check_type(long, std::integral_constant<long, N>)
   {
-    assert(N == value && "consistent init");
-    return {};
+    return N;
   }
-  long check_type(long value, long)
+  long check_type(long, long value)
   {
     return value;
   }
@@ -175,7 +173,7 @@ namespace types
 
     template <class... Args, size_t... Is>
     pshape(std::tuple<Args...> const &v, utils::index_sequence<Is...>)
-        : values{check_type(std::get<Is>(v), std::get<Is>(values))...}
+        : values{check_type(std::get<Is>(values), std::get<Is>(v))...}
     {
     }
     template <class... Args>
@@ -199,7 +197,7 @@ namespace types
 
     template <class S, size_t... Is>
     pshape(S const *buffer, utils::index_sequence<Is...>)
-        : values{check_type(buffer[Is], std::get<Is>(values))...}
+        : values{check_type(std::get<Is>(values), buffer[Is])...}
     {
     }
     template <class S>

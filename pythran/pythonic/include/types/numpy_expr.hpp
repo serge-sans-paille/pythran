@@ -515,7 +515,7 @@ namespace types
   };
   template <long N>
   struct integral_value<std::integral_constant<long, N>>
-      : std::integral_constant<long, (N == 1 ? 0 : 1)> {
+      : std::integral_constant<long, (N <= 1 ? 0 : 1)> {
   };
 
   template <class T>

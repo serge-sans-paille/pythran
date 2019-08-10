@@ -47,10 +47,16 @@ def compile_flags(args):
 
 
 def run():
+
+    prefix_chars = "-"
+    if os.name == "nt":
+        prefix_chars += "/"
+
     parser = argparse.ArgumentParser(prog='pythran',
                                      description='pythran: a python to C++ '
                                      'compiler',
                                      epilog="It's a megablast!",
+                                     prefix_chars=prefix_chars,
                                      fromfile_prefix_chars="@")
 
     parser.add_argument('input_file', type=str,

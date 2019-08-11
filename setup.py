@@ -43,6 +43,17 @@ if LooseVersion(setuptools.__version__) < MinimalSetuptoolsVersion:
     print()
     raise ImportError("setuptools")
 
+if sys.version_info.major < 3:
+    print()
+    print("************************************************")
+    print("* Python 2 is getting closer to end-of-support *")
+    print("************************************************")
+    print("*                                              *")
+    print("* Pythran follows https://python3statement.org *")
+    print("*                                              *")
+    print("************************************************")
+    print()
+
 
 logger = logging.getLogger("pythran")
 logger.addHandler(logging.StreamHandler())

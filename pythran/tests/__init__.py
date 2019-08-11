@@ -89,7 +89,7 @@ class TestEnv(unittest.TestCase):
     # default options used for the c++ compiler
     PYTHRAN_CXX_FLAGS = ['-O0', '-Wall', '-Wno-unknown-pragmas',
                          '-Wno-mismatched-tags', '-Wno-unused-local-typedefs',
-                         '-Wno-unknown-warning-option', '-Werror'] if sys.platform != "win32" else ['/w']
+                         '-Wno-unknown-warning-option', '-Werror', '-UNDEBUG'] if sys.platform != "win32" else ['/w']
 
     TEST_RETURNVAL = "TEST_RETURNVAL"
 

@@ -18,7 +18,7 @@ from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import operator_to_lambda, update_operator_to_lambda
-from pythran.tables import pythran_ward, make_lazy
+from pythran.tables import pythran_ward
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
 from pythran.utils import attr_to_path, pushpop, cxxid
@@ -34,17 +34,6 @@ if sys.version_info.major == 2:
     import StringIO as io
 else:
     import io
-
-def is_simple_expr(node):
-    class IsSimpleExpr(ast.NodeVisitor):
-        def visit_Call(self, node):
-            self.complex = True
-            return
-
-    walker = IsSimpleExpr()
-    walker.visit(node)
-    return not hasattr(walker, 'complex')
-
 
 
 class Python(Backend):
@@ -560,10 +549,9 @@ class CxxFunction(ast.NodeVisitor):
             lower_bound = self.visit(args[0])
             upper_arg = 1
 
-
         upper_type = iter_type = "long "
         upper_value = self.visit(args[upper_arg])
-        if is_simple_expr(args[upper_arg]):
+        if args[upper_arg] in self.pure_expressions:
             upper_bound = upper_value  # compatible with collapse
         else:
             upper_bound = "__target{0}".format(id(node))
@@ -951,7 +939,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Attribute(self, node):
         obj, path = attr_to_path(node)
-        sattr = '::'.join(map(cxxid,path))
+        sattr = '::'.join(map(cxxid, path))
         if not obj.isliteral():
             sattr += '{}'
         return sattr
@@ -1013,7 +1001,6 @@ class CxxFunction(ast.NodeVisitor):
                                                                      args[1])
         else:
             return "pythonic::types::slice({},{},{})".format(*args)
-
 
     def visit_Index(self, node):
         return self.visit(node.value)

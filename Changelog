@@ -1,3 +1,35 @@
+2019-08-19 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Warn users about deprecation of python2
+
+	* Fix incompatibility with numpy 1.17.0
+
+	* Allow pythran-openblas as a fallback dependency for openblas
+
+	* Better 32bit arch support
+
+	* Better support of OpenMP collapse clause
+
+	* Upgrade boost dep to 1.68 and xsimd dep to 7.2.2
+
+	* Use static shape information for more efficient broadcasting
+
+	* Allow / options on Windows platform in addition to Unix-style options
+
+	* Fix typing issue for r-value dict/set/list
+
+	* Allow to pass slice to pythran-exported functions
+
+	* Fix np.arange for integral numbers
+
+	* Fix static if support
+
+	* Support tuple arguments for np.concatenate
+
+	* Support default arguments for np.randint
+
+	* Support kind argument for np.sort
+
 2019-05-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Better support for `is None` pattern

@@ -195,3 +195,13 @@ class TestBroadcasting(TestEnv):
                       np.arange(100.),
                       np.arange(100.),
                       broadcast_sum_axis=[NDArray[float, :], NDArray[float, :]])
+
+    def test_broadcasting_nth29(self):
+        code = '''
+        def broadcast_nth29(n):
+            res = (n+2*pow(n**2,2))/n
+            return res'''
+        self.run_test(code,
+                      np.arange(100.),
+                      broadcast_nth29=[NDArray[float, :]])
+

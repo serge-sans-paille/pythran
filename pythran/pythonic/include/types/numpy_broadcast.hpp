@@ -269,7 +269,7 @@ namespace types
     using value_type = dtype;
     using const_iterator = const_broadcast_iterator<dtype>;
     using iterator = const_iterator;
-    static constexpr size_t value = 0;
+    static constexpr size_t value = 1;
 
     broadcast_base<dtype, is_vectorizable> _base;
     operator dtype() const

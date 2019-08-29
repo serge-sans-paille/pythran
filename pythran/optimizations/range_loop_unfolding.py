@@ -3,6 +3,7 @@ RangeLoopUnfolding turns unfolded range of non unrolled loops back to range.
 """
 
 from pythran.passmanager import Transformation
+from pythran.utils import isnum
 
 import gast as ast
 
@@ -24,10 +25,10 @@ class RangeLoopUnfolding(Transformation):
     def isrange(self, elts):
         if not elts:
             return None
-        if not all(isinstance(x, ast.Num) and isinstance(x.n, int)
+        if not all(isnum(x) and isinstance(x.value, int)
                    for x in elts):
             return None
-        unboxed_ints = [x.n for x in elts]
+        unboxed_ints = [x.value for x in elts]
         start = unboxed_ints[0]
         if len(unboxed_ints) == 1:
             return start, start + 1, 1
@@ -44,10 +45,10 @@ class RangeLoopUnfolding(Transformation):
             range_params = self.isrange(node.iter.elts)
             if range_params:
                 node.iter = ast.Call(ast.Attribute(
-                    ast.Name('__builtin__', ast.Load(), None),
+                    ast.Name('__builtin__', ast.Load(), None, None),
                     'xrange',
                     node.iter.ctx),
-                    [ast.Num(param) for param in range_params],
+                    [ast.Constant(param, None) for param in range_params],
                     [])
                 self.update = True
         return self.generic_visit(node)

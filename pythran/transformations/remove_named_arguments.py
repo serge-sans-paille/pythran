@@ -12,7 +12,7 @@ from copy import deepcopy
 def handle_special_calls(func_alias, node):
     if func_alias is MODULES['numpy']['arange']:
         if len(node.args) == 1:
-            node.args.insert(0, ast.Num(0))
+            node.args.insert(0, ast.Constant(0, None))
 
 
 class RemoveNamedArguments(Transformation):

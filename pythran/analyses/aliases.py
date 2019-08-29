@@ -8,6 +8,7 @@ from pythran.tables import functions, methods, MODULES
 from pythran.unparse import Unparser
 from pythran.conversion import demangle
 import pythran.metadata as md
+from pythran.utils import isnum
 
 import gast as ast
 from copy import deepcopy
@@ -238,7 +239,7 @@ class Aliases(ModuleAnalysis):
         between its input and output. In our case:
 
         >>> f = module.body[0].return_alias
-        >>> Aliases.dump(f([ast.Name('A', ast.Load(), None), ast.Num(1)]))
+        >>> Aliases.dump(f([ast.Name('A', ast.Load(), None, None), ast.Constant(1, None)]))
         ['A']
 
         This also works if the relationship between input and output
@@ -247,8 +248,8 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse('def foo(a, b): return a or b[0]')
         >>> result = pm.gather(Aliases, module)
         >>> f = module.body[0].return_alias
-        >>> List = ast.List([ast.Name('L0', ast.Load(), None)], ast.Load())
-        >>> Aliases.dump(f([ast.Name('B', ast.Load(), None), List]))
+        >>> List = ast.List([ast.Name('L0', ast.Load(), None, None)], ast.Load())
+        >>> Aliases.dump(f([ast.Name('B', ast.Load(), None, None), List]))
         ['B', '[L0][0]']
 
         Which actually means that when called with two arguments ``B`` and
@@ -379,8 +380,7 @@ class Aliases(ModuleAnalysis):
                         all_aliases.add(value)
             return self.add(node, all_aliases)
 
-    visit_Num = visit_UnaryOp
-    visit_Str = visit_UnaryOp
+    visit_Constant = visit_UnaryOp
 
     def visit_Attribute(self, node):
         return self.add(node, {Aliases.access_path(node)})
@@ -431,8 +431,8 @@ class Aliases(ModuleAnalysis):
                 if isinstance(alias, ContainerOf):
                     if isinstance(node.slice.value, ast.Slice):
                         continue
-                    if isinstance(node.slice.value, ast.Num):
-                        if node.slice.value.n != alias.index:
+                    if isnum(node.slice.value):
+                        if node.slice.value.value != alias.index:
                             continue
                     # FIXME: what if the index is a slice variable...
                     aliases.add(alias.containee)

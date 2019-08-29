@@ -16,9 +16,10 @@ class Placeholder(AST):
 
     """ Class to save information from ast while check for pattern. """
 
-    def __init__(self, identifier):
+    def __init__(self, identifier, type=None):
         """ Placehorder are identified using an identifier. """
         self.id = identifier
+        self.type = type
         super(Placeholder, self).__init__()
 
 
@@ -82,6 +83,9 @@ class Check(NodeVisitor):
         if (pattern.id in self.placeholders and
                 not Check(self.node, self.placeholders).visit(
                     self.placeholders[pattern.id])):
+            return False
+        elif pattern.type is not None and not isinstance(self.node,
+                                                         pattern.type):
             return False
         else:
             self.placeholders[pattern.id] = self.node
@@ -168,24 +172,26 @@ class ASTMatcher(NodeVisitor):
     >>> import gast as ast
     >>> code = "[(i, j) for i in xrange(a) for j in xrange(b)]"
     >>> pattern = ast.Call(func=ast.Name('xrange', ctx=ast.Load(),
-    ...                                  annotation=None),
+    ...                                  annotation=None,
+    ...                                  type_comment=None),
     ...                    args=AST_any(), keywords=[])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
     >>> code = "[(i, j) for i in range(a) for j in xrange(b)]"
     >>> pattern = ast.Call(func=ast.Name(id=AST_or('xrange', 'range'),
     ...                                  ctx=ast.Load(),
-    ...                                  annotation=None),
+    ...                                  annotation=None,
+    ...                                  type_comment=None),
     ...                    args=AST_any(), keywords=[])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
     >>> code = "{1:2, 3:4}"
-    >>> pattern = ast.Dict(keys=[ast.Num(n=3), ast.Num(n=1)],
-    ...                    values=[ast.Num(n=4), ast.Num(n=2)])
+    >>> pattern = ast.Dict(keys=[ast.Constant(3, None), ast.Constant(1, None)],
+    ...                    values=[ast.Constant(4, None), ast.Constant(2, None)])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     1
     >>> code = "{1, 2, 3}"
-    >>> pattern = ast.Set(elts=[ast.Num(n=3), ast.Num(n=2), ast.Num(n=1)])
+    >>> pattern = ast.Set(elts=[ast.Constant(3, None), ast.Constant(2, None), ast.Constant(1, None)])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     1
     """

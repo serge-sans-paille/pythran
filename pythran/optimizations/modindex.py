@@ -99,27 +99,27 @@ class ModIndex(Transformation):
             i += 1
 
         rargs = range_.args.args
-        lower = rargs[0] if len(rargs) > 1 else ast.Num(0)
-        header = ast.Assign([ast.Name(new_id, ast.Store(), None)],
+        lower = rargs[0] if len(rargs) > 1 else ast.Constant(0, None)
+        header = ast.Assign([ast.Name(new_id, ast.Store(), None, None)],
                             ast.BinOp(
                                 ast.BinOp(deepcopy(lower),
                                           ast.Sub(),
-                                          ast.Num(1)),
+                                          ast.Constant(1, None)),
                                 ast.Mod(),
                                 deepcopy(node.right)))
-        incr = ast.BinOp(ast.Name(new_id, ast.Load(), None),
+        incr = ast.BinOp(ast.Name(new_id, ast.Load(), None, None),
                          ast.Add(),
-                         ast.Num(1))
-        step = ast.Assign([ast.Name(new_id, ast.Store(), None)],
+                         ast.Constant(1, None))
+        step = ast.Assign([ast.Name(new_id, ast.Store(), None, None)],
                           ast.IfExp(
                               ast.Compare(incr,
                                           [ast.Eq()], [deepcopy(node.right)]),
-                              ast.Num(0),
+                              ast.Constant(0, None),
                               deepcopy(incr)))
 
         self.loops_mod.setdefault(loop, []).append((header, step))
         self.update = True
-        return ast.Name(new_id, ast.Load(), None)
+        return ast.Name(new_id, ast.Load(), None, None)
 
     def visit_For(self, node):
         self.generic_visit(node)

@@ -118,14 +118,14 @@ class InlineBuiltins(Transformation):
         return node
 
     def make_array_index(self, base, size, index):
-        if isinstance(base, ast.Num):
-            return ast.Num(base.n)
+        if isinstance(base, ast.Constant):
+            return ast.Constant(base.value, None)
         if size == 1:
             return deepcopy(base.elts[0])
         return base.elts[index]
 
     def fixedSizeArray(self, node):
-        if isinstance(node, ast.Num):
+        if isinstance(node, ast.Constant):
             return node, 1
 
         if isinstance(node, (ast.List, ast.Tuple)):
@@ -152,7 +152,7 @@ class InlineBuiltins(Transformation):
 
     def inlineFixedSizeArrayBinOp(self, node):
 
-        alike = ast.List, ast.Tuple, ast.Num
+        alike = ast.List, ast.Tuple, ast.Constant
         if isinstance(node.left, alike) and isinstance(node.right, alike):
             return node
 
@@ -183,7 +183,7 @@ class InlineBuiltins(Transformation):
 
     def inlineFixedSizeArrayUnaryOp(self, node):
 
-        if isinstance(node.operand, (ast.Num, ast.List, ast.Tuple)):
+        if isinstance(node.operand, (ast.Constant, ast.List, ast.Tuple)):
             return node
 
         base, size = self.fixedSizeArray(node.operand)
@@ -212,7 +212,7 @@ class InlineBuiltins(Transformation):
 
         node_right = node.comparators[0]
 
-        alike = ast.Num, ast.List, ast.Tuple
+        alike = ast.Constant, ast.List, ast.Tuple
         if isinstance(node.left, alike) and isinstance(node_right, alike):
             return node
 

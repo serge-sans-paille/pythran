@@ -69,7 +69,7 @@ class RemoveComprehension(Transformation):
             Note the nested ifs clauses.
             """
             return reduce(lambda n, if_: ast.If(if_, [n], []), ifs, node)
-        return ast.For(g.target, g.iter, [wrap_in_ifs(x, g.ifs)], [])
+        return ast.For(g.target, g.iter, [wrap_in_ifs(x, g.ifs)], [], None)
 
     def visit_AnyComp(self, node, comp_type, *path):
         self.update = True
@@ -87,8 +87,8 @@ class RemoveComprehension(Transformation):
                               reduce(lambda x, y: ast.Attribute(x, y,
                                                                 ast.Load()),
                                      path[1:],
-                                     ast.Name(path[0], ast.Load(), None)),
-                              [ast.Name(starget, ast.Load(), None), node.elt],
+                                     ast.Name(path[0], ast.Load(), None, None)),
+                              [ast.Name(starget, ast.Load(), None, None), node.elt],
                               [],
                               )
                           )
@@ -96,25 +96,25 @@ class RemoveComprehension(Transformation):
         # add extra metadata to this node
         metadata.add(body, metadata.Comprehension(starget))
         init = ast.Assign(
-            [ast.Name(starget, ast.Store(), None)],
+            [ast.Name(starget, ast.Store(), None, None)],
             ast.Call(
                 ast.Attribute(
-                    ast.Name('__builtin__', ast.Load(), None),
+                    ast.Name('__builtin__', ast.Load(), None, None),
                     comp_type,
                     ast.Load()
                     ),
                 [], [],)
             )
-        result = ast.Return(ast.Name(starget, ast.Load(), None))
-        sargs = [ast.Name(arg, ast.Param(), None) for arg in args]
+        result = ast.Return(ast.Name(starget, ast.Load(), None, None))
+        sargs = [ast.Name(arg, ast.Param(), None, None) for arg in args]
         fd = ast.FunctionDef(name,
-                             ast.arguments(sargs, None, [], [], None, []),
+                             ast.arguments(sargs, [], None, [], [], None, []),
                              [init, body, result],
-                             [], None)
+                             [], None, None)
         self.ctx.module.body.append(fd)
         return ast.Call(
-            ast.Name(name, ast.Load(), None),
-            [ast.Name(arg.id, ast.Load(), None) for arg in sargs],
+            ast.Name(name, ast.Load(), None, None),
+            [ast.Name(arg.id, ast.Load(), None, None) for arg in sargs],
             [],
             )  # no sharing !
 
@@ -147,13 +147,13 @@ class RemoveComprehension(Transformation):
                       ast.Expr(ast.Yield(node.elt))
                       )
 
-        sargs = [ast.Name(arg, ast.Param(), None) for arg in args]
+        sargs = [ast.Name(arg, ast.Param(), None, None) for arg in args]
         fd = ast.FunctionDef(name,
-                             ast.arguments(sargs, None, [], [], None, []),
-                             [body], [], None)
+                             ast.arguments(sargs, [], None, [], [], None, []),
+                             [body], [], None, None)
         self.ctx.module.body.append(fd)
         return ast.Call(
-            ast.Name(name, ast.Load(), None),
-            [ast.Name(arg.id, ast.Load(), None) for arg in sargs],
+            ast.Name(name, ast.Load(), None, None),
+            [ast.Name(arg.id, ast.Load(), None, None) for arg in sargs],
             [],
             )  # no sharing !

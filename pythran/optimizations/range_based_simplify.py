@@ -67,7 +67,7 @@ class RangeBasedSimplify(Transformation):
             return self.generic_visit(node)
         elif range_value.low == range_value.high:
             self.update = True
-            return ast.Num(range_value.low)
+            return ast.Constant(range_value.low, None)
         else:
             return self.generic_visit(node)
 

@@ -4567,10 +4567,10 @@ def save_arguments(module_name, elements):
                         "Overriding pythran description with argspec information for: {}".format(".".join(module_name + (elem,)))
                     )
 
-                args = [ast.Name(arg, ast.Param(), None) for arg in spec.args]
+                args = [ast.Name(arg, ast.Param(), None, None) for arg in spec.args]
                 defaults = list(spec.defaults or [])
                 if sys.version_info.major == 3:
-                    args += [ast.Name(arg, ast.Param(), None) for arg in spec.kwonlyargs]
+                    args += [ast.Name(arg, ast.Param(), None, None) for arg in spec.kwonlyargs]
                     defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
 
                 # Avoid use of comprehension to fill "as much args/defauls" as

@@ -11,6 +11,7 @@ from numpy import floating, integer, complexfloating
 from pythran.tables import MODULES, attributes
 import pythran.typing as typing
 from pythran.syntax import PythranSyntaxError
+from pythran.utils import isnum
 
 
 class PythranTypeError(PythranSyntaxError):
@@ -550,17 +551,19 @@ def analyse(node, env, non_generic=None):
             non_generic.add(new_type)
             env[node.id] = new_type
         return get_type(node.id, env, non_generic)
-    elif isinstance(node, gast.Num):
-        if isinstance(node.n, int):
+    elif isinstance(node, gast.Constant):
+        if isinstance(node.value, str):
+            return Str()
+        elif isinstance(node.value, int):
             return Integer()
-        elif isinstance(node.n, float):
+        elif isinstance(node.value, float):
             return Float()
-        elif isinstance(node.n, complex):
+        elif isinstance(node.value, complex):
             return Complex()
+        elif node.value is None:
+            return NoneType
         else:
             raise NotImplementedError
-    elif isinstance(node, gast.Str):
-        return Str()
     elif isinstance(node, gast.Compare):
         left_type = analyse(node.left, env, non_generic)
         comparators_type = [analyse(comparator, env, non_generic)
@@ -800,9 +803,6 @@ def analyse(node, env, non_generic=None):
         return Slice
     elif isinstance(node, gast.ExtSlice):
         return [analyse(dim, env, non_generic) for dim in node.dims]
-    elif isinstance(node, gast.NameConstant):
-        if node.value is None:
-            return env['None']
     elif isinstance(node, gast.Subscript):
         new_type = TypeVariable()
         value_type = prune(analyse(node.value, env, non_generic))
@@ -823,8 +823,8 @@ def analyse(node, env, non_generic=None):
             return TypeVariable()  # FIXME
         elif isinstance(node.slice, gast.Index):
             # handle tuples in a special way
-            isnum = isinstance(node.slice.value, gast.Num)
-            if isnum and is_tuple_type(value_type):
+            num = isnum(node.slice.value)
+            if num and is_tuple_type(value_type):
                 try:
                     unify(prune(prune(value_type.types[0]).types[0])
                           .types[node.slice.value.n],

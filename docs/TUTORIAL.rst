@@ -20,7 +20,7 @@ Python ships a standard module, ``ast`` to turn Python code into an AST. For ins
   >>> code = "a=1"
   >>> tree = ast.parse(code)  # turn the code into an AST
   >>> print(ast.dump(tree))  # view it as a string
-  Module(body=[Assign(targets=[Name(id='a', ctx=Store(), annotation=None)], value=Num(n=1))])
+  Module(body=[Assign(targets=[Name(id='a', ctx=Store(), annotation=None, type_comment=None)], value=Constant(value=1, kind=None))], type_ignores=[])
 
 Deciphering the above line, one learns that the single assignment is parsed as
 a module containing a single statement, which is an assignment to a single
@@ -33,7 +33,7 @@ Eventually, one needs to parse more complex codes, and things get a bit more cry
   ...     return n if n< 2 else fib(n-1) + fib(n-2)"""
   >>> tree = ast.parse(fib_src)
   >>> print(ast.dump(tree))
-  Module(body=[FunctionDef(name='fib', args=arguments(args=[Name(id='n', ctx=Param(), annotation=None)], vararg=None, kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[]), body=[Return(value=IfExp(test=Compare(left=Name(id='n', ctx=Load(), annotation=None), ops=[Lt()], comparators=[Num(n=2)]), body=Name(id='n', ctx=Load(), annotation=None), orelse=BinOp(left=Call(func=Name(id='fib', ctx=Load(), annotation=None), args=[BinOp(left=Name(id='n', ctx=Load(), annotation=None), op=Sub(), right=Num(n=1))], keywords=[]), op=Add(), right=Call(func=Name(id='fib', ctx=Load(), annotation=None), args=[BinOp(left=Name(id='n', ctx=Load(), annotation=None), op=Sub(), right=Num(n=2))], keywords=[]))))], decorator_list=[], returns=None)])
+  Module(body=[FunctionDef(name='fib', args=arguments(args=[Name(id='n', ctx=Param(), annotation=None, type_comment=None)], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[]), body=[Return(value=IfExp(test=Compare(left=Name(id='n', ctx=Load(), annotation=None, type_comment=None), ops=[Lt()], comparators=[Constant(value=2, kind=None)]), body=Name(id='n', ctx=Load(), annotation=None, type_comment=None), orelse=BinOp(left=Call(func=Name(id='fib', ctx=Load(), annotation=None, type_comment=None), args=[BinOp(left=Name(id='n', ctx=Load(), annotation=None, type_comment=None), op=Sub(), right=Constant(value=1, kind=None))], keywords=[]), op=Add(), right=Call(func=Name(id='fib', ctx=Load(), annotation=None, type_comment=None), args=[BinOp(left=Name(id='n', ctx=Load(), annotation=None, type_comment=None), op=Sub(), right=Constant(value=2, kind=None))], keywords=[]))))], decorator_list=[], returns=None, type_comment=None)], type_ignores=[])
 
 The idea remains the same. The whole Python syntax is described in
 http://docs.python.org/2/library/ast.html and is worth a glance, otherwise
@@ -199,7 +199,7 @@ constant expressions. In the previous code, there is only two constant
 
   >>> ce = pm.gather(analyses.ConstantExpressions, tree)
   >>> sorted(map(ast.dump, ce))
-  ["Attribute(value=Name(id='math', ctx=Load(), annotation=None), attr='cos', ctx=Load())", 'Num(n=3)']
+  ["Attribute(value=Name(id='math', ctx=Load(), annotation=None, type_comment=None), attr='cos', ctx=Load())", 'Constant(value=3, kind=None)']
 
 One of the most critical analyse of Pythran is the points-to analysis. There
 are two flavors of this analyse, one that computes an over-set of the aliased
@@ -210,7 +210,7 @@ variable, and one that computes an under set. ``Aliases`` computes an over-set::
   >>> al = pm.gather(analyses.Aliases, tree)
   >>> returned = tree.body[-1].body[-1].value
   >>> print(ast.dump(returned))
-  Name(id='b', ctx=Load(), annotation=None)
+  Name(id='b', ctx=Load(), annotation=None, type_comment=None)
   >>> sorted(a.id for a in al[returned])
   ['c', 'd']
 

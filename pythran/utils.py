@@ -7,6 +7,14 @@ from functools import reduce
 from contextlib import contextmanager
 
 
+def isstr(node):
+    return isinstance(node, ast.Constant) and isinstance(node.value, str)
+
+def isnum(node):
+    return isinstance(node, ast.Constant) and isinstance(node.value, (int,
+                                                                      float,
+                                                                      bool))
+
 def attr_to_path(node):
     """ Compute path and final object for an attribute node """
 
@@ -33,14 +41,15 @@ def path_to_attr(path):
     >>> ref = ast.Attribute(
     ...     value=ast.Attribute(value=ast.Name(id="__builtin__",
     ...                                        ctx=ast.Load(),
-    ...                                        annotation=None),
+    ...                                        annotation=None,
+    ...                                        type_comment=None),
     ...                         attr="my", ctx=ast.Load()),
     ...     attr="constant", ctx=ast.Load())
     >>> ast.dump(ref) == ast.dump(value)
     True
     """
     return reduce(lambda hpath, last: ast.Attribute(hpath, last, ast.Load()),
-                  path[1:], ast.Name(mangle(path[0]), ast.Load(), None))
+                  path[1:], ast.Name(mangle(path[0]), ast.Load(), None, None))
 
 
 def path_to_node(path):
@@ -68,14 +77,13 @@ def get_variable(assignable):
     >>> import gast as ast
     >>> ref = ast.Subscript(
     ...     value=ast.Subscript(
-    ...         value=ast.Name(id='a', ctx=ast.Load(), annotation=None),
-    ...         slice=ast.Index(value=ast.Name('i', ast.Load(), None)),
+    ...         value=ast.Name('a', ast.Load(), None, None),
+    ...         slice=ast.Index(value=ast.Name('i', ast.Load(), None, None)),
     ...         ctx=ast.Load()),
-    ...     slice=ast.Index(value=ast.Name(id='j',
-    ...                                    ctx=ast.Load(), annotation=None)),
+    ...     slice=ast.Index(value=ast.Name('j', ast.Load(), None, None)),
     ...     ctx=ast.Load())
     >>> ast.dump(get_variable(ref))
-    "Name(id='a', ctx=Load(), annotation=None)"
+    "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
     """
     msg = "Only name and subscript can be assigned."
     assert isinstance(assignable, (ast.Name, ast.Subscript)), msg

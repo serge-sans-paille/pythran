@@ -6,6 +6,7 @@ constraints.
 
 from pythran.tables import MODULES
 from pythran.intrinsic import Class
+from pythran.utils import isstr
 
 import sys
 
@@ -54,7 +55,7 @@ class SyntaxChecker(ast.NodeVisitor):
                "functions, comments, or imports")
         WhiteList = ast.FunctionDef, ast.Import, ast.ImportFrom, ast.Assign
         for n in node.body:
-            if isinstance(n, ast.Expr) and isinstance(n.value, ast.Str):
+            if isinstance(n, ast.Expr) and isstr(n.value):
                 continue
             if isinstance(n, WhiteList):
                 continue
@@ -97,11 +98,11 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Ellipsis(self, node):
         raise PythranSyntaxError("Ellipsis are not supported", node)
 
-    def visit_Num(self, node):
-        if sys.version_info[0] == 2 and isinstance(node.n, long):
+    def visit_Constant(self, node):
+        if sys.version_info[0] == 2 and isinstance(node.value, long):
             raise PythranSyntaxError("long int not supported", node)
         iinfo = np.iinfo(int)
-        if isinstance(node.n, int) and not (iinfo.min <= node.n <= iinfo.max):
+        if isinstance(node.value, int) and not (iinfo.min <= node.value <= iinfo.max):
             raise PythranSyntaxError("large int not supported", node)
 
     def visit_FunctionDef(self, node):

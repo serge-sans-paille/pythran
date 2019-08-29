@@ -21,9 +21,9 @@ def outline(name, formal_parameters, out_parameters, stmts,
 
     if isinstance(stmts, ast.expr):
         assert not out_parameters, "no out parameters with expr"
-        fdef = ast.FunctionDef(name, args, [ast.Return(stmts)], [], None)
+        fdef = ast.FunctionDef(name, args, [ast.Return(stmts)], [], None, None)
     else:
-        fdef = ast.FunctionDef(name, args, stmts, [], None)
+        fdef = ast.FunctionDef(name, args, stmts, [], None, None)
 
         # this is part of a huge trick that plays with delayed type inference
         # it basically computes the return type based on out parameters, and
@@ -50,7 +50,7 @@ def outline(name, formal_parameters, out_parameters, stmts,
 
         if has_break or has_cont:
             if not has_return:
-                stmts[-1].value = ast.Tuple([ast.Num(LOOP_NONE),
+                stmts[-1].value = ast.Tuple([ast.Constant(LOOP_NONE, None),
                                              stmts[-1].value],
                                             ast.Load())
             pbc = PatchBreakContinue(stmts[-1])
@@ -146,7 +146,7 @@ class NormalizeStaticIf(Transformation):
 
     @staticmethod
     def make_fake(stmts):
-        return ast.If(ast.Num(0), stmts, [])
+        return ast.If(ast.Constant(0, None), stmts, [])
 
     @staticmethod
     def make_dispatcher(static_expr, func_true, func_false,
@@ -219,13 +219,13 @@ class NormalizeStaticIf(Transformation):
 
         if has_cont:
             cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
-                               [ast.Eq()], [ast.Num(LOOP_CONT)])
+                               [ast.Eq()], [ast.Constant(LOOP_CONT, None)])
             cont_ass = [ast.If(cmpr,
                                deepcopy(assign) + [ast.Continue()],
                                cont_ass)]
         if has_break:
             cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
-                               [ast.Eq()], [ast.Num(LOOP_BREAK)])
+                               [ast.Eq()], [ast.Constant(LOOP_BREAK, None)])
             cont_ass = [ast.If(cmpr,
                                deepcopy(assign) + [ast.Break()],
                                cont_ass)]
@@ -293,7 +293,7 @@ class NormalizeStaticIf(Transformation):
                                                        has_cont, has_break)
 
             cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
-                               [ast.Eq()], [ast.Num(EARLY_RET)])
+                               [ast.Eq()], [ast.Constant(EARLY_RET, None)])
 
             fast_return = [ast.Name(status_n, ast.Store(), None),
                            ast.Name(return_n, ast.Store(), None),

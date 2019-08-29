@@ -9,12 +9,12 @@ import unittest
 cwd = os.path.dirname(__file__)
 python_version = "python{}.{}".format(sys.version_info.major,
                                       sys.version_info.minor)
-if sys.version_info.major == 3:
-    so_version = ".{}m-{}".format(sys.implementation.cache_tag,
-                                  sysconfig.get_config_var('MULTIARCH'))
-else:
-    so_version = ""
 
+def find_so(name, path):
+    for root, dirs, files in os.walk(path):
+        for filename in files:
+            if re.match(name, filename):
+                return os.path.join(root, filename)
 
 class TestDistutils(unittest.TestCase):
 
@@ -51,11 +51,7 @@ class TestDistutils(unittest.TestCase):
         tgz = [f for f in os.listdir(dist_path) if f.endswith(".tar.gz")][0]
         check_call(['tar', 'xzf', tgz], cwd=dist_path)
 
-        def find(name, path):
-            for root, dirs, files in os.walk(path):
-                if name in files:
-                    return os.path.join(root, name)
-        demo_so = find("demo{}.so".format(so_version), dist_path)
+        demo_so = find_so(r"demo.*\.so", dist_path)
         self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)
 
@@ -67,11 +63,7 @@ class TestDistutils(unittest.TestCase):
         whl = [f for f in os.listdir(dist_path) if f.endswith(".whl")][0]
         check_call(['unzip', whl, '-d', wheel_dir], cwd=dist_path)
 
-        def find(name, path):
-            for root, dirs, files in os.walk(path):
-                if name in files:
-                    return os.path.join(root, name)
-        demo_so = find("demo{}.so".format(so_version), os.path.join(dist_path, wheel_dir))
+        demo_so = find_so(r"demo.*\.so", os.path.join(dist_path, wheel_dir))
         self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)
 
@@ -110,10 +102,7 @@ class TestDistutils(unittest.TestCase):
         tgz = [f for f in os.listdir(dist_path) if f.endswith(".tar.gz")][0]
         check_call(['tar', 'xzf', tgz], cwd=dist_path)
 
-        def find(name, path):
-            for root, dirs, files in os.walk(path):
-                if name in files:
-                    return os.path.join(root, name)
-        demo_so = find("a{}.so".format(so_version), dist_path)
+
+        demo_so = find_so(r"a.*\.so", dist_path)
         self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)

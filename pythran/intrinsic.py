@@ -53,8 +53,9 @@ class Intrinsic(object):
         self.return_alias = kwargs.get('return_alias',
                                        lambda x: {UnboundValue})
         self.args = ast.arguments(
-            [ast.Name(n, ast.Param(), None) for n in kwargs.get('args', [])],
-            None, [], [], None,
+            [ast.Name(n, ast.Param(), None, None)
+             for n in kwargs.get('args', [])],
+            [], None, [], [], None,
             [to_ast(d) for d in kwargs.get('defaults', [])])
         self.return_range = kwargs.get("return_range",
                                        lambda call: UNKNOWN_RANGE)

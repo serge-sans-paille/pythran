@@ -36,8 +36,8 @@ class UnshadowParameters(Transformation):
             node.body.insert(
                 0,
                 ast.Assign(
-                    [ast.Name(v, ast.Store(), None)],
-                    ast.Name(k, ast.Load(), None)
+                    [ast.Name(v, ast.Store(), None, None)],
+                    ast.Name(k, ast.Load(), None, None)
                     )
                 )
         self.update |= bool(self.renaming)

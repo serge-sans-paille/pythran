@@ -82,12 +82,13 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
                                                              self.call_count)
                     new_var = ast.Name(id=v_name,
                                        ctx=ast.Store(),
-                                       annotation=None)
+                                       annotation=None,type_comment=None)
                     self.defs.append(ast.Assign(targets=[new_var],
                                                 value=arg_call))
                     arg_to_value[arg_fun.id] = ast.Name(id=v_name,
                                                         ctx=ast.Load(),
-                                                        annotation=None)
+                                                        annotation=None,
+                                                        type_comment=None)
                 self.call_count += 1
                 return Inliner(arg_to_value).visit(to_inline.body[0])
         return node

@@ -17,36 +17,34 @@ else:
 # replacement is inserted in main ast
 know_pattern = [
     # __builtin__.len(__builtin__.set(X)) => __builtin__.pythran.len_set(X)
-    (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
-                                                ctx=ast.Load(),
-                                                annotation=None),
+    (ast.Call(func=ast.Attribute(value=ast.Name('__builtin__', ast.Load(),
+                                                None, None),
                                  attr="len", ctx=ast.Load()),
               args=[ast.Call(
                   func=ast.Attribute(
-                      value=ast.Name(id='__builtin__',
-                                     ctx=ast.Load(), annotation=None),
+                      value=ast.Name('__builtin__', ast.Load(),
+                                     None, None),
                       attr="set", ctx=ast.Load()),
                   args=[Placeholder(0)],
                   keywords=[])],
               keywords=[]),
      lambda: ast.Call(
          func=ast.Attribute(
-             value=ast.Attribute(value=ast.Name(id='__builtin__',
-                                                ctx=ast.Load(),
-                                                annotation=None),
+             value=ast.Attribute(value=ast.Name('__builtin__', ast.Load(),
+                                                None, None),
                                  attr="pythran", ctx=ast.Load()),
              attr="len_set", ctx=ast.Load()),
          args=[Placeholder(0)], keywords=[])),
 
     # __builtin__.tuple(__builtin__.list(X)) => __builtin__.tuple(X)
-    (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
-                                                ctx=ast.Load(),
-                                                annotation=None),
+    (ast.Call(func=ast.Attribute(value=ast.Name('__builtin__',
+                                                ast.Load(),
+                                                None, None),
                                  attr="tuple", ctx=ast.Load()),
               args=[ast.Call(
                   func=ast.Attribute(
-                      value=ast.Name(id='__builtin__',
-                                     ctx=ast.Load(), annotation=None),
+                      value=ast.Name('__builtin__',
+                                     ast.Load(), None, None),
                       attr="list", ctx=ast.Load()),
                   args=[Placeholder(0)],
                   keywords=[])],
@@ -54,19 +52,22 @@ know_pattern = [
      lambda: ast.Call(
          func=ast.Attribute(value=ast.Name(id='__builtin__',
                                            ctx=ast.Load(),
-                                           annotation=None),
+                                           annotation=None,
+                                           type_comment=None),
                             attr="tuple", ctx=ast.Load()),
          args=[Placeholder(0)], keywords=[])),
 
     # __builtin__.abs(X ** 2) => __builtin__.pythran.abssqr(X)
     (ast.Call(func=ast.Attribute(value=ast.Name(id=mangle('numpy'),
                                                 ctx=ast.Load(),
-                                                annotation=None),
+                                                annotation=None,
+                                                type_comment=None),
                                  attr="square", ctx=ast.Load()),
               args=[ast.Call(func=ast.Attribute(
                   value=ast.Name(id='__builtin__',
                                  ctx=ast.Load(),
-                                 annotation=None),
+                                 annotation=None,
+                                 type_comment=None),
                   attr="abs",
                   ctx=ast.Load()),
                   args=[Placeholder(0)],
@@ -76,7 +77,8 @@ know_pattern = [
          func=ast.Attribute(
              value=ast.Attribute(value=ast.Name(id='__builtin__',
                                                 ctx=ast.Load(),
-                                                annotation=None),
+                                                annotation=None,
+                                                type_comment=None),
                                  attr="pythran", ctx=ast.Load()),
              attr="abssqr", ctx=ast.Load()),
          args=[Placeholder(0)], keywords=[])),
@@ -84,7 +86,8 @@ know_pattern = [
     # __builtin__.tuple([X, ..., Z]) => (X, ..., Z)
     (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
                                                 ctx=ast.Load(),
-                                                annotation=None),
+                                                annotation=None,
+                                                type_comment=None),
                                  attr="tuple", ctx=ast.Load()),
               args=[ast.List(Placeholder(0), ast.Load())],
               keywords=[]),
@@ -95,43 +98,47 @@ know_pattern = [
     # FIXME : We should do it even when begin/end/step are given
     (ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
                                                 ctx=ast.Load(),
-                                                annotation=None),
+                                                annotation=None,
+                                                type_comment=None),
                                  attr="reversed", ctx=ast.Load()),
               args=[ast.Call(
                   func=ast.Attribute(
                       value=ast.Name(id='__builtin__',
-                                     ctx=ast.Load(), annotation=None),
+                                     ctx=ast.Load(), annotation=None,
+                                     type_comment=None),
                       attr=range_name, ctx=ast.Load()),
                   args=[Placeholder(0)],
                   keywords=[])],
               keywords=[]),
      lambda: ast.Call(
          func=ast.Attribute(value=ast.Name(id='__builtin__',
-                                           ctx=ast.Load(), annotation=None),
+                                           ctx=ast.Load(), annotation=None,
+                                           type_comment=None),
                             attr=range_name, ctx=ast.Load()),
          args=[ast.BinOp(left=Placeholder(0), op=ast.Sub(),
-                         right=ast.Num(n=1)),
-               ast.Num(n=-1),
-               ast.Num(n=-1)],
+                         right=ast.Constant(1, None)),
+               ast.Constant(-1, None),
+               ast.Constant(-1, None)],
          keywords=[])),
 
     # X * X => X ** 2
     (ast.BinOp(left=Placeholder(0), op=ast.Mult(), right=Placeholder(0)),
-     lambda: ast.BinOp(left=Placeholder(0), op=ast.Pow(), right=ast.Num(n=2))),
+     lambda: ast.BinOp(left=Placeholder(0), op=ast.Pow(),
+                       right=ast.Constant(2, None))),
 
     # a + "..." + b => "...".join((a, b))
     (ast.BinOp(left=ast.BinOp(left=Placeholder(0),
                               op=ast.Add(),
-                              right=ast.Str(Placeholder(1))),
+                              right=ast.Constant(Placeholder(1, str), None)),
                op=ast.Add(),
                right=Placeholder(2)),
      lambda: ast.Call(func=ast.Attribute(
          ast.Attribute(
-             ast.Name('__builtin__', ast.Load(), None),
+             ast.Name('__builtin__', ast.Load(), None, None),
              'str',
              ast.Load()),
          'join', ast.Load()),
-         args=[ast.Str(Placeholder(1)),
+         args=[ast.Constant(Placeholder(1), None),
                ast.Tuple([Placeholder(0), Placeholder(2)], ast.Load())],
          keywords=[])),
 ]

@@ -3913,7 +3913,6 @@ MODULES = {
             "standard_normal": FunctionIntr(args=('size',),
                                             global_effects=True),
         },
-        "rank": ConstFunctionIntr(),
         "ravel": ConstMethodIntr(),
         "real": FunctionIntr(),
         "reciprocal": ConstFunctionIntr(),

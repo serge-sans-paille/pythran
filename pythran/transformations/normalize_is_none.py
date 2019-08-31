@@ -9,6 +9,11 @@ import gast as ast
 
 
 def is_none(expr):
+    # py3
+    if isinstance(expr, ast.Constant) and expr.value is None:
+        return True
+
+    # py2
     if not isinstance(expr, ast.Attribute):
         return False
 
@@ -97,7 +102,7 @@ class NormalizeIsNone(Transformation):
         call = ast.Call(
             ast.Attribute(
                 ast.Attribute(
-                    ast.Name('__builtin__', ast.Load(), None),
+                    ast.Name('__builtin__', ast.Load(), None, None),
                     'pythran',
                     ast.Load()
                 ),

@@ -12,16 +12,10 @@ namespace numpy
   {
 
     // I'm sure there's a better way to do this.
-    template <class T, class pS, typename U>
+    template <class T, class pS, typename U, typename V, typename W>
     types::ndarray<std::complex<typename std::common_type<T, double>::type>,
                    types::array<long, std::tuple_size<pS>::value>>
-    rfft(types::ndarray<T, pS> const &input, long NFFT = -1, long axis = -1,
-         U renorm = types::str(""));
-
-    template <class T, class pS>
-    types::ndarray<std::complex<typename std::common_type<T, double>::type>,
-                   types::array<long, std::tuple_size<pS>::value>>
-    rfft(types::ndarray<T, pS> const &input, long NFFT = -1, long axis = -1);
+    rfft(types::ndarray<T, pS> const &input, U NFFT, V axis, W renorm);
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(rfft);
     DEFINE_FUNCTOR(pythonic::numpy::fft, rfft);

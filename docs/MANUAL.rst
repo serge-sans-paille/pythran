@@ -472,6 +472,15 @@ environment variable ``PYTHRANRC``::
 
     PYTHRANRC=/opt/company/pythran/config.pythranrc pythran arc_distance.py
 
+All the options in the ``.pythranrc`` file can be specified when running pythran by using the command line argument --config= .
+For example:
+
+    pythran --config=compiler.blas=pythran-openblas this_file.py
+
+would specify that pythran-openblas is the blas library to use. 
+
+Options specified using command-line arguments override the options found in the ``.pythranrc`` file
+
 
 ``[compiler]``
 **************

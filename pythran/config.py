@@ -13,9 +13,9 @@ logger = logging.getLogger('pythran')
 
 
 def get_paths_cfg(
-    sys_file='pythran.cfg',
-    platform_file='pythran-{}.cfg'.format(sys.platform),
-    user_file='.pythranrc'
+        sys_file='pythran.cfg',
+        platform_file='pythran-{}.cfg'.format(sys.platform),
+        user_file='.pythranrc'
 ):
     """
     >>> os.environ['HOME'] = '/tmp/test'
@@ -44,7 +44,7 @@ def get_paths_cfg(
     return {"sys": sys_config_path, "platform": platform_config_path, "user": user_config_path}
 
 
-def init_cfg(sys_file, platform_file, user_file):
+def init_cfg(sys_file, platform_file, user_file, config_args=None):
     paths = get_paths_cfg(sys_file, platform_file, user_file)
     sys_config_path, platform_config_path, user_config_path = paths["sys"], paths["platform"], paths["user"]
 
@@ -52,6 +52,19 @@ def init_cfg(sys_file, platform_file, user_file):
     for required in (sys_config_path, platform_config_path):
         cfgp.read([required])
     cfgp.read([user_config_path])
+
+    if config_args is not None:
+        # Override the config options with those provided on the command line e.g. compiler.blas=pythran-openblas
+        for arg in config_args:
+            try:
+                lhs, rhs = arg.split('=',maxsplit=1)
+                section, item = lhs.split('.')
+                if not cfgp.has_section(section):
+                    cfgp.add_section(section)
+                cfgp.set(section, item, rhs)
+            except Exception as e:
+                pass
+        pass
 
     return cfgp
 
@@ -103,6 +116,14 @@ def lint_cfg(cfgp, **paths):
 
 
 def make_extension(python, **extra):
+    # load platform specific configuration then user configuration
+    cfg = init_cfg('pythran.cfg',
+                   'pythran-{}.cfg'.format(sys.platform),
+                   '.pythranrc',
+                   extra.get('config', None))
+
+    if 'config' in extra:
+        extra.pop('config')
 
     def parse_define(define):
         index = define.find('=')
@@ -274,7 +295,7 @@ def run():
         if args.compiler:
             output.append(cxx)
 
-    if args.cflags or args.verbose>=2:
+    if args.cflags or args.verbose >= 2:
         def fmt_define(define):
             name, value = define
             if value is None:
@@ -295,7 +316,7 @@ def run():
         if args.cflags:
             output.extend(cflags)
 
-    if args.libs or args.verbose>=2:
+    if args.libs or args.verbose >= 2:
         ldflags = []
         ldflags.extend(('-L' + include)
                        for include in extension['library_dirs'])

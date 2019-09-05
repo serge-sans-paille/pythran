@@ -359,7 +359,7 @@ namespace types
   template <class K, class V>
   dict<K, V> dict<K, V>::copy() const
   {
-    return dict<K, V>(this->item_begin(), this->item_end());
+    return dict<K, V>(this->data->begin(), this->data->end());
   }
 
   template <class K, class V>

@@ -2826,6 +2826,7 @@ MODULES = {
                 Fun[[List[T0]], Iterable[T0]],
             ],
         ),
+        "type": ConstFunctionIntr(),
         "xrange": ConstFunctionIntr(
             signature=Union[
                 Fun[[int], Generator[int]],

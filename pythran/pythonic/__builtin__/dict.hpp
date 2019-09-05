@@ -16,29 +16,26 @@ namespace __builtin__
 
   namespace anonymous
   {
-    inline types::empty_dict dict()
+    types::empty_dict dict()
     {
       return types::empty_dict();
     }
 
+    template <class K, class V>
+    types::dict<K, V> dict(types::dict<K, V> const &other)
+    {
+      return other.copy();
+    }
+
     template <class Iterable>
-    inline types::dict<
-        typename std::tuple_element<
-            0, typename std::iterator_traits<typename std::remove_reference<
-                   Iterable>::type::iterator>::value_type>::type,
-        typename std::tuple_element<
-            1, typename std::iterator_traits<typename std::remove_reference<
-                   Iterable>::type::iterator>::value_type>::type>
-    dict(Iterable &&iterable)
+    auto dict(Iterable &&iterable) -> types::dict<
+        typename std::decay<decltype(std::get<0>(*iterable.begin()))>::type,
+        typename std::decay<decltype(std::get<1>(*iterable.begin()))>::type>
     {
       types::dict<
-          typename std::tuple_element<
-              0, typename std::iterator_traits<typename std::remove_reference<
-                     Iterable>::type::iterator>::value_type>::type,
-          typename std::tuple_element<
-              1, typename std::iterator_traits<typename std::remove_reference<
-                     Iterable>::type::iterator>::value_type>::type> out =
-          types::empty_dict();
+          typename std::decay<decltype(std::get<0>(*iterable.begin()))>::type,
+          typename std::decay<decltype(std::get<1>(*iterable.begin()))>::type>
+          out = types::empty_dict();
       for (auto const &i : iterable)
         out[std::get<0>(i)] = std::get<1>(i);
       return out;

@@ -26,6 +26,11 @@ namespace __builtin__
 
       template <class T, size_t N>
       bool operator()(types::array<T, N> const &val) const;
+
+      friend std::ostream &operator<<(std::ostream &os, bool_)
+      {
+        return os << "bool";
+      }
     };
   }
 }

@@ -169,3 +169,49 @@ def dict_of_complex64_and_complex_128(l):
     def test_broadcasted_large_int8(self):
         self.run_test('def broadcasted_large_int8(l): return l + 400', np.ones(10,dtype=np.int8).reshape(5,2), broadcasted_large_int8=[NDArray[np.int8, :, :]])
 
+    def test_builtin_type0(self):
+        self.run_test("def builtin_type0(x): return type(x)(x)", 1, builtin_type0=[int])
+
+    def test_builtin_type1(self):
+        self.run_test("def builtin_type1(x): return type(x)(x)", True, builtin_type1=[bool])
+
+    def test_builtin_type2(self):
+        self.run_test("def builtin_type2(x): return type(x)(x)", 1., builtin_type2=[float])
+
+    def test_builtin_type3(self):
+        self.run_test("def builtin_type3(x): return type(x)(x)", (1,), builtin_type3=[Tuple[int]])
+
+    def test_builtin_type3b(self):
+        self.run_test("def builtin_type3b(x): return type(x)(x)", (1,1.), builtin_type3b=[Tuple[int, float]])
+
+    def test_builtin_type4(self):
+        self.run_test("def builtin_type4(x): return type(x)(x)", [1], builtin_type4=[List[int]])
+
+    def test_builtin_type5(self):
+        self.run_test("def builtin_type5(x): return type(x)(x)", {1}, builtin_type5=[Set[int]])
+
+    def test_builtin_type6(self):
+        self.run_test("def builtin_type6(x): return type(x)(x)", {1:1}, builtin_type6=[Dict[int, int]])
+
+    def test_builtin_type7(self):
+        self.run_test("def builtin_type7(x): s = type(x)([1]); s[0] = 9; return s", np.array([2, 4, 8]), builtin_type7=[NDArray[int, :]])
+
+    def test_builtin_type8(self):
+        self.run_test("def builtin_type8(x): return type(x)(x)", "1", builtin_type8=[str])
+
+    def test_builtin_type9(self):
+        npt = ("numpy.int8",
+               "numpy.uint8",
+               "numpy.int16",
+               "numpy.uint16",
+               "numpy.int32",
+               "numpy.uint32",
+               "numpy.int64",
+               "numpy.uint64",
+               "numpy.intp",
+               "numpy.uintp",)
+        for i, t in enumerate(npt):
+            kwargs = {"builtin_type9p{}".format(i): [int]}
+            self.run_test("def builtin_type9p{}(x): import numpy; x = {}(x); return type(x)(x)".format(i, t),
+                          1,
+                          **kwargs)

@@ -20,6 +20,10 @@ namespace __builtin__
       template <class T>
       type operator()(T &&t) const;
       type operator()() const;
+      friend std::ostream &operator<<(std::ostream &os, int_)
+      {
+        return os << "int";
+      }
     };
   }
 }

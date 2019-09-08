@@ -3,6 +3,7 @@ ExtractDocStrings fills a dictionary with doc strings for each function.
 """
 
 from pythran.passmanager import Transformation
+from pythran.utils import isstr
 
 import gast as ast
 
@@ -32,7 +33,7 @@ class ExtractDocStrings(Transformation):
 
     def visit_Expr(self, node):
         'Remove other top-level strings'
-        if isinstance(node.value, ast.Str):
+        if isstr(node.value):
             return None
         return node
 
@@ -40,9 +41,9 @@ class ExtractDocStrings(Transformation):
         if node.body:
             first_stmt = node.body[0]
             if isinstance(first_stmt, ast.Expr):
-                if isinstance(first_stmt.value, ast.Str):
+                if isstr(first_stmt.value):
                     self.update = True
-                    docstring = first_stmt.value.s
+                    docstring = first_stmt.value.value
                     self.docstrings[key] = docstring
                     node.body.pop(0)
         return self.generic_visit(node)

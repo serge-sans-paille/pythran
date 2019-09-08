@@ -34,22 +34,22 @@ class _LambdaRemover(ast.NodeTransformer):
         ii = self.gather(ImportedIds, node)
         ii.difference_update(self.lambda_functions)  # remove current lambdas
 
-        binded_args = [ast.Name(iin, ast.Load(), None) for iin in sorted(ii)]
-        node.args.args = ([ast.Name(iin, ast.Param(), None)
+        binded_args = [ast.Name(iin, ast.Load(), None, None) for iin in sorted(ii)]
+        node.args.args = ([ast.Name(iin, ast.Param(), None, None)
                            for iin in sorted(ii)] +
                           node.args.args)
         forged_fdef = ast.FunctionDef(
             forged_name,
             copy(node.args),
             [ast.Return(node.body)],
-            [], None)
+            [], None, None)
         self.lambda_functions.append(forged_fdef)
         self.global_declarations[forged_name] = forged_fdef
-        proxy_call = ast.Name(forged_name, ast.Load(), None)
+        proxy_call = ast.Name(forged_name, ast.Load(), None, None)
         if binded_args:
             return ast.Call(
                 ast.Attribute(
-                    ast.Name(mangle('functools'), ast.Load(), None),
+                    ast.Name(mangle('functools'), ast.Load(), None, None),
                     "partial",
                     ast.Load()
                     ),

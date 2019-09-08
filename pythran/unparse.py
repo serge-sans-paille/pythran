@@ -8,6 +8,7 @@ from __future__ import print_function
 
 import pythran.metadata as metadata
 import pythran.openmp as openmp
+from pythran.utils import isnum
 
 import gast as ast
 import os
@@ -84,7 +85,7 @@ class Unparser:
                 deps.append(self.f.getvalue())
                 self.f = old_file
             directive = omp.s.format(*deps)
-            self._Expr(ast.Expr(ast.Str(s=directive)))
+            self._Expr(ast.Expr(ast.Constant(directive, None)))
 
         if isinstance(tree, list):
             for t in tree:
@@ -355,11 +356,11 @@ class Unparser:
         # then we want to output string literals using a 'b' prefix
         # and unicode literals with no prefix.
         if "unicode_literals" not in self.future_imports:
-            self.write(repr(tree.s))
-        elif isinstance(tree.s, str):
-            self.write("b" + repr(tree.s))
-        elif isinstance(tree.s, unicode):
-            self.write(repr(tree.s).lstrip("u"))
+            self.write(repr(tree.value))
+        elif isinstance(tree.value, str):
+            self.write("b" + repr(tree.value))
+        elif isinstance(tree.value, unicode):
+            self.write(repr(tree.value).lstrip("u"))
         else:
             assert False, "shouldn't get here"
 
@@ -372,7 +373,7 @@ class Unparser:
         self.write("`")
 
     def _Num(self, t):
-        repr_n = repr(t.n)
+        repr_n = repr(t.value)
         # Parenthesize negative numbers, to avoid turning (-1)**2 into -1**2.
         if repr_n.startswith("-"):
             self.write("(")
@@ -380,6 +381,14 @@ class Unparser:
         self.write(repr_n.replace("inf", INFSTR))
         if repr_n.startswith("-"):
             self.write(")")
+
+    def _Constant(self, t):
+        if isinstance(t, str):
+            return self._Str(t)
+        elif t is None or isinstance(t, bool):
+            return self._NameConstant(t)
+        else:
+            return self._Num(t)
 
     def _List(self, t):
         self.write("[")
@@ -472,7 +481,7 @@ class Unparser:
         # a 32-bit machine (the first is an int, the second a long), and
         # -7j is different from -(7j).  (The first has real part 0.0, the
         # second has real part -0.0.)
-        if isinstance(t.op, ast.USub) and isinstance(t.operand, ast.Num):
+        if isinstance(t.op, ast.USub) and isnum(t.operand):
             self.write("(")
             self.dispatch(t.operand)
             self.write(")")
@@ -516,7 +525,7 @@ class Unparser:
         # Special case: 3.__abs__() is a syntax error, so if t.value
         # is an integer literal then we need to either parenthesize
         # it or add an extra space to get 3 .__abs__().
-        if isinstance(t.value, ast.Num) and isinstance(t.value.n, int):
+        if isnum(t.value) and isinstance(t.value.value, int):
             self.write(" ")
         self.write(".")
         self.write(t.attr)

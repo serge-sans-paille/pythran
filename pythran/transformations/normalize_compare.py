@@ -63,7 +63,7 @@ class NormalizeCompare(Transformation):
             # that lazily evaluates the needed parameters
             imported_ids = self.gather(ImportedIds, node)
             imported_ids = sorted(imported_ids)
-            binded_args = [ast.Name(i, ast.Load(), None) for i in imported_ids]
+            binded_args = [ast.Name(i, ast.Load(), None, None) for i in imported_ids]
 
             # name of the new function
             forged_name = "{0}_compare{1}".format(self.prefix,
@@ -71,31 +71,31 @@ class NormalizeCompare(Transformation):
 
             # call site
             call = ast.Call(
-                ast.Name(forged_name, ast.Load(), None),
+                ast.Name(forged_name, ast.Load(), None, None),
                 binded_args,
                 [])
 
             # new function
-            arg_names = [ast.Name(i, ast.Param(), None) for i in imported_ids]
-            args = ast.arguments(arg_names, None, [], [], None, [])
+            arg_names = [ast.Name(i, ast.Param(), None, None) for i in imported_ids]
+            args = ast.arguments(arg_names, [], None, [], [], None, [])
 
             body = []  # iteratively fill the body (yeah, feel your body!)
 
             if is_trivially_copied(node.left):
                 prev_holder = node.left
             else:
-                body.append(ast.Assign([ast.Name('$0', ast.Store(), None)],
+                body.append(ast.Assign([ast.Name('$0', ast.Store(), None, None)],
                                        node.left))
-                prev_holder = ast.Name('$0', ast.Load(), None)
+                prev_holder = ast.Name('$0', ast.Load(), None, None)
 
             for i, exp in enumerate(node.comparators):
                 if is_trivially_copied(exp):
                     holder = exp
                 else:
                     body.append(ast.Assign([ast.Name('${}'.format(i+1),
-                                                     ast.Store(), None)],
+                                                     ast.Store(), None, None)],
                                            exp))
-                    holder = ast.Name('${}'.format(i+1), ast.Load(), None)
+                    holder = ast.Name('${}'.format(i+1), ast.Load(), None, None)
                 cond = ast.Compare(prev_holder,
                                    [node.ops[i]],
                                    [holder])
@@ -106,7 +106,8 @@ class NormalizeCompare(Transformation):
 
             body.append(ast.Return(path_to_attr(('__builtin__', 'True'))))
 
-            forged_fdef = ast.FunctionDef(forged_name, args, body, [], None)
+            forged_fdef = ast.FunctionDef(forged_name, args, body, [], None,
+                                          None)
             self.compare_functions.append(forged_fdef)
 
             return call

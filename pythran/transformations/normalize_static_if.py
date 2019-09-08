@@ -16,14 +16,14 @@ def outline(name, formal_parameters, out_parameters, stmts,
             has_return, has_break, has_cont):
 
     args = ast.arguments(
-        [ast.Name(fp, ast.Param(), None) for fp in formal_parameters],
-        None, [], [], None, [])
+        [ast.Name(fp, ast.Param(), None, None) for fp in formal_parameters],
+        [], None, [], [], None, [])
 
     if isinstance(stmts, ast.expr):
         assert not out_parameters, "no out parameters with expr"
-        fdef = ast.FunctionDef(name, args, [ast.Return(stmts)], [], None)
+        fdef = ast.FunctionDef(name, args, [ast.Return(stmts)], [], None, None)
     else:
-        fdef = ast.FunctionDef(name, args, stmts, [], None)
+        fdef = ast.FunctionDef(name, args, stmts, [], None, None)
 
         # this is part of a huge trick that plays with delayed type inference
         # it basically computes the return type based on out parameters, and
@@ -39,7 +39,7 @@ def outline(name, formal_parameters, out_parameters, stmts,
         stmts.append(
             ast.Return(
                 ast.Tuple(
-                    [ast.Name(fp, ast.Load(), None) for fp in out_parameters],
+                    [ast.Name(fp, ast.Load(), None, None) for fp in out_parameters],
                     ast.Load()
                 )
             )
@@ -50,7 +50,7 @@ def outline(name, formal_parameters, out_parameters, stmts,
 
         if has_break or has_cont:
             if not has_return:
-                stmts[-1].value = ast.Tuple([ast.Num(LOOP_NONE),
+                stmts[-1].value = ast.Tuple([ast.Constant(LOOP_NONE, None),
                                              stmts[-1].value],
                                             ast.Load())
             pbc = PatchBreakContinue(stmts[-1])
@@ -77,7 +77,7 @@ class PatchReturn(ast.NodeTransformer):
             ast.Call(
                 ast.Attribute(
                     ast.Attribute(
-                        ast.Name("__builtin__", ast.Load(), None),
+                        ast.Name("__builtin__", ast.Load(), None, None),
                         "pythran",
                         ast.Load()),
                     holder,
@@ -106,7 +106,7 @@ class PatchBreakContinue(ast.NodeTransformer):
             else:
                 ret_val.func.attr = "StaticIfCont"
         else:
-            new_node.value.elts[0].n = flag
+            new_node.value.elts[0].value = flag
         return new_node
 
     def visit_Break(self, node):
@@ -146,19 +146,19 @@ class NormalizeStaticIf(Transformation):
 
     @staticmethod
     def make_fake(stmts):
-        return ast.If(ast.Num(0), stmts, [])
+        return ast.If(ast.Constant(0, None), stmts, [])
 
     @staticmethod
     def make_dispatcher(static_expr, func_true, func_false,
                         imported_ids):
         dispatcher_args = [static_expr,
-                           ast.Name(func_true.name, ast.Load(), None),
-                           ast.Name(func_false.name, ast.Load(), None)]
+                           ast.Name(func_true.name, ast.Load(), None, None),
+                           ast.Name(func_false.name, ast.Load(), None, None)]
 
         dispatcher = ast.Call(
             ast.Attribute(
                 ast.Attribute(
-                    ast.Name("__builtin__", ast.Load(), None),
+                    ast.Name("__builtin__", ast.Load(), None, None),
                     "pythran",
                     ast.Load()),
                 "static_if",
@@ -167,7 +167,7 @@ class NormalizeStaticIf(Transformation):
 
         actual_call = ast.Call(
             dispatcher,
-            [ast.Name(ii, ast.Load(), None) for ii in imported_ids],
+            [ast.Name(ii, ast.Load(), None, None) for ii in imported_ids],
             [])
 
         return actual_call
@@ -213,19 +213,19 @@ class NormalizeStaticIf(Transformation):
         if expected_return:
             assign = cont_ass = [ast.Assign(
                 [ast.Tuple(expected_return, ast.Store())],
-                ast.Name(cont_n, ast.Load(), None))]
+                ast.Name(cont_n, ast.Load(), None, None))]
         else:
             assign = cont_ass = []
 
         if has_cont:
-            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
-                               [ast.Eq()], [ast.Num(LOOP_CONT)])
+            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None, None),
+                               [ast.Eq()], [ast.Constant(LOOP_CONT, None)])
             cont_ass = [ast.If(cmpr,
                                deepcopy(assign) + [ast.Continue()],
                                cont_ass)]
         if has_break:
-            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
-                               [ast.Eq()], [ast.Num(LOOP_BREAK)])
+            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None, None),
+                               [ast.Eq()], [ast.Constant(LOOP_BREAK, None)])
             cont_ass = [ast.If(cmpr,
                                deepcopy(assign) + [ast.Break()],
                                cont_ass)]
@@ -275,7 +275,7 @@ class NormalizeStaticIf(Transformation):
                                            func_true, func_false, imported_ids)
 
         # variable modified within the static_if
-        expected_return = [ast.Name(ii, ast.Store(), None)
+        expected_return = [ast.Name(ii, ast.Store(), None, None)
                            for ii in assigned_ids]
 
         self.update = True
@@ -292,25 +292,25 @@ class NormalizeStaticIf(Transformation):
                                                        expected_return,
                                                        has_cont, has_break)
 
-            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None),
-                               [ast.Eq()], [ast.Num(EARLY_RET)])
+            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None, None),
+                               [ast.Eq()], [ast.Constant(EARLY_RET, None)])
 
-            fast_return = [ast.Name(status_n, ast.Store(), None),
-                           ast.Name(return_n, ast.Store(), None),
-                           ast.Name(cont_n, ast.Store(), None)]
+            fast_return = [ast.Name(status_n, ast.Store(), None, None),
+                           ast.Name(return_n, ast.Store(), None, None),
+                           ast.Name(cont_n, ast.Store(), None, None)]
 
             return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
                                actual_call),
                     ast.If(cmpr,
-                           [ast.Return(ast.Name(return_n, ast.Load(), None))],
+                           [ast.Return(ast.Name(return_n, ast.Load(), None, None))],
                            cont_ass)]
         elif has_break or has_cont:
             cont_ass = self.make_control_flow_handlers(cont_n, status_n,
                                                        expected_return,
                                                        has_cont, has_break)
 
-            fast_return = [ast.Name(status_n, ast.Store(), None),
-                           ast.Name(cont_n, ast.Store(), None)]
+            fast_return = [ast.Name(status_n, ast.Store(), None, None),
+                           ast.Name(cont_n, ast.Store(), None, None)]
             return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
                                actual_call)] + cont_ass
         elif expected_return:

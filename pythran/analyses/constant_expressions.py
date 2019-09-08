@@ -45,8 +45,7 @@ class ConstantExpressions(NodeAnalysis):
         rec = all([self.visit(x) for x in (node.args + [node.func])])
         return rec and self.add(node)
 
-    visit_Num = add
-    visit_Str = add
+    visit_Constant = add
 
     def visit_Subscript(self, node):
         rec = all([self.visit(x) for x in (node.value, node.slice)])

@@ -7,6 +7,7 @@ This modules contains OpenMP-related stuff.
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
+from pythran.utils import isstr
 
 from gast import AST
 import gast as ast
@@ -122,7 +123,8 @@ class OMPDirective(AST):
                         in_shared |= word == 'shared'
                     else:
                         v = '{}'
-                        self.deps.append(ast.Name(word, ast.Load(), None))
+                        self.deps.append(ast.Name(word, ast.Load(),
+                                                  None, None))
                         if in_private:
                             self.private_deps.append(self.deps[-1])
                         if in_shared:
@@ -170,11 +172,11 @@ class GatherOMPData(Transformation):
         self.current = list()
 
     def isompdirective(self, node):
-        return isinstance(node, ast.Str) and node.s.startswith("omp ")
+        return isstr(node) and node.value.startswith("omp ")
 
     def visit_Expr(self, node):
         if self.isompdirective(node.value):
-            self.current.append(node.value.s)
+            self.current.append(node.value.value)
             return None
         else:
             self.attach_data(node)
@@ -183,7 +185,8 @@ class GatherOMPData(Transformation):
     def visit_If(self, node):
         if self.isompdirective(node.test):
             self.visit(ast.Expr(node.test))
-            return self.visit(ast.If(ast.Num(1), node.body, node.orelse))
+            return self.visit(ast.If(ast.Constant(1, None),
+                                     node.body, node.orelse))
         else:
             return self.attach_data(node)
 
@@ -217,7 +220,7 @@ class GatherOMPData(Transformation):
             scoping = ('parallel', 'task', 'section')
             if any(s in sdirective for s in scoping):
                 metadata.clear(node, OMPDirective)
-                node = ast.If(ast.Num(1), [node], [])
+                node = ast.If(ast.Constant(1, None), [node], [])
                 for directive in directives:
                     metadata.add(node, directive)
 

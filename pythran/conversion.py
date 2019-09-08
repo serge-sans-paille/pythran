@@ -36,12 +36,12 @@ def totuple(l):
 def dtype_to_ast(name):
     if name in ('bool',):
         return ast.Attribute(
-            ast.Name('__builtin__', ast.Load(), None),
+            ast.Name('__builtin__', ast.Load(), None, None),
             name,
             ast.Load())
     else:
         return ast.Attribute(
-            ast.Name(mangle('numpy'), ast.Load(), None),
+            ast.Name(mangle('numpy'), ast.Load(), None, None),
             name,
             ast.Load())
 
@@ -69,7 +69,7 @@ def size_container_folding(value):
             return ast.Dict(keys, values)
         elif isinstance(value, np.ndarray):
             return ast.Call(func=ast.Attribute(
-                ast.Name(mangle('numpy'), ast.Load(), None),
+                ast.Name(mangle('numpy'), ast.Load(), None, None),
                 'array',
                 ast.Load()),
                 args=[to_ast(totuple(value.tolist())),
@@ -87,7 +87,7 @@ def builtin_folding(value):
         name = str(value)
     else:
         name = value.__name__
-    return ast.Attribute(ast.Name('__builtin__', ast.Load(), None),
+    return ast.Attribute(ast.Name('__builtin__', ast.Load(), None, None),
                          name, ast.Load())
 
 
@@ -116,10 +116,8 @@ def to_ast(value):
         return builtin_folding(value)
     elif isinstance(value, np.generic):
         return to_ast(np.asscalar(value))
-    elif isinstance(value, numbers.Number):
-        return ast.Num(value)
-    elif isinstance(value, str):
-        return ast.Str(value)
+    elif isinstance(value, (numbers.Number, str)):
+        return ast.Constant(value, None)
     elif isinstance(value, (list, tuple, set, dict, np.ndarray)):
         return size_container_folding(value)
     elif hasattr(value, "__module__") and value.__module__ == "__builtin__":

@@ -87,10 +87,10 @@ class ExpandGlobals(Transformation):
                     assert isinstance(target, ast.Name)
                     module_body.append(
                         ast.FunctionDef(target.id,
-                                        ast.arguments([], None,
-                                                      [], [], None, []),
+                                        ast.arguments([], [], None, [],
+                                                      [], None, []),
                                         [ast.Return(value=cst_value)],
-                                        [], None))
+                                        [], None, None))
                     metadata.add(module_body[-1].body[0],
                                  metadata.StaticReturn())
             else:

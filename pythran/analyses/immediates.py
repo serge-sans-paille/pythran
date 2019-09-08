@@ -3,7 +3,7 @@ considered as immediates """
 
 from pythran.analyses import Aliases
 from pythran.passmanager import NodeAnalysis
-from pythran.utils import pythran_builtin
+from pythran.utils import pythran_builtin, isnum
 
 import gast as ast
 
@@ -19,9 +19,9 @@ class Immediates(NodeAnalysis):
         func_aliases = self.aliases[node.func]
         if len(func_aliases) == 1 and next(iter(func_aliases)) is _make_shape:
             self.result.update(a for a in node.args
-                               if isinstance(a, ast.Num)
-                               and isinstance(a.n, int)
-                               and a.n >= 0)
+                               if isnum(a)
+                               and isinstance(a.value, int)
+                               and a.value >= 0)
             return
 
         return self.generic_visit(node)

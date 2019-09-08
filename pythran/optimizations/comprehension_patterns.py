@@ -62,15 +62,15 @@ class ComprehensionPatterns(Transformation):
     def make_Iterator(self, gen):
         if gen.ifs:
             ldFilter = ast.Lambda(
-                ast.arguments([ast.Name(gen.target.id, ast.Param(), None)],
-                              None, [], [], None, []),
+                ast.arguments([ast.Name(gen.target.id, ast.Param(), None, None)],
+                              [], None, [], [], None, []),
                 ast.BoolOp(ast.And(), gen.ifs)
                 if len(gen.ifs) > 1 else gen.ifs[0])
             self.use_itertools |= MODULE == 'itertools'
             ifilterName = ast.Attribute(
                 value=ast.Name(id=ASMODULE,
                                ctx=ast.Load(),
-                               annotation=None),
+                               annotation=None, type_comment=None),
                 attr=IFILTER, ctx=ast.Load())
             return ast.Call(ifilterName, [ldFilter, gen.iter], [])
         else:
@@ -83,27 +83,27 @@ class ComprehensionPatterns(Transformation):
             self.generic_visit(node)
 
             iters = [self.make_Iterator(gen) for gen in node.generators]
-            variables = [ast.Name(gen.target.id, ast.Param(), None)
+            variables = [ast.Name(gen.target.id, ast.Param(), None, None)
                          for gen in node.generators]
 
             # If dim = 1, product is useless
             if len(iters) == 1:
                 iterAST = iters[0]
-                varAST = ast.arguments([variables[0]], None, [], [], None, [])
+                varAST = ast.arguments([variables[0]], [], None, [], [], None, [])
             else:
                 self.use_itertools = True
                 prodName = ast.Attribute(
                     value=ast.Name(id=mangle('itertools'),
                                    ctx=ast.Load(),
-                                   annotation=None),
+                                   annotation=None, type_comment=None),
                     attr='product', ctx=ast.Load())
 
                 varid = variables[0].id  # retarget this id, it's free
                 renamings = {v.id: (i,) for i, v in enumerate(variables)}
                 node.elt = ConvertToTuple(varid, renamings).visit(node.elt)
                 iterAST = ast.Call(prodName, iters, [])
-                varAST = ast.arguments([ast.Name(varid, ast.Param(), None)],
-                                       None, [], [], None, [])
+                varAST = ast.arguments([ast.Name(varid, ast.Param(), None, None)],
+                                       [], None, [], [], None, [])
 
             ldBodymap = node.elt
             ldmap = ast.Lambda(varAST, ldBodymap)
@@ -118,12 +118,13 @@ class ComprehensionPatterns(Transformation):
             r = ast.Attribute(
                 value=ast.Name(id='__builtin__',
                                ctx=ast.Load(),
-                               annotation=None),
+                               annotation=None,
+                              type_comment=None),
                 attr='map', ctx=ast.Load())
             r = ast.Call(r, list(args), [])
             if sys.version_info.major == 3:
                 r = ast.Call(ast.Attribute(ast.Name('__builtin__', ast.Load(),
-                                                    None),
+                                                    None, None),
                                            'list', ast.Load()),
                              [r], [])
             return r
@@ -136,6 +137,6 @@ class ComprehensionPatterns(Transformation):
             return ast.Call(ast.Attribute(
                 value=ast.Name(id=ASMODULE,
                                ctx=ast.Load(),
-                               annotation=None),
+                               annotation=None, type_comment=None),
                 attr=IMAP, ctx=ast.Load()), list(args), [])
         return self.visitComp(node, makeattr)

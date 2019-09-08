@@ -19,10 +19,10 @@ class ConvertToTuple(ast.NodeTransformer):
             nnode = reduce(
                 lambda x, y: ast.Subscript(
                     x,
-                    ast.Index(ast.Num(y)),
+                    ast.Index(ast.Constant(y, None)),
                     ast.Load()),
                 self.renamings[node.id],
-                ast.Name(self.tuple_id, ast.Load(), None)
+                ast.Name(self.tuple_id, ast.Load(), None, None)
                 )
             nnode.ctx = node.ctx
             return nnode
@@ -94,7 +94,7 @@ class NormalizeTuples(Transformation):
                 gtarget = "{0}{1}".format(g[0], i)
                 nnode.generators[i].target = ast.Name(
                     gtarget,
-                    nnode.generators[i].target.ctx, None)
+                    nnode.generators[i].target.ctx, None, None)
                 nnode = ConvertToTuple(gtarget, g[1]).visit(nnode)
                 self.update = True
         for field in fields:
@@ -121,7 +121,7 @@ class NormalizeTuples(Transformation):
             self.traverse_tuples(arg, (), renamings)
             if renamings:
                 nname = self.get_new_id()
-                node.args.args[i] = ast.Name(nname, ast.Param(), None)
+                node.args.args[i] = ast.Name(nname, ast.Param(), None, None)
                 node.body = ConvertToTuple(nname, renamings).visit(node.body)
         return node
 
@@ -140,7 +140,7 @@ class NormalizeTuples(Transformation):
                         gstore = deepcopy(node.value)
                     else:
                         gstore = ast.Name(self.get_new_id(),
-                                          ast.Store(), None)
+                                          ast.Store(), None, None)
                     gload = deepcopy(gstore)
                     gload.ctx = ast.Load()
                     node.targets[i] = gstore
@@ -148,14 +148,14 @@ class NormalizeTuples(Transformation):
                         nnode = reduce(
                             lambda x, y: ast.Subscript(
                                 x,
-                                ast.Index(ast.Num(y)),
+                                ast.Index(ast.Constant(y, None)),
                                 ast.Load()),
                             state,
                             gload)
                         if isinstance(rename, str):
                             extra_assign.append(
                                 ast.Assign(
-                                    [ast.Name(rename, ast.Store(), None)],
+                                    [ast.Name(rename, ast.Store(), None, None)],
                                     nnode))
                         else:
                             extra_assign.append(ast.Assign([rename], nnode))
@@ -168,21 +168,21 @@ class NormalizeTuples(Transformation):
             self.traverse_tuples(target, (), renamings)
             if renamings:
                 gtarget = self.get_new_id()
-                node.target = ast.Name(gtarget, node.target.ctx, None)
+                node.target = ast.Name(gtarget, node.target.ctx, None, None)
                 for rename, state in renamings.items():
                     nnode = reduce(
                         lambda x, y: ast.Subscript(
                             x,
-                            ast.Index(ast.Num(y)),
+                            ast.Index(ast.Constant(y, None)),
                             ast.Load()),
                         state,
-                        ast.Name(gtarget, ast.Load(), None))
+                        ast.Name(gtarget, ast.Load(), None, None))
                     if isinstance(rename, str):
                         node.body.insert(0,
                                          ast.Assign(
                                              [ast.Name(rename,
                                                        ast.Store(),
-                                                       None)],
+                                                       None, None)],
                                              nnode)
                                          )
                     else:

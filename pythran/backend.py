@@ -21,7 +21,7 @@ from pythran.tables import operator_to_lambda, update_operator_to_lambda
 from pythran.tables import pythran_ward
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
-from pythran.utils import attr_to_path, pushpop, cxxid
+from pythran.utils import attr_to_path, pushpop, cxxid, isstr, isnum
 from pythran import metadata, unparse
 
 from math import isnan, isinf
@@ -502,10 +502,10 @@ class CxxFunction(ast.NodeVisitor):
         # not known at compile time
         if len(args) <= 2:
             order = 1
-        elif isinstance(args[2], ast.Num):
-            order = -1 + 2 * (int(args[2].n) > 0)
-        elif isinstance(args[1], ast.Num) and isinstance(args[0], ast.Num):
-            order = -1 + 2 * (int(args[1].n) > int(args[0].n))
+        elif isnum(args[2]):
+            order = -1 + 2 * (int(args[2].value) > 0)
+        elif isnum(args[1]) and isnum(args[0]):
+            order = -1 + 2 * (int(args[1].value) > int(args[0].value))
         else:
             order = 0
 
@@ -599,7 +599,8 @@ class CxxFunction(ast.NodeVisitor):
                 # Eventually add local_iter in a shared clause as iterable is
                 # shared in the for loop (for every clause with datasharing)
                 directive.s += ' shared({})'
-                directive.deps.append(ast.Name(local_iter, ast.Load(), None))
+                directive.deps.append(ast.Name(local_iter, ast.Load(),
+                                               None, None))
                 directive.shared_deps.append(directive.deps[-1])
 
             target = node.target
@@ -613,7 +614,8 @@ class CxxFunction(ast.NodeVisitor):
                 # Target is private by default in omp but iterator use may
                 # introduce an extra variable
                 directive.s += ' private({})'
-                directive.deps.append(ast.Name(target.id, ast.Load(), None))
+                directive.deps.append(ast.Name(target.id, ast.Load(),
+                                               None, None))
                 directive.private_deps.append(directive.deps[-1])
 
     def can_use_autofor(self, node):
@@ -650,9 +652,7 @@ class CxxFunction(ast.NodeVisitor):
         else:
             range_name = 'xrange'
         pattern_range = ast.Call(func=ast.Attribute(
-            value=ast.Name(id='__builtin__',
-                           ctx=ast.Load(),
-                           annotation=None),
+            value=ast.Name('__builtin__', ast.Load(), None, None),
             attr=range_name, ctx=ast.Load()),
             args=AST_any(), keywords=[])
         is_assigned = set()
@@ -666,7 +666,7 @@ class CxxFunction(ast.NodeVisitor):
         args = node.iter.args
         if len(args) < 3:
             return True
-        if isinstance(args[2], ast.Num):
+        if isnum(args[2]):
             return True
         return False
 
@@ -782,7 +782,7 @@ class CxxFunction(ast.NodeVisitor):
         body = [self.visit(n) for n in node.body]
         orelse = [self.visit(n) for n in node.orelse]
         # compound statement required for some OpenMP Directives
-        if isinstance(node.test, ast.Num) and node.test.n == 1:
+        if isnum(node.test) and node.test.value == 1:
             stmt = Block(body)
         else:
             stmt = If(test, Block(body), Block(orelse) if orelse else None)
@@ -836,9 +836,9 @@ class CxxFunction(ast.NodeVisitor):
     def visit_BinOp(self, node):
         left = self.visit(node.left)
         right = self.visit(node.right)
-        if isinstance(node.left, ast.Str):
+        if isstr(node.left):
             left = "pythonic::types::str({})".format(left)
-        elif isinstance(node.right, ast.Str):
+        elif isstr(node.right):
             right = "pythonic::types::str({})".format(right)
         return operator_to_lambda[type(node.op)](left, right)
 
@@ -910,32 +910,36 @@ class CxxFunction(ast.NodeVisitor):
         # special hook for getattr, as we cannot represent it in C++
         if func == 'pythonic::__builtin__::functor::getattr{}':
             return ('pythonic::__builtin__::getattr({}{{}}, {})'
-                    .format('pythonic::types::attr::' + node.args[1].s.upper(),
+                    .format('pythonic::types::attr::'
+                            + node.args[1].value.upper(),
                             args[0]))
         else:
             return "{}({})".format(func, ", ".join(args))
 
-    def visit_Num(self, node):
-        if isinstance(node.n, complex):
+    def visit_Constant(self, node):
+        if node.value is None:
+            ret = 'pythonic::__builtin__::None'
+        elif isinstance(node.value, bool):
+            ret = str(node.value).lower()
+        elif isinstance(node.value, str):
+            quoted = node.value.replace('"', '\\"').replace('\n', '\\n"\n"')
+            ret = 'pythonic::types::str("' + quoted + '")'
+        elif isinstance(node.value, complex):
             ret = "{0}({1}, {2})".format(
                 PYTYPE_TO_CTYPE_TABLE[complex],
-                node.n.real,
-                node.n.imag)
-        elif isnan(node.n):
+                node.value.real,
+                node.value.imag)
+        elif isnan(node.value):
             ret = 'pythonic::numpy::nan'
-        elif isinf(node.n):
-            ret = ('+' if node.n >= 0 else '-') + 'pythonic::numpy::inf'
+        elif isinf(node.value):
+            ret = ('+' if node.value >= 0 else '-') + 'pythonic::numpy::inf'
         else:
-            ret = repr(node.n) + TYPE_TO_SUFFIX.get(type(node.n), "")
+            ret = repr(node.value) + TYPE_TO_SUFFIX.get(type(node.value), "")
         if node in self.immediates:
-            assert isinstance(node.n, int)
+            assert isinstance(node.value, int)
             return "std::integral_constant<%s, %s>{}" % (
-                PYTYPE_TO_CTYPE_TABLE[type(node.n)], node.n)
+                PYTYPE_TO_CTYPE_TABLE[type(node.value)], node.value)
         return ret
-
-    def visit_Str(self, node):
-        quoted = node.s.replace('"', '\\"').replace('\n', '\\n"\n"')
-        return 'pythonic::types::str("' + quoted + '")'
 
     def visit_Attribute(self, node):
         obj, path = attr_to_path(node)
@@ -953,14 +957,14 @@ class CxxFunction(ast.NodeVisitor):
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         # we cannot overload the [] operator in that case
-        if isinstance(node.value, ast.Str):
+        if isstr(node.value):
             value = 'pythonic::types::str({})'.format(value)
         # positive static index case
         if (isinstance(node.slice, ast.Index) and
-                isinstance(node.slice.value, ast.Num) and
-                (node.slice.value.n >= 0) and
-                isinstance(node.slice.value.n, int)):
-            return "std::get<{0}>({1})".format(node.slice.value.n, value)
+                isnum(node.slice.value) and
+                (node.slice.value.value >= 0) and
+                isinstance(node.slice.value.value, int)):
+            return "std::get<{0}>({1})".format(node.slice.value.value, value)
         # extended slice case
         elif isinstance(node.slice, ast.ExtSlice):
             slice_ = self.visit(node.slice)
@@ -995,8 +999,7 @@ class CxxFunction(ast.NodeVisitor):
                    else 'pythonic::__builtin__::None')
             args.append(arg)
 
-        if node.step is None or (isinstance(node.step, ast.Num) and
-                                 node.step.n == 1):
+        if node.step is None or (isnum(node.step) and node.step.value == 1):
             return "pythonic::types::contiguous_slice({},{})".format(args[0],
                                                                      args[1])
         else:

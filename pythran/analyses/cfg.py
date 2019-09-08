@@ -1,6 +1,7 @@
 """ Computes the Control Flow Graph of a function. """
 
 from pythran.passmanager import FunctionAnalysis
+from pythran.utils import isnum
 
 import gast as ast
 import networkx as nx
@@ -8,7 +9,7 @@ import networkx as nx
 
 def is_true_predicate(node):
     # FIXME: there may be more patterns here
-    if isinstance(node, ast.Num) and node.n:
+    if isnum(node) and node.value:
         return True
     if isinstance(node, ast.Attribute) and node.attr == 'True':
         return True

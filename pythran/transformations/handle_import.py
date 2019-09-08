@@ -201,7 +201,7 @@ class HandleImport(Transformation):
         while isinstance(root, ast.Attribute):
             root = root.value
             suffix = '$' + node.attr + suffix
-        return ast.Name(renaming + suffix[1:], node.ctx, None)
+        return ast.Name(renaming + suffix[1:], node.ctx, None, None)
 
     def import_module(self, module_name, module_level):
         self.imported.add(module_name)

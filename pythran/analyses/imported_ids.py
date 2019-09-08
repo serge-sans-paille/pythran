@@ -101,5 +101,5 @@ class ImportedIds(NodeAnalysis):
     def run(self, node):
         if isinstance(node, list):  # so that this pass can be called on list
             self.is_list = True
-            node = ast.If(ast.Num(1), node, [])
+            node = ast.If(ast.Constant(1, None), node, [])
         return super(ImportedIds, self).run(node)

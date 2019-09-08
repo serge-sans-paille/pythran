@@ -39,7 +39,7 @@ class NormalizeReturn(Transformation):
                     node.body.append(ast.Return(None))
                 else:
                     none = ast.Attribute(
-                        ast.Name("__builtin__", ast.Load(), None),
+                        ast.Name("__builtin__", ast.Load(), None, None),
                         'None',
                         ast.Load())
                     node.body.append(ast.Return(none))
@@ -49,7 +49,7 @@ class NormalizeReturn(Transformation):
 
     def visit_Return(self, node):
         if not node.value and not self.yield_points:
-            none = ast.Attribute(ast.Name("__builtin__", ast.Load(), None),
+            none = ast.Attribute(ast.Name("__builtin__", ast.Load(), None, None),
                                  'None', ast.Load())
             node.value = none
             self.update = True

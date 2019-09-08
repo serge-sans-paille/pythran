@@ -3,6 +3,7 @@
 from pythran.passmanager import Transformation
 from pythran.analyses.ast_matcher import ASTMatcher, AST_any
 from pythran.conversion import mangle
+from pythran.utils import isnum
 
 import gast as ast
 import copy
@@ -29,12 +30,12 @@ class Square(Transformation):
     __pythran_import_numpy.square(a)
     """
 
-    POW_PATTERN = ast.BinOp(AST_any(), ast.Pow(), ast.Num(2))
+    POW_PATTERN = ast.BinOp(AST_any(), ast.Pow(), ast.Constant(2, None))
     POWER_PATTERN = ast.Call(
-        ast.Attribute(ast.Name(mangle('numpy'), ast.Load(), None),
+        ast.Attribute(ast.Name(mangle('numpy'), ast.Load(), None, None),
                       'power',
                       ast.Load()),
-        [AST_any(), ast.Num(2)],
+        [AST_any(), ast.Constant(2, None)],
         [])
 
     def __init__(self):
@@ -42,7 +43,7 @@ class Square(Transformation):
 
     def replace(self, value):
         self.update = self.need_import = True
-        module_name = ast.Name(mangle('numpy'), ast.Load(), None)
+        module_name = ast.Name(mangle('numpy'), ast.Load(), None, None)
         return ast.Call(ast.Attribute(module_name, 'square', ast.Load()),
                         [value], [])
 
@@ -57,7 +58,7 @@ class Square(Transformation):
 
     def expand_pow(self, node, n):
         if n == 0:
-            return ast.Num(1)
+            return ast.Constant(1, None)
         elif n == 1:
             return node
         else:
@@ -72,8 +73,8 @@ class Square(Transformation):
         self.generic_visit(node)
         if ASTMatcher(Square.POW_PATTERN).search(node):
             return self.replace(node.left)
-        elif isinstance(node.op, ast.Pow) and isinstance(node.right, ast.Num):
-            n = node.right.n
+        elif isinstance(node.op, ast.Pow) and isnum(node.right):
+            n = node.right.value
             if int(n) == n and n > 0:
                 return self.expand_pow(node.left, n)
             else:

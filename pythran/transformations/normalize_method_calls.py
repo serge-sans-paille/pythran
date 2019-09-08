@@ -5,6 +5,7 @@ from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, MODULES
 from pythran.conversion import mangle, demangle
+from pythran.utils import isstr
 
 import gast as ast
 from functools import reduce
@@ -119,10 +120,10 @@ class NormalizeMethodCalls(Transformation):
             self.update = True
             call = ast.Call(
                 ast.Attribute(
-                    ast.Name('__builtin__', ast.Load(), None),
+                    ast.Name('__builtin__', ast.Load(), None, None),
                     'getattr',
                     ast.Load()),
-                [node.value, ast.Str(node.attr)],
+                [node.value, ast.Constant(node.attr, None)],
                 [])
             if isinstance(node.ctx, ast.Store):
                 # the only situation where this arises is for real/imag of
@@ -190,7 +191,7 @@ class NormalizeMethodCalls(Transformation):
                     node.func = reduce(
                         lambda v, o: ast.Attribute(v, o, ast.Load()),
                         mod[1:] + (node.func.attr,),
-                        ast.Name(mangle(mod[0]), ast.Load(), None)
+                        ast.Name(mangle(mod[0]), ast.Load(), None, None)
                         )
                 # else methods have been called using function syntax
             if node.func.attr in methods or node.func.attr in functions:
@@ -216,7 +217,7 @@ class NormalizeMethodCalls(Transformation):
                             raise PythranSyntaxError(
                                 "Unbound identifier '{}'".format(mname), node)
 
-                        return (ast.Name(new_id, ast.Load(), None),
+                        return (ast.Name(new_id, ast.Load(), None, None),
                                 cur_module[mname])
 
                 # Rename module path to avoid naming issue.
@@ -233,12 +234,12 @@ class NormalizeMethodCalls(Transformation):
         # load it only when needed. The drawback is that % formatting is no
         # longer supported when lhs is not a literal
         self.generic_visit(node)
-        if isinstance(node.op, ast.Mod) and isinstance(node.left, ast.Str):
+        if isinstance(node.op, ast.Mod) and isstr(node.left):
             self.update = True
             return ast.Call(
                 ast.Attribute(
                     ast.Attribute(
-                        ast.Name('__builtin__', ast.Load(), None),
+                        ast.Name('__builtin__', ast.Load(), None, None),
                         'str',
                         ast.Load()),
                     '__mod__',

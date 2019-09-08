@@ -34,9 +34,6 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('types', 'slice'))
         self.generic_visit(node)
 
-    def visit_Str(self, node):
-        self.result.add(('types', 'str'))
-
     def visit_Pow(self, node):
         self.result.add(('__builtin__', 'pow'))
         self.result.add(('operator', 'ipow'))
@@ -115,15 +112,17 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('operator', 'floordiv'))
         self.result.add(('operator', 'ifloordiv'))
 
-    def visit_Num(self, node):
-        if isinstance(node.n, complex):
+    def visit_Constant(self, node):
+        if node.value is None:
+            self.result.add(('__builtin__', 'None'))
+        elif isinstance(node.value, str):
+            self.result.add(('types', 'str'))
+        elif isinstance(node.value, complex):
             self.result.add(('types', 'complex'))
-        elif math.isnan(node.n):
+        elif math.isnan(node.value):
             self.result.add(('numpy', 'nan'))
-        elif math.isinf(node.n):
+        elif math.isinf(node.value):
             self.result.add(('numpy', 'inf'))
-
-        self.generic_visit(node)
 
     def visit_Attribute(self, node):
         def rec(n):

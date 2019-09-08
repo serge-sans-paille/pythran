@@ -19,7 +19,7 @@ class Literals(FunctionAnalysis):
         # list, dict, set and other are not considered as Literals as they have
         # a constructor which may be costly and they can be updated using
         # function call
-        if isinstance(node.value, (ast.Num, ast.Lambda, ast.Str)):
+        if isinstance(node.value, (ast.Constant, ast.Lambda)):
             targets = [target for target in node.targets
                        if isinstance(target, ast.Name)]
             self.result.update(targets)

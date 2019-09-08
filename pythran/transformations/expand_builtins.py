@@ -29,7 +29,7 @@ class ExpandBuiltins(Transformation):
     def visit_NameConstant(self, node):
         self.update = True
         return ast.Attribute(
-            ast.Name('__builtin__', ast.Load(), None),
+            ast.Name('__builtin__', ast.Load(), None, None),
             str(node.value),
             ast.Load())
 
@@ -43,7 +43,7 @@ class ExpandBuiltins(Transformation):
                 raise PythranSyntaxError("You fool! Trying a getattr?", node)
             self.update = True
             return ast.Attribute(
-                ast.Name('__builtin__', ast.Load(), None),
+                ast.Name('__builtin__', ast.Load(), None, None),
                 s,
                 node.ctx)
         else:

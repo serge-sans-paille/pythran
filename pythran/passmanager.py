@@ -129,6 +129,7 @@ class Analysis(ContextManager, ast.NodeVisitor):
 
     def apply(self, node):
         self.display(self.run(node))
+        return False, node
 
 
 class ModuleAnalysis(Analysis):

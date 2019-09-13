@@ -436,7 +436,7 @@ back-end compiler. Be careful with the indentation. It has to be correct!
 
 Alternatively, one can run the great::
 
-    $> pythran -ppythran.analysis.ParallelMaps -e as.py
+    $> pythran -ppythran.analyses.ParallelMaps -e as.py
 
 which runs a code analyzer that displays extra information concerning parallel ``map`` found in the code.
 

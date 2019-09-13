@@ -1,6 +1,6 @@
 """ NormalizeStaticIf adds support for static guards. """
 
-from pythran.analyses import (ImportedIds, HasReturn, IsAssigned,
+from pythran.analyses import (ImportedIds, HasReturn, IsAssigned, CFG,
                               HasBreak, HasContinue, DefUseChains, Ancestors,
                               StaticExpressions, HasStaticExpression)
 from pythran.passmanager import Transformation
@@ -125,6 +125,7 @@ class NormalizeStaticIf(Transformation):
     def visit_Module(self, node):
         self.new_functions = []
         self.funcs = []
+        self.cfgs = []
         self.generic_visit(node)
         node.body.extend(self.new_functions)
         return node
@@ -179,9 +180,11 @@ class NormalizeStaticIf(Transformation):
         return "$isstatic{}".format(len(self.new_functions) + 1)
 
     def visit_FunctionDef(self, node):
+        self.cfgs.append(self.gather(CFG, node))
         self.funcs.append(node)
         onode = self.generic_visit(node)
         self.funcs.pop()
+        self.cfgs.pop()
         return onode
 
     def visit_IfExp(self, node):
@@ -287,23 +290,33 @@ class NormalizeStaticIf(Transformation):
         cont_n = "$cont{}".format(n)
 
         if has_return:
+            cfg = self.cfgs[-1]
+            always_return = all(isinstance(x, (ast.Return, ast.Yield))
+                                for x in cfg[node])
+            always_return &= true_has_return and false_has_return
 
-            cont_ass = self.make_control_flow_handlers(cont_n, status_n,
-                                                       expected_return,
-                                                       has_cont, has_break)
-
-            cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None, None),
-                               [ast.Eq()], [ast.Constant(EARLY_RET, None)])
 
             fast_return = [ast.Name(status_n, ast.Store(), None, None),
                            ast.Name(return_n, ast.Store(), None, None),
                            ast.Name(cont_n, ast.Store(), None, None)]
 
-            return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
-                               actual_call),
-                    ast.If(cmpr,
-                           [ast.Return(ast.Name(return_n, ast.Load(), None, None))],
-                           cont_ass)]
+            if always_return:
+                return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
+                                   actual_call),
+                        ast.Return(ast.Name(return_n, ast.Load(), None, None))]
+            else:
+                cont_ass = self.make_control_flow_handlers(cont_n, status_n,
+                                                           expected_return,
+                                                           has_cont, has_break)
+
+                cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None, None),
+                                   [ast.Eq()], [ast.Constant(EARLY_RET, None)])
+                return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
+                                   actual_call),
+                        ast.If(cmpr,
+                               [ast.Return(ast.Name(return_n, ast.Load(),
+                                                    None, None))],
+                               cont_ass)]
         elif has_break or has_cont:
             cont_ass = self.make_control_flow_handlers(cont_n, status_n,
                                                        expected_return,

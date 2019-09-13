@@ -60,7 +60,7 @@ class StaticExpressions(NodeAnalysis):
         return self.visit(node.func)and self.add(node)  # very limited
 
     def visit_Attribute(self, node):
-        return node.attr == 'is_none'
+        return node.attr in ('is_none', 'isinstance')
 
     def visit_Constant(self, node):
         self.constant_expressions.add(node)

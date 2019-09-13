@@ -10,6 +10,7 @@ template <>
 struct to_python<bool> {
   static PyObject *convert(bool b);
 };
+
 template <>
 struct from_python<bool> {
   static bool is_convertible(PyObject *obj);

@@ -36,6 +36,7 @@ class CFG(FunctionAnalysis):
         super(CFG, self).__init__()
 
     def visit_FunctionDef(self, node):
+        """OUT = node, RAISES = ()"""
         # the function itself is the entry point
         self.result.add_node(node)
         currs = (node,)
@@ -49,6 +50,7 @@ class CFG(FunctionAnalysis):
         self.result.add_node(CFG.NIL)
         for curr in currs:
             self.result.add_edge(curr, CFG.NIL)
+        return (node,), ()
 
     def visit_Pass(self, node):
         """OUT = node, RAISES = ()"""

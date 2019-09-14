@@ -2702,6 +2702,7 @@ MODULES = {
         "hex": ConstFunctionIntr(signature=Fun[[int], str]),
         "id": ConstFunctionIntr(signature=Fun[[T0], int]),
         "int": ConstFunctionIntr(signature=_int_signature),
+        "isinstance": ConstFunctionIntr(signature=Fun[[T0, T1], bool]),
         "iter": FunctionIntr(
             signature=Fun[[Iterable[T0]], Generator[T0]]),  # not const
         "len": ConstFunctionIntr(

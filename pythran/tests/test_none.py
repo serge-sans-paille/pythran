@@ -1,7 +1,8 @@
 from pythran.tests import TestEnv
 from unittest import skip
-from pythran.typing import List, Dict
+from pythran.typing import List, Dict, NDArray
 import pythran
+import numpy as np
 
 class TestNone(TestEnv):
 
@@ -567,3 +568,56 @@ def returned_none_member(a):
                     diameter = 20.0
                 return diameter'''
         self.run_test(code, {'a': '10'}, none_escaping1=[Dict[str,str]])
+
+
+class TestIsInstance(TestEnv):
+
+    def test_isinstance_int0(self):
+        self.run_test(
+            'def isinstance_int0(x, y): return isinstance(x, int), isinstance(y, int)',
+            1, '1',
+            isinstance_int0=[int, str])
+
+    def test_isinstance_int1(self):
+        code = 'def isinstance_int1a(x):\n if isinstance(x, int): return x  + 1\n else: return  x * 3'
+        self.run_test(code, 1, isinstance_int1a=[int])
+        code = 'def isinstance_int1b(x):\n if isinstance(x, int): return x  + 1\n else: return  x * 3'
+        self.run_test(code, '1', isinstance_int1b=[str])
+
+    def test_isinstance_int2(self):
+        code = 'def isinstance_int2(x):\n if isinstance(x, int): return 1\n else: return  "3"'
+        self.run_test(code, 1, isinstance_int2=[int])
+
+    def test_isinstance_int3(self):
+        code = 'def isinstance_int3(x):\n if isinstance(x, int) or x is None: return 1\n else: return  "3"'
+        self.run_test(code, 1, isinstance_int3=[int])
+
+    def test_isinstance_complex0(self):
+        code = '''
+            import numpy as np
+
+            def conj (x):
+                if isinstance(x.dtype, complex):
+                    return x.real - 1j*x.imag
+                else:
+                    return x
+
+            def isinstance_complex0(x):
+                return x * conj(x)'''
+        self.run_test(code, np.ones(5, dtype=int),
+                      isinstance_complex0=[NDArray[int,:]])
+
+    def test_isinstance_complex1(self):
+        code = '''
+            import numpy as np
+
+            def conj (x):
+                if isinstance(x.dtype, complex):
+                    return x.real - 1j*x.imag
+                else:
+                    return x
+
+            def isinstance_complex1(x):
+                return x * conj(x)'''
+        self.run_test(code, np.ones(5, dtype=complex) * 2j,
+                      isinstance_complex1=[NDArray[complex,:]])

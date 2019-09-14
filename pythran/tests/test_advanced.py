@@ -241,6 +241,11 @@ def combiner_on_empty_list():
         with self.assertRaises(SyntaxError):
             self.run_test(code, 1, invalid_call2=[int])
 
+    def test_ellipsis(self):
+        code = 'def ellipsis_(x): return x[...,1]'
+        with self.assertRaises(SyntaxError):
+            self.run_test(code, numpy.ones((3,3)), ellipsis=[NDArray[float,:,:]])
+
     def test_multiple_lambda(self):
         code = '''
             def multiple_lambda(x):

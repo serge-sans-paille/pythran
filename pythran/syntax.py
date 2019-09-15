@@ -95,12 +95,15 @@ class SyntaxChecker(ast.NodeVisitor):
     def visit_Call(self, node):
         self.generic_visit(node)
 
-    def visit_Ellipsis(self, node):
-        raise PythranSyntaxError("Ellipsis are not supported", node)
-
     def visit_Constant(self, node):
         if sys.version_info[0] == 2 and isinstance(node.value, long):
             raise PythranSyntaxError("long int not supported", node)
+        if node.value is Ellipsis:
+            if hasattr(node, 'lineno'):
+                args = [node]
+            else:
+                args = []
+            raise PythranSyntaxError("Ellipsis are not supported", *args)
         iinfo = np.iinfo(int)
         if isinstance(node.value, int) and not (iinfo.min <= node.value <= iinfo.max):
             raise PythranSyntaxError("large int not supported", node)

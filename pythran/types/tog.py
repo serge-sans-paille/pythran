@@ -588,7 +588,7 @@ def analyse(node, env, non_generic=None):
     elif isinstance(node, gast.Call):
         if is_getattr(node):
             self_type = analyse(node.args[0], env, non_generic)
-            attr_name = node.args[1].s
+            attr_name = node.args[1].value
             _, attr_signature = attributes[attr_name]
             attr_type = tr(attr_signature)
             result_type = TypeVariable()

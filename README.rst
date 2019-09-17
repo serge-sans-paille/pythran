@@ -40,7 +40,7 @@ Using ``pip``
 
 2. Use ``easy_install`` or ``pip``::
 
-		$> pip install pythran
+        $> pip install pythran
 
 Using ``conda``
 ***************
@@ -98,12 +98,12 @@ A simple pythran input could be ``dprod.py``::
     """
     #pythran export dprod(int list, int list)
     def dprod(l0,l1):
-    	"""WoW, generator expression, zip and sum."""
-	return sum(x * y for x, y in zip(l0, l1))
+        """WoW, generator expression, zip and sum."""
+        return sum(x * y for x, y in zip(l0, l1))
 
 To turn it into a native module, run::
 
-	$> pythran dprod.py
+    $> pythran dprod.py
 
 That will generate a native dprod.so that can be imported just like the former
 module::
@@ -117,20 +117,19 @@ Documentation
 The user documentation is available in the MANUAL file from the doc directory.
 
 The developer documentation is available in the DEVGUIDE file from the doc
-directory. The also is a TUTORIAL file for those who don't like reading
+directory. There is also a TUTORIAL file for those who don't like reading
 documentation.
-
-A todo list is maintained in the eponymous TODO file.
 
 The CLI documentation is available from the pythran help command::
 
-	$> pythran --help
+    $> pythran --help
 
 Some extra developer documentation is also available using pydoc. Beware, this
 is the computer science incarnation for the famous Where's Waldo? game::
 
-	$> pydoc pythran
-	$> pydoc pythran.typing
+    $> pydoc pythran
+    $> pydoc pythran.typing
+    $> pydoc -b  # in the browser
 
 
 Examples
@@ -179,4 +178,3 @@ License
 -------
 
 See LICENSE file.
-

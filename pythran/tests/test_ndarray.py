@@ -1160,3 +1160,9 @@ def hanning(M):
                 B = x_transScores[x_transList]
                 return  x_transFrames[x_transList].astype(int),B'''
         self.run_test(code, numpy.arange(300.), numpy_vexpr_static_shape=[NDArray[float, :]])
+
+    def test_subscripting_slice_array_transpose(self):
+        code = 'def subscripting_slice_array_transpose(x): return x.T[(slice(0,1),slice(0,1))]'
+        self.run_test(code,
+                      numpy.arange(200.).reshape(10, 20),
+                      subscripting_slice_array_transpose=[NDArray[float, :, :]])

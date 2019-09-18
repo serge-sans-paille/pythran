@@ -139,15 +139,17 @@ namespace types
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));
-    auto operator[](array<long, value> const &indices)
-        -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}])
+    template <class T>
+    auto operator[](array<T, value> const &indices)
+        -> decltype(arg[array<T, 2>{{indices[1], indices[0]}}])
     {
-      return arg[array<long, 2>{{indices[1], indices[0]}}];
+      return arg[array<T, 2>{{indices[1], indices[0]}}];
     }
-    auto operator[](array<long, value> const &indices) const
-        -> decltype(arg[array<long, 2>{{indices[1], indices[0]}}])
+    template <class T>
+    auto operator[](array<T, value> const &indices) const
+        -> decltype(arg[array<T, 2>{{indices[1], indices[0]}}])
     {
-      return arg[array<long, 2>{{indices[1], indices[0]}}];
+      return arg[array<T, 2>{{indices[1], indices[0]}}];
     }
     template <class T0, class T1>
     auto operator[](std::tuple<T0, T1> const &indices) -> decltype(

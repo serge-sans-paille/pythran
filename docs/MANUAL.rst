@@ -370,7 +370,7 @@ produce native functions to be used by other Python extension, using the
 ``Capsule`` mechanism. To do so, just add the ``capsule`` keyword to the export
 line::
 
-    #pythran export capsule foo(double*, doule)
+    #pythran export capsule foo(double*, double)
 
 Note that pointer types are only supported within the context of a capsule, as
 they don't match any real Python type. **Any** Pythran type is valid as capsule
@@ -398,7 +398,7 @@ variables have greater precedence than configuration file.
 The careful reader might have noticed the ``-p`` flag from the command line. It
 makes it possible to define your own optimization sequence::
 
-    pythran -pConstantFodling -pmy_package.MyOptimization
+    pythran -pConstantFolding -pmy_package.MyOptimization
 
 runs the ``ConstantFolding`` optimization from ``pythran.optimizations``
 followed by a custom optimization found in the ``my_package`` package, loaded

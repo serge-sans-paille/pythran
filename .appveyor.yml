@@ -16,6 +16,7 @@ install:
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
   - "%PYTHON%\\python.exe -m pip install numpy"
   - "%PYTHON%\\python.exe -m pip install pytest"
+  - "%PYTHON%\\python.exe -m pip install scipy"
   - "%PYTHON%\\python.exe -m pip install flake8"
 
 build_script:

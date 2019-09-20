@@ -80,14 +80,8 @@ namespace types
   typename numpy_expr<Op, Args...>::const_iterator
       numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>) const
   {
-    auto const expr_size = size();
-    return {{(!std::is_same<long, typename std::tuple_element<
-                                      0, typename std::remove_reference<
-                                             Args>::type::shape_t>::type>::value
-                  ? integral_value<typename std::tuple_element<
-                        0, typename std::remove_reference<
-                               Args>::type::shape_t>::type>::value
-                  : (expr_size == std::get<0>(std::get<I>(args).shape())))...},
+    return {{make_step(std::get<0>(_shape),
+                       std::get<0>(std::get<I>(args).shape()))...},
             const_cast<typename std::decay<Args>::type const &>(
                 std::get<I>(args)).begin()...};
   }
@@ -104,14 +98,8 @@ namespace types
   typename numpy_expr<Op, Args...>::const_iterator
       numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>) const
   {
-    auto const expr_size = size();
-    return {{(!std::is_same<long, typename std::tuple_element<
-                                      0, typename std::remove_reference<
-                                             Args>::type::shape_t>::type>::value
-                  ? integral_value<typename std::tuple_element<
-                        0, typename std::remove_reference<
-                               Args>::type::shape_t>::type>::value
-                  : (expr_size == std::get<0>(std::get<I>(args).shape())))...},
+    return {{make_step(std::get<0>(_shape),
+                       std::get<0>(std::get<I>(args).shape()))...},
             const_cast<typename std::decay<Args>::type const &>(
                 std::get<I>(args)).end()...};
   }
@@ -164,14 +152,8 @@ namespace types
   typename numpy_expr<Op, Args...>::iterator
       numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>)
   {
-    auto const expr_size = size();
-    return {{(!std::is_same<long, typename std::tuple_element<
-                                      0, typename std::remove_reference<
-                                             Args>::type::shape_t>::type>::value
-                  ? integral_value<typename std::tuple_element<
-                        0, typename std::remove_reference<
-                               Args>::type::shape_t>::type>::value
-                  : (expr_size == std::get<0>(std::get<I>(args).shape())))...},
+    return {{make_step(std::get<0>(_shape),
+                       std::get<0>(std::get<I>(args).shape()))...},
             const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
                 .begin()...};
   }
@@ -187,14 +169,8 @@ namespace types
   typename numpy_expr<Op, Args...>::iterator
       numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>)
   {
-    auto const expr_size = size();
-    return {{(!std::is_same<long, typename std::tuple_element<
-                                      0, typename std::remove_reference<
-                                             Args>::type::shape_t>::type>::value
-                  ? integral_value<typename std::tuple_element<
-                        0, typename std::remove_reference<
-                               Args>::type::shape_t>::type>::value
-                  : (expr_size == std::get<0>(std::get<I>(args).shape())))...},
+    return {{make_step(std::get<0>(_shape),
+                       std::get<0>(std::get<I>(args).shape()))...},
             const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
                 .end()...};
   }
@@ -239,14 +215,8 @@ namespace types
       numpy_expr<Op, Args...>::_vbegin(vectorize,
                                        utils::index_sequence<I...>) const
   {
-    auto const expr_size = size();
-    return {{(!std::is_same<long, typename std::tuple_element<
-                                      0, typename std::remove_reference<
-                                             Args>::type::shape_t>::type>::value
-                  ? integral_value<typename std::tuple_element<
-                        0, typename std::remove_reference<
-                               Args>::type::shape_t>::type>::value
-                  : (expr_size == std::get<0>(std::get<I>(args).shape())))...},
+    return {{make_step(std::get<0>(_shape),
+                       std::get<0>(std::get<I>(args).shape()))...},
             std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
                                 std::get<I>(args)).begin()...),
             std::get<I>(args).vbegin(vectorize{})...};
@@ -265,14 +235,8 @@ namespace types
       numpy_expr<Op, Args...>::_vend(vectorize,
                                      utils::index_sequence<I...>) const
   {
-    auto const expr_size = size();
-    return {{(!std::is_same<long, typename std::tuple_element<
-                                      0, typename std::remove_reference<
-                                             Args>::type::shape_t>::type>::value
-                  ? integral_value<typename std::tuple_element<
-                        0, typename std::remove_reference<
-                               Args>::type::shape_t>::type>::value
-                  : (expr_size == std::get<0>(std::get<I>(args).shape())))...},
+    return {{make_step(std::get<0>(_shape),
+                       std::get<0>(std::get<I>(args).shape()))...},
             std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
                                 std::get<I>(args)).end()...),
             std::get<I>(args).vend(vectorize{})...};

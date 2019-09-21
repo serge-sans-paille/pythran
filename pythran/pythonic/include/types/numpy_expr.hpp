@@ -57,7 +57,7 @@ namespace types
     Steps steps_;
     std::tuple<Iters...> iters_;
 
-    numpy_expr_iterator(array<long, sizeof...(Iters)> steps, Iters... iters)
+    numpy_expr_iterator(Steps steps, Iters... iters)
         : steps_(steps), iters_(iters...)
     {
     }
@@ -510,21 +510,21 @@ namespace types
   };
 #endif
 
-  template <class T>
-  struct integral_value : std::integral_constant<long, 0> {
-  };
-  template <long N>
-  struct integral_value<std::integral_constant<long, N>>
-      : std::integral_constant<long, (N <= 1 ? 0 : 1)> {
-  };
+  template <long N0, long N1>
+  std::integral_constant<long, N0 == N1>
+  make_step(std::integral_constant<long, N0>, std::integral_constant<long, N1>)
+  {
+    return {};
+  }
+  template <class T0, class T1>
+  long make_step(T0 n0, T1 n1)
+  {
+    return n0 == n1;
+  }
 
-  template <class T>
-  using step_type_t = typename std::conditional<
-      std::is_same<long, typename std::tuple_element<
-                             0, typename T::shape_t>::type>::value,
-      long, std::integral_constant<
-                long, integral_value<typename std::tuple_element<
-                          0, typename T::shape_t>::type>::value>>::type;
+  template <class BT, class T>
+  using step_type_t = decltype(make_step(std::get<0>(std::declval<BT>()),
+                                         std::get<0>(std::declval<T>())));
 
   /* Expression template for numpy expressions - binary operators
    */
@@ -543,13 +543,6 @@ namespace types
             Op, typename std::remove_reference<Args>::type::dtype...>::value;
     static const bool is_strided =
         utils::any_of<std::remove_reference<Args>::type::is_strided...>::value;
-    using const_iterator = numpy_expr_iterator<
-        Op, pshape<step_type_t<typename std::remove_reference<Args>::type>...>,
-        typename std::remove_reference<Args>::type::const_iterator...>;
-    using iterator = numpy_expr_iterator<
-        Op, pshape<step_type_t<typename std::remove_reference<Args>::type>...>,
-        typename std::remove_reference<Args>::type::iterator...>;
-    using const_fast_iterator = const_nditerator<numpy_expr>;
 
     static constexpr size_t value =
         utils::max_element<std::remove_reference<Args>::type::value...>::value;
@@ -565,8 +558,16 @@ namespace types
 #endif
     using shape_t = sutils::merged_shapes_t<
         value, typename std::remove_reference<Args>::type::shape_t...>;
+    using steps_t = pshape<step_type_t<
+        shape_t, typename std::remove_reference<Args>::type::shape_t>...>;
     static_assert(value == std::tuple_size<shape_t>::value,
                   "consistent shape and size");
+    using const_iterator = numpy_expr_iterator<
+        Op, steps_t,
+        typename std::remove_reference<Args>::type::const_iterator...>;
+    using iterator = numpy_expr_iterator<
+        Op, steps_t, typename std::remove_reference<Args>::type::iterator...>;
+    using const_fast_iterator = const_nditerator<numpy_expr>;
 
     shape_t _shape;
 
@@ -631,7 +632,8 @@ namespace types
 #ifdef USE_XSIMD
     using simd_iterator = numpy_expr_simd_iterator<
         numpy_expr, Op,
-        pshape<step_type_t<typename std::remove_reference<Args>::type>...>,
+        pshape<step_type_t<
+            shape_t, typename std::remove_reference<Args>::type::shape_t>...>,
         std::tuple<
             typename std::remove_reference<Args>::type::const_iterator...>,
         typename std::remove_reference<Args>::type::simd_iterator...>;

@@ -30,6 +30,14 @@ class RangeBasedSimplify(Transformation):
     def any():
         x = (1 or 2)
         return 0
+
+    >>> node = ast.parse("def a(i): x = 1,1,2; return x[2], x[0 if i else 1]")
+    >>> pm = passmanager.PassManager("test")
+    >>> _, node = pm.apply(RangeBasedSimplify, node)
+    >>> print(pm.dump(backend.Python, node))
+    def a(i):
+        x = (1, 1, 2)
+        return (2, 1)
     '''
 
     def __init__(self):
@@ -77,3 +85,6 @@ class RangeBasedSimplify(Transformation):
         if isinstance(node.ctx, ast.Load):
             return self.visit_range(node)
         return node
+
+    visit_Subscript = visit_range
+

@@ -7,14 +7,14 @@ from collections import defaultdict
 from pythran.analyses import Globals, Aliases
 from pythran.intrinsic import Intrinsic
 from pythran.passmanager import FunctionAnalysis
-from pythran.interval import Interval, UNKNOWN_RANGE
+from pythran.interval import Interval, IntervalTuple, UNKNOWN_RANGE
 from pythran.tables import MODULES, attributes
 
 
 def combine(op, node0, node1):
     key = '__{}__'.format(op.__class__.__name__.lower())
     try:
-        return getattr(Interval, key)(node0, node1)
+        return getattr(type(node0), key)(node0, node1)
     except AttributeError:
         return UNKNOWN_RANGE
 
@@ -403,6 +403,10 @@ class RangeValues(FunctionAnalysis):
         """ Get range for parameters for examples or false branching. """
         return self.add(node, self.result[node.id])
 
+    def visit_Tuple(self, node):
+        return self.add(node,
+                        IntervalTuple(self.visit(elt) for elt in node.elts))
+
     def visit_Index(self, node):
         return self.add(node, self.visit(node.value))
 
@@ -424,7 +428,9 @@ class RangeValues(FunctionAnalysis):
             self.visit(node.slice)
             return self.result[node]
         else:
-            return self.generic_visit(node)
+            value = self.visit(node.value)
+            slice = self.visit(node.slice)
+            return self.add(node, value[slice])
 
     def visit_ExceptHandler(self, node):
         """ Add a range value for exception variable.

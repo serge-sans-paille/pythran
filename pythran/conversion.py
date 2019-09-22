@@ -62,7 +62,15 @@ def size_container_folding(value):
         elif isinstance(value, tuple):
             return ast.Tuple([to_ast(elt) for elt in value], ast.Load())
         elif isinstance(value, set):
-            return ast.Set([to_ast(elt) for elt in value])
+            if value:
+                return ast.Set([to_ast(elt) for elt in value])
+            else:
+                return ast.Call(func=ast.Attribute(
+                    ast.Name(mangle('__builtin__'), ast.Load(), None, None),
+                    'set',
+                    ast.Load()),
+                    args=[],
+                    keywords=[])
         elif isinstance(value, dict):
             keys = [to_ast(elt) for elt in value.keys()]
             values = [to_ast(elt) for elt in value.values()]

@@ -74,7 +74,7 @@ def test1(comment, unranker, ranker):
     print('')
 
 def test2(comment, unranker):
-    samplesize, n2 = 4, 20
+    samplesize, n2 = 4, 10
     print(comment)
     print('  %s random individual samples of %s items:' % (samplesize, n2))
     txt = ''

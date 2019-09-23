@@ -114,6 +114,9 @@ class Interval(object):
         >>> Interval(-12, 5) + Interval(-5, -3)
         Interval(low=-17, high=2)
         """
+        if isinstance(other, IntervalTuple):
+            return UNKNOWN_RANGE
+
         sl, sh, ol, oh = self.low, self.high, other.low, other.high
 
         if isinf(sl) and isinf(ol) and sl * ol < 0:
@@ -364,7 +367,51 @@ class Interval(object):
     def __nonzero__(self):
         return not isinf(self.high) and self.low == self.high and self .low > 0
 
+    def __getitem__(self, index):
+        return UNKNOWN_RANGE
+
     __bool__ = __nonzero__
+
+
+class IntervalTuple(object):
+
+    def __init__(self, values):
+        self.values = tuple(values)
+
+    def union(self, other):
+        if isinstance(other, Interval):
+            return UNKNOWN_RANGE
+        return IntervalTuple(x.union(y) for x, y in zip(self.values,
+                                                        other.values))
+
+    @property
+    def high(self):
+        return UNKNOWN_RANGE.high
+
+    @property
+    def low(self):
+        return UNKNOWN_RANGE.low
+
+
+    def __getitem__(self, index):
+        out = None
+        low = max(0, index.low)
+        high = min(len(self.values) - 1, index.high)
+        for i in range(low, high + 1):
+            if out is None:
+                out = self.values[i]
+            else:
+                out = out.union(self.values[i])
+        return out or UNKNOWN_RANGE
+
+    def widen(self, other):
+        return IntervalTuple(s.widen(o) for s, o in zip(self.values,
+                                                        other.values))
+
+    def __add__(self, other):
+        if isinstance(other, Interval):
+            return UNKNOWN_RANGE
+        return IntervalTuple(self.values + other.values)
 
 
 UNKNOWN_RANGE = Interval(-float("inf"), float("inf"))

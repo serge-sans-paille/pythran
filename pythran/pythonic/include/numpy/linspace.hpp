@@ -8,8 +8,10 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-  types::ndarray<double, types::pshape<long>>
-  linspace(double start, double stop, long num = 50, bool endpoint = true);
+  template <class dtype = types::dtype_t<double>>
+  types::ndarray<typename dtype::type, types::pshape<long>>
+  linspace(double start, double stop, long num = 50, bool endpoint = true,
+           bool retstep = false, dtype d = dtype());
 
   DEFINE_FUNCTOR(pythonic::numpy, linspace);
 }

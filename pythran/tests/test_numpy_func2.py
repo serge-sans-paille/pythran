@@ -774,6 +774,9 @@ def test_copy0(x):
     def test_linspace3(self):
         self.run_test("def np_linspace3_(a):\n from numpy import linspace\n return linspace(1,a)", 4, np_linspace3_=[int])
 
+    def test_linspace4(self):
+        self.run_test("def np_linspace4_(a):\n from numpy import linspace\n return linspace(1,a,dtype=int)", 4, np_linspace4_=[int])
+
     def test_sin(self):
         self.run_test("def np_sin_(a):\n from numpy import sin\n return sin(a)", numpy.linspace(0,6), np_sin_=[NDArray[float,:]])
 

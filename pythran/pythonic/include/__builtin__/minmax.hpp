@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_MINMAX_HPP
 
 #include <utility>
+#include "pythonic/include/__builtin__/pythran/kwonly.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -9,41 +10,17 @@ namespace __builtin__
 {
   namespace details
   {
-    template <bool n, class... Types>
-    struct minmax;
+    template <class Op, class T>
+    typename std::decay<T>::type::value_type minmax(Op const &, T &&t);
 
-    template <class T0>
-    struct minmax<true, T0> {
-      using result_type = typename std::iterator_traits<
-          typename std::remove_reference<T0>::type::iterator>::value_type;
-      template <typename Op>
-      result_type operator()(Op const &, T0 &&t);
-    };
+    template <class Op, class T, class F>
+    typename std::decay<T>::type::value_type minmax(Op const &, T &&t,
+                                                    types::kwonly, F key);
 
-    template <class T0>
-    struct minmax<false, T0> {
-      using result_type = T0;
-      template <typename Op>
-      result_type operator()(Op const &, T0 const &t);
-    };
-
-    template <class T0, class T1>
-    struct minmax<false, T0, T1> {
-      using result_type =
-          typename std::remove_cv<typename std::remove_reference<
-              typename __combined<T0, T1>::type>::type>::type;
-      template <typename Op>
-      result_type operator()(Op const &, T0 const &t0, T1 const &t1);
-    };
-
-    template <class T0, class... Types>
-    struct minmax<false, T0, Types...> {
-      using result_type = typename minmax<
-          false, T0,
-          typename minmax<false, Types...>::result_type>::result_type;
-      template <typename Op>
-      result_type operator()(Op const &, T0 const &t0, Types const &... values);
-    };
+    template <class Op, class T0, class T1, class... Types>
+    typename std::enable_if<!std::is_same<T1, types::kwonly>::value,
+                            typename __combined<T0, T1, Types...>::type>::type
+    minmax(Op const &, T0 const &, T1 const &, Types const &...);
   }
 }
 PYTHONIC_NS_END

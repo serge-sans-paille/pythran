@@ -55,7 +55,10 @@ class Intrinsic(object):
         self.args = ast.arguments(
             [ast.Name(n, ast.Param(), None, None)
              for n in kwargs.get('args', [])],
-            [], None, [], [], None,
+            [], None,
+            [ast.Name(n, ast.Param(), None, None)
+             for n in kwargs.get('kwonlyargs', [])],
+            [], None,
             [to_ast(d) for d in kwargs.get('defaults', [])])
         self.return_range = kwargs.get("return_range",
                                        lambda call: UNKNOWN_RANGE)

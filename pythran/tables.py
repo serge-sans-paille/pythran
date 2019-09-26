@@ -2571,6 +2571,7 @@ MODULES = {
             "static_list": ReadOnceFunctionIntr(
                 signature=Fun[[Iterable[T0]], List[T0]]),
             "is_none": ConstFunctionIntr(),
+            "kwonly": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
             "make_shape": ConstFunctionIntr(),
             "static_if": ConstFunctionIntr(),
@@ -2733,6 +2734,7 @@ MODULES = {
             ]
         ),
         "max": ReadOnceFunctionIntr(
+            kwonlyargs=('key',),
             signature=Union[
                 Fun[[T0, T0], T0],
                 Fun[[T0, T0, T0], T0],
@@ -2742,6 +2744,7 @@ MODULES = {
             return_range=interval.max_values
         ),
         "min": ReadOnceFunctionIntr(
+            kwonlyargs=('key', 'default'),
             signature=Union[
                 Fun[[int, int], int],
                 Fun[[float, float], float],

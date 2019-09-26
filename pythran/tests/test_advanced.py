@@ -74,6 +74,11 @@ class TestAdvanced(TestEnv):
     def test_max_interface_arity(self):
         self.run_test('def max_interface_arity({0}):pass'.format(', '.join('_'+str(i) for i in range(42))), *list(range(42)), max_interface_arity=[int]*42)
 
+    @skipIf(sys.version_info.major == 2, "kwonly args not part of py2")
+    def test_max_kwonly_key(self):
+        self.run_test('def max_kwonly_key(x): return max(x, key=lambda x:-x)',
+                      list(range(42)), max_kwonly_key=[List[int]])
+
     def test_multiple_max(self):
         self.run_test('def multiple_max(i,j,k): return max(i,j,k)', 1, 1.5, False, multiple_max=[int, float, bool])
 

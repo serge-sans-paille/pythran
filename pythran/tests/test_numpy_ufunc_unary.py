@@ -15,7 +15,7 @@ unary_func_by_module = {
         'abs', 'absolute', 'arccos', 'arccosh', 'arcsin', 'arcsinh', 'arctan',
         'arctanh',
         'bitwise_not',
-        'ceil', 'conj', 'conjugate', 'cos', 'cosh',
+        'cbrt', 'ceil', 'conj', 'conjugate', 'cos', 'cosh',
         'deg2rad', 'degrees',
         'exp', 'expm1',
         'fabs', 'float32', 'float64', 'floor',

@@ -13,11 +13,12 @@ namespace __builtin__
 {
 
   template <class... Types>
-  typename details::minmax<sizeof...(Types) == 1, Types...>::result_type
-  max(Types &&... values)
+  auto max(Types &&... values)
+      -> decltype(details::minmax(operator_::functor::lt{},
+                                  std::forward<Types>(values)...))
   {
-    return details::minmax<sizeof...(Types) == 1, Types...>()(
-        operator_::functor::lt{}, std::forward<Types>(values)...);
+    return details::minmax(operator_::functor::lt{},
+                           std::forward<Types>(values)...);
   }
 }
 PYTHONIC_NS_END

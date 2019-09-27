@@ -13,38 +13,34 @@ namespace __builtin__
 
   namespace details
   {
-    template <class T0>
-    template <typename Op>
-    typename minmax<true, T0>::result_type minmax<true, T0>::
-    operator()(Op const &op, T0 &&t)
+    template <typename Op, class T>
+    typename std::decay<T>::type::value_type minmax(Op const &op, T &&t)
     {
       return *std::max_element(t.begin(), t.end(), op);
     }
 
-    template <class T0>
-    template <typename Op>
-    typename minmax<false, T0>::result_type minmax<false, T0>::
-    operator()(Op const &, T0 const &t)
+    template <typename Op, class T, class F>
+    typename std::decay<T>::type::value_type minmax(Op const &op, T &&t,
+                                                    types::kwonly, F key)
     {
-      return t;
+      using value_type = decltype(*t.begin());
+      return *std::max_element(
+                 t.begin(), t.end(),
+                 [op, key](value_type const &self, value_type const &other) {
+                   return op(key(self), key(other));
+                 });
     }
 
-    template <class T0, class T1>
-    template <typename Op>
-    typename minmax<false, T0, T1>::result_type minmax<false, T0, T1>::
-    operator()(Op const &op, T0 const &t0, T1 const &t1)
+    template <class Op, class T0, class T1, class... Types>
+    typename std::enable_if<!std::is_same<T1, types::kwonly>::value,
+                            typename __combined<T0, T1, Types...>::type>::type
+    minmax(Op const &op, T0 const &t0, T1 const &t1, Types const &... ts)
     {
-      return op(t0, t1) ? t1 : t0;
-    }
-
-    template <class T0, class... Types>
-    template <typename Op>
-    typename minmax<false, T0, Types...>::result_type
-        minmax<false, T0, Types...>::
-        operator()(Op const &op, T0 const &t0, Types const &... values)
-    {
-      auto t1 = minmax<false, Types...>()(op, values...);
-      return op(t0, t1) ? t1 : t0;
+      using value_type = typename __combined<T0, T1, Types...>::type;
+      std::initializer_list<value_type> values = {
+          static_cast<value_type>(t0), static_cast<value_type>(t1),
+          static_cast<value_type>(ts)...};
+      return minmax(op, values);
     }
   }
 }

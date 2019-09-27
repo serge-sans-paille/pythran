@@ -412,6 +412,25 @@ def foo(a):
     return (a ** 2)"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
+    def test_patternmatching4(self):
+        init = """
+def foo(a):
+    return a ** .5"""
+        ref = """import numpy as __pythran_import_numpy
+def foo(a):
+    return __pythran_import_numpy.sqrt(a)"""
+        self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
+
+    def test_patternmatching5(self):
+        init = """
+def foo(a):
+    return a ** (1./3.)"""
+        ref = """import numpy as __pythran_import_numpy
+def foo(a):
+    return __pythran_import_numpy.cbrt(a)"""
+        self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding",
+                                   "pythran.optimizations.PatternTransform"])
+
     def test_inline_builtins_broadcasting0(self):
         init = """
 import numpy as np

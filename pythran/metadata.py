@@ -44,6 +44,10 @@ class StaticReturn(AST):
     """ Metadata to mark return with a constant value. """
 
 
+class Local(AST):
+    """ Metadata to mark function as non exported. """
+
+
 def add(node, data):
     if not hasattr(node, 'metadata'):
         node.metadata = Metadata()

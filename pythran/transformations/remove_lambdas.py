@@ -5,6 +5,8 @@ from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.conversion import mangle
 
+import pythran.metadata as metadata
+
 from copy import copy
 import gast as ast
 
@@ -43,6 +45,7 @@ class _LambdaRemover(ast.NodeTransformer):
             copy(node.args),
             [ast.Return(node.body)],
             [], None, None)
+        metadata.add(forged_fdef, metadata.Local())
         self.lambda_functions.append(forged_fdef)
         self.global_declarations[forged_name] = forged_fdef
         proxy_call = ast.Name(forged_name, ast.Load(), None, None)

@@ -16,7 +16,7 @@ class TestTyping(TestEnv):
         code = 'def module_bad_attribute(): import random as m; return m.real'
 
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
-            pythran.compile_pythrancode("dumbo", code)
+            pythran.compile_pythrancode("dumbo", code, pyonly=True)
 
     def test_list_of_set(self):
         code = '''

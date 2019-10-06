@@ -1,7 +1,8 @@
 """This module turns a python AST into an optimized, pythran compatible ast."""
 
 from pythran.analyses import ExtendedSyntaxCheck
-from pythran.optimizations import ComprehensionPatterns, ListCompToGenexp
+from pythran.optimizations import (ComprehensionPatterns, ListCompToGenexp,
+                                   RemoveDeadFunctions)
 from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      ExpandImportAll, FalsePolymorphism,
                                      NormalizeCompare, NormalizeException,
@@ -16,6 +17,7 @@ from pythran.transformations import (ExpandBuiltins, ExpandImports,
 def refine(pm, node, optimizations):
     """ Refine node in place until it matches pythran's expectations. """
     # Sanitize input
+    pm.apply(RemoveDeadFunctions, node)
     pm.apply(ExpandGlobals, node)
     pm.apply(ExpandImportAll, node)
     pm.apply(NormalizeTuples, node)
@@ -53,3 +55,12 @@ def refine(pm, node, optimizations):
         apply_optimisation = False
         for optimization in optimizations:
             apply_optimisation |= pm.apply(optimization, node)[0]
+
+
+def mark_unexported_functions(ir, exported_functions):
+    from pythran.metadata import add as MDadd, Local as MDLocal
+    for node in ir.body:
+        if hasattr(node, 'name'):
+            if node.name not in exported_functions:
+                MDadd(node, MDLocal())
+    return ir

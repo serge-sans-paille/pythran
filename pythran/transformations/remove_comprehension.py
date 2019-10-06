@@ -4,6 +4,8 @@ from pythran import metadata
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
 
+import pythran.metadata as metadata
+
 import gast as ast
 from functools import reduce
 
@@ -111,6 +113,7 @@ class RemoveComprehension(Transformation):
                              ast.arguments(sargs, [], None, [], [], None, []),
                              [init, body, result],
                              [], None, None)
+        metadata.add(fd, metadata.Local())
         self.ctx.module.body.append(fd)
         return ast.Call(
             ast.Name(name, ast.Load(), None, None),
@@ -151,6 +154,7 @@ class RemoveComprehension(Transformation):
         fd = ast.FunctionDef(name,
                              ast.arguments(sargs, [], None, [], [], None, []),
                              [body], [], None, None)
+        metadata.add(fd, metadata.Local())
         self.ctx.module.body.append(fd)
         return ast.Call(
             ast.Name(name, ast.Load(), None, None),

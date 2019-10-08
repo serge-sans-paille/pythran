@@ -5,6 +5,8 @@ from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.conversion import mangle
 
+import pythran.metadata as metadata
+
 import gast as ast
 
 
@@ -42,6 +44,8 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         node.args.args = ([ast.Name(iin, ast.Param(), None, None)
                            for iin in sorted(ii)] +
                           node.args.args)
+
+        metadata.add(node, metadata.Local())
 
         class Renamer(ast.NodeTransformer):
             def visit_Call(self, node):

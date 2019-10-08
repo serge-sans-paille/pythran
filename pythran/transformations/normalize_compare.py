@@ -4,6 +4,8 @@ from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
 from pythran.utils import path_to_attr
 
+import pythran.metadata as metadata
+
 import gast as ast
 
 
@@ -108,6 +110,7 @@ class NormalizeCompare(Transformation):
 
             forged_fdef = ast.FunctionDef(forged_name, args, body, [], None,
                                           None)
+            metadata.add(forged_fdef, metadata.Local())
             self.compare_functions.append(forged_fdef)
 
             return call

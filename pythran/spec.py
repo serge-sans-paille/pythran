@@ -97,6 +97,9 @@ class Spec(object):
             import logging
             logging.warn("No pythran specification, nothing will be exported")
 
+    def keys(self):
+        return list(self.functions.keys()) + list(self.capsules.keys())
+
     def __nonzero__(self):
         return bool(self.functions or self.capsules)
 

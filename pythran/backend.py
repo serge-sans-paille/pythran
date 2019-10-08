@@ -1278,8 +1278,9 @@ result_type;
         headers += [Include(os.path.join("pythonic", *map(cxxid, t)) + ".hpp")
                     for t in header_deps]
 
-        decls_n_defns = [self.visit(stmt) for stmt in node.body]
-        decls, defns = zip(*[s for s in decls_n_defns if s])
+        decls_n_defns = list(filter(None, (self.visit(stmt) for stmt in
+                                    node.body)))
+        decls, defns = zip(*decls_n_defns) if decls_n_defns else ([], [])
 
         nsbody = [s for ls in decls + defns for s in ls]
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)

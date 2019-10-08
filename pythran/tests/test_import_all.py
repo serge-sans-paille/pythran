@@ -31,7 +31,7 @@ class TestImportAll(TestEnv):
                 return collections.Counter()"""
 
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
-            pythran.compile_pythrancode("flamby", dedent(code))
+            pythran.compile_pythrancode("flamby", dedent(code), pyonly=True)
 
         self.assertIn("Module 'collections' not found.", str(ex.exception))
 
@@ -45,4 +45,4 @@ class TestImportAll(TestEnv):
                 return math"""
 
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
-            pythran.compile_pythrancode("flamby", dedent(code))
+            pythran.compile_pythrancode("flamby", dedent(code), pyonly=True)

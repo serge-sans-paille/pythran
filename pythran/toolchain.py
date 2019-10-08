@@ -9,7 +9,7 @@ from pythran.cxxgen import PythonModule, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.cxxgen import ReturnStatement
 from pythran.dist import PythranExtension, PythranBuildExt
-from pythran.middlend import refine
+from pythran.middlend import refine, mark_unexported_functions
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
 from pythran.types import tog
@@ -97,12 +97,17 @@ class HasArgument(ast.NodeVisitor):
         return []
 
 
-def front_middle_end(module_name, code, optimizations=None, module_dir=None):
+def front_middle_end(module_name, code, optimizations=None, module_dir=None,
+                     entry_points=None):
     """Front-end and middle-end compilation steps"""
+
     pm = PassManager(module_name, module_dir)
 
     # front end
     ir, docstrings = frontend.parse(pm, code)
+
+    if entry_points is not None:
+        ir = mark_unexported_functions(ir, entry_points)
 
     # middle-end
     if optimizations is None:
@@ -139,8 +144,14 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
 
     '''
 
+    if specs is None:
+        entry_points = None
+    else:
+        entry_points = set(specs.keys())
+
     pm, ir, docstrings = front_middle_end(module_name, code, optimizations,
-                                          module_dir)
+                                          module_dir,
+                                          entry_points=entry_points)
 
     # back-end
     content = pm.dump(Cxx, ir)

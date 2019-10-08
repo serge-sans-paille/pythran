@@ -54,7 +54,7 @@ First get the sources::
 
     $> git clone https://github.com/serge-sans-paille/pythran
 
-Install *cough* numpy manually::
+Install *cough* Numpy manually::
 
     $> pip install --user numpy
 
@@ -219,7 +219,7 @@ Constructed types are either tuples, introduced by parenthesis, like ``(int,
 
 .. note::
 
-    When using a 2D array, overlaods of the function involved are created to accept both C-style and Fortran-style arrays.
+    When using a 2D array, overloads of the function involved are created to accept both C-style and Fortran-style arrays.
     To avoid generating too many functions, one can force the memory layout using ``order(C)`` or ``order(F)`` after the
     array decalaration, as in ``int[:,:] order(C)``.
 
@@ -227,11 +227,27 @@ The same syntax can be used to export global variable (in read only mode)::
 
     #pythran export var_name
 
+
 In a similar manner to the Python import statement, it's possible to chain the export, as in::
 
     #pythran export var_name0, var_name1, function_name(argument_type0)
 
-If you want to specify multiple overloads, instead of listing them, you can use the ``or`` operator to list the alternatives, as in::
+Multiple overloads can be specified for the same Python function::
+
+    #pythran export function_name(argument_type0)
+    #pythran export function_name(argument_type1)
+
+In the case of function with default parameters, you can either omit the
+parameter, and in that case it uses the default one, or explicitly state it's
+argument type::
+
+    #pythran export function_name()
+    #pythran export function_name(argument_type0)
+    #pythran export function_name(argument_type0, argument_type1)
+    def function_name(a0=1, a1=True):
+       pass
+
+When specifying multiple overloads, instead of listing them, you can use the ``or`` operator to list the alternatives, as in::
 
     #pythran export function_name(type0 or type1, type2, type3 or type4)
 
@@ -561,7 +577,7 @@ This one contains internal configuration settings. Play with it at your own risk
 
 :``complex_hook``:
 
-    Set this to ``True`` for faster and still numpy-compliant complex
+    Set this to ``True`` for faster and still Numpy-compliant complex
     multiplications. Not very portable, but generally works on Linux.
 
 ``[typing]``

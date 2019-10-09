@@ -503,41 +503,32 @@ class PythonModule(object):
         for i, t in enumerate(ctypes):
             args_unboxing.append('from_python<{}>(args_obj[{}])'.format(t, i))
             args_checks.append('is_convertible<{}>(args_obj[{}])'.format(t, i))
-        if ctypes:
-            arg_decls = func.fdecl.arg_decls[:len(ctypes)]
-            keywords = ",".join('"{}"'.format(arg.name) for arg in arg_decls)
-            wrapper = dedent('''
-                static PyObject *
-                {wname}(PyObject *self, PyObject *args, PyObject *kw)
-                {{
-                    PyObject* args_obj[{size}+1];
-                    char const* keywords[] = {{{keywords}, nullptr}};
-                    if(! PyArg_ParseTupleAndKeywords(args, kw, "{fmt}",
-                                                     (char**)keywords, {objs}))
-                        return nullptr;
-                    if({checks})
-                        return to_python({name}({args}));
-                    else {{
-                        return nullptr;
-                    }}
-                }}''')
-        else:
-            keywords = ''
-            wrapper = dedent('''
-                static PyObject *
-                {wname}(PyObject *self, PyObject *args, PyObject *kw)
-                {{
+        arg_decls = func.fdecl.arg_decls[:len(ctypes)]
+        keywords = "".join('"{}", '.format(arg.name) for arg in arg_decls)
+        wrapper = dedent('''
+            static PyObject *
+            {wname}(PyObject *self, PyObject *args, PyObject *kw)
+            {{
+                PyObject* args_obj[{size}+1];
+                char const* keywords[] = {{{keywords} nullptr}};
+                if(! PyArg_ParseTupleAndKeywords(args, kw, "{fmt}",
+                                                 (char**)keywords {objs}))
+                    return nullptr;
+                if({checks})
                     return to_python({name}({args}));
-                }}''')
+                else {{
+                    return nullptr;
+                }}
+            }}''')
 
         self.wrappers.append(
             wrapper.format(name=func.fdecl.name,
                            size=len(ctypes),
                            fmt="O" * len(ctypes),
-                           objs=', '.join('&args_obj[%d]' % i
+                           objs=''.join(', &args_obj[%d]' % i
                                           for i in range(len(ctypes))),
                            args=', '.join(args_unboxing),
-                           checks=' && '.join(args_checks),
+                           checks=' && '.join(args_checks) or '1',
                            wname=wrapper_name,
                            keywords=keywords,
                            )

@@ -3683,6 +3683,7 @@ MODULES = {
         "cosh": ConstFunctionIntr(
             signature=_numpy_unary_op_float_signature
         ),
+        "cross": ConstFunctionIntr(),
         "ctypeslib": {
             "as_array": ConstFunctionIntr()
         },

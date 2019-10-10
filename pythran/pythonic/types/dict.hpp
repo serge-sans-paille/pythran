@@ -635,8 +635,12 @@ template <typename K, typename V>
 PyObject *to_python<types::dict<K, V>>::convert(types::dict<K, V> const &v)
 {
   PyObject *ret = PyDict_New();
-  for (auto kv = v.item_begin(); kv != v.item_end(); ++kv)
-    PyDict_SetItem(ret, ::to_python(kv->first), ::to_python(kv->second));
+  for (auto kv = v.item_begin(); kv != v.item_end(); ++kv) {
+    PyObject *kobj = ::to_python(kv->first), *vobj = ::to_python(kv->second);
+    PyDict_SetItem(ret, kobj, vobj);
+    Py_DECREF(kobj);
+    Py_DECREF(vobj);
+  }
   return ret;
 }
 

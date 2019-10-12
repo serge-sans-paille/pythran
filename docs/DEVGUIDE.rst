@@ -9,25 +9,6 @@ Disclaimer
 
 This document is a never ending work-in-progress draft. Please contribute!
 
-Editable Installation and Additional Packages
----------------------------------------------
-
-For development, we recommend you use `venv
-<https://docs.python.org/3/library/venv.html>`_ for virtual environments.
-`pyenv <https://github.com/pyenv/pyenv>`_ or `miniconda
-<https://docs.conda.io/en/latest/miniconda.html>`_ can also be useful. It's
-just better to setup a configuration for which you don't need to run ``sudo``
-to install packages!
-
-Additional packages may be needed to use pythran to its fullest: colored logs
-(``colorlog``), tests on several cores (``pytest-xdist``), doc generation
-(``sphinx``).
-
-You can install Pythran in “editable” mode with all the dev packages by running
-from the root directory:
-
-    $> python -m pip install -e .[dev]
-
 Configuration
 -------------
 

@@ -49,6 +49,7 @@ namespace numpy
     struct fix;
     struct floor_divide;
     struct fmod;
+    struct heaviside;
     struct hypot;
     struct isfinite;
     struct isinf;
@@ -158,6 +159,7 @@ namespace types
            std::is_same<O, numpy::functor::hypot>::value ||
            std::is_same<O, numpy::functor::fmod>::value)) &&
         // special functions not in the scope of xsimd
+        !std::is_same<O, numpy::functor::heaviside>::value &&
         !std::is_same<O, scipy::special::functor::hankel1>::value &&
         !std::is_same<O, scipy::special::functor::hankel2>::value &&
         !std::is_same<O, scipy::special::functor::jv>::value &&

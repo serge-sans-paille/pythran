@@ -3765,6 +3765,7 @@ MODULES = {
             BINARY_UFUNC,
             signature=_numpy_binary_op_bool_signature,
         ),
+        "heaviside": UFunc(BINARY_UFUNC),
         "hstack": ConstFunctionIntr(),
         "hypot": UFunc(BINARY_UFUNC),
         "identity": ConstFunctionIntr(),

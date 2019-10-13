@@ -175,6 +175,9 @@ setup(name='pythran',
                      'pythran-config = pythran.config:run']},
       setup_requires=["pytest-runner"],
       tests_require=['pytest', 'flake8'],
+      extras_require={
+          'doc': open('docs/requirements.txt').read().splitlines(),
+      },
       test_suite="pythran.tests.test_cases",
       cmdclass={'build_py': BuildWithThirdParty,
                 'develop': DevelopWithThirdParty})

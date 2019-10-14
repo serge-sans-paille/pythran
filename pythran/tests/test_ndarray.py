@@ -1107,38 +1107,34 @@ def assign_ndarray(t):
                               (3, 5),
                               transposed_array=[Tuple[int, int]])
 
-    def test_assign_transposed(self):
-        params = [numpy.arange(30.).reshape(5,6), 3, 1, -1]
+    def assign_transposed(self, last):
+        params = [numpy.arange(30.).reshape(5,6), 3, 1, 1]
         code = '''
-            def helper(signal, N, A, B):
+            def helper(signal, N, A):
+                return (signal[N:N-A:-1],
+                        signal[N:N+A],
+                        signal[N-A:N+A],)
 
-                if B == -1:
-                    xx=signal[N:N-A:-1]
-                elif B == 1:
-                    xx=signal[N:N+A]
-                else:
-                    xx=signal[N-A:N+A]
-                return xx
-            def assign_transposed(signal, N, A, B=0):
-                return helper(signal, N, A, B), helper(signal[:,:], N, A, B), helper(signal.T, N, A, B)'''
-        self.run_test(code, *params, assign_transposed=[NDArray[float,:,:], int, int, int])
-        params[-1] = 0
-        self.run_test(code, *params, assign_transposed=[NDArray[float,:,:], int, int, int])
-        params[-1] = 1
+            def assign_transposed(signal, N, A):
+                return (helper(signal, N, A),
+                        helper(signal[:,:], N, A),
+                        helper(signal.T, N, A),)
+            '''
         self.run_test(code, *params, assign_transposed=[NDArray[float,:,:], int, int, int])
 
     def test_hanning(self):
         code = '''
 import numpy as np
-def hanning(M):
+def helper(M):
     if M < 1:
         return np.array([])
     if M == 1:
         return np.ones(1, float)
     n = np.arange(0,float(M))
-    return 0.5 - 0.5*np.cos(2.0*np.pi*n/(M-1))'''
-        self.run_test(code, 4, hanning=[int])
-        self.run_test(code, 0, hanning=[int])
+    return 0.5 - 0.5*np.cos(2.0*np.pi*n/(M-1))
+def hanning(M):
+    return helper(M * 0), helper(M * 1), helper(M * 4)'''
+        self.run_test(code, 1, hanning=[int])
 
     def test_ones_on_updated_shape(self):
         code = '''

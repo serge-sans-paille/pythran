@@ -167,6 +167,7 @@ def make_extension(python, **extra):
         cxx = compiler()
     if cxx is not None:
         extension['cxx'] = cxx
+        extension['cc'] = cxx
 
     for k, w in extra.items():
         extension[k].extend(w)

@@ -372,7 +372,6 @@ def combiner_on_empty_list():
                 return StridedSlice(x,[0,2,3], [5,0,7], [1,1,1])'''
         self.run_test(code, numpy.arange(1000).reshape(10,10,10), static_list3=[NDArray[int, :,:,:]])
 
-    @skipIf(sys.platform == 'win32', "Fails on AppVeyor")
     def test_static_list4(self):
         code = '''
             import numpy as np

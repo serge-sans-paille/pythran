@@ -8,8 +8,8 @@ except ImportError:
     float128 = float64
     complex256 = complex128
 
-from numpy import int8, int16, int32, int64, uint8, uint16, uint32, uint64, intc, uintc
-from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64, bool_
+from numpy import int32, int64, uint32, uint64, number, bool_
+from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64
 from textwrap import dedent
 from threading import Thread
 import copy
@@ -122,10 +122,8 @@ class TestEnv(unittest.TestCase):
             self.assertIsInstance(res, (bool, bool_))
         elif sys.version_info[0] == 2 and isinstance(ref, long):
             self.assertIsInstance(res, (int, int64, long))
-        elif isinstance(ref, intc):
-            self.assertIsInstance(res, (int, intc, int32, int64))
-        elif isinstance(ref, uintc):
-            self.assertIsInstance(res, (uintc, uint32, uint64))
+        elif isinstance(res, int):
+            self.assertIsInstance(res, (int, intn))
         else:
             self.assertIsInstance(res, type(ref))
 

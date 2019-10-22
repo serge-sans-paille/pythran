@@ -621,3 +621,29 @@ class TestIsInstance(TestEnv):
                 return x * conj(x)'''
         self.run_test(code, np.ones(5, dtype=complex) * 2j,
                       isinstance_complex1=[NDArray[complex,:]])
+
+    def test_inner_loop_break(self):
+        code = '''
+import numpy as np
+from math import sqrt
+
+def hex_area (spot_radius):
+    return sqrt(3)/2 * 3 * spot_radius**2
+
+def inner_loop_break(center, pts, radius, spot_radius, target_area=None):
+    spot_area = hex_area (spot_radius)
+    pts_within_radius = pts[np.abs (pts - center) <= radius]
+    if target_area is None:
+        return pts_within_radius
+    else:
+        area = 0
+        pts_list = []
+        for pt in pts_within_radius:
+            area += spot_area
+            if area < target_area:
+                pts_list.append (pt)
+            else:
+                break
+        return pts_list
+            '''
+        self.run_test(code, 1j, np.array([1j]), 1., 1., 1., inner_loop_break=[complex, NDArray[complex, :], float, float, float])

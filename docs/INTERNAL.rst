@@ -253,7 +253,6 @@ about aliased values::
     [('a', 1), ('a_', 1), ('array', 1), ('b', 1)]
 
 
-
 Doc Strings
 -----------
 
@@ -269,6 +268,7 @@ Pythran preserves docstrings::
     <BLANKLINE>
         - foo()
     $> rm -f docstrings.*
+
 
 Integration with Scipy LowLevelCallable
 ---------------------------------------
@@ -289,3 +289,9 @@ When using a pointer type as argument, one can rely on ``numpy.ctypeslib.as_arra
     33
     $> rm -f llc2.*
 
+
+PyPy3 support
+-------------
+
+Pythran has been said to work well with PyPy3.6 v7.2.0. However, this setup is
+not yet tested on Travis so compilation failure may happen. Report them!

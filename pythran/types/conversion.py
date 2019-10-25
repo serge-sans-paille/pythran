@@ -1,11 +1,15 @@
 """ Module to convert Python type to Pythonic type. """
 
-from numpy import int8, int16, int32, int64, intp
-from numpy import uint8, uint16, uint32, uint64, uintp
+from numpy import int8, int16, int32, int64, intp, intc
+from numpy import uint8, uint16, uint32, uint64, uintp, uintc
 from numpy import float64, float32, complex64, complex128
+import numpy
 from pythran.typing import List, Dict, Set, Tuple, NDArray, Pointer, Fun
 
 PYTYPE_TO_CTYPE_TABLE = {
+    numpy.int: 'npy_int',
+    numpy.uint: 'npy_uint',
+    #
     complex: 'std::complex<double>',
     bool: 'bool',
     int: 'long',
@@ -13,20 +17,22 @@ PYTYPE_TO_CTYPE_TABLE = {
     str: 'pythonic::types::str',
     slice: 'pythonic::types::slice',
     type(None): 'pythonic::types::none_type',
-    int8: 'npy_int8',
-    int16: 'npy_int16',
-    int32: 'npy_int32',
-    int64: 'npy_int64',
+    intc: 'int',
     intp: 'npy_intp',
-    uint8: 'npy_uint8',
-    uint16: 'npy_uint16',
-    uint32: 'npy_uint32',
-    uint64: 'npy_uint64',
+    int64: 'npy_int64',
+    int32: 'npy_int32',
+    int16: 'npy_int16',
+    int8: 'npy_int8',
+    uintc: 'unsigned',
     uintp: 'npy_uintp',
-    float32: 'float',
+    uint64: 'npy_uint64',
+    uint32: 'npy_uint32',
+    uint16: 'npy_uint16',
+    uint8: 'npy_uint8',
     float64: 'double',
-    complex64: 'std::complex<float>',
+    float32: 'float',
     complex128: 'std::complex<double>',
+    complex64: 'std::complex<float>',
 }
 
 try:

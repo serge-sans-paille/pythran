@@ -9,6 +9,7 @@ from collections import defaultdict, Iterable
 import os.path
 import os
 import sys
+import types
 
 from distutils.command.build_ext import build_ext as LegacyBuildExt
 
@@ -67,6 +68,23 @@ class PythranBuildExt(LegacyBuildExt, object):
                 if hasattr(self.compiler, comp):
                     set_value(self.compiler, comp, ext.cxx)
 
+        if getattr(ext, 'cc', None) is not None:
+            try:
+                import distutils._msvccompiler as msvc
+                # install hook
+                find_exe = msvc._find_exe
+                def _find_exe(exe, *args, **kwargs):
+                    if exe == 'cl.exe':
+                        exe = ext.cc
+                    out = find_exe(exe, *args, **kwargs)
+                    # remove hook
+                    msvc._find_exe = find_exe
+                    return out
+                msvc._find_exe = _find_exe
+            except ImportError:
+                pass
+
+
         # In general, distutils uses -Wstrict-prototypes, but this option
         # is not valid for C++ code, only for C.  Remove it if it's there
         # to avoid a spurious warning on every compilation.
@@ -109,6 +127,7 @@ class PythranExtension(Extension):
     def __init__(self, name, sources, *args, **kwargs):
         cfg_ext = cfg.make_extension(python=True, **kwargs)
         self.cxx = cfg_ext.pop('cxx', None)
+        self.cc = cfg_ext.pop('cc', None)
         self._sources = sources
         Extension.__init__(self, name, sources, *args, **cfg_ext)
         self.__dict__.pop("sources", None)

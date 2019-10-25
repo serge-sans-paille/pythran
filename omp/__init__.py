@@ -1,7 +1,7 @@
 """OpenMP wrapper using a libgomp dynamically loaded library."""
 
 from ctypes.util import find_library
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 from numpy.distutils.misc_util import msvc_runtime_major
 import ctypes
 import os
@@ -55,7 +55,7 @@ class OpenMP(object):
                 path = os.path.dirname(check_output(cmd).strip())
                 if path:
                     paths.append(path)
-            except OSError:
+            except (OSError, CalledProcessError):
                 pass
 
         # Try to load find libgomp shared library using loader search dirs

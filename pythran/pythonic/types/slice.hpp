@@ -498,7 +498,8 @@ types::slice from_python<types::slice>::convert(PyObject *obj)
 {
   Py_ssize_t start, stop, step;
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION > 6) || \
-    (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && PY_MICRO_VERSION >= 1)
+    (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 &&                         \
+     PY_MICRO_VERSION >= 1 && !defined(PYPY_VERSION))
   PySlice_Unpack(obj, &start, &stop, &step);
 #elif PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 1
   PySlice_GetIndices((PyObject *)obj, PY_SSIZE_T_MAX, &start, &stop, &step);

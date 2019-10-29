@@ -14,7 +14,7 @@ interface, but (hopefully) faster.
 It is meant to efficiently compile **scientific programs**, and takes advantage
 of multi-cores and SIMD instruction units.
 
-Pythran supports Python **2.7** and also has a decent Python **3** support.
+Pythran supports Python **3** and Python **2.7**.
 
 Installation
 ------------
@@ -74,12 +74,26 @@ Using any working `AUR helper <https://wiki.archlinux.org/index.php/AUR_helpers>
 
     $> aurman -S python-pythran
 
+
+Fedora
+======
+
+Using ``dnf``::
+
+    $> dnf install pythran
+
 Windows
 =======
 
-Windows support is on going and only targets Python 3.5+ with Visual Studio 2017.
+Windows support is on going and only targets Python 3.5+ with either Visual Studio 2017 or, better, clang-cl::
 
-    % pip install pythran
+    $> pip install pythran
+
+If you plan to use clang-cl, also add the following to ``%HOMEPATH%/.pythranrc``::
+
+    [compiler]
+    CC=clang-cl.exe
+    CXX=clang-cl.exe
 
 
 Other Platform

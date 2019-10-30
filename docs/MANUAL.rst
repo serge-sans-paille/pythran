@@ -39,11 +39,10 @@ Prerequisite
 
 Pythran depends on the following packages:
 
-- ply: http://www.dabeaz.com/ply/
-- networkx: https://networkx.github.io/
-- numpy: http://www.numpy.org/
+.. include:: ../requirements.txt
+    :literal:
 
-You also need a modern C++11 enabled compiler (e.g. g++>=4.9, clang>=3.5), that supports
+You also need a modern C++11 enabled compiler (e.g. g++>=5, clang>=3.5), that supports
 atomic operations (N3290) or variadic template (N2555).
 
 

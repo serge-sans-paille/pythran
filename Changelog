@@ -1,3 +1,42 @@
+2019-10-30 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Support Python up to 3.8 (included)
+
+	* clang-cl on Windows support
+
+	* PyPy3.6 support
+
+	* Fix bug involving is None and loops
+
+	* Support numpy.heaviside, numpy.cross	
+
+	* Significant improvement of numpy.random.* support
+
+	* Fix memory leak when converting a dict to python
+
+	* New optimization: dead function elimination
+
+	* Support for kwonly arguments
+
+	* More pattern transformations: numpy.cbrt, numpy.sqrt and variant of abssqr
+
+	* Support dtype argument for numpy.linspace
+
+	* Improve constant folding & forward substitution
+
+	* Extend range analysis to tuples
+
+	* Basic support for scipy.special.spherical_jn and scipy.special.spherical_yn
+
+	* Support isinstance builtin
+
+	* Support the type() builtin
+
+	* New command line parameter: --config= as an alternative to .pythranrc
+
+	* Various fixes and doc upgrade I'm too lazy to list here ;-)
+
+
 2019-08-19 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Warn users about deprecation of python2

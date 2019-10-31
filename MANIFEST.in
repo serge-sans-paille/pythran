@@ -1,4 +1,4 @@
 include LICENSE
 include requirements.txt
-include doc/*
+include docs/*
 recursive-include third_party *

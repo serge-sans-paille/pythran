@@ -376,10 +376,8 @@ def foo(a):
         self.check_ast(init, ref, ["pythran.optimizations.DeadCodeElimination"])
 
     def test_deadcodeelimination4(self):
-        init = 'def noeffect(i): a=[];b=[a]; __builtin__.list.append(b[0],i); return None'
-        ref = 'def noeffect(i):\n    pass\n    pass\n    pass\n    return None'
-        if sys.version_info.major == 2:
-            ref = ref.replace('None', '__builtin__.None')
+        init = 'def noeffect(i): a=[];b=[a]; __builtin__.list.append(b[0],i); return 1'
+        ref = 'def noeffect(i):\n    pass\n    pass\n    pass\n    return 1'
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution",
                                    "pythran.optimizations.ConstantFolding",
                                    "pythran.optimizations.DeadCodeElimination"])

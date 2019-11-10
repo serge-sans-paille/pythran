@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_VARIANT_FUNCTOR_HPP
 
 #include "pythonic/include/utils/meta.hpp"
+#include "pythonic/include/types/combined.hpp"
 
 #include <utility>
 
@@ -109,12 +110,14 @@ namespace types
       void assign(char mem[], OtherType const &);
 
       template <class... Args>
-      auto operator()(Args &&... args)
-          -> decltype(std::declval<Type>()(args...));
+      auto operator()(Args &&... args) -> typename __combined<
+          decltype(std::declval<Type>()(args...)),
+          decltype(std::declval<Types>()(args...))...>::type;
 
       template <class... Args>
-      auto operator()(Args &&... args) const
-          -> decltype(std::declval<Type>()(args...));
+      auto operator()(Args &&... args) const -> typename __combined<
+          decltype(std::declval<Type>()(args...)),
+          decltype(std::declval<Types>()(args...))...>::type;
     };
   }
 

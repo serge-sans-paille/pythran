@@ -177,6 +177,16 @@ def functional_variant_assign1(n):
     return f("re")'''
         self.run_test(code, 1, functional_variant_assign1=[int])
 
+    def test_functional_variant_assign2(self):
+        code='''
+def functional_variant_assign2(n):
+    if n > 3:
+        f = lambda x: (1, x * 1.j)
+    else:
+        f = lambda x: (x * 1.j, 1)
+    return sum(f(3))'''
+        self.run_test(code, 1, functional_variant_assign2=[int])
+
     def test_functional_variant_container0(self):
         code='''
 import math

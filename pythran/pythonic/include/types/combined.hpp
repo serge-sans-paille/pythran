@@ -2,7 +2,13 @@
 #define PYTHONIC_INCLUDE_TYPES_COMBINED_HPP
 
 #include "pythonic/include/types/traits.hpp"
-#include "pythonic/include/types/variant_functor.hpp"
+PYTHONIC_NS_BEGIN
+namespace types
+{
+  template <class... Types>
+  struct variant_functor;
+}
+PYTHONIC_NS_END
 
 /* type inference stuff
 */

@@ -442,7 +442,7 @@ class TypeDependencies(ModuleAnalysis):
             self.naming[node.id] = deps
             return deps
         else:
-            raise PythranInternalError("Variable '{}' use before assignment"
+            raise PythranInternalError("Variable '{}' used before assignment"
                                        "".format(node.id))
 
     def visit_List(self, node):

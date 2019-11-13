@@ -163,11 +163,13 @@ def make_extension(python, **extra):
 
     extra.pop('language', None)  # forced to c++ anyway
     cxx = extra.pop('cxx', None)
+    cc = extra.pop('cc', None)
+
     if cxx is None:
         cxx = compiler()
     if cxx is not None:
         extension['cxx'] = cxx
-        extension['cc'] = cxx
+        extension['cc'] = cc or cxx
 
     for k, w in extra.items():
         extension[k].extend(w)

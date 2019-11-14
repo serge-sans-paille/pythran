@@ -1,4 +1,4 @@
-﻿Pythran
+Pythran
 #######
 
 http://pythran.readthedocs.io

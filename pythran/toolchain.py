@@ -143,11 +143,10 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
     a compile error (e.g. due to bad typing)
 
     '''
-
-    if specs is None:
-        entry_points = None
-    else:
+    if specs:
         entry_points = set(specs.keys())
+    else:
+        entry_points = None
 
     pm, ir, docstrings = front_middle_end(module_name, code, optimizations,
                                           module_dir,

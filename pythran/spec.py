@@ -100,8 +100,10 @@ class Spec(object):
     def keys(self):
         return list(self.functions.keys()) + list(self.capsules.keys())
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.functions or self.capsules)
+
+    __nonzero__ = __bool__
 
     def to_docstrings(self, docstrings):
         for func_name, signatures in self.functions.items():

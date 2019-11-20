@@ -251,13 +251,14 @@ class SpecParser(object):
                      | crap opt_all_craps'''
 
     def p_crap(self, p):
-        'crap : '
+        pass
+
+    p_crap.__doc__ = 'crap : ' + '\n| '.join(crap)
 
     def p_some_crap(self, p):
-        'some_crap : '
+        pass
 
-    p_crap.__doc__ += '\n| '.join(crap)
-    p_some_crap.__doc__ += '\n| '.join(some_crap)
+    p_some_crap.__doc__ = 'some_crap : ' + '\n| '.join(some_crap)
 
     def p_dtype(self, p):
         'dtype : '

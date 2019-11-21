@@ -115,12 +115,18 @@ namespace __builtin__
     DEFINE_FUNCTOR(pythonic::__builtin__::pythran, is_none);
   }
 }
+
+#ifdef ENABLE_PYTHON_MODULE
+
 template <>
 struct to_python<types::true_type> : to_python<bool> {
 };
 template <>
 struct to_python<types::false_type> : to_python<bool> {
 };
+
+#endif
+
 PYTHONIC_NS_END
 
 #endif

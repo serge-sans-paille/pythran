@@ -28,7 +28,7 @@ class FalsePolymorphism(Transformation):
     def visit_FunctionDef(self, node):
 
         # reset available identifier names
-        # removing local identifiers from the list so that first occurence can
+        # removing local identifiers from the list so that first occurrence can
         # actually use the slot
         identifiers = self.gather(Identifiers, node)
         for def_ in self.def_use_chains.locals[node]:
@@ -66,10 +66,10 @@ class FalsePolymorphism(Transformation):
             name = local_identifier
             while name in identifiers:
                 name += "_"
+            identifiers.add(name)
 
             # don't rename first candidate
             if name == local_identifier:
-                identifiers.add(name)
                 continue
 
             # actual renaming of each node in the bag

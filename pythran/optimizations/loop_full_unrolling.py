@@ -73,19 +73,26 @@ class LoopFullUnrolling(Transformation):
         # do not unroll too much to prevent code growth
         node_count = self.gather(NodeCount, node)
 
-        def unroll(elt):
-            return ([ast.Assign([deepcopy(node.target)], elt)] +
-                    deepcopy(node.body))
+        def unroll(elt, body):
+            return [ast.Assign([deepcopy(node.target)], elt)] + body
+
+        def dc(body, i, n):
+            if i == n - 1:
+                return body
+            else:
+                return deepcopy(body)
 
         def getrange(n):
             return getattr(getattr(n, 'func', None), 'attr', None)
 
         if isinstance(node.iter, (ast.Tuple, ast.List)):
-            total_count = node_count * len(node.iter.elts)
+            elts_count = len(node.iter.elts)
+            total_count = node_count * elts_count
             issmall = total_count < LoopFullUnrolling.MAX_NODE_COUNT
             if issmall:
                 self.update = True
-                return sum([unroll(elt) for elt in node.iter.elts], [])
+                return sum([unroll(elt, dc(node.body, i, elts_count))
+                            for i, elt in enumerate(node.iter.elts)], [])
         code = compile(ast.gast_to_ast(ast.Expression(node.iter)),
                        '<loop unrolling>', 'eval')
         try:
@@ -94,13 +101,16 @@ class LoopFullUnrolling(Transformation):
         except Exception:
             return node
 
-        total_count = node_count * len(values)
+        values_count = len(values)
+        total_count = node_count * values_count
         issmall = total_count < LoopFullUnrolling.MAX_NODE_COUNT
         if issmall:
             try:
-                new_node = sum([unroll(to_ast(elt)) for elt in values], [])
+                new_node = sum([unroll(to_ast(elt),
+                                       dc(node.body, i, values_count))
+                                for i, elt in enumerate(values)], [])
                 self.update = True
                 return new_node
-            except Exception:
+            except Exception as e:
                 return node
         return node

@@ -14,8 +14,12 @@ namespace __builtin__
     struct complex {
       using callable = void;
       using type = std::complex<double>;
-      // TODO: do ! handle string as first argument
+      // TODO: doesn't handle string as first argument
       type operator()(double v0 = 0, double v1 = 0) const;
+      friend std::ostream &operator<<(std::ostream &os, complex)
+      {
+        return os << "complex";
+      }
     };
   }
 }

@@ -18,6 +18,11 @@ namespace __builtin__
       type operator()(T &&t) const;
 
       type operator()() const;
+
+      friend std::ostream &operator<<(std::ostream &os, float_)
+      {
+        return os << "float";
+      }
     };
   }
 }

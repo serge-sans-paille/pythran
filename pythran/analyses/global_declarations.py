@@ -40,5 +40,5 @@ class GlobalDeclarations(ModuleAnalysis):
         """ Import module define a new variable name. """
         duc = SilentDefUseChains()
         duc.visit(node)
-        for d in duc.locals[node]:
-            self.result[d.name()] = d.node
+        self.result = {d.name(): d.node
+                       for d in duc.locals[node]}

@@ -117,11 +117,11 @@ class Analysis(ContextManager, ast.NodeVisitor):
 
     def run(self, node):
         key = node, type(self)
-        if key not in self.passmanager._cache:
+        if key in self.passmanager._cache:
+            self.result = self.passmanager._cache[key]
+        else:
             super(Analysis, self).run(node)
             self.passmanager._cache[key] = self.result
-        else:
-            self.result = self.passmanager._cache[key]
         return self.result
 
     def display(self, data):
@@ -184,6 +184,10 @@ class Transformation(ContextManager, ast.NodeTransformer):
     def run(self, node):
         """ Apply transformation and dependencies and fix new node location."""
         n = super(Transformation, self).run(node)
+        # the transformation updated the AST, so analyse may need to be rerun
+        # we could use a finer-grain caching system, and provide a way to flag
+        # some analyses as `unmodified' by the transformation, as done in LLVM
+        # (and PIPS ;-)
         if self.update:
             ast.fix_missing_locations(n)
             self.passmanager._cache.clear()
@@ -228,12 +232,4 @@ class PassManager(object):
         assert issubclass(transformation, (Transformation, Analysis))
         a = transformation()
         a.attach(self)
-        res = a.apply(node)
-
-        # the transformation updated the AST, so analyse may need to be rerun
-        # we could use a finer-grain caching system, and provide a way to flag
-        # some analyses as `unmodified' by the transformation, as done in LLVM
-        # (and PIPS ;-)
-        if a.update:
-            self._cache.clear()
-        return res
+        return a.apply(node)

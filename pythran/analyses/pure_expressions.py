@@ -69,8 +69,5 @@ class PureExpressions(ModuleAnalysis):
 
     def prepare(self, node):
         super(PureExpressions, self).prepare(node)
-        no_arg_effect = set()
-        for func, ae in self.argument_effects.items():
-            if not any(ae):
-                no_arg_effect.add(func)
-        self.result = no_arg_effect.difference(self.global_effects)
+        self.result = {func for func, ae in self.argument_effects.items()
+                       if func not in self.global_effects and not any(ae)}

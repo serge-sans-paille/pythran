@@ -355,7 +355,6 @@ def foo(a):
         b = 2
     return b"""
         ref = """def foo(a):
-    pass
     return 2"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution", "pythran.optimizations.DeadCodeElimination"])
 
@@ -377,7 +376,7 @@ def foo(a):
 
     def test_deadcodeelimination4(self):
         init = 'def noeffect(i): a=[];b=[a]; __builtin__.list.append(b[0],i); return 1'
-        ref = 'def noeffect(i):\n    pass\n    pass\n    pass\n    return 1'
+        ref = 'def noeffect(i):\n    return 1'
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution",
                                    "pythran.optimizations.ConstantFolding",
                                    "pythran.optimizations.DeadCodeElimination"])

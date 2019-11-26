@@ -1,6 +1,6 @@
 """ DeadCodeElimination remove useless code. """
 
-from pythran.analyses import PureExpressions, DefUseChains
+from pythran.analyses import PureExpressions, DefUseChains, Ancestors
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
@@ -57,7 +57,8 @@ class DeadCodeElimination(Transformation):
     """
     def __init__(self):
         super(DeadCodeElimination, self).__init__(PureExpressions,
-                                                  DefUseChains)
+                                                  DefUseChains,
+                                                  Ancestors)
         self.blacklist = set()
 
     def used_target(self, node):
@@ -73,6 +74,16 @@ class DeadCodeElimination(Transformation):
         codh.visit(node)
         self.blacklist = codh.blacklist
         return self.generic_visit(node)
+
+    def visit_Pass(self, node):
+        ancestor = self.ancestors[node][-1]
+        if getattr(ancestor, 'body', ()) == [node]:
+            return node
+        if getattr(ancestor, 'orelse', ()) == [node]:
+            return node
+        if metadata.get(node, OMPDirective):
+            return node
+        return None
 
     def visit_Assign(self, node):
         targets = [target for target in node.targets

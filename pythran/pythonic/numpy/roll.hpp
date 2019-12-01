@@ -27,7 +27,7 @@ namespace numpy
   {
     template <class To, class From, size_t N>
     To _roll(To to, From from, long, long, types::array<long, N> const &,
-             utils::int_<0>)
+             utils::int_<N>)
     {
       *to = *from;
       return to + 1;
@@ -37,19 +37,21 @@ namespace numpy
     To _roll(To to, From from, long shift, long axis,
              types::array<long, N> const &shape, utils::int_<M>)
     {
-      long n = shape[N - M];
-      long offset = std::accumulate(shape.begin() + N - M + 1, shape.end(), 1L,
+      long dim = shape[M];
+      long offset = std::accumulate(shape.begin() + M + 1, shape.end(), 1L,
                                     std::multiplies<long>());
-      if (axis == N - M) {
-        for (long i = 0; i < shift; ++i)
-          to = _roll(to, from + (n - shift + i) * offset, shift, axis, shape,
-                     utils::int_<M - 1>());
-        for (long i = shift; i < n; ++i)
-          to = _roll(to, from + (i - shift) * offset, shift, axis, shape,
-                     utils::int_<M - 1>());
-      } else
-        for (From end = from + n * offset; from != end; from += offset)
-          to = _roll(to, from, shift, axis, shape, utils::int_<M - 1>());
+      if (axis == M) {
+        const From split = from + (dim - shift) * offset;
+        for (From iter = split, end = from + dim * offset; iter != end;
+             iter += offset)
+          to = _roll(to, iter, shift, axis, shape, utils::int_<M + 1>());
+        for (From iter = from, end = split; iter != end; iter += offset)
+          to = _roll(to, iter, shift, axis, shape, utils::int_<M + 1>());
+      } else {
+        for (From iter = from, end = from + dim * offset; iter != end;
+             iter += offset)
+          to = _roll(to, iter, shift, axis, shape, utils::int_<M + 1>());
+      }
       return to;
     }
   }
@@ -63,7 +65,7 @@ namespace numpy
       shift += expr_shape[axis];
     types::ndarray<T, pS> out(expr.shape(), __builtin__::None);
     _roll(out.fbegin(), expr.fbegin(), shift, axis, expr_shape,
-          utils::int_<std::tuple_size<pS>::value>());
+          utils::int_<0>());
     return out;
   }
 

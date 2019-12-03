@@ -5,6 +5,7 @@ from pythran.analyses import OptimizableComprehension
 from pythran.passmanager import Transformation
 from pythran.transformations.normalize_tuples import ConvertToTuple
 from pythran.conversion import mangle
+from pythran.utils import attr_to_path, path_to_attr
 
 import gast as ast
 import sys
@@ -21,30 +22,22 @@ ASMODULE = mangle(MODULE)
 
 
 class ComprehensionPatterns(Transformation):
-    if sys.version_info.major == 3:
-        '''
-        Transforms list comprehension into intrinsics.
-        >>> import gast as ast
-        >>> from pythran import passmanager, backend
-        >>> node = ast.parse("def foo(y) : return (x for x in y)")
-        >>> pm = passmanager.PassManager("test")
-        >>> _, node = pm.apply(ComprehensionPatterns, node)
-        >>> print(pm.dump(backend.Python, node))
-        def foo(y):
-            return __builtin__.map((lambda x: x), y)
-        '''
-    else:
-        '''
-        Transforms list comprehension into intrinsics.
-        >>> import gast as ast
-        >>> from pythran import passmanager, backend
-        >>> node = ast.parse("def foo(y) : return [x for x in y]")
-        >>> pm = passmanager.PassManager("test")
-        >>> _, node = pm.apply(ComprehensionPatterns, node)
-        >>> print(pm.dump(backend.Python, node))
-        def foo(y):
-            return itertools.map((lambda x: x), y)
-        '''
+    '''
+    Transforms list comprehension into intrinsics.
+    >>> import gast as ast
+    >>> from pythran import passmanager, backend
+    >>> node = ast.parse("def foo(y) : return (x for x in y)")
+    >>> pm = passmanager.PassManager("test")
+    >>> _, node = pm.apply(ComprehensionPatterns, node)
+    >>> 'map' in pm.dump(backend.Python, node)
+    True
+
+    >>> node = ast.parse("def foo(y) : return [0 for _ in __builtin__.range(y)]")
+    >>> _, node = pm.apply(ComprehensionPatterns, node)
+    >>> print(pm.dump(backend.Python, node))
+    def foo(y):
+        return ([0] * __builtin__.len(__builtin__.range(y)))
+    '''
 
     def __init__(self):
         Transformation.__init__(self, OptimizableComprehension)
@@ -128,6 +121,23 @@ class ComprehensionPatterns(Transformation):
                                            'list', ast.Load()),
                              [r], [])
             return r
+
+        if isinstance(node.elt, ast.Constant) and len(node.generators) == 1:
+            gen = node.generators[0]
+            if not gen.ifs and isinstance(gen.iter, ast.Call):
+                try:
+                    path = attr_to_path(gen.iter.func)[1]
+                    range_path = 'pythonic', '__builtin__', 'functor', 'range'
+                    if path == range_path and len(gen.iter.args) == 1:
+                        self.update = True
+                        return ast.BinOp(
+                            ast.List([node.elt], ast.Load()),
+                            ast.Mult(),
+                            ast.Call(path_to_attr(('__builtin__', 'len')),
+                                     [gen.iter],
+                                     []))
+                except TypeError:
+                    pass
 
         return self.visitComp(node, makeattr)
 

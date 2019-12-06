@@ -208,7 +208,7 @@ namespace types
     list(InputIterator start, InputIterator stop);
     list(empty_list const &);
     list(size_type sz);
-    list(T const &value, single_value);
+    list(T const &value, single_value, size_type sz = 1);
     list(std::initializer_list<T> l);
     list(list<T> &&other);
     list(list<T> const &other);

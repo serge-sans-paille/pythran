@@ -53,6 +53,30 @@ class LenSetPattern(Pattern):
             args=[Placeholder(0)], keywords=[])
 
 
+class LenRangePattern(Pattern):
+    # __builtin__.len(__builtin__.range(X)) => max(0, X)
+    pattern = ast.Call(func=ast.Attribute(value=ast.Name('__builtin__',
+                                                         ast.Load(),
+                                                         None, None),
+                                          attr="len", ctx=ast.Load()),
+                       args=[ast.Call(
+                           func=ast.Attribute(
+                               value=ast.Name('__builtin__', ast.Load(),
+                                              None, None),
+                               attr="range", ctx=ast.Load()),
+                           args=[Placeholder(0)],
+                           keywords=[])],
+                       keywords=[])
+
+    @staticmethod
+    def sub():
+        return ast.Call(
+            func=ast.Attribute(value=ast.Name('__builtin__', ast.Load(),
+                                                   None, None),
+                                    attr="max", ctx=ast.Load()),
+            args=[ast.Constant(0, None), Placeholder(0)], keywords=[])
+
+
 class TupleListPattern(Pattern):
     # __builtin__.tuple(__builtin__.list(X)) => __builtin__.tuple(X)
 

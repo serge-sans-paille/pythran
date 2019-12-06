@@ -223,10 +223,9 @@ namespace types
   {
   }
   template <class T>
-  list<T>::list(T const &value, single_value)
-      : data(1)
+  list<T>::list(T const &value, single_value, size_type sz)
+      : data(sz, value)
   {
-    (*data)[0] = value;
   }
   template <class T>
   list<T>::list(std::initializer_list<T> l)
@@ -580,11 +579,15 @@ namespace types
   template <class T>
   list<T> list<T>::operator*(long n) const
   {
-    list<T> r(data->size() * n);
-    auto start = r.begin();
-    for (long i = 0; i < n; i++, start += data->size())
-      std::copy(this->begin(), this->end(), start);
-    return r;
+    if (size() == 1) {
+      return list<T>(fast(0), single_value{}, n);
+    } else {
+      list<T> r(data->size() * n);
+      auto start = r.begin();
+      while (start != r.end())
+        start = std::copy(this->begin(), this->end(), start);
+      return r;
+    }
   }
 
   template <class T>

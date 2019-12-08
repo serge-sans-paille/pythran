@@ -26,6 +26,7 @@ PYTHONIC_NS_BEGIN
     static PyObject *convert(TYPE l);                                          \
   }
 
+PYTHONIC_INT_TO_PYTHON(char);
 PYTHONIC_INT_TO_PYTHON(unsigned char);
 PYTHONIC_INT_TO_PYTHON(signed char);
 PYTHONIC_INT_TO_PYTHON(unsigned short);

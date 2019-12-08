@@ -703,6 +703,21 @@ def assign_ndarray(t):
                 4,
                 ndarray_ubyte=[int])
 
+    def test_ndarray_byte(self):
+        self.run_test("def ndarray_byte(n): import numpy; return numpy.arange(-n, n, 1, dtype=numpy.byte)",
+                4,
+                ndarray_byte=[int])
+
+    def test_ndarray_ushort(self):
+        self.run_test("def ndarray_ushort(n): import numpy; return numpy.arange(0, n, 1, dtype=numpy.ushort)",
+                4,
+                ndarray_ushort=[int])
+
+    def test_ndarray_short(self):
+        self.run_test("def ndarray_short(n): import numpy; return numpy.arange(-n, n, 1, dtype=numpy.short)",
+                4,
+                ndarray_short=[int])
+
     def test_ndarray_1d_index(self):
         self.run_test(
             'def ndarray_1d_index(a): return a[1], a[-1]',

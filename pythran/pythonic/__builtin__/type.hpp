@@ -15,14 +15,16 @@
 #include "pythonic/__builtin__/dict.hpp"
 #include "pythonic/__builtin__/tuple.hpp"
 #include "pythonic/numpy/array.hpp"
-#include "pythonic/numpy/int8.hpp"
-#include "pythonic/numpy/uint8.hpp"
-#include "pythonic/numpy/int16.hpp"
-#include "pythonic/numpy/uint16.hpp"
-#include "pythonic/numpy/int32.hpp"
-#include "pythonic/numpy/uint32.hpp"
-#include "pythonic/numpy/int64.hpp"
-#include "pythonic/numpy/uint64.hpp"
+#include "pythonic/numpy/byte.hpp"
+#include "pythonic/numpy/ubyte.hpp"
+#include "pythonic/numpy/short_.hpp"
+#include "pythonic/numpy/ushort.hpp"
+#include "pythonic/numpy/intc.hpp"
+#include "pythonic/numpy/uintc.hpp"
+#include "pythonic/numpy/int_.hpp"
+#include "pythonic/numpy/uint.hpp"
+#include "pythonic/numpy/longlong.hpp"
+#include "pythonic/numpy/ulonglong.hpp"
 #include "pythonic/numpy/float32.hpp"
 #include "pythonic/numpy/float128.hpp"
 
@@ -87,36 +89,44 @@ namespace __builtin__
     using type = numpy::functor::array;
   };
   template <>
-  struct type_functor<int8_t> {
-    using type = numpy::functor::int8;
+  struct type_functor<signed char> {
+    using type = numpy::functor::byte;
   };
   template <>
-  struct type_functor<uint8_t> {
-    using type = numpy::functor::uint8;
+  struct type_functor<unsigned char> {
+    using type = numpy::functor::ubyte;
   };
   template <>
-  struct type_functor<int16_t> {
-    using type = numpy::functor::int16;
+  struct type_functor<short> {
+    using type = numpy::functor::short_;
   };
   template <>
-  struct type_functor<uint16_t> {
-    using type = numpy::functor::uint16;
+  struct type_functor<unsigned short> {
+    using type = numpy::functor::ushort;
   };
   template <>
-  struct type_functor<int32_t> {
-    using type = numpy::functor::int32;
+  struct type_functor<int> {
+    using type = numpy::functor::intc;
   };
   template <>
-  struct type_functor<uint32_t> {
-    using type = numpy::functor::uint32;
+  struct type_functor<unsigned int> {
+    using type = numpy::functor::uintc;
   };
   template <>
-  struct type_functor<int64_t> {
-    using type = numpy::functor::int64;
+  struct type_functor<long> {
+    using type = numpy::functor::int_;
   };
   template <>
-  struct type_functor<uint64_t> {
-    using type = numpy::functor::uint64;
+  struct type_functor<unsigned long> {
+    using type = numpy::functor::uint;
+  };
+  template <>
+  struct type_functor<long long> {
+    using type = numpy::functor::longlong;
+  };
+  template <>
+  struct type_functor<unsigned long long> {
+    using type = numpy::functor::ulonglong;
   };
   template <>
   struct type_functor<float> {

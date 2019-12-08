@@ -1,7 +1,7 @@
-#ifndef PYTHONIC_NUMPY_UBYTE_HPP
-#define PYTHONIC_NUMPY_UBYTE_HPP
+#ifndef PYTHONIC_NUMPY_INT__HPP
+#define PYTHONIC_NUMPY_INT__HPP
 
-#include "pythonic/include/numpy/ubyte.hpp"
+#include "pythonic/include/numpy/int_.hpp"
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/meta.hpp"
@@ -16,20 +16,20 @@ namespace numpy
   namespace details
   {
 
-    unsigned char ubyte()
+    long int_()
     {
       return {};
     }
 
     template <class V>
-    unsigned char ubyte(V v)
+    long int_(V v)
     {
       return v;
     }
   }
 
-#define NUMPY_NARY_FUNC_NAME ubyte
-#define NUMPY_NARY_FUNC_SYM details::ubyte
+#define NUMPY_NARY_FUNC_NAME int_
+#define NUMPY_NARY_FUNC_SYM details::int_
 #include "pythonic/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

@@ -103,6 +103,10 @@ struct c_type_to_numpy_type<unsigned short>
 };
 
 template <>
+struct c_type_to_numpy_type<char> : std::integral_constant<int, NPY_BYTE> {
+};
+
+template <>
 struct c_type_to_numpy_type<signed char>
     : std::integral_constant<int, NPY_BYTE> {
 };
@@ -136,6 +140,7 @@ struct c_type_to_numpy_type<bool> : std::integral_constant<int, NPY_BOOL> {
         nullptr);                                                              \
   }
 
+PYTHONIC_INT_TO_PYTHON(char)
 PYTHONIC_INT_TO_PYTHON(unsigned char)
 PYTHONIC_INT_TO_PYTHON(signed char)
 PYTHONIC_INT_TO_PYTHON(unsigned short)

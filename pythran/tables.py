@@ -3407,6 +3407,7 @@ MODULES = {
         ),
         "bool": ConstFunctionIntr(signature=_bool_signature),
         "broadcast_to": ConstFunctionIntr(),
+        "byte": ConstFunctionIntr(signature=_int_signature),
         "cbrt": ConstFunctionIntr(
             signature=_numpy_unary_op_float_signature
         ),
@@ -3835,6 +3836,7 @@ MODULES = {
             BINARY_UFUNC,
             signature=_numpy_int_binary_op_signature
         ),
+        "longlong": ConstFunctionIntr(signature=_int_signature),
         "max": ConstMethodIntr(signature=_numpy_unary_op_axis_signature),
         "maximum": UFunc(
             BINARY_UFUNC,
@@ -3993,6 +3995,7 @@ MODULES = {
         "select": ConstFunctionIntr(),
         "setdiff1d": ConstFunctionIntr(),
         "shape": ConstFunctionIntr(),
+        "short_": ConstFunctionIntr(signature=_int_signature),
         "sign": ConstFunctionIntr(),
         "signbit": ConstFunctionIntr(),
         "sin": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
@@ -4012,6 +4015,7 @@ MODULES = {
         ),
         "sum": ConstMethodIntr(signature=_numpy_unary_op_sum_axis_signature),
         "swapaxes": ConstMethodIntr(),
+        "short": ConstFunctionIntr(signature=_int_signature),
         "take": ConstMethodIntr(),
         "tan": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
         "tanh": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
@@ -4031,10 +4035,12 @@ MODULES = {
         "uintc": ConstFunctionIntr(signature=_int_signature),
         "uintp": ConstFunctionIntr(signature=_int_signature),
         "uint8": ConstFunctionIntr(signature=_int_signature),
+        "ulonglong": ConstFunctionIntr(signature=_int_signature),
         "union1d": ConstFunctionIntr(),
         "unique": ConstFunctionIntr(),
         "unwrap": ConstFunctionIntr(),
         "unravel_index": ConstFunctionIntr(),
+        "ushort": ConstFunctionIntr(signature=_int_signature),
         "var": ConstMethodIntr(),
         "vstack": ConstFunctionIntr(),
         "stack": ConstFunctionIntr(),

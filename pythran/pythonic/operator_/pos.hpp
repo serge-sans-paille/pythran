@@ -15,6 +15,21 @@ namespace operator_
   {
     return +a;
   }
+
+  char pos(char const &a)
+  {
+    return +a;
+  }
+
+  signed char pos(signed char const &a)
+  {
+    return +a;
+  }
+
+  unsigned char pos(unsigned char const &a)
+  {
+    return +a;
+  }
 }
 PYTHONIC_NS_END
 

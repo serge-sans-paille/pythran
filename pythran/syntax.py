@@ -180,10 +180,10 @@ class SyntaxChecker(ast.NodeVisitor):
                     node)
 
     def visit_Exec(self, node):
-        raise PythranSyntaxError("Exec statement not supported", node)
+        raise PythranSyntaxError("'exec' statements are not supported", node)
 
     def visit_Global(self, node):
-        raise PythranSyntaxError("Global variables not supported", node)
+        raise PythranSyntaxError("'global' statements are not supported", node)
 
 
 def check_syntax(node):

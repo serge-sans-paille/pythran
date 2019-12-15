@@ -762,6 +762,9 @@ def test_copy0(x):
     def test_arange16(self):
         self.run_test("def np_arange16_(a):\n from numpy import arange\n return arange(4 * a, -1, -4)", 1, np_arange16_=[int])
 
+    def test_arange17(self):
+        self.run_test("def np_arange17_(a):\n from numpy import arange\n return arange(4 * a, -1, -4)[:,None]", 1, np_arange17_=[int])
+
     def test_linspace(self):
         self.run_test("def np_linspace_(a):\n from numpy import linspace\n return linspace(a,4,32)", 1, np_linspace_=[int])
 

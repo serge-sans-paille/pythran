@@ -66,6 +66,15 @@ namespace numpy
       {
         return operator[](s);
       }
+      template <class... S>
+      auto operator()(S const &... s) const -> typename std::enable_if<
+          (sizeof...(S) > 1),
+          decltype(std::declval<types::ndarray<dtype, shape_t>>()(s...))>::type
+      {
+        return types::ndarray<dtype, shape_t>{
+            types::numpy_expr<pythonic::operator_::functor::pos, arange_index>{
+                *this}}(s...);
+      }
       const_iterator begin() const
       {
         return {*this, 0};

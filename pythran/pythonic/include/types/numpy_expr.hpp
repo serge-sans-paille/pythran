@@ -664,12 +664,10 @@ namespace types
       return Op{}(std::get<I>(args)(s...)...);
     }
 
-    template <class S0, class... S>
-    auto operator()(S0 const &s0, S const &... s) const ->
-        typename std::enable_if<
-            !std::is_scalar<S0>::value || sizeof...(S) != 0,
-            decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{},
-                                s0, s...))>::type;
+    template <class... S>
+    auto operator()(S const &... s) const
+        -> decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{},
+                               s...));
 
     template <class F>
     typename std::enable_if<

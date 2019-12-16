@@ -9,11 +9,7 @@ namespace operator_
 {
 
   template <class A>
-  auto pos(A const &a) -> decltype(+a);
-
-  char pos(char const &a);
-  signed char pos(signed char const &a);
-  unsigned char pos(unsigned char const &a);
+  A pos(A const &a);
 
   DEFINE_FUNCTOR(pythonic::operator_, pos);
 }

@@ -286,14 +286,12 @@ namespace types
 #endif
 
   template <class Op, class... Args>
-  template <class S0, class... S>
-  auto numpy_expr<Op, Args...>::operator()(S0 const &s0, S const &... s) const
-      -> typename std::enable_if<
-          !std::is_scalar<S0>::value || sizeof...(S) != 0,
-          decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{}, s0,
-                              s...))>::type
+  template <class... S>
+  auto numpy_expr<Op, Args...>::operator()(S const &... s) const
+      -> decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{},
+                             s...))
   {
-    return _get(utils::make_index_sequence<sizeof...(Args)>{}, s0, s...);
+    return _get(utils::make_index_sequence<sizeof...(Args)>{}, s...);
   }
 
   template <class Op, class... Args>

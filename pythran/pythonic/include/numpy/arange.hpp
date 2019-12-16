@@ -11,6 +11,69 @@ namespace numpy
 {
   namespace details
   {
+#ifdef USE_XSIMD
+    template <class T>
+    struct arange_simd_iterator {
+      using vector_type = xsimd::simd_type<T>;
+      vector_type curr_;
+      vector_type step_;
+      long index_;
+      arange_simd_iterator(T start, T step, long n)
+          : curr_{}, step_{static_cast<T>(vector_type::size * step)},
+            index_{static_cast<long>(n / vector_type::size)}
+      {
+        T from[vector_type::size];
+        for (long i = 0; i < vector_type::size; ++i)
+          from[i] = start + i * step;
+        curr_ = xsimd::load_unaligned(from);
+      }
+      vector_type operator*() const
+      {
+        return curr_;
+      }
+      arange_simd_iterator &operator++()
+      {
+        curr_ += step_;
+        ++index_;
+        return *this;
+      }
+      arange_simd_iterator &operator+=(long n)
+      {
+        curr_ += n * step_;
+        index_ += n;
+        return *this;
+      }
+      arange_simd_iterator operator+(long n) const
+      {
+        arange_simd_iterator other{*this};
+        return other += n;
+      }
+      arange_simd_iterator &operator--()
+      {
+        curr_ -= step_;
+        --index_;
+        return *this;
+      }
+      long operator-(arange_simd_iterator const &other) const
+      {
+        return index_ - other.index_;
+      }
+      bool operator!=(arange_simd_iterator const &other) const
+      {
+        return index_ != other.index_;
+      }
+      bool operator==(arange_simd_iterator const &other) const
+      {
+        return index_ == other.index_;
+      }
+      bool operator<(arange_simd_iterator const &other) const
+      {
+        return index_ < other.index_;
+      }
+      arange_simd_iterator &
+      operator=(arange_simd_iterator const &other) = default;
+    };
+#endif
     template <class T>
     struct arange_index {
       T start, step;
@@ -21,17 +84,22 @@ namespace numpy
       using value_type = dtype;
       using shape_t = types::pshape<long>;
 #ifdef USE_XSIMD
-      using simd_iterator = types::const_simd_nditerator<arange_index>;
+      using simd_iterator = arange_simd_iterator<T>;
       using simd_iterator_nobroadcast = simd_iterator;
       template <class vectorizer>
-      simd_iterator vbegin(vectorizer) const;
+      simd_iterator vbegin(vectorizer) const
+      {
+        return {start, step, 0};
+      }
       template <class vectorizer>
-      simd_iterator vend(vectorizer) const;
+      simd_iterator vend(vectorizer) const
+      {
+        return {static_cast<T>(start + size * step), step, size};
+      }
 #endif
       static constexpr size_t value = 1;
       static constexpr bool is_strided = false;
-      static constexpr bool is_vectorizable =
-          false; // FIXME: this is feasible, but I'm lazy
+      static constexpr bool is_vectorizable = types::is_vectorizable<T>::value;
 
       T fast(long i) const
       {

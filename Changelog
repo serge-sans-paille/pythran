@@ -1,3 +1,19 @@
+2019-12-31 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Last release supporting both Python2 and Python3
+
+	* Vectorized version of numpy.arange
+
+	* Support more numpy type conversion operators
+
+	* Improve translation time
+
+	* Version bump for xsimd dependency
+
+	* Fix compile without ENABLE_PYTHON_MODULE
+
+	* Various fixes for bug introduced in previous revision ^^!
+
 2019-10-30 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Support Python up to 3.8 (included)

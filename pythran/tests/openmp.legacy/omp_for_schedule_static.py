@@ -25,7 +25,7 @@ def omp_for_schedule_static():
 
     if threads < 2:
         print("This test only works with at least two threads");
-        return True
+        return 1
     tids[CFSMAX_SIZE] = -1
     if "omp parallel shared(tids) num_threads(NUMBER_OF_THREADS)":
         tid = omp.get_thread_num ();

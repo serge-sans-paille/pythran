@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Wolf Vollprecht, Johan Mabille and Sylvain Corlay    *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -41,11 +43,16 @@ namespace xsimd
 
     private:
 
+        template <class... Args>
+        batch_bool<T, N>& load_values(Args... args);
+
         union
         {
             __m128i m_value;
             T m_array[N];
         };
+
+        friend class simd_batch_bool<batch_bool<T, N>>;
     };
 
     /***********************
@@ -212,7 +219,16 @@ namespace xsimd
     {
         return m_value;
     }
-
+    
+    template <class T, std::size_t N>
+    template <class... Args>
+    inline batch_bool<T, N>& sse_int_batch_bool<T, N>::load_values(Args... args)
+    {
+        m_value = sse_detail::int_init(std::integral_constant<std::size_t, sizeof(T)>{},
+                                       static_cast<T>(args ? typename std::make_signed<T>::type{-1} : 0)...);
+        return (*this)();
+    }
+    
     namespace detail
     {
         template <class T>

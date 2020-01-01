@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Wolf Vollprecht, Johan Mabille and Sylvain Corlay    *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -176,7 +178,7 @@ namespace xsimd
 
     inline batch<int64_t, 2>& batch<int64_t, 2>::load_unaligned(const float* src)
     {
-        return load_unaligned(src);
+        return load_aligned(src);
     }
 
     inline batch<int64_t, 2>& batch<int64_t, 2>::load_aligned(const double* src)

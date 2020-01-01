@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -12,8 +14,8 @@
 #include "xsimd_align.hpp"
 
 #define XSIMD_VERSION_MAJOR 7
-#define XSIMD_VERSION_MINOR 2
-#define XSIMD_VERSION_PATCH 2
+#define XSIMD_VERSION_MINOR 4
+#define XSIMD_VERSION_PATCH 5
 
 #ifndef XSIMD_DEFAULT_ALLOCATOR
     #if XSIMD_X86_INSTR_SET_AVAILABLE

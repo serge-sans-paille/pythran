@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -48,11 +50,15 @@ namespace xsimd
 
     private:
 
+        batch_bool<float, 4>& load_values(bool b0, bool b1, bool b2, bool b3);
+
         union
         {
             __m128 m_value;
             float m_array[4];
         };
+
+        friend class simd_batch_bool<batch_bool<float, 4>>;
     };
 
     /*******************
@@ -146,6 +152,12 @@ namespace xsimd
         return m_value;
     }
 
+    inline batch_bool<float, 4>& batch_bool<float, 4>::load_values(bool b0, bool b1, bool b2, bool b3)
+    {
+        m_value = _mm_castsi128_ps(_mm_setr_epi32(-(int)b0, -(int)b1, -(int)b2, -(int)b3));
+        return *this;
+    }
+    
     namespace detail
     {
         template <>
@@ -634,17 +646,17 @@ namespace xsimd
                 return _mm_cvtss_f32(tmp1);
             }
 
-            static batch_type haddp(const simd_batch<batch_type>* row)
+            static batch_type haddp(const batch_type* row)
             {
 #if XSIMD_X86_INSTR_SET >= XSIMD_X86_SSE3_VERSION
-                return _mm_hadd_ps(_mm_hadd_ps(row[0](), row[1]()),
-                    _mm_hadd_ps(row[2](), row[3]()));
+                return _mm_hadd_ps(_mm_hadd_ps(row[0], row[1]),
+                    _mm_hadd_ps(row[2], row[3]));
 #else
-                __m128 tmp0 = _mm_unpacklo_ps(row[0](), row[1]());
-                __m128 tmp1 = _mm_unpackhi_ps(row[0](), row[1]());
-                __m128 tmp2 = _mm_unpackhi_ps(row[2](), row[3]());
+                __m128 tmp0 = _mm_unpacklo_ps(row[0], row[1]);
+                __m128 tmp1 = _mm_unpackhi_ps(row[0], row[1]);
+                __m128 tmp2 = _mm_unpackhi_ps(row[2], row[3]);
                 tmp0 = _mm_add_ps(tmp0, tmp1);
-                tmp1 = _mm_unpacklo_ps(row[2](), row[3]());
+                tmp1 = _mm_unpacklo_ps(row[2], row[3]);
                 tmp1 = _mm_add_ps(tmp1, tmp2);
                 tmp2 = _mm_movehl_ps(tmp1, tmp0);
                 tmp0 = _mm_movelh_ps(tmp0, tmp1);

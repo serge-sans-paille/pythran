@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -261,12 +263,12 @@ namespace xsimd
     };
 
     template <bool i3ec>
-    class batch<xtl::xcomplex<float, float, i3ec>, 8>
+    class batch<xtl::xcomplex<float, float, i3ec>, 16>
         : public simd_complex_batch<batch<xtl::xcomplex<float, float, i3ec>, 16>>
     {
     public:
 
-        using self_type = batch<xtl::xcomplex<float, float, i3ec>, 8>;
+        using self_type = batch<xtl::xcomplex<float, float, i3ec>, 16>;
         using base_type = simd_complex_batch<self_type>;
         using value_type = xtl::xcomplex<float, float, i3ec>;
         using real_batch = batch<float, 16>;
@@ -313,7 +315,7 @@ namespace xsimd
 
         using self_type = batch_bool<xtl::xcomplex<double, double, i3ec>, 8>;
         using base_type = simd_complex_batch_bool<self_type>;
-        using real_batch = batch_bool<double, 4>;
+        using real_batch = batch_bool<double, 8>;
 
         batch_bool() = default;
         using base_type::base_type;
@@ -344,7 +346,7 @@ namespace xsimd
         using self_type = batch<xtl::xcomplex<double, double, i3ec>, 8>;
         using base_type = simd_complex_batch<self_type>;
         using value_type = xtl::xcomplex<double, double, i3ec>;
-        using real_batch = batch<double, 2>;
+        using real_batch = batch<double, 8>;
 
         batch() = default;
         using base_type::base_type;
@@ -363,7 +365,7 @@ namespace xsimd
         real_batch get_complex_high() const;
         real_batch get_complex_low() const;
 
-        friend class simd_complex_batch<batch<std::complex<double>, 8>>;
+        friend class simd_complex_batch<batch<xtl::xcomplex<double, double, i3ec>, 8>>;
     };
 
     /********************************************
@@ -397,7 +399,7 @@ namespace xsimd
 
     template <bool i3ec>
     inline batch<xtl::xcomplex<double, double, i3ec>, 8>&
-    batch<xtl::xcomplex<double, double, i3ec>, 4>::load_complex(const real_batch& hi, const real_batch& lo)
+    batch<xtl::xcomplex<double, double, i3ec>, 8>::load_complex(const real_batch& hi, const real_batch& lo)
     {
         __m512i real_idx = _mm512_setr_epi64(0, 2, 4, 6, 8, 10, 12, 14);
         __m512i imag_idx = _mm512_setr_epi64(1, 3, 5, 7, 9, 11, 13, 15);
@@ -414,7 +416,7 @@ namespace xsimd
     }
 
     template <bool i3ec>
-    inline auto batch<xtl::xcomplex<double, double, i3ec>, 4>::get_complex_low() const -> real_batch
+    inline auto batch<xtl::xcomplex<double, double, i3ec>, 8>::get_complex_low() const -> real_batch
     {
         __m512i idx = _mm512_setr_epi64(4, 12, 5, 13, 6, 14, 7, 15);
         return _mm512_permutex2var_pd(this->m_real, idx, this->m_imag);

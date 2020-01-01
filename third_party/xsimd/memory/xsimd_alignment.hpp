@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -40,7 +42,7 @@ namespace xsimd
         using type = unaligned_mode;
     };
 
-#if defined(XSIMD_X86_INSTR_SET_AVAILABLE) || defined(XSIMD_ARM_INSTR_SET_AVAILABLE)
+#if defined(XSIMD_DEFAULT_ALIGNMENT)
     template <class T>
     struct allocator_alignment<aligned_allocator<T, XSIMD_DEFAULT_ALIGNMENT>>
     {

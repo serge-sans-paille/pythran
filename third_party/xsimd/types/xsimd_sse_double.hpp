@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -48,11 +50,15 @@ namespace xsimd
 
     private:
 
+        batch_bool<double, 2>& load_values(bool b0, bool b1);
+
         union
         {
             __m128d m_value;
             double m_array[2];
         };
+
+        friend class simd_batch_bool<batch_bool<double, 2>>;
     };
 
     /********************
@@ -144,6 +150,12 @@ namespace xsimd
     inline __m128d batch_bool<double, 2>::get_value() const
     {
         return m_value;
+    }
+
+    inline batch_bool<double, 2>& batch_bool<double, 2>::load_values(bool b0, bool b1)
+    {
+        m_value = _mm_castsi128_pd(_mm_setr_epi32(-(int)b0, -(int)b0, -(int)b1, -(int)b1));
+        return *this;
     }
 
     namespace detail
@@ -579,13 +591,13 @@ namespace xsimd
                 return _mm_cvtsd_f64(tmp0);
             }
 
-            static batch_type haddp(const simd_batch<batch_type>* row)
+            static batch_type haddp(const batch_type* row)
             {
 #if XSIMD_X86_INSTR_SET >= XSIMD_X86_SSE3_VERSION
-                return _mm_hadd_pd(row[0](), row[1]());
+                return _mm_hadd_pd(row[0], row[1]);
 #else
-                return _mm_add_pd(_mm_unpacklo_pd(row[0](), row[1]()),
-                    _mm_unpackhi_pd(row[0](), row[1]()));
+                return _mm_add_pd(_mm_unpacklo_pd(row[0], row[1]),
+                    _mm_unpackhi_pd(row[0], row[1]));
 #endif
             }
 

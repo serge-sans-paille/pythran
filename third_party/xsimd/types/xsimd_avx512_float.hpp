@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -31,8 +33,7 @@ namespace xsimd
     };
 
     template <>
-    class batch_bool<float, 16> : public batch_bool_avx512<__mmask16, batch_bool<float, 16>>,
-                                  public simd_batch_bool<batch_bool<float, 16>>
+    class batch_bool<float, 16> : public batch_bool_avx512<__mmask16, batch_bool<float, 16>>
     {
     public:
         using base_class = batch_bool_avx512<__mmask16, batch_bool<float, 16>>;
@@ -79,6 +80,9 @@ namespace xsimd
         batch(const float* src, unaligned_mode);
         batch(const __m512& rhs);
         batch& operator=(const __m512& rhs);
+
+        batch(const batch_bool<float, 16>& rhs);
+        batch& operator=(const batch_bool<float, 16>& rhs);
 
         operator __m512() const;
 
@@ -506,7 +510,7 @@ namespace xsimd
                 return xsimd::hadd(batch<float, 8>(res1));
             }
 
-            static batch_type haddp(const simd_batch<batch_type>* row)
+            static batch_type haddp(const batch_type* row)
             {
                 // The following folds over the vector once:
                 // tmp1 = [a0..8, b0..8]
@@ -519,14 +523,14 @@ namespace xsimd
             res ## I = tmp1 + tmp2;                                                            \
         }                                                                                      \
 
-                XSIMD_AVX512_HADDP_STEP1(1, row[0](), row[4]());
-                XSIMD_AVX512_HADDP_STEP1(2, row[2](), row[6]());
-                XSIMD_AVX512_HADDP_STEP1(3, row[1](), row[5]());
-                XSIMD_AVX512_HADDP_STEP1(4, row[3](), row[7]());
-                XSIMD_AVX512_HADDP_STEP1(5, row[8](), row[12]());
-                XSIMD_AVX512_HADDP_STEP1(6, row[10](), row[14]());
-                XSIMD_AVX512_HADDP_STEP1(7, row[9](), row[13]());
-                XSIMD_AVX512_HADDP_STEP1(8, row[11](), row[15]());
+                XSIMD_AVX512_HADDP_STEP1(0, row[0], row[2]);
+                XSIMD_AVX512_HADDP_STEP1(1, row[4], row[6]);
+                XSIMD_AVX512_HADDP_STEP1(2, row[1], row[3]);
+                XSIMD_AVX512_HADDP_STEP1(3, row[5], row[7]);
+                XSIMD_AVX512_HADDP_STEP1(4, row[8], row[10]);
+                XSIMD_AVX512_HADDP_STEP1(5, row[12], row[14]);
+                XSIMD_AVX512_HADDP_STEP1(6, row[9], row[11]);
+                XSIMD_AVX512_HADDP_STEP1(7, row[13], row[15]);
 
 #undef XSIMD_AVX512_HADDP_STEP1
 
@@ -547,8 +551,8 @@ namespace xsimd
                                                                                                 \
             batch<float, 16> resx2 = tmp3 + tmp4;                                               \
                                                                                                 \
-            batch<float, 16> tmp5 = _mm512_shuffle_ps(resx1, resx2, 0b00000000);                \
-            batch<float, 16> tmp6 = _mm512_shuffle_ps(resx1, resx2, 0b11111111);                \
+            batch<float, 16> tmp5 = _mm512_shuffle_ps(resx1, resx2, _MM_SHUFFLE(2, 0, 2, 0));   \
+            batch<float, 16> tmp6 = _mm512_shuffle_ps(resx1, resx2, _MM_SHUFFLE(3, 1, 3, 1));   \
                                                                                                 \
             batch<float, 16> resx3 = tmp5 + tmp6;                                               \
                                                                                                 \
@@ -556,8 +560,8 @@ namespace xsimd
                                          _mm512_extractf32x8_ps(resx3, 1));                     \
         }                                                                                       \
 
-                XSIMD_AVX512_HADDP_STEP2(0, res1, res2, res3, res4);
-                XSIMD_AVX512_HADDP_STEP2(1, res5, res6, res7, res8);
+                XSIMD_AVX512_HADDP_STEP2(0, res0, res1, res2, res3);
+                XSIMD_AVX512_HADDP_STEP2(1, res4, res5, res6, res7);
 
 #undef XSIMD_AVX512_HADDP_STEP2
 
@@ -577,6 +581,18 @@ namespace xsimd
             }
         };
     }
+
+    inline batch<float, 16>::batch(const batch_bool<float, 16>& rhs)
+        : base_type(detail::batch_kernel<float, 16>::select(rhs, batch(float(1)), batch(float(0))))
+    {
+    }
+
+    inline batch<float, 16>& batch<float, 16>::operator=(const batch_bool<float, 16>& rhs)
+    {
+        this->m_value = detail::batch_kernel<float, 16>::select(rhs, batch(float(1)), batch(float(0)));
+        return *this;
+    }
+
 }
 
 #endif

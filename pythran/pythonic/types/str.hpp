@@ -653,10 +653,9 @@ namespace std
 }
 #ifdef ENABLE_PYTHON_MODULE
 
-#if PY_MAJOR_VERSION >= 3
 #ifndef PyString_FromStringAndSize
 #define PyString_FromStringAndSize PyUnicode_FromStringAndSize
-#endif
+
 #ifndef PyString_Check
 #define PyString_Check(x) PyUnicode_Check(x) && PyUnicode_IS_COMPACT_ASCII(x)
 #endif

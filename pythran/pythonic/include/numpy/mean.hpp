@@ -3,14 +3,14 @@
 
 #include "pythonic/include/numpy/sum.hpp"
 #include "pythonic/include/numpy/float64.hpp"
-#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/builtins/None.hpp"
 
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
   template <class E, class dtype = functor::float64>
-  auto mean(E const &expr, types::none_type axis = __builtin__::None,
+  auto mean(E const &expr, types::none_type axis = builtins::None,
             dtype d = dtype())
       -> decltype(sum(expr) / typename dtype::type(expr.flat_size()));
 

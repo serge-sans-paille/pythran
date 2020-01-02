@@ -1,7 +1,6 @@
 from pythran.tests import TestEnv
 from pythran.typing import List
 
-import sys
 import unittest
 
 
@@ -88,9 +87,8 @@ class TestStr(TestEnv):
     def test_str_join1(self):
         self.run_test("def str_join1(): a = ['l', 'l'] ; return 'o'.join(a)", str_join1=[])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_str_join2(self):
-        self.run_test("def str_join2(a): from itertools import ifilter; return 'o'.join(ifilter(len, a))", ['l', 'l'], str_join2=[List[str]])
+        self.run_test("def str_join2(a): return 'o'.join(filter(len, a))", ['l', 'l'], str_join2=[List[str]])
 
     def test_str_find0(self):
         self.run_test("def str_find0(s): return s.find('pop')", "popop", str_find0=[str])

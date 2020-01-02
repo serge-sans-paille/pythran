@@ -58,7 +58,7 @@ def set_of_float32(l):
         """ Check numpy complex type conversion. """
         code = """
 def dict_of_complex64_and_complex_128(l):
-    return l.keys(), l.values()"""
+    return list(l.keys()), list(l.values())"""
         interface = [Dict[np.complex64, np.complex128]]
         self.run_test(code, {np.complex64(3.1 + 1.1j): 4.5 + 5.5j},
                       dict_of_complex64_and_complex_128=interface)

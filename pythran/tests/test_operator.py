@@ -1,6 +1,5 @@
 from pythran.tests import TestEnv
 
-import sys
 import unittest
 from pythran.typing import List
 
@@ -76,14 +75,6 @@ class TestOperator(TestEnv):
 
     def test___and__(self):
         self.run_test("def __and__(a,b):\n from operator import __and__\n return __and__(a,b)", 0x01, 0x02, __and__=[int,int])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_div(self):
-        self.run_test("def div(a,b):\n from operator import div\n return div(a,b)", 5, 2, div=[int,int])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test___div__(self):
-        self.run_test("def __div__(a,b):\n from operator import __div__\n return __div__(a,b)", 5, 2, __div__=[int,int])
 
     def test_floordiv(self):
         self.run_test("def floordiv(a,b):\n from operator import floordiv\n return floordiv(a,b)", 5, 2, floordiv=[int,int])
@@ -217,22 +208,6 @@ class TestOperator(TestEnv):
 
     def test___iconcat__(self):
         self.run_test("def __iconcat__(a,b):\n from operator import __iconcat__\n return __iconcat__(a,b)", [3], [4], __iconcat__=[List[int],List[int]])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_idiv(self):
-        self.run_test("def idiv(a,b):\n from operator import idiv\n return idiv(a,b)", 5, 2, idiv=[int,int])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_idiv2(self):
-        self.run_test("def idiv2(b):\n from operator import idiv\n a=5\n return idiv(a,b)", 2, idiv2=[int])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_idiv3(self):
-        self.run_test("def idiv3(b):\n from operator import idiv\n a=5\n idiv(a,b)\n return a", 2, idiv3=[int])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test___idiv__(self):
-        self.run_test("def __idiv__(a,b):\n from operator import __idiv__\n return __idiv__(a,b)", 5, 2, __idiv__=[int,int])
 
     def test_ifloordiv(self):
         self.run_test("def ifloordiv(a,b):\n from operator import ifloordiv\n return ifloordiv(a,b)", 5, 2, ifloordiv=[int,int])

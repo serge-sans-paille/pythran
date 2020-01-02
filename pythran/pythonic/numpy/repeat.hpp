@@ -6,7 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -26,7 +26,7 @@ namespace numpy
     shape[axis] *= repeats;
 
     types::ndarray<T, types::array<long, std::tuple_size<pS>::value>> out(
-        shape, __builtin__::None);
+        shape, builtins::None);
     auto out_iter = out.fbegin();
     for (auto iter = expr.fbegin(), end = expr.fend(); iter != end;
          iter += stride)
@@ -39,7 +39,7 @@ namespace numpy
   repeat(types::ndarray<T, pS> const &expr, long repeats, types::none_type axis)
   {
     types::ndarray<T, types::pshape<long>> out(
-        types::pshape<long>{expr.flat_size() * repeats}, __builtin__::None);
+        types::pshape<long>{expr.flat_size() * repeats}, builtins::None);
     auto out_iter = out.fbegin();
     for (auto iter = expr.fbegin(), end = expr.fend(); iter != end; ++iter)
       for (int i = 0; i < repeats; ++i)

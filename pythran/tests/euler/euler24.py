@@ -10,7 +10,7 @@ What is the millionth lexicographic permutation of the digits 0, 1, 2, 3, 4, 5, 
 
 def fact(n):
      f = 1
-     for x in xrange(1, n+1): f = f * x
+     for x in range(1, n+1): f = f * x
      return f
 
 def permutation(orig_nums, n):

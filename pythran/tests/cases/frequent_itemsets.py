@@ -14,7 +14,7 @@ def frequent_itemsets(sentences):
             else:
                 supp[key] = 1
     print("|C1| = " + str(len(supp)))
-    supps.append({k:v for k,v in supp.iteritems() if v >= SUPP_THRESHOLD})
+    supps.append({k:v for k,v in supp.items() if v >= SUPP_THRESHOLD})
     print("|L1| = " + str(len(supps[0])))
 
     supp = {}
@@ -27,7 +27,7 @@ def frequent_itemsets(sentences):
                 else:
                     supp[key] = 1
     print("|C2| = " + str(len(supp)))
-    supps.append({k:v for k,v in supp.iteritems() if v >= SUPP_THRESHOLD})
+    supps.append({k:v for k,v in supp.items() if v >= SUPP_THRESHOLD})
     print("|L2| = " + str(len(supps[1])))
 
     supp = {}
@@ -42,7 +42,7 @@ def frequent_itemsets(sentences):
                 else:
                     supp[key] = 1
     print("|C3| = " + str(len(supp)))
-    supps.append({k:v for k,v in supp.iteritems() if v >= SUPP_THRESHOLD})
+    supps.append({k:v for k,v in supp.items() if v >= SUPP_THRESHOLD})
     print("|L3| = " + str(len(supps[2])))
 
     return supps

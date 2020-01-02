@@ -6,6 +6,7 @@
 #runas list_powerset([1,2,3])
 #runas list_powerset2([1,2,3])
 
+from functools import reduce
 
 def list_powerset(lst):
     # the power set of the empty set has one element, the empty set

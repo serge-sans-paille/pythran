@@ -2,10 +2,7 @@ from pythran.tests import TestEnv
 from pythran.typing import List
 import unittest
 
-
 import pythran
-
-import sys
 
 
 class TestOptimization(TestEnv):
@@ -40,7 +37,7 @@ def foo(f,l):
     return map(f,l[1:])
 def alias_readonce(n):
     map = foo
-    return map(lambda (x,y): x*y < 50, zip(range(n), range(n)))
+    return list(map(lambda t: (t[0]*t[1] < 50), list(zip(range(n), range(n)))))
 """, 10, alias_readonce=[int])
 
     def test_replace_aliased_map(self):
@@ -64,7 +61,7 @@ def listcomptomap_alias(n):
 def foo(l):
     return l
 def readonce_return(n):
-    l = foo(range(n))
+    l = list(foo(range(n)))
     return l[:]
 """, 5, readonce_return=[int])
 
@@ -72,9 +69,9 @@ def readonce_return(n):
         self.run_test("""
 def foo(l):
     l[2] = 5
-    return range(10)
+    return list(range(10))
 def readonce_assign(n):
-    return foo(range(n))
+    return foo(list(range(n)))
 """, 5, readonce_assign=[int])
 
     def test_readonce_assignaug(self):
@@ -83,7 +80,7 @@ def foo(l):
     l += [2,3]
     return range(10)
 def readonce_assignaug(n):
-    return foo(range(n))
+    return list(foo(list(range(n))))
 """, 5, readonce_assignaug=[int])
 
     def test_readonce_for(self):
@@ -105,7 +102,7 @@ def foo(l):
         s += x
     for x in l:
         s += x
-    return range(s)
+    return list(range(s))
 def readonce_2for(n):
     return foo(range(n))
 """, 5, readonce_2for=[int])
@@ -148,7 +145,7 @@ def foo(l):
     else:
         return h(l)
 def readonce_if2(n):
-    return foo(range(n))
+    return foo(list(range(n)))
 """, 5, readonce_if2=[int])
 
     def test_readonce_slice(self):
@@ -156,7 +153,7 @@ def readonce_if2(n):
 def foo(l):
     return list(l[:])
 def readonce_slice(n):
-    return foo(range(n))
+    return foo(list(range(n)))
 """, 5, readonce_slice=[int])
 
     def test_readonce_listcomp(self):
@@ -194,7 +191,7 @@ def foo(l,n):
     else:
         return sum(l[1:])
 def readonce_recursive2(n):
-    return foo(range(n),0)
+    return foo(list(range(n)),0)
 """, 5, readonce_recursive2=[int])
 
     def test_readonce_cycle(self):
@@ -226,7 +223,7 @@ def readonce_cycle2(n):
     def test_readonce_list(self):
         init = "def foo(l): return sum(list(l))"
         ref = """def foo(l):
-    return __builtin__.sum(l)"""
+    return builtins.sum(l)"""
 
         self.check_ast(init, ref, ["pythran.optimizations.IterTransformation"])
 
@@ -234,63 +231,60 @@ def readonce_cycle2(n):
         init = "def foo(l): import numpy as np; return sum(np.array(l))"
         ref = """import numpy as __pythran_import_numpy
 def foo(l):
-    return __builtin__.sum(l)"""
+    return builtins.sum(l)"""
 
         self.check_ast(init, ref, ["pythran.optimizations.IterTransformation"])
 
 
     def test_omp_forwarding(self):
         init = """
-from __future__ import print_function
 def foo():
     a = 2
     #omp parallel
     if 1:
-        __builtin__.print(a)
+        builtins.print(a)
 """
         ref = """\
 def foo():
     a = 2
     'omp parallel'
     if 1:
-        __builtin__.print(a)
-    return __builtin__.None"""
+        builtins.print(a)
+    return builtins.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding2(self):
         init = """
-from __future__ import print_function
 def foo():
     #omp parallel
     if 1:
         a = 2
-        __builtin__.print(a)
+        builtins.print(a)
 """
         ref = """\
 def foo():
     'omp parallel'
     if 1:
         pass
-        __builtin__.print(2)
-    return __builtin__.None"""
+        builtins.print(2)
+    return builtins.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding3(self):
         init = """
-from __future__ import print_function
 def foo():
     #omp parallel
     if 1:
         a = 2
-    __builtin__.print(a)
+    builtins.print(a)
 """
         ref = """\
 def foo():
     'omp parallel'
     if 1:
         a = 2
-    __builtin__.print(a)
-    return __builtin__.None"""
+    builtins.print(a)
+    return builtins.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_full_unroll0(self):
@@ -305,15 +299,15 @@ def full_unroll0():
     __tuple0 = (1, 4)
     j = __tuple0[1]
     i = __tuple0[0]
-    __builtin__.list.append(k, (i, j))
+    builtins.list.append(k, (i, j))
     __tuple0 = (2, 5)
     j = __tuple0[1]
     i = __tuple0[0]
-    __builtin__.list.append(k, (i, j))
+    builtins.list.append(k, (i, j))
     __tuple0 = (3, 6)
     j = __tuple0[1]
     i = __tuple0[0]
-    __builtin__.list.append(k, (i, j))
+    builtins.list.append(k, (i, j))
     return k'''
         self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding", "pythran.optimizations.LoopFullUnrolling"])
 
@@ -331,9 +325,8 @@ def full_unroll1():
 
     def test_deadcodeelimination(self):
         init = """
-from __future__ import print_function
 def bar(a):
-    __builtin__.print(a)
+    builtins.print(a)
     return 10
 def foo(a):
     if 1 < bar(a):
@@ -341,7 +334,7 @@ def foo(a):
     return b"""
         ref = """\
 def bar(a):
-    __builtin__.print(a)
+    builtins.print(a)
     return 10
 def foo(a):
     (1 < bar(a))
@@ -375,7 +368,7 @@ def foo(a):
         self.check_ast(init, ref, ["pythran.optimizations.DeadCodeElimination"])
 
     def test_deadcodeelimination4(self):
-        init = 'def noeffect(i): a=[];b=[a]; __builtin__.list.append(b[0],i); return 1'
+        init = 'def noeffect(i): a=[];b=[a]; builtins.list.append(b[0],i); return 1'
         ref = 'def noeffect(i):\n    return 1'
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution",
                                    "pythran.optimizations.ConstantFolding",
@@ -386,7 +379,7 @@ def foo(a):
 def foo(a):
     return len(set(range(len(set(a)))))"""
         ref = """def foo(a):
-    return __builtin__.pythran.len_set(__builtin__.range(__builtin__.pythran.len_set(a)))"""
+    return builtins.pythran.len_set(builtins.range(builtins.pythran.len_set(a)))"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
     def test_patternmatching2(self):
@@ -394,11 +387,7 @@ def foo(a):
 def foo(a):
     return reversed(range(len(set(a))))"""
         ref = """def foo(a):
-    return __builtin__.range((__builtin__.pythran.len_set(a) - 1), (-1), (-1))"""
-        if sys.version_info.major == 2:
-            init = init.replace('range', 'xrange')
-            ref = ref.replace('range', 'xrange')
-
+    return builtins.range((builtins.pythran.len_set(a) - 1), (-1), (-1))"""
         self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
 
     def test_patternmatching3(self):
@@ -491,7 +480,7 @@ class TestConstantUnfolding(TestEnv):
         self.run_test("def constant_folding_set_literals(): return {1,2,3,3}", constant_folding_set_literals=[])
 
     def test_constant_folding_builtins(self):
-        self.run_test("def constant_folding_builtins(): return map(len,zip(range(2), range(2)))", constant_folding_builtins=[])
+        self.run_test("def constant_folding_builtins(): return list(map(len,zip(range(2), range(2))))", constant_folding_builtins=[])
 
     def test_constant_folding_imported_functions(self):
         self.run_test("def constant_folding_imported_functions(): from math import cos ; return float(int(10*cos(1)))", constant_folding_imported_functions=[])
@@ -503,10 +492,10 @@ class TestConstantUnfolding(TestEnv):
         self.run_test("def constant_folding_complex_calls(): return complex(1,1)", constant_folding_complex_calls=[])
 
     def test_constant_folding_expansive_calls(self):
-        self.run_test("def constant_folding_expansive_calls(): return range(2**6)", constant_folding_expansive_calls=[])
+        self.run_test("def constant_folding_expansive_calls(): return list(range(2**6))", constant_folding_expansive_calls=[])
 
     def test_constant_folding_too_expansive_calls(self):
-        self.run_test("def constant_folding_too_expansive_calls(): return range(2**16)", constant_folding_too_expansive_calls=[])
+        self.run_test("def constant_folding_too_expansive_calls(): return list(range(2**16))", constant_folding_too_expansive_calls=[])
 
     def test_constant_folding_bool_array(self):
         self.run_test("def constant_folding_bool_array(): import numpy as np; return np.concatenate([np.array([True]),np.array([True])])", constant_folding_bool_array=[])

@@ -24,7 +24,7 @@ class FixedSizeList(FunctionAnalysis):
         if not isinstance(node, ast.Call):
             return False
 
-        return all(alias == MODULES['__builtin__']['list']
+        return all(alias == MODULES['builtins']['list']
                    for alias in self.aliases[node.func])
 
     def is_safe_call(self, node, index):

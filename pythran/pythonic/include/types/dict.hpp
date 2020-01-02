@@ -9,7 +9,7 @@
 #include "pythonic/include/utils/iterator.hpp"
 #include "pythonic/include/utils/reserve.hpp"
 
-#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/builtins/None.hpp"
 
 #include <memory>
 #include <utility>
@@ -36,7 +36,7 @@ namespace types
     using reference = value_type &;
     item_iterator_adaptator() = default;
     item_iterator_adaptator(I const &i);
-    value_type operator*();
+    value_type operator*() const;
   };
 
   template <class I>
@@ -46,7 +46,7 @@ namespace types
     using reference = typename I::value_type::first_type &;
     key_iterator_adaptator();
     key_iterator_adaptator(I const &i);
-    value_type operator*();
+    value_type operator*() const;
   };
 
   template <class I>
@@ -56,47 +56,43 @@ namespace types
     using reference = typename I::value_type::second_type &;
     value_iterator_adaptator();
     value_iterator_adaptator(I const &i);
-    value_type operator*();
-  };
-
-  template <class I>
-  struct dict_iterator {
-    typedef I iterator;
-    I _begin;
-    I _end;
-    dict_iterator(I b, I e);
-    iterator begin();
-    iterator end();
+    value_type operator*() const;
   };
 
   template <class D>
   struct dict_items {
     using iterator = typename D::item_const_iterator;
+    using value_type = typename iterator::value_type;
     D data;
     dict_items();
     dict_items(D const &d);
     iterator begin() const;
     iterator end() const;
+    long size() const;
   };
 
   template <class D>
   struct dict_keys {
     using iterator = typename D::key_const_iterator;
+    using value_type = typename iterator::value_type;
     D data;
     dict_keys();
     dict_keys(D const &d);
     iterator begin() const;
     iterator end() const;
+    long size() const;
   };
 
   template <class D>
   struct dict_values {
     using iterator = typename D::value_const_iterator;
+    using value_type = typename iterator::value_type;
     D data;
     dict_values();
     dict_values(D const &d);
     iterator begin() const;
     iterator end() const;
+    long size() const;
   };
 
   template <class K, class V>
@@ -218,18 +214,9 @@ namespace types
 
     long size() const;
 
-    dict_iterator<item_iterator> iteritems();
-    dict_iterator<item_const_iterator> iteritems() const;
-
-    dict_iterator<key_iterator> iterkeys();
-    dict_iterator<key_const_iterator> iterkeys() const;
-
-    dict_iterator<value_iterator> itervalues();
-    dict_iterator<value_const_iterator> itervalues() const;
-
-    dict_items<dict<K, V>> viewitems() const;
-    dict_keys<dict<K, V>> viewkeys() const;
-    dict_values<dict<K, V>> viewvalues() const;
+    dict_items<dict<K, V>> items() const;
+    dict_keys<dict<K, V>> keys() const;
+    dict_values<dict<K, V>> values() const;
 
     // type inference stuff
     template <class K_, class V_>

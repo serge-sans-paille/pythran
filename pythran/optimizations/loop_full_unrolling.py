@@ -43,7 +43,7 @@ class LoopFullUnrolling(Transformation):
     j = 1
     i += j
 
-    >>> node = ast.parse('for j in __builtin__.enumerate("1"): j')
+    >>> node = ast.parse('for j in builtins.enumerate("1"): j')
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(LoopFullUnrolling, node)
     >>> print(pm.dump(backend.Python, node))
@@ -96,8 +96,7 @@ class LoopFullUnrolling(Transformation):
         code = compile(ast.gast_to_ast(ast.Expression(node.iter)),
                        '<loop unrolling>', 'eval')
         try:
-            values = list(eval(code,
-                               {'__builtin__': __import__('__builtin__')}))
+            values = list(eval(code, {'builtins': __import__('builtins')}))
         except Exception:
             return node
 

@@ -11,6 +11,6 @@ def solve(max):
     Find the difference between the sum of the squares of the first one hundred natural numbers and the square of the sum.
     '''
 
-    r = xrange(1, max + 1)
+    r = range(1, max + 1)
     a = sum(r)
     return a * a - sum(i*i for i in r)

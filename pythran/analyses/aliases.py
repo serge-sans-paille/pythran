@@ -13,12 +13,7 @@ from pythran.utils import isnum
 import gast as ast
 from copy import deepcopy
 from itertools import product
-import sys
-
-if sys.version_info.major == 2:
-    import StringIO as io
-else:
-    import io
+import io
 
 
 IntrinsicAliases = dict()
@@ -338,11 +333,11 @@ class Aliases(ModuleAnalysis):
         This also works with intrinsics, e.g ``dict.setdefault`` which
         may create alias between its third argument and the return value.
 
-        >>> fun = 'def foo(a, d): __builtin__.dict.setdefault(d, 0, a)'
+        >>> fun = 'def foo(a, d): builtins.dict.setdefault(d, 0, a)'
         >>> module = ast.parse(fun)
         >>> result = pm.gather(Aliases, module)
         >>> Aliases.dump(result, filter=ast.Call)
-        __builtin__.dict.setdefault(d, 0, a) => ['<unbound-value>', 'a']
+        builtins.dict.setdefault(d, 0, a) => ['<unbound-value>', 'a']
 
         Note that complex cases can arise, when one of the formal parameter
         is already known to alias to various values:

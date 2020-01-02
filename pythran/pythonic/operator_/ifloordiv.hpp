@@ -12,14 +12,14 @@ namespace operator_
 {
 
   template <class A, class B>
-  A &ifloordiv(A &a, B const &b)
+  A ifloordiv(A &&a, B const &b)
   {
     a -= mod(a, b);
     a /= b;
     return a;
   }
   template <class A, class B>
-  A ifloordiv(A const &a, B const &b)
+  auto ifloordiv(A const &a, B const &b) -> decltype((a - mod(a, b)) / b)
   {
     return (a - mod(a, b)) / b;
   }

@@ -53,10 +53,10 @@ def solve(max_route):
     def path(triangle, num):
         s = triangle[0][0]
         col = 0
-        for row in xrange(1, len(triangle)):
+        for row in range(1, len(triangle)):
             if num % 2: col = col + 1
             num = num / 2
             s = s + triangle[row][col]
         return s
 
-    return max(path(triangle, n) for n in xrange(0, max_route))
+    return max(path(triangle, n) for n in range(0, max_route))

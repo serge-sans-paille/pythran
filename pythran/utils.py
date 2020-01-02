@@ -36,10 +36,10 @@ def path_to_attr(path):
     Transform path to ast.Attribute.
 
     >>> import gast as ast
-    >>> path = ('__builtin__', 'my', 'constant')
+    >>> path = ('builtins', 'my', 'constant')
     >>> value = path_to_attr(path)
     >>> ref = ast.Attribute(
-    ...     value=ast.Attribute(value=ast.Name(id="__builtin__",
+    ...     value=ast.Attribute(value=ast.Name(id="builtins",
     ...                                        ctx=ast.Load(),
     ...                                        annotation=None,
     ...                                        type_comment=None),
@@ -96,12 +96,12 @@ def get_variable(assignable):
 
 
 def pythran_builtin(name):
-    return MODULES['__builtin__']['pythran'][name]
+    return MODULES['builtins']['pythran'][name]
 
 
 def pythran_builtin_path(name):
-    assert name in MODULES['__builtin__']['pythran']
-    return ('__builtin__', 'pythran', name)
+    assert name in MODULES['builtins']['pythran']
+    return ('builtins', 'pythran', name)
 
 
 def pythran_builtin_attr(name):

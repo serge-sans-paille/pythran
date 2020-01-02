@@ -3,7 +3,7 @@ from time import sleep
 
 
 def omp_for_schedule_guided():
-    tids = range(1001)
+    tids = list(range(1001))
     maxiter = 0
     result = True
     notout = True
@@ -49,7 +49,7 @@ def omp_for_schedule_guided():
             local_chunknr[last_threadnr] += 1
             last_threadnr = tids[i]
 
-    chuncksize = range(global_chunknr)
+    chuncksize = list(range(global_chunknr))
 
     global_chunknr = 0
     determined_chunksize = 1

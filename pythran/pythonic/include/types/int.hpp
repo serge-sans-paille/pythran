@@ -4,7 +4,7 @@
 #include "pythonic/include/types/attr.hpp"
 
 PYTHONIC_NS_BEGIN
-namespace __builtin__
+namespace builtins
 {
   template <class T>
   typename std::enable_if<std::is_integral<T>::value, T>::value

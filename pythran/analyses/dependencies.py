@@ -15,19 +15,19 @@ class Dependencies(ModuleAnalysis):
         super(Dependencies, self).__init__()
 
     def visit_List(self, node):
-        self.result.add(('__builtin__', 'list'))
+        self.result.add(('builtins', 'list'))
         self.generic_visit(node)
 
     def visit_Tuple(self, node):
-        self.result.add(('__builtin__', 'tuple'))
+        self.result.add(('builtins', 'tuple'))
         self.generic_visit(node)
 
     def visit_Set(self, node):
-        self.result.add(('__builtin__', 'set'))
+        self.result.add(('builtins', 'set'))
         self.generic_visit(node)
 
     def visit_Dict(self, node):
-        self.result.add(('__builtin__', 'dict'))
+        self.result.add(('builtins', 'dict'))
         self.generic_visit(node)
 
     def visit_Slice(self, node):
@@ -35,7 +35,7 @@ class Dependencies(ModuleAnalysis):
         self.generic_visit(node)
 
     def visit_Pow(self, node):
-        self.result.add(('__builtin__', 'pow'))
+        self.result.add(('builtins', 'pow'))
         self.result.add(('operator', 'ipow'))
 
     def visit_Add(self, node):
@@ -67,12 +67,12 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('operator', 'ge'))
 
     def visit_In(self, node):
-        self.result.add(('__builtin__', 'in'))
+        self.result.add(('builtins', 'in'))
 
     visit_NotIn = visit_In
 
     def visit_Is(self, node):
-        self.result.add(('__builtin__', 'id'))
+        self.result.add(('builtins', 'id'))
         self.generic_visit(node)
 
     visit_IsNot = visit_Is
@@ -81,19 +81,19 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('operator', 'add'))
 
     def visit_And(self, node):
-        self.result.add(('__builtin__', 'pythran', 'and'))
+        self.result.add(('builtins', 'pythran', 'and'))
         self.generic_visit(node)
 
     def visit_Or(self, node):
-        self.result.add(('__builtin__', 'pythran', 'or'))
+        self.result.add(('builtins', 'pythran', 'or'))
         self.generic_visit(node)
 
     def visit_Print(self, node):
-        self.result.add(('__builtin__', 'print'))
+        self.result.add(('builtins', 'print'))
         self.generic_visit(node)
 
     def visit_Assert(self, node):
-        self.result.add(('__builtin__', 'assert'))
+        self.result.add(('builtins', 'assert'))
         self.generic_visit(node)
 
     def visit_Yield(self, node):
@@ -114,7 +114,7 @@ class Dependencies(ModuleAnalysis):
 
     def visit_Constant(self, node):
         if node.value is None:
-            self.result.add(('__builtin__', 'None'))
+            self.result.add(('builtins', 'None'))
         elif isinstance(node.value, str):
             self.result.add(('types', 'str'))
         elif isinstance(node.value, complex):

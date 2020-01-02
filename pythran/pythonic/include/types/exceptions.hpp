@@ -4,7 +4,7 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/types/dynamic_tuple.hpp"
 #include "pythonic/include/types/attr.hpp"
-#include "pythonic/include/__builtin__/str.hpp"
+#include "pythonic/include/builtins/str.hpp"
 
 #include <stdexcept>
 
@@ -92,12 +92,12 @@ PYTHONIC_NS_END
   template <typename... Types>                                                 \
   types::name name(Types const &... args);                                     \
                                                                                \
-  DEFINE_FUNCTOR(pythonic::__builtin__, name);
+  DEFINE_FUNCTOR(pythonic::builtins, name);
 
 /* pythran attribute system { */
 #define DECLARE_EXCEPTION_GETATTR(name)                                        \
   PYTHONIC_NS_BEGIN                                                            \
-  namespace __builtin__                                                        \
+  namespace builtins                                                           \
   {                                                                            \
     types::none<types::dynamic_tuple<types::str>>                              \
     getattr(types::attr::ARGS, types::name const &f);                          \
@@ -106,7 +106,7 @@ PYTHONIC_NS_END
 
 #define DECLARE_EXCEPTION_GETATTR_FULL(name)                                   \
   PYTHONIC_NS_BEGIN                                                            \
-  namespace __builtin__                                                        \
+  namespace builtins                                                           \
   {                                                                            \
     types::none<types::dynamic_tuple<types::str>>                              \
     getattr(types::attr::ARGS, types::name const &e);                          \

@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
 
 PYTHONIC_NS_BEGIN

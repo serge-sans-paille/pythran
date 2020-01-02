@@ -1,7 +1,6 @@
 import unittest
 from pythran.tests import TestEnv
 import numpy
-import sys
 
 from pythran.typing import NDArray, List, Tuple
 
@@ -564,13 +563,13 @@ def np_rosen_der(x):
         self.run_test("def np_sort_complex1(a): from numpy import sort_complex ; return sort_complex(a)", numpy.array([1 + 2j, 2 - 1j, 3 - 2j, 3 - 3j, 3 + 5j]), np_sort_complex1=[NDArray[complex,:]])
 
     def test_split0(self):
-        self.run_test("def np_split0(a): from numpy import split,array2string ; return map(array2string,split(a, 3))", numpy.arange(12), np_split0=[NDArray[int,:]])
+        self.run_test("def np_split0(a): from numpy import split,array2string ; return list(map(array2string,split(a, 3)))", numpy.arange(12), np_split0=[NDArray[int,:]])
 
     def test_split1(self):
         self.run_test("def np_split1(a):\n from numpy import split\n try:\n  print(split(a, 5))\n  return False\n except ValueError:\n  return True", numpy.arange(12), np_split1=[NDArray[int,:]])
 
     def test_split2(self):
-        self.run_test("def np_split2(a): from numpy import split, array2string; return map(array2string,split(a, [0,1,5]))", numpy.arange(12).reshape(6,2), np_split2=[NDArray[int,:,:]])
+        self.run_test("def np_split2(a): from numpy import split, array2string; return list(map(array2string,split(a, [0,1,5])))", numpy.arange(12).reshape(6,2), np_split2=[NDArray[int,:,:]])
 
     @unittest.skip("Require numpy_fexpr for multidim array")
     def test_take0(self):
@@ -602,11 +601,11 @@ def np_rosen_der(x):
     def test_tolist2(self):
         self.run_test("def np_tolist2(a): return a.tolist()", numpy.arange(2*3*4*5).reshape(2,3,4,5), np_tolist2=[NDArray[int, :, :, :, :]])
 
-    @unittest.skipIf(sys.version_info.major == 3, "Not supported in Pythran3")
+    @unittest.skip("bytes/str confusion")
     def test_tostring0(self):
         self.run_test("def np_tostring0(a): return a.tostring()", numpy.arange(80, 100), np_tostring0=[NDArray[int,:]])
 
-    @unittest.skipIf(sys.version_info.major == 3, "Not supported in Pythran3")
+    @unittest.skip("bytes/str confusion")
     def test_tostring1(self):
         self.run_test("def np_tostring1(a): return a.tostring()", numpy.arange(500, 600), np_tostring1=[NDArray[int,:]])
 

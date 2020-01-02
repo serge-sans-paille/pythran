@@ -1,5 +1,4 @@
 import numpy
-import sys
 import unittest
 
 from pythran.tests import TestEnv
@@ -66,25 +65,20 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def zipped_list_comprehension(l): return [ x*y for x,y in zip(l,l) ]", [1,2,3], zipped_list_comprehension=[List[int]])
 
     def test_zip(self):
-        self.run_test("def zip_(l0,l1): return zip(l0,l1)", [1,2,3],["one", "two", "three"], zip_=[List[int], List[str]])
+        self.run_test("def zip_(l0,l1): return list(zip(l0,l1))", [1,2,3],["one", "two", "three"], zip_=[List[int], List[str]])
 
     def test_multizip(self):
-        self.run_test("def multizip(l0,l1): return zip(l0,zip(l0,l1))", [1,2,3],["one", "two", "three"], multizip=[List[int], List[str]])
+        self.run_test("def multizip(l0,l1): return list(zip(l0,zip(l0,l1)))", [1,2,3],["one", "two", "three"], multizip=[List[int], List[str]])
 
     def test_reduce(self):
-        self.run_test("def reduce_(l): return reduce(lambda x,y:x+y, l)", [0.,1.1,2.2,3.3], reduce_=[List[float]])
+        self.run_test("def reduce_(l): from functools import reduce; return reduce(lambda x,y:x+y, l)", [0.,1.1,2.2,3.3], reduce_=[List[float]])
 
     def test_another_reduce(self):
-        if sys.version_info.major == 2:
-            code = '''
-            def another_reduce(l0,l1):
-                return reduce(lambda x,(y,z):x+y+z, zip(l0, l1),0)
-            '''
-        else:
-            code = '''
-            def another_reduce(l0,l1):
-                return reduce(lambda x,y:x+y[0]+y[1], zip(l0, l1),0)
-            '''
+        code = '''
+        def another_reduce(l0,l1):
+            from functools import reduce
+            return reduce(lambda x,y:x+y[0]+y[1], zip(l0, l1),0)
+        '''
         self.run_test(code, [0.4,1.4,2.4,3.4], [0.,1.1,2.2,3.3], another_reduce=[List[float], List[float]])
 
     def test_sum(self):
@@ -105,14 +99,6 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_multimin(self):
         self.run_test("def multimin(l,v):return min(v,min(l))", [ 1.1, 2.2 ], 3, multimin=[List[float],int])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_map_none(self):
-        self.run_test("def map_none(l0): return map(None, l0)", [0,1,2], map_none=[List[int]])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_map_none2(self):
-        self.run_test("def map_none2(l0): return map(None, l0, l0)", [0,1,2], map_none2=[List[int]])
-
     def test_map(self):
         self.run_test("def map_(l0, l1, v): return list(map(lambda x,y:x*v+y, l0, l1))", [0,1,2], [0.,1.1,2.2], 2, map_=[List[int], List[float], int])
 
@@ -123,25 +109,25 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def intrinsic_map(l): return list(map(max,l))",[[0,1,2],[2,0,1]], intrinsic_map=[List[List[int]]])
 
     def test_range1(self):
-        self.run_test("def range1_(e): return range(e)", 3, range1_=[int])
+        self.run_test("def range1_(e): return list(range(e))", 3, range1_=[int])
 
     def test_range2(self):
-        self.run_test("def range2_(b,e): return range(b,e)", 1, 3, range2_=[int,int])
+        self.run_test("def range2_(b,e): return list(range(b,e))", 1, 3, range2_=[int,int])
 
     def test_range3(self):
-        self.run_test("def range3_(b,e,s): return range(b,e,s)", 8,3,-2, range3_=[int,int,int])
+        self.run_test("def range3_(b,e,s): return list(range(b,e,s))", 8,3,-2, range3_=[int,int,int])
 
     def test_range4(self):
-        self.run_test("def range4_(b,e,s): return range(b,e,s)", 8,2,-2, range4_=[int,int,int])
+        self.run_test("def range4_(b,e,s): return list(range(b,e,s))", 8,2,-2, range4_=[int,int,int])
 
     def test_range5(self):
-        self.run_test("def range5_(b,e,s): return range(b,e,s)", 3,8,1, range5_=[int,int,int])
+        self.run_test("def range5_(b,e,s): return list(range(b,e,s))", 3,8,1, range5_=[int,int,int])
 
     def test_range6(self):
-        self.run_test("def range6_(b,e,s): return range(b,e,s)", 3,8,3, range6_=[int,int,int])
+        self.run_test("def range6_(b,e,s): return list(range(b,e,s))", 3,8,3, range6_=[int,int,int])
 
     def test_range7(self):
-        self.run_test("def range7_(b,e,s): return range(b,e,s)", 3,9,3, range7_=[int,int,int])
+        self.run_test("def range7_(b,e,s): return list(range(b,e,s))", 3,9,3, range7_=[int,int,int])
 
     def test_rrange1(self):
         self.run_test("def rrange1_(e): return list(reversed(range(e)))", 3, rrange1_=[int])
@@ -168,22 +154,22 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
         self.run_test("def multirange(i): return list(map(lambda x,y:y*x//2, range(1,i), range(i,1,-1)))", 3, multirange=[int])
 
     def test_xrange1(self):
-        self.run_test("def xrange1_(e): return list(xrange(e))", 3, xrange1_=[int])
+        self.run_test("def xrange1_(e): return list(range(e))", 3, xrange1_=[int])
 
     def test_xrange2(self):
-        self.run_test("def xrange2_(b,e): return list(xrange(b,e))", 1, 3, xrange2_=[int,int])
+        self.run_test("def xrange2_(b,e): return list(range(b,e))", 1, 3, xrange2_=[int,int])
 
     def test_xrange3(self):
-        self.run_test("def xrange3_(b,e,s): return list(xrange(b,e,s))", 8,3,-2, xrange3_=[int,int,int])
+        self.run_test("def xrange3_(b,e,s): return list(range(b,e,s))", 8,3,-2, xrange3_=[int,int,int])
 
     def test_xrange4(self):
-        self.run_test("def xrange4_(b,e,s): return list(xrange(b,e,s))", 3,8,1, xrange4_=[int,int,int])
+        self.run_test("def xrange4_(b,e,s): return list(range(b,e,s))", 3,8,1, xrange4_=[int,int,int])
 
     def test_xrange5(self):
-        self.run_test("def xrange5_(e): return max(xrange(e))", 3, xrange5_=[int])
+        self.run_test("def xrange5_(e): return max(range(e))", 3, xrange5_=[int])
 
     def test_multixrange(self):
-        self.run_test("def multixrange(i): return map(lambda x,y:y*x//2, xrange(1,i), xrange(i,1,-1))", 3, multixrange=[int])
+        self.run_test("def multixrange(i): return list(map(lambda x,y:y*x//2, range(1,i), range(i,1,-1)))", 3, multixrange=[int])
 
     def test_print(self):
         self.run_test("def print_(a,b,c,d): print(a,b,c,d,'e',1.5)", [1.,2.,3.1],3,True, "d", print_=[List[float], int, bool, str])
@@ -251,16 +237,16 @@ def lambda_():
         self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=[Tuple[int, int]])
 
     def test_nested_list_comprehension(self):
-        self.run_test("def nested_list_comprehension(): return [ [ x+y for x in xrange(10) ] for y in xrange(20) ]", nested_list_comprehension=[])
+        self.run_test("def nested_list_comprehension(): return [ [ x+y for x in range(10) ] for y in range(20) ]", nested_list_comprehension=[])
 
     def test_delete(self):
         self.run_test("def delete_(v): del v", 1, delete_=[int])
 
     def test_continue(self):
-        self.run_test("def continue_():\n for i in xrange(3):continue\n return i", continue_=[])
+        self.run_test("def continue_():\n for i in range(3):continue\n return i", continue_=[])
 
     def test_break(self):
-        self.run_test("def break_():\n for i in xrange(3):break\n return i", break_=[])
+        self.run_test("def break_():\n for i in range(3):break\n return i", break_=[])
 
     def test_assert(self):
         self.run_test("def assert_(i): assert i > 0", 1, assert_=[int])
@@ -412,14 +398,14 @@ def nested_def(a):
         self.run_test("def local_import_(): import math;return math.cos(1)", local_import_=[])
 
     def test_abs(self):
-        """ Check __builtin__.abs behavior with float. """
+        """ Check builtins.abs behavior with float. """
         self.run_test("""
         def abs_(a):
             return abs(a)""",
                       -1.3, abs_=[float])
 
     def test_npabs(self):
-        """ Check __builtin__.abs behavior with numpy.array. """
+        """ Check builtins.abs behavior with numpy.array. """
         self.run_test("""
         def npabs_(a):
             return abs(a)""",
@@ -438,10 +424,6 @@ def nested_def(a):
     def test_chr(self):
         self.run_test("def chr_(a): return chr(a)", 42, chr_=[int])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_cmp(self):
-        self.run_test("def cmp_(a,b): return cmp(a,b)", 1, 4.5, cmp_=[int, float])
-
     def test_complex(self):
         self.run_test("def complex_(a): return complex(a)", 1, complex_=[int])
 
@@ -455,7 +437,7 @@ def nested_def(a):
         self.run_test("def enumerate2_(l): return [ x for x in enumerate(l, 3) ]", ["a","b","c"], enumerate2_=[List[str]])
 
     def test_filter(self):
-        self.run_test("def filter_(l): return filter(lambda x:x%2, l)", [1,2,3], filter_=[List[int]])
+        self.run_test("def filter_(l): return list(filter(lambda x:x%2, l))", [1,2,3], filter_=[List[int]])
 
     def test_hex(self):
         self.run_test("def hex_(a): return hex(a)", 18, hex_=[int])
@@ -475,15 +457,14 @@ def nested_def(a):
     def test_sorted0(self):
         self.run_test("def sorted0(l): return [x for x in sorted(l)]", [4, 1,2,3], sorted0=[List[int]])
 
-    if sys.version_info.major == 3:
-        def test_sorted1(self):
-            self.run_test("def sorted1(l): return [x for x in sorted(l, reverse=True)]", [4, 1,2,3], sorted1=[List[int]])
+    def test_sorted1(self):
+        self.run_test("def sorted1(l): return [x for x in sorted(l, reverse=True)]", [4, 1,2,3], sorted1=[List[int]])
 
-        def test_sorted2(self):
-            self.run_test("def sorted2(l): return [x for x in sorted(l, key=lambda x:-x)]", [4, 1,2,3], sorted2=[List[int]])
+    def test_sorted2(self):
+        self.run_test("def sorted2(l): return [x for x in sorted(l, key=lambda x:-x)]", [4, 1,2,3], sorted2=[List[int]])
 
-        def test_sorted3(self):
-            self.run_test("def sorted3(l): return [x for x in sorted(l,reverse=True,key=lambda x:-x)]", [4, 1,2,3], sorted3=[List[int]])
+    def test_sorted3(self):
+        self.run_test("def sorted3(l): return [x for x in sorted(l,reverse=True,key=lambda x:-x)]", [4, 1,2,3], sorted3=[List[int]])
 
     def test_str(self):
         self.run_test("def str_(l): return str(l)", [1,2,3], str_=[List[int]])
@@ -531,7 +512,7 @@ def complex_number():
 def foo(A):
     A[0]=1.5
 def subscript_assignment ():
-    a=range(1)
+    a=list(range(1))
     foo(a)
     return a[0]"""
         self.run_test(code,subscript_assignment=[])
@@ -574,20 +555,20 @@ def shadow_parameters(l):
     def test_yielder(self):
         code="""
 def iyielder(i):
-    for k in xrange(i+18):
+    for k in range(i+18):
         yield k
     return
 
 def yielder():
     f=iyielder(1)
-    b=f.next()
+    b=next(f)
     return [i*i for i in f]"""
         self.run_test(code, yielder=[])
 
     def test_yield_with_default_param(self):
         code="""
 def foo(a=1000):
-    for i in xrange(10):
+    for i in range(10):
         yield a
 
 def yield_param():
@@ -672,13 +653,13 @@ def import_as():
     def test_range_negative_step(self):
         self.run_test("""def range_negative_step(n):
         o=[]
-        for i in xrange(n, 0, -1): o.append(i)
+        for i in range(n, 0, -1): o.append(i)
         return o""", 10, range_negative_step=[int])
 
     def test_reversed_range_negative_step(self):
         self.run_test("""def reversed_range_negative_step(n):
         o=[]
-        for i in reversed(xrange(n, 0, -1)): o.append(i)
+        for i in reversed(range(n, 0, -1)): o.append(i)
         return o""", 10, reversed_range_negative_step=[int])
 
     def test_update_empty_list(self):
@@ -691,7 +672,7 @@ def update_empty_list(l):
         self.run_test('''
 def update_list_with_slice(l):
     p = list()
-    for i in xrange(10):
+    for i in range(10):
         p += l[:1]
     return p,i''', list(range(5)), update_list_with_slice=[List[int]])
 
@@ -699,7 +680,7 @@ def update_list_with_slice(l):
         self.run_test('''
 def add_slice_to_list(l):
     p = list()
-    for i in xrange(10):
+    for i in range(10):
         p = p + l[:1]
     return p,i''', list(range(5)), add_slice_to_list=[List[int]])
 

@@ -1,5 +1,4 @@
 """ GlobalEffects computes function effect on global state. """
-from __future__ import print_function
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations

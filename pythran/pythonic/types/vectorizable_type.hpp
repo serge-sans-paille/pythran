@@ -25,7 +25,7 @@ namespace operator_
   }
 }
 
-namespace __builtin__
+namespace builtins
 {
   namespace pythran
   {
@@ -129,7 +129,7 @@ namespace types
               is_complex<typename dtype_of<Args>::type>::value...>::value &&
           (std::is_same<O, numpy::functor::floor_divide>::value ||
            std::is_same<O, numpy::functor::maximum>::value ||
-           std::is_same<O, __builtin__::pythran::functor::abssqr>::value ||
+           std::is_same<O, builtins::pythran::functor::abssqr>::value ||
            std::is_same<O, numpy::functor::minimum>::value)) &&
         // transtyping
         !std::is_same<O, numpy::functor::bool_>::value &&
@@ -147,10 +147,8 @@ namespace types
         !(utils::any_of<std::is_integral<
               typename dtype_of<Args>::type>::value...>::value &&
           (std::is_same<O, numpy::functor::floor_divide>::value ||
-#if PY_MAJOR_VERSION >= 3
            std::is_same<O, numpy::functor::true_divide>::value ||
            std::is_same<O, numpy::functor::divide>::value ||
-#endif
            std::is_same<O, numpy::functor::arctan2>::value ||
            std::is_same<O, numpy::functor::copysign>::value ||
            std::is_same<O, numpy::functor::logaddexp>::value ||

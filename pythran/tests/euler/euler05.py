@@ -17,7 +17,7 @@ def solve(start, end):
         return a * b / gcd(a, b)
 
     n = 1
-    for i in xrange(start, end + 1):
+    for i in range(start, end + 1):
         n = lcm(n, i)
 
     return n

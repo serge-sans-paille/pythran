@@ -25,7 +25,7 @@ class LocalNodeDeclarations(NodeAnalysis):
     >>> [name.id for name in pm.gather(LocalNodeDeclarations, node)]
     ['b']
     >>> node = ast.parse('''
-    ... for c in xrange(n):
+    ... for c in range(n):
     ...     b = a + 1''')
     >>> pm = passmanager.PassManager("test")
     >>> sorted([name.id for name in pm.gather(LocalNodeDeclarations, node)])

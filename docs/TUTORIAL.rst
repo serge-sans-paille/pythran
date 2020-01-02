@@ -128,12 +128,12 @@ There are many small passes used iteratively to produce the Pythran AST. For ins
   >>> print(pm.dump(backend.Python, tree))
   def foo():
       pass
-      return __builtin__.None
+      return builtins.None
 
 More complex ones rely on introspection to implement constant folding::
 
   >>> from __future__ import print_function
-  >>> code = [fib_src, 'def foo(): return __builtin__.map(fib, [1,2,3])']
+  >>> code = [fib_src, 'def foo(): return builtins.map(fib, [1,2,3])']
   >>> fib_call = '\n'.join(code)
   >>> tree = ast.parse(fib_call)
   >>> from pythran import optimizations as optim
@@ -146,7 +146,7 @@ More complex ones rely on introspection to implement constant folding::
 
 One can also detect some common generator expression patterns to call the itertool module::
 
-  >>> norm = 'def norm(l): return __builtin__.sum(n*n for n in l)'
+  >>> norm = 'def norm(l): return builtins.sum(n*n for n in l)'
   >>> tree = ast.parse(norm)
   >>> _ = pm.apply(optim.ComprehensionPatterns, tree)
   >>> 'map' in pm.dump(backend.Python, tree)
@@ -183,7 +183,7 @@ One can also computes the state of ``globals()``::
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
   >>> sorted(list(pm.gather(analyses.Globals, tree)))
-  ['__builtin__', '__dispatch__', 'foo', 'math']
+  ['__dispatch__', 'builtins', 'foo', 'math']
 
 One can also compute the state of ``locals()`` at any point of the program::
 
@@ -243,7 +243,7 @@ Pure functions are also interesting in the context of ``map``, as the
 application of a pure functions using a map results in a parallel ``map``::
 
   >>> code = 'def foo(x): return x*x\n'
-  >>> code += '__builtin__.map(foo, __builtin__.range(100))'
+  >>> code += 'builtins.map(foo, builtins.range(100))'
   >>> tree = ast.parse(code)
   >>> pmaps = pm.gather(analyses.ParallelMaps, tree)
   >>> len(pmaps)

@@ -24,7 +24,7 @@ namespace numpy
   }
 
   template <size_t N>
-  types::array<long, N> ndindex_iterator<N>::operator*()
+  types::array<long, N> ndindex_iterator<N>::operator*() const
   {
     types::array<long, N> out;
     long mult = 1;
@@ -51,19 +51,19 @@ namespace numpy
   }
 
   template <size_t N>
-  bool ndindex_iterator<N>::operator!=(ndindex_iterator<N> const &other)
+  bool ndindex_iterator<N>::operator!=(ndindex_iterator<N> const &other) const
   {
     return index != other.index;
   }
 
   template <size_t N>
-  bool ndindex_iterator<N>::operator<(ndindex_iterator<N> const &other)
+  bool ndindex_iterator<N>::operator<(ndindex_iterator<N> const &other) const
   {
     return index < other.index;
   }
 
   template <size_t N>
-  long ndindex_iterator<N>::operator-(ndindex_iterator<N> const &other)
+  long ndindex_iterator<N>::operator-(ndindex_iterator<N> const &other) const
   {
     return index - other.index;
   }

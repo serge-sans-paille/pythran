@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-  auto const &newaxis = __builtin__::None;
+  auto const &newaxis = builtins::None;
 }
 PYTHONIC_NS_END
 

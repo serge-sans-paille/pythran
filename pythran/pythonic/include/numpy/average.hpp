@@ -9,7 +9,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  auto average(E const &expr, types::none_type const &axis = __builtin__::None)
+  auto average(E const &expr, types::none_type const &axis = builtins::None)
       -> decltype(sum(expr, axis) / 1.);
 
   template <class E>

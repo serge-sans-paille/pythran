@@ -18,7 +18,7 @@ PYTHONIC_NS_END
 
 /* pythran attribute system { */
 PYTHONIC_NS_BEGIN
-namespace __builtin__
+namespace builtins
 {
   template <class T>
   T getattr(pythonic::types::finfo<T> const &f,

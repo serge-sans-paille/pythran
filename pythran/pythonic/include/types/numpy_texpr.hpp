@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_TEXPR_HPP
 
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/builtins/None.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -63,13 +63,13 @@ namespace types
     }
 
     auto fast(long i) const
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
+        -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
                               i));
 
     auto fast(long i)
-        -> decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                               pythonic::__builtin__::None),
+        -> decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
                               i));
     auto fast(array<long, value> const &indices)
         -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}))
@@ -169,21 +169,19 @@ namespace types
     }
 
     auto operator[](contiguous_slice const &s0) const -> numpy_texpr<
-        decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                            pythonic::__builtin__::None),
+        decltype(this->arg(contiguous_slice(pythonic::builtins::None,
+                                            pythonic::builtins::None),
                            s0))>;
-    auto operator[](contiguous_slice const &s0) -> numpy_texpr<
-        decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                            pythonic::__builtin__::None),
-                           s0))>;
-    auto operator[](slice const &s0) const -> numpy_texpr<
-        decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                            pythonic::__builtin__::None),
-                           s0))>;
-    auto operator[](slice const &s0) -> numpy_texpr<
-        decltype(this->arg(contiguous_slice(pythonic::__builtin__::None,
-                                            pythonic::__builtin__::None),
-                           s0))>;
+    auto
+    operator[](contiguous_slice const &s0) -> numpy_texpr<decltype(this->arg(
+        contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+        s0))>;
+    auto operator[](slice const &s0) const -> numpy_texpr<decltype(this->arg(
+        contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+        s0))>;
+    auto operator[](slice const &s0) -> numpy_texpr<decltype(this->arg(
+        contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+        s0))>;
 
     template <class S, size_t... I>
     auto _reverse_index(S const &indices, utils::index_sequence<I...>) const

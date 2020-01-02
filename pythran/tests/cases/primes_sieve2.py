@@ -10,7 +10,7 @@ def get_primes7(n):
 	if n < 2:  return []
 	if n == 2: return [2]
 	# do only odd numbers starting at 3
-	s = range(3, n+1, 2)
+	s = list(range(3, n+1, 2))
 	# n**0.5 simpler than math.sqr(n)
 	mroot = n ** 0.5
 	half = len(s)

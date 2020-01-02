@@ -14,10 +14,10 @@ def solve(a):
     sieve[0] = sieve[1] = False
 
     def mark(sieve, x):
-        for i in xrange(x+x, len(sieve), x):
+        for i in range(x+x, len(sieve), x):
             sieve[i] = False
 
-    for x in xrange(2, int(len(sieve) ** 0.5) + 1):
+    for x in range(2, int(len(sieve) ** 0.5) + 1):
         mark(sieve, x)
 
     def circular(n):
@@ -25,7 +25,7 @@ def solve(a):
         while n > 0:
             digits.insert(0, str(n % 10))
             n = n // 10
-        for d in xrange(1, len(digits)):
+        for d in range(1, len(digits)):
             yield int(''.join(digits[d:] + digits[0:d]))
 
     count = 0

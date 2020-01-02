@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_NUMPY_DIGITIZE_HPP
 
 #include "pythonic/include/numpy/asarray.hpp"
-#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/builtins/None.hpp"
 #include "pythonic/include/operator_/gt.hpp"
 #include "pythonic/include/operator_/lt.hpp"
 

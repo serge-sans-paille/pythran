@@ -39,7 +39,7 @@ def solve(nfact):
             div = div * c
         return div
 
-    for i in xrange(1, 1000000000):
+    for i in range(1, 1000000000):
         n = i * (i+1) // 2
         if num_factors(n) > nfact:
             return n

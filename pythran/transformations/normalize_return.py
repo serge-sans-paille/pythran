@@ -19,7 +19,7 @@ class NormalizeReturn(Transformation):
     >>> print(pm.dump(backend.Python, node))
     def foo(y):
         print(y)
-        return __builtin__.None
+        return builtins.None
     '''
 
     def __init__(self):
@@ -39,7 +39,7 @@ class NormalizeReturn(Transformation):
                     node.body.append(ast.Return(None))
                 else:
                     none = ast.Attribute(
-                        ast.Name("__builtin__", ast.Load(), None, None),
+                        ast.Name("builtins", ast.Load(), None, None),
                         'None',
                         ast.Load())
                     node.body.append(ast.Return(none))
@@ -49,7 +49,7 @@ class NormalizeReturn(Transformation):
 
     def visit_Return(self, node):
         if not node.value and not self.yield_points:
-            none = ast.Attribute(ast.Name("__builtin__", ast.Load(), None, None),
+            none = ast.Attribute(ast.Name("builtins", ast.Load(), None, None),
                                  'None', ast.Load())
             node.value = none
             self.update = True

@@ -6,7 +6,7 @@
 #include "pythonic/types/attr.hpp"
 
 PYTHONIC_NS_BEGIN
-namespace __builtin__
+namespace builtins
 {
   template <class T>
   typename std::enable_if<std::is_integral<T>::value, T>::type
@@ -120,10 +120,9 @@ template <>
 struct c_type_to_numpy_type<bool> : std::integral_constant<int, NPY_BOOL> {
 };
 
-#if PY_MAJOR_VERSION >= 3
 #ifndef PyInt_FromLong
 #define PyInt_FromLong PyLong_FromLong
-#endif
+
 #ifndef PyInt_CheckExact
 #define PyInt_CheckExact PyLong_CheckExact
 #endif

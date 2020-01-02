@@ -66,7 +66,7 @@ typename std::remove_reference<decltype(toto)>::type>::type
 typename std::remove_reference<str>::type::iterator>::value_type>::type
 
     >>> builder.GetAttr(builder.NamedType('complex'), 'real')
-    decltype(pythonic::__builtin__::getattr(\
+    decltype(pythonic::builtins::getattr(\
 pythonic::types::attr::REAL{}, std::declval<complex>()))
 
     >>> builder.ReturnType(builder.NamedType('math::cos'), [f_ty])
@@ -347,7 +347,7 @@ std::declval<bool>()))
                 super(GetAttr, self).__init__(param=param, attr=attr)
 
             def generate(self, ctx):
-                return ('decltype(pythonic::__builtin__::getattr({}{{}}, {}))'
+                return ('decltype(pythonic::builtins::getattr({}{{}}, {}))'
                         .format('pythonic::types::attr::' + self.attr.upper(),
                                 'std::declval<' + ctx(self.param) + '>()'))
 

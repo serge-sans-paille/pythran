@@ -1,5 +1,4 @@
 """ ConstantFolding performs some kind of partial evaluation.  """
-from __future__ import print_function
 
 from pythran.analyses import ConstantExpressions, ASTMatcher
 from pythran.passmanager import Transformation
@@ -34,7 +33,7 @@ class ConstantFolding(Transformation):
     def prepare(self, node):
         assert isinstance(node, ast.Module)
         self.env = {
-            '__builtin__': __import__('__builtin__'),
+            'builtins': __import__('builtins'),
         }
 
         for module_name in MODULES:

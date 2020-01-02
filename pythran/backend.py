@@ -3,7 +3,6 @@ This module contains all pythran backends.
     * Cxx dumps the AST into C++ code
     * Python dumps the AST into Python code
 '''
-from __future__ import print_function
 
 from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
@@ -27,13 +26,8 @@ from pythran import metadata, unparse
 from math import isnan, isinf
 import gast as ast
 import os
-import sys
 from functools import reduce
-
-if sys.version_info.major == 2:
-    import StringIO as io
-else:
-    import io
+import io
 
 
 class Python(Backend):
@@ -78,7 +72,7 @@ def cxx_loop(visit):
 
     Examples
     --------
-    >> for i in xrange(12):
+    >> for i in range(12):
     >>     if i == 5:
     >>         break
     >> else:
@@ -86,7 +80,7 @@ def cxx_loop(visit):
 
     Becomes
 
-    >> for(type i : xrange(12))
+    >> for(type i : range(12))
     >>     if(i==5)
     >>         goto __no_breaking0;
     >> ... some code ...
@@ -441,7 +435,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Print(self, node):
         values = [self.visit(n) for n in node.values]
-        stmt = Statement("pythonic::__builtin__::print{0}({1})".format(
+        stmt = Statement("pythonic::builtins::print{0}({1})".format(
             "" if node.nl else "_nonl",
             ", ".join(values))
             )
@@ -454,7 +448,7 @@ class CxxFunction(ast.NodeVisitor):
         Examples
         --------
         >> "omp parallel for"
-        >> for i in xrange(10):
+        >> for i in range(10):
         >>     ... do things ...
 
         Becomes
@@ -519,7 +513,7 @@ class CxxFunction(ast.NodeVisitor):
 
         Examples
         --------
-        >> for i in xrange(10):
+        >> for i in range(10):
         >>     ... do things ...
 
         Becomes
@@ -529,7 +523,7 @@ class CxxFunction(ast.NodeVisitor):
 
         Or
 
-        >> for i in xrange(10, 0, -1):
+        >> for i in range(10, 0, -1):
         >>     ... do things ...
 
         Becomes
@@ -643,17 +637,13 @@ class CxxFunction(ast.NodeVisitor):
 
         To use C syntax:
             - target should not be assign in the loop
-            - xrange should be use as iterator
+            - range should be use as iterator
             - order have to be known at compile time
         """
         assert isinstance(node.target, ast.Name)
-        if sys.version_info.major == 3:
-            range_name = 'range'
-        else:
-            range_name = 'xrange'
         pattern_range = ast.Call(func=ast.Attribute(
-            value=ast.Name('__builtin__', ast.Load(), None, None),
-            attr=range_name, ctx=ast.Load()),
+            value=ast.Name('builtins', ast.Load(), None, None),
+            attr='range', ctx=ast.Load()),
             args=AST_any(), keywords=[])
         is_assigned = set()
         for stmt in node.body:
@@ -680,13 +670,13 @@ class CxxFunction(ast.NodeVisitor):
 
         Examples
         --------
-        >> for i in xrange(10):
+        >> for i in range(10):
         >>     ... work ...
 
         Becomes
 
-        >> typename returnable<decltype(__builtin__.xrange(10))>::type __iterX
-           = __builtin__.xrange(10);
+        >> typename returnable<decltype(builtins.range(10))>::type __iterX
+           = builtins.range(10);
         >> ... possible container size reservation ...
         >> for (auto&& i: __iterX)
         >>     ... the work ...
@@ -908,8 +898,8 @@ class CxxFunction(ast.NodeVisitor):
         args = [self.visit(n) for n in node.args]
         func = self.visit(node.func)
         # special hook for getattr, as we cannot represent it in C++
-        if func == 'pythonic::__builtin__::functor::getattr{}':
-            return ('pythonic::__builtin__::getattr({}{{}}, {})'
+        if func == 'pythonic::builtins::functor::getattr{}':
+            return ('pythonic::builtins::getattr({}{{}}, {})'
                     .format('pythonic::types::attr::'
                             + node.args[1].value.upper(),
                             args[0]))
@@ -918,7 +908,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Constant(self, node):
         if node.value is None:
-            ret = 'pythonic::__builtin__::None'
+            ret = 'pythonic::builtins::None'
         elif isinstance(node.value, bool):
             ret = str(node.value).lower()
         elif isinstance(node.value, str):
@@ -996,7 +986,7 @@ class CxxFunction(ast.NodeVisitor):
         for field in ('lower', 'upper', 'step'):
             nfield = getattr(node, field)
             arg = (self.visit(nfield) if nfield
-                   else 'pythonic::__builtin__::None')
+                   else 'pythonic::builtins::None')
             args.append(arg)
 
         if node.step is None or (isnum(node.step) and node.step.value == 1):

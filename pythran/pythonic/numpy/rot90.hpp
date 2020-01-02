@@ -22,7 +22,7 @@ namespace numpy
     types::array<long, N> shape = sutils::array(expr.shape());
     if (k % 4 != 2)
       std::swap(shape[0], shape[1]);
-    types::ndarray<T, types::array<long, N>> out(shape, __builtin__::None);
+    types::ndarray<T, types::array<long, N>> out(shape, builtins::None);
     if (k % 4 == 1) {
       for (int i = 0; i < shape[1]; ++i)
         for (int j = 0; j < shape[0]; ++j)

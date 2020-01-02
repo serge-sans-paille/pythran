@@ -4,7 +4,6 @@ License.
 
 Usage: unparse.py <path to source file>
 """
-from __future__ import print_function
 
 import pythran.metadata as metadata
 import pythran.openmp as openmp
@@ -13,11 +12,7 @@ from pythran.utils import isnum
 import gast as ast
 import os
 import sys
-
-if sys.version_info.major == 2:
-    import StringIO as io
-else:
-    import io
+import io
 
 
 # Large float and imaginary literals get turned into infinities in the AST.

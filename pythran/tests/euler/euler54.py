@@ -89,7 +89,7 @@ def solve():
                 return (5,0,0)
     
         # Straight
-        kinds = sorted(kind for kind in all_kinds if hand.has_key(kind))
+        kinds = sorted(kind for kind in all_kinds if kind in hand)
         if len(kinds) == 5 and kinds[4] - kinds[0] == 4:
             return (4, kinds[0],0)
     

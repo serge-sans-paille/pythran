@@ -323,9 +323,7 @@ namespace types
     list<T> operator*(long t) const;
 
     template <class F>
-    list<T> &operator+=(list<F> const &s);
-    template <class Tp, size_t N, class V>
-    list<T> &operator+=(array_base<Tp, N, V> const &s);
+    list<T> &operator+=(F const &s);
 
     long size() const;
     template <class E>
@@ -379,6 +377,10 @@ namespace types
     template <class T, size_t N, class V>
     static_list<T, N> operator+(array_base<T, N, V> const &s) const;
     empty_list operator+(empty_list const &) const;
+    template <class F>
+    typename std::enable_if<!is_numexpr_arg<F>::value,
+                            list<typename F::value_type>>::type
+    operator+(F s) const;
     explicit operator bool() const;
     template <class T>
     operator list<T>() const;

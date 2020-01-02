@@ -15,12 +15,12 @@ class RangeBasedSimplify(Transformation):
     >>> import gast as ast
     >>> from pythran import passmanager, backend
 
-    >>> node = ast.parse("def any():\\n for x in __builtin__.range(10): y=x%8")
+    >>> node = ast.parse("def any():\\n for x in builtins.range(10): y=x%8")
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RangeBasedSimplify, node)
     >>> print(pm.dump(backend.Python, node))
     def any():
-        for x in __builtin__.range(10):
+        for x in builtins.range(10):
             y = (x if (x < 8) else (x - 8))
 
     >>> node = ast.parse("def any(): x = 1 or 2; return 3 == x")

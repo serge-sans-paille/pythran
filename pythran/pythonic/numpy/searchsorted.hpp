@@ -8,8 +8,8 @@
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
 #include <algorithm>
@@ -62,7 +62,7 @@ namespace numpy
                   "Not Implemented : searchsorted for dimension != 1");
 
     types::ndarray<long, types::array<long, E::value>> out(asarray(v).shape(),
-                                                           __builtin__::None);
+                                                           builtins::None);
     _search_sorted(a, v.begin(), v.end(), out.begin(), side,
                    utils::int_<E::value>());
     return out;

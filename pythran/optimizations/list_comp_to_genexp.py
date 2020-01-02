@@ -11,19 +11,19 @@ class ListCompToGenexp(Transformation):
     Transforms list comprehension into genexp
     >>> import gast as ast
     >>> from pythran import passmanager, backend
-    >>> node = ast.parse("""                      \\n\
-def foo(l):                                       \\n\
-    return __builtin__.sum(l)                     \\n\
-def bar(n):                                       \\n\
-    return foo([x for x in __builtin__.range(n)]) \
+    >>> node = ast.parse("""                   \\n\
+def foo(l):                                    \\n\
+    return builtins.sum(l)                     \\n\
+def bar(n):                                    \\n\
+    return foo([x for x in builtins.range(n)]) \
 """)
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(ListCompToGenexp, node)
     >>> print(pm.dump(backend.Python, node))
     def foo(l):
-        return __builtin__.sum(l)
+        return builtins.sum(l)
     def bar(n):
-        return foo((x for x in __builtin__.range(n)))
+        return foo((x for x in builtins.range(n)))
     '''
     def __init__(self):
         Transformation.__init__(self, PotentialIterator)

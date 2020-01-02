@@ -1,5 +1,4 @@
 #from http://rosettacode.org/wiki/Polynomial_long_division#Python
-from itertools import izip
 from math import fabs
 
 #pythran export poly_div(int list, int list)
@@ -20,7 +19,7 @@ def poly_div(N, D):
             d = [0]*(dN - dD) + D
             mult = q[dN - dD] = N[-1] / float(d[-1])
             d = [coeff*mult for coeff in d]
-            N = [fabs ( coeffN - coeffd ) for coeffN, coeffd in izip(N, d)]
+            N = [fabs ( coeffN - coeffd ) for coeffN, coeffd in zip(N, d)]
             dN = degree(N)
         r = N
     else:

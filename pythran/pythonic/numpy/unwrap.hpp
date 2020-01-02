@@ -46,7 +46,7 @@ namespace numpy
   {
     discont = functor::maximum{}(discont, pi);
     types::ndarray<double, typename E::shape_t> out(expr.shape(),
-                                                    __builtin__::None);
+                                                    builtins::None);
     _unwrap(expr.begin(), expr.end(), out.begin(), discont,
             utils::int_<E::value>());
     return out;

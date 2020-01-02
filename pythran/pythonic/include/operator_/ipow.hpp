@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OPERATOR_IPOW_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include "pythonic/include/__builtin__/pow.hpp"
+#include "pythonic/include/builtins/pow.hpp"
 
 PYTHONIC_NS_BEGIN
 

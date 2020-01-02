@@ -8,7 +8,7 @@
 #include "pythonic/numpy/identity.hpp"
 #include "pythonic/numpy/dot.hpp"
 
-#include "pythonic/__builtin__/NotImplementedError.hpp"
+#include "pythonic/builtins/NotImplementedError.hpp"
 PYTHONIC_NS_BEGIN
 namespace numpy
 {
@@ -53,7 +53,7 @@ namespace numpy
         auto base = numpy::functor::asarray{}(expr);
         return details::fast_pow(base, n);
       }
-      throw pythonic::__builtin__::NotImplementedError("negative power");
+      throw pythonic::builtins::NotImplementedError("negative power");
     }
   }
 }

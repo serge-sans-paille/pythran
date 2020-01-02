@@ -12,8 +12,8 @@ def solve(digit):
     '''
 
     def fractions():
-        for numerator in map(str, xrange(10 ** (digit - 1), 10 ** digit)):
-            for denominator in map(str, xrange(int(numerator)+1, 10 ** digit)):
+        for numerator in map(str, range(10 ** (digit - 1), 10 ** digit)):
+            for denominator in map(str, range(int(numerator)+1, 10 ** digit)):
                 if numerator == denominator: continue
                 if numerator[1] == denominator[1] and numerator[1] == '0': continue
                 if numerator[0] == denominator[0] and int(numerator) * int(denominator[1]) == int(denominator) * int(numerator[1]): yield(int(numerator), int(denominator))

@@ -2,7 +2,6 @@ from tempfile import mkstemp
 from pythran.tests import TestEnv
 
 import unittest
-import sys
 
 from pythran.typing import List
 
@@ -42,12 +41,6 @@ class TestFile(TestEnv):
         filename=mkstemp()[1]
         self.run_test("""def _open_append(filename):\n f=open(filename,"a")\n f.write("azert")""", filename, _open_append=[str])
         self.assertEqual(open(filename).read(), "azert"*2)
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_open_bit(self):
-        filename=mkstemp()[1]
-        self.tempfile()
-        self.run_test("""def _open_bit(filename):\n f=open(filename,"rb")\n return f.read()""", filename, _open_bit=[str])
 
     def test_writing_mode_constructor(self):
         # Expecting file to be erased.
@@ -116,10 +109,9 @@ def file_close(filename):
         self.tempfile()
         self.run_test("""def _offset_write(filename):\n f=open(filename, "a")\n f.seek(5)\n f.write("aze")\n f.close()\n return open(filename,"r").read()""", self.filename, prelude = self.reinit_file, _offset_write=[str])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_next(self):
         self.tempfile()
-        self.run_test("""def _next(filename):\n f=open(filename)\n return [f.next(),f.next()]""", self.filename, _next=[str])
+        self.run_test("""def _next(filename):\n f=open(filename)\n return [next(f), next(f)]""", self.filename, _next=[str])
 
     def test_iter(self):
         self.tempfile()
@@ -173,7 +165,7 @@ def file_close(filename):
 
     def test_map_iter(self):
         self.tempfile()
-        self.run_test("""def _map_iter(filename):\n f=open(filename)\n return map(lambda s: len(s), f)""", self.filename, _map_iter=[str])
+        self.run_test("""def _map_iter(filename):\n f=open(filename)\n return list(map(lambda s: len(s), f))""", self.filename, _map_iter=[str])
 
     # The following tests insures the PROXY compatibility with rvalues
     def test_rvalue_write(self):
@@ -202,10 +194,9 @@ def file_close(filename):
         self.tempfile()
         self.run_test("def _rvalue_readlines(filename):\n return open(filename).readlines()", self.filename, _rvalue_readlines=[str])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_rvalue_next(self):
         self.tempfile()
-        self.run_test("""def _rvalue_next(filename):\n return open(filename).next()""", self.filename, _rvalue_next=[str])
+        self.run_test("""def _rvalue_next(filename):\n return next(open(filename))""", self.filename, _rvalue_next=[str])
 
     def test_rvalue_fileno(self):
         self.tempfile()
@@ -231,7 +222,3 @@ def file_close(filename):
     def test_rvalue_seek(self):
         self.tempfile()
         self.run_test("""def _rvalue_seek(filename):\n open(filename, 'a').seek(3)""", self.filename, _rvalue_seek=[str])
-
-    def test_xreadlines(self):
-        self.tempfile()
-        self.run_test("""def _xreadlines(filename):\n f= open(filename)\n return [l for l in f.xreadlines()]""", self.filename, _xreadlines=[str])

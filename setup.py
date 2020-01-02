@@ -45,13 +45,13 @@ if LooseVersion(setuptools.__version__) < MinimalSetuptoolsVersion:
 
 if sys.version_info.major < 3:
     print()
-    print("************************************************")
-    print("* Python 2 is getting closer to end-of-support *")
-    print("************************************************")
-    print("*                                              *")
-    print("* Pythran follows https://python3statement.org *")
-    print("*                                              *")
-    print("************************************************")
+    print("****************************************************")
+    print("*        Python 2 has reached end-of-support       *")
+    print("****************************************************")
+    print("*                                                  *")
+    print("* Last Pythran version supporting Python2 is 0.9.5 *")
+    print("*                                                  *")
+    print("****************************************************")
     print()
 
 

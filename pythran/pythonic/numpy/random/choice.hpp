@@ -4,7 +4,7 @@
 #include "pythonic/include/numpy/random/choice.hpp"
 #include "pythonic/include/numpy/random/generator.hpp"
 
-#include "pythonic/__builtin__/NotImplementedError.hpp"
+#include "pythonic/builtins/NotImplementedError.hpp"
 #include "pythonic/numpy/random/randint.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
@@ -26,7 +26,7 @@ namespace numpy
                                     P const &p)
     {
       if (!replace)
-        throw pythonic::__builtin__::NotImplementedError(
+        throw pythonic::builtins::NotImplementedError(
             "Choice without replacement is ! implemented, ask if you want "
             "it");
 
@@ -98,7 +98,7 @@ namespace numpy
       static_assert(T::value == 1, "ValueError: a must be 1-dimensional");
 
       if (!replace)
-        throw pythonic::__builtin__::NotImplementedError(
+        throw pythonic::builtins::NotImplementedError(
             "Choice without replacement is ! implemented, ask if you want "
             "it");
 

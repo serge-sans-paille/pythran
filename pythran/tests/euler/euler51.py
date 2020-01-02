@@ -62,7 +62,7 @@ def solve():
 
     cache = {}
     def prime_family_length(n, digits):
-        if cache.has_key((n, digits)): return cache[n, digits]
+        if (n, digits) in cache: return cache[n, digits]
 
         num, nums, count = list(str(n)), [], 0
         if len(dict.fromkeys(num[d] for d in digits).keys()) > 1:
@@ -82,7 +82,7 @@ def solve():
     while max_count < 8:
         p = prime.prime(n)
         digits = range(0, len(str(p)))
-        for size in xrange(1, len(digits)):
+        for size in range(1, len(digits)):
             patterns = combos.setdefault((len(digits), size),
                 tuple(tuple(sorted(p)) for p in uniqueCombinations(digits, size)))
             for pat in patterns:

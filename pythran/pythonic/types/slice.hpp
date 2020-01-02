@@ -4,7 +4,7 @@
 #include "pythonic/include/types/slice.hpp"
 #include "pythonic/types/NoneType.hpp"
 
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 #include <cassert>
 #include <stdexcept>
@@ -76,8 +76,7 @@ namespace types
   }
 
   slice::slice()
-      : lower(__builtin__::None), upper(__builtin__::None),
-        step(__builtin__::None)
+      : lower(builtins::None), upper(builtins::None), step(builtins::None)
   {
   }
 

@@ -18,7 +18,7 @@ class RangeLoopUnfolding(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(RangeLoopUnfolding, node)
     >>> print(pm.dump(backend.Python, node))
-    for i in __builtin__.xrange(1, 4, 1):
+    for i in builtins.range(1, 4, 1):
         print(i)
     """
 
@@ -45,8 +45,8 @@ class RangeLoopUnfolding(Transformation):
             range_params = self.isrange(node.iter.elts)
             if range_params:
                 node.iter = ast.Call(ast.Attribute(
-                    ast.Name('__builtin__', ast.Load(), None, None),
-                    'xrange',
+                    ast.Name('builtins', ast.Load(), None, None),
+                    'range',
                     node.iter.ctx),
                     [ast.Constant(param, None) for param in range_params],
                     [])

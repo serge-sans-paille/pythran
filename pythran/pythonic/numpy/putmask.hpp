@@ -6,7 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -23,7 +23,7 @@ namespace numpy
     for (long i = 0; i < expr.flat_size(); ++i)
       if (*(amask.fbegin() + i))
         *(iexpr + i) = *(avalues.fbegin() + i % n);
-    return __builtin__::None;
+    return builtins::None;
   }
 
   template <class E, class M, class F>

@@ -154,7 +154,7 @@ namespace numpy
   dot(types::ndarray<E, pS0> const &f, types::ndarray<E, pS1> const &e)
   {
     types::ndarray<E, types::pshape<long>> out(
-        types::pshape<long>{std::get<0>(f.shape())}, __builtin__::None);
+        types::pshape<long>{std::get<0>(f.shape())}, builtins::None);
     const int m = std::get<1>(f.shape()), n = std::get<0>(f.shape());
     mv(m, n, f.buffer, e.buffer, out.buffer);
     return out;
@@ -190,7 +190,7 @@ namespace numpy
   dot(types::ndarray<E, pS0> const &e, types::ndarray<E, pS1> const &f)
   {
     types::ndarray<E, types::pshape<long>> out(
-        types::pshape<long>{std::get<1>(f.shape())}, __builtin__::None);
+        types::pshape<long>{std::get<1>(f.shape())}, builtins::None);
     const int m = std::get<1>(f.shape()), n = std::get<0>(f.shape());
     vm(m, n, f.buffer, e.buffer, out.buffer);
     return out;
@@ -325,7 +325,7 @@ namespace numpy
         k = std::get<0>(b.shape());
 
     types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
-                                                 __builtin__::None);
+                                                 builtins::None);
     mm(m, n, k, a.buffer, b.buffer, out.buffer);
     return out;
   }
@@ -377,7 +377,7 @@ namespace numpy
         k = std::get<0>(b.shape());
 
     types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
-                                                 __builtin__::None);
+                                                 builtins::None);
     tm(m, n, k, a.arg.buffer, b.buffer, out.buffer);
     return out;
   }
@@ -414,7 +414,7 @@ namespace numpy
         k = std::get<0>(b.shape());
 
     types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
-                                                 __builtin__::None);
+                                                 builtins::None);
     mt(m, n, k, a.buffer, b.arg.buffer, out.buffer);
     return out;
   }
@@ -451,7 +451,7 @@ namespace numpy
         k = std::get<0>(b.shape());
 
     types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
-                                                 __builtin__::None);
+                                                 builtins::None);
     tt(m, n, k, a.arg.buffer, b.arg.buffer, out.buffer);
     return out;
   }

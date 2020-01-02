@@ -2,7 +2,6 @@
 # http://smallshire.org.uk/sufficientlysmall/2010/04/11/\
 #       a-hindley-milner-type-inference-implementation-in-python/
 
-from __future__ import print_function
 import gast
 from copy import deepcopy
 
@@ -627,7 +626,7 @@ def analyse(node, env, non_generic=None):
     elif isinstance(node, gast.IfExp):
         test_type = analyse(node.test, env, non_generic)
         unify(Function([test_type], Bool()),
-              tr(MODULES['__builtin__']['bool']))
+              tr(MODULES['builtins']['bool']))
 
         if is_test_is_none(node.test):
             none_id = node.test.left.id
@@ -1037,7 +1036,7 @@ def analyse(node, env, non_generic=None):
     elif isinstance(node, gast.If):
         test_type = analyse(node.test, env, non_generic)
         unify(Function([test_type], Bool()),
-              tr(MODULES['__builtin__']['bool']))
+              tr(MODULES['builtins']['bool']))
 
         body_env = env.copy()
         body_non_generic = non_generic.copy()
@@ -1104,7 +1103,7 @@ def analyse(node, env, non_generic=None):
     elif isinstance(node, gast.While):
         test_type = analyse(node.test, env, non_generic)
         unify(Function([test_type], Bool()),
-              tr(MODULES['__builtin__']['bool']))
+              tr(MODULES['builtins']['bool']))
 
         analyse_body(node.body, env, non_generic)
         analyse_body(node.orelse, env, non_generic)
@@ -1141,7 +1140,7 @@ def analyse(node, env, non_generic=None):
         return MultiType([Function([Bool()], Integer()),
                           Function([Integer()], Integer())])
     elif isinstance(node, gast.Not):
-        return tr(MODULES['__builtin__']['bool'])
+        return tr(MODULES['builtins']['bool'])
     elif isinstance(node, gast.BoolOp):
         op_type = analyse(node.op, env, non_generic)
         value_types = [analyse(value, env, non_generic)
@@ -1149,7 +1148,7 @@ def analyse(node, env, non_generic=None):
 
         for value_type in value_types:
             unify(Function([value_type], Bool()),
-                  tr(MODULES['__builtin__']['bool']))
+                  tr(MODULES['builtins']['bool']))
 
         return_type = TypeVariable()
         prev_type = value_types[0]
@@ -1425,5 +1424,5 @@ def occurs_in(t, types):
 
 
 def typecheck(node):
-    types = analyse(node, {'__builtin__': MODULES['__builtin__']})
+    types = analyse(node, {'builtins': MODULES['builtins']})
     return types

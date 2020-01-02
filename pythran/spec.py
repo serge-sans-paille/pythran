@@ -2,7 +2,6 @@
 This module provides a dummy parser for pythran annotations.
     * spec_parser reads the specs from a python module and returns them.
 '''
-from __future__ import division
 from pythran.types.conversion import pytype_to_pretty_type
 
 from collections import defaultdict

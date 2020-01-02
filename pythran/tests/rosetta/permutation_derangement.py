@@ -30,7 +30,7 @@ def _iterlen(iter):
     return l
 
 def test(n1, n2, n3):
-    print("Derangements of %s" % range(n1))
+    print("Derangements of %s" % list(range(n1)))
     for d in derangements(n1):
         print("  %s" % (d,))
     print("\nTable of n vs counted vs calculated derangements")

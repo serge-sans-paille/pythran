@@ -6,12 +6,6 @@ from pythran.passmanager import Transformation
 
 from copy import deepcopy
 import gast as ast
-import sys
-
-if sys.version_info.major == 3:
-    range_name = 'range'
-else:
-    range_name = 'xrange'
 
 
 class Pattern(object):
@@ -28,14 +22,14 @@ class Pattern(object):
 
 
 class LenSetPattern(Pattern):
-    # __builtin__.len(__builtin__.set(X)) => __builtin__.pythran.len_set(X)
-    pattern = ast.Call(func=ast.Attribute(value=ast.Name('__builtin__',
+    # builtins.len(builtins.set(X)) => builtins.pythran.len_set(X)
+    pattern = ast.Call(func=ast.Attribute(value=ast.Name('builtins',
                                                          ast.Load(),
                                                          None, None),
                                           attr="len", ctx=ast.Load()),
                        args=[ast.Call(
                            func=ast.Attribute(
-                               value=ast.Name('__builtin__', ast.Load(),
+                               value=ast.Name('builtins', ast.Load(),
                                               None, None),
                                attr="set", ctx=ast.Load()),
                            args=[Placeholder(0)],
@@ -46,7 +40,7 @@ class LenSetPattern(Pattern):
     def sub():
         return ast.Call(
             func=ast.Attribute(
-                value=ast.Attribute(value=ast.Name('__builtin__', ast.Load(),
+                value=ast.Attribute(value=ast.Name('builtins', ast.Load(),
                                                    None, None),
                                     attr="pythran", ctx=ast.Load()),
                 attr="len_set", ctx=ast.Load()),
@@ -54,14 +48,14 @@ class LenSetPattern(Pattern):
 
 
 class LenRangePattern(Pattern):
-    # __builtin__.len(__builtin__.range(X)) => max(0, X)
-    pattern = ast.Call(func=ast.Attribute(value=ast.Name('__builtin__',
+    # builtins.len(builtins.range(X)) => max(0, X)
+    pattern = ast.Call(func=ast.Attribute(value=ast.Name('builtins',
                                                          ast.Load(),
                                                          None, None),
                                           attr="len", ctx=ast.Load()),
                        args=[ast.Call(
                            func=ast.Attribute(
-                               value=ast.Name('__builtin__', ast.Load(),
+                               value=ast.Name('builtins', ast.Load(),
                                               None, None),
                                attr="range", ctx=ast.Load()),
                            args=[Placeholder(0)],
@@ -71,22 +65,22 @@ class LenRangePattern(Pattern):
     @staticmethod
     def sub():
         return ast.Call(
-            func=ast.Attribute(value=ast.Name('__builtin__', ast.Load(),
+            func=ast.Attribute(value=ast.Name('builtins', ast.Load(),
                                                    None, None),
                                     attr="max", ctx=ast.Load()),
             args=[ast.Constant(0, None), Placeholder(0)], keywords=[])
 
 
 class TupleListPattern(Pattern):
-    # __builtin__.tuple(__builtin__.list(X)) => __builtin__.tuple(X)
+    # builtins.tuple(builtins.list(X)) => builtins.tuple(X)
 
-    pattern = ast.Call(func=ast.Attribute(value=ast.Name('__builtin__',
+    pattern = ast.Call(func=ast.Attribute(value=ast.Name('builtins',
                                                          ast.Load(),
                                                          None, None),
                                           attr="tuple", ctx=ast.Load()),
                        args=[ast.Call(
                            func=ast.Attribute(
-                               value=ast.Name('__builtin__',
+                               value=ast.Name('builtins',
                                               ast.Load(), None, None),
                                attr="list", ctx=ast.Load()),
                            args=[Placeholder(0)],
@@ -96,7 +90,7 @@ class TupleListPattern(Pattern):
     @staticmethod
     def sub():
         return ast.Call(
-            func=ast.Attribute(value=ast.Name(id='__builtin__',
+            func=ast.Attribute(value=ast.Name(id='builtins',
                                               ctx=ast.Load(),
                                               annotation=None,
                                               type_comment=None),
@@ -105,7 +99,7 @@ class TupleListPattern(Pattern):
 
 
 class AbsSqrPattern(Pattern):
-    # __builtin__.abs(X) ** 2 => __builtin__.pythran.abssqr(X)
+    # builtins.abs(X) ** 2 => builtins.pythran.abssqr(X)
 
     pattern = ast.Call(func=ast.Attribute(value=ast.Name(id=mangle('numpy'),
                                                          ctx=ast.Load(),
@@ -113,7 +107,7 @@ class AbsSqrPattern(Pattern):
                                                          type_comment=None),
                                           attr="square", ctx=ast.Load()),
                        args=[ast.Call(func=ast.Attribute(
-                           value=ast.Name(id='__builtin__',
+                           value=ast.Name(id='builtins',
                                           ctx=ast.Load(),
                                           annotation=None,
                                           type_comment=None),
@@ -127,7 +121,7 @@ class AbsSqrPattern(Pattern):
     def sub():
         return ast.Call(
             func=ast.Attribute(
-                value=ast.Attribute(value=ast.Name(id='__builtin__',
+                value=ast.Attribute(value=ast.Name(id='builtins',
                                                    ctx=ast.Load(),
                                                    annotation=None,
                                                    type_comment=None),
@@ -137,7 +131,7 @@ class AbsSqrPattern(Pattern):
 
 
 class AbsSqrPatternNumpy(AbsSqrPattern):
-    # numpy.abs(X) ** 2 => __builtin__.pythran.abssqr(X)
+    # numpy.abs(X) ** 2 => builtins.pythran.abssqr(X)
 
     pattern = ast.Call(func=ast.Attribute(value=ast.Name(id=mangle('numpy'),
                                                          ctx=ast.Load(),
@@ -192,8 +186,8 @@ class CbrtPattern(Pattern):
 
 
 class TuplePattern(Pattern):
-    # __builtin__.tuple([X, ..., Z]) => (X, ..., Z)
-    pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
+    # builtins.tuple([X, ..., Z]) => (X, ..., Z)
+    pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='builtins',
                                                          ctx=ast.Load(),
                                                          annotation=None,
                                                          type_comment=None),
@@ -207,20 +201,20 @@ class TuplePattern(Pattern):
 
 
 class ReversedRangePattern(Pattern):
-    # __builtin__.reversed(__builtin__.xrange(X)) =>
-    # __builtin__.xrange(X-1, -1, -1)
+    # builtins.reversed(builtins.range(X)) =>
+    # builtins.range(X-1, -1, -1)
     # FIXME : We should do it even when begin/end/step are given
-    pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='__builtin__',
+    pattern = ast.Call(func=ast.Attribute(value=ast.Name(id='builtins',
                                                          ctx=ast.Load(),
                                                          annotation=None,
                                                          type_comment=None),
                                           attr="reversed", ctx=ast.Load()),
                        args=[ast.Call(
                            func=ast.Attribute(
-                               value=ast.Name(id='__builtin__',
+                               value=ast.Name(id='builtins',
                                               ctx=ast.Load(), annotation=None,
                                               type_comment=None),
-                               attr=range_name, ctx=ast.Load()),
+                               attr='range', ctx=ast.Load()),
                            args=[Placeholder(0)],
                            keywords=[])],
                        keywords=[])
@@ -228,10 +222,10 @@ class ReversedRangePattern(Pattern):
     @staticmethod
     def sub():
         return ast.Call(
-            func=ast.Attribute(value=ast.Name(id='__builtin__',
+            func=ast.Attribute(value=ast.Name(id='builtins',
                                               ctx=ast.Load(), annotation=None,
                                               type_comment=None),
-                               attr=range_name, ctx=ast.Load()),
+                               attr='range', ctx=ast.Load()),
             args=[ast.BinOp(left=Placeholder(0), op=ast.Sub(),
                             right=ast.Constant(1, None)),
                   ast.Constant(-1, None),
@@ -264,7 +258,7 @@ class StrJoinPattern(Pattern):
     def sub():
         return ast.Call(func=ast.Attribute(
             ast.Attribute(
-                ast.Name('__builtin__', ast.Load(), None, None),
+                ast.Name('builtins', ast.Load(), None, None),
                 'str',
                 ast.Load()),
             'join', ast.Load()),

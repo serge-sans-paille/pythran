@@ -33,24 +33,6 @@ from pythran.toolchain import _parse_optimization
 from pythran.spec import Spec
 
 
-def may_convert_2_to_3(code):
-    """Convert code from 2 to 3 if run with Python3, nothing otherwise."""
-    if sys.version_info.major == 3:
-        from tempfile import NamedTemporaryFile
-        from lib2to3 import main as lib2to3
-
-        tmp_py = NamedTemporaryFile(suffix='.py', delete=False)
-        tmp_py.write(code.encode('utf8'))
-        tmp_py.close()
-
-        lib2to3.main('lib2to3.fixes', [tmp_py.name, '-w', '-n'])
-
-        with open(tmp_py.name) as fd:
-            code = fd.read()
-        os.remove(tmp_py.name)
-    return code
-
-
 def harmonize_containers(value):
     if isinstance(value, list):
         def flatten(l, flat):
@@ -67,7 +49,6 @@ def harmonize_containers(value):
 
         if any(not isinstance(v, numbers.Number) for v in flat):
             return
-
 
         common_type = type(reduce(add, flat))
 
@@ -122,8 +103,6 @@ class TestEnv(unittest.TestCase):
                 self.assertEqual(ref.dtype.type(-1), res.dtype.type(-1))
             else:
                 self.assertIsInstance(res, int)
-        elif sys.version_info[0] == 2 and isinstance(ref, long):
-            self.assertIsInstance(res, (int, intc, intp, long))
         else:
             self.assertIsInstance(res, type(ref))
 
@@ -175,7 +154,7 @@ class TestEnv(unittest.TestCase):
         prelude and prelude()
 
         # Produce the reference, python-way, run in an separated 'env'
-        env = {"__builtin__": __import__("__builtin__")}
+        env = {"builtins": __import__("builtins")}
 
         # Compare if exception raised in python and in pythran are the same
         err_msg = "Excepected exception but none raise."
@@ -315,7 +294,6 @@ class TestEnv(unittest.TestCase):
         modname = "test_" + name
 
         code = dedent(code)
-        code = may_convert_2_to_3(code)
 
         cxx_compiled = compile_pythrancode(
             modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
@@ -465,11 +443,8 @@ class TestFromDir(TestEnv):
             if "unittest.skip" in self.module_code:
                 return self.test_env.skipTest("Marked as skippable")
 
-            if (sys.version_info.major == 3 and
-                    "unittest.python3.skip" in self.module_code):
+            if "unittest.python3.skip" in self.module_code:
                 return self.test_env.skipTest("Marked as skippable")
-
-            self.module_code = may_convert_2_to_3(self.module_code)
 
             # resolve import locally to where the tests are located
             sys.path.insert(0, self.test_env.path)

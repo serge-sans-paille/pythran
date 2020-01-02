@@ -4,7 +4,7 @@
 #include "pythonic/include/numpy/partial_sum.hpp"
 
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -78,7 +78,7 @@ namespace numpy
   {
     const long count = expr.flat_size();
     types::ndarray<typename dtype::type, types::pshape<long>> the_partial_sum{
-        types::make_tuple(count), __builtin__::None};
+        types::make_tuple(count), builtins::None};
     auto begin_it = the_partial_sum.begin();
     _partial_sum<Op, E::value, typename dtype::type>{}(expr, begin_it);
     return the_partial_sum;
@@ -102,7 +102,7 @@ namespace numpy
       throw types::ValueError("axis out of bounds");
 
     auto shape = expr.shape();
-    partial_sum_type<Op, E, dtype> the_partial_sum{shape, __builtin__::None};
+    partial_sum_type<Op, E, dtype> the_partial_sum{shape, builtins::None};
     if (axis == 0) {
       auto it_begin = the_partial_sum.begin();
       _partial_sum<Op, 1, partial_sum_type2<Op, E, dtype>>{}(expr, it_begin);

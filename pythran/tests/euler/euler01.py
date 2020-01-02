@@ -8,7 +8,7 @@ def solve(max):
     '''
 
     n = 0
-    for i in xrange(1, max):
+    for i in range(1, max):
         if not i % 5 or not i % 3:
             n = n + i
 

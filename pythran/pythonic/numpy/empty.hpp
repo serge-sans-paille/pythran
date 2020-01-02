@@ -14,7 +14,7 @@ namespace numpy
   types::ndarray<typename dtype::type, sutils::shape_t<pS>>
   empty(pS const &shape, dtype)
   {
-    return {(sutils::shape_t<pS>)shape, __builtin__::None};
+    return {(sutils::shape_t<pS>)shape, builtins::None};
   }
 
   template <class dtype>

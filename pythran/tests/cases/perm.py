@@ -7,8 +7,8 @@ def permutations(iterable):
     pool = tuple(iterable)
     n = len(pool)
     r = n
-    indices = range(n)
-    cycles = range(n-r+1, n+1)[::-1]
+    indices = list(range(n))
+    cycles = list(range(n-r+1, n+1))[::-1]
     out.append( tuple([pool[i] for i in indices[:r]]))
     while 1:
         for i in reversed(range(r)):

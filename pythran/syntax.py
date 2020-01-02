@@ -8,8 +8,6 @@ from pythran.tables import MODULES
 from pythran.intrinsic import Class
 from pythran.utils import isstr
 
-import sys
-
 import gast as ast
 import numpy as np
 
@@ -96,8 +94,6 @@ class SyntaxChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_Constant(self, node):
-        if sys.version_info[0] == 2 and isinstance(node.value, long):
-            raise PythranSyntaxError("long int not supported", node)
         if node.value is Ellipsis:
             if hasattr(node, 'lineno'):
                 args = [node]

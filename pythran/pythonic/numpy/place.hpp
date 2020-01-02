@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -30,7 +30,7 @@ namespace numpy
         ++viter;
       }
     }
-    return __builtin__::None;
+    return builtins::None;
   }
 
   template <class T, class pS, class M, class F>

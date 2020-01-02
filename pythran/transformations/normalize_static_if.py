@@ -77,7 +77,7 @@ class PatchReturn(ast.NodeTransformer):
             ast.Call(
                 ast.Attribute(
                     ast.Attribute(
-                        ast.Name("__builtin__", ast.Load(), None, None),
+                        ast.Name("builtins", ast.Load(), None, None),
                         "pythran",
                         ast.Load()),
                     holder,
@@ -159,7 +159,7 @@ class NormalizeStaticIf(Transformation):
         dispatcher = ast.Call(
             ast.Attribute(
                 ast.Attribute(
-                    ast.Name("__builtin__", ast.Load(), None, None),
+                    ast.Name("builtins", ast.Load(), None, None),
                     "pythran",
                     ast.Load()),
                 "static_if",

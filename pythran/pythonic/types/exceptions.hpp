@@ -6,8 +6,8 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/types/dynamic_tuple.hpp"
 #include "pythonic/types/attr.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/str.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/str.hpp"
 
 #include <stdexcept>
 
@@ -18,7 +18,7 @@ namespace types
 
   template <typename... Types>
   BaseException::BaseException(Types const &... types)
-      : args({__builtin__::functor::str{}(types)...})
+      : args({builtins::functor::str{}(types)...})
   {
   }
 
@@ -85,7 +85,7 @@ PYTHONIC_NS_END
 /* pythran attribute system { */
 #define IMPL_EXCEPTION_GETATTR(name)                                           \
   PYTHONIC_NS_BEGIN                                                            \
-  namespace __builtin__                                                        \
+  namespace builtins                                                           \
   {                                                                            \
     types::none<types::dynamic_tuple<types::str>>                              \
     getattr(types::attr::ARGS, types::name const &f)                           \
@@ -97,7 +97,7 @@ PYTHONIC_NS_END
 
 #define IMPL_EXCEPTION_GETATTR_FULL(name)                                      \
   PYTHONIC_NS_BEGIN                                                            \
-  namespace __builtin__                                                        \
+  namespace builtins                                                           \
   {                                                                            \
     types::none<types::dynamic_tuple<types::str>>                              \
     getattr(types::attr::ARGS, types::name const &e)                           \
@@ -111,7 +111,7 @@ PYTHONIC_NS_END
     types::none<types::str> getattr(types::attr::ERRNO, types::name const &e)  \
     {                                                                          \
       if (e.args.size() > 3 || e.args.size() < 2)                              \
-        return __builtin__::None;                                              \
+        return builtins::None;                                                 \
       else                                                                     \
         return e.args[0];                                                      \
     }                                                                          \
@@ -119,7 +119,7 @@ PYTHONIC_NS_END
                                     types::name const &e)                      \
     {                                                                          \
       if (e.args.size() > 3 || e.args.size() < 2)                              \
-        return __builtin__::None;                                              \
+        return builtins::None;                                                 \
       else                                                                     \
         return e.args[1];                                                      \
     }                                                                          \
@@ -127,7 +127,7 @@ PYTHONIC_NS_END
                                     types::name const &e)                      \
     {                                                                          \
       if (e.args.size() != 3)                                                  \
-        return __builtin__::None;                                              \
+        return builtins::None;                                                 \
       else                                                                     \
         return e.args[2];                                                      \
     }                                                                          \

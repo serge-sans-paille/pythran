@@ -7,7 +7,7 @@
 #include "pythonic/types/empty_iterator.hpp"
 #include "pythonic/types/attr.hpp"
 
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/utils/shared_ref.hpp"
@@ -44,7 +44,7 @@
 #include "pythonic/utils/numpy_traits.hpp"
 #include "pythonic/utils/array_helper.hpp"
 
-#include "pythonic/__builtin__/len.hpp"
+#include "pythonic/builtins/len.hpp"
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/operator_/iand.hpp"
 #include "pythonic/operator_/idiv.hpp"
@@ -955,7 +955,7 @@ namespace types
   template <class T, class pS>
   ndarray<T, pS> ndarray<T, pS>::copy() const
   {
-    ndarray<T, pS> res(_shape, __builtin__::None);
+    ndarray<T, pS> res(_shape, builtins::None);
     std::copy(fbegin(), fend(), res.fbegin());
     return res;
   }
@@ -1095,7 +1095,7 @@ namespace std
 /* pythran attribute system { */
 #include "pythonic/numpy/transpose.hpp"
 PYTHONIC_NS_BEGIN
-namespace __builtin__
+namespace builtins
 {
   namespace details
   {

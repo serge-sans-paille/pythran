@@ -27,8 +27,6 @@ Generator for C/C++.
 # SOFTWARE.
 #
 
-from __future__ import division
-
 from textwrap import dedent
 from pythran.tables import pythran_ward
 from pythran.spec import signatures_to_string

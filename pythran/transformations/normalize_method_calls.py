@@ -21,12 +21,12 @@ class NormalizeMethodCalls(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeMethodCalls, node)
     >>> print(pm.dump(backend.Python, node))
-    __builtin__.list.append([], 12)
+    builtins.list.append([], 12)
     '''
 
     def __init__(self):
         Transformation.__init__(self, Globals)
-        self.imports = {'__builtin__': '__builtin__'}
+        self.imports = {'builtins': 'builtins'}
         self.to_import = set()
 
     def visit_Module(self, node):
@@ -120,7 +120,7 @@ class NormalizeMethodCalls(Transformation):
             self.update = True
             call = ast.Call(
                 ast.Attribute(
-                    ast.Name('__builtin__', ast.Load(), None, None),
+                    ast.Name('builtins', ast.Load(), None, None),
                     'getattr',
                     ast.Load()),
                 [node.value, ast.Constant(node.attr, None)],
@@ -161,11 +161,11 @@ class NormalizeMethodCalls(Transformation):
 
 
         For functions:
-        >> __builtin__.dict.fromkeys([1, 2, 3])
+        >> builtins.dict.fromkeys([1, 2, 3])
 
         Becomes
 
-        >> __builtin__.__dict__.fromkeys([1, 2, 3])
+        >> builtins.__dict__.fromkeys([1, 2, 3])
         """
         node = self.generic_visit(node)
         # Only attributes function can be Pythonic and should be normalized
@@ -227,7 +227,7 @@ class NormalizeMethodCalls(Transformation):
         return node
 
     def visit_BinOp(self, node):
-        # replace "str" % (...) by __builtin__.str.__mod__(...)
+        # replace "str" % (...) by builtins.str.__mod__(...)
         # the reason why we do this is that % formatting is handled by
         # a third party library that's relatively costly to load, so using a
         # function name instead of an operator overload makes it possible to
@@ -239,7 +239,7 @@ class NormalizeMethodCalls(Transformation):
             return ast.Call(
                 ast.Attribute(
                     ast.Attribute(
-                        ast.Name('__builtin__', ast.Load(), None, None),
+                        ast.Name('builtins', ast.Load(), None, None),
                         'str',
                         ast.Load()),
                     '__mod__',

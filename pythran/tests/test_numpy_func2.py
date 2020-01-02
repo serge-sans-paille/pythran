@@ -489,16 +489,16 @@ def test_copy0(x):
         self.run_test("def np_array_str0(x): from numpy import array_str ; return array_str(x)", numpy.arange(3), np_array_str0=[NDArray[int,:]])
 
     def test_array_split0(self):
-        self.run_test("def np_array_split0(a): from numpy import array_split, array2string ; return map(array2string,array_split(a, 3))", numpy.arange(12), np_array_split0=[NDArray[int,:]])
+        self.run_test("def np_array_split0(a): from numpy import array_split, array2string ; return list(map(array2string,array_split(a, 3)))", numpy.arange(12), np_array_split0=[NDArray[int,:]])
 
     def test_array_split1(self):
-        self.run_test("def np_array_split1(a): from numpy import array_split, array2string ; return map(array2string,array_split(a, 5))", numpy.arange(12), np_array_split1=[NDArray[int,:]])
+        self.run_test("def np_array_split1(a): from numpy import array_split, array2string ; return list(map(array2string,array_split(a, 5)))", numpy.arange(12), np_array_split1=[NDArray[int,:]])
 
     def test_array_split2(self):
-        self.run_test("def np_array_split2(a): from numpy import array_split, array2string ; return map(array2string,array_split(a, 4))", numpy.arange(12).reshape(6,2), np_array_split2=[NDArray[int,:,:]])
+        self.run_test("def np_array_split2(a): from numpy import array_split, array2string ; return list(map(array2string,array_split(a, 4)))", numpy.arange(12).reshape(6,2), np_array_split2=[NDArray[int,:,:]])
 
     def test_array_split3(self):
-        self.run_test("def np_array_split3(a): from numpy import array_split, array2string ; return map(array2string,array_split(a, [0,1,5]))", numpy.arange(12).reshape(6,2), np_array_split3=[NDArray[int,:,:]])
+        self.run_test("def np_array_split3(a): from numpy import array_split, array2string ; return list(map(array2string,array_split(a, [0,1,5])))", numpy.arange(12).reshape(6,2), np_array_split3=[NDArray[int,:,:]])
 
     def test_array_equiv0(self):
         self.run_test("def np_array_equiv0(a): from numpy import array_equiv ;  b = [1,2] ; return array_equiv(a,b)", [1, 2], np_array_equiv0=[List[int]])

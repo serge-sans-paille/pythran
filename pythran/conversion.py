@@ -1,9 +1,7 @@
 """ This module provides way to convert a Python value into an ast. """
-from __future__ import absolute_import
 
 import gast as ast
 import numpy as np
-import sys
 import numbers
 
 
@@ -36,7 +34,7 @@ def totuple(l):
 def dtype_to_ast(name):
     if name in ('bool',):
         return ast.Attribute(
-            ast.Name('__builtin__', ast.Load(), None, None),
+            ast.Name('builtins', ast.Load(), None, None),
             name,
             ast.Load())
     else:
@@ -66,7 +64,7 @@ def size_container_folding(value):
                 return ast.Set([to_ast(elt) for elt in value])
             else:
                 return ast.Call(func=ast.Attribute(
-                    ast.Name(mangle('__builtin__'), ast.Load(), None, None),
+                    ast.Name(mangle('builtins'), ast.Load(), None, None),
                     'set',
                     ast.Load()),
                     args=[],
@@ -95,7 +93,7 @@ def builtin_folding(value):
         name = str(value)
     else:
         name = value.__name__
-    return ast.Attribute(ast.Name('__builtin__', ast.Load(), None, None),
+    return ast.Attribute(ast.Name('builtins', ast.Load(), None, None),
                          name, ast.Load())
 
 
@@ -113,9 +111,6 @@ def to_ast(value):
 
     if isinstance(value, (type(None), bool)):
         return builtin_folding(value)
-    if sys.version_info[0] == 2 and isinstance(value, long):
-        from pythran.syntax import PythranSyntaxError
-        raise PythranSyntaxError("constant folding results in big int")
     if any(value is t for t in (bool, int, float)):
         iinfo = np.iinfo(int)
         if isinstance(value, int) and not (iinfo.min <= value <= iinfo.max):
@@ -128,13 +123,12 @@ def to_ast(value):
         return ast.Constant(value, None)
     elif isinstance(value, (list, tuple, set, dict, np.ndarray)):
         return size_container_folding(value)
-    elif hasattr(value, "__module__") and value.__module__ == "__builtin__":
+    elif hasattr(value, "__module__") and value.__module__ == "builtins":
         # TODO Can be done the same way for others modules
         return builtin_folding(value)
     # only meaningful for python3
-    elif sys.version_info.major == 3:
-        if isinstance(value, (filter, map, zip)):
-            return to_ast(list(value))
+    elif isinstance(value, (filter, map, zip)):
+        return to_ast(list(value))
     raise ToNotEval()
 
 
@@ -143,13 +137,13 @@ PYTHRAN_IMPORT_MANGLING = '__pythran_import_'
 
 def mangle(name):
     '''
-    Mangle a module name, except the __builtin__ module
+    Mangle a module name, except the builtins module
     >>> mangle('numpy')
     __pythran_import_numpy
-    >>> mangle('__builtin__')
-    __builtin__
+    >>> mangle('builtins')
+    builtins
     '''
-    if name == '__builtin__':
+    if name == 'builtins':
         return name
     else:
         return PYTHRAN_IMPORT_MANGLING + name

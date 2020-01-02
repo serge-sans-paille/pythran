@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OPERATOR_CONTAINS_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include "pythonic/include/__builtin__/in.hpp"
+#include "pythonic/include/builtins/in.hpp"
 
 PYTHONIC_NS_BEGIN
 

@@ -38,7 +38,7 @@ namespace numpy
         auto nshape = sutils::prod(new_shape);
         auto n = expr.flat_size();
         if (n < nshape) {
-          types::ndarray<T, NpS> out(new_shape, __builtin__::None);
+          types::ndarray<T, NpS> out(new_shape, builtins::None);
           auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
           for (long i = 1; i < nshape / n; ++i)
             iter = std::copy(out.fbegin(), out.fbegin() + n, iter);
@@ -57,7 +57,7 @@ namespace numpy
       auto n = expr.flat_size();
       if (n < new_shape) {
         types::ndarray<T, types::pshape<long>> out(
-            types::pshape<long>{new_shape}, __builtin__::None);
+            types::pshape<long>{new_shape}, builtins::None);
         auto iter = std::copy(expr.fbegin(), expr.fend(), out.fbegin());
         for (long i = 1; i < new_shape / n; ++i)
           iter = std::copy(out.fbegin(), out.fbegin() + n, iter);

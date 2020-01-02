@@ -31,7 +31,7 @@ class RangeValues(FunctionAnalysis):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('''
     ... def foo(a):
-    ...     for i in __builtin__.range(1, 10):
+    ...     for i in builtins.range(1, 10):
     ...         c = i // 2''')
     >>> pm = passmanager.PassManager("test")
     >>> res = pm.gather(RangeValues, node)
@@ -122,7 +122,7 @@ class RangeValues(FunctionAnalysis):
         >>> node = ast.parse('''
         ... def foo():
         ...     a = b = c = 2
-        ...     for i in __builtin__.range(1):
+        ...     for i in builtins.range(1):
         ...         a -= 1
         ...         b += 1''')
         >>> pm = passmanager.PassManager("test")
@@ -374,14 +374,14 @@ class RangeValues(FunctionAnalysis):
         >>> from pythran import passmanager, backend
         >>> node = ast.parse('''
         ... def foo():
-        ...     a = __builtin__.range(10)''')
+        ...     a = builtins.range(10)''')
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
         Interval(low=-inf, high=inf)
         """
         for alias in self.aliases[node.func]:
-            if alias is MODULES['__builtin__']['getattr']:
+            if alias is MODULES['builtins']['getattr']:
                 attr_name = node.args[-1].value
                 attribute = attributes[attr_name][-1]
                 self.add(node, attribute.return_range(None))
@@ -413,7 +413,7 @@ class RangeValues(FunctionAnalysis):
     def visit_Subscript(self, node):
         if isinstance(node.value, ast.Call):
             for alias in self.aliases[node.value.func]:
-                if alias is MODULES['__builtin__']['getattr']:
+                if alias is MODULES['builtins']['getattr']:
                     attr_name = node.value.args[-1].value
                     attribute = attributes[attr_name][-1]
                     self.add(node, attribute.return_range_content(None))
@@ -441,7 +441,7 @@ class RangeValues(FunctionAnalysis):
         ... def foo():
         ...     try:
         ...         pass
-        ...     except __builtin__.RuntimeError as e:
+        ...     except builtins.RuntimeError as e:
         ...         pass''')
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)

@@ -12,8 +12,8 @@ namespace numpy
   typename std::enable_if<std::tuple_size<pS>::value == 1,
                           types::ndarray<long, types::pshape<long>>>::type
   bincount(types::ndarray<T, pS> const &expr,
-           types::none_type weights = __builtin__::None,
-           types::none<long> minlength = __builtin__::None);
+           types::none_type weights = builtins::None,
+           types::none<long> minlength = builtins::None);
 
   template <class T, class E, class pS>
   typename std::enable_if<
@@ -22,7 +22,7 @@ namespace numpy
                               std::declval<typename E::dtype>()),
                      types::pshape<long>>>::type
   bincount(types::ndarray<T, pS> const &expr, E const &weights,
-           types::none<long> minlength = __builtin__::None);
+           types::none<long> minlength = builtins::None);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(bincount);
 

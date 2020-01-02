@@ -11,12 +11,12 @@ def solve(n):
     """
 
     maxp, maxsol = 0, 0
-    for p in xrange(12, n + 1, 2):
+    for p in range(12, n + 1, 2):
         solutions = 0
         # a < b < c. So a is at most 1/3 of p. b is between a and (p-a)/2
-        for a in xrange(1, p//3):
+        for a in range(1, p//3):
             a2 = a*a
-            for b in xrange(a, (p-a)//2):
+            for b in range(a, (p-a)//2):
                 c = p - a - b
                 if a2 + b*b == c*c:
                     solutions = solutions + 1

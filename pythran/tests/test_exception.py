@@ -1,12 +1,11 @@
 from pythran.tests import TestEnv
-import __builtin__
+import builtins
 import unittest
-import sys
 
-exceptions = [i for i in dir(__builtin__)
-              if (isinstance(getattr(__builtin__, i), type) and
-                  issubclass(getattr(__builtin__, i),
-                             __builtin__.BaseException))]
+exceptions = [i for i in dir(builtins)
+              if (isinstance(getattr(builtins, i), type) and
+                  issubclass(getattr(builtins, i),
+                             builtins.BaseException))]
 
 exception_args = {
     "BaseException": "('abc')",
@@ -15,7 +14,6 @@ exception_args = {
     "GeneratorExit": "('a','b','c')",
     "Exception": "('a','b','c')",
     "StopIteration": "('a','b','c')",
-    "StandardError": "('a','b','c')",
     "Warning": "('a','b','c')",
     "BytesWarning": "('a','b','c')",
     "UnicodeWarning": "('a','b','c')",
@@ -76,9 +74,6 @@ class TestException(TestEnv):
     def test_StopIteration(self):
         self.run_test("def StopIteration_():\n try: raise StopIteration('a','b','c')\n except StopIteration as e: return e.args", StopIteration_=[])
 
-    def test_StandardError(self):
-        self.run_test("def StandardError_():\n try: raise StandardError('a','b','c')\n except StandardError as e: return e.args", StandardError_=[])
-
     def test_Warning(self):
         self.run_test("def Warning_():\n try: raise Warning('a','b','c')\n except Warning as e: return e.args", Warning_=[])
 
@@ -121,14 +116,6 @@ class TestException(TestEnv):
 
     def test_AttributeError(self):
         self.run_test("def AttributeError_():\n try: raise AttributeError('a','b','c')\n except AttributeError as e: return e.args", AttributeError_=[])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_EnvironmentError4(self):
-        self.run_test("def EnvironmentError4_():\n try: raise EnvironmentError('a','b','c','d')\n except EnvironmentError as e: return e.args", EnvironmentError4_=[])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_EnvironmentError3(self):
-        self.run_test("def EnvironmentError3_():\n try: raise EnvironmentError('a','b','c')\n except EnvironmentError as e: return e.args", EnvironmentError3_=[])
 
     def test_EnvironmentError2(self):
         self.run_test("def EnvironmentError2_():\n try: raise EnvironmentError('a','b')\n except EnvironmentError as e: return e.args", EnvironmentError2_=[])
@@ -214,9 +201,6 @@ class TestException(TestEnv):
     def test_reraise_exception(self):
         self.run_test("def reraise_exception_():\n try:\n  raise OverflowError('a','b','c')\n except IOError:\n  raise\n except:  return 'ok'", reraise_exception_=[])
 
-    def test_raiseinst_exception(self):
-        self.run_test("def raiseinst_exception_():\n try:\n  raise OverflowError, 'abc'\n except OverflowError as e:\n  return e.args", raiseinst_exception_=[])
-
     def test_else2_exception(self):
         self.run_test("def else2_exception_():\n try:\n  raise 1\n  return 0,'bad'\n except:\n  a=2\n else:\n  return 0,'bad2'\n return a,'ok'", else2_exception_=[])
 
@@ -241,14 +225,6 @@ class TestException(TestEnv):
     def test_str3_exception(self):
         self.run_test("def str3_exception_():\n try:\n  raise EnvironmentError('a','b','c')\n except EnvironmentError as e:\n  return str(e)", str3_exception_=[])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_str4_exception(self):
-        self.run_test("def str4_exception_():\n try:\n  raise EnvironmentError('a','b','c','d')\n except EnvironmentError as e:\n  return str(e)", str4_exception_=[])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_str5_exception(self):
-        self.run_test("def str5_exception_():\n try:\n  raise EnvironmentError('a','b','c','d','e')\n except EnvironmentError as e:\n  return str(e)", str5_exception_=[])
-
     def test_no_msg_exception(self):
         self.run_test("def no_msg_exception_():\n try: raise IndexError()\n except IndexError as e: return e.args", no_msg_exception_=[])
 
@@ -271,9 +247,6 @@ class TestException(TestEnv):
 
     def test_reraise_exception_register(self):
         self.run_test("def reraise_exception_register():\n raise OverflowError('a','b','c')", reraise_exception_register=[], check_exception=True)
-
-    def test_raiseinst_exception_register(self):
-        self.run_test("def raiseinst_exception_register():\n raise OverflowError, ('a','b','c')", raiseinst_exception_register=[], check_exception=True)
 
     def test_enverror_exception_register(self):
         self.run_test("def enverror_exception_register():\n raise EnvironmentError('a','b','c')", enverror_exception_register=[], check_exception=True)

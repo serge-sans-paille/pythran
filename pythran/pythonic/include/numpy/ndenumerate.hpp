@@ -19,13 +19,14 @@ namespace numpy
     ndenumerate_iterator();
     ndenumerate_iterator(E const &expr, long first);
 
-    std::tuple<types::array<long, E::value>, typename E::dtype> operator*();
+    std::tuple<types::array<long, E::value>, typename E::dtype>
+    operator*() const;
 
     ndenumerate_iterator &operator++();
     ndenumerate_iterator &operator+=(long n);
-    bool operator!=(ndenumerate_iterator const &other);
-    bool operator<(ndenumerate_iterator const &other);
-    long operator-(ndenumerate_iterator const &other);
+    bool operator!=(ndenumerate_iterator const &other) const;
+    bool operator<(ndenumerate_iterator const &other) const;
+    long operator-(ndenumerate_iterator const &other) const;
   };
 
   template <class E>

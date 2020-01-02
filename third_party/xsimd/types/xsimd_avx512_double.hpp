@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -30,8 +32,7 @@ namespace xsimd
 
     template <>
     class batch_bool<double, 8> : 
-        public batch_bool_avx512<__mmask8, batch_bool<double, 8>>,
-        public simd_batch_bool<batch_bool<double, 8>>
+        public batch_bool_avx512<__mmask8, batch_bool<double, 8>>
     {
     public:
         using base_class = batch_bool_avx512<__mmask8, batch_bool<double, 8>>;
@@ -77,6 +78,9 @@ namespace xsimd
         batch(const double* src, unaligned_mode);
         batch(const __m512d& rhs);
         batch& operator=(const __m512d& rhs);
+
+        batch(const batch_bool<double, 8>& rhs);
+        batch& operator=(const batch_bool<double, 8>& rhs);
 
         operator __m512d() const;
 
@@ -483,7 +487,7 @@ namespace xsimd
                 return xsimd::hadd(batch<double, 4>(res1));
             }
 
-            static batch_type haddp(const simd_batch<batch_type>* row)
+            static batch_type haddp(const batch_type* row)
             {
 #define step1(I, a, b)                                                   \
         batch<double, 8> res ## I;                                           \
@@ -493,10 +497,10 @@ namespace xsimd
             res ## I = (tmp1 + tmp2);                                        \
         }                                                                    \
 
-                step1(1, row[0](), row[2]());
-                step1(2, row[4](), row[6]());
-                step1(3, row[1](), row[3]());
-                step1(4, row[5](), row[7]());
+                step1(1, row[0], row[2]);
+                step1(2, row[4], row[6]);
+                step1(3, row[1], row[3]);
+                step1(4, row[5], row[7]);
 
 #undef step1
 
@@ -526,6 +530,17 @@ namespace xsimd
                 return _mm512_cmp_pd_mask(x, x, _CMP_UNORD_Q);
             }
         };
+    }
+
+    inline batch<double, 8>::batch(const batch_bool<double, 8>& rhs)
+        : base_type(detail::batch_kernel<double, 8>::select(rhs, batch(double(1)), batch(double(0))))
+    {
+    }
+
+    inline batch<double, 8>& batch<double, 8>::operator=(const batch_bool<double, 8>& rhs)
+    {
+        this->m_value = detail::batch_kernel<double, 8>::select(rhs, batch(double(1)), batch(double(0)));
+        return *this;
     }
 }
 

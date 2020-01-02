@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -54,6 +56,14 @@
     #define XSIMD_DEFAULT_ALIGNMENT 32
 #elif XSIMD_ARM_INSTR_SET >= XSIMD_ARM7_NEON_VERSION
     #define XSIMD_DEFAULT_ALIGNMENT 16
+#else
+    // some versions of gcc do nos handle alignment set ot 0
+    // see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69089
+    #if __GNUC__ < 7
+        #define XSIMD_DEFAULT_ALIGNMENT 8
+    #else
+        #define XSIMD_DEFAULT_ALIGNMENT 0
+    #endif
 #endif
 
 #endif

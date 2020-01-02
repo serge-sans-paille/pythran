@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Wolf Vollprecht, Johan Mabille and Sylvain Corlay    *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -272,7 +274,7 @@ namespace xsimd
 
     inline void batch<float, 4>::store_unaligned(int8_t* dst) const
     {
-        store_unaligned(dst);
+        store_aligned(dst);
     }
 
     inline void batch<float, 4>::store_aligned(uint8_t* dst) const
@@ -298,7 +300,7 @@ namespace xsimd
 
     inline void batch<float, 4>::store_unaligned(int16_t* dst) const
     {
-        store_unaligned(dst);
+        store_aligned(dst);
     }
 
     inline void batch<float, 4>::store_aligned(uint16_t* dst) const

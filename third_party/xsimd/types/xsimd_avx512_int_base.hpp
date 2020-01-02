@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Wolf Vollprecht, Johan Mabille and Sylvain Corlay    *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -30,12 +32,46 @@ namespace xsimd
     __m256i res_high = detail::batch_kernel<value_type, N> :: func (avx_lhs##_high, avx_rhs##_high);  \
     XSIMD_RETURN_MERGED_AVX(res_low, res_high);
 
+    namespace detail
+    {
+        template <std::size_t N>
+        struct mask_type;
+
+        template <>
+        struct mask_type<8>
+        {
+            using type = __mmask8;
+        };
+
+        template <>
+        struct mask_type<16>
+        {
+            using type = __mmask16;
+        };
+
+        template <>
+        struct mask_type<32>
+        {
+            using type = __mmask32;
+        };
+
+        template <>
+        struct mask_type<64>
+        {
+            using type = __mmask64;
+        };
+
+        template <std::size_t N>
+        using mask_type_t = typename mask_type<N>::type;
+    }
+
     template <class T, std::size_t N>
     class avx512_int_batch : public simd_batch<batch<T, N>>
     {
     public:
 
         using base_type = simd_batch<batch<T, N>>;
+        using mask_type = detail::mask_type_t<N>;
 
         avx512_int_batch();
         explicit avx512_int_batch(T i);
@@ -48,6 +84,9 @@ namespace xsimd
 
         avx512_int_batch(const __m512i& rhs);
         avx512_int_batch& operator=(const __m512i& rhs);
+
+        avx512_int_batch(const batch_bool<T, N>& rhs);
+        avx512_int_batch& operator=(const batch_bool<T, N>& rhs);
 
         operator __m512i() const;
 
@@ -82,10 +121,10 @@ namespace xsimd
 #if defined(__clang__) || __GNUC__
             return __extension__ (__m512i)(__v64qi)
             {
-                std::get<Is>(std::forward<Tup>(t))...
+                static_cast<char>(std::get<Is>(std::forward<Tup>(t)))...
             };
 #else
-            return _mm512_set_epi8(std::get<Is>(std::forward<Tup>(t))...);
+            return _mm512_set_epi8(static_cast<char>(std::get<Is>(std::forward<Tup>(t)))...);
 #endif
         }
 
@@ -95,10 +134,10 @@ namespace xsimd
 #if defined(__clang__) || __GNUC__
             return __extension__ (__m512i)(__v32hi)
             {
-                std::get<Is>(std::forward<Tup>(t))...
+                static_cast<short>(std::get<Is>(std::forward<Tup>(t)))...
             };
 #else
-            return _mm512_set_epi16(std::get<Is>(std::forward<Tup>(t))...);
+            return _mm512_set_epi16(static_cast<short>(std::get<Is>(std::forward<Tup>(t)))...);
 #endif
         }
 
@@ -206,6 +245,19 @@ namespace xsimd
         return *this;
     }
 
+    template <class T, std::size_t N>
+    inline avx512_int_batch<T, N>::avx512_int_batch(const batch_bool<T, N>& rhs)
+        :   base_type(detail::batch_kernel<T, N>::select(rhs, batch<T, N>(T(1)), batch<T, N>(T(0))))
+    {
+    }
+
+    template <class T, std::size_t N>
+    avx512_int_batch<T, N>& avx512_int_batch<T, N>::operator=(const batch_bool<T, N>& rhs)
+    {
+        this->m_value = detail::batch_kernel<T, N>::select(rhs, batch<T, N>(T(1)), batch<T, N>(T(0)));
+        return *this;
+    }
+    
     template <class T, std::size_t N>
     inline avx512_int_batch<T, N>::operator __m512i() const
     {

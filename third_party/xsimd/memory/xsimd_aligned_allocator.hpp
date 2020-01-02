@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -69,7 +71,7 @@ namespace xsimd
         pointer address(reference) noexcept;
         const_pointer address(const_reference) const noexcept;
 
-        pointer allocate(size_type n, typename std::allocator<void>::const_pointer hint = 0);
+        pointer allocate(size_type n, const void* hint = 0);
         void deallocate(pointer p, size_type n);
 
         size_type max_size() const noexcept;
@@ -169,8 +171,7 @@ namespace xsimd
      */
     template <class T, size_t A>
     inline auto
-    aligned_allocator<T, A>::allocate(size_type n,
-            typename std::allocator<void>::const_pointer) -> pointer
+    aligned_allocator<T, A>::allocate(size_type n, const void*) -> pointer
     {
         pointer res = reinterpret_cast<pointer>(aligned_malloc(sizeof(T) * n, A));
         if (res == nullptr)
@@ -282,7 +283,7 @@ namespace xsimd
         {
             void* res = 0;
             void* ptr = malloc(size + alignment);
-            if (ptr != 0)
+            if (ptr != 0 && alignment != 0)
             {
                 res = reinterpret_cast<void*>(
                     (reinterpret_cast<size_t>(ptr) & ~(size_t(alignment - 1))) +

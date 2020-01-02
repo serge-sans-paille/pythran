@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -48,11 +50,15 @@ namespace xsimd
 
     private:
 
+        batch_bool<double, 4>& load_values(bool b0, bool b1, bool b2, bool b3);
+
         union
         {
             __m256d m_value;
             double m_array[4];
         };
+
+        friend class simd_batch_bool<batch_bool<double, 4>>;
     };
 
     /********************
@@ -146,6 +152,14 @@ namespace xsimd
     inline __m256d batch_bool<double, 4>::get_value() const
     {
         return m_value;
+    }
+
+    inline batch_bool<double, 4>& batch_bool<double, 4>::load_values(bool b0, bool b1, bool b2, bool b3)
+    {
+        m_value = _mm256_castsi256_pd(
+                    _mm256_setr_epi32(-(int)b0, -(int)b0, -(int)b1, -(int)b1,
+                                      -(int)b2, -(int)b2, -(int)b3, -(int)b3));
+        return *this;
     }
 
     namespace detail
@@ -606,13 +620,13 @@ namespace xsimd
                 return _mm_cvtsd_f64(_mm256_extractf128_pd(tmp, 0));
             }
 
-            static batch_type haddp(const simd_batch<batch_type>* row)
+            static batch_type haddp(const batch_type* row)
             {
                 // row = (a,b,c,d)
                 // tmp0 = (a0+a1, b0+b1, a2+a3, b2+b3)
-                __m256d tmp0 = _mm256_hadd_pd(row[0](), row[1]());
+                __m256d tmp0 = _mm256_hadd_pd(row[0], row[1]);
                 // tmp1 = (c0+c1, d0+d1, c2+c3, d2+d3)
-                __m256d tmp1 = _mm256_hadd_pd(row[2](), row[3]());
+                __m256d tmp1 = _mm256_hadd_pd(row[2], row[3]);
                 // tmp2 = (a0+a1, b0+b1, c2+c3, d2+d3)
                 __m256d tmp2 = _mm256_blend_pd(tmp0, tmp1, 0b1100);
                 // tmp1 = (a2+a3, b2+b3, c2+c3, d2+d3)

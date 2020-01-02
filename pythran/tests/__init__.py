@@ -8,7 +8,7 @@ except ImportError:
     float128 = float64
     complex256 = complex128
 
-from numpy import int32, int64, uint32, uint64, number, bool_
+from numpy import intp, intc, number, bool_
 from numpy import ndarray, isnan, isinf, isneginf, complex128, complex64
 from textwrap import dedent
 from threading import Thread
@@ -103,8 +103,6 @@ class TestEnv(unittest.TestCase):
         if type(res).__name__ == type(ref).__name__:
             return
 
-        intn = int64 if sys.maxsize > 2**32 else int32
-
         if isinstance(ref, ndarray):
             # res can be an ndarray of dim 0 because of isneginf call
             if ref.ndim == 0 and (not isinstance(res, ndarray)
@@ -112,18 +110,20 @@ class TestEnv(unittest.TestCase):
                 self.check_type(ref.item(0), res)
             else:
                 self.assertIsInstance(res, type(ref))
-        elif isinstance(ref, (int, intn)):
-            self.assertIsInstance(res, (int, intn))
         elif isinstance(ref, (float, float64)):
             self.assertIsInstance(res, (float, float64))
         elif isinstance(ref, (complex, complex128)):
             self.assertIsInstance(res, (complex, complex128))
         elif isinstance(ref, (bool, bool_)):
             self.assertIsInstance(res, (bool, bool_))
+        elif hasattr(ref, 'dtype'):
+            if hasattr(res, 'dtype'):
+                self.assertEqual(ref.dtype.itemsize, res.dtype.itemsize)
+                self.assertEqual(ref.dtype.type(-1), res.dtype.type(-1))
+            else:
+                self.assertIsInstance(res, int)
         elif sys.version_info[0] == 2 and isinstance(ref, long):
-            self.assertIsInstance(res, (int, int64, long))
-        elif isinstance(res, int):
-            self.assertIsInstance(res, (int, intn))
+            self.assertIsInstance(res, (int, intc, intp, long))
         else:
             self.assertIsInstance(res, type(ref))
 

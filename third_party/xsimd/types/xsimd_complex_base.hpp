@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -46,7 +48,7 @@ namespace xsimd
       *
       * The simd_complex_batch_bool class is the base class for all classes representing
       * a complex batch of boolean values. Complex batch of boolean values is meant for operations
-      * that may involve batches of complex vnmubers. Thus, the boolean values are stored as floating
+      * that may involve batches of complex numbers. Thus, the boolean values are stored as floating
       * point values, and each type of batch of complex has its dedicated type of boolean batch.
       *
       * @tparam X The derived type

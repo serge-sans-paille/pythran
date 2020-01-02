@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Wolf Vollprecht, Johan Mabille and Sylvain Corlay    *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -44,8 +46,7 @@ namespace xsimd
 
     template <>
     class batch_bool<int8_t, 64> :
-        public batch_bool_avx512<__mmask64, batch_bool<int8_t, 64>>,
-        public simd_batch_bool<batch_bool<int8_t, 64>>
+        public batch_bool_avx512<__mmask64, batch_bool<int8_t, 64>>
     {
     public:
 
@@ -55,8 +56,7 @@ namespace xsimd
 
     template <>
     class batch_bool<uint8_t, 64> :
-        public batch_bool_avx512<__mmask64, batch_bool<uint8_t, 64>>,
-        public simd_batch_bool<batch_bool<uint8_t, 64>>
+        public batch_bool_avx512<__mmask64, batch_bool<uint8_t, 64>>
     {
     public:
 
@@ -91,11 +91,11 @@ namespace xsimd
     };
 
     template <>
-    class batch_bool<uint8_t, 64> : public avx512_fallback_batch_bool<int8_t, 64>
+    class batch_bool<uint8_t, 64> : public avx512_fallback_batch_bool<uint8_t, 64>
     {
     public:
 
-        using base_class = avx512_fallback_batch_bool<int8_t, 64>;
+        using base_class = avx512_fallback_batch_bool<uint8_t, 64>;
         using base_class::base_class;
     };
 
@@ -110,7 +110,7 @@ namespace xsimd
 
         template <>
         struct batch_bool_kernel<uint8_t, 64>
-            : avx512_fallback_batch_bool_kernel<int8_t, 64>
+            : avx512_fallback_batch_bool_kernel<uint8_t, 64>
         {
         };
     }
@@ -314,7 +314,11 @@ namespace xsimd
             static batch_type select(const batch_bool_type& cond, const batch_type& a, const batch_type& b)
             {
             #if defined(XSIMD_AVX512BW_AVAILABLE)
-                return _mm512_mask_blend_epi8(cond, b, a);
+                // Some compilers are not happy with passing directly a and b to the intrinsics
+                // See https://github.com/xtensor-stack/xsimd/issues/315
+                __m512i ma = a;
+                __m512i mb = b;
+                return _mm512_mask_blend_epi8(cond, mb, ma);
             #else
                 XSIMD_SPLIT_AVX512(cond);
                 XSIMD_SPLIT_AVX512(a);

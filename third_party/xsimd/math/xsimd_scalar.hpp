@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -36,6 +38,7 @@ namespace xsimd
     using std::exp2;
     using std::exp;
     using std::expm1;
+    using std::fabs;
     using std::fdim;
     using std::fmax;
     using std::fmin;
@@ -48,6 +51,7 @@ namespace xsimd
     using std::log1p;
     using std::log2;
     using std::log;
+    using std::modf;
     using std::nearbyint;
     using std::nextafter;
     using std::proj;
@@ -89,6 +93,20 @@ namespace xsimd
     isnan(T var)
     {
         return std::isnan(var);
+    }
+#endif
+
+#ifdef XSIMD_ENABLE_NUMPY_COMPLEX
+    template <class T>
+    bool isnan(std::complex<T> var)
+    {
+        return std::isnan(std::real(var)) || std::isnan(std::imag(var));
+    }
+
+    template <class T>
+    bool isinf(std::complex<T> var)
+    {
+        return std::isinf(std::real(var)) || std::isinf(std::imag(var));
     }
 #endif
 

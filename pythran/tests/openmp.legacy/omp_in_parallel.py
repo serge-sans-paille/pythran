@@ -14,4 +14,4 @@ def omp_in_parallel():
         if 'omp single':
             pass
 
-    return (not serial and isparallel) or num_threads == 1
+    return bool(not serial and isparallel) or num_threads == 1

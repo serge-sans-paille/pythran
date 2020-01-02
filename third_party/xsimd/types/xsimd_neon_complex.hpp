@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Johan Mabille and Sylvain Corlay                     *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -155,7 +157,7 @@ namespace xsimd
 
     inline auto batch<std::complex<float>, 4>::load_unaligned(const std::complex<double>* src) -> self_type&
     {
-        return load_unaligned(src);
+        return load_aligned(src);
     }
 
     inline void batch<std::complex<float>, 4>::store_aligned(std::complex<float>* dst) const

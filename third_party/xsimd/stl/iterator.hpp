@@ -1,5 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2016, Wolf Vollprecht, Johan Mabille and Sylvain Corlay    *
+* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+* Martin Renou                                                             *
+* Copyright (c) QuantStack                                                 *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -201,6 +203,19 @@ namespace xsimd
     {
         return !lhs.equal(rhs);
     }
+
+#if defined(_WIN32) && defined(__clang__)
+    // See comment at the end of simd_base.hpp
+    template <class B>
+    inline B fma(const batch_proxy<B>& a, const batch_proxy<B>& b, const batch_proxy<B>& c)
+    {
+        using base_type = simd_base<batch_proxy<B>>;
+        const base_type& sba = a;
+        const base_type& sbb = b;
+        const base_type& sbc = c;
+        return fma(sba, sbb, sbc);
+    }
+#endif
 }
 
 #endif

@@ -16,6 +16,9 @@ class UnboundValueType(object):
 
 UnboundValue = UnboundValueType()
 
+# FIXME: we should find a better way to implement default behavior
+DefaultArgNum = 20
+
 
 class UpdateEffect(object):
     pass
@@ -38,7 +41,7 @@ class Intrinsic(object):
 
     - argument_effects that describes the effect of the function on its
       argument (either UpdateEffect, ReadEffect or ReadOnceEffect)
-    - global_effects that describes wether the function has side effects
+    - global_effects that describes whether the function has side effects
     - return_alias that describes the aliasing between the return value
       and the parameters. The lambda returns an ast expression, generally
       depending on the node arguments (see dict.setdefault)
@@ -48,7 +51,7 @@ class Intrinsic(object):
 
     def __init__(self, **kwargs):
         self.argument_effects = kwargs.get('argument_effects',
-                                           (UpdateEffect(),) * 11)
+                                           (UpdateEffect(),) * DefaultArgNum)
         self.global_effects = kwargs.get('global_effects', False)
         self.return_alias = kwargs.get('return_alias',
                                        lambda x: {UnboundValue})
@@ -139,27 +142,27 @@ class UserFunction(FunctionIntr):
 class ConstFunctionIntr(FunctionIntr):
     def __init__(self, **kwargs):
         kwargs.setdefault('argument_effects',
-                          (ReadEffect(),) * 10)
+                          (ReadEffect(),) * DefaultArgNum)
         super(ConstFunctionIntr, self).__init__(**kwargs)
 
 
 class ConstExceptionIntr(ConstFunctionIntr):
     def __init__(self, **kwargs):
         kwargs.setdefault('argument_effects',
-                          (ReadEffect(),) * 10)
+                          (ReadEffect(),) * DefaultArgNum)
         super(ConstExceptionIntr, self).__init__(**kwargs)
 
 
 class ReadOnceFunctionIntr(ConstFunctionIntr):
     def __init__(self, **kwargs):
         super(ReadOnceFunctionIntr, self).__init__(
-            argument_effects=(ReadOnceEffect(),) * 11, **kwargs)
+            argument_effects=(ReadOnceEffect(),) * DefaultArgNum, **kwargs)
 
 
 class MethodIntr(FunctionIntr):
     def __init__(self, *combiners, **kwargs):
         kwargs.setdefault('argument_effects',
-                          (UpdateEffect(),) + (ReadEffect(),) * 10)
+                          (UpdateEffect(),) + (ReadEffect(),) * DefaultArgNum)
         kwargs['combiners'] = combiners
         super(MethodIntr, self).__init__(**kwargs)
 
@@ -174,7 +177,7 @@ class ConstMethodIntr(MethodIntr):
     def __init__(self, *combiners, **kwargs):
         super(ConstMethodIntr, self).__init__(
             *combiners,
-            argument_effects=(ReadEffect(),) * 12, **kwargs)
+            argument_effects=(ReadEffect(),) * DefaultArgNum, **kwargs)
 
 
 class AttributeIntr(Intrinsic):

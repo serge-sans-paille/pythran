@@ -6,6 +6,12 @@
 #include "pythonic/include/types/numpy_broadcast.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
+// Python.h defines this macro to _copysign
+#ifdef copysign
+  #define RESTORE_COPYSIGN
+  #undef copysign
+#endif
+
 #include <xsimd/xsimd.hpp>
 
 PYTHONIC_NS_BEGIN
@@ -17,5 +23,10 @@ namespace numpy
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END
+
+#ifdef RESTORE_COPYSIGN
+  #undef RESTORE_COPYSIGN
+  #define copysign _copysign
+#endif
 
 #endif

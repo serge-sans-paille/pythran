@@ -20,7 +20,7 @@ def loopy(_PopulationSetInfo_Data, _WarningCount, _NumberOfTriesToGenerateThisIn
     while _Subject < (len(_PopulationSetInfo_Data)):
         IndividualID = IndividualID +1
         # Comment/Uncomment the next line to disable/enable printing of verbose information
-        #print "Simulating Individual #" + str(IndividualID)
+        #print("Simulating Individual #" + str(IndividualID))
         _NumberOfTriesToGenerateThisIndividual = 1
         ##### Repetition Loop #####
         Repetition = 0
@@ -29,7 +29,7 @@ def loopy(_PopulationSetInfo_Data, _WarningCount, _NumberOfTriesToGenerateThisIn
             _RepeatSameIndividualRepetition = False
             #Init all parameters - Resetting them to zero
             # Comment/Uncomment the next line to disable/enable printing of verbose information
-            #print "  Repetition = " + str(Repetition)
+            #print("  Repetition = " + str(Repetition))
             Gender, Age, State0, State1, State2, State3Terminal, Example_6___Main_Process, Example_6___Main_Process_Entered, State0_Entered, State1_Entered, State2_Entered, State3Terminal_Entered = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             # Init parameters from population set
             [Gender, Age, State0, State1, State2, State3Terminal, Example_6___Main_Process, Example_6___Main_Process_Entered, State0_Entered, State1_Entered, State2_Entered, State3Terminal_Entered] = _PopulationSetInfo_Data[IndividualID-1]
@@ -56,7 +56,7 @@ def loopy(_PopulationSetInfo_Data, _WarningCount, _NumberOfTriesToGenerateThisIn
                     # If not repeating the same simulation step, nor terminating, increase the time counter
                     Time = Time + 1
                 # Comment/Uncomment the next line to disable/enable printing of verbose information
-                #print "    Time Step = " + str(Time)
+                #print("    Time Step = " + str(Time))
                 # Reset Warning/Error Count
                 _WarningCountBeforeThisSimulationStep = _WarningCount
                 # Increase the number of Tries counter
@@ -94,7 +94,7 @@ def loopy(_PopulationSetInfo_Data, _WarningCount, _NumberOfTriesToGenerateThisIn
                     _ResultsInfoForThisIndividual.append([IndividualID, Repetition, Time ,Gender, Age, State0, State1, State2, State3Terminal, Example_6___Main_Process, Example_6___Main_Process_Entered, State0_Entered, State1_Entered, State2_Entered, State3Terminal_Entered])
                     _NumberOfTriesToGenerateThisSimulationStep = 0
                 else:
-                    #print "    Repeating the same simulation step due to an error - probably a bad validity check"
+                    #print("    Repeating the same simulation step due to an error - probably a bad validity check")
                     _RepeatSameSimulationStep = True
                     if _NumberOfTriesToGenerateThisSimulationStep >= 5:
                         if _NumberOfTriesToGenerateThisIndividual < 2:
@@ -104,7 +104,7 @@ def loopy(_PopulationSetInfo_Data, _WarningCount, _NumberOfTriesToGenerateThisIn
                         else:
                             _WarningCount = _WarningErrorHandler("The simulation was halted since the number of tries to recalculate the same person has been exceeded. If this problem consistently repeats itself, check the formulas to see if these cause too many out of bounds numbers to be generated. Alternatively, try raising the system option NumberOfTriesToRecalculateSimulationOfIndividualFromStart which is now defined as 2  .  ", True, _WarningCount)
             if _RepeatSameIndividualRepetition:
-                #print "  Repeating the same repetition for the same individual due to exceeding the allowed number of simulation steps recalculations for this individual"
+                #print("  Repeating the same repetition for the same individual due to exceeding the allowed number of simulation steps recalculations for this individual")
                 _NumberOfTriesToGenerateThisIndividual = _NumberOfTriesToGenerateThisIndividual + 1
             else:
                 # If going to the next individual repetition, save the results and increase the counter

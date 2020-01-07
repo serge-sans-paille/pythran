@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_OPERATOR_DELITEM_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/builtins/None.hpp"
 
 PYTHONIC_NS_BEGIN
 

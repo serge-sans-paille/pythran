@@ -9,8 +9,8 @@ def permutations(iterable, r=None):
     n = len(pool)
     if r is None:
         r = n
-    indices = range(n)
-    cycles = range(n-r+1, n+1)[::-1]
+    indices = list(range(n))
+    cycles = list(range(n-r+1, n+1))[::-1]
     yield tuple(pool[i] for i in indices[:r])
     while n:
         for i in reversed(range(r)):
@@ -41,7 +41,7 @@ def n_queens(queen_count):
         queen, and the index into the tuple indicates the row.
     """
     out =list()
-    cols = range(queen_count)
+    cols = list(range(queen_count))
     #for vec in permutations(cols):
     for vec in permutations(cols,None):
         if (queen_count == len(set(vec[i]+i for i in cols))

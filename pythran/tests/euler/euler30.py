@@ -26,4 +26,4 @@ def power_of_digits(n, p):
 
 
 def solve(p):
-    return sum(n for n in xrange(2, 200000) if power_of_digits(n, p) == n)
+    return sum(n for n in range(2, 200000) if power_of_digits(n, p) == n)

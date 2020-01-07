@@ -42,7 +42,7 @@
 #include "pythonic/include/utils/array_helper.hpp"
 #include "pythonic/include/types/pointer.hpp"
 
-#include "pythonic/include/__builtin__/len.hpp"
+#include "pythonic/include/builtins/len.hpp"
 
 #include <cassert>
 #include <ostream>
@@ -715,7 +715,7 @@ namespace types
   template <class T>
   using dtype_t = typename details::dtype_helper<T>::type;
 }
-namespace __builtin__
+namespace builtins
 {
   namespace details
   {

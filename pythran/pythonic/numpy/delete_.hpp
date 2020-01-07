@@ -15,7 +15,7 @@ namespace numpy
   delete_(types::ndarray<T, pS> const &a, long index, types::none_type axis)
   {
     types::ndarray<T, types::pshape<long>> out(
-        types::pshape<long>(long(a.flat_size()) - 1), __builtin__::None);
+        types::pshape<long>(long(a.flat_size()) - 1), builtins::None);
     long n = a.flat_size();
     index = std::min(n, index);
     std::copy(a.buffer + index + 1, a.buffer + n,
@@ -31,7 +31,7 @@ namespace numpy
   {
     types::ndarray<T, types::pshape<long>> out(
         types::pshape<long>(long(in.flat_size()) - indices.flat_size()),
-        __builtin__::None);
+        builtins::None);
     auto out_iter = out.buffer;
     auto in_iter = in.buffer;
     for (long index : indices) {

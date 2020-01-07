@@ -8,17 +8,6 @@ from pythran.conversion import mangle
 from pythran.utils import attr_to_path, path_to_attr
 
 import gast as ast
-import sys
-
-if sys.version_info.major == 2:
-    MODULE = 'itertools'
-    IMAP = 'imap'
-    IFILTER = 'ifilter'
-else:
-    MODULE = '__builtin__'
-    IMAP = 'map'
-    IFILTER = 'filter'
-ASMODULE = mangle(MODULE)
 
 
 class ComprehensionPatterns(Transformation):
@@ -32,11 +21,11 @@ class ComprehensionPatterns(Transformation):
     >>> 'map' in pm.dump(backend.Python, node)
     True
 
-    >>> node = ast.parse("def foo(y) : return [0 for _ in __builtin__.range(y)]")
+    >>> node = ast.parse("def foo(y) : return [0 for _ in builtins.range(y)]")
     >>> _, node = pm.apply(ComprehensionPatterns, node)
     >>> print(pm.dump(backend.Python, node))
     def foo(y):
-        return ([0] * __builtin__.len(__builtin__.range(y)))
+        return ([0] * builtins.len(builtins.range(y)))
     '''
 
     def __init__(self):
@@ -59,12 +48,11 @@ class ComprehensionPatterns(Transformation):
                               [], None, [], [], None, []),
                 ast.BoolOp(ast.And(), gen.ifs)
                 if len(gen.ifs) > 1 else gen.ifs[0])
-            self.use_itertools |= MODULE == 'itertools'
             ifilterName = ast.Attribute(
-                value=ast.Name(id=ASMODULE,
+                value=ast.Name(id='builtins',
                                ctx=ast.Load(),
                                annotation=None, type_comment=None),
-                attr=IFILTER, ctx=ast.Load())
+                attr='filter', ctx=ast.Load())
             return ast.Call(ifilterName, [ldFilter, gen.iter], [])
         else:
             return gen.iter
@@ -109,17 +97,16 @@ class ComprehensionPatterns(Transformation):
     def visit_ListComp(self, node):
         def makeattr(*args):
             r = ast.Attribute(
-                value=ast.Name(id='__builtin__',
+                value=ast.Name(id='builtins',
                                ctx=ast.Load(),
                                annotation=None,
                               type_comment=None),
                 attr='map', ctx=ast.Load())
             r = ast.Call(r, list(args), [])
-            if sys.version_info.major == 3:
-                r = ast.Call(ast.Attribute(ast.Name('__builtin__', ast.Load(),
-                                                    None, None),
-                                           'list', ast.Load()),
-                             [r], [])
+            r = ast.Call(ast.Attribute(ast.Name('builtins', ast.Load(),
+                                                None, None),
+                                       'list', ast.Load()),
+                         [r], [])
             return r
 
         if isinstance(node.elt, ast.Constant) and len(node.generators) == 1:
@@ -127,13 +114,13 @@ class ComprehensionPatterns(Transformation):
             if not gen.ifs and isinstance(gen.iter, ast.Call):
                 try:
                     path = attr_to_path(gen.iter.func)[1]
-                    range_path = 'pythonic', '__builtin__', 'functor', 'range'
+                    range_path = 'pythonic', 'builtins', 'functor', 'range'
                     if path == range_path and len(gen.iter.args) == 1:
                         self.update = True
                         return ast.BinOp(
                             ast.List([node.elt], ast.Load()),
                             ast.Mult(),
-                            ast.Call(path_to_attr(('__builtin__', 'len')),
+                            ast.Call(path_to_attr(('builtins', 'len')),
                                      [gen.iter],
                                      []))
                 except TypeError:
@@ -143,10 +130,9 @@ class ComprehensionPatterns(Transformation):
 
     def visit_GeneratorExp(self, node):
         def makeattr(*args):
-            self.use_itertools |= MODULE == 'itertools'
             return ast.Call(ast.Attribute(
-                value=ast.Name(id=ASMODULE,
+                value=ast.Name(id='builtins',
                                ctx=ast.Load(),
                                annotation=None, type_comment=None),
-                attr=IMAP, ctx=ast.Load()), list(args), [])
+                attr='map', ctx=ast.Load()), list(args), [])
         return self.visitComp(node, makeattr)

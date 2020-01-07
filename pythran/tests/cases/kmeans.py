@@ -2,6 +2,7 @@
 #norunas test() because of random input
 #bench test()
 import  math, random
+from functools import reduce
 
 # a point is a tuple
 # a cluster is a list of tuple and a point (the centroid)

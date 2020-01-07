@@ -143,7 +143,7 @@ class TypeDependencies(ModuleAnalysis):
     Check dependency on for target variable
     >>> node = ast.parse('''
     ... def bar(n):
-    ...     return __builtin__.range(n)
+    ...     return builtins.range(n)
     ... def foo(n):
     ...     for i in bar(n):
     ...         i = 2
@@ -158,7 +158,7 @@ class TypeDependencies(ModuleAnalysis):
     Check dependency on for target variable with no deps if we don't start
     >>> node = ast.parse('''
     ... def bar(n):
-    ...     return __builtin__.range(n)
+    ...     return builtins.range(n)
     ... def foo(n):
     ...     i = 4
     ...     for i in bar(n):
@@ -174,7 +174,7 @@ class TypeDependencies(ModuleAnalysis):
     Check dependency on for target variable with deps
     >>> node = ast.parse('''
     ... def bar(n):
-    ...     return __builtin__.range(n)
+    ...     return builtins.range(n)
     ... def foo(n):
     ...     for i in bar(n):
     ...         pass
@@ -204,9 +204,9 @@ class TypeDependencies(ModuleAnalysis):
     Check conditional without break
     >> node = ast.parse('''
     .. def bar2(n):
-    ..     return __builtin__.range(n)
+    ..     return builtins.range(n)
     .. def bar(n):
-    ..     return __builtin__.range(n)
+    ..     return builtins.range(n)
     .. def foo(n):
     ..     for i in bar(n):
     ..         if i:

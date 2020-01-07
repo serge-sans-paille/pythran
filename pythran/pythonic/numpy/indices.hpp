@@ -22,7 +22,7 @@ namespace numpy
     sutils::copy_shape<1, -1>(oshape, shape, utils::make_index_sequence<N>());
     types::ndarray<typename dtype::type,
                    sutils::push_front_t<pS, std::integral_constant<long, N>>>
-        out(oshape, __builtin__::None);
+        out(oshape, builtins::None);
     typename dtype::type *iters[N];
     for (size_t n = 0; n < N; ++n)
       iters[n] = out[n].buffer;

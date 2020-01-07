@@ -4,8 +4,8 @@
 #include "pythonic/include/numpy/reduce.hpp"
 
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/utils/neutral.hpp"
 
 #ifdef USE_XSIMD
@@ -217,7 +217,7 @@ namespace numpy
       auto tmp = sutils::array(shape);
       auto next = std::copy(tmp.begin(), tmp.begin() + axis, shp.begin());
       std::copy(tmp.begin() + axis + 1, tmp.end(), next);
-      reduced_type<E, Op> sumy{shp, __builtin__::None};
+      reduced_type<E, Op> sumy{shp, builtins::None};
 
       auto sumy_iter = sumy.begin();
       for (auto const &elem : array) {

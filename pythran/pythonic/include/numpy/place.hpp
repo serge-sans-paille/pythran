@@ -3,7 +3,7 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
-#include "pythonic/include/__builtin__/None.hpp"
+#include "pythonic/include/builtins/None.hpp"
 #include "pythonic/include/numpy/asarray.hpp"
 
 PYTHONIC_NS_BEGIN

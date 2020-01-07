@@ -15,4 +15,4 @@ def solve():
  names = open('pythran/tests/euler/names22.txt').read().replace('"', '').split(',')
  names.sort()
 
- return sum((i+1) * worth(names[i]) for i in xrange(0, len(names)))
+ return sum((i+1) * worth(names[i]) for i in range(0, len(names)))

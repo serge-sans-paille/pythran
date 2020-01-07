@@ -6,7 +6,7 @@
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/types/nditerator.hpp"
 
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 PYTHONIC_NS_BEGIN
 

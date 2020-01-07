@@ -10,8 +10,8 @@ def solve(v):
     Find the product abc.
     '''
 
-    for a in xrange(1, v):
-        for b in xrange(a, v):
+    for a in range(1, v):
+        for b in range(a, v):
             c = v - a - b
             if c > 0:
                 if c*c == a*a + b*b:

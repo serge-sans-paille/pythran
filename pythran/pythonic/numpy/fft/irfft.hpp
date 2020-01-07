@@ -5,8 +5,8 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/None.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/swapaxes.hpp"
 
 #include <array>
@@ -39,7 +39,7 @@ namespace numpy
       auto out_shape = sutils::array(shape);
       out_shape.back() = out_size;
       types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
-          out_array(out_shape, __builtin__::None);
+          out_array(out_shape, builtins::None);
 
       // Create the twiddle factors. These must be kept from call to call as
       // it's very wasteful to recompute them.

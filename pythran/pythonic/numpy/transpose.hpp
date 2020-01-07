@@ -7,7 +7,7 @@
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -71,7 +71,7 @@ namespace numpy
         perm[l[i]] = i;
 
       types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
-          new_array(shp, __builtin__::None);
+          new_array(shp, builtins::None);
 
       auto const *iter = a.buffer;
       types::array<long, std::tuple_size<pS>::value> indices;

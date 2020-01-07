@@ -20,7 +20,7 @@ class ExpandBuiltins(Transformation):
     >>> _, node = pm.apply(ExpandBuiltins, node)
     >>> print(pm.dump(backend.Python, node))
     def foo():
-        return __builtin__.list()
+        return builtins.list()
     """
 
     def __init__(self):
@@ -29,7 +29,7 @@ class ExpandBuiltins(Transformation):
     def visit_NameConstant(self, node):
         self.update = True
         return ast.Attribute(
-            ast.Name('__builtin__', ast.Load(), None, None),
+            ast.Name('builtins', ast.Load(), None, None),
             str(node.value),
             ast.Load())
 
@@ -38,12 +38,12 @@ class ExpandBuiltins(Transformation):
         if(isinstance(node.ctx, ast.Load) and
            s not in self.locals[node] and
            s not in self.globals and
-           s in MODULES['__builtin__']):
+           s in MODULES['builtins']):
             if s == 'getattr':
                 raise PythranSyntaxError("You fool! Trying a getattr?", node)
             self.update = True
             return ast.Attribute(
-                ast.Name('__builtin__', ast.Load(), None, None),
+                ast.Name('builtins', ast.Load(), None, None),
                 s,
                 node.ctx)
         else:

@@ -15,7 +15,7 @@ namespace numpy
   types::ndarray<T, pS> triu(types::ndarray<T, pS> const &expr, int k)
   {
     auto &&expr_shape = expr.shape();
-    types::ndarray<T, pS> out(expr_shape, __builtin__::None);
+    types::ndarray<T, pS> out(expr_shape, builtins::None);
     for (int i = 0; i < std::get<0>(expr_shape); ++i)
       for (long j = 0; j < std::get<1>(expr_shape); ++j)
         if (j - i >= k)

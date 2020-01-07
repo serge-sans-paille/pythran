@@ -54,7 +54,7 @@ def solve():
 
     def is_left_truncatable(l):
         is_truncatable = 1
-        for size in xrange(1, len(l)+1):
+        for size in range(1, len(l)+1):
             n = num(l[:size])
             _refresh(int(math.sqrt(n)))
             if not _isprime(n):
@@ -64,7 +64,7 @@ def solve():
 
     def is_right_truncatable(l):
         is_truncatable = 1
-        for size in xrange(0, len(l)):
+        for size in range(0, len(l)):
             n = num(l[size:])
             _refresh(int(math.sqrt(n)))
             if not _isprime(n):

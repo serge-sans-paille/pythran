@@ -170,15 +170,15 @@ class ASTMatcher(NodeVisitor):
     Examples
     --------
     >>> import gast as ast
-    >>> code = "[(i, j) for i in xrange(a) for j in xrange(b)]"
-    >>> pattern = ast.Call(func=ast.Name('xrange', ctx=ast.Load(),
+    >>> code = "[(i, j) for i in range(a) for j in range(b)]"
+    >>> pattern = ast.Call(func=ast.Name('range', ctx=ast.Load(),
     ...                                  annotation=None,
     ...                                  type_comment=None),
     ...                    args=AST_any(), keywords=[])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     2
-    >>> code = "[(i, j) for i in range(a) for j in xrange(b)]"
-    >>> pattern = ast.Call(func=ast.Name(id=AST_or('xrange', 'range'),
+    >>> code = "[(i, j) for i in range(a) for j in range(b)]"
+    >>> pattern = ast.Call(func=ast.Name(id=AST_or('range', 'range'),
     ...                                  ctx=ast.Load(),
     ...                                  annotation=None,
     ...                                  type_comment=None),

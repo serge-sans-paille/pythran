@@ -7,22 +7,12 @@ from pythran.utils import path_to_attr, path_to_node
 from pythran.conversion import mangle
 
 import gast as ast
-import sys
 
 EQUIVALENT_ITERATORS = {
-    ('__builtin__', "list"): None,
+    ('builtins', "list"): None,
     ('numpy', "array"): None,
     ('numpy', "asarray"): None,
 }
-
-if sys.version_info.major == 2:
-
-    EQUIVALENT_ITERATORS.update({
-        ('__builtin__', "range"): ("__builtin__", "xrange"),
-        ('__builtin__', "filter"): ("itertools", "ifilter"),
-        ('__builtin__', "map"): ("itertools", "imap"),
-        ('__builtin__', "zip"): ("itertools", "izip")
-    })
 
 
 class IterTransformation(Transformation):
@@ -34,21 +24,18 @@ class IterTransformation(Transformation):
     >>> from pythran import passmanager, backend
     >>> node = ast.parse('''
     ... def foo(l):
-    ...     return __builtin__.sum(l)
+    ...     return builtins.sum(l)
     ... def bar(n):
-    ...     return foo(__builtin__.range(n))
+    ...     return foo(builtins.list(n))
     ... ''')
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(IterTransformation, node)
     >>> print(pm.dump(backend.Python, node))
     def foo(l):
-        return __builtin__.sum(l)
+        return builtins.sum(l)
     def bar(n):
-        return foo(__builtin__.xrange(n))
+        return foo(n)
     """
-
-    if sys.version_info.major == 3:
-        __doc__ = None
 
     def __init__(self):
         """Gather required information."""
@@ -86,7 +73,7 @@ class IterTransformation(Transformation):
             # a parameter as map(None, [1, 2]) == [1, 2] while
             # list(imap(None, [1, 2])) == [(1,), (2,)]
             if (matched_path[1] == "map" and
-                    MODULES["__builtin__"]["None"] in
+                    MODULES["builtins"]["None"] in
                     self.aliases[node.args[0]]):
                 return self.generic_visit(node)
 

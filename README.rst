@@ -14,7 +14,8 @@ interface, but (hopefully) faster.
 It is meant to efficiently compile **scientific programs**, and takes advantage
 of multi-cores and SIMD instruction units.
 
-Pythran supports Python **3** and Python **2.7**.
+Until 0.9.5 (included), Pythran was supporting Python 3 and Python 2.7.
+It now only supports Python **3**.
 
 Installation
 ------------

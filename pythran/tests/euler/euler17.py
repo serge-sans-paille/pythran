@@ -52,5 +52,5 @@ def solve(start, end):
                     break
         return word
 
-    return sum(len(word) for n in xrange(start, end + 1) for word in spell(n, words))
+    return sum(len(word) for n in range(start, end + 1) for word in spell(n, words))
 

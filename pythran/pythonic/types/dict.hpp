@@ -7,7 +7,7 @@
 #include "pythonic/types/empty_iterator.hpp"
 #include "pythonic/utils/iterator.hpp"
 #include "pythonic/utils/reserve.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/utils/shared_ref.hpp"
 
 #include <memory>
@@ -30,7 +30,7 @@ namespace types
 
   template <class I>
   typename item_iterator_adaptator<I>::value_type item_iterator_adaptator<I>::
-  operator*()
+  operator*() const
   {
     auto &&tmp = I::operator*();
     return make_tuple(tmp.first, tmp.second);
@@ -51,7 +51,7 @@ namespace types
 
   template <class I>
   typename key_iterator_adaptator<I>::value_type key_iterator_adaptator<I>::
-  operator*()
+  operator*() const
   {
     return (*this)->first;
   }
@@ -71,27 +71,9 @@ namespace types
 
   template <class I>
   typename value_iterator_adaptator<I>::value_type value_iterator_adaptator<I>::
-  operator*()
+  operator*() const
   {
     return (*this)->second;
-  }
-
-  template <class I>
-  dict_iterator<I>::dict_iterator(I b, I e)
-      : _begin(b), _end(e)
-  {
-  }
-
-  template <class I>
-  typename dict_iterator<I>::iterator dict_iterator<I>::begin()
-  {
-    return _begin;
-  }
-
-  template <class I>
-  typename dict_iterator<I>::iterator dict_iterator<I>::end()
-  {
-    return _end;
   }
 
   template <class D>
@@ -118,6 +100,12 @@ namespace types
   }
 
   template <class D>
+  long dict_items<D>::size() const
+  {
+    return data.size();
+  }
+
+  template <class D>
   dict_keys<D>::dict_keys()
   {
   }
@@ -141,6 +129,12 @@ namespace types
   }
 
   template <class D>
+  long dict_keys<D>::size() const
+  {
+    return data.size();
+  }
+
+  template <class D>
   dict_values<D>::dict_values()
   {
   }
@@ -161,6 +155,12 @@ namespace types
   typename dict_values<D>::iterator dict_values<D>::end() const
   {
     return data.value_end();
+  }
+
+  template <class D>
+  long dict_values<D>::size() const
+  {
+    return data.size();
   }
 
   template <class K, class V>
@@ -380,7 +380,7 @@ namespace types
     if (ivalue != data->end())
       return ivalue->second;
     else
-      return __builtin__::None;
+      return builtins::None;
   }
 
   template <class K, class V>
@@ -401,7 +401,7 @@ namespace types
     if (ivalue != data->end())
       return ivalue->second;
     else
-      return (*data)[key] = __builtin__::None;
+      return (*data)[key] = builtins::None;
   }
 
   template <class K, class V>
@@ -465,64 +465,19 @@ namespace types
   }
 
   template <class K, class V>
-  dict_iterator<typename dict<K, V>::item_iterator> dict<K, V>::iteritems()
-  {
-    return dict_iterator<typename dict<K, V>::item_iterator>(item_begin(),
-                                                             item_end());
-  }
-
-  template <class K, class V>
-  dict_iterator<typename dict<K, V>::item_const_iterator>
-  dict<K, V>::iteritems() const
-  {
-    return dict_iterator<typename dict<K, V>::item_const_iterator>(item_begin(),
-                                                                   item_end());
-  }
-
-  template <class K, class V>
-  dict_iterator<typename dict<K, V>::key_iterator> dict<K, V>::iterkeys()
-  {
-    return dict_iterator<typename dict<K, V>::key_iterator>(key_begin(),
-                                                            key_end());
-  }
-
-  template <class K, class V>
-  dict_iterator<typename dict<K, V>::key_const_iterator>
-  dict<K, V>::iterkeys() const
-  {
-    return dict_iterator<typename dict<K, V>::key_const_iterator>(key_begin(),
-                                                                  key_end());
-  }
-
-  template <class K, class V>
-  dict_iterator<typename dict<K, V>::value_iterator> dict<K, V>::itervalues()
-  {
-    return dict_iterator<typename dict<K, V>::value_iterator>(value_begin(),
-                                                              value_end());
-  }
-
-  template <class K, class V>
-  dict_iterator<typename dict<K, V>::value_const_iterator>
-  dict<K, V>::itervalues() const
-  {
-    return dict_iterator<typename dict<K, V>::value_const_iterator>(
-        value_begin(), value_end());
-  }
-
-  template <class K, class V>
-  dict_items<dict<K, V>> dict<K, V>::viewitems() const
+  dict_items<dict<K, V>> dict<K, V>::items() const
   {
     return dict_items<dict<K, V>>(*this);
   }
 
   template <class K, class V>
-  dict_keys<dict<K, V>> dict<K, V>::viewkeys() const
+  dict_keys<dict<K, V>> dict<K, V>::keys() const
   {
     return dict_keys<dict<K, V>>(*this);
   }
 
   template <class K, class V>
-  dict_values<dict<K, V>> dict<K, V>::viewvalues() const
+  dict_values<dict<K, V>> dict<K, V>::values() const
   {
     return dict_values<dict<K, V>>(*this);
   }

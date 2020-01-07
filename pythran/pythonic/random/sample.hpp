@@ -21,7 +21,7 @@ namespace random
     using value_type = typename std::iterator_traits<typename std::remove_cv<
         typename std::remove_reference<Iterable>::type>::type::iterator>::
         value_type;
-    types::list<value_type> tmp(s);
+    types::list<value_type> tmp(s.begin(), s.end());
     std::vector<size_t> indices(tmp.size());
     std::iota(indices.begin(), indices.end(), 0);
     std::random_shuffle(indices.begin(), indices.end());

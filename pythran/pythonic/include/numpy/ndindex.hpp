@@ -21,12 +21,12 @@ namespace numpy
     types::array<long, N> shape;
     ndindex_iterator();
     ndindex_iterator(types::array<long, N> const &shape, long first);
-    types::array<long, N> operator*();
+    types::array<long, N> operator*() const;
     ndindex_iterator &operator++();
     ndindex_iterator &operator+=(long n);
-    bool operator!=(ndindex_iterator const &other);
-    bool operator<(ndindex_iterator const &other);
-    long operator-(ndindex_iterator const &other);
+    bool operator!=(ndindex_iterator const &other) const;
+    bool operator<(ndindex_iterator const &other) const;
+    long operator-(ndindex_iterator const &other) const;
   };
 
   template <size_t N>

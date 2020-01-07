@@ -19,5 +19,5 @@ def solve():
             n = n // base
         return digits == reverse
 
-    return sum(n for n in xrange(1, 1000000)
+    return sum(n for n in range(1, 1000000)
                if ispalindrome(n, 10) and ispalindrome(n, 2))

@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/utils/tags.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -24,7 +24,7 @@ namespace numpy
   {
     types::ndarray<typename std::remove_cv<typename std::remove_reference<
                        typename std::result_of<F(dtype)>::type>::type>::type,
-                   pS> out(shape, __builtin__::None);
+                   pS> out(shape, builtins::None);
     long n = std::get<0>(out.shape());
 #ifdef _OPENMP
     if (std::is_same<purity_tag, purity::pure_tag>::value &&
@@ -50,7 +50,7 @@ namespace numpy
     types::ndarray<
         typename std::remove_cv<typename std::remove_reference<
             typename std::result_of<F(dtype, dtype)>::type>::type>::type,
-        pS> out(shape, __builtin__::None);
+        pS> out(shape, builtins::None);
     auto &&out_shape = out.shape();
     long n = std::get<0>(out_shape);
     long m = std::get<1>(out_shape);

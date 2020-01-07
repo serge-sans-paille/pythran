@@ -59,7 +59,7 @@ def solve():
             thiselt = elts[i]
             thismax = f.count(thiselt)
             powers = [1]
-            for j in xrange(thismax):
+            for j in range(thismax):
                 powers.append(powers[-1] * thiselt)
             for d in gen_inner(i+1):
                 for prime_power in powers:
@@ -69,11 +69,11 @@ def solve():
 
     MAX = 28124
     _refresh(MAX/2)
-    abundants = [n for n in xrange(1, MAX) if sum(all_factors(n)) > n+n]
+    abundants = [n for n in range(1, MAX) if sum(all_factors(n)) > n+n]
     abundants_dict = dict.fromkeys(abundants, 1)
 
     total = 0
-    for n in xrange(1, MAX):
+    for n in range(1, MAX):
         sum_of_abundants = 0
         for a in abundants:
             if a > n: break

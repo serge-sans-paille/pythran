@@ -16,7 +16,7 @@ namespace numpy
     constexpr auto N = std::tuple_size<pS>::value;
     size_t last_axis = std::get<N - 1>(a.shape());
     size_t n = a.flat_size();
-    types::ndarray<long, pS> indices(a.shape(), __builtin__::None);
+    types::ndarray<long, pS> indices(a.shape(), builtins::None);
     for (long j = 0, *iter_indices = indices.buffer,
               *end_indices = indices.buffer + n;
          iter_indices != end_indices;

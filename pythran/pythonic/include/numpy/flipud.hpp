@@ -9,8 +9,8 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  auto flipud(E &&expr) -> decltype(std::forward<E>(
-      expr)[types::slice{__builtin__::None, __builtin__::None, -1}]);
+  auto flipud(E &&expr) -> decltype(
+      std::forward<E>(expr)[types::slice{builtins::None, builtins::None, -1}]);
 
   DEFINE_FUNCTOR(pythonic::numpy, flipud);
 }

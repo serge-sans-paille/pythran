@@ -29,7 +29,7 @@ def demangle(name):
 
 def is_builtin_function(func_name):
     """Test if a function is a builtin (like len(), map(), ...)."""
-    return func_name in MODULES["__builtin__"]
+    return func_name in MODULES["builtins"]
 
 
 def is_builtin_module(module_name):

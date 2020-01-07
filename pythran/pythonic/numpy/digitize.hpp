@@ -4,7 +4,7 @@
 #include "pythonic/include/numpy/digitize.hpp"
 
 #include "pythonic/numpy/asarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/operator_/gt.hpp"
 #include "pythonic/operator_/lt.hpp"
 
@@ -40,7 +40,7 @@ namespace numpy
     bool is_increasing =
         bins.flat_size() > 1 && *bins.fbegin() < *(bins.fbegin() + 1);
     types::ndarray<long, types::pshape<long>> out(
-        types::make_tuple(long(expr.flat_size())), __builtin__::None);
+        types::make_tuple(long(expr.flat_size())), builtins::None);
     auto out_iter = out.fbegin();
     if (is_increasing)
       _digitize(expr.begin(), expr.end(), out_iter, bins,

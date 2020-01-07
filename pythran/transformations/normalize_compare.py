@@ -37,12 +37,12 @@ class NormalizeCompare(Transformation):
         if (0 < $1):
             pass
         else:
-            return __builtin__.False
+            return builtins.False
         if ($1 < 3):
             pass
         else:
-            return __builtin__.False
-        return __builtin__.True
+            return builtins.False
+        return builtins.True
     '''
 
     def visit_Module(self, node):
@@ -103,10 +103,10 @@ class NormalizeCompare(Transformation):
                                    [holder])
                 body.append(ast.If(cond,
                                    [ast.Pass()],
-                                   [ast.Return(path_to_attr(('__builtin__', 'False')))]))
+                                   [ast.Return(path_to_attr(('builtins', 'False')))]))
                 prev_holder = holder
 
-            body.append(ast.Return(path_to_attr(('__builtin__', 'True'))))
+            body.append(ast.Return(path_to_attr(('builtins', 'True'))))
 
             forged_fdef = ast.FunctionDef(forged_name, args, body, [], None,
                                           None)

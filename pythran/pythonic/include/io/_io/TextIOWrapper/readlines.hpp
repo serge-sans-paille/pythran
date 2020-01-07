@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_IO__IO_TEXTIOWRAPPER_READLINES_HPP
 #define PYTHONIC_INCLUDE_IO__IO_TEXTIOWRAPPER_READLINES_HPP
 
-#include "pythonic/include/__builtin__/file/readlines.hpp"
+#include "pythonic/include/builtins/file/readlines.hpp"
 
 PYTHONIC_NS_BEGIN
 namespace io
@@ -11,7 +11,7 @@ namespace io
   {
     namespace TextIOWrapper
     {
-      USING_FUNCTOR(readlines, __builtin__::file::functor::readlines);
+      USING_FUNCTOR(readlines, builtins::file::functor::readlines);
     }
   }
 }

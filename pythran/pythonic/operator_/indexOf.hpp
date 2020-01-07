@@ -3,7 +3,7 @@
 
 #include "pythonic/include/operator_/indexOf.hpp"
 
-#include "pythonic/__builtin__/str.hpp"
+#include "pythonic/builtins/str.hpp"
 #include "pythonic/types/exceptions.hpp"
 #include "pythonic/utils/functor.hpp"
 
@@ -19,7 +19,7 @@ namespace operator_
   {
     auto where = std::find(a.begin(), a.end(), b);
     if (where == a.end())
-      throw types::ValueError(__builtin__::anonymous::str(b) +
+      throw types::ValueError(builtins::anonymous::str(b) +
                               " is not in this sequence");
     return where - a.begin();
   }

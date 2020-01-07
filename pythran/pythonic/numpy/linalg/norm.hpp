@@ -12,7 +12,7 @@
 #include "pythonic/numpy/sqrt.hpp"
 #include "pythonic/numpy/square.hpp"
 #include "pythonic/numpy/sum.hpp"
-#include "pythonic/__builtin__/NotImplementedError.hpp"
+#include "pythonic/builtins/NotImplementedError.hpp"
 PYTHONIC_NS_BEGIN
 namespace numpy
 {
@@ -42,7 +42,7 @@ namespace numpy
         return norm(std::forward<Array>(x), ord,
                     types::array<long, 2>{{0L, 1L}});
       default:
-        throw pythonic::__builtin__::NotImplementedError(
+        throw pythonic::builtins::NotImplementedError(
             "Invalid norm order for matrices.");
       }
     }
@@ -89,7 +89,7 @@ namespace numpy
     template <class Array>
     norm_t<Array> norm(Array &&array, double ord, types::array<long, 2> axis)
     {
-      throw pythonic::__builtin__::NotImplementedError("We need more dev!");
+      throw pythonic::builtins::NotImplementedError("We need more dev!");
     }
   }
 }

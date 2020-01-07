@@ -3,7 +3,6 @@ from pythran.tests import TestEnv
 import numpy
 
 from tempfile import mkstemp
-import sys
 import unittest
 from pythran.typing import List, Set, Dict, NDArray
 
@@ -88,7 +87,7 @@ class TestNormalizeMethods(TestEnv):
         self.run_test("import math\ndef shadow_import4(math): math.add(1)", {1}, shadow_import4=[Set[int]])
 
     def test_builtin_support0(self):
-        self.run_test("def builtin_support0(a): return __builtin__.list(a)", [1, 2],  builtin_support0=[List[int]])
+        self.run_test("def builtin_support0(a): import builtins; return builtins.list(a)", [1, 2],  builtin_support0=[List[int]])
 
     def test_dispatch_clear(self):
         self.run_test("def dispatch_clear(s, d): set.clear(s); dict.clear(d); s.clear(); d.clear() ; return s, d",
@@ -109,15 +108,6 @@ class TestNormalizeMethods(TestEnv):
         self.run_test("def dispatch_count(s, l): return str.count(s,'1'), list.count(l,1), s.count('1'), l.count(1)",
                       "1", [1],
                       dispatch_count=[str, List[int]])
-
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
-    def test_dispatch_next(self):
-        filename = mkstemp()[1]
-        with open(filename,"w") as f:
-            f.write("a\nb\nc\n")
-        self.run_test("def dispatch_next(fn): f = file(fn) ; a = file.next(f); b = f.next(); return a, b",
-                      filename,
-                      dispatch_next=[str])
 
     def test_dispatch_pop(self):
         self.run_test("def dispatch_pop(l, d): list.pop(l); dict.pop(d,1); l.pop(); d.pop(2); return l, d",

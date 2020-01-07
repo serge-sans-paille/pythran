@@ -8,7 +8,6 @@ import pythran.config as cfg
 from collections import defaultdict, Iterable
 import os.path
 import os
-import sys
 import types
 
 from distutils.command.build_ext import build_ext as LegacyBuildExt
@@ -24,7 +23,7 @@ class PythranBuildExt(LegacyBuildExt, object):
 
     """
     def build_extension(self, ext):
-        StringTypes = (str, unicode) if sys.version_info[0] == 2 else (str,)
+        StringTypes = str,
 
         def get_value(obj, key):
             var = getattr(obj, key)

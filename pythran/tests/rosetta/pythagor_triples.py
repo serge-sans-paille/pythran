@@ -6,6 +6,8 @@
 #runas triples(10000)
 #runas triples(100000)
 
+from functools import reduce
+
 def triples(lim, a = 3, b = 4, c = 5):
     l = a + b + c
     if l > lim: return (0, 0)

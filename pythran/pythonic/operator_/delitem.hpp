@@ -4,7 +4,7 @@
 #include "pythonic/include/operator_/delitem.hpp"
 
 #include "pythonic/utils/functor.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -15,7 +15,7 @@ namespace operator_
   types::none_type delitem(A &&a, B const &b)
   {
     a.remove(b);
-    return __builtin__::None;
+    return builtins::None;
   }
 }
 PYTHONIC_NS_END

@@ -51,10 +51,8 @@ PYTHONIC_NS_BEGIN
 namespace python
 {
 
-#if PY_MAJOR_VERSION >= 3
 #ifndef PyString_AS_STRING
 #define PyString_AS_STRING (char *) _PyUnicode_COMPACT_DATA
-#endif
 #endif
 
   void PyObject_TypePrettyPrinter(std::ostream &oss, PyObject *obj)

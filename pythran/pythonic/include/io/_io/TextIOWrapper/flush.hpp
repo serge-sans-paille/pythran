@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_IO__IO_TEXTIOWRAPPER_FLUSH_HPP
 #define PYTHONIC_INCLUDE_IO__IO_TEXTIOWRAPPER_FLUSH_HPP
 
-#include "pythonic/include/__builtin__/file/flush.hpp"
+#include "pythonic/include/builtins/file/flush.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -12,7 +12,7 @@ namespace io
   {
     namespace TextIOWrapper
     {
-      USING_FUNCTOR(flush, __builtin__::file::functor::flush);
+      USING_FUNCTOR(flush, builtins::file::functor::flush);
     }
   }
 }

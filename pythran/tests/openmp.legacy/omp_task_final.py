@@ -7,7 +7,7 @@ def omp_task_final():
     from time import sleep
     error = 0
     NUM_TASKS = 25
-    tids = range(NUM_TASKS)
+    tids = list(range(NUM_TASKS))
 
     if 'omp parallel':
         if 'omp single':

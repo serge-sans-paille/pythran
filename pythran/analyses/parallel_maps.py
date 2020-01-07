@@ -1,5 +1,4 @@
 """ ParallelMaps detects parallel map(...).  """
-from __future__ import print_function
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.pure_expressions import PureExpressions
@@ -16,7 +15,7 @@ class ParallelMaps(ModuleAnalysis):
         super(ParallelMaps, self).__init__(PureExpressions, Aliases)
 
     def visit_Call(self, node):
-        if all(alias == MODULES['__builtin__']['map']
+        if all(alias == MODULES['builtins']['map']
                for alias in self.aliases[node.func]):
             if all(f in self.pure_expressions
                    for f in self.aliases[node.args[0]]):

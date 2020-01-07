@@ -6,7 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/traits.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 #include <algorithm>
 
@@ -25,7 +25,7 @@ namespace numpy
     types::ndarray<T, types::pshape<long>> out(
         types::pshape<long>(long(
             in.flat_size() + std::min(indices.flat_size(), data.flat_size()))),
-        __builtin__::None);
+        builtins::None);
     auto out_iter = out.fbegin();
     auto in_iter = in.fbegin();
     auto data_iter = data.begin();

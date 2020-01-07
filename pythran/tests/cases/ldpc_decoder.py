@@ -122,9 +122,9 @@ def Decoding_logBP(H,Bits,Nodes,Lq,Lc,max_iter=1):
         #x = np.array(L_posteriori <= 0).astype(int)
         x = np.array(extrinsic <= 0).astype(int)
         product = InCode(H,x)
-        #print (count, product)
+        #print(count, product)
 
         if product or count >= max_iter:
             break
-    # print (count)
+    # print(count)
     return np.array(L_posteriori <= 0).astype(int), Lq - Lc, extrinsic, product

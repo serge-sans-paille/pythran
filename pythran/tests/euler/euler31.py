@@ -14,11 +14,11 @@ def solve():
 
     coins = [1, 2, 5, 10, 20, 50, 100, 200]
 
-    def balance(pattern): return sum(coins[x]*pattern[x] for x in xrange(0, len(pattern)))
+    def balance(pattern): return sum(coins[x]*pattern[x] for x in range(0, len(pattern)))
 
     def gen(pattern, coinnum, num):
         coin = coins[coinnum]
-        for p in xrange(0, num/coin + 1):
+        for p in range(0, num/coin + 1):
             newpat = pattern[:coinnum] + (p,)
             bal = balance(newpat)
             if bal > num: return

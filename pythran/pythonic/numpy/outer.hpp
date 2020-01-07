@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/numpy/asarray.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -20,7 +20,7 @@ namespace numpy
     types::ndarray<decltype(std::declval<T0>() + std::declval<T1>()),
                    types::pshape<long, long>>
     out(types::pshape<long, long>{a.flat_size(), b.flat_size()},
-        __builtin__::None);
+        builtins::None);
     auto iter = out.fbegin();
     for (auto iter_a = a.fbegin(), end_a = a.fend(); iter_a != end_a;
          ++iter_a) {

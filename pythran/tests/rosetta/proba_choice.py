@@ -50,7 +50,7 @@ def tester(func=probchoice, items='good bad ugly'.split(),
     counter = dict()
     it = func(items, probs)
     for dummy in range(trials):
-        k = it.next()
+        k = next(it)
         if k in counter:
             counter[k] += 1
         else:

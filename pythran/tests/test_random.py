@@ -104,9 +104,9 @@ class TestRandom(TestEnv):
         self.run_test("""
         def shuffle1(n):
             from random import shuffle
-            r = range(n)
+            r = list(range(n))
             shuffle(r)
-            return r != range(n) and sorted(r) == range(n)""",
+            return r != list(range(n)) and sorted(r) == list(range(n))""",
                       10, shuffle1=[int])
 
     def test_shuffle2(self):
@@ -114,9 +114,9 @@ class TestRandom(TestEnv):
         self.run_test("""
         def shuffle2(n):
             from random import shuffle
-            r = range(n)
+            r = list(range(n))
             shuffle(r, lambda: 0)
-            return r != range(n) and sorted(r) == range(n)""",
+            return r != list(range(n)) and sorted(r) == list(range(n))""",
                       10 ** 4, shuffle2=[int])
 
     def test_shuffle3(self):
@@ -124,9 +124,9 @@ class TestRandom(TestEnv):
         self.run_test("""
         def shuffle3(n):
             from random import shuffle, random
-            r = range(n)
+            r = list(range(n))
             shuffle(r, random)
-            return r != range(n) and sorted(r) == range(n)""",
+            return r != list(range(n)) and sorted(r) == list(range(n))""",
                       10 ** 4, shuffle3=[int])
 
     def test_choice(self):
@@ -134,7 +134,7 @@ class TestRandom(TestEnv):
         self.run_test("""
         def choice(n):
             from random import choice
-            s = sum(choice(range(100)) for x in xrange(n))
+            s = sum(choice(range(100)) for x in range(n))
             return abs(s / float(n) - 99 / 2.) < .05""",
                       10 ** 7, choice=[int])
 

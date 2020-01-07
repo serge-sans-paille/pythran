@@ -53,8 +53,8 @@ def solve(edge):
      return prime_list[x]
 
  max_pair = (0,0,0)
- for a in xrange(-1 * edge + 1, edge):
-     for b in xrange(max(2, 1-a), edge): # b >= 2, a + b + 1 >= 2
+ for a in range(-1 * edge + 1, edge):
+     for b in range(max(2, 1-a), edge): # b >= 2, a + b + 1 >= 2
          n, count = 0, 0
          while True:
              v = n*n + a*n + b

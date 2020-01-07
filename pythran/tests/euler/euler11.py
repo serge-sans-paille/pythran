@@ -25,10 +25,10 @@ def solve(adj):
     ]
 
     def seqs(nums, row, col):
-        if row + adj <= len(nums):                                yield list(nums[i][col] for i in xrange(row, row+adj))
-        if col + adj <= len(nums[row]):                           yield list(nums[row][i] for i in xrange(col, col+adj))
-        if row + adj <= len(nums) and col + adj <= len(nums[row]):yield list(nums[row+i][col+i] for i in xrange(0,adj))
-        if row + adj <= len(nums) and col >= adj - 1:             yield list(nums[row+i][col-i] for i in xrange(0,adj))
+        if row + adj <= len(nums):                                yield list(nums[i][col] for i in range(row, row+adj))
+        if col + adj <= len(nums[row]):                           yield list(nums[row][i] for i in range(col, col+adj))
+        if row + adj <= len(nums) and col + adj <= len(nums[row]):yield list(nums[row+i][col+i] for i in range(0,adj))
+        if row + adj <= len(nums) and col >= adj - 1:             yield list(nums[row+i][col-i] for i in range(0,adj))
 
     def product(seq):
         n = 1
@@ -36,8 +36,8 @@ def solve(adj):
         return n
 
     def list_seqs(nums):
-        for row in xrange(0, len(nums)):
-            for col in xrange(0, len(nums[row])):
+        for row in range(0, len(nums)):
+            for col in range(0, len(nums[row])):
                 for seq in seqs(nums, row, col):
                     yield seq
 

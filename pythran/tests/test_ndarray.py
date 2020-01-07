@@ -4,7 +4,6 @@ from pythran.typing import NDArray, Tuple, List
 import numpy
 
 import unittest
-import sys
 
 try:
     numpy.float128
@@ -92,9 +91,8 @@ class TestNdarray(TestEnv):
                       numpy.arange(100).reshape((10, 10)),
                       numpy_augassign2=[NDArray[int, :, :]])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_numpy_augassign3(self):
-        self.run_test('def numpy_augassign3(a): a/=2; return a',
+        self.run_test('def numpy_augassign3(a): a//=2; return a',
                       numpy.arange(100).reshape((10, 10)),
                       numpy_augassign3=[NDArray[int, :, :]])
 
@@ -128,9 +126,8 @@ class TestNdarray(TestEnv):
                       numpy.arange(100),
                       numpy_faugassign2=[NDArray[int, :]])
 
-    @unittest.skipIf(sys.version_info.major == 3, "not supported in pythran3")
     def test_numpy_faugassign3(self):
-        self.run_test('def numpy_faugassign3(a): a[a<40]/=2; return a',
+        self.run_test('def numpy_faugassign3(a): a[a<40]//=2; return a',
                       numpy.arange(100),
                       numpy_faugassign3=[NDArray[int, :]])
 
@@ -650,7 +647,7 @@ def assign_ndarray(t):
                       gexpr_copy0=[NDArray[int, :,: ], NDArray[int, :,: ]])
 
     def test_ndarray_iter0(self):
-        self.run_test("def ndarray_iter0(a): return map(str, a)",
+        self.run_test("def ndarray_iter0(a): return list(map(str, a))",
                       numpy.arange(16),
                       ndarray_iter0=[NDArray[int, :]])
 

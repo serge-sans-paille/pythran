@@ -37,7 +37,7 @@ class TupleToShape(Transformation):
     >>> print(pm.dump(backend.Python, node))
     def foo(n):
         import numpy
-        return numpy.ones(__builtin__.pythran.make_shape(n, 4))
+        return numpy.ones(builtins.pythran.make_shape(n, 4))
     """
     def __init__(self):
         self.update = False

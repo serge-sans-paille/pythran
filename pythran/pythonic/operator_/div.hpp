@@ -11,7 +11,6 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
 
-#if PY_MAJOR_VERSION >= 3
   template <class A, class B>
   auto div(A const &a, B const &b) // for ndarrays
       -> typename std::enable_if<!std::is_fundamental<A>::value ||
@@ -25,15 +24,6 @@ namespace operator_
   {
     return a / b;
   }
-#else
-  template <class A, class B>
-  auto div(A const &a, B const &b) -> decltype(a / b)
-  {
-    return a / b;
-  }
-
-  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(div, / )
-#endif
 }
 PYTHONIC_NS_END
 

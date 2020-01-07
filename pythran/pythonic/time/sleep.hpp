@@ -3,7 +3,7 @@
 
 #include "pythonic/include/time/sleep.hpp"
 #include "pythonic/utils/functor.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 #include <thread>
 #include <chrono>
@@ -16,7 +16,7 @@ namespace time
   types::none_type sleep(double const value)
   {
     std::this_thread::sleep_for(std::chrono::duration<double>(value));
-    return __builtin__::None;
+    return builtins::None;
   }
 }
 PYTHONIC_NS_END

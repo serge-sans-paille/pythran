@@ -122,7 +122,7 @@ namespace numpy
     std::set<typename E::dtype> res;
     std::vector<long> return_index_res;
     types::ndarray<long, types::pshape<long>> return_inverse_res(
-        types::pshape<long>{expr.flat_size()}, __builtin__::None);
+        types::pshape<long>{expr.flat_size()}, builtins::None);
     long i = 0;
     _unique3(expr.begin(), expr.end(), res, return_index_res,
              return_inverse_res, i, utils::int_<E::value>());
@@ -144,7 +144,7 @@ namespace numpy
 
     std::vector<long> return_index_res;
     types::ndarray<long, types::pshape<long>> return_inverse_res(
-        types::pshape<long>{expr.flat_size()}, __builtin__::None);
+        types::pshape<long>{expr.flat_size()}, builtins::None);
 
     std::map<typename E::dtype, long> return_counts_map;
     {
@@ -155,10 +155,9 @@ namespace numpy
 
     types::pshape<long> shp{(long)return_counts_map.size()};
 
-    types::ndarray<long, types::pshape<long>> unique_array(shp,
-                                                           __builtin__::None);
+    types::ndarray<long, types::pshape<long>> unique_array(shp, builtins::None);
     types::ndarray<long, types::pshape<long>> return_counts_array(
-        shp, __builtin__::None);
+        shp, builtins::None);
 
     {
       long i = 0;

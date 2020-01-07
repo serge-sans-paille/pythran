@@ -10,8 +10,7 @@ namespace numpy
 {
 
   template <class E>
-  auto ndim(E const &e)
-      -> decltype(__builtin__::getattr(types::attr::NDIM{}, e));
+  auto ndim(E const &e) -> decltype(builtins::getattr(types::attr::NDIM{}, e));
 
   DEFINE_FUNCTOR(pythonic::numpy, ndim)
 }

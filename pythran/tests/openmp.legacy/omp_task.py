@@ -2,7 +2,7 @@ def omp_task():
     import omp
     from time import sleep
     NUM_TASKS = 25
-    tids = range(NUM_TASKS)
+    tids = list(range(NUM_TASKS))
 
     if 'omp parallel':
         use_parallel = omp.in_parallel()

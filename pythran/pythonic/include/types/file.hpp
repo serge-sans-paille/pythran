@@ -25,23 +25,21 @@ namespace types
       : std::iterator<std::forward_iterator_tag, types::str, ptrdiff_t,
                       types::str *, types::str /* no ref */> {
   private:
-    file &f;
-    types::str curr;
+    file *f;
+    mutable bool set;
+    mutable types::str curr;
     long position;
 
   public:
     using value_type = types::str;
 
-    struct npos {
-    };
-
     file_iterator(file &ref);
-    file_iterator(file &ref, npos);
+    file_iterator();
     bool operator==(file_iterator const &f2) const;
     bool operator!=(file_iterator const &f2) const;
     bool operator<(file_iterator const &f2) const;
     file_iterator &operator++();
-    types::str const &operator*() const;
+    types::str operator*() const;
   };
 
   struct _file {
@@ -52,7 +50,7 @@ namespace types
     ~_file();
   };
 
-  class file
+  class file : public file_iterator
   {
 
   private:
@@ -95,8 +93,6 @@ namespace types
 
     bool isatty() const;
 
-    types::str next();
-
     types::str read(long size = -1);
 
     types::str readline(long size = std::numeric_limits<long>::max());
@@ -120,7 +116,7 @@ PYTHONIC_NS_END
 /* pythran attribute system { */
 PYTHONIC_NS_BEGIN
 
-namespace __builtin__
+namespace builtins
 {
   bool getattr(types::attr::CLOSED, types::file const &f);
 

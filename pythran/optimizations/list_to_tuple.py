@@ -11,7 +11,7 @@ patterns = (MODULES['numpy']['ones'],
             MODULES['numpy']['zeros'],
             MODULES['numpy']['empty'],
             MODULES['numpy']['concatenate'],
-            MODULES['__builtin__']['tuple'],
+            MODULES['builtins']['tuple'],
             )
 
 
@@ -70,21 +70,21 @@ class ListToTuple(Transformation):
 
         >>> import gast as ast
         >>> from pythran import passmanager, backend
-        >>> node = ast.parse("def foo(n): x = __builtin__.list(n); x[0] = 0; return __builtin__.tuple(x)")
+        >>> node = ast.parse("def foo(n): x = builtins.list(n); x[0] = 0; return builtins.tuple(x)")
         >>> pm = passmanager.PassManager("test")
         >>> _, node = pm.apply(ListToTuple, node)
         >>> print(pm.dump(backend.Python, node))
         def foo(n):
-            x = __builtin__.pythran.static_list(n)
+            x = builtins.pythran.static_list(n)
             x[0] = 0
-            return __builtin__.tuple(x)
+            return builtins.tuple(x)
 
-        >>> node = ast.parse("def foo(n): x = __builtin__.list(n); x[0] = 0; return x")
+        >>> node = ast.parse("def foo(n): x = builtins.list(n); x[0] = 0; return x")
         >>> pm = passmanager.PassManager("test")
         >>> _, node = pm.apply(ListToTuple, node)
         >>> print(pm.dump(backend.Python, node))
         def foo(n):
-            x = __builtin__.list(n)
+            x = builtins.list(n)
             x[0] = 0
             return x
         """
@@ -106,5 +106,5 @@ class ListToTuple(Transformation):
         elif isinstance(node, ast.List):
             node = ast.Tuple(node.elts, ast.Load())
 
-        return ast.Call(path_to_attr(('__builtin__', 'pythran', 'static_list')),
+        return ast.Call(path_to_attr(('builtins', 'pythran', 'static_list')),
                         [node], [])

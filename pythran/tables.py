@@ -1,7 +1,7 @@
 """ This modules provides the translation tables from python to c++. """
 
 import gast as ast
-import inspect
+from inspect import getfullargspec
 import logging
 import sys
 
@@ -19,14 +19,6 @@ from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran import interval
 from functools import reduce
 
-if sys.version_info.major == 3:
-    sys.modules['__builtin__'] = sys.modules['builtins']
-
-    import functools
-    sys.modules['__builtin__'].reduce = functools.reduce
-    getfullargspec = inspect.getfullargspec
-else:
-    getfullargspec = inspect.getargspec
 
 logger = logging.getLogger("pythran")
 
@@ -62,12 +54,12 @@ def make_lazy(exp):
 
 def make_and(x, y):
     lx, ly = make_lazy(x), make_lazy(y)
-    return 'pythonic::__builtin__::pythran::and_({0}, {1})'.format(lx, ly)
+    return 'pythonic::builtins::pythran::and_({0}, {1})'.format(lx, ly)
 
 
 def make_or(x, y):
     lx, ly = make_lazy(x), make_lazy(y)
-    return 'pythonic::__builtin__::pythran::or_({0}, {1})'.format(lx, ly)
+    return 'pythonic::builtins::pythran::or_({0}, {1})'.format(lx, ly)
 
 
 operator_to_lambda = {
@@ -80,14 +72,13 @@ operator_to_lambda = {
     ast.Mult: "(pythonic::operator_::mul({0}, {1}))".format,
     ast.Div: "(pythonic::operator_::div({0}, {1}))".format,
     ast.Mod: "(pythonic::operator_::mod({0}, {1}))".format,
-    ast.Pow: "(pythonic::__builtin__::pow({0}, {1}))".format,
+    ast.Pow: "(pythonic::builtins::pow({0}, {1}))".format,
     ast.LShift: "({0} << {1})".format,
     ast.RShift: "({0} >> {1})".format,
     ast.BitOr: "({0} | {1})".format,
     ast.BitXor: "({0} ^ {1})".format,
     ast.BitAnd: "({0} & {1})".format,
     ast.MatMult: "(pythonic::operator_::matmul({0}, {1}))".format,
-    # assume from __future__ import division
     ast.FloorDiv:
         "(pythonic::operator_::functor::floordiv{{}}({0}, {1}))".format,
     # unaryop
@@ -102,10 +93,10 @@ operator_to_lambda = {
     ast.LtE: "(pythonic::operator_::le({0}, {1}))".format,
     ast.Gt: "(pythonic::operator_::gt({0}, {1}))".format,
     ast.GtE: "(pythonic::operator_::ge({0}, {1}))".format,
-    ast.Is: ("(pythonic::__builtin__::id({0}) == "
-             "pythonic::__builtin__::id({1}))").format,
-    ast.IsNot: ("(pythonic::__builtin__::id({0}) != "
-                "pythonic::__builtin__::id({1}))").format,
+    ast.Is: ("(pythonic::builtins::id({0}) == "
+             "pythonic::builtins::id({1}))").format,
+    ast.IsNot: ("(pythonic::builtins::id({0}) != "
+                "pythonic::builtins::id({1}))").format,
     ast.In: "(pythonic::in({1}, {0}))".format,
     ast.NotIn: "(! pythonic::in({1}, {0}))".format,
 }
@@ -124,7 +115,6 @@ update_operator_to_lambda = {
     ast.BitXor: "({0} ^= {1})".format,
     ast.BitAnd: "({0} &= {1})".format,
     ast.MatMult: "(pythonic::operator_::imatmul({0}, {1}))".format,
-    # assume from __future__ import division
     ast.FloorDiv:
         "(pythonic::operator_::functor::ifloordiv{{}}({0}, {1}))".format,
 }
@@ -378,17 +368,8 @@ CLASSES = {
                 Fun[[Dict[T0, T1], T0, T1], T1],
             ],
         ),
-        "has_key": ConstMethodIntr(
-            signature=Fun[[Dict[T0, T1], T0], bool]
-        ),
         "items": MethodIntr(
             signature=Fun[[Dict[T0, T1]], List[Tuple[T0, T1]]]),
-        "iteritems": MethodIntr(
-            signature=Fun[[Dict[T0, T1]], Generator[Tuple[T0, T1]]]),
-        "iterkeys": MethodIntr(
-            signature=Fun[[Dict[T0, T1]], Generator[T0]]),
-        "itervalues": MethodIntr(
-            signature=Fun[[Dict[T0, T1]], Generator[T1]]),
         "keys": MethodIntr(signature=Fun[[Dict[T0, T1]], List[T0]]),
         "pop": MethodIntr(
             signature=Union[
@@ -411,10 +392,6 @@ CLASSES = {
         ),
         "update": MethodIntr(update_effects),
         "values": MethodIntr(signature=Fun[[Dict[T0, T1]], List[T1]]),
-        "viewitems": MethodIntr(
-            signature=Fun[[Dict[T0, T1]], List[Tuple[T0, T1]]]),
-        "viewkeys": MethodIntr(signature=Fun[[Dict[T0, T1]], List[T0]]),
-        "viewvalues": MethodIntr(signature=Fun[[Dict[T0, T1]], List[T1]]),
     },
     "file": {
         # Member variables
@@ -455,10 +432,6 @@ CLASSES = {
                 Fun[[File], List[str]],
                 Fun[[File, int], List[str]],
             ],
-            global_effects=True
-        ),
-        "xreadlines": MethodIntr(
-            signature=Fun[[File], File],
             global_effects=True
         ),
         "seek": MethodIntr(
@@ -2565,7 +2538,7 @@ _numpy_array_signature = Union[
 
 # each module consist in a module_name <> set of symbols
 MODULES = {
-    "__builtin__": {
+    "builtins": {
         "pythran": {
             "abssqr": ConstFunctionIntr(),
             "static_list": ReadOnceFunctionIntr(
@@ -2605,7 +2578,6 @@ MODULES = {
         "GeneratorExit": ConstExceptionIntr(),
         "Exception": ExceptionClass(CLASSES["Exception"]),
         "StopIteration": ConstExceptionIntr(),
-        "StandardError": ConstExceptionIntr(),
         "Warning": ConstExceptionIntr(),
         "BytesWarning": ConstExceptionIntr(),
         "UnicodeWarning": ConstExceptionIntr(),
@@ -2652,10 +2624,6 @@ MODULES = {
         "bin": ConstFunctionIntr(signature=Fun[[int], str]),
         "bool": ConstFunctionIntr(signature=_bool_signature),
         "chr": ConstFunctionIntr(signature=Fun[[int], str]),
-        "cmp": ConstFunctionIntr(
-            signature=Fun[[T0, T0], int],
-            return_range=interval.cmp_values
-        ),
         "complex": ClassWithConstConstructor(
             CLASSES['complex'],
             signature=_complex_signature
@@ -2680,14 +2648,6 @@ MODULES = {
                 Fun[[Iterable[T0]], Generator[Tuple[int, T0]]],
                 Fun[[Iterable[T0], int], Generator[Tuple[int, T0]]],
             ],
-        ),
-        "file": ClassWithConstConstructor(
-            CLASSES['file'],
-            signature=Union[
-                Fun[[str], File],
-                Fun[[str, str], File],
-            ],
-            global_effects=True
         ),
         "filter": ReadOnceFunctionIntr(
             signature=Union[
@@ -2831,14 +2791,6 @@ MODULES = {
             ],
         ),
         "type": ConstFunctionIntr(),
-        "xrange": ConstFunctionIntr(
-            signature=Union[
-                Fun[[int], Generator[int]],
-                Fun[[int, int], Generator[int]],
-                Fun[[int, int, int], Generator[int]],
-            ],
-            return_range_content=interval.range_values
-        ),
         "zip": ReadOnceFunctionIntr(
             signature=Union[
                 Fun[[], List[T0]],
@@ -4226,6 +4178,12 @@ MODULES = {
         "pi": ConstantIntr(signature=float),
         "e": ConstantIntr(signature=float),
     },
+    'io': {
+        '_io': {
+            "TextIOWrapper": ClassWithConstConstructor(
+                CLASSES['file'], global_effects=True)
+        }
+    },
     "itertools": {
         "count": ReadOnceFunctionIntr(
             signature=Union[
@@ -4233,28 +4191,6 @@ MODULES = {
                 Fun[[int], Generator[int]],
                 Fun[[int, int], Generator[int]],
             ]
-        ),
-        "imap": ReadOnceFunctionIntr(
-            signature=Union[
-                Fun[[None, Iterable[T0]], List[Tuple[T0]]],
-                Fun[[None, Iterable[T0], Iterable[T1]], List[Tuple[T0, T1]]],
-                Fun[[None, Iterable[T0], Iterable[T1], Iterable[T2]],
-                    List[Tuple[T0, T1, T2]]],
-                Fun[[None, Iterable[T0], Iterable[T1], Iterable[T2],
-                     Iterable[T3]], List[Tuple[T0, T1, T2, T3]]],
-                Fun[[Fun[[T0], T7], Iterable[T0]], List[T7]],
-                Fun[[Fun[[T0, T1], T7], Iterable[T0], Iterable[T1]], List[T7]],
-                Fun[[Fun[[T0, T1, T2], T7], Iterable[T0], Iterable[T1],
-                     Iterable[T2]], List[T7]],
-                Fun[[Fun[[T0, T1, T2, T3], T7], Iterable[T0], Iterable[T1],
-                     Iterable[T2], Iterable[T3]], List[T7]],
-            ]
-        ),
-        "ifilter": ReadOnceFunctionIntr(
-            signature=Union[
-                Fun[[None, Iterable[T0]], Generator[T0]],
-                Fun[[Fun[[T0], bool], Iterable[T0]], Generator[T0]],
-            ],
         ),
         "islice": ReadOnceFunctionIntr(),
         "product": ConstFunctionIntr(
@@ -4267,17 +4203,6 @@ MODULES = {
                 Fun[[Iterable[T0], Iterable[T1], Iterable[T2], Iterable[T3]],
                     Generator[Tuple[T0, T1, T2, T3]]],
             ],
-        ),
-        "izip": ReadOnceFunctionIntr(
-            signature=Union[
-                Fun[[], Generator[T0]],
-                Fun[[Iterable[T0]], Generator[Tuple[T0]]],
-                Fun[[Iterable[T0], Iterable[T1]], Generator[Tuple[T0, T1]]],
-                Fun[[Iterable[T0], Iterable[T1], Iterable[T2]],
-                    Generator[Tuple[T0, T1, T2]]],
-                Fun[[Iterable[T0], Iterable[T1], Iterable[T2], Iterable[T3]],
-                    Generator[Tuple[T0, T1, T2, T3]]],
-            ]
         ),
         "combinations": ConstFunctionIntr(
             signature=Fun[[Iterable[T0], int], Generator[List[T0]]]),
@@ -4394,8 +4319,6 @@ MODULES = {
         "__add__": ConstFunctionIntr(signature=_operator_add_signature),
         "and_": ConstFunctionIntr(),
         "__and__": ConstFunctionIntr(),
-        "div": ConstFunctionIntr(signature=_numpy_binary_op_signature),
-        "__div__": ConstFunctionIntr(signature=_numpy_binary_op_signature),
         "floordiv": ConstFunctionIntr(signature=_numpy_binary_op_signature),
         "__floordiv__": ConstFunctionIntr(
             signature=_numpy_binary_op_signature
@@ -4438,8 +4361,6 @@ MODULES = {
         "__iand__": MethodIntr(update_effects),
         "iconcat": MethodIntr(update_effects),
         "__iconcat__": MethodIntr(update_effects),
-        "idiv": MethodIntr(update_effects),
-        "__idiv__": MethodIntr(update_effects),
         "ifloordiv": MethodIntr(update_effects),
         "__ifloordiv__": MethodIntr(update_effects),
         "ilshift": MethodIntr(update_effects),
@@ -4490,13 +4411,6 @@ MODULES = {
         "ascii_uppercase": ConstantIntr(signature=str),
         "ascii_letters": ConstantIntr(signature=str),
         "digits": ConstantIntr(signature=str),
-        "find": ConstFunctionIntr(
-            signature=Union[
-                Fun[[str, str], int],
-                Fun[[str, str, Optional[int]], int],
-                Fun[[str, str, Optional[int], Optional[int]], int],
-            ],
-        ),
         "hexdigits": ConstantIntr(signature=str),
         "octdigits": ConstantIntr(signature=str),
     },
@@ -4534,36 +4448,13 @@ MODULES = {
             ],
             return_range=interval.positive_values
         ),
-        "next": MethodIntr(global_effects=True),  # because of file.next
         "pop": MethodIntr(),
         "remove": MethodIntr(),
         "update": MethodIntr(update_effects),
     },
 }
 
-if sys.version_info.major == 3:
-    del MODULES['string']['find']
-    del MODULES['itertools']['imap']
-    del MODULES['itertools']['izip']
-    del MODULES['itertools']['ifilter']
-    del MODULES['operator']['idiv']
-    del MODULES['operator']['__idiv__']
-    del MODULES['operator']['div']
-    del MODULES['operator']['__div__']
-    del MODULES['__builtin__']['cmp']
-    del MODULES['__builtin__']['file']
-    del MODULES['__builtin__']['xrange']
-    del MODULES['__builtin__']['StandardError']
-    MODULES['io'] = {
-        '_io': {
-            "TextIOWrapper": ClassWithConstConstructor(
-                CLASSES['file'], global_effects=True)
-        }
-    }
-    if sys.version_info.minor < 5:
-        del MODULES['operator']['matmul']
-        del MODULES['operator']['__matmul__']
-else:
+if sys.version_info < (3, 5):
     del MODULES['operator']['matmul']
     del MODULES['operator']['__matmul__']
 
@@ -4589,12 +4480,12 @@ if omp_version >= 30:
     })
 
 # VMSError is only available on VMS
-if 'VMSError' in sys.modules['__builtin__'].__dict__:
-    MODULES['__builtin__']['VMSError'] = ConstExceptionIntr()
+if 'VMSError' in sys.modules['builtins'].__dict__:
+    MODULES['builtins']['VMSError'] = ConstExceptionIntr()
 
 # WindowsError is only available on Windows
-if 'WindowsError' in sys.modules['__builtin__'].__dict__:
-    MODULES['__builtin__']['WindowsError'] = ConstExceptionIntr()
+if 'WindowsError' in sys.modules['builtins'].__dict__:
+    MODULES['builtins']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
 for module_name in ["omp", "scipy.special", "scipy"]:
@@ -4634,9 +4525,8 @@ def save_arguments(module_name, elements):
 
                 args = [ast.Name(arg, ast.Param(), None, None) for arg in spec.args]
                 defaults = list(spec.defaults or [])
-                if sys.version_info.major == 3:
-                    args += [ast.Name(arg, ast.Param(), None, None) for arg in spec.kwonlyargs]
-                    defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
+                args += [ast.Name(arg, ast.Param(), None, None) for arg in spec.kwonlyargs]
+                defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
 
                 # Avoid use of comprehension to fill "as much args/defauls" as
                 # possible
@@ -4732,11 +4622,8 @@ save_attribute(MODULES, ())
 
 # patch beniget with pythran-specific builtins
 import beniget
-if sys.version_info.major > 2:
-    beniget.beniget.Builtins['__builtin__'] = __import__('builtins')
-else:
-    beniget.beniget.Builtins['__builtin__'] = __import__('__builtin__')
+beniget.beniget.Builtins['builtins'] = __import__('builtins')
 beniget.beniget.Builtins['__dispatch__'] = object()
-for k, v in MODULES['__builtin__'].items():
+for k, v in MODULES['builtins'].items():
     if k not in beniget.beniget.Builtins:
         beniget.beniget.Builtins[k] = v

@@ -19,4 +19,4 @@ def solve():
             n = n // 10
         return s
 
-    return sum(n for n in xrange(10, 100000) if n == sum_of_digits_factorial(n))
+    return sum(n for n in range(10, 100000) if n == sum_of_digits_factorial(n))

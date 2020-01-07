@@ -3,7 +3,7 @@
 
 #include "pythonic/include/types/numpy_gexpr.hpp"
 
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/operator_/iadd.hpp"

@@ -45,7 +45,7 @@ def solve():
     while True:
         width = width + 2
         increment = width - 1
-        for i in xrange(0, 4):
+        for i in range(0, 4):
             diagonal = diagonal + increment
             if i < 3 and _isprime(diagonal): primes += 1
         base = base + 4

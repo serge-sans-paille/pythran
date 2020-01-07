@@ -22,9 +22,9 @@ class RemoveComprehension(Transformation):
     >>> print(pm.dump(backend.Python, node))
     list_comprehension0()
     def list_comprehension0():
-        __target = __builtin__.list()
+        __target = builtins.list()
         for x in (1, 2, 3):
-            __builtin__.list.append(__target, (x * x))
+            builtins.list.append(__target, (x * x))
         return __target
     """
 
@@ -42,16 +42,16 @@ class RemoveComprehension(Transformation):
 
         Examples
         --------
-        >> [i for i in xrange(2)]
+        >> [i for i in range(2)]
 
         Becomes
 
-        >> for i in xrange(2):
+        >> for i in range(2):
         >>    ... x code with if clauses ...
 
         It is a reducer as it can be call recursively for mutli generator.
 
-        Ex : >> [i, j for i in xrange(2) for j in xrange(4)]
+        Ex : >> [i, j for i in range(2) for j in range(4)]
         """
         def wrap_in_ifs(node, ifs):
             """
@@ -59,11 +59,11 @@ class RemoveComprehension(Transformation):
 
             Examples
             --------
-            >> [i for i in xrange(2) if i < 3 if 0 < i]
+            >> [i for i in range(2) if i < 3 if 0 < i]
 
             Becomes
 
-            >> for i in xrange(2):
+            >> for i in range(2):
             >>    if i < 3:
             >>        if 0 < i:
             >>            ... the code from `node` ...
@@ -101,7 +101,7 @@ class RemoveComprehension(Transformation):
             [ast.Name(starget, ast.Store(), None, None)],
             ast.Call(
                 ast.Attribute(
-                    ast.Name('__builtin__', ast.Load(), None, None),
+                    ast.Name('builtins', ast.Load(), None, None),
                     comp_type,
                     ast.Load()
                     ),
@@ -123,10 +123,10 @@ class RemoveComprehension(Transformation):
 
     def visit_ListComp(self, node):
         return self.visit_AnyComp(node, "list",
-                                  "__builtin__", "list", "append")
+                                  "builtins", "list", "append")
 
     def visit_SetComp(self, node):
-        return self.visit_AnyComp(node, "set", "__builtin__", "set", "add")
+        return self.visit_AnyComp(node, "set", "builtins", "set", "add")
 
     def visit_DictComp(self, node):
         # this is a quickfix to match visit_AnyComp signature

@@ -10,5 +10,5 @@ class Globals(ModuleAnalysis):
         super(Globals, self).__init__(GlobalDeclarations)
 
     def visit_Module(self, node):
-        self.result = {'__builtin__',
+        self.result = {'builtins',
                 '__dispatch__'}.union(self.global_declarations.keys())

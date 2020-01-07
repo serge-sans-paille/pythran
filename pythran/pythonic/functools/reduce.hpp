@@ -2,6 +2,6 @@
 #define PYTHONIC_FUNCTOOLS_REDUCE_HPP
 
 #include "pythonic/include/functools/reduce.hpp"
-#include "pythonic/__builtin__/reduce.hpp"
+#include "pythonic/builtins/reduce.hpp"
 
 #endif

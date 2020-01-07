@@ -2,7 +2,6 @@
 from pythran.tests import TestEnv
 
 from unittest import skip, skipIf
-import sys
 import numpy
 
 from pythran.typing import *
@@ -48,13 +47,8 @@ class TestAdvanced(TestEnv):
     def test_map2_on_generator(self):
         self.run_test('def map2_on_generator(l): return list(map(lambda x,y : x*y, l, (y for x in l for y in l if x < 1)))', [0,1,2,3], map2_on_generator=[List[int]])
 
-
-    @skipIf(sys.version_info.major == 3, "None is not callable in Python3")
-    def test_map_none_on_generator(self):
-        self.run_test('def map_none_on_generator(l): return map(None,(x*x for x in l))', [1,2,3], map_none_on_generator=[List[int]])
-
     def test_enumerate_on_generator(self):
-        self.run_test("def enumerate_on_generator(n): return list(map(lambda (x,y) : x, enumerate((y for x in xrange(n) for y in xrange(x)))))", 5, enumerate_on_generator=[int])
+        self.run_test("def enumerate_on_generator(n): return list(map(lambda z: z[0], enumerate((y for x in range(n) for y in range(x)))))", 5, enumerate_on_generator=[int])
 
     def test_enumerate_iterate(self):
         self.run_test("""
@@ -67,14 +61,9 @@ class TestAdvanced(TestEnv):
                       [5, 6],
                       enumerate_iterate=[List[int]])
 
-    @skipIf(sys.version_info.major == 3, "None is not callable in Python3")
-    def test_map_none2_on_generator(self):
-        self.run_test('def map_none2_on_generator(l): return map(None,(x*x for x in l), (2*x for x in l))', [1,2,3], map_none2_on_generator=[List[int]])
-
     def test_max_interface_arity(self):
         self.run_test('def max_interface_arity({0}):pass'.format(', '.join('_'+str(i) for i in range(42))), *list(range(42)), max_interface_arity=[int]*42)
 
-    @skipIf(sys.version_info.major == 2, "kwonly args not part of py2")
     def test_max_kwonly_key(self):
         self.run_test('def max_kwonly_key(x): return max(x, key=lambda x:-x)',
                       list(range(42)), max_kwonly_key=[List[int]])
@@ -83,7 +72,7 @@ class TestAdvanced(TestEnv):
         self.run_test('def multiple_max(i,j,k): return max(i,j,k)', 1, 1.5, False, multiple_max=[int, float, bool])
 
     def test_zip_on_generator(self):
-        self.run_test('def zip_on_generator(n): return zip((i for i in xrange(n)), (i*2 for i in xrange(1,n+1)))', 5, zip_on_generator=[int])
+        self.run_test('def zip_on_generator(n): return list(zip((i for i in range(n)), (i*2 for i in range(1,n+1))))', 5, zip_on_generator=[int])
 
     def test_parallel_enumerate(self):
         self.run_test('def parallel_enumerate(l):\n k = [0]*(len(l) + 1)\n "omp parallel for"\n for i,j in enumerate(l):\n  k[i+1] = j\n return k', list(range(1000)), parallel_enumerate=[List[int]])
@@ -107,7 +96,7 @@ def generator_sum(l0,l1):
         self.run_test('def tuple_to_list(t): return list(t)', (1,2,3), tuple_to_list=[Tuple[int, int, int]])
 
     def test_in_generator(self):
-        self.run_test("def in_generator(n):return 1. in (i*i for i in xrange(n))", 5, in_generator=[int])
+        self.run_test("def in_generator(n):return 1. in (i*i for i in range(n))", 5, in_generator=[int])
 
     def test_tuple_unpacking_in_generator(self):
         code = '''
@@ -274,7 +263,6 @@ def combiner_on_empty_list():
         '''
         self.run_test(code, function_with_non_ascii_docstring=[])
 
-    @skipIf(sys.version_info.major == 2, "@ is a Python3 extension")
     def test_matmul_operator(self):
         code = 'def matmul_operator(x, y): return x @ y'
         self.run_test(

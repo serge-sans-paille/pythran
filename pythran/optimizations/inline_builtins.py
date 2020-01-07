@@ -10,7 +10,6 @@ from pythran.syntax import PythranSyntaxError
 
 from copy import deepcopy
 import gast as ast
-import sys
 
 
 class InlineBuiltins(Transformation):
@@ -27,7 +26,7 @@ class InlineBuiltins(Transformation):
     ... def foo(a):
     ...     return  a + 1
     ... def bar(b):
-    ...     return __builtin__.map(bar, (1, 2))''')
+    ...     return builtins.map(bar, (1, 2))''')
     >>> _, node = pm.apply(InlineBuiltins, node)
     >>> print(pm.dump(backend.Python, node))
     def foo(a):
@@ -49,39 +48,6 @@ class InlineBuiltins(Transformation):
         return ast.List([ast.Call(node.args[0], elt, []) for elt in elts],
                         ast.Load())
 
-    def inlineBuiltinsIMap(self, node):
-
-        if not isinstance(node, ast.Call):
-            return node
-
-        func_aliases = self.aliases[node.func]
-        if len(func_aliases) != 1:
-            return node
-
-        obj = next(iter(func_aliases))
-        if obj is not MODULES['itertools']['imap']:
-            return node
-
-        if not all(isinstance(arg, (ast.List, ast.Tuple))
-                   for arg in node.args[1:]):
-            return node
-
-        mapped_func_aliases = self.aliases[node.args[0]]
-        if len(mapped_func_aliases) != 1:
-            return node
-
-        obj = next(iter(mapped_func_aliases))
-        if not isinstance(obj, (ast.FunctionDef, FunctionIntr)):
-            return node
-
-        if isinstance(obj, FunctionIntr) and not obj.isconst():
-            return node  # inlining as a list would force evaluation
-        if obj not in self.pure_expressions:
-            return node  # inlining as a list would force evaluation
-
-        # all preconditions are met, do it!
-        return self.inlineBuiltinsXMap(node)
-
     def inlineBuiltinsMap(self, node):
 
         if not isinstance(node, ast.Call):
@@ -92,7 +58,7 @@ class InlineBuiltins(Transformation):
             return node
 
         obj = next(iter(func_aliases))
-        if obj is not MODULES['__builtin__']['map']:
+        if obj is not MODULES['builtins']['map']:
             return node
 
         if not all(isinstance(arg, (ast.List, ast.Tuple))
@@ -113,8 +79,6 @@ class InlineBuiltins(Transformation):
     def visit_Call(self, node):
         node = self.generic_visit(node)
         node = self.inlineBuiltinsMap(node)
-        if sys.version_info.major == 2:
-            node = self.inlineBuiltinsIMap(node)
         return node
 
     def make_array_index(self, base, size, index):

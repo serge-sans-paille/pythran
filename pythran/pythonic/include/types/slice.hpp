@@ -176,7 +176,7 @@ namespace types
   std::ostream &operator<<(std::ostream &os, slice const &s);
   std::ostream &operator<<(std::ostream &os, contiguous_slice const &s);
 }
-namespace __builtin__
+namespace builtins
 {
   template <class T>
   auto getattr(types::attr::START, T const &s) -> decltype(s.lower)

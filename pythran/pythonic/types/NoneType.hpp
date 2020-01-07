@@ -4,8 +4,8 @@
 #include "pythonic/include/types/NoneType.hpp"
 
 #include "pythonic/types/assignable.hpp"
-#include "pythonic/__builtin__/id.hpp"
-#include "pythonic/__builtin__/bool_.hpp"
+#include "pythonic/builtins/id.hpp"
+#include "pythonic/builtins/bool_.hpp"
 #include "pythonic/operator_/mod.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -64,13 +64,13 @@ namespace types
   none<T, false>::operator bool() const
   {
     return !is_none &&
-           __builtin__::functor::bool_{}(static_cast<const T &>(*this));
+           builtins::functor::bool_{}(static_cast<const T &>(*this));
   }
 
   template <class T>
   intptr_t none<T, false>::id() const
   {
-    return is_none ? NONE_ID : __builtin__::id(static_cast<const T &>(*this));
+    return is_none ? NONE_ID : builtins::id(static_cast<const T &>(*this));
   }
   template <class T>
   std::ostream &operator<<(std::ostream &os, none<T, false> const &v)

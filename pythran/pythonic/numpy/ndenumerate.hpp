@@ -22,7 +22,7 @@ namespace numpy
 
   template <class E>
   std::tuple<types::array<long, E::value>, typename E::dtype>
-      ndenumerate_iterator<E>::operator*()
+      ndenumerate_iterator<E>::operator*() const
   {
     types::array<long, E::value> out;
     auto shape = sutils::array(expr.shape());
@@ -51,19 +51,22 @@ namespace numpy
   }
 
   template <class E>
-  bool ndenumerate_iterator<E>::operator!=(ndenumerate_iterator<E> const &other)
+  bool ndenumerate_iterator<E>::
+  operator!=(ndenumerate_iterator<E> const &other) const
   {
     return index != other.index;
   }
 
   template <class E>
-  bool ndenumerate_iterator<E>::operator<(ndenumerate_iterator<E> const &other)
+  bool ndenumerate_iterator<E>::
+  operator<(ndenumerate_iterator<E> const &other) const
   {
     return index < other.index;
   }
 
   template <class E>
-  long ndenumerate_iterator<E>::operator-(ndenumerate_iterator<E> const &other)
+  long ndenumerate_iterator<E>::
+  operator-(ndenumerate_iterator<E> const &other) const
   {
     return index - other.index;
   }

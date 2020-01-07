@@ -18,16 +18,16 @@ class ModIndex(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> code = """
     ... def foo(x):
-    ...     y = __builtin__.len(x)
-    ...     for i in __builtin__.range(8):
+    ...     y = builtins.len(x)
+    ...     for i in builtins.range(8):
     ...         z = i % y"""
     >>> node = ast.parse(code)
     >>> _, node = pm.apply(ModIndex, node)
     >>> print(pm.dump(backend.Python, node))
     def foo(x):
-        y = __builtin__.len(x)
+        y = builtins.len(x)
         i_m = ((0 - 1) % y)
-        for i in __builtin__.range(8):
+        for i in builtins.range(8):
             i_m = (0 if ((i_m + 1) == y) else (i_m + 1))
             z = i_m
     '''
@@ -81,9 +81,7 @@ class ModIndex(Transformation):
         # gather range informations
         range_ = None
         for alias in self.aliases[loop.iter.func]:
-            if alias is MODULES['__builtin__']['range']:
-                range_ = alias
-            elif alias is MODULES['__builtin__']['xrange']:
+            if alias is MODULES['builtins']['range']:
                 range_ = alias
             else:
                 break

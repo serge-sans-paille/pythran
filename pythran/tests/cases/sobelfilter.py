@@ -3,7 +3,7 @@
 #bench cols = 1000; rows = 500 ;image_list=[x%10+y%20 for x in range(cols) for y in range(rows)]; sobelFilter(image_list, cols, rows)
 #pythran export sobelFilter(int list, int, int)
 def sobelFilter(original_image, cols, rows):
-    edge_image = range(len(original_image))
+    edge_image = list(range(len(original_image)))
     for i in range(rows):
         edge_image[i * cols] = 255
         edge_image[((i + 1) * cols) - 1] = 255

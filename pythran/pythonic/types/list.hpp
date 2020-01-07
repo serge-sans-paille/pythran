@@ -4,7 +4,7 @@
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/types/nditerator.hpp"
 
-#include "pythonic/__builtin__/len.hpp"
+#include "pythonic/builtins/len.hpp"
 #include "pythonic/types/slice.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/types/bool.hpp"
@@ -592,16 +592,7 @@ namespace types
 
   template <class T>
   template <class F>
-  list<T> &list<T>::operator+=(list<F> const &s)
-  {
-    reserve(size() + s.size());
-    std::copy(s.begin(), s.end(), std::back_inserter(*this));
-    return *this;
-  }
-
-  template <class T>
-  template <class Tp, size_t N, class V>
-  list<T> &list<T>::operator+=(array_base<Tp, N, V> const &s)
+  list<T> &list<T>::operator+=(F const &s)
   {
     reserve(size() + s.size());
     std::copy(s.begin(), s.end(), std::back_inserter(*this));
@@ -670,6 +661,13 @@ namespace types
   {
     return empty_list();
   }
+  template <class F>
+  typename std::enable_if<!is_numexpr_arg<F>::value,
+                          list<typename F::value_type>>::type empty_list::
+  operator+(F s) const
+  {
+    return {s.begin(), s.end()};
+  }
   empty_list::operator bool() const
   {
     return false;
@@ -699,7 +697,7 @@ namespace utils
   void reserve(types::list<T> &l, From const &f,
                typename From::const_iterator *)
   {
-    l.reserve(__builtin__::len(f));
+    l.reserve(builtins::len(f));
   }
 }
 PYTHONIC_NS_END

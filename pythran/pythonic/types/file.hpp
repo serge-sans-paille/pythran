@@ -9,10 +9,10 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/attr.hpp"
-#include "pythonic/__builtin__/IOError.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
-#include "pythonic/__builtin__/RuntimeError.hpp"
-#include "pythonic/__builtin__/StopIteration.hpp"
+#include "pythonic/builtins/IOError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
+#include "pythonic/builtins/RuntimeError.hpp"
+#include "pythonic/builtins/StopIteration.hpp"
 
 #include <fstream>
 #include <iterator>
@@ -52,25 +52,28 @@ namespace types
   /// file implementation
 
   // Constructors
-  file::file() : data(utils::no_memory())
+  file::file() : file_iterator(), data(utils::no_memory())
   {
   }
 
   file::file(types::str const &filename, types::str const &strmode)
-      : data(utils::no_memory()), mode(strmode), name(filename), newlines('\n')
+      : file_iterator(), data(utils::no_memory()), mode(strmode),
+        name(filename), newlines('\n')
   {
     open(filename, strmode);
+    if (mode.find_first_of("r+") != -1)
+      *(file_iterator *)this = file_iterator(*this);
   }
 
   // Iterators
   file::iterator file::begin()
   {
-    return {*this};
+    return *this;
   }
 
   file::iterator file::end()
   {
-    return {*this, file::iterator::npos()};
+    return {};
   }
 
   // Modifiers
@@ -143,22 +146,12 @@ namespace types
     return ::isatty(this->fileno());
   }
 
-  types::str file::next()
-  {
-    if (!is_open)
-      throw ValueError("I/O operation on closed file");
-    if (feof(**data) && mode.find_first_of("ra") == -1)
-      // If we are at eof on reading mode throw exception
-      throw StopIteration("file.next() : EOF reached.");
-    return readline();
-  }
-
   types::str file::read(long size)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("r+") == -1)
-      throw IOError("File ! open for reading");
+      throw IOError("File not open for reading");
     if (size == 0 || (feof(**data) && mode.find_first_of("ra") == -1))
       return types::str();
     long curr_pos = tell();
@@ -178,7 +171,7 @@ namespace types
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("r+") == -1)
-      throw IOError("File ! open for reading");
+      throw IOError("File not open for reading");
     constexpr static long BUFFER_SIZE = 1024;
     types::str res;
     char read_str[BUFFER_SIZE];
@@ -196,7 +189,7 @@ namespace types
   types::list<types::str> file::readlines(long sizehint)
   {
     // Official python doc specifies that sizehint is used as a max of chars
-    // But it has ! been implemented in the standard python interpreter...
+    // But it has not been implemented in the standard python interpreter...
     types::str str;
     types::list<types::str> lst(0);
     while ((str = readline()))
@@ -225,7 +218,7 @@ namespace types
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("wa+") == -1)
-      throw IOError("file.write() :  File ! opened for writing.");
+      throw IOError("file.write() :  File not open for writing.");
     if (size < 0)
       size = this->tell();
     long error = ftruncate(fileno(), size);
@@ -238,7 +231,7 @@ namespace types
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("wa+") == -1)
-      throw IOError("file.write() :  File ! opened for writing.");
+      throw IOError("file.write() :  File not open for writing.");
     fwrite(str.c_str(), sizeof(char), str.size(), **data);
   }
 
@@ -256,12 +249,13 @@ namespace types
   // for line in open("myfile"):
   //     print line
   file_iterator::file_iterator(file &ref)
-      : f(ref), curr(ref.readline()), position(ref.tell())
+      : f(&ref), set(false), curr(), position(ref.tell())
   {
   }
 
-  file_iterator::file_iterator(file &ref, npos)
-      : f(ref), curr(), position(-1){};
+  file_iterator::file_iterator()
+      : f(nullptr), set(false), curr(),
+        position(std::numeric_limits<long>::max()){};
 
   bool file_iterator::operator==(file_iterator const &f2) const
   {
@@ -277,22 +271,27 @@ namespace types
   {
     // Not really elegant...
     // Equivalent to 'return *this != f2;'
-    return position != f2.position;
+    return position < f2.position;
   }
 
   file_iterator &file_iterator::operator++()
   {
-    // Check if ftell == -1 when fgetpos(FILE *stream, fpos_t eof) == 0
-    if (f.eof())
+    if (f->eof())
       return *this;
-    curr = f.readline();
-    position = f.eof() ? -1 : f.tell();
+    operator*();
+    set = false;
+    operator*();
+    position = f->eof() ? std::numeric_limits<long>::max() : f->tell();
     return *this;
   }
 
-  types::str const &file_iterator::operator*() const
+  types::str file_iterator::operator*() const
   {
-    return curr;
+    if (!set) {
+      curr = f->readline();
+      set = true;
+    }
+    return curr.chars(); // to make a copy
   }
 }
 PYTHONIC_NS_END
@@ -300,7 +299,7 @@ PYTHONIC_NS_END
 /* pythran attribute system { */
 PYTHONIC_NS_BEGIN
 
-namespace __builtin__
+namespace builtins
 {
   bool getattr(types::attr::CLOSED, types::file const &f)
   {
@@ -320,7 +319,7 @@ namespace __builtin__
   // Python seems to always return none... Doing the same.
   types::none_type getattr(types::attr::NEWLINES, types::file const &f)
   {
-    return __builtin__::None;
+    return builtins::None;
   }
 }
 PYTHONIC_NS_END

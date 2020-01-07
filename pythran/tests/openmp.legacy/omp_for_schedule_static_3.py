@@ -6,7 +6,7 @@ def omp_for_schedule_static_3():
     tmp_count = 1
     result = True
     chunk_size = 7
-    tids = range(1001)
+    tids = list(range(1001))
     notout = True
     maxiter = 0
 
@@ -66,8 +66,8 @@ def omp_for_schedule_static_3():
             " (should be inbetween 0 and " + str(threads - 1) + ").\n")
             result = False
 
-    tids = range(1000)
-    tids2 = range(1000)
+    tids = list(range(1000))
+    tids2 = list(range(1000))
 
     if 'omp parallel':
         'omp for schedule(static) nowait'

@@ -17,7 +17,7 @@ namespace numpy
     while (shift < 0)
       shift += expr.flat_size();
     shift %= expr.flat_size();
-    types::ndarray<T, pS> out(expr.shape(), __builtin__::None);
+    types::ndarray<T, pS> out(expr.shape(), builtins::None);
     std::copy(expr.fbegin(), expr.fend() - shift,
               std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
     return out;
@@ -63,7 +63,7 @@ namespace numpy
     auto expr_shape = sutils::array(expr.shape());
     while (shift < 0)
       shift += expr_shape[axis];
-    types::ndarray<T, pS> out(expr.shape(), __builtin__::None);
+    types::ndarray<T, pS> out(expr.shape(), builtins::None);
     _roll(out.fbegin(), expr.fbegin(), shift, axis, expr_shape,
           utils::int_<0>());
     return out;

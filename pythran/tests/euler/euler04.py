@@ -8,8 +8,8 @@ def solve(digit):
     '''
 
     n = 0
-    for a in xrange(10 ** digit - 1, 10 ** (digit - 1), -1):
-        for b in xrange(a, 10 ** (digit - 1), -1):
+    for a in range(10 ** digit - 1, 10 ** (digit - 1), -1):
+        for b in range(a, 10 ** (digit - 1), -1):
             x = a * b
             if x > n:
                 s = str(a * b)

@@ -50,8 +50,8 @@ namespace numpy
   {
     auto &&arr_shape = arr.shape();
     types::ndarray<typename E::dtype, typename E::shape_t> significands(
-        arr_shape, __builtin__::None);
-    types::ndarray<int, typename E::shape_t> exps(arr_shape, __builtin__::None);
+        arr_shape, builtins::None);
+    types::ndarray<int, typename E::shape_t> exps(arr_shape, builtins::None);
     _frexp(arr.begin(), arr.end(), significands.begin(), exps.begin(),
            utils::int_<E::value>());
     return std::make_tuple(significands, exps);

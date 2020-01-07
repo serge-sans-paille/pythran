@@ -8,7 +8,7 @@ class TestCopperhead(TestEnv):
 
     def test_saxpy(self):
         self.run_test(
-            "def saxpy(a, x, y): return map(lambda xi, yi: a * xi + yi, x, y)",
+            "def saxpy(a, x, y): return list(map(lambda xi, yi: a * xi + yi, x, y))",
             1.5, [1,2,3], [0.,2.,4.],
             saxpy=[float, List[int], List[float]])
 
@@ -22,7 +22,7 @@ class TestCopperhead(TestEnv):
         code="""
 def saxpy3(a, x, y):
     def triad(xi, yi): return a * xi + yi
-    return map(triad, x, y)
+    return list(map(triad, x, y))
 """
         self.run_test(
             code,
@@ -48,7 +48,7 @@ def manual(y,x,a):
         code="""
 def sxpy(x, y):
     def duad(xi, yi): return xi + yi
-    return map(duad, x, y)
+    return list(map(duad, x, y))
 """
         self.run_test(
             code,
@@ -57,19 +57,19 @@ def sxpy(x, y):
 
     def test_incr(self):
         self.run_test(
-            "def incr(x): return map(lambda xi: xi + 1, x)",
+            "def incr(x): return list(map(lambda xi: xi + 1, x))",
             [0., 0., 0.],
             incr=[List[float]])
 
     def test_as_ones(self):
         self.run_test(
-            "def as_ones(x): return map(lambda xi: 1, x)",
+            "def as_ones(x): return list(map(lambda xi: 1, x))",
             [0., 0., 0.],
             as_ones=[List[float]])
 
     def test_idm(self):
         self.run_test(
-            "def idm(x): return map(lambda b: b, x)",
+            "def idm(x): return list(map(lambda b: b, x))",
             [1, 2, 3],
             idm=[List[int]])
 
@@ -84,7 +84,7 @@ def sxpy(x, y):
         code="""
 def idx(x):
     def id(xi): return xi
-    return map(id, x)"""
+    return list(map(id, x))"""
         self.run_test(code, [1,2,3], idx=[List[int]])
 
     def test_rbf(self):
@@ -106,7 +106,7 @@ def rbf(ngamma, x, y):
 # from copperhead-new/copperhead/prelude.py
     def test_indices(self):
         self.run_test(
-            "def indices(A):return range(len(A))",
+            "def indices(A):return list(range(len(A)))",
             [1,2],
             indices=[List[int]])
 
@@ -118,11 +118,11 @@ def rbf(ngamma, x, y):
 
     def test_scatter(self):
         code="""
-def indices(x): return xrange(len(x))
+def indices(x): return list(range(len(x)))
 def scatter(src, indices_, dst):
     assert len(src)==len(indices_)
     result = list(dst)
-    for i in xrange(len(src)):
+    for i in range(len(src)):
         result[indices_[i]] = src[i]
     return result
 """
@@ -136,7 +136,7 @@ def scatter(src, indices_, dst):
 def prefix(A): return scan(lambda x,y:x+y, A)
 def scan(f, A):
     B = list(A)
-    for i in xrange(1, len(B)):
+    for i in range(1, len(B)):
         B[i] = f(B[i-1], B[i])
     return B
 """
@@ -164,36 +164,36 @@ def spvv_csr(x, cols, y):
     z = gather(y, cols)
     return sum(map(lambda a, b: a * b, x, z))
 def spmv_csr(Ax, Aj, x):
-    return map(lambda y, cols: spvv_csr(y, cols, x), Ax, Aj)
+    return list(map(lambda y, cols: spvv_csr(y, cols, x), Ax, Aj))
 """
         self.run_test(code, [[0,1,2],[0,1,2],[0,1,2]],[[0,1,2],[0,1,2],[0,1,2]],[0,1,2], spmv_csr=[List[List[int]], List[List[int]], List[int]])
 
     def test_spmv_ell(self):
         code="""
-def indices(x): return xrange(len(x))
+def indices(x): return range(len(x))
 def spmv_ell(data, idx, x):
     def kernel(i):
         return sum(map(lambda Aj, J: Aj[i] * x[J[i]], data, idx))
-    return map(kernel, indices(x))
+    return list(map(kernel, indices(x)))
 """
         self.run_test(code, [[0,1,2],[0,1,2],[0,1,2]],[[0,1,2],[0,1,2],[0,1,2]],[0,1,2], spmv_ell=[List[List[int]], List[List[int]], List[int]])
 
     def test_vadd(self):
-        self.run_test("def vadd(x, y): return map(lambda a, b: a + b, x, y)", [0.,1.,2.],[5.,6.,7.], vadd=[List[float], List[float]])
+        self.run_test("def vadd(x, y): return list(map(lambda a, b: a + b, x, y))", [0.,1.,2.],[5.,6.,7.], vadd=[List[float], List[float]])
 
     def test_vmul(self):
-        self.run_test("def vmul(x, y): return map(lambda a, b: a * b, x, y)", [0.,1.,2.],[5.,6.,7.], vmul=[List[float], List[float]])
+        self.run_test("def vmul(x, y): return list(map(lambda a, b: a * b, x, y))", [0.,1.,2.],[5.,6.,7.], vmul=[List[float], List[float]])
 
     def test_form_preconditioner(self):
         code="""
-def vadd(x, y): return map(lambda a, b: a + b, x, y)
-def vmul(x, y): return map(lambda a, b: a * b, x, y)
+def vadd(x, y): return list(map(lambda a, b: a + b, x, y))
+def vmul(x, y): return list(map(lambda a, b: a * b, x, y))
 def form_preconditioner(a, b, c):
     def det_inverse(ai, bi, ci):
         return 1.0/(ai * ci - bi * bi)
-    indets = map(det_inverse, a, b, c)
+    indets = list(map(det_inverse, a, b, c))
     p_a = vmul(indets, c)
-    p_b = map(lambda a, b: -a * b, indets, b)
+    p_b = list(map(lambda a, b: -a * b, indets, b))
     p_c = vmul(indets, a)
     return p_a, p_b, p_c
 """
@@ -206,7 +206,7 @@ def precondition(u, v, p_a, p_b, p_c):
     def vmul(x, y): return map(lambda a, b: a * b, x, y)
     e = vadd(vmul(p_a, u), vmul(p_b, v))
     f = vadd(vmul(p_b, u), vmul(p_c, v))
-    return e, f
+    return list(e), list(f)
 """
         self.run_test(code, [1,2,3], [5.5,6.6,7.7],[1,2,3], [5.5,6.6,7.7],[8.8,9.9,10.10], precondition=[List[int], List[float], List[int], List[float], List[float]])
 

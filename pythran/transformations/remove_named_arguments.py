@@ -84,7 +84,7 @@ class RemoveNamedArguments(Transformation):
         node.args.append(ast.Call(
             ast.Attribute(
                 ast.Attribute(
-                    ast.Name("__builtin__", ast.Load(), None, None),
+                    ast.Name("builtins", ast.Load(), None, None),
                     "pythran",
                     ast.Load()),
                 "kwonly",

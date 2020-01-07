@@ -4,17 +4,17 @@
 #bench fannkuch(9)
 
 def fannkuch(n):
-    count = range(1, n+1)
+    count = list(range(1, n+1))
     max_flips = 0
     m = n-1
     r = n
     check = 0
-    perm1 = range(n)
-    perm = range(n)
+    perm1 = list(range(n))
+    perm = list(range(n))
 
     while 1:
         if check < 30:
-            #print "".join(str(i+1) for i in perm1)
+            #print("".join(str(i+1) for i in perm1))
             check += 1
 
         while r != 1:

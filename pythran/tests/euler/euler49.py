@@ -57,7 +57,7 @@ def solve():
         return combinations(items, len(items))
     
     _refresh(10000)
-    for num in xrange(1000, 10000):
+    for num in range(1000, 10000):
         if str(num).find('0') >= 0: continue
     
         if isprime(num):
@@ -68,11 +68,11 @@ def solve():
                     prime_permutations[next_num] = 1
     
             primes = sorted(prime_permutations.keys())
-            for a in xrange(0, len(primes)):
+            for a in range(0, len(primes)):
                 if primes[a] == 1487: continue
-                for b in xrange(a+1, len(primes)):
+                for b in range(a+1, len(primes)):
                     c = (primes[a] + primes[b]) / 2
-                    if prime_permutations.has_key(c):
+                    if c in prime_permutations:
                         return str(primes[a]) + str(c) + str(primes[b])
                         exit()
 

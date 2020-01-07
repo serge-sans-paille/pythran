@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import doctest
 import inspect
 import os
@@ -65,7 +63,7 @@ class TestDoctest(unittest.TestCase):
 
         # convert shell doctest into python ones
         sp = re.sub(r'\$>(.*?)$',
-                    r'>>> from __future__ import print_function ; import subprocess ; res = subprocess.check_output("\1", shell=True).decode("ascii").strip() ; print(res, end="")',
+                    r'>>> import subprocess ; res = subprocess.check_output("\1", shell=True).decode("ascii").strip() ; print(res, end="")',
                     sp,
                     flags=re.MULTILINE)
         f = NamedTemporaryFile("w", delete=False)

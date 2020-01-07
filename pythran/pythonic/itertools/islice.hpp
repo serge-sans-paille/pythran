@@ -4,7 +4,7 @@
 #include "pythonic/include/itertools/islice.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/itertools/common.hpp"
-#include "pythonic/__builtin__/xrange.hpp"
+#include "pythonic/builtins/xrange.hpp"
 #include <iterator>
 
 PYTHONIC_NS_BEGIN
@@ -18,7 +18,7 @@ namespace itertools
 
   template <typename Iterable>
   islice_iterator<Iterable>::islice_iterator(Iterable const &iterable,
-                                             __builtin__::xrange const &xr)
+                                             builtins::xrange const &xr)
       : iterable_ref(iterable), iterable(iterable_ref.begin()), xr_ref(xr),
         state(xr_ref.begin()), prev(*state)
   {
@@ -28,7 +28,7 @@ namespace itertools
   template <typename Iterable>
   islice_iterator<Iterable>::islice_iterator(npos const &n,
                                              Iterable const &iterable,
-                                             __builtin__::xrange const &xr)
+                                             builtins::xrange const &xr)
       : iterable_ref(iterable), iterable(iterable_ref.begin()), xr_ref(xr),
         state(xr_ref.end()), prev(0)
   {
@@ -84,7 +84,7 @@ namespace itertools
 
   template <typename Iterable>
   _islice<Iterable>::_islice(Iterable const &iterable,
-                             __builtin__::xrange const &xr)
+                             builtins::xrange const &xr)
       : iterator(iterable, xr), end_iter(npos(), iterable, xr)
   {
   }
@@ -112,7 +112,7 @@ namespace itertools
       typename std::remove_reference<Iterable>::type>::type>
   islice(Iterable &&iterable, long start, long stop, long step)
   {
-    return {iterable, __builtin__::xrange(start, stop, step)};
+    return {iterable, builtins::xrange(start, stop, step)};
   }
 
   template <typename Iterable>
@@ -120,7 +120,7 @@ namespace itertools
       typename std::remove_reference<Iterable>::type>::type>
   islice(Iterable &&iterable, long stop)
   {
-    return {iterable, __builtin__::xrange(0, stop, 1)};
+    return {iterable, builtins::xrange(0, stop, 1)};
   }
 }
 PYTHONIC_NS_END

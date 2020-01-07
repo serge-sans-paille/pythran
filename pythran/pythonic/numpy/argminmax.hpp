@@ -4,7 +4,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -244,8 +244,8 @@ namespace numpy
     types::array<long, E::value - 1> shp;
     auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
     std::copy(shape.begin() + axis + 1, shape.end(), next);
-    types::ndarray<long, types::array<long, E::value - 1>> out{
-        shp, __builtin__::None};
+    types::ndarray<long, types::array<long, E::value - 1>> out{shp,
+                                                               builtins::None};
     typename E::dtype curr_minmax;
     _argminmax_pick_axis<Op, E::value>(axis, out, array,
                                        utils::make_index_sequence<E::value>());

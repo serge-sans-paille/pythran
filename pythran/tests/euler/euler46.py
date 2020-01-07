@@ -48,15 +48,15 @@ def solve():
         return prime_list[x]
 
     MAX = 10000
-    squares = dict.fromkeys((x*x for x in xrange(1, MAX)), 1)
+    squares = dict.fromkeys((x*x for x in range(1, MAX)), 1)
     _refresh(MAX)
 
-    for x in xrange(35, MAX, 2):
+    for x in range(35, MAX, 2):
         if not _isprime(x):
             is_goldbach = 0
             for p in prime_list[1:]:
                 if p >= x: break
-                if squares.has_key((x - p)/2):
+                if ((x - p)/2) in squares:
                     is_goldbach = 1
                     break
             if not is_goldbach:

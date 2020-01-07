@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/multiply.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -84,8 +84,7 @@ namespace numpy
     } else {
       types::array<long, N - 1> shp;
       sutils::copy_shape<0, 0>(shp, shape, utils::make_index_sequence<N - 1>());
-      types::ndarray<bool, types::array<long, N - 1>> ally(shp,
-                                                           __builtin__::None);
+      types::ndarray<bool, types::array<long, N - 1>> ally(shp, builtins::None);
       std::transform(
           array.begin(), array.end(), ally.begin(),
           [=](types::ndarray<T, types::array<long, N - 1>> const &other) {

@@ -5,8 +5,8 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/__builtin__/sum.hpp"
-#include "pythonic/__builtin__/ValueError.hpp"
+#include "pythonic/builtins/sum.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 PYTHONIC_NS_BEGIN
 

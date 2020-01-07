@@ -4,7 +4,7 @@
 #include "pythonic/include/numpy/mean.hpp"
 
 #include "pythonic/numpy/sum.hpp"
-#include "pythonic/__builtin__/None.hpp"
+#include "pythonic/builtins/None.hpp"
 
 PYTHONIC_NS_BEGIN
 

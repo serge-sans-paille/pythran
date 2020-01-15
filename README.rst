@@ -61,8 +61,10 @@ Using brew (http://brew.sh/)::
     $> easy_install pip
 
     $> pip install pythran
+    $> brew install openblas
+    $> printf '[compiler]\nblas=openblas\ninclude_dirs=/usr/local/opt/openblas/include\nlibrary_dirs=/usr/local/opt/openblas/lib' > ~/.pythranrc
 
-Depending on your setup, you may need to add the following to your \\~/.pythranrc`` file::
+Depending on your setup, you may need to add the following to your ``~/.pythranrc`` file::
 
     [compiler]
     CXX=g++-4.9

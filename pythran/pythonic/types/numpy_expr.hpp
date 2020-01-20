@@ -37,21 +37,21 @@ namespace types
         typename all_valid_indices<value, Args,
                                    std::tuple_size<Args>::value>::type;
 
-    template <class V>
-    long max_of(V v)
+    long best_of()
     {
-      return v;
+      return 1;
     }
-    template <class V0, class V1, class... Vs>
-    long max_of(V0 v0, V1 v1, Vs... vs)
+    template <class V0, class... Vs>
+    long best_of(V0 v0, Vs... vs)
     {
-      return std::max((long)v0, max_of(v1, vs...));
+      long vtail = best_of(vs...);
+      return (v0 == vtail) ? v0 : (v0 * vtail);
     }
 
     template <size_t I, class Args, size_t... Is>
     long init_shape_element(Args const &args, utils::index_sequence<Is...>)
     {
-      return max_of(std::get<I>(std::get<Is>(args).shape())...);
+      return best_of(std::get<I>(std::get<Is>(args).shape())...);
     }
 
     template <class pS, class Args, size_t... Is>

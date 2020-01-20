@@ -297,7 +297,7 @@ namespace types
     auto load(I i) const -> decltype(this->_base.load(i));
     template <class... Args>
     dtype operator()(Args &&...) const;
-    using shape_t = types::pshape<std::integral_constant<long, 0>>;
+    using shape_t = types::pshape<std::integral_constant<long, 1>>;
     shape_t shape() const;
     long flat_size() const;
     const_iterator begin() const

@@ -54,6 +54,9 @@ namespace types
     using type = T;
   };
 
+  template <typename T>
+  struct dynamic_tuple;
+
   template <typename T, size_t N, class V>
   struct array_base;
 
@@ -270,17 +273,12 @@ namespace types
 
   struct array_base_slicer {
     template <class T, size_t N>
-    numpy_gexpr<array<T, N>, normalized_slice> operator()(array<T, N> const &b,
-                                                          slice const &s)
-    {
-      return {b, s.normalize(b.size())};
-    }
+    dynamic_tuple<T> operator()(array<T, N> const &b, slice const &s);
+
     template <class T, size_t N>
-    numpy_gexpr<array<T, N>, contiguous_normalized_slice>
-    operator()(array<T, N> const &b, contiguous_slice const &s)
-    {
-      return {b, s.normalize(b.size())};
-    }
+    dynamic_tuple<T> operator()(array<T, N> const &b,
+                                contiguous_slice const &s);
+
     template <class T, size_t N>
     sliced_list<T, slice> operator()(static_list<T, N> const &b, slice const &s)
     {

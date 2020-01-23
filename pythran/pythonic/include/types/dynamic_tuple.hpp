@@ -4,10 +4,13 @@
 #include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/seq.hpp"
 #include "pythonic/include/utils/shared_ref.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
+
+#include <vector>
 
 PYTHONIC_NS_BEGIN
 
@@ -116,6 +119,11 @@ namespace types
       return (*data)[__n < 0 ? __n + size() : __n];
     }
 
+    reference operator[](size_type __n)
+    {
+      return (*data)[__n < 0 ? __n + size() : __n];
+    }
+
     // operator
     bool operator==(dynamic_tuple<T> const &other) const;
 
@@ -174,6 +182,20 @@ namespace std
   template <size_t I, class T>
   typename pythonic::types::dynamic_tuple<T>::const_reference
   get(pythonic::types::dynamic_tuple<T> const &t)
+  {
+    return t[I];
+  }
+
+  template <size_t I, class T>
+  typename pythonic::types::dynamic_tuple<T>::reference
+  get(pythonic::types::dynamic_tuple<T> &t)
+  {
+    return t[I];
+  }
+
+  template <size_t I, class T>
+  typename pythonic::types::dynamic_tuple<T>::reference
+  get(pythonic::types::dynamic_tuple<T> &&t)
   {
     return t[I];
   }

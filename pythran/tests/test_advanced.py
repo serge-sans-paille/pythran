@@ -376,3 +376,21 @@ def combiner_on_empty_list():
             def static_list4(x):
                 return StridedSlice(x,np.array([0,2,3]), np.array([5,0,7]), [1,1,1])'''
         self.run_test(code, numpy.arange(1000).reshape(10,10,10), static_list4=[NDArray[int, :,:,:]])
+
+    def test_tuple_slicing0(self):
+        code = '''
+            def tuple_slicing0(n):
+                X = tuple([[1,2,3,4],[1,2,3,4]])
+                B = X[0:1]
+                B[0][3]=n
+                return B, X'''
+        self.run_test(code, 20, tuple_slicing0=[int])
+
+    def test_tuple_slicing1(self):
+        code = '''
+            def tuple_slicing1(n):
+                X = tuple([[1,2,3,4],[1,2,3,4], [5,6,7,8]])
+                B = X[0::2]
+                B[0][3]=n
+                return B, X'''
+        self.run_test(code, 20, tuple_slicing1=[int])

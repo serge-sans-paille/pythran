@@ -6,6 +6,7 @@
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/traits.hpp"
 #include "pythonic/types/nditerator.hpp"
+#include "pythonic/types/dynamic_tuple.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/seq.hpp"
 #include "pythonic/utils/nested_container.hpp"
@@ -400,6 +401,24 @@ namespace types
       -> decltype(std::tuple_cat(lt.to_tuple(), t))
   {
     return std::tuple_cat(lt.to_tuple(), t);
+  }
+
+  template <class T, size_t N>
+  dynamic_tuple<T> array_base_slicer::operator()(array<T, N> const &b,
+                                                 slice const &s)
+  {
+    normalized_slice ns = s.normalize(b.size());
+    array<T, N> tmp;
+    for (long j = 0; j < ns.size(); ++j)
+      tmp[j] = b[ns.lower + j * ns.step];
+    return {&tmp[0], &tmp[ns.size()]};
+  }
+  template <class T, size_t N>
+  dynamic_tuple<T> array_base_slicer::operator()(array<T, N> const &b,
+                                                 contiguous_slice const &s)
+  {
+    contiguous_normalized_slice cns = s.normalize(b.size());
+    return {&b[cns.lower], &b[cns.upper]};
   }
 }
 PYTHONIC_NS_END

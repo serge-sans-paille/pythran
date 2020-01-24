@@ -11,7 +11,6 @@
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/types/slice.hpp"
 #include "pythonic/include/types/vectorizable_type.hpp"
-#include "pythonic/include/types/nditerator.hpp"
 
 #include <ostream>
 #include <vector>

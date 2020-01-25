@@ -99,3 +99,13 @@ def init_array_empty_list(X,f):
             np.array([[2,3],[4,5]]), 1.,
             init_array_empty_list=[NDArray[int, :,:], float])
 
+    def test_pop_while_iterating(self):
+        code = '''
+            def pop_while_iterating(n):
+                AA=[[n,2,3],[n,2,3],[1,2,3],[1,2,3],[1,2,3],[1,n,3]]
+                for ii in range(len(AA)):
+                    AA.pop()
+                return AA'''
+        self.run_test(code,
+                      0,
+                      pop_while_iterating=[int])

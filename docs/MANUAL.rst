@@ -43,7 +43,7 @@ Pythran depends on the following packages:
     :literal:
 
 You also need a modern C++11 enabled compiler (e.g. g++>=5, clang>=3.5), that supports
-atomic operations (N3290) or variadic template (N2555).
+atomic operations (N3290) and variadic template (N2555).
 
 
 Manual Installation
@@ -52,10 +52,6 @@ Manual Installation
 First get the sources::
 
     $> git clone https://github.com/serge-sans-paille/pythran
-
-Install *cough* Numpy manually::
-
-    $> pip install --user numpy
 
 From the source directory, run::
 
@@ -305,14 +301,6 @@ Unfortunately it's not always possible:
   of ``is``) with one of the input argument.
   Of curse, this limitation doesn't apply to non exported functions.
 
-
-
-Python3 Compatibility
----------------------
-
-Pythran now supports Python3 and can be installed as a regular Python3 program.
-Note however that Python3 support is still in early stage and compilation
-failure may happen. Report them!
 
 GIL Interaction
 ---------------

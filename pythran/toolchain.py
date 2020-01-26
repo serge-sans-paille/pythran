@@ -78,16 +78,12 @@ def _write_temp(content, suffix):
         return out.name
 
 
-class HasArgument(ast.NodeVisitor):
+def has_argument(module, fname):
     '''Checks if a given function has arguments'''
-    def __init__(self, fname):
-        self.fname = fname
-
-    def visit_Module(self, node):
-        for n in node.body:
-            if isinstance(n, ast.FunctionDef) and n.name == self.fname:
-                return [cxxid(arg.id) for arg in n.args.args]
-        return []
+    for n in module.body:
+        if isinstance(n, ast.FunctionDef) and n.name == fname:
+            return [cxxid(arg.id) for arg in n.args.args]
+    return []
 
 
 def front_middle_end(module_name, code, optimizations=None, module_dir=None,
@@ -215,7 +211,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                 numbered_function_name = "{0}{1}".format(internal_func_name,
                                                          sigid)
                 arguments_types = [pytype_to_ctype(t) for t in signature]
-                arguments_names = HasArgument(function_name).visit(ir)
+                arguments_names = has_argument(ir, function_name)
                 arguments = [n for n, _ in
                              zip(arguments_names, arguments_types)]
                 name_fmt = pythran_ward + "{0}::{1}::type{2}"
@@ -257,7 +253,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
             internal_func_name = cxxid(function_name)
 
             arguments_types = [pytype_to_ctype(t) for t in signature]
-            arguments_names = HasArgument(function_name).visit(ir)
+            arguments_names = has_argument(ir, function_name)
             arguments = [n for n, _ in
                          zip(arguments_names, arguments_types)]
             name_fmt = pythran_ward + "{0}::{1}::type{2}"

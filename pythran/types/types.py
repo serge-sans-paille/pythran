@@ -23,25 +23,6 @@ import operator
 from functools import reduce
 
 
-def extract_constructed_types(t):
-    if isinstance(t, (list, ndarray)):
-        return [pytype_to_ctype(t)] + extract_constructed_types(t[0])
-    elif isinstance(t, set):
-        return [pytype_to_ctype(t)] + extract_constructed_types(next(iter(t)))
-    elif isinstance(t, dict):
-        tkey, tvalue = next(iter(t.items()))
-        return ([pytype_to_ctype(t)] +
-                extract_constructed_types(tkey) +
-                extract_constructed_types(tvalue))
-    elif isinstance(t, tuple):
-        return ([pytype_to_ctype(t)] +
-                sum((extract_constructed_types(v) for v in t), []))
-    elif t == str:
-        return [pytype_to_ctype(t)]
-    else:
-        return []
-
-
 class UnboundableRValue(Exception):
     pass
 

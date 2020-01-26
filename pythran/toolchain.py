@@ -13,7 +13,6 @@ from pythran.middlend import refine, mark_unexported_functions
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
 from pythran.types import tog
-from pythran.types.types import extract_constructed_types
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
 from pythran.spec import load_specfile, Spec
@@ -39,12 +38,6 @@ from functools import reduce
 import sys
 
 logger = logging.getLogger('pythran')
-
-
-def _extract_all_constructed_types(v):
-    return sorted(set(reduce(lambda x, y: x + y,
-                             (extract_constructed_types(t) for t in v), [])),
-                  key=len)
 
 
 def _extract_specs_dependencies(specs):

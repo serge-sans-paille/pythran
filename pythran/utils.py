@@ -10,10 +10,12 @@ from contextlib import contextmanager
 def isstr(node):
     return isinstance(node, ast.Constant) and isinstance(node.value, str)
 
+
 def isnum(node):
     return isinstance(node, ast.Constant) and isinstance(node.value, (int,
                                                                       float,
                                                                       bool))
+
 
 def attr_to_path(node):
     """ Compute path and final object for an attribute node """
@@ -106,6 +108,7 @@ def pythran_builtin_path(name):
 
 def pythran_builtin_attr(name):
     return path_to_attr(pythran_builtin_path(name))
+
 
 def cxxid(name):
     from pythran.tables import cxx_keywords

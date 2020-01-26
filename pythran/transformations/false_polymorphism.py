@@ -57,7 +57,9 @@ class FalsePolymorphism(Transformation):
                 associated_defs.add(curr)
                 for u in curr.users():
                     to_process.append(u)
-                to_process.extend(d for d in self.use_def_chains.get(curr.node, []) if isinstance(d.node, ast.Name))
+                curr_udc = (d for d in self.use_def_chains.get(curr.node, [])
+                            if isinstance(d.node, ast.Name))
+                to_process.extend(curr_udc)
 
             visited_defs.update(associated_defs)
 

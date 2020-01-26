@@ -7,13 +7,12 @@ This module contains all pythran backends.
 from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions, Dependencies
-from pythran.analyses import Immediates, UseDefChains, Ancestors, Aliases
+from pythran.analyses import Immediates, Ancestors
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Nop
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
-from pythran.intrinsic import UpdateEffect
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
@@ -457,7 +456,6 @@ class CxxFunction(ast.NodeVisitor):
                     return True
         assert False, "unreachable state"
 
-
     def gen_for(self, node, target, local_iter, local_iter_decl, loop_body):
         """
         Create For representation on iterator for Cxx generation.
@@ -857,7 +855,11 @@ class CxxFunction(ast.NodeVisitor):
         test = self.visit(node.test)
         body = self.visit(node.body)
         orelse = self.visit(node.orelse)
-        return "(((bool){0}) ? typename __combined<decltype({1}), decltype({2})>::type({1}) : typename __combined<decltype({1}), decltype({2})>::type({2}))".format(test, body, orelse)
+        return (
+            "(((bool){0}) "
+            "? typename __combined<decltype({1}), decltype({2})>::type({1}) "
+            ": typename __combined<decltype({1}), decltype({2})>::type({2}))"
+        ).format(test, body, orelse)
 
     def visit_List(self, node):
         if not node.elts:  # empty list
@@ -872,8 +874,9 @@ class CxxFunction(ast.NodeVisitor):
             if len(elts) == 1:
                 elts.append('pythonic::types::single_value()')
 
-            node_type = self.types.builder.CombinedTypes(self.types[node],
-                                                         self.types.builder.ListType(elts_type))
+            node_type = self.types.builder.CombinedTypes(
+                self.types[node],
+                self.types.builder.ListType(elts_type))
             return "{0}({{{1}}})".format(
                 self.types.builder.Assignable(node_type),
                 ", ".join(elts))
@@ -1271,8 +1274,8 @@ result_type;
         """ Basic initialiser gathering analysis informations. """
         self.result = None
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations, Types,
-                                  Scope, RangeValues, PureExpressions, Aliases,
-                                  Immediates, UseDefChains, Ancestors)
+                                  Scope, RangeValues, PureExpressions,
+                                  Immediates, Ancestors)
 
     # mod
     def visit_Module(self, node):

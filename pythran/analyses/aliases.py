@@ -234,7 +234,8 @@ class Aliases(ModuleAnalysis):
         between its input and output. In our case:
 
         >>> f = module.body[0].return_alias
-        >>> Aliases.dump(f([ast.Name('A', ast.Load(), None, None), ast.Constant(1, None)]))
+        >>> Aliases.dump(f([ast.Name('A', ast.Load(), None, None),
+        ...                 ast.Constant(1, None)]))
         ['A']
 
         This also works if the relationship between input and output
@@ -243,7 +244,8 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse('def foo(a, b): return a or b[0]')
         >>> result = pm.gather(Aliases, module)
         >>> f = module.body[0].return_alias
-        >>> List = ast.List([ast.Name('L0', ast.Load(), None, None)], ast.Load())
+        >>> List = ast.List([ast.Name('L0', ast.Load(), None, None)],
+        ...                 ast.Load())
         >>> Aliases.dump(f([ast.Name('B', ast.Load(), None, None), List]))
         ['B', '[L0][0]']
 

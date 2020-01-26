@@ -44,7 +44,8 @@ class ComprehensionPatterns(Transformation):
     def make_Iterator(self, gen):
         if gen.ifs:
             ldFilter = ast.Lambda(
-                ast.arguments([ast.Name(gen.target.id, ast.Param(), None, None)],
+                ast.arguments([ast.Name(gen.target.id, ast.Param(),
+                                        None, None)],
                               [], None, [], [], None, []),
                 ast.BoolOp(ast.And(), gen.ifs)
                 if len(gen.ifs) > 1 else gen.ifs[0])
@@ -70,7 +71,8 @@ class ComprehensionPatterns(Transformation):
             # If dim = 1, product is useless
             if len(iters) == 1:
                 iterAST = iters[0]
-                varAST = ast.arguments([variables[0]], [], None, [], [], None, [])
+                varAST = ast.arguments([variables[0]], [],
+                                       None, [], [], None, [])
             else:
                 self.use_itertools = True
                 prodName = ast.Attribute(
@@ -83,7 +85,8 @@ class ComprehensionPatterns(Transformation):
                 renamings = {v.id: (i,) for i, v in enumerate(variables)}
                 node.elt = ConvertToTuple(varid, renamings).visit(node.elt)
                 iterAST = ast.Call(prodName, iters, [])
-                varAST = ast.arguments([ast.Name(varid, ast.Param(), None, None)],
+                varAST = ast.arguments([ast.Name(varid, ast.Param(),
+                                                 None, None)],
                                        [], None, [], [], None, [])
 
             ldBodymap = node.elt
@@ -100,7 +103,7 @@ class ComprehensionPatterns(Transformation):
                 value=ast.Name(id='builtins',
                                ctx=ast.Load(),
                                annotation=None,
-                              type_comment=None),
+                               type_comment=None),
                 attr='map', ctx=ast.Load())
             r = ast.Call(r, list(args), [])
             r = ast.Call(ast.Attribute(ast.Name('builtins', ast.Load(),

@@ -101,7 +101,8 @@ class SyntaxChecker(ast.NodeVisitor):
                 args = []
             raise PythranSyntaxError("Ellipsis are not supported", *args)
         iinfo = np.iinfo(int)
-        if isinstance(node.value, int) and not (iinfo.min <= node.value <= iinfo.max):
+        if isinstance(node.value, int) and not (iinfo.min <= node.value
+                                                <= iinfo.max):
             raise PythranSyntaxError("large int not supported", node)
 
     def visit_FunctionDef(self, node):

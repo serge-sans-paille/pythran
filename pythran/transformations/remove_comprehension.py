@@ -1,6 +1,5 @@
 """ RemoveComprehension turns list comprehension into function calls. """
 
-from pythran import metadata
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
 
@@ -89,8 +88,10 @@ class RemoveComprehension(Transformation):
                               reduce(lambda x, y: ast.Attribute(x, y,
                                                                 ast.Load()),
                                      path[1:],
-                                     ast.Name(path[0], ast.Load(), None, None)),
-                              [ast.Name(starget, ast.Load(), None, None), node.elt],
+                                     ast.Name(path[0], ast.Load(),
+                                              None, None)),
+                              [ast.Name(starget, ast.Load(), None, None),
+                               node.elt],
                               [],
                               )
                           )

@@ -65,7 +65,8 @@ class NormalizeCompare(Transformation):
             # that lazily evaluates the needed parameters
             imported_ids = self.gather(ImportedIds, node)
             imported_ids = sorted(imported_ids)
-            binded_args = [ast.Name(i, ast.Load(), None, None) for i in imported_ids]
+            binded_args = [ast.Name(i, ast.Load(), None, None)
+                           for i in imported_ids]
 
             # name of the new function
             forged_name = "{0}_compare{1}".format(self.prefix,
@@ -78,7 +79,8 @@ class NormalizeCompare(Transformation):
                 [])
 
             # new function
-            arg_names = [ast.Name(i, ast.Param(), None, None) for i in imported_ids]
+            arg_names = [ast.Name(i, ast.Param(), None, None)
+                         for i in imported_ids]
             args = ast.arguments(arg_names, [], None, [], [], None, [])
 
             body = []  # iteratively fill the body (yeah, feel your body!)
@@ -86,8 +88,10 @@ class NormalizeCompare(Transformation):
             if is_trivially_copied(node.left):
                 prev_holder = node.left
             else:
-                body.append(ast.Assign([ast.Name('$0', ast.Store(), None, None)],
-                                       node.left))
+                body.append(
+                    ast.Assign(
+                        [ast.Name('$0', ast.Store(), None, None)],
+                        node.left))
                 prev_holder = ast.Name('$0', ast.Load(), None, None)
 
             for i, exp in enumerate(node.comparators):
@@ -97,13 +101,15 @@ class NormalizeCompare(Transformation):
                     body.append(ast.Assign([ast.Name('${}'.format(i+1),
                                                      ast.Store(), None, None)],
                                            exp))
-                    holder = ast.Name('${}'.format(i+1), ast.Load(), None, None)
+                    holder = ast.Name('${}'.format(i+1), ast.Load(),
+                                      None, None)
                 cond = ast.Compare(prev_holder,
                                    [node.ops[i]],
                                    [holder])
-                body.append(ast.If(cond,
-                                   [ast.Pass()],
-                                   [ast.Return(path_to_attr(('builtins', 'False')))]))
+                body.append(
+                    ast.If(cond,
+                           [ast.Pass()],
+                           [ast.Return(path_to_attr(('builtins', 'False')))]))
                 prev_holder = holder
 
             body.append(ast.Return(path_to_attr(('builtins', 'True'))))

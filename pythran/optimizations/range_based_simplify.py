@@ -87,4 +87,3 @@ class RangeBasedSimplify(Transformation):
         return node
 
     visit_Subscript = visit_range
-

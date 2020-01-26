@@ -77,9 +77,6 @@ class Dependencies(ModuleAnalysis):
 
     visit_IsNot = visit_Is
 
-    def visit_Add(self, node):
-        self.result.add(('operator', 'add'))
-
     def visit_And(self, node):
         self.result.add(('builtins', 'pythran', 'and'))
         self.generic_visit(node)

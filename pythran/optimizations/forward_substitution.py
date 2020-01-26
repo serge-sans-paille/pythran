@@ -13,7 +13,9 @@ try:
     from math import isfinite
 except ImportError:
     from math import isinf, isnan
-    isfinite = lambda x: not isinf(x) and not isnan(x)
+
+    def isfinite(x):
+        return not isinf(x) and not isnan(x)
 
 
 class Remover(ast.NodeTransformer):

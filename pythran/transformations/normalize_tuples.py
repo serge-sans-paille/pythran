@@ -155,7 +155,8 @@ class NormalizeTuples(Transformation):
                         if isinstance(rename, str):
                             extra_assign.append(
                                 ast.Assign(
-                                    [ast.Name(rename, ast.Store(), None, None)],
+                                    [ast.Name(rename, ast.Store(),
+                                              None, None)],
                                     nnode))
                         else:
                             extra_assign.append(ast.Assign([rename], nnode))

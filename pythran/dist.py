@@ -8,7 +8,6 @@ import pythran.config as cfg
 from collections import defaultdict, Iterable
 import os.path
 import os
-import types
 
 from distutils.command.build_ext import build_ext as LegacyBuildExt
 
@@ -72,6 +71,7 @@ class PythranBuildExt(LegacyBuildExt, object):
                 import distutils._msvccompiler as msvc
                 # install hook
                 find_exe = msvc._find_exe
+
                 def _find_exe(exe, *args, **kwargs):
                     if exe == 'cl.exe':
                         exe = ext.cc
@@ -82,7 +82,6 @@ class PythranBuildExt(LegacyBuildExt, object):
                 msvc._find_exe = _find_exe
             except ImportError:
                 pass
-
 
         # In general, distutils uses -Wstrict-prototypes, but this option
         # is not valid for C++ code, only for C.  Remove it if it's there

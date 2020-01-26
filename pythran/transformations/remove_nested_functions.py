@@ -40,7 +40,8 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         self.identifiers.add(new_name)
 
         ii = self.gather(ImportedIds, node)
-        binded_args = [ast.Name(iin, ast.Load(), None, None) for iin in sorted(ii)]
+        binded_args = [ast.Name(iin, ast.Load(), None, None)
+                       for iin in sorted(ii)]
         node.args.args = ([ast.Name(iin, ast.Param(), None, None)
                            for iin in sorted(ii)] +
                           node.args.args)

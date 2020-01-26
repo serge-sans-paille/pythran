@@ -70,7 +70,10 @@ class ListToTuple(Transformation):
 
         >>> import gast as ast
         >>> from pythran import passmanager, backend
-        >>> node = ast.parse("def foo(n): x = builtins.list(n); x[0] = 0; return builtins.tuple(x)")
+        >>> node = ast.parse("def foo(n):\\n"
+        ...                  "    x = builtins.list(n)\\n"
+        ...                  "    x[0] = 0\\n"
+        ...                  "    return builtins.tuple(x)")
         >>> pm = passmanager.PassManager("test")
         >>> _, node = pm.apply(ListToTuple, node)
         >>> print(pm.dump(backend.Python, node))
@@ -79,7 +82,10 @@ class ListToTuple(Transformation):
             x[0] = 0
             return builtins.tuple(x)
 
-        >>> node = ast.parse("def foo(n): x = builtins.list(n); x[0] = 0; return x")
+        >>> node = ast.parse("def foo(n):\\n"
+        ...                  "    x = builtins.list(n)\\n"
+        ...                  "    x[0] = 0\\n"
+        ...                  "    return x")
         >>> pm = passmanager.PassManager("test")
         >>> _, node = pm.apply(ListToTuple, node)
         >>> print(pm.dump(backend.Python, node))

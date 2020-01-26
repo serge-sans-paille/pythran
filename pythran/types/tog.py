@@ -1258,9 +1258,9 @@ def unify(t1, t2):
     elif isinstance(b, TypeVariable):
         unify(b, a)
     elif isinstance(a, TypeOperator) and a.name == 'any':
-            return
+        return
     elif isinstance(b, TypeOperator) and b.name == 'any':
-            return
+        return
     elif isinstance(a, TypeOperator) and isinstance(b, TypeOperator):
         if len(a.types) != len(b.types):
             raise InferenceError("Type length differ")

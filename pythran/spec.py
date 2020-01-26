@@ -90,8 +90,6 @@ class Spec(object):
             if not isinstance(signatures, tuple):
                 self.functions[fname] = (signatures,)
 
-        #self._expand_specs()
-
         if not self:
             import logging
             logging.warn("No pythran specification, nothing will be exported")
@@ -300,7 +298,6 @@ class SpecParser(object):
             non_defaults = [t for t in p[4] if len(t) == len(p[4][0])]
             p[0] = tuple((t,) + ts for t in p[1] for ts in non_defaults) + p[4]
 
-
     def p_types(self, p):
         '''types : type
                  | type COMMA types'''
@@ -351,7 +348,8 @@ class SpecParser(object):
                         raise PythranSyntaxError("Invalid Pythran spec. "
                                                  "F order is only valid for "
                                                  "2D plain arrays")
-                p[0] = tuple(NDArray[nd.__args__[0], -1::, -1::] for nd in p[1])
+                p[0] = tuple(NDArray[nd.__args__[0], -1::, -1::]
+                             for nd in p[1])
             else:
                 p[0] = p[1]
         elif len(p) == 5 and p[4] == ')':
@@ -479,7 +477,11 @@ class SpecParser(object):
 
         for key, overloads in self.exports.items():
             if len(overloads) > cfg.getint("typing", "max_export_overloads"):
-                raise PythranSyntaxError("Too many overloads for function '{}', probably due to automatic generation of C-style and Fortran-style memory layout. Please force a layout using `order(C)` or `order(F)` in the array signature".format(key))
+                raise PythranSyntaxError(
+                    "Too many overloads for function '{}', probably due to "
+                    "automatic generation of C-style and Fortran-style memory "
+                    "layout. Please force a layout using `order(C)` or "
+                    "`order(F)` in the array signature".format(key))
 
             for i, ty_i in enumerate(overloads):
                 sty_i = spec_to_string(key, ty_i)

@@ -187,11 +187,14 @@ class ASTMatcher(NodeVisitor):
     2
     >>> code = "{1:2, 3:4}"
     >>> pattern = ast.Dict(keys=[ast.Constant(3, None), ast.Constant(1, None)],
-    ...                    values=[ast.Constant(4, None), ast.Constant(2, None)])
+    ...                    values=[ast.Constant(4, None),
+    ...                            ast.Constant(2, None)])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     1
     >>> code = "{1, 2, 3}"
-    >>> pattern = ast.Set(elts=[ast.Constant(3, None), ast.Constant(2, None), ast.Constant(1, None)])
+    >>> pattern = ast.Set(elts=[ast.Constant(3, None),
+    ...                         ast.Constant(2, None),
+    ...                         ast.Constant(1, None)])
     >>> len(ASTMatcher(pattern).search(ast.parse(code)))
     1
     """

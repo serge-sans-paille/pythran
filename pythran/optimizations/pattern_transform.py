@@ -66,8 +66,8 @@ class LenRangePattern(Pattern):
     def sub():
         return ast.Call(
             func=ast.Attribute(value=ast.Name('builtins', ast.Load(),
-                                                   None, None),
-                                    attr="max", ctx=ast.Load()),
+                                              None, None),
+                               attr="max", ctx=ast.Load()),
             args=[ast.Constant(0, None), Placeholder(0)], keywords=[])
 
 

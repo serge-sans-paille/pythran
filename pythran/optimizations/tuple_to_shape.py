@@ -11,8 +11,7 @@ patterns = (MODULES['numpy']['ones'],
             MODULES['numpy']['zeros'],
             MODULES['numpy']['empty'],
             )
-reshape_patterns = (MODULES['numpy']['ndarray']['reshape'],
-                   )
+reshape_patterns = MODULES['numpy']['ndarray']['reshape'],
 
 
 def istuple(node):

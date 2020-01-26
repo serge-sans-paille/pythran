@@ -110,6 +110,6 @@ class LoopFullUnrolling(Transformation):
                                 for i, elt in enumerate(values)], [])
                 self.update = True
                 return new_node
-            except Exception as e:
+            except Exception:
                 return node
         return node

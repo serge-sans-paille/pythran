@@ -168,8 +168,9 @@ class Types(ModuleAnalysis):
 
     def combine_(self, node, othernode, op, unary_op, register):
         try:
-            if register:    # this comes from an assignment,
-                            # so we must check where the value is assigned
+            # This comes from an assignment,so we must check where the value is
+            # assigned
+            if register:
                 try:
                     node_id, depth = self.node_to_id(node)
                     if depth > 0:
@@ -182,7 +183,8 @@ class Types(ModuleAnalysis):
                                           self.builder.ContainerType(t),
                                           range(depth), former_unary_op(x))
 
-                        # patch the op, as we no longer apply op, but infer content
+                        # patch the op, as we no longer apply op,
+                        # but infer content
                         def op(*types):
                             if len(types) == 1:
                                 return types[0]
@@ -469,7 +471,8 @@ class Types(ModuleAnalysis):
             typename = pytype_to_ctype(obj.signature)
             self.result[node] = self.builder.NamedType(typename)
         else:
-            self.result[node] = self.builder.DeclType('::'.join(map(cxxid,path)) + '{}')
+            path = '::'.join(map(cxxid, path)) + '{}'
+            self.result[node] = self.builder.DeclType(path)
 
     def visit_Slice(self, node):
         """

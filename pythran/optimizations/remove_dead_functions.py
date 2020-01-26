@@ -4,8 +4,6 @@ from pythran.analyses import DefUseChains
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
 
-import gast as ast
-
 
 class RemoveDeadFunctions(Transformation):
     """

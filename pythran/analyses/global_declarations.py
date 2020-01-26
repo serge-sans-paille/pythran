@@ -2,7 +2,6 @@
 
 from pythran.passmanager import ModuleAnalysis
 from beniget import DefUseChains
-import sys
 
 
 class SilentDefUseChains(DefUseChains):

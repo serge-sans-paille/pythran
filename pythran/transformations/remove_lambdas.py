@@ -36,7 +36,8 @@ class _LambdaRemover(ast.NodeTransformer):
         ii = self.gather(ImportedIds, node)
         ii.difference_update(self.lambda_functions)  # remove current lambdas
 
-        binded_args = [ast.Name(iin, ast.Load(), None, None) for iin in sorted(ii)]
+        binded_args = [ast.Name(iin, ast.Load(), None, None)
+                       for iin in sorted(ii)]
         node.args.args = ([ast.Name(iin, ast.Param(), None, None)
                            for iin in sorted(ii)] +
                           node.args.args)

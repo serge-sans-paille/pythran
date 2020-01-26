@@ -3158,7 +3158,8 @@ MODULES = {
         ),
         "around": ConstFunctionIntr(signature=_numpy_around_signature),
         "array": ReadOnceFunctionIntr(signature=_numpy_array_signature,
-                                   args=('object', 'dtype'), defaults=(None,)),
+                                      args=('object', 'dtype'),
+                                      defaults=(None,)),
         "array2string": ConstFunctionIntr(
             signature=_numpy_array_str_signature),
         "array_equal": ConstFunctionIntr(signature=Fun[[T0, T1], bool]),
@@ -3855,45 +3856,45 @@ MODULES = {
             "bytes": FunctionIntr(args=('length',),
                                   global_effects=True),
             "chisquare": FunctionIntr(args=('df', 'size',),
-                                    global_effects=True),
+                                      global_effects=True),
             "choice": FunctionIntr(args=('a', 'size', 'replace', 'p'),
                                    global_effects=True),
             "dirichlet": FunctionIntr(args=('alpha', 'size',),
-                                    global_effects=True),
+                                      global_effects=True),
             "exponential": FunctionIntr(args=('scale', 'size',),
-                                    defaults=(1.0, None,),
-                                    global_effects=True),
+                                        defaults=(1.0, None,),
+                                        global_effects=True),
             "f": FunctionIntr(args=('dfnum', 'dfden', 'size'),
-                                    global_effects=True),
+                              global_effects=True),
             "gamma": FunctionIntr(args=('shape', 'scale', 'size',),
-                                    defaults=(None, 1.0, None,),
-                                    global_effects=True),
+                                  defaults=(None, 1.0, None,),
+                                  global_effects=True),
             "geometric": FunctionIntr(args=('p', 'size',),
-                                    global_effects=True),
+                                      global_effects=True),
             "pareto": FunctionIntr(args=('a', 'size',),
-                                    global_effects=True),
+                                   global_effects=True),
             "gumbel": FunctionIntr(args=('loc', 'scale', 'size',),
                                    defaults=(0.0, 1.0, None,),
-                                   global_effects=True),                        
+                                   global_effects=True),
             "poisson": FunctionIntr(args=('lam', 'size',),
                                     defaults=(1.0, None,),
                                     global_effects=True),
             "negative_binomial": FunctionIntr(args=('n', 'p', 'size',),
-                                   global_effects=True),
+                                              global_effects=True),
             "normal": FunctionIntr(args=('loc', 'scale', 'size',),
                                    defaults=(0.0, 1.0, None,),
                                    global_effects=True),
             "laplace": FunctionIntr(args=('loc', 'scale', 'size',),
-                                   defaults=(0.0, 1.0, None,),
-                                   global_effects=True),       
+                                    defaults=(0.0, 1.0, None,),
+                                    global_effects=True),
             "logistic": FunctionIntr(args=('loc', 'scale', 'size',),
-                                   defaults=(0.0, 1.0, None,),
-                                   global_effects=True),                                       
+                                     defaults=(0.0, 1.0, None,),
+                                     global_effects=True),
             "lognormal": FunctionIntr(args=('mean', 'sigma', 'size',),
-                                   defaults=(0.0, 1.0, None,),
-                                   global_effects=True),
+                                      defaults=(0.0, 1.0, None,),
+                                      global_effects=True),
             "logseries": FunctionIntr(args=('p', 'size',),
-                                    global_effects=True),                                   
+                                      global_effects=True),
             "power": FunctionIntr(args=('a', 'size',),
                                   global_effects=True),
             "rand": FunctionIntr(args=(),
@@ -3912,18 +3913,18 @@ MODULES = {
             "random_sample": FunctionIntr(args=('size',),
                                           global_effects=True),
             "rayleigh": FunctionIntr(args=('scale', 'size',),
-                                    defaults=(1.0, None,),
-                                    global_effects=True),
+                                     defaults=(1.0, None,),
+                                     global_effects=True),
             "sample": FunctionIntr(args=('size',),
                                    global_effects=True),
             "seed": FunctionIntr(global_effects=True),
             "shuffle": FunctionIntr(global_effects=True),
             "standard_exponential": FunctionIntr(args=('size',),
-                                    global_effects=True),                                    
+                                                 global_effects=True),
             "standard_gamma": FunctionIntr(args=('shape', 'size',),
-                                    global_effects=True),
+                                           global_effects=True),
             "standard_normal": FunctionIntr(args=('size',),
-                                    global_effects=True),
+                                            global_effects=True),
             "weibull": FunctionIntr(args=('a', 'size',),
                                     global_effects=True),
         },
@@ -4519,13 +4520,15 @@ def save_arguments(module_name, elements):
                     obj = obj.__wrapped__
                 spec = getfullargspec(obj)
                 if signature.args.args:
-                    logger.warn(
-                        "Overriding pythran description with argspec information for: {}".format(".".join(module_name + (elem,)))
-                    )
+                    logger.warn("Overriding pythran description with argspec "
+                                "information for: {}".format(
+                                    ".".join(module_name + (elem,))))
 
-                args = [ast.Name(arg, ast.Param(), None, None) for arg in spec.args]
+                args = [ast.Name(arg, ast.Param(), None, None)
+                        for arg in spec.args]
                 defaults = list(spec.defaults or [])
-                args += [ast.Name(arg, ast.Param(), None, None) for arg in spec.kwonlyargs]
+                args += [ast.Name(arg, ast.Param(), None, None)
+                         for arg in spec.kwonlyargs]
                 defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
 
                 # Avoid use of comprehension to fill "as much args/defauls" as

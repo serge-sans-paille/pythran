@@ -392,7 +392,6 @@ class IntervalTuple(object):
     def low(self):
         return UNKNOWN_RANGE.low
 
-
     def __getitem__(self, index):
         out = None
         low = max(0, index.low)

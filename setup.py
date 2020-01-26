@@ -16,15 +16,10 @@ from setuptools.command.build_py import build_py
 from setuptools.command.develop import develop
 
 from setuptools import setup
-from distutils import ccompiler
-from distutils.errors import CompileError, LinkError
 
 import logging
-import glob
 import os
-import re
 import shutil
-from tempfile import NamedTemporaryFile
 import sys
 
 # It appears old versions of setuptools are not supported, see
@@ -130,7 +125,7 @@ class DevelopWithThirdParty(develop, BuildWithThirdParty):
 boost_headers = ['boost/' + '*/' * i + '*.hpp' for i in range(1, 20)]
 xsimd_headers = ['xsimd/' + '*/' * i + '*.hpp' for i in range(1, 20)]
 pythonic_headers = ['*/' * i + '*.hpp' for i in range(9)] + ['patch/*']
-sfmt_headers = ['sfmt/*.h', 'sfmt/*.c']
+
 
 # read longdescr from README
 def longdescr(readme_path):
@@ -140,6 +135,7 @@ def longdescr(readme_path):
         stop_index = lines.index('Installation\n')
         long_description = "".join(lines[start_index + 2: stop_index])
         return long_description
+
 
 setup(name='pythran',
       version=__version__,
@@ -151,7 +147,9 @@ setup(name='pythran',
       packages=['pythran', 'pythran.analyses', 'pythran.transformations',
                 'pythran.optimizations', 'omp', 'pythran/pythonic',
                 'pythran.types'],
-      package_data={'pythran': ['pythran*.cfg'] + boost_headers + xsimd_headers + sfmt_headers,
+      package_data={'pythran': (['pythran*.cfg']
+                                + boost_headers
+                                + xsimd_headers),
                     'pythran/pythonic': pythonic_headers},
       classifiers=[
           'Development Status :: 4 - Beta',

@@ -41,12 +41,17 @@ def get_paths_cfg(
         user_config_dir = os.environ.get('XDG_CONFIG_HOME', '~')
         user_config_path = os.path.expanduser(
             os.path.join(user_config_dir, user_file))
-    return {"sys": sys_config_path, "platform": platform_config_path, "user": user_config_path}
+    return {"sys": sys_config_path,
+            "platform": platform_config_path,
+            "user": user_config_path}
 
 
 def init_cfg(sys_file, platform_file, user_file, config_args=None):
     paths = get_paths_cfg(sys_file, platform_file, user_file)
-    sys_config_path, platform_config_path, user_config_path = paths["sys"], paths["platform"], paths["user"]
+
+    sys_config_path = paths["sys"]
+    platform_config_path = paths["platform"]
+    user_config_path = paths["user"]
 
     cfgp = ConfigParser()
     for required in (sys_config_path, platform_config_path):
@@ -54,15 +59,16 @@ def init_cfg(sys_file, platform_file, user_file, config_args=None):
     cfgp.read([user_config_path])
 
     if config_args is not None:
-        # Override the config options with those provided on the command line e.g. compiler.blas=pythran-openblas
+        # Override the config options with those provided on the command line
+        # e.g. compiler.blas=pythran-openblas.
         for arg in config_args:
             try:
-                lhs, rhs = arg.split('=',maxsplit=1)
+                lhs, rhs = arg.split('=', maxsplit=1)
                 section, item = lhs.split('.')
                 if not cfgp.has_section(section):
                     cfgp.add_section(section)
                 cfgp.set(section, item, rhs)
-            except Exception as e:
+            except Exception:
                 pass
         pass
 
@@ -194,12 +200,13 @@ def make_extension(python, **extra):
                 # required to cope with atlas missing extern "C"
                 extension['define_macros'].append('PYTHRAN_BLAS_OPENBLAS')
                 extension['include_dirs'].extend(openblas.include_dirs)
-                extension['extra_objects'].append(os.path.join(openblas.library_dir,
-                                                               openblas.static_library))
+                extension['extra_objects'].append(
+                    os.path.join(openblas.library_dir, openblas.static_library)
+                )
             except ImportError:
                 logger.warn("Failed to find 'pythran-openblas' package. "
-                            "Please install it or change the compiler.blas setting. "
-                            "Defaulting to 'blas'")
+                            "Please install it or change the compiler.blas "
+                            "setting. Defaulting to 'blas'")
                 user_blas = 'blas'
 
         if user_blas != 'pythran-openblas':
@@ -208,8 +215,10 @@ def make_extension(python, **extra):
             extension['define_macros'].append('PYTHRAN_BLAS_{}'
                                               .format(user_blas.upper()))
             extension['libraries'].extend(numpy_blas.get('libraries', []))
-            extension['library_dirs'].extend(numpy_blas.get('library_dirs', []))
-            extension['include_dirs'].extend(numpy_blas.get('include_dirs', []))
+            extension['library_dirs'].extend(
+                numpy_blas.get('library_dirs', []))
+            extension['include_dirs'].extend(
+                numpy_blas.get('include_dirs', []))
     finally:
         sys.stdout = old_stdout
 

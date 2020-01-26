@@ -128,9 +128,7 @@ def generate_py(module_name, code, optimizations=None, module_dir=None):
 
     '''
 
-    pm, ir, _ = front_middle_end(module_name, code, optimizations,
-                                    module_dir)
-
+    pm, ir, _ = front_middle_end(module_name, code, optimizations, module_dir)
     return pm.dump(Python, ir)
 
 

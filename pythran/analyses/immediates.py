@@ -5,8 +5,6 @@ from pythran.analyses import Aliases
 from pythran.passmanager import NodeAnalysis
 from pythran.utils import pythran_builtin, isnum
 
-import gast as ast
-
 _make_shape = pythran_builtin('make_shape')
 
 

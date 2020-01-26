@@ -39,7 +39,8 @@ def outline(name, formal_parameters, out_parameters, stmts,
         stmts.append(
             ast.Return(
                 ast.Tuple(
-                    [ast.Name(fp, ast.Load(), None, None) for fp in out_parameters],
+                    [ast.Name(fp, ast.Load(), None, None)
+                     for fp in out_parameters],
                     ast.Load()
                 )
             )
@@ -294,7 +295,6 @@ class NormalizeStaticIf(Transformation):
             always_return = all(isinstance(x, (ast.Return, ast.Yield))
                                 for x in cfg[node])
             always_return &= true_has_return and false_has_return
-
 
             fast_return = [ast.Name(status_n, ast.Store(), None, None),
                            ast.Name(return_n, ast.Store(), None, None),

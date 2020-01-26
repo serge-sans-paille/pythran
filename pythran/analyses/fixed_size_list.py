@@ -8,6 +8,7 @@ from pythran.tables import MODULES
 
 import gast as ast
 
+
 class FixedSizeList(FunctionAnalysis):
 
     def __init__(self):
@@ -34,7 +35,6 @@ class FixedSizeList(FunctionAnalysis):
                 if not self.is_safe_call(alias.args[0],
                                          index + len(alias.args) - 1):
                     return False
-
 
             if alias in self.argument_effects:
                 func_aes = self.argument_effects[alias]
@@ -66,7 +66,9 @@ class FixedSizeList(FunctionAnalysis):
                 break
             if not isinstance(target, ast.Name):
                 continue
-            if len([d for d in self.def_use_chains.locals[self.ctx.function] if d.name() == target.id]) > 1:
+            if len([d
+                    for d in self.def_use_chains.locals[self.ctx.function]
+                    if d.name() == target.id]) > 1:
                 break
         else:
             self.result.add(node.value)

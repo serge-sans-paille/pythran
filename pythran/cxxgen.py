@@ -524,7 +524,7 @@ class PythonModule(object):
                            size=len(ctypes),
                            fmt="O" * len(ctypes),
                            objs=''.join(', &args_obj[%d]' % i
-                                          for i in range(len(ctypes))),
+                                        for i in range(len(ctypes))),
                            args=', '.join(args_unboxing),
                            checks=' && '.join(args_checks) or '1',
                            wname=wrapper_name,

@@ -46,7 +46,8 @@ class Scope(FunctionAnalysis):
         # unlike use-def chains, this takes OpenMP annotations into account
         for name, defs in name_to_defs.items():
             # get all refs to that name
-            refs = [d.node for d in defs] + [u.node for d in defs for u in d.users()]
+            refs = [d.node for d in defs] + [u.node
+                                             for d in defs for u in d.users()]
             # add OpenMP refs (well, the parent of the holding stmt)
             refs.extend(self.ancestors[d][-3]   # -3 to get the right parent
                         for d in self.openmp_deps.get(name, []))

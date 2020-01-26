@@ -101,7 +101,6 @@ class ContextManager(object):
         return a.run(node)
 
 
-
 class Analysis(ContextManager, ast.NodeVisitor):
     """
     A pass that does not change its content but gathers informations about it.
@@ -138,7 +137,8 @@ class ModuleAnalysis(Analysis):
     def run(self, node):
         if not isinstance(node, ast.Module):
             if self.ctx.module is None:
-                raise ValueError("{} called in an uninitialized context".format(type(self).__name__))
+                raise ValueError("{} called in an uninitialized context"
+                                 .format(type(self).__name__))
             node = self.ctx.module
         return super(ModuleAnalysis, self).run(node)
 
@@ -157,7 +157,8 @@ class FunctionAnalysis(Analysis):
             return last
         elif not isinstance(node, ast.FunctionDef):
             if self.ctx.function is None:
-                raise ValueError("{} called in an uninitialized context".format(type(self).__name__))
+                raise ValueError("{} called in an uninitialized context"
+                                 .format(type(self).__name__))
             node = self.ctx.function
         return super(FunctionAnalysis, self).run(node)
 

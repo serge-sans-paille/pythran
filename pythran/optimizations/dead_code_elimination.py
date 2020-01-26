@@ -7,6 +7,7 @@ import pythran.metadata as metadata
 
 import gast as ast
 
+
 class ClumsyOpenMPDependencyHandler(ast.NodeVisitor):
 
     def __init__(self):

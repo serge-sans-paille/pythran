@@ -181,7 +181,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
             check_specs(specs, types)
 
         specs.to_docstrings(docstrings)
-        check_exports(ir, specs)
+        check_exports(pm, ir, specs)
 
         if isinstance(code, bytes):
             code_bytes = code

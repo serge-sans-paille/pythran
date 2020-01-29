@@ -564,6 +564,17 @@ class TestAnalyses(TestEnv):
                       1,
                       argument_effects_unknown=[int])
 
+    def test_inlining_globals_side_effect(self):
+        code = '''
+            import random
+            r = random.random()
+            def inlining_globals_side_effect():
+                return r == r == r
+            '''
+
+        self.run_test(code,
+                      inlining_globals_side_effect=[])
+
     def test_subscript_function_aliasing(self):
         code = '''
             SP = 0x20

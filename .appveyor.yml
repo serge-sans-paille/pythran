@@ -11,7 +11,6 @@ environment:
 install:
   - "%PYTHON%\\python.exe --version"
   - "%PYTHON%\\python.exe -m pip install --upgrade pip wheel"
-  - "%PYTHON%\\python.exe -c \"import wheel.pep425tags as w; print(w.get_supported())\""
   - "%PYTHON%\\python.exe -m pip install pythran-openblas"
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
   - "%PYTHON%\\python.exe -m pip install numpy"

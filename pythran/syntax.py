@@ -6,10 +6,14 @@ constraints.
 
 from pythran.tables import MODULES
 from pythran.intrinsic import Class
+from pythran.typing import Tuple, List, Set, Dict
 from pythran.utils import isstr
 
 import gast as ast
+import logging
 import numpy as np
+
+logger = logging.getLogger('pythran')
 
 
 class PythranSyntaxError(SyntaxError):
@@ -213,13 +217,16 @@ def check_specs(specs, types):
                 )
 
 
-def check_exports(mod, specs):
+def check_exports(pm, mod, specs):
     '''
     Does nothing but raising PythranSyntaxError if specs
     references an undefined global
     '''
+    from pythran.analyses.argument_effects import ArgumentEffects
     mod_functions = {node.name: node for node in mod.body
                      if isinstance(node, ast.FunctionDef)}
+
+    argument_effects = pm.gather(ArgumentEffects, mod)
 
     for fname, signatures in specs.functions.items():
         try:
@@ -228,6 +235,9 @@ def check_exports(mod, specs):
             raise PythranSyntaxError(
                 "Invalid spec: exporting undefined function `{}`"
                 .format(fname))
+
+        ae = argument_effects[fnode]
+
         for signature in signatures:
             args_count = len(fnode.args.args)
             if len(signature) > args_count:
@@ -238,3 +248,12 @@ def check_exports(mod, specs):
                 raise PythranSyntaxError(
                     "Not enough arguments when exporting `{}`"
                     .format(fname))
+            for i, ty in enumerate(signature):
+                if ae[i] and isinstance(ty, (List, Tuple, Dict, Set)):
+                    logger.warn(
+                        ("Exporting function '{}' that modifies its {} "
+                         "argument. Beware that this argument won't be "
+                         "modified at Python call site").format(
+                             fname,
+                             ty.__class__.__qualname__),
+                    )

@@ -522,9 +522,39 @@ namespace types
     return n0 == n1;
   }
 
+  template <class S>
+  constexpr size_t count_none(size_t I)
+  {
+    return std::is_same<S, none_type>::value;
+  }
+
+  template <class S, class Sp, class... Ss>
+  constexpr size_t count_none(size_t I)
+  {
+    return std::is_same<S, none_type>::value +
+           (I == 0 ? 0 : count_none<Sp, Ss...>(I - 1));
+  }
+
   template <class BT, class T>
   using step_type_t = decltype(make_step(std::get<0>(std::declval<BT>()),
                                          std::get<0>(std::declval<T>())));
+
+  constexpr size_t clamp(size_t i, size_t j)
+  {
+    return i > j ? j : i;
+  }
+
+  template <size_t... J, class Arg, class Shp, class... S>
+  auto make_subslice(utils::index_sequence<J...>, Arg const &arg,
+                     Shp const &shp, std::tuple<S...> const &ss)
+      -> decltype(arg(std::get<J>(ss)...))
+  {
+    // we need to adapt_slice to take broadcasting into account
+    return arg(
+        adapt_slice(std::get<J>(ss), std::get<J - count_none<S...>(J)>(shp),
+                    std::get<clamp(J - count_none<S...>(J), Arg::value - 1)>(
+                        arg.shape()))...);
+  }
 
   /* Expression template for numpy expressions - binary operators
    */
@@ -657,11 +687,14 @@ namespace types
     simd_iterator_nobroadcast vend(types::vectorize_nobroadcast) const;
 
 #endif
+
     template <size_t... I, class... S>
-    auto _get(utils::index_sequence<I...>, S const &... s) const
+    auto _get(utils::index_sequence<I...> is, S const &... s) const
         -> decltype(Op{}(std::get<I>(args)(s...)...))
     {
-      return Op{}(std::get<I>(args)(s...)...);
+      return Op{}(make_subslice(utils::make_index_sequence<sizeof...(S)>{},
+                                std::get<I>(args), shape(),
+                                std::make_tuple(s...))...);
     }
 
     template <class... S>

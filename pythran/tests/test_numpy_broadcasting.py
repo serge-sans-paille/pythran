@@ -205,3 +205,14 @@ class TestBroadcasting(TestEnv):
                       np.arange(100.),
                       broadcast_nth29=[NDArray[float, :]])
 
+    def test_broadcasting_expr0(self):
+        code = '''
+        import numpy as np
+        def broadcasting_expr0(num_pairs):
+            t = np.zeros((num_pairs, 4), dtype=float)
+            t[0,1] = t[1, 0] = 1
+            first_row = t[:, 0].reshape((-1, 1))
+            normalized_triples = np.subtract(t, first_row)
+            return normalized_triples[:,1:4]'''
+        self.run_test(code, 4, broadcasting_expr0=[int])
+

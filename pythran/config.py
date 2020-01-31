@@ -59,20 +59,23 @@ def init_cfg(sys_file, platform_file, user_file, config_args=None):
     cfgp.read([user_config_path])
 
     if config_args is not None:
-        # Override the config options with those provided on the command line
-        # e.g. compiler.blas=pythran-openblas.
-        for arg in config_args:
-            try:
-                lhs, rhs = arg.split('=', maxsplit=1)
-                section, item = lhs.split('.')
-                if not cfgp.has_section(section):
-                    cfgp.add_section(section)
-                cfgp.set(section, item, rhs)
-            except Exception:
-                pass
-        pass
+        update_cfg(cfgp, config_args)
 
     return cfgp
+
+
+def update_cfg(cfgp, config_args):
+    # Override the config options with those provided on the command line
+    # e.g. compiler.blas=pythran-openblas.
+    for arg in config_args:
+        try:
+            lhs, rhs = arg.split('=', maxsplit=1)
+            section, item = lhs.split('.')
+            if not cfgp.has_section(section):
+                cfgp.add_section(section)
+            cfgp.set(section, item, rhs)
+        except Exception:
+            pass
 
 
 def lint_cfg(cfgp, **paths):

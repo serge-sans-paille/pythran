@@ -173,6 +173,38 @@ namespace types
     return s.normalize(n);
   }
 
+  template <class I0, class I1>
+  none_type adapt_slice(none_type, I0 const &, I1 const &)
+  {
+    return {};
+  }
+  template <class I0, class I1>
+  long adapt_slice(long l, I0 const &index0, I1 const &index1)
+  {
+
+    if ((long)index0 != (long)index1)
+      return 0;
+    else
+      return l;
+  }
+  template <class I0, class I1>
+  slice adapt_slice(slice const &s, I0 const &index0, I1 const &index1)
+  {
+    if ((long)index0 != (long)index1)
+      return {0, 1, 1};
+    else
+      return s;
+  }
+  template <class I0, class I1>
+  contiguous_slice adapt_slice(contiguous_slice const &s, I0 const &index0,
+                               I1 const &index1)
+  {
+    if ((long)index0 != (long)index1)
+      return {0, 1};
+    else
+      return s;
+  }
+
   std::ostream &operator<<(std::ostream &os, slice const &s);
   std::ostream &operator<<(std::ostream &os, contiguous_slice const &s);
 }

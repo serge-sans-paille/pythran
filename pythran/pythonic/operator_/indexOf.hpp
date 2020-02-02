@@ -4,7 +4,7 @@
 #include "pythonic/include/operator_/indexOf.hpp"
 
 #include "pythonic/builtins/str.hpp"
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/utils/functor.hpp"
 
 #include <algorithm>

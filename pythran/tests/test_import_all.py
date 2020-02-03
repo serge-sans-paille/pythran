@@ -31,11 +31,11 @@ class TestImportAll(TestEnv):
                 return collections.Counter()"""
 
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
-            pythran.compile_pythrancode("flamby", dedent(code), pyonly=True)
+            pythran.compile_pythrancode("import_collections", dedent(code), pyonly=True)
 
         self.assertIn("Module 'collections' not found.", str(ex.exception))
 
-    def test_complex_import_manipulation(self):
+    def test_complex_import_manipulation0(self):
         """
         Check correct error is returned for incorrect module manipulation.
         """
@@ -45,4 +45,22 @@ class TestImportAll(TestEnv):
                 return math"""
 
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
-            pythran.compile_pythrancode("flamby", dedent(code), pyonly=True)
+            pythran.compile_pythrancode("complex_import_manipulation0", dedent(code), pyonly=True)
+
+    def test_complex_import_manipulation1(self):
+        code = """
+            import bisect
+            def unsupported_module():
+                return bisect()"""
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
+            pythran.compile_pythrancode("complex_import_manipulation1", dedent(code), pyonly=True)
+
+    def test_complex_import_manipulation2(self):
+        code = """
+            from bisect import bisect_right
+            def unsupported_module():
+                return bisect()"""
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
+            pythran.compile_pythrancode("complex_import_manipulation2", dedent(code), pyonly=True)

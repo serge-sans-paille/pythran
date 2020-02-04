@@ -3711,6 +3711,9 @@ MODULES = {
         "fromiter": ConstFunctionIntr(args=("iterable", "dtype", "count"),
                                       defaults=(-1,)),
         "fromstring": ConstFunctionIntr(),
+        "fromfile":  FunctionIntr(args=('file', 'dtype', 'count', "sep", "offset"),
+                                  defaults=(None, None, -1, None, 0),
+                                  global_effects=True),
         "greater": UFunc(
             BINARY_UFUNC,
             signature=_numpy_binary_op_bool_signature,

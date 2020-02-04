@@ -55,6 +55,7 @@ namespace types
   CLASS_EXCEPTION_DECL(PendingDeprecationWarning, Warning);
   CLASS_EXCEPTION_DECL(DeprecationWarning, Warning);
   CLASS_EXCEPTION_DECL(BufferError, StandardError);
+  CLASS_EXCEPTION_DECL(FileNotFoundError, StandardError);
   CLASS_EXCEPTION_DECL(ArithmeticError, StandardError);
   CLASS_EXCEPTION_DECL(AssertionError, StandardError);
   CLASS_EXCEPTION_DECL(AttributeError, StandardError);
@@ -136,6 +137,7 @@ DECLARE_EXCEPTION_GETATTR(RuntimeWarning);
 DECLARE_EXCEPTION_GETATTR(PendingDeprecationWarning);
 DECLARE_EXCEPTION_GETATTR(DeprecationWarning);
 DECLARE_EXCEPTION_GETATTR(BufferError);
+DECLARE_EXCEPTION_GETATTR(FileNotFoundError);
 DECLARE_EXCEPTION_GETATTR(ArithmeticError);
 DECLARE_EXCEPTION_GETATTR(AssertionError);
 DECLARE_EXCEPTION_GETATTR(AttributeError);

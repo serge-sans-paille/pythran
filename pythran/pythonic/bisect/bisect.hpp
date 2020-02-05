@@ -2,7 +2,7 @@
 #define PYTHONIC_BISECT_BISECT_HPP
 
 #include "pythonic/include/bisect/bisect.hpp"
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 #include "pythonic/utils/functor.hpp"
 

@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_NUMPY_STACK_HPP
 #define PYTHONIC_NUMPY_STACK_HPP
 
+#include "pythonic/builtins/len.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 #include <pythonic/include/numpy/stack.hpp>
 #include <pythonic/numpy/concatenate.hpp>
 
@@ -14,6 +16,8 @@ namespace numpy
                  types::array<long, ArraySequence::value_type::value + 1>>
   stack(ArraySequence const &args, long axis)
   {
+    if (builtins::len(args) == 0)
+      throw pythonic::types::ValueError("need at least one array to stack");
     auto shape = args[0].shape();
     const size_t N = std::tuple_size<decltype(
         shape)>::value; // The length of the shape array.

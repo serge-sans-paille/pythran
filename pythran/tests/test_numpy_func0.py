@@ -1,6 +1,8 @@
 import unittest
 from pythran.tests import TestEnv
 import numpy
+import tempfile
+import os
 
 from pythran.typing import NDArray, List, Tuple
 
@@ -369,6 +371,60 @@ def np_rosen_der(x):
 
     def test_identity1(self):
         self.run_test("def np_identity1(a): from numpy import identity ;return identity(a)", 4, np_identity1=[int])
+
+    def test_fromfile0(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.randint(0,2**8,1000).astype(numpy.uint8)
+        x.tofile(temp_name)
+        try:
+            self.run_test("def np_fromfile0(file): from numpy import fromfile, uint8 ; return fromfile(file, uint8)", temp_name, np_fromfile0=[str])
+        finally:
+            os.remove(temp_name)
+
+    def test_fromfile1(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.randint(0,2**16,1000).astype(numpy.uint16)
+        x.tofile(temp_name)
+        try:
+            self.run_test("def np_fromfile1(file): from numpy import fromfile, uint16 ; return fromfile(file, uint16)", temp_name, np_fromfile1=[str])
+        finally:
+            os.remove(temp_name)
+
+    def test_fromfile2(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.randint(0,2**32,1000).astype(numpy.uint32)
+        x.tofile(temp_name)
+        try:
+            self.run_test("def np_fromfile2(file): from numpy import fromfile, uint32 ; return fromfile(file, uint32)", temp_name, np_fromfile2=[str])
+        finally:
+            os.remove(temp_name)
+
+    def test_fromfile3(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.random(1000).astype(numpy.float32)
+        x.tofile(temp_name)
+        try:
+            self.run_test("def np_fromfile3(file): from numpy import fromfile, float32 ; return fromfile(file, float32)", temp_name, np_fromfile3=[str])
+        finally:
+            os.remove(temp_name)
+
+    def test_fromfile4(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.random(1000).astype(numpy.float64)
+        x.tofile(temp_name)
+        try:
+            self.run_test("def np_fromfile4(file): from numpy import fromfile, float64 ; return fromfile(file, float64)", temp_name, np_fromfile4=[str])
+        finally:
+            os.remove(temp_name)
+
+    def test_fromfile5(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.random(1000).astype(numpy.float64)
+        x.tofile(temp_name)
+        try:
+            self.run_test("def np_fromfile5(file): from numpy import fromfile, float64 ; return fromfile(file, float64, 100)", temp_name, np_fromfile5=[str])
+        finally:
+            os.remove(temp_name)
 
     def test_fromstring0(self):
         self.run_test("def np_fromstring0(a): from numpy import fromstring, uint8 ; return fromstring(a, uint8)", '\x01\x02', np_fromstring0=[str])

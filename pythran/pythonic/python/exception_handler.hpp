@@ -238,6 +238,12 @@ PyObject *handle_python_exception(F &&f)
                     pythonic::builtins::functor::str{}(e.args).c_str());
   }
 #endif
+#ifdef PYTHONIC_BUILTIN_FILENOTFOUNDERROR_HPP
+  catch (pythonic::types::FileNotFoundError &e) {
+    PyErr_SetString(PyExc_FileNotFoundError,
+                    pythonic::builtins::functor::str{}(e.args).c_str());
+  }
+#endif
 #ifdef PYTHONIC_BUILTIN_BUFFERERROR_HPP
   catch (pythonic::types::BufferError &e) {
     PyErr_SetString(PyExc_BufferError,

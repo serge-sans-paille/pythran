@@ -539,8 +539,8 @@ class Aliases(ModuleAnalysis):
         '''
         self.aliases = IntrinsicAliases.copy()
 
-        self.aliases.update((f.name, {f})
-                            for f in self.global_declarations.values())
+        self.aliases.update((k, {v})
+                            for k, v in self.global_declarations.items())
 
         self.aliases.update((arg.id, {arg})
                             for arg in node.args.args)

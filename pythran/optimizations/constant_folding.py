@@ -39,16 +39,8 @@ class ConstantFolding(Transformation):
         for module_name in MODULES:
             # __dispatch__ is the only fake top-level module
             if module_name != '__dispatch__':
-                import_name = module_name
-
                 alias_module_name = mangle(module_name)
-                self.env[alias_module_name] = __import__(import_name)
-
-                # handle functions conflicting with c++ keywords
-                for fun in MODULES[module_name]:
-                    if fun in ("__theitemgetter__", "pythran"):
-                        # these ones do not exist in Python
-                        continue
+                self.env[alias_module_name] = __import__(module_name)
 
         # we need to parse the whole code to be able to apply user-defined pure
         # function but import are resolved before so we remove them to avoid

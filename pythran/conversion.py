@@ -74,13 +74,22 @@ def size_container_folding(value):
             values = [to_ast(elt) for elt in value.values()]
             return ast.Dict(keys, values)
         elif isinstance(value, np.ndarray):
-            return ast.Call(func=ast.Attribute(
-                ast.Name(mangle('numpy'), ast.Load(), None, None),
-                'array',
-                ast.Load()),
-                args=[to_ast(totuple(value.tolist())),
-                      dtype_to_ast(value.dtype.name)],
-                keywords=[])
+            if len(value) == 0:
+                return ast.Call(func=ast.Attribute(
+                    ast.Name(mangle('numpy'), ast.Load(), None, None),
+                    'empty',
+                    ast.Load()),
+                    args=[to_ast(value.shape),
+                          dtype_to_ast(value.dtype.name)],
+                    keywords=[])
+            else:
+                return ast.Call(func=ast.Attribute(
+                    ast.Name(mangle('numpy'), ast.Load(), None, None),
+                    'array',
+                    ast.Load()),
+                    args=[to_ast(totuple(value.tolist())),
+                          dtype_to_ast(value.dtype.name)],
+                    keywords=[])
         else:
             raise ConversionError()
     else:

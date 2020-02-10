@@ -11,6 +11,10 @@ class TestOptimization(TestEnv):
         code = "def constant_fold_nan(a): from numpy import nan; a[0] = nan; return a"
         self.run_test(code, [1., 2.], constant_fold_nan=[List[float]])
 
+    def test_constant_fold_empty_array(self):
+        code = "def constant_fold_empty_array(): from numpy import ones; return ones((0,0,0)).shape"
+        self.run_test(code, constant_fold_empty_array=[])
+
     def test_constant_fold_divide_by_zero(self):
         code = "def constant_fold_divide_by_zero(): return 1/0"
         with self.assertRaises(pythran.syntax.PythranSyntaxError):

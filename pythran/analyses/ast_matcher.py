@@ -52,27 +52,25 @@ class Check(NodeVisitor):
 
     NodeVisitor is needed for specific behavior checker.
 
-    Attributs
-    ---------
+    Attributes
+    ----------
     node : AST
         node we want to compare with pattern
     placeholders : [AST]
         list of placeholder value for later comparison or replacement.
     """
 
-    def __init__(self, node, placeholder):
-        """ Initialize attributs. """
+    def __init__(self, node, placeholders):
+        """ Initialize attributes. """
         self.node = node
-        self.placeholders = placeholder
+        self.placeholders = placeholders
 
     def check_list(self, node_list, pattern_list):
         """ Check if list of node are equal. """
         if len(node_list) != len(pattern_list):
             return False
-        else:
-            return all(Check(node_elt,
-                             self.placeholders).visit(pattern_list[i])
-                       for i, node_elt in enumerate(node_list))
+        return all(Check(node_elt, self.placeholders).visit(pattern_elt)
+                   for node_elt, pattern_elt in zip(node_list, pattern_list))
 
     def visit_Placeholder(self, pattern):
         """
@@ -103,11 +101,12 @@ class Check(NodeVisitor):
 
     def visit_Set(self, pattern):
         """ Set have unordered values. """
+        if not isinstance(self.node, Set):
+            return False
         if len(pattern.elts) > MAX_UNORDERED_LENGTH:
             raise DamnTooLongPattern("Pattern for Set is too long")
-        return (isinstance(self.node, Set) and
-                any(self.check_list(self.node.elts, pattern_elts)
-                    for pattern_elts in permutations(pattern.elts)))
+        return any(self.check_list(self.node.elts, pattern_elts)
+                   for pattern_elts in permutations(pattern.elts))
 
     def visit_Dict(self, pattern):
         """ Dict can match with unordered values. """
@@ -134,20 +133,21 @@ class Check(NodeVisitor):
             - If if is a node, recursively check it.
             - Otherwise, check values are equal.
         """
-        is_good_list = (isinstance(pattern_field, list) and
-                        self.check_list(node_field, pattern_field))
-        is_good_node = (isinstance(pattern_field, AST) and
-                        Check(node_field,
-                              self.placeholders).visit(pattern_field))
+        if isinstance(pattern_field, list):
+            return self.check_list(node_field, pattern_field)
+        if isinstance(pattern_field, AST):
+            return Check(node_field, self.placeholders).visit(pattern_field)
 
-        def strict_eq(f0, f1):
-            try:
-                return f0 == f1 or (isnan(f0) and isnan(f1))
-            except TypeError:
-                return f0 == f1
+        return Check.strict_eq(pattern_field, node_field)
 
-        is_same = strict_eq(pattern_field, node_field)
-        return is_good_list or is_good_node or is_same
+    @staticmethod
+    def strict_eq(f0, f1):
+        if f0 == f1:
+            return True
+        try:
+            return isnan(f0) and isnan(f1)
+        except TypeError:
+            return False
 
     def generic_visit(self, pattern):
         """
@@ -157,9 +157,10 @@ class Check(NodeVisitor):
             - type match
             - all field match
         """
-        return (isinstance(pattern, type(self.node)) and
-                all(self.field_match(value, getattr(pattern, field))
-                    for field, value in iter_fields(self.node)))
+        if not isinstance(pattern, type(self.node)):
+            return False
+        return all(self.field_match(value, getattr(pattern, field))
+                   for field, value in iter_fields(self.node))
 
 
 class ASTMatcher(NodeVisitor):

@@ -37,7 +37,7 @@ def probchoice2(items, probs, bincount=1000):
 
 
 def tester(func=probchoice, items='good bad ugly'.split(),
-        probs=[0.5, 0.3, 0.2],
+        probs=(0.5, 0.3, 0.2),
         trials = 100000
         ):
     def problist2string(probs):

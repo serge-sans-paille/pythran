@@ -24,6 +24,28 @@ class PythranSyntaxError(SyntaxError):
             self.lineno = node.lineno
             self.offset = node.col_offset
 
+    def __str__(self):
+        if self.filename:
+            with open(self.filename) as f:
+                for i in range(self.lineno - 1):
+                    f.readline()  # and drop it
+                extra = '{}\n{}'.format(f.readline().rstrip(),
+                                        " " * (self.offset) + "^~~~ (o_0)")
+        else:
+            extra = None
+
+        r = "{}:{}:{} error: {}\n".format(self.filename or "<unknown>",
+                                          self.lineno,
+                                          self.offset,
+                                          self.args[0])
+
+        if extra is not None:
+            r += "----\n"
+            r += extra
+            r += "\n----\n"
+
+        return r
+
 
 class SyntaxChecker(ast.NodeVisitor):
 

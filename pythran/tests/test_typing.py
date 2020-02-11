@@ -18,6 +18,42 @@ class TestTyping(TestEnv):
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumbo", code, pyonly=True)
 
+    def test_immutable_default0(self):
+        code = 'def immutable_default0(x=[1]): pass'
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
+    def test_immutable_default1(self):
+        code = 'def immutable_default1(x={1}): pass'
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
+    def test_immutable_default2(self):
+        code = 'def immutable_default2(x=1): pass'
+        pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
+    def test_immutable_default3(self):
+        code = 'def immutable_default3(x=(1, 2)): pass'
+        pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
+    def test_immutable_default4(self):
+        code = 'def immutable_default4(x=None): pass'
+        pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
+    def test_immutable_default5(self):
+        code = 'def immutable_default5(x=True): pass'
+        pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
+    def test_immutable_default6(self):
+        code = 'g=1\ndef immutable_default6(x=g): pass'
+        pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
+    def test_immutable_default7(self):
+        code = 'def g(): pass\ndef immutable_default7(x=g): pass'
+        pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
     def test_list_of_set(self):
         code = '''
 def list_of_set():

@@ -5,9 +5,20 @@ ExtendedSyntaxCheck performs various syntax checks on the pythran AST.
 from pythran.passmanager import ModuleAnalysis
 from pythran.analyses import StrictAliases, ArgumentEffects
 from pythran.syntax import PythranSyntaxError
+from pythran.intrinsic import ConstantIntr
 from pythran import metadata
 
 import gast as ast
+
+
+def is_global_constant(node):
+    if isinstance(node, ConstantIntr):
+        return True
+
+    if not isinstance(node, ast.FunctionDef):
+        return False
+
+    return metadata.get(node.body[0], metadata.StaticReturn)
 
 
 class ExtendedSyntaxCheck(ModuleAnalysis):
@@ -33,9 +44,7 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
             return
 
         for alias in aliases:
-            if not isinstance(alias, ast.FunctionDef):
-                continue
-            if metadata.get(alias.body[0], metadata.StaticReturn):
+            if is_global_constant(alias):
                 raise PythranSyntaxError(
                     ("Cannot modify '{}': global variables are constant "
                      "in pythran.").format(alias.name),
@@ -49,6 +58,42 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
         else:
             self.functions.add(node.name)
         self.generic_visit(node)
+
+    def is_immutable_constant(self, node):
+        if isinstance(node, ast.Constant):
+            return True
+
+        if isinstance(node, ast.Tuple):
+            return all(self.is_immutable_constant(elt) for elt in node.elts)
+
+        if isinstance(node, (ast.Call, ast.Attribute)):
+            try:
+                aliases = self.strict_aliases[node]
+            except KeyError:
+                return False
+
+            if all(is_global_constant(alias) for alias in aliases):
+                return True
+
+        if isinstance(node, ast.Name):
+            try:
+                aliases = self.strict_aliases[node]
+            except KeyError:
+                return False
+
+            if all(isinstance(alias, ast.FunctionDef) for alias in aliases):
+                return True
+
+        return False
+
+    def visit_arguments(self, node):
+        self.generic_visit(node)
+        for arg_default in node.defaults:
+            if not self.is_immutable_constant(arg_default):
+                raise PythranSyntaxError(
+                    "Pythran does not support mutable default values. Use a "
+                    "`None' default and set the value at runtime instead.",
+                    arg_default)
 
     def visit_Call(self, node):
         self.generic_visit(node)

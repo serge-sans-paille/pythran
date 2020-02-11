@@ -74,25 +74,24 @@ class ArgumentEffects(ModuleAnalysis):
 
     def run(self, node):
         result = super(ArgumentEffects, self).run(node)
-        keep_going = True  # very naive approach
-        while keep_going:
-            keep_going = False
-            for function in result:
-                for ue in enumerate(function.update_effects):
-                    update_effect_idx, update_effect = ue
-                    if not update_effect:
-                        continue
-                    for pred in result.predecessors(function):
-                        edge = result.edges[pred, function]
-                        for fp in enumerate(edge["formal_parameters"]):
-                            i, formal_parameter_idx = fp
-                            # propagate the impurity backward if needed.
-                            # Afterward we may need another graph iteration
-                            ith_effectiv = edge["effective_parameters"][i]
-                            if(formal_parameter_idx == update_effect_idx and
-                               not pred.update_effects[ith_effectiv]):
-                                pred.update_effects[ith_effectiv] = True
-                                keep_going = True
+        candidates = set(result)
+        while candidates:
+            function = candidates.pop()
+            for ue in enumerate(function.update_effects):
+                update_effect_idx, update_effect = ue
+                if not update_effect:
+                    continue
+                for pred in result.predecessors(function):
+                    edge = result.edges[pred, function]
+                    for fp in enumerate(edge["formal_parameters"]):
+                        i, formal_parameter_idx = fp
+                        # propagate the impurity backward if needed.
+                        # Afterward we may need another graph iteration
+                        ith_effectiv = edge["effective_parameters"][i]
+                        if(formal_parameter_idx == update_effect_idx and
+                           not pred.update_effects[ith_effectiv]):
+                            pred.update_effects[ith_effectiv] = True
+                            candidates.add(pred)
 
         self.result = {f.func: f.update_effects for f in result}
         return self.result

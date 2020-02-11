@@ -91,11 +91,6 @@ class Aliases(ModuleAnalysis):
         elif isinstance(result, (frozenset, set)):
             print(sorted(map(pp, result)))
 
-    def expand_unknown(self, node):
-        # should include built-ins too?
-        unkowns = {UnboundValue}.union(self.global_declarations.values())
-        return unkowns.union(node.args)
-
     def get_unbound_value_set(self):
         return {UnboundValue}
 
@@ -310,7 +305,7 @@ class Aliases(ModuleAnalysis):
                 else:
                     pass  # better thing to do ?
         [self.add(a) for a in aliases if a not in self.result]
-        return aliases or self.expand_unknown(node)
+        return aliases or self.get_unbound_value_set()
 
     def visit_Call(self, node):
         '''
@@ -591,10 +586,9 @@ class Aliases(ModuleAnalysis):
                               in self.aliases[Aliases.RetId]]
 
             def merge_return_aliases(args):
-                merged_return_aliases = set()
-                for return_alias in return_aliases:
-                    merged_return_aliases.update(return_alias(args))
-                return merged_return_aliases
+                return {ra
+                        for return_alias in return_aliases
+                        for ra in return_alias(args)}
 
             node.return_alias = merge_return_aliases
 
@@ -652,9 +646,8 @@ class Aliases(ModuleAnalysis):
 
         iter_aliases = self.visit(node.iter)
         if all(isinstance(x, ContainerOf) for x in iter_aliases):
-            target_aliases = set()
-            for iter_alias in iter_aliases:
-                target_aliases.add(iter_alias.containee)
+            target_aliases = {iter_alias.containee for iter_alias in
+                              iter_aliases}
         else:
             target_aliases = {node.target}
 
@@ -764,8 +757,6 @@ class StrictAliases(Aliases):
     Gather aliasing informations across nodes,
     without adding unsure aliases.
     """
-    def expand_unknown(self, node):
-        return {}
 
     def get_unbound_value_set(self):
         return set()

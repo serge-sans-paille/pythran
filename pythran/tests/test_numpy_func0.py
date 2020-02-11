@@ -372,6 +372,46 @@ def np_rosen_der(x):
     def test_identity1(self):
         self.run_test("def np_identity1(a): from numpy import identity ;return identity(a)", 4, np_identity1=[int])
 
+    def test_tofile0(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.randint(0,2**8,1000).astype(numpy.uint8)
+        try:
+            self.run_test("def np_tofile0(x,file): import numpy ; x.tofile(file); return numpy.fromfile(file)", x, temp_name, np_tofile0=[NDArray[numpy.uint8,:], str])
+        finally:
+            os.remove(temp_name)
+
+    def test_tofile1(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.randint(0,2**16,1000).astype(numpy.uint16)
+        try:
+            self.run_test("def np_tofile1(x,file): import numpy ; x.tofile(file); return numpy.fromfile(file)", x, temp_name, np_tofile1=[NDArray[numpy.uint16,:], str])
+        finally:
+            os.remove(temp_name)
+
+    def test_tofile2(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.randint(0,2**32,1000).astype(numpy.uint32)
+        try:
+            self.run_test("def np_tofile2(x,file): import numpy ; x.tofile(file); return numpy.fromfile(file)", x, temp_name, np_tofile2=[NDArray[numpy.uint32,:], str])
+        finally:
+            os.remove(temp_name)
+
+    def test_tofile3(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.random(1000).astype(numpy.float32)
+        try:
+            self.run_test("def np_tofile3(x,file): import numpy ; x.tofile(file); return numpy.fromfile(file)", x, temp_name, np_tofile3=[NDArray[numpy.float32,:], str])
+        finally:
+            os.remove(temp_name)
+
+    def test_tofile4(self):
+        temp_name = tempfile.mkstemp()[1]
+        x = numpy.random.random(1000).astype(numpy.float64)
+        try:
+            self.run_test("def np_tofile4(x,file): import numpy ; x.tofile(file); return numpy.fromfile(file)", x, temp_name, np_tofile4=[NDArray[numpy.float64,:], str])
+        finally:
+            os.remove(temp_name)
+
     def test_fromfile0(self):
         temp_name = tempfile.mkstemp()[1]
         x = numpy.random.randint(0,2**8,1000).astype(numpy.uint8)

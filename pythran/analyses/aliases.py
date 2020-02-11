@@ -591,10 +591,9 @@ class Aliases(ModuleAnalysis):
                               in self.aliases[Aliases.RetId]]
 
             def merge_return_aliases(args):
-                merged_return_aliases = set()
-                for return_alias in return_aliases:
-                    merged_return_aliases.update(return_alias(args))
-                return merged_return_aliases
+                return {ra
+                        for return_alias in return_aliases
+                        for ra in return_alias(args)}
 
             node.return_alias = merge_return_aliases
 
@@ -652,9 +651,8 @@ class Aliases(ModuleAnalysis):
 
         iter_aliases = self.visit(node.iter)
         if all(isinstance(x, ContainerOf) for x in iter_aliases):
-            target_aliases = set()
-            for iter_alias in iter_aliases:
-                target_aliases.add(iter_alias.containee)
+            target_aliases = {iter_alias.containee for iter_alias in
+                              iter_aliases}
         else:
             target_aliases = {node.target}
 

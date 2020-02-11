@@ -24,6 +24,12 @@ class TestTyping(TestEnv):
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumbo", code, pyonly=True)
 
+    def test_undefinied_variable_in_test(self):
+        code = 'def undefinied_variable_in_test(x):\n if x: print(A)'
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
     def test_immutable_default1(self):
         code = 'def immutable_default1(x={1}): pass'
 

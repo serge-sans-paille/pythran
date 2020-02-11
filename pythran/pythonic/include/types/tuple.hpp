@@ -1115,23 +1115,28 @@ namespace sutils
   using push_front_t = concat_t<types::pshape<T>, P>;
 
   template <class S>
-  long find(S &s, long v, std::integral_constant<size_t, 0>)
+  long find(S &s, long v, std::integral_constant<size_t, 0>, long start,
+            bool comp(long, long))
   {
-    return v == std::get<0>(s) ? 0 : -1;
+    return comp(std::get<0>(s), v) && 0 < start ? 0 : -1;
   }
   template <class S, size_t I>
-  long find(S &s, long v, std::integral_constant<size_t, I>)
+  long find(S &s, long v, std::integral_constant<size_t, I>, long start,
+            bool comp(long, long))
   {
-    return v == std::get<I>(s)
+    return comp(std::get<I>(s), v) && I < start
                ? I
-               : find(s, v, std::integral_constant<size_t, I - 1>());
+               : find(s, v, std::integral_constant<size_t, I - 1>(), start,
+                      comp);
   }
 
   template <class S>
-  long find(S &s, long v)
+  long find(S &s, long v, long start = std::tuple_size<S>::value,
+            bool comp(long, long) = [](long a, long b) { return (a == b); })
   {
-    return find(
-        s, v, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+    return find(s, v,
+                std::integral_constant<size_t, std::tuple_size<S>::value - 1>(),
+                start, comp);
   }
 
   template <class S, class B>

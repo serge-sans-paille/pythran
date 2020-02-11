@@ -91,11 +91,6 @@ class Aliases(ModuleAnalysis):
         elif isinstance(result, (frozenset, set)):
             print(sorted(map(pp, result)))
 
-    def expand_unknown(self, node):
-        # should include built-ins too?
-        unkowns = {UnboundValue}.union(self.global_declarations.values())
-        return unkowns.union(node.args)
-
     def get_unbound_value_set(self):
         return {UnboundValue}
 
@@ -310,7 +305,7 @@ class Aliases(ModuleAnalysis):
                 else:
                     pass  # better thing to do ?
         [self.add(a) for a in aliases if a not in self.result]
-        return aliases or self.expand_unknown(node)
+        return aliases or self.get_unbound_value_set()
 
     def visit_Call(self, node):
         '''
@@ -762,8 +757,6 @@ class StrictAliases(Aliases):
     Gather aliasing informations across nodes,
     without adding unsure aliases.
     """
-    def expand_unknown(self, node):
-        return {}
 
     def get_unbound_value_set(self):
         return set()

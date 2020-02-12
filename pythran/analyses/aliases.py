@@ -669,7 +669,7 @@ class Aliases(ModuleAnalysis):
         >>> fun = """
         ... def foo(a):
         ...     while(a):
-        ...         if a == 1: print(b)
+        ...         if a == 1: builtins.print(b)
         ...         else: b = a"""
         >>> module = ast.parse(fun)
         >>> result = pm.gather(Aliases, module)
@@ -719,21 +719,15 @@ class Aliases(ModuleAnalysis):
 
         if true_aliases and not false_aliases:
             self.aliases = true_aliases
-            try:
-                for stmt in node.orelse:
-                    self.visit(stmt)
-                false_aliases = self.aliases
-            except PythranSyntaxError:
-                pass
+            for stmt in node.orelse:
+                self.visit(stmt)
+            false_aliases = self.aliases
 
         if false_aliases and not true_aliases:
             self.aliases = false_aliases
-            try:
-                for stmt in node.body:
-                    self.visit(stmt)
-                true_aliases = self.aliases
-            except PythranSyntaxError:
-                pass
+            for stmt in node.body:
+                self.visit(stmt)
+            true_aliases = self.aliases
 
         # merge the results from true and false branches
         if false_aliases and true_aliases:

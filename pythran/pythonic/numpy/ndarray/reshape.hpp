@@ -6,6 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/builtins/ValueError.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -27,7 +28,17 @@ namespace numpy
                             types::ndarray<T, NpS>>::type
     reshape(types::ndarray<T, pS> const &expr, NpS const &new_shape)
     {
-      long where = sutils::find(new_shape, -1);
+      long where = sutils::find(
+          new_shape, -1,
+          std::integral_constant<size_t, std::tuple_size<NpS>::value>(),
+          [](long a, long b) { return a <= b; });
+      long next = sutils::find(new_shape, -1, where,
+                               [](long a, long b) { return a <= b; });
+      if (next >= 0) {
+        throw pythonic::types::ValueError(
+            "Reshape: can only specify one unknown dimension");
+      }
+
       if (where >= 0) {
         auto auto_shape = new_shape;
         misc::set(auto_shape, where,
@@ -55,6 +66,9 @@ namespace numpy
     reshape(types::ndarray<T, pS> const &expr, NpS const &new_shape)
     {
       auto n = expr.flat_size();
+      if (new_shape <= -1) {
+        return expr.reshape(types::pshape<long>(n));
+      }
       if (n < new_shape) {
         types::ndarray<T, types::pshape<long>> out(
             types::pshape<long>{new_shape}, builtins::None);

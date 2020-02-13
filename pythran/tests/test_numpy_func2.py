@@ -849,6 +849,17 @@ def np_reshape1(a):
     def test_reshape4(self):
         self.run_test("def np_reshape4(a): return (1 + a.reshape(5, -1)), (1 + a[None])", numpy.arange(10), np_reshape4=[NDArray[int,:]])
         
+    def test_reshape5(self):
+        self.run_test("def np_reshape5(a): return a.reshape(-1)", numpy.random.random((10,2)), np_reshape5=[NDArray[float,:,:]])
+        
+    def test_reshape6(self):
+        code = "def test_reshape6(a): return a.reshape((-1,-1))"
+        with self.assertRaises(ValueError):
+            self.run_test(code, numpy.random.random((10,2)), test_reshape6=[NDArray[float,:,:]])
+
+    def test_reshape7(self):
+        self.run_test("def np_reshape7(a): return a.reshape(-10)", numpy.random.random((10,2)), np_reshape7=[NDArray[float,:,:]])
+
     def test_expand_dims1(self):
         code = """
 import numpy

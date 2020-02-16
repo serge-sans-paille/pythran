@@ -215,14 +215,17 @@ std::declval<bool>()))
                 return True
 
             def __add__(self, other):
-                if other in self.types:
-                    return self
+                worklist = list(self.types)
+                while worklist:
+                    item = worklist.pop()
+                    if item is other:
+                        return self
+                    if isinstance(item, CombinedTypes):
+                        worklist.extend(item.types)
                 return Type.__add__(self, other)
 
             def __radd__(self, other):
-                if other in self.types:
-                    return self
-                return Type.__add__(self, other)
+                return self.__add__(other)
 
             def generate(self, ctx):
                 try:

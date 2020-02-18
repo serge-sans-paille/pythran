@@ -591,3 +591,63 @@ def recursive_interprocedural_typing1(c):
               def foo(x): x[1.5] = 1.5; return x
               return foo({x:x})'''
         return self.run_test(code, 3, rvalue_type_update_dict=[int])
+
+    def test_numpy_array_combiner0(self):
+        code = '''
+            import numpy as np
+            def numpy_array_combiner0(n):
+                if n > 10:
+                    return np.ones(10)
+                else:
+                    return np.ones(n)'''
+        return self.run_test(code, 3, numpy_array_combiner0=[int])
+
+    def test_numpy_array_combiner1(self):
+        code = '''
+            import numpy as np
+            def numpy_array_combiner1(n):
+                if n <= 10:
+                    return np.ones(10)
+                else:
+                    return np.ones(n)'''
+        return self.run_test(code, 3, numpy_array_combiner1=[int])
+
+    def test_numpy_array_combiner2(self):
+        code = '''
+            import numpy as np
+            def numpy_array_combiner2(n):
+                if n > 10:
+                    return np.ones(10)
+                else:
+                    return np.arange(n)'''
+        return self.run_test(code, 3, numpy_array_combiner2=[int])
+
+    def test_numpy_array_combiner3(self):
+        code = '''
+            import numpy as np
+            def numpy_array_combiner3(n):
+                if n <= 10:
+                    return np.ones(10)
+                else:
+                    return np.arange(n)'''
+        return self.run_test(code, 3, numpy_array_combiner3=[int])
+
+    def test_numpy_array_combiner4(self):
+        code = '''
+            import numpy as np
+            def numpy_array_combiner4(n):
+                if n > 10:
+                    return np.ones(10)
+                else:
+                    return np.arange(n)[1:n//2]'''
+        return self.run_test(code, 6, numpy_array_combiner4=[int])
+
+    def test_numpy_array_combiner5(self):
+        code = '''
+            import numpy as np
+            def numpy_array_combiner5(n):
+                if n <= 10:
+                    return np.ones(10)
+                else:
+                    return np.arange(n)[1:-1]'''
+        return self.run_test(code, 6, numpy_array_combiner5=[int])

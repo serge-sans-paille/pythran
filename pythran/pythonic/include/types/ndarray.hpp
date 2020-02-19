@@ -884,6 +884,16 @@ struct __combined<pythonic::types::ndarray<T1, pS1>,
       pythonic::sutils::common_shapes_t<std::tuple_size<pS1>::value, pS1, pS2>>;
 };
 
+template <class pS, class T, class... Tys>
+struct __combined<pythonic::types::ndarray<T, pS>,
+                  pythonic::types::numpy_expr<Tys...>> {
+  using expr_type = pythonic::types::numpy_expr<Tys...>;
+  using type = pythonic::types::ndarray<
+      typename __combined<T, typename expr_type::dtype>::type,
+      pythonic::sutils::common_shapes_t<std::tuple_size<pS>::value, pS,
+                                        typename expr_type::shape_t>>;
+};
+
 template <class pS, class T, class O>
 struct __combined<pythonic::types::ndarray<T, pS>, O> {
   using type = pythonic::types::ndarray<T, pS>;

@@ -267,7 +267,10 @@ namespace types
     const_reverse_iterator rend() const;
 
     // comparison
-    int operator<(list<T> const &other) const;
+    bool operator<(list<T> const &other) const;
+    bool operator<=(list<T> const &other) const;
+    bool operator>(list<T> const &other) const;
+    bool operator>=(list<T> const &other) const;
 
 // element access
 #ifdef USE_XSIMD

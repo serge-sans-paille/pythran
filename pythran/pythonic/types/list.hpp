@@ -408,22 +408,26 @@ namespace types
 
   // comparison
   template <class T>
-  int list<T>::operator<(list<T> const &other) const
+  bool list<T>::operator<(list<T> const &other) const
   {
-    auto other_iter = other.begin();
-    auto self_iter = begin();
-    for (; other_iter != other.end() && self_iter != end();
-         ++other_iter, ++self_iter) {
-      if (*other_iter < *self_iter)
-        return 1;
-      if (*other_iter > *self_iter)
-        return -1;
-    }
-    if (other_iter != other.end() && self_iter == end())
-      return 1;
-    if (other_iter == other.end() && self_iter != end())
-      return -1;
-    return 0;
+    return std::lexicographical_compare(begin(), end(), other.begin(),
+                                        other.end());
+  }
+  template <class T>
+  bool list<T>::operator>(list<T> const &other) const
+  {
+    return std::lexicographical_compare(other.begin(), other.end(), begin(),
+                                        end());
+  }
+  template <class T>
+  bool list<T>::operator<=(list<T> const &other) const
+  {
+    return !(*this > other);
+  }
+  template <class T>
+  bool list<T>::operator>=(list<T> const &other) const
+  {
+    return !(*this < other);
   }
 
 // element access

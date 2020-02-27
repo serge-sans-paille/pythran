@@ -46,6 +46,34 @@ class TestList(TestEnv):
     def test_list_comparison(self):
         self.run_test("def list_comparison(l): return max(l)", [[1,2,3],[1,4,1],[1,4,8,9]], list_comparison=[List[List[int]]])
 
+    def test_list_comparison0(self):
+        self.run_test("def list_comparison0(l0, l1):"
+                      " return l0 < l1, l0 == l1, l0 <= l1, l0 > l1, l0 >= l1, l0 != l1",
+                      [1,2,3],
+                      [1, 2],
+                      list_comparison0=[List[int], List[int]])
+
+    def test_list_comparison1(self):
+        self.run_test("def list_comparison1(l0, l1):"
+                      " return l0 < l1, l0 == l1, l0 <= l1, l0 > l1, l0 >= l1, l0 != l1",
+                      [3],
+                      [1],
+                      list_comparison1=[List[int], List[int]])
+
+    def test_list_comparison2(self):
+        self.run_test("def list_comparison2(l0, l1):"
+                      " return l0 < l1, l0 == l1, l0 <= l1, l0 > l1, l0 >= l1, l0 != l1",
+                      [3],
+                      [1, 2],
+                      list_comparison2=[List[int], List[int]])
+
+    def test_list_comparison3(self):
+        self.run_test("def list_comparison3(l0, l1):"
+                      " return l0 < l1, l0 == l1, l0 <= l1, l0 > l1, l0 >= l1, l0 != l1",
+                      [1,2,3],
+                      [1,2,4],
+                      list_comparison3=[List[int], List[int]])
+
     def test_list_equal_comparison_true(self):
         self.run_test("def list_comparison_true(l1,l2):  return l1==l2",
                       [1,2,3],[1,4,1], list_comparison_true=[List[int],List[int]])

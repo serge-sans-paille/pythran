@@ -1,4 +1,4 @@
-from distutils.core import setup, Extension
+from distutils.core import setup
 from pythran.dist import PythranExtension, PythranBuildExt
 
 module1 = PythranExtension('demo', sources = ['a.py'])

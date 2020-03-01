@@ -46,8 +46,11 @@ You also need a modern C++11 enabled compiler (e.g. g++>=5, clang>=3.5), that su
 atomic operations (N3290) and variadic template (N2555).
 
 
-Manual Installation
--------------------
+Installation from Sources
+-------------------------
+
+The prefered way to install Pythran is using ``pip``. Yet if you want to install
+from sources, here is the procedure.
 
 First get the sources::
 
@@ -344,7 +347,7 @@ When distributing a Python application with Pythran modules, you can either:
 
     from distutils.core import setup
 
-    # These two lines a re required to be able to use pythran in the setup.py
+    # These two lines are required to be able to use pythran in the setup.py
     import setuptools
     setuptools.dist.Distribution(dict(setup_requires='pythran'))
 
@@ -476,9 +479,9 @@ environment variable ``PYTHRANRC``::
     PYTHRANRC=/opt/company/pythran/config.pythranrc pythran arc_distance.py
 
 All the options in the ``.pythranrc`` file can be specified when running pythran by using the command line argument --config= .
-For example:
+For example::
 
-    pythran --config=compiler.blas=pythran-openblas this_file.py
+    pythran --config compiler.blas=pythran-openblas this_file.py
 
 would specify that pythran-openblas is the blas library to use. 
 

@@ -386,6 +386,10 @@ the Pythran context.
 Advanced Usage
 --------------
 
+One can use ``-o <filename>`` or ``--output=<filename>`` to control the name of
+the generated file. If ``<filename>`` contains the ``%{ext}`` pattern, it is
+replaced by the extension that matches your current platform.
+
 A failing compilation? A lust for c++ tangled code? Give a try to the ``-E``
 switch that stops the compilation process right after c++ code generation, so
 that you can inspect it.

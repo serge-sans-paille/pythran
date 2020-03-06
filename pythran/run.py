@@ -64,7 +64,7 @@ def run():
                              'either a .py or a .cpp file')
 
     parser.add_argument('-o', dest='output_file', type=str,
-                        help='path to generated file')
+                        help='path to generated file. Honors %{ext}.')
 
     parser.add_argument('-P', dest='optimize_only', action='store_true',
                         help='only run the high-level optimizer, '

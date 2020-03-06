@@ -321,14 +321,17 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     # Copy all generated files including the module name prefix (.pdb, ...)
     for f in glob.glob(os.path.join(builddir, module_name + "*")):
         if f.endswith(ext):
-            if not output_binary:
+            if output_binary:
+                output_binary = output_binary.replace('%{ext}', ext)
+            else:
                 output_binary = os.path.join(os.getcwd(), module_name + ext)
             copy(f, output_binary)
         else:
-            if not output_binary:
-                output_directory = os.getcwd()
-            else:
+            if output_binary:
+                output_binary = output_binary.replace('%{ext}', '')
                 output_directory = os.path.dirname(output_binary)
+            else:
+                output_directory = os.getcwd()
             copy(f, os.path.join(output_directory, os.path.basename(f)))
     shutil.rmtree(builddir)
     shutil.rmtree(buildtmp)
@@ -377,7 +380,10 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
             print(content)
             return None
         else:
-            return _write_temp(content, '.py')
+            tmp_file = _write_temp(content, '.py')
+            output_file = output_file.format('.py')
+            shutil.move(tmp_file, output_file)
+            logger.info("Generated Python source file: " + output_file)
 
     # Autodetect the Pythran spec if not given as parameter
     from pythran.spec import spec_parser
@@ -396,7 +402,9 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     if cpponly:
         # User wants only the C++ code
         tmp_file = _write_temp(str(module), '.cpp')
-        if not output_file:
+        if output_file:
+            output_file = output_file.replace('%{ext}', '.cpp')
+        else:
             output_file = module_name + ".cpp"
         shutil.move(tmp_file, output_file)
         logger.info("Generated C++ source file: " + output_file)

@@ -377,7 +377,7 @@ inline T forth_root_epsilon_imp(const T*, const mpl::int_<0>&)
 template <class T>
 struct root_epsilon_traits
 {
-   typedef mpl::int_< (::std::numeric_limits<T>::radix == 2) ? std::numeric_limits<T>::digits : 0> tag_type;
+   typedef mpl::int_< (::std::numeric_limits<T>::radix == 2) && (::std::numeric_limits<T>::digits != INT_MAX) ? std::numeric_limits<T>::digits : 0> tag_type;
    BOOST_STATIC_CONSTANT(bool, has_noexcept = (tag_type::value == 113) || (tag_type::value == 64) || (tag_type::value == 53) || (tag_type::value == 24));
 };
 

@@ -22,6 +22,8 @@
 #else
 
 #include <boost/range/iterator.hpp>
+#include <boost/config.hpp>
+#include <boost/config/workaround.hpp>
 
 namespace boost
 {
@@ -94,7 +96,10 @@ namespace range_adl_barrier
 {
 
 template< class T >
-BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& r )
+#if !BOOST_WORKAROUND(BOOST_GCC, < 40700)
+BOOST_CONSTEXPR
+#endif
+inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& r )
 {
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
     using namespace range_detail;
@@ -103,7 +108,10 @@ BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<T>::type begin( T& 
 }
 
 template< class T >
-BOOST_CONSTEXPR inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type begin( const T& r )
+#if !BOOST_WORKAROUND(BOOST_GCC, < 40700)
+BOOST_CONSTEXPR
+#endif
+inline BOOST_DEDUCED_TYPENAME range_iterator<const T>::type begin( const T& r )
 {
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
     using namespace range_detail;

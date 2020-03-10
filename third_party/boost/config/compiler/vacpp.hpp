@@ -56,7 +56,7 @@
 // last known and checked version is 1210:
 #if (__IBMCPP__ > 1210)
 #  if defined(BOOST_ASSERT_CONFIG)
-#     error "Unknown compiler version - please run the configure tests and report the results"
+#     error "boost: Unknown compiler version - please run the configure tests and report the results"
 #  endif
 #endif
 

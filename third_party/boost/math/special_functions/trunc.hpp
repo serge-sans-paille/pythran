@@ -14,6 +14,8 @@
 #include <boost/math/tools/config.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/type_traits/is_constructible.hpp>
+#include <boost/core/enable_if.hpp>
 
 namespace boost{ namespace math{ namespace detail{
 
@@ -50,7 +52,7 @@ inline typename tools::promote_args<T>::type trunc(const T& v)
 // implicit convertion to the integer types.  For user-defined
 // number types this will likely not be the case.  In that case
 // these functions should either be specialized for the UDT in
-// question, or else overloads should be placed in the same 
+// question, or else overloads should be placed in the same
 // namespace as the UDT: these will then be found via argument
 // dependent lookup.  See our concept archetypes for examples.
 //
@@ -102,6 +104,55 @@ template <class T>
 inline boost::long_long_type lltrunc(const T& v)
 {
    return lltrunc(v, policies::policy<>());
+}
+
+#endif
+
+template <class T, class Policy>
+inline typename boost::enable_if_c<boost::is_constructible<int, T>::value, int>::type
+   iconvert(const T& v, const Policy&) 
+{
+   return static_cast<int>(v);
+}
+
+template <class T, class Policy>
+inline typename boost::disable_if_c<boost::is_constructible<int, T>::value, int>::type
+   iconvert(const T& v, const Policy& pol) 
+{
+   using boost::math::itrunc;
+   return itrunc(v, pol);
+}
+
+template <class T, class Policy>
+inline typename boost::enable_if_c<boost::is_constructible<long, T>::value, long>::type
+   lconvert(const T& v, const Policy&) 
+{
+   return static_cast<long>(v);
+}
+
+template <class T, class Policy>
+inline typename boost::disable_if_c<boost::is_constructible<long, T>::value, long>::type
+   lconvert(const T& v, const Policy& pol) 
+{
+   using boost::math::ltrunc;
+   return ltrunc(v, pol);
+}
+
+#ifdef BOOST_HAS_LONG_LONG
+
+template <class T, class Policy>
+inline typename boost::enable_if_c<boost::is_constructible<boost::long_long_type, T>::value, boost::long_long_type>::type
+   llconvertert(const T& v, const Policy&) 
+{
+   return static_cast<boost::long_long_type>(v);
+}
+
+template <class T, class Policy>
+inline typename boost::disable_if_c<boost::is_constructible<boost::long_long_type, T>::value, boost::long_long_type>::type
+   llconvertert(const T& v, const Policy& pol) 
+{
+   using boost::math::lltrunc;
+   return lltrunc(v, pol);
 }
 
 #endif

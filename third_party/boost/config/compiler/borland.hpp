@@ -19,9 +19,9 @@
 // last known compiler version:
 #if (__BORLANDC__ > 0x613)
 //#  if defined(BOOST_ASSERT_CONFIG)
-#     error "Unknown compiler version - please run the configure tests and report the results"
+#     error "boost: Unknown compiler version - please run the configure tests and report the results"
 //#  else
-//#     pragma message( "Unknown compiler version - please run the configure tests and report the results")
+//#     pragma message( "boost: Unknown compiler version - please run the configure tests and report the results")
 //#  endif
 #elif (__BORLANDC__ == 0x600)
 #  error "CBuilderX preview compiler is no longer supported"

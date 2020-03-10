@@ -42,6 +42,11 @@
 
 # define BOOST_SP_HAS_INTRIN_H
 
+// clang-cl on Windows on VC10+ stdlib
+#elif defined( __clang__ ) && defined( _MSC_VER ) && defined( _CPPLIB_VER ) && _CPPLIB_VER >= 520
+
+# define BOOST_SP_HAS_INTRIN_H
+
 #endif
 
 #if defined( BOOST_USE_WINDOWS_H )

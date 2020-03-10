@@ -443,8 +443,17 @@ BOOST_MPL_AUX_ASSERT_CONSTANT( \
 /**/
 #endif
 
-#define BOOST_MPL_ASSERT_MSG( c, msg, types_ ) \
+#if 0
+// Work around BOOST_MPL_ASSERT_MSG_IMPL generating multiple definition linker errors on VC++8.
+// #if defined(BOOST_MSVC) && BOOST_MSVC < 1500
+#   include <boost/static_assert.hpp>
+#   define BOOST_MPL_ASSERT_MSG( c, msg, types_ ) \
+BOOST_STATIC_ASSERT_MSG( c, #msg ) \
+/**/
+#else
+#   define BOOST_MPL_ASSERT_MSG( c, msg, types_ ) \
 BOOST_MPL_ASSERT_MSG_IMPL( BOOST_MPL_AUX_PP_COUNTER(), c, msg, types_ ) \
 /**/
+#endif
 
 #endif // BOOST_MPL_ASSERT_HPP_INCLUDED

@@ -17,6 +17,16 @@
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/tools/big_constant.hpp>
 
+#if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
+//
+// This is the only way we can avoid
+// warning: non-standard suffix on floating constant [-Wpedantic]
+// when building with -Wall -pedantic.  Neither __extension__
+// nor #pragma dianostic ignored work :(
+//
+#pragma GCC system_header
+#endif
+
 namespace boost{ namespace math{
 
 namespace detail
@@ -181,6 +191,9 @@ T erf_imp(T z, bool invert, const Policy& pol, const mpl::int_<53>& t)
    BOOST_MATH_STD_USING
 
    BOOST_MATH_INSTRUMENT_CODE("53-bit precision erf_imp called");
+
+   if ((boost::math::isnan)(z))
+      return policies::raise_denorm_error("boost::math::erf<%1%>(%1%)", "Expected a finite argument but got %1%", z, pol);
 
    if(z < 0)
    {

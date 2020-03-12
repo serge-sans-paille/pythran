@@ -22,9 +22,9 @@
 // last known and checked version is 0x621
 #if (__CODEGEARC__ > 0x621)
 #  if defined(BOOST_ASSERT_CONFIG)
-#     error "Unknown compiler version - please run the configure tests and report the results"
+#     error "boost: Unknown compiler version - please run the configure tests and report the results"
 #  else
-#     pragma message( "Unknown compiler version - please run the configure tests and report the results")
+#     pragma message( "boost: Unknown compiler version - please run the configure tests and report the results")
 #  endif
 #endif
 

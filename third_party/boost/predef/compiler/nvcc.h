@@ -37,12 +37,30 @@ Version number available as major, minor, and patch beginning with version 7.5.
 #endif
 
 #ifdef BOOST_COMP_NVCC_DETECTION
-#   if defined(BOOST_PREDEF_DETAIL_COMP_DETECTED)
-#       define BOOST_COMP_NVCC_EMULATED BOOST_COMP_NVCC_DETECTION
-#   else
-#       undef BOOST_COMP_NVCC
-#       define BOOST_COMP_NVCC BOOST_COMP_NVCC_DETECTION
-#   endif
+/*
+Always define BOOST_COMP_NVCC instead of BOOST_COMP_NVCC_EMULATED
+The nvcc compilation process is somewhat special as can be read here:
+https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#cuda-compilation-trajectory
+The nvcc compiler precompiles the input two times. Once for the device code
+being compiled by the cicc device compiler and once for the host code
+compiled by the real host compiler. NVCC uses gcc/clang/msvc/...
+depending on the host compiler being set on the command line.
+
+Predef (as a preprocessor only lib) detects the one doing the preprocessing
+as compiler and expects it to be the one doing the real compilation.
+This is not true for NVCC which is only doing the preprocessing and which
+is using another compiler for parts of its work. So for NVCC it should be
+allowed to set BOOST_COMP_NVCC additionally to the already detected host
+compiler because both is true: It is gcc/clang/... compiling the code, but it
+is also NVCC doing the preprocessing and adding some other quirks you may
+want to detect.
+
+This behavior is similar to what boost config is doing in `select_compiler_config.hpp`.
+There the NVCC detection is not handled as a real compiler (part of the
+#if-#elif) but as additional option before the real compiler.
+*/
+#   undef BOOST_COMP_NVCC
+#   define BOOST_COMP_NVCC BOOST_COMP_NVCC_DETECTION
 #   define BOOST_COMP_NVCC_AVAILABLE
 #   include <boost/predef/detail/comp_detected.h>
 #endif
@@ -53,8 +71,3 @@ Version number available as major, minor, and patch beginning with version 7.5.
 
 #include <boost/predef/detail/test.h>
 BOOST_PREDEF_DECLARE_TEST(BOOST_COMP_NVCC,BOOST_COMP_NVCC_NAME)
-
-#ifdef BOOST_COMP_NVCC_EMULATED
-#include <boost/predef/detail/test.h>
-BOOST_PREDEF_DECLARE_TEST(BOOST_COMP_NVCC_EMULATED,BOOST_COMP_NVCC_NAME)
-#endif

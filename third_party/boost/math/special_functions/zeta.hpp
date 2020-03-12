@@ -19,6 +19,16 @@
 #include <boost/math/special_functions/factorials.hpp>
 #include <boost/math/special_functions/sin_pi.hpp>
 
+#if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
+//
+// This is the only way we can avoid
+// warning: non-standard suffix on floating constant [-Wpedantic]
+// when building with -Wall -pedantic.  Neither __extension__
+// nor #pragma dianostic ignored work :(
+//
+#pragma GCC system_header
+#endif
+
 namespace boost{ namespace math{ namespace detail{
 
 #if 0

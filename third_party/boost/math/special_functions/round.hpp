@@ -35,7 +35,7 @@ inline typename tools::promote_args<T>::type round(const T& v, const Policy& pol
       // special case to avoid rounding error on the direct
       // predecessor of +0.5 resp. the direct successor of -0.5 in
       // IEEE floating point types
-      return 0;
+      return static_cast<result_type>(0);
    }
    else if (v > 0)
    {

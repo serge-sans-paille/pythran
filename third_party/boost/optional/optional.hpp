@@ -107,7 +107,9 @@ using optional_ns::in_place_init_if;
 
 namespace optional_detail {
 
-struct optional_tag {} ;
+struct init_value_tag {};
+
+struct optional_tag {};
 
 
 template<class T>
@@ -147,7 +149,7 @@ class optional_base : public optional_tag
 
     // Creates an optional<T> initialized with 'val'.
     // Can throw if T::T(T const&) does
-    optional_base ( argument_type val )
+    optional_base ( init_value_tag, argument_type val )
       :
       m_initialized(false)
     {
@@ -157,7 +159,7 @@ class optional_base : public optional_tag
 #ifndef  BOOST_OPTIONAL_DETAIL_NO_RVALUE_REFERENCES
     // move-construct an optional<T> initialized from an rvalue-ref to 'val'.
     // Can throw if T::T(T&&) does
-    optional_base ( rval_reference_type val )
+    optional_base ( init_value_tag, rval_reference_type val )
       :
       m_initialized(false)
     {
@@ -378,7 +380,7 @@ class optional_base : public optional_tag
 
   public :
 
-    // **DEPPRECATED** Destroys the current value, if any, leaving this UNINITIALIZED
+    // Destroys the current value, if any, leaving this UNINITIALIZED
     // No-throw (assuming T::~T() doesn't)
     void reset() BOOST_NOEXCEPT { destroy(); }
 
@@ -870,12 +872,12 @@ class optional
 
     // Creates an optional<T> initialized with 'val'.
     // Can throw if T::T(T const&) does
-    optional ( argument_type val ) : base(val) {}
+    optional ( argument_type val ) : base(optional_detail::init_value_tag(), val) {}
 
 #ifndef  BOOST_OPTIONAL_DETAIL_NO_RVALUE_REFERENCES
     // Creates an optional<T> initialized with 'move(val)'.
     // Can throw if T::T(T &&) does
-    optional ( rval_reference_type val ) : base( boost::forward<T>(val) )
+    optional ( rval_reference_type val ) : base(optional_detail::init_value_tag(), boost::forward<T>(val))
       {}
 #endif
 

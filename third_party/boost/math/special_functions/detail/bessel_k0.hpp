@@ -18,6 +18,16 @@
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/assert.hpp>
 
+#if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
+//
+// This is the only way we can avoid
+// warning: non-standard suffix on floating constant [-Wpedantic]
+// when building with -Wall -pedantic.  Neither __extension__
+// nor #pragma dianostic ignored work :(
+//
+#pragma GCC system_header
+#endif
+
 // Modified Bessel function of the second kind of order zero
 // minimax rational approximations on intervals, see
 // Russon and Blair, Chalk River Report AECL-3461, 1969,
@@ -125,17 +135,17 @@ T bessel_k0_imp(const T& x, const mpl::int_<24>&)
 
       static const T P[] =
       {
-         2.533141220e-01,
-         5.221502603e-01,
-         6.380180669e-02,
-         -5.934976547e-02
+         2.533141220e-01f,
+         5.221502603e-01f,
+         6.380180669e-02f,
+         -5.934976547e-02f
       };
       static const T Q[] =
       {
-         1.000000000e+00,
-         2.679722431e+00,
-         1.561635813e+00,
-         1.573660661e-01
+         1.000000000e+00f,
+         2.679722431e+00f,
+         1.561635813e+00f,
+         1.573660661e-01f
       };
       if(x < tools::log_max_value<T>())
          return ((tools::evaluate_rational(P, Q, T(1 / x)) + 1) * exp(-x) / sqrt(x));

@@ -47,12 +47,10 @@ namespace boost { namespace fusion
         struct value_at_impl<vector_tag>
         {
             template <typename Sequence, typename N>
-            struct apply
-            {
-                typedef typename BOOST_FUSION_IDENTIFIED_TYPE((
+            struct apply : BOOST_FUSION_DECLTYPE_N3031((
                     vector_detail::value_at_impl<N::value>(boost::declval<Sequence*>())
-                )) type;
-            };
+                ))
+            {};
         };
     }
 }}

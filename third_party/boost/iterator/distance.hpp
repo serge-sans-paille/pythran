@@ -58,7 +58,7 @@ namespace iterators {
 
 } // namespace iterators
 
-using iterators::distance;
+using namespace iterators::distance_adl_barrier;
 
 } // namespace boost
 

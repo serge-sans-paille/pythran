@@ -97,15 +97,26 @@ namespace std
 #endif
 
 
-// Workaround for compiler which doesn't compile decltype(expr)::type.
-// It expects decltype(expr) deduced as mpl::identity<T>.
-#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1913)) || BOOST_WORKAROUND(BOOST_GCC, < 40700)
+// Workaround for compilers not implementing N3031 (DR743 and DR950).
+#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1913)) || \
+    BOOST_WORKAROUND(BOOST_GCC, < 40700) || \
+    defined(BOOST_CLANG) && (__clang_major__ == 3 && __clang_minor__ == 0)
+# if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
+namespace boost { namespace fusion { namespace detail
+{
+    template <typename T>
+    using type_alias_t = T;
+}}}
+#   define BOOST_FUSION_DECLTYPE_N3031(parenthesized_expr) \
+        boost::fusion::detail::type_alias_t<decltype parenthesized_expr>
+# else
 #   include <boost/mpl/identity.hpp>
-#   define BOOST_FUSION_IDENTIFIED_TYPE(parenthesized_expr) \
-        boost::mpl::identity<decltype parenthesized_expr>::type::type
+#   define BOOST_FUSION_DECLTYPE_N3031(parenthesized_expr) \
+        boost::mpl::identity<decltype parenthesized_expr>::type
+# endif
 #else
-#   define BOOST_FUSION_IDENTIFIED_TYPE(parenthesized_expr) \
-        decltype parenthesized_expr ::type
+#   define BOOST_FUSION_DECLTYPE_N3031(parenthesized_expr) \
+        decltype parenthesized_expr
 #endif
 
 

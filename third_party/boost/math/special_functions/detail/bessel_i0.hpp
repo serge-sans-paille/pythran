@@ -15,6 +15,16 @@
 #include <boost/math/tools/big_constant.hpp>
 #include <boost/assert.hpp>
 
+#if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
+//
+// This is the only way we can avoid
+// warning: non-standard suffix on floating constant [-Wpedantic]
+// when building with -Wall -pedantic.  Neither __extension__
+// nor #pragma dianostic ignored work :(
+//
+#pragma GCC system_header
+#endif
+
 // Modified Bessel function of the first kind of order zero
 // we use the approximating forms derived in:
 // "Rational Approximations for the Modified Bessel Function of the First Kind - I0(x) for Computations with Double Precision"

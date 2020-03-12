@@ -456,7 +456,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
 
     else:
         # derive module name from destination output_file name
-        _, basename = os.path.split(output_file)
+        _, basename = os.path.split(output_file.replace('%{ext}', ''))
         module_name = module_name or basename.split(".", 1)[0]
 
     module_dir = os.path.dirname(file_path)

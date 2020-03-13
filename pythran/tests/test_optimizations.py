@@ -291,6 +291,16 @@ def foo():
     return builtins.None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
+    def test_forwarding0(self):
+        init = '''
+            def foo(x):
+                for i in x:
+                    if i:
+                        j = i
+                return j'''
+        ref = init
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
+
     def test_full_unroll0(self):
         init = """
 def full_unroll0():

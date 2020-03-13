@@ -348,17 +348,17 @@ class TestEnv(unittest.TestCase):
         """
         pm = PassManager("testing")
 
-        ir, _ = frontend.parse(pm, code)
+        ir, _ = frontend.parse(pm, dedent(code))
 
         optimizations = [_parse_optimization(opt) for opt in optimizations]
         refine(pm, ir, optimizations)
 
         content = pm.dump(Python, ir)
 
-        if content != ref:
+        if content != dedent(ref).strip():
             raise AssertionError(
                 "AST is not the one expected. Reference was %s,"
-                "but received %s" % (repr(ref), repr(content)))
+                "but received %s" % (repr(dedent(ref).strip()), repr(content)))
 
 
 class TestFromDir(TestEnv):

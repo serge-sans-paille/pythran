@@ -15,7 +15,7 @@ install:
     - if [ "$TRAVIS_OS_NAME" = "linux" ]; then PYTHON=python; fi
     - if [ "$TRAVIS_OS_NAME" = "osx" ]; then $PYTHON -m pip install pythran-openblas; fi
     - $PYTHON -m pip install --upgrade pip setuptools wheel six cython
-    - $PYTHON -m pip install --only-binary=numpy,scipy -U ply "networkx>=2" colorlog numpy scipy "pytest!=5.3.4" pytest-xdist gast ipython nbval
+    - $PYTHON -m pip install --only-binary=numpy,scipy -U ply "networkx>=2" colorlog numpy scipy "pytest==5.3.5" pytest-xdist gast ipython nbval
     - $PYTHON setup.py install 1> /dev/null
 
 python:

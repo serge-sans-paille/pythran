@@ -14,7 +14,7 @@ install:
   - "%PYTHON%\\python.exe -m pip install pythran-openblas"
   - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
   - "%PYTHON%\\python.exe -m pip install numpy"
-  - "%PYTHON%\\python.exe -m pip install pytest"
+  - "%PYTHON%\\python.exe -m pip install pytest==5.3.5"
   - "%PYTHON%\\python.exe -m pip install scipy"
   - "%PYTHON%\\python.exe -m pip install flake8"
 

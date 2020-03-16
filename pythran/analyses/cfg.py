@@ -119,18 +119,21 @@ class CFG(FunctionAnalysis):
                 self.result.add_edge(curr, n)
             currs, nraises = self.visit(n)
             raises += nraises
-        if is_true_predicate(node.test):
-            return currs, raises
 
         # false branch
         tcurrs = currs
+        traises = raises
         currs = (node,)
         for n in node.orelse:
             self.result.add_node(n)
             for curr in currs:
                 self.result.add_edge(curr, n)
             currs, nraises = self.visit(n)
-            raises += nraises
+            raises = traises + nraises
+
+        if is_true_predicate(node.test):
+            return tcurrs, raises
+
         return tcurrs + currs, raises
 
     def visit_Raise(self, node):

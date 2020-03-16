@@ -4,10 +4,11 @@ computation code.
 """
 
 from pythran.analyses import LazynessAnalysis, UseDefChains, DefUseChains
-from pythran.analyses import Literals, Ancestors
+from pythran.analyses import Literals, Ancestors, Identifiers, CFG, IsAssigned
 from pythran.passmanager import Transformation
 
 import gast as ast
+import networkx as nx
 
 try:
     from math import isfinite
@@ -57,6 +58,7 @@ class ForwardSubstitution(Transformation):
                                                   UseDefChains,
                                                   DefUseChains,
                                                   Ancestors,
+                                                  CFG,
                                                   Literals)
         self.to_remove = set()
 
@@ -117,8 +119,20 @@ class ForwardSubstitution(Transformation):
                     # for alias computations
                     return value
             elif len(parent.targets) == 1:
-                self.update = True
-                self.to_remove.add(parent)
-                return value
+                ids = self.gather(Identifiers, value)
+                node_stmt = next(reversed([s for s in self.ancestors[node]
+                                 if isinstance(s, ast.stmt)]))
+                all_paths = nx.all_simple_paths(self.cfg, parent, node_stmt)
+                for path in all_paths:
+                    for stmt in path[1:-1]:
+                        if not self.gather(IsAssigned, stmt).isdisjoint(ids):
+                            break
+                    else:
+                        continue
+                    break
+                else:
+                    self.update = True
+                    self.to_remove.add(parent)
+                    return value
 
         return node

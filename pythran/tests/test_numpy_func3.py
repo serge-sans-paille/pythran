@@ -547,6 +547,12 @@ def np_trim_zeros2(x):
                       numpy.random.randn(1000),
                       interp4=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
 
+    def test_interp_5(self):
+        self.run_test('def interp5(x,factor): N = len(x); import numpy as np; return np.interp(np.arange(0, N - 1, factor), np.arange(N), x, None, None, None)',
+                      numpy.random.randn(100),
+                      10.,
+                      interp5=[NDArray[float,:],float])
+
     def test_setdiff1d0(self):
         self.run_test('def setdiff1d0(x,y): import numpy as np; return np.setdiff1d(x,y)',
                       numpy.random.randn(100),

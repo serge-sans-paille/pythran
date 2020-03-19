@@ -33,6 +33,8 @@ namespace numpy
     assert(std::get<0>(xp.shape()) == std::get<0>(fp.shape()));
     double outVal(0);
 
+    types::ndarray<double, types::pshape<long>> out = {x.shape(), outVal};
+
     if (period) {
       auto x_rem = pythonic::numpy::functor::remainder{}(x, period);
       auto xp_rem = pythonic::numpy::functor::remainder{}(xp, period);
@@ -56,18 +58,14 @@ namespace numpy
       auto new_fp = pythonic::numpy::functor::concatenate{}(
           pythonic::types::make_tuple(left_pad_fp, fp_sorted, right_pad_fp));
 
-      x = x_rem;
-      xp = new_xp;
-      fp = new_fp;
-      left = 0.;  // Careful: using 0 (int) would cause problems!
-      right = 0.; // Careful: using 0 (int) would cause problems!
+      auto lenxp = new_xp.size();
+      auto lenx = x_rem.size();
+      do_interp(x_rem, new_xp, new_fp, out, lenxp, lenx, 0., 0.);
+    } else {
+      auto lenxp = xp.size();
+      auto lenx = x.size();
+      do_interp(x, xp, fp, out, lenxp, lenx, left, right);
     }
-
-    types::ndarray<double, types::pshape<long>> out = {x.shape(), outVal};
-    auto lenxp = xp.size();
-    auto lenx = x.size();
-
-    do_interp(x, xp, fp, out, lenxp, lenx, left, right);
 
     return out;
   }

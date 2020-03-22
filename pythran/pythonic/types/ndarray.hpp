@@ -759,6 +759,15 @@ namespace types
 
   template <class T, class pS>
       template <class S0, class... S>
+      auto ndarray<T, pS>::operator()(S0 const &s0, S const &... s) &
+      -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0,
+                                                                    s...))
+  {
+    return extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...);
+  }
+
+  template <class T, class pS>
+      template <class S0, class... S>
       auto ndarray<T, pS>::operator()(S0 const &s0, S const &... s) &&
       -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}(
           std::move(*this), s0, s...))
@@ -851,7 +860,7 @@ namespace types
   }
 
   template <class T, class pS>
-  template <class Ty0, class Ty1, class... Tys>
+  template <class Ty0, class Ty1, class... Tys, class _>
   auto ndarray<T, pS>::
   operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
       typename std::enable_if<

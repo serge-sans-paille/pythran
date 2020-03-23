@@ -433,6 +433,12 @@ namespace types
         extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...));
 
     template <class S0, class... S>
+        auto operator()(S0 const &s0, S const &... s) &
+        -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}((*this),
+                                                                      s0,
+                                                                      s...));
+
+    template <class S0, class... S>
         auto operator()(S0 const &s0, S const &... s) &&
         -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}(
             std::move(*this), s0, s...));
@@ -550,19 +556,19 @@ namespace types
                                           : contiguous_slice())...);
     }
 
-    template <class Ty0, class Ty1, class... Tys>
+    template <class Ty0, class Ty1, class... Tys,
+              class _ = typename std::enable_if<is_numexpr_arg<Ty0>::value,
+                                                void>::type>
     auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
         typename std::enable_if<is_numexpr_arg<Ty0>::value,
                                 decltype(this->_fwdindex(
                                     indices, utils::make_index_sequence<
                                                  2 + sizeof...(Tys)>()))>::type;
 
-    template <class Ty, size_t M>
-    auto operator[](array<Ty, M> const &indices) const & ->
-        typename std::enable_if<
-            !std::is_integral<Ty>::value,
-            decltype(this->_fwdindex(indices,
-                                     utils::make_index_sequence<M>()))>::type
+    template <class Ty, size_t M, class _ = typename std::enable_if<
+                                      !std::is_integral<Ty>::value, void>::type>
+    auto operator[](array<Ty, M> const &indices) const
+        & -> decltype(this->_fwdindex(indices, utils::make_index_sequence<M>()))
     {
       return _fwdindex(indices, utils::make_index_sequence<M>());
     }

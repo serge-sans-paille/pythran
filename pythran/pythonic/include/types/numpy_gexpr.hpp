@@ -69,32 +69,17 @@ namespace types
    */
   template <size_t C>
   struct extended_slice {
-    template <class T, class pS, class... S>
-    auto operator()(ndarray<T, pS> &&a, S const &... s)
-        -> decltype(std::move(a).reshape(make_reshape<C>(
-            a.shape(),
+    template <class E, class... S>
+    auto operator()(E &&expr, S const &... s)
+        -> decltype(std::forward<E>(expr).reshape(make_reshape<C>(
+            expr.shape(),
             std::tuple<
                 std::integral_constant<bool, to_slice<S>::is_new_axis>...>()))(
             to_slice<S>{}(s)...))
 
     {
-      return std::move(a).reshape(make_reshape<C>(
-          a.shape(),
-          std::tuple<
-              std::integral_constant<bool, to_slice<S>::is_new_axis>...>()))(
-          to_slice<S>{}(s)...);
-    }
-
-    template <class T, class pS, class... S>
-    auto operator()(ndarray<T, pS> const &a, S const &... s)
-        -> decltype(a.reshape(make_reshape<C>(
-            a.shape(),
-            std::tuple<
-                std::integral_constant<bool, to_slice<S>::is_new_axis>...>()))(
-            to_slice<S>{}(s)...))
-    {
-      return a.reshape(make_reshape<C>(
-          a.shape(),
+      return std::forward<E>(expr).reshape(make_reshape<C>(
+          expr.shape(),
           std::tuple<
               std::integral_constant<bool, to_slice<S>::is_new_axis>...>()))(
           to_slice<S>{}(s)...);
@@ -103,75 +88,57 @@ namespace types
 
   template <>
   struct extended_slice<0> {
-    template <class T, class pS, class... S>
-    auto operator()(ndarray<T, pS> &&a, long const &s0, S const &... s)
-        -> decltype(std::declval<numpy_iexpr<ndarray<T, pS>>>()(s...))
+    template <class E, class... S>
+    auto operator()(E &&expr, long const &s0, S const &... s) ->
+        typename std::enable_if<
+            utils::all_of<std::is_integral<S>::value...>::value,
+            decltype(std::forward<E>(expr)[types::make_tuple(s0, s...)])>::type
     {
-      return std::move(a)[s0](s...);
+      return std::forward<E>(expr)[types::make_tuple(s0, s...)];
+    }
+    template <class E, class... S>
+    auto operator()(E &&expr, long const &s0, S const &... s) ->
+        typename std::enable_if<
+            !utils::all_of<std::is_integral<S>::value...>::value,
+            decltype(std::forward<E>(expr)[s0](s...))>::type
+    {
+      return std::forward<E>(expr)[s0](s...);
     }
 
-    template <class T, class pS, class... S>
-    auto operator()(ndarray<T, pS> const &a, long const &s0, S const &... s)
-        -> decltype(a[s0](s...))
+    template <class E, class... S, size_t... Is>
+    numpy_gexpr<typename std::decay<E>::type, normalize_t<S>...>
+    fwd(E &&expr, std::tuple<S...> const &s, utils::index_sequence<Is...>)
     {
-      return a[s0](s...);
+      return {std::forward<E>(expr),
+              std::get<Is>(s).normalize(std::get<Is>(expr.shape()))...};
     }
 
-    template <class T, class pS, class... S, size_t... Is>
-    numpy_gexpr<ndarray<T, pS>, normalize_t<S>...>
-    fwd(ndarray<T, pS> &&a, std::tuple<S...> const &s,
-        utils::index_sequence<Is...>)
-    {
-      return {std::move(a),
-              std::get<Is>(s).normalize(std::get<Is>(a.shape()))...};
-    }
-
-    template <class T, class pS, class... S, size_t... Is>
-    numpy_gexpr<ndarray<T, pS>, normalize_t<S>...>
-    fwd(ndarray<T, pS> const &a, std::tuple<S...> const &s,
-        utils::index_sequence<Is...>)
-    {
-      return {a, std::get<Is>(s).normalize(std::get<Is>(a.shape()))...};
-    }
-
-    template <class T, class pS, class... S>
-    numpy_gexpr<ndarray<T, pS>, normalized_slice, normalize_t<S>...>
-    operator()(ndarray<T, pS> &&a, slice const &s0, S const &... s)
-    {
-      return fwd(std::move(a), std::make_tuple(s0, s...),
-                 utils::make_index_sequence<sizeof...(S) + 1>());
-    }
-
-    template <class T, class pS, class... S>
-    numpy_gexpr<ndarray<T, pS> const &, normalized_slice, normalize_t<S>...>
-    operator()(ndarray<T, pS> const &a, slice const &s0, S const &... s)
-    {
-      return fwd(a, std::make_tuple(s0, s...),
-                 utils::make_index_sequence<sizeof...(S) + 1>());
-    }
-
-    template <class T, class pS, class... S>
-    numpy_gexpr<ndarray<T, pS>, contiguous_normalized_slice, normalize_t<S>...>
-    operator()(ndarray<T, pS> &&a, contiguous_slice const &s0, S const &... s)
-    {
-      return make_gexpr(std::move(a), s0, s...);
-    }
-
-    template <class T, class pS, class... S>
-    numpy_gexpr<ndarray<T, pS> const &, contiguous_normalized_slice,
+    template <class E, class... S>
+    numpy_gexpr<typename std::decay<E>::type, normalized_slice,
                 normalize_t<S>...>
-    operator()(ndarray<T, pS> const &a, contiguous_slice const &s0,
-               S const &... s)
+    operator()(E &&expr, slice const &s0, S const &... s)
     {
-      return make_gexpr(a, s0, s...);
+      return fwd(std::forward<E>(expr), std::make_tuple(s0, s...),
+                 utils::make_index_sequence<sizeof...(S) + 1>());
     }
 
-    template <class T, class pS, class F, class... S>
-    numpy_gexpr<ndarray<T, array<long, std::tuple_size<pS>::value>>,
-                contiguous_normalized_slice, normalize_t<S>...>
-    operator()(ndarray<T, pS> const &a, F const &s0, S const &... s)
+    template <class E, class... S>
+    numpy_gexpr<typename std::decay<E>::type, contiguous_normalized_slice,
+                normalize_t<S>...>
+    operator()(E &&expr, contiguous_slice const &s0, S const &... s)
     {
-      return numpy_vexpr<ndarray<T, pS>, F>{a, s0}(
+      return make_gexpr(std::forward<E>(expr), s0, s...);
+    }
+
+    template <class E, class F, class... S>
+    numpy_gexpr<ndarray<typename std::decay<E>::type::dtype,
+                        array<long, std::decay<E>::type::value>>,
+                contiguous_normalized_slice, normalize_t<S>...>
+    operator()(E &&expr, F const &s0, S const &... s)
+    {
+      return numpy_vexpr<ndarray<typename std::decay<E>::type::dtype,
+                                 array<long, std::decay<E>::type::value>>,
+                         F>{std::forward<E>(expr), s0}(
           contiguous_slice(none_type{}, none_type{}), s...);
     }
   };

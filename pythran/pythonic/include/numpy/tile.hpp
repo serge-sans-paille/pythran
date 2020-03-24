@@ -10,7 +10,7 @@ namespace numpy
 {
   template <class E>
   types::ndarray<typename E::dtype, types::array<long, E::value>>
-  tile(E const &expr, int reps);
+  tile(E const &expr, long reps);
 
   template <class E, size_t N>
   types::ndarray<typename E::dtype, types::array<long, N>>

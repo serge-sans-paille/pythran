@@ -688,6 +688,9 @@ def np_rosen_der(x):
     def test_tile1(self):
         self.run_test("def np_tile1(a): from numpy import tile ; return tile(a, (3, 2))", numpy.arange(4), np_tile1=[NDArray[int,:]])
 
+    def test_tile2(self):
+        self.run_test("def np_tile2(a): from numpy import tile ; return tile(a, (1, 2))", numpy.arange(12).reshape(3,4), np_tile2=[NDArray[int,:,:]])
+
     def test_tolist0(self):
         self.run_test("def np_tolist0(a): return a.tolist()", numpy.arange(12), np_tolist0=[NDArray[int,:]])
 

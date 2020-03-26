@@ -16,6 +16,13 @@ class TestSlice(TestEnv):
     TODO : add tests for 1 == step (None as step)
     """
 
+
+    def test_empty_slices(self):
+        code = 'def empty_slices(x): return x[100:], x[100::2]'
+        self.run_test(code, numpy.arange(90),
+                      empty_slices=[NDArray[int,:]])
+
+
     def test_slice_combination1(self):
         """ Check for "all none" combination. """
         code = """

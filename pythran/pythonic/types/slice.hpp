@@ -82,7 +82,7 @@ namespace types
 
   slice slice::operator*(slice const &other) const
   {
-    // We do ! implement these because it requires to know the "end"
+    // We do not implement these because it requires to know the "end"
     // value of the slice which is ! possible if it is ! "step == 1" slice
     // TODO: We can skip these constraints if we know begin, end && step.
     long sstep = (step.is_none()) ? 1 : (long)step;
@@ -180,7 +180,7 @@ namespace types
     else if (lower < 0L)
       normalized_lower = std::max(0L, max_size + lower);
     else if (lower > max_size)
-      normalized_lower = max_size - 1L;
+      normalized_lower = max_size;
     else
       normalized_lower = (long)lower;
 
@@ -349,11 +349,11 @@ namespace types
     else
       normalized_upper = (long)upper;
 
-    long normalized_lower = (long)lower;
+    long normalized_lower;
     if (lower < 0L)
       normalized_lower = std::max(0L, max_size + lower);
     else if (lower > max_size)
-      normalized_lower = max_size - 1L;
+      normalized_lower = max_size;
     else
       normalized_lower = (long)lower;
 

@@ -71,4 +71,36 @@ If you want to specify the path of generated file::
   $> ls /tmp/cli_foo.so
   /tmp/cli_foo.so
 
-To know more options about Pythran, you can check ``pythran --help`` :-)
+To know more options about Pythran, you can check::
+
+  $> pythran --help
+  usage: pythran [-h] [-o OUTPUT_FILE] [-P] [-E] [-e] [-v] [-w] [-V] [-p pass]
+                 [-I include_dir] [-L ldflags] [-D macro_definition]
+                 [-U macro_definition] [--config config]
+                 input_file
+  
+  pythran: a python to C++ compiler
+  
+  positional arguments:
+    input_file           the pythran module to compile, either a .py or a .cpp
+                         file
+  
+  optional arguments:
+    -h, --help           show this help message and exit
+    -o OUTPUT_FILE       path to generated file. Honors %{ext}.
+    -P                   only run the high-level optimizer, do not compile
+    -E                   only run the translator, do not compile
+    -e                   similar to -E, but does not generate python glue
+    -v                   be more verbose
+    -w                   be less verbose
+    -V, --version        show program's version number and exit
+    -p pass              any pythran optimization to apply before code
+                         generation
+    -I include_dir       any include dir relevant to the underlying C++ compiler
+    -L ldflags           any search dir relevant to the linker
+    -D macro_definition  any macro definition relevant to the underlying C++
+                         compiler
+    -U macro_definition  any macro undef relevant to the underlying C++ compiler
+    --config config      config additional params
+  
+  It's a megablast!

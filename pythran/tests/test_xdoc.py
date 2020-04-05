@@ -51,6 +51,7 @@ class TestDoctest(unittest.TestCase):
         with open(filepath) as rst_doc:
             # hidden doctest
             sp = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc.read())
+            sp = re.sub(r'^([ ]+)$', r'\1<BLANKLINE>', sp, flags=re.MULTILINE)
 
         # hack to support setuptools-generated pythran / pythran-config scripts
         for tool, sub in (('pythran-config', 'python -m pythran.config'),

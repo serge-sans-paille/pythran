@@ -66,6 +66,9 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
         if isinstance(node, ast.Tuple):
             return all(self.is_immutable_constant(elt) for elt in node.elts)
 
+        if isinstance(node, ast.UnaryOp):
+            return self.is_immutable_constant(node.operand)
+
         if isinstance(node, (ast.Call, ast.Attribute)):
             try:
                 aliases = self.strict_aliases[node]

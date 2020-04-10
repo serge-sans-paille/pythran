@@ -14,7 +14,7 @@ namespace types
   {
     // TODO: avoid the tmp copy when no aliasing
     typename assignable<E>::type tmp{expr};
-    for (long i = 0, n = std::get<0>(tmp.shape()); i < n; ++i)
+    for (long i = 0, n = tmp.template shape<0>(); i < n; ++i)
       (*this).fast(i) = tmp.fast(i);
     return *this;
   }
@@ -24,7 +24,7 @@ namespace types
       numpy_vexpr<T, F>::
       operator=(E const &expr)
   {
-    for (long i = 0, n = std::get<0>(shape()); i < n; ++i)
+    for (long i = 0, n = shape<0>(); i < n; ++i)
       (*this).fast(i) = expr;
     return *this;
   }
@@ -33,7 +33,7 @@ namespace types
   {
     // TODO: avoid the tmp copy when no aliasing
     typename assignable<numpy_vexpr<T, F>>::type tmp{expr};
-    for (long i = 0, n = std::get<0>(tmp.shape()); i < n; ++i)
+    for (long i = 0, n = tmp.template shape<0>(); i < n; ++i)
       (*this).fast(i) = tmp.fast(i);
     return *this;
   }
@@ -46,7 +46,7 @@ namespace types
   template <class T, class F>
   typename numpy_vexpr<T, F>::iterator numpy_vexpr<T, F>::end()
   {
-    return {*this, shape()[0]};
+    return {*this, shape<0>()};
   }
   template <class T, class F>
   typename numpy_vexpr<T, F>::const_iterator numpy_vexpr<T, F>::begin() const
@@ -56,7 +56,7 @@ namespace types
   template <class T, class F>
   typename numpy_vexpr<T, F>::const_iterator numpy_vexpr<T, F>::end() const
   {
-    return {*this, std::get<0>(shape())};
+    return {*this, shape<0>()};
   }
   template <class T, class F>
   template <class... S>
@@ -95,7 +95,7 @@ namespace types
       numpy_vexpr<numpy_vexpr<T, F>, ndarray<long, pshape<long>>>>::type
   numpy_vexpr<T, F>::fast(E const &filter) const
   {
-    long sz = std::get<0>(filter.shape());
+    long sz = filter.template shape<0>();
     long *raw = (long *)malloc(sz * sizeof(long));
     long n = 0;
     for (long i = 0; i < sz; ++i)

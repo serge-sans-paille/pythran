@@ -122,13 +122,6 @@ namespace types
   }
 
   template <class T, class pS>
-  long type_helper<ndarray<T, pS>>::step(ndarray<T, pS> const &self)
-  {
-    return std::accumulate(self.shape.begin() + 1, self.shape.end(), 1L,
-                           std::multiplies<long>());
-  }
-
-  template <class T, class pS>
   typename type_helper<ndarray<T, pS> const &>::iterator
   type_helper<ndarray<T, pS> const &>::make_iterator(ndarray<T, pS> &n, long i)
   {
@@ -166,13 +159,6 @@ namespace types
   }
 
   template <class T, class pS>
-  long type_helper<ndarray<T, pS> const &>::step(ndarray<T, pS> const &self)
-  {
-    return std::accumulate(self.shape.begin() + 1, self.shape.end(), 1L,
-                           std::multiplies<long>());
-  }
-
-  template <class T, class pS>
   typename type_helper<ndarray<T, pshape<pS>>>::iterator
   type_helper<ndarray<T, pshape<pS>>>::make_iterator(ndarray<T, pshape<pS>> &n,
                                                      long i)
@@ -207,13 +193,6 @@ namespace types
   }
 
   template <class T, class pS>
-  constexpr long
-  type_helper<ndarray<T, pshape<pS>>>::step(ndarray<T, pshape<pS>> const &)
-  {
-    return 1;
-  }
-
-  template <class T, class pS>
   typename type_helper<ndarray<T, pshape<pS>> const &>::iterator
   type_helper<ndarray<T, pshape<pS>> const &>::make_iterator(
       ndarray<T, pshape<pS>> &n, long i)
@@ -243,13 +222,6 @@ namespace types
       ndarray<T, pshape<pS>> const &self, long i)
   {
     return self.buffer[i];
-  }
-
-  template <class T, class pS>
-  constexpr long type_helper<ndarray<T, pshape<pS>> const &>::step(
-      ndarray<T, pshape<pS>> const &)
-  {
-    return 1;
   }
 
   template <class T, class pS>
@@ -286,13 +258,6 @@ namespace types
   }
 
   template <class T, class pS>
-  constexpr long type_helper<ndarray<T, array<pS, 1>>>::step(
-      ndarray<T, array<pS, 1>> const &)
-  {
-    return 1;
-  }
-
-  template <class T, class pS>
   typename type_helper<ndarray<T, array<pS, 1>> const &>::iterator
       type_helper<ndarray<T, array<pS, 1>> const &>::make_iterator(
           ndarray<T, array<pS, 1>> &n, long i)
@@ -324,53 +289,68 @@ namespace types
     return self.buffer[i];
   }
 
-  template <class T, class pS>
-  constexpr long type_helper<ndarray<T, array<pS, 1>> const &>::step(
-      ndarray<T, array<pS, 1>> const &)
+  template <class S>
+  long patch_index(long index, S const &)
   {
-    return 1;
-  }
-
-  template <size_t L>
-  template <class Ty, size_t M>
-  long noffset<L>::operator()(array<long, M> const &strides,
-                              array<Ty, M> const &indices) const
-  {
-    return noffset<L - 1>{}(strides, indices) + strides[M - L] * indices[M - L];
-  }
-
-  template <size_t L>
-  template <class Ty, size_t M, class pS>
-  long noffset<L>::operator()(array<long, M> const &strides,
-                              array<Ty, M> const &indices,
-                              pS const &shape) const
-  {
-    auto const index =
-        ((indices[M - L] < 0) ? indices[M - L] + std::get<M - L>(shape)
-                              : indices[M - L]);
-    assert(0 <= index and index < std::get<M - L>(shape));
-    return noffset<L - 1>{}(strides, indices, shape) + strides[M - L] * index;
-  }
-
-  template <>
-  template <class Ty, size_t M>
-  long noffset<1>::operator()(array<long, M> const &,
-                              array<Ty, M> const &indices) const
-  {
-    return indices[M - 1];
-  }
-
-  template <>
-  template <class Ty, size_t M, class pS>
-  long noffset<1>::operator()(array<long, M> const &,
-                              array<Ty, M> const &indices,
-                              pS const &shape) const
-  {
-    auto const index = (indices[M - 1] < 0)
-                           ? indices[M - 1] + std::get<M - 1>(shape)
-                           : indices[M - 1];
-    assert(0 <= index && index < std::get<M - 1>(shape));
     return index;
+  }
+  long patch_index(long index, std::integral_constant<long, 1> const &)
+  {
+    return 0;
+  }
+
+  template <size_t L>
+  template <class S, class Ty, size_t M>
+  long noffset<L>::operator()(S const &strides,
+                              array<Ty, M> const &indices) const
+  {
+    auto index = patch_index(
+        indices[M - L],
+        typename std::tuple_element<M - L, typename S::shape_t>::type());
+    return noffset<L - 1>{}(strides, indices) +
+           strides.template strides<M - L>() * index;
+  }
+
+  template <size_t L>
+  template <class S, class Ty, size_t M, class pS>
+  long noffset<L>::operator()(S const &strides, array<Ty, M> const &indices,
+                              pS const &shape) const
+  {
+    auto index = patch_index(
+        indices[M - L],
+        typename std::tuple_element<M - L, typename S::shape_t>::type());
+    if (index < 0)
+      index += std::get<M - L>(shape);
+    assert(0 <= index and index < std::get<M - L>(shape));
+    return noffset<L - 1>{}(strides, indices, shape) +
+           strides.template strides<M - L>() *
+               ((index < 0) ? index + std::get<M - L>(shape) : index);
+  }
+
+  template <>
+  template <class S, class Ty, size_t M>
+  long noffset<1>::operator()(S const &strides,
+                              array<Ty, M> const &indices) const
+  {
+    auto index = patch_index(
+        indices[M - 1],
+        typename std::tuple_element<M - 1, typename S::shape_t>::type());
+    return strides.template strides<M - 1>() * index;
+  }
+
+  template <>
+  template <class S, class Ty, size_t M, class pS>
+  long noffset<1>::operator()(S const &strides, array<Ty, M> const &indices,
+                              pS const &shape) const
+  {
+    auto index = patch_index(
+        indices[M - 1],
+        typename std::tuple_element<M - 1, typename S::shape_t>::type());
+    if (index < 0)
+      index += std::get<M - 1>(shape);
+    assert(0 <= index && index < std::get<M - 1>(shape));
+    return strides.template strides<M - 1>() *
+           ((index < 0) ? index + std::get<M - 1>(shape) : index);
   }
 
   /* constructors */
@@ -411,7 +391,7 @@ namespace types
   /* from a seed */
   template <class T, class pS>
   ndarray<T, pS>::ndarray(pS const &shape, none_type init)
-      : mem(sutils::prod(shape)), buffer(mem->data), _shape(shape),
+      : mem(sutils::sprod(shape)), buffer(mem->data), _shape(shape),
         _strides(make_strides(shape))
   {
   }
@@ -484,8 +464,8 @@ namespace types
   template <class T, class pS>
   template <class Op, class... Args>
   ndarray<T, pS>::ndarray(numpy_expr<Op, Args...> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
+      : mem(expr.flat_size()), buffer(mem->data),
+        _shape(sutils::getshape(expr)), _strides(make_strides(_shape))
   {
     initialize_from_expr(expr);
   }
@@ -493,8 +473,8 @@ namespace types
   template <class T, class pS>
   template <class Arg>
   ndarray<T, pS>::ndarray(numpy_texpr<Arg> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
+      : mem(expr.flat_size()), buffer(mem->data),
+        _shape(sutils::getshape(expr)), _strides(make_strides(_shape))
   {
     initialize_from_expr(expr);
   }
@@ -502,8 +482,8 @@ namespace types
   template <class T, class pS>
   template <class Arg>
   ndarray<T, pS>::ndarray(numpy_texpr_2<Arg> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
+      : mem(expr.flat_size()), buffer(mem->data),
+        _shape(sutils::getshape(expr)), _strides(make_strides(_shape))
   {
     initialize_from_expr(expr);
   }
@@ -511,8 +491,8 @@ namespace types
   template <class T, class pS>
   template <class Arg, class... S>
   ndarray<T, pS>::ndarray(numpy_gexpr<Arg, S...> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
+      : mem(expr.flat_size()), buffer(mem->data),
+        _shape(sutils::getshape(expr)), _strides(make_strides(_shape))
   {
     initialize_from_expr(expr);
   }
@@ -520,8 +500,8 @@ namespace types
   template <class T, class pS>
   template <class Arg>
   ndarray<T, pS>::ndarray(numpy_iexpr<Arg> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
+      : mem(expr.flat_size()), buffer(mem->data),
+        _shape(sutils::getshape(expr)), _strides(make_strides(_shape))
   {
     initialize_from_expr(expr);
   }
@@ -529,16 +509,8 @@ namespace types
   template <class T, class pS>
   template <class Arg, class F>
   ndarray<T, pS>::ndarray(numpy_vexpr<Arg, F> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
-  {
-    initialize_from_expr(expr);
-  }
-  template <class T, class pS>
-  template <class Arg>
-  ndarray<T, pS>::ndarray(fast_range<Arg> const &expr)
-      : mem(expr.flat_size()), buffer(mem->data), _shape(expr.shape()),
-        _strides(make_strides(_shape))
+      : mem(expr.flat_size()), buffer(mem->data),
+        _shape(sutils::getshape(expr)), _strides(make_strides(_shape))
   {
     initialize_from_expr(expr);
   }
@@ -623,7 +595,7 @@ namespace types
   ndarray<T, pS>::fast(array<Ty, value> const &indices)
   {
     assert(inbound_indices(indices));
-    return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
+    return *(buffer + noffset<std::tuple_size<pS>::value>{}(*this, indices));
   }
 
   template <class T, class pS>
@@ -632,7 +604,7 @@ namespace types
   ndarray<T, pS>::fast(array<Ty, value> const &indices) const
   {
     assert(inbound_indices(indices));
-    return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
+    return *(buffer + noffset<std::tuple_size<pS>::value>{}(*this, indices));
   }
 
   template <class T, class pS>
@@ -662,7 +634,7 @@ namespace types
       operator[](array<Ty, value> const &indices) const
   {
     return *(buffer +
-             noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
+             noffset<std::tuple_size<pS>::value>{}(*this, indices, _shape));
   }
 
   template <class T, class pS>
@@ -672,7 +644,7 @@ namespace types
       operator[](array<Ty, value> const &indices)
   {
     return *(buffer +
-             noffset<std::tuple_size<pS>::value>{}(_strides, indices, _shape));
+             noffset<std::tuple_size<pS>::value>{}(*this, indices, _shape));
   }
 
   template <class T, class pS>
@@ -721,7 +693,7 @@ namespace types
   {
     sutils::push_front_t<pS, std::integral_constant<long, 1>> new_shape;
     sutils::copy_shape<1, -1>(
-        new_shape, _shape,
+        new_shape, *this,
         utils::make_index_sequence<std::tuple_size<pS>::value>());
     return reshape(new_shape);
   }
@@ -792,7 +764,7 @@ namespace types
       numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>::type
   ndarray<T, pS>::fast(F const &filter) const
   {
-    long sz = std::get<0>(filter.shape());
+    long sz = filter.template shape<0>();
     long *raw = (long *)malloc(sz * sizeof(long));
     long n = 0;
     for (long i = 0; i < sz; ++i)
@@ -930,7 +902,7 @@ namespace types
   template <class T, class pS>
   long ndarray<T, pS>::flat_size() const
   {
-    return sutils::prod(_shape);
+    return sutils::prod(*this);
   }
   template <class T, class pS>
   bool ndarray<T, pS>::may_overlap(ndarray const &expr) const
@@ -955,7 +927,7 @@ namespace types
   template <class T, class pS>
   ndarray<T, pS>::operator bool() const
   {
-    if (sutils::any_of(_shape, [](long n) { return n != 1; }))
+    if (sutils::any_of(*this, [](long n) { return n != 1; }))
       throw ValueError("The truth value of an array with more than one element "
                        "is ambiguous. Use a.any() or a.all()");
     return *buffer;
@@ -979,12 +951,6 @@ namespace types
   intptr_t ndarray<T, pS>::id() const
   {
     return reinterpret_cast<intptr_t>(&(*mem));
-  }
-
-  template <class T, class pS>
-  pS const &ndarray<T, pS>::shape() const
-  {
-    return _shape;
   }
 
   /* pretty printing { */
@@ -1023,13 +989,12 @@ namespace types
   std::ostream &operator<<(std::ostream &os, ndarray<T, pS> const &e)
   {
     std::array<long, std::tuple_size<pS>::value> strides;
-    auto shape = e.shape();
+    auto shape = sutils::getshape(e);
     strides[std::tuple_size<pS>::value - 1] =
         std::get<std::tuple_size<pS>::value - 1>(shape);
     if (strides[std::tuple_size<pS>::value - 1] == 0)
       return os << "[]";
-    auto ashape = sutils::array(shape);
-    std::transform(strides.rbegin(), strides.rend() - 1, ashape.rbegin() + 1,
+    std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin() + 1,
                    strides.rbegin() + 1, std::multiplies<long>());
     size_t depth = std::tuple_size<pS>::value;
     int step = -1;
@@ -1145,7 +1110,7 @@ namespace builtins
             types::slice()))
     {
       using stype = typename types::is_complex<typename E::dtype>::type;
-      auto new_shape = sutils::array(a.shape());
+      auto new_shape = sutils::getshape(a);
       std::get<E::value - 1>(new_shape) *= 2;
       // this is tricky && dangerous!
       auto translated_mem =
@@ -1176,7 +1141,7 @@ namespace builtins
       // cannot use numpy.zero: forward declaration issue
       return {
           (typename E::dtype *)calloc(a.flat_size(), sizeof(typename E::dtype)),
-          a.shape(), types::ownership::owned};
+          sutils::getshape(a), types::ownership::owned};
     }
 
     template <class Op, class... Args>
@@ -1200,7 +1165,7 @@ namespace builtins
             types::slice()))
     {
       using stype = typename types::is_complex<typename E::dtype>::type;
-      auto new_shape = sutils::array(a.shape());
+      auto new_shape = sutils::getshape(a);
       std::get<E::value - 1>(new_shape) *= 2;
       // this is tricky && dangerous!
       auto translated_mem =
@@ -1214,10 +1179,9 @@ namespace builtins
   }
 
   template <class E>
-  auto getattr(types::attr::SHAPE, E const &a)
-      -> decltype(sutils::array(a.shape()))
+  types::array<long, E::value> getattr(types::attr::SHAPE, E const &a)
   {
-    return sutils::array(a.shape());
+    return sutils::getshape(a);
   }
 
   template <class E>
@@ -1231,7 +1195,7 @@ namespace builtins
   {
     types::array<long, E::value> strides;
     strides[E::value - 1] = sizeof(typename E::dtype);
-    auto shape = sutils::array(a.shape());
+    auto shape = sutils::getshape(a);
     std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin(),
                    strides.rbegin() + 1, std::multiplies<long>());
     return strides;
@@ -1396,12 +1360,12 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
           PyArray_DescrFromType(c_type_to_numpy_type<T>::value), nullptr);
     }
 
-    if (sutils::equals(n.shape(), pshape)) {
+    if (sutils::equals(n, pshape)) {
       if (transpose && !(PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS))
         return PyArray_Transpose(arr, nullptr);
       else
         return p;
-    } else if (sutils::requals(n.shape(), pshape)) {
+    } else if (sutils::requals(n, pshape)) {
       if (transpose)
         return p;
       else

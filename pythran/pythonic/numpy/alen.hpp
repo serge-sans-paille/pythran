@@ -13,7 +13,7 @@ namespace numpy
   template <class T>
   long alen(T &&expr)
   {
-    return std::get<0>(expr.shape());
+    return expr.template shape<0>();
   }
 }
 PYTHONIC_NS_END

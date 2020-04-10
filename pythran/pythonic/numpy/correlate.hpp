@@ -18,8 +18,8 @@ namespace numpy
   // out_inc is used to indicate the inputs were swapped, which means that the
   // output must be time reversed and conjugated
   {
-    auto shapeA = sutils::array(inA.shape());
-    auto shapeB = sutils::array(inB.shape());
+    auto shapeA = sutils::getshape(inA);
+    auto shapeB = sutils::getshape(inB);
 
     long NA = shapeA[0];
     long NB = shapeB[0];
@@ -99,8 +99,8 @@ namespace numpy
   types::ndarray<typename A::dtype, types::pshape<long>>
   correlate(A const &inA, B const &inB, U type)
   {
-    long NA = sutils::array(inA.shape())[0];
-    long NB = sutils::array(inB.shape())[0];
+    long NA = inA.template shape<0>();
+    long NB = inB.template shape<0>();
     // If inB is longer than inA, swap them, but time-reverse and conjugate the
     // output (-1 flag)
     if (NA > NB) {

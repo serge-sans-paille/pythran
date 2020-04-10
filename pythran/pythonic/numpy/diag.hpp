@@ -17,7 +17,7 @@ namespace numpy
                           types::ndarray<T, types::pshape<long>>>::type
   diag(types::ndarray<T, pS> const &a, long k)
   {
-    auto &&a_shape = a.shape();
+    auto &&a_shape = a._shape;
     utils::shared_ref<types::raw_array<T>> buffer(
         std::max(std::get<0>(a_shape), std::get<1>(a_shape)));
     types::pshape<long> shape = 0;

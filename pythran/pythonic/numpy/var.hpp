@@ -41,7 +41,7 @@ namespace numpy
     void _enlarge_copy_minus(T &&t, E const &e, M const &m, long axis,
                              utils::int_<1>)
     {
-      for (long i = 0, n = std::get<0>(e.shape()), p = std::get<0>(m.shape());
+      for (long i = 0, n = e.template shape<0>(), p = m.template shape<0>();
            i < n;)
         for (long j = 0; j < p; ++j, ++i)
           t.fast(i) = e.fast(i) - m.fast(j);
@@ -51,7 +51,7 @@ namespace numpy
     void _enlarge_copy_minus(T &&t, E const &e, M const &m, long axis,
                              utils::int_<N>)
     {
-      for (long i = 0, n = std::get<0>(e.shape()), p = std::get<0>(m.shape());
+      for (long i = 0, n = e.template shape<0>(), p = m.template shape<0>();
            i < n;)
         for (long j = 0; j < p; ++j, ++i)
           _enlarge_copy_minus(t.fast(i), e.fast(i), m.fast(j), axis,
@@ -68,16 +68,16 @@ namespace numpy
     if (axis == 0) {
       auto t = pythonic::numpy::functor::subtract{}(expr, m);
       return sum(builtins::pythran::functor::abssqr{}(t), axis) /=
-             var_type<E>(std::get<0>(expr.shape()) - ddof);
+             var_type<E>(expr.template shape<0>() - ddof);
     } else {
-      types::array<long, E::value> shp = sutils::array(expr.shape());
+      types::array<long, E::value> shp = sutils::getshape(expr);
       shp[axis] = 1;
       auto mp = m.reshape(shp);
 
       auto t = empty_like(expr);
       _enlarge_copy_minus(t, expr, mp, axis, utils::int_<E::value>());
       return sum(builtins::pythran::functor::abssqr{}(t), axis) /=
-             var_type<E>(sutils::array(expr.shape())[axis] - ddof);
+             var_type<E>(sutils::getshape(expr)[axis] - ddof);
     }
   }
 }

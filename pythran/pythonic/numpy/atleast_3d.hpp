@@ -33,12 +33,11 @@ namespace numpy
                                    std::integral_constant<long, 1>>>>::type
   {
     auto r = asarray(t);
-    auto shape = r.shape();
     return r.reshape(
         types::pshape<std::integral_constant<long, 1>,
                       typename std::tuple_element<0, typename T::shape_t>::type,
                       std::integral_constant<long, 1>>(
-            std::integral_constant<long, 1>(), std::get<0>(shape),
+            std::integral_constant<long, 1>(), r.template shape<0>(),
             std::integral_constant<long, 1>()));
   }
 
@@ -53,12 +52,11 @@ namespace numpy
               std::integral_constant<long, 1>>>>::type
   {
     auto r = asarray(t);
-    auto shape = r.shape();
     return r.reshape(
         types::pshape<typename std::tuple_element<0, typename T::shape_t>::type,
                       typename std::tuple_element<1, typename T::shape_t>::type,
                       std::integral_constant<long, 1>>(
-            std::get<0>(shape), std::get<1>(shape),
+            r.template shape<0>(), r.template shape<1>(),
             std::integral_constant<long, 1>()));
   }
 

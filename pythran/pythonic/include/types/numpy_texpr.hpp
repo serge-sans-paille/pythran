@@ -39,10 +39,10 @@ namespace types
 
     Arg arg;
     using shape_t = sutils::transpose_t<typename E::shape_t>;
-    shape_t _shape;
-    shape_t const &shape() const
+    template <size_t I>
+    auto shape() const -> decltype(arg.template shape < I == 0 ? 1 : 0 > ())
     {
-      return _shape;
+      return arg.template shape < I == 0 ? 1 : 0 > ();
     }
 
     numpy_texpr_2();
@@ -59,7 +59,7 @@ namespace types
 
     long size() const
     {
-      return std::get<0>(_shape);
+      return this->template shape<0>();
     }
 
     auto fast(long i) const
@@ -80,6 +80,20 @@ namespace types
         -> decltype(arg.fast(array<long, 2>{{indices[1], indices[0]}}))
     {
       return arg.fast(array<long, 2>{{indices[1], indices[0]}});
+    }
+
+    auto load(long i, long j) const -> decltype(arg.load(j, i))
+    {
+      return arg.load(j, i);
+    }
+    void store(dtype elt, long i, long j)
+    {
+      arg.store(elt, j, i);
+    }
+    template <class Op>
+    void update(dtype elt, long i, long j) const
+    {
+      arg.template update<Op>(elt, j, i);
     }
 
 #ifdef USE_XSIMD

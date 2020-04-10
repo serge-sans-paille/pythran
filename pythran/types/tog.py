@@ -833,7 +833,7 @@ def analyse(node, env, non_generic=None):
                     raise PythranTypeError(
                         "Invalid tuple indexing, "
                         "out-of-bound index `{}` for type `{}`".format(
-                            node.slice.value.n,
+                            node.slice.value.value,
                             value_type),
                         node)
         try:

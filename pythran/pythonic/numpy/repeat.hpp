@@ -20,7 +20,7 @@ namespace numpy
     if (axis < 0)
       axis += N;
 
-    auto shape = sutils::array(expr.shape());
+    auto shape = sutils::getshape(expr);
     const long stride = std::accumulate(shape.begin() + axis + 1, shape.end(),
                                         1L, std::multiplies<long>());
     shape[axis] *= repeats;

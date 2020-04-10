@@ -101,7 +101,7 @@ namespace numpy
     if (axis < 0 || size_t(axis) >= E::value)
       throw types::ValueError("axis out of bounds");
 
-    auto shape = expr.shape();
+    auto shape = sutils::getshape(expr);
     partial_sum_type<Op, E, dtype> the_partial_sum{shape, builtins::None};
     if (axis == 0) {
       auto it_begin = the_partial_sum.begin();

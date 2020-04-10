@@ -150,12 +150,12 @@ namespace types
       return {begin() + ns.lower, begin() + ns.upper};
     }
 
-    using shape_t = array<long, value>;
-    shape_t shape() const
+    using shape_t = typename shape_builder<dynamic_tuple, value>::type;
+    template <size_t I>
+    auto shape() const
+        -> decltype(details::extract_shape(*this, utils::int_<I>{}))
     {
-      array<long, value> res;
-      details::init_shape(res, *this, utils::int_<value>{});
-      return res;
+      return details::extract_shape(*this, utils::int_<I>{});
     }
   };
   template <class T>

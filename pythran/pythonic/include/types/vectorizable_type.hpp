@@ -86,8 +86,28 @@ namespace utils
   {
     return arg.no_broadcast();
   }
+  template <class Op, class... Args>
+  bool no_broadcast_ex(types::numpy_expr<Op, Args...> const &arg)
+  {
+    return arg.no_broadcast_ex();
+  }
+  template <class Op, class... Args>
+  bool no_broadcast_vectorize(types::numpy_expr<Op, Args...> const &arg)
+  {
+    return arg.no_broadcast_vectorize();
+  }
   template <class Arg>
   constexpr bool no_broadcast(Arg const &arg)
+  {
+    return true;
+  }
+  template <class Arg>
+  constexpr bool no_broadcast_ex(Arg const &arg)
+  {
+    return true;
+  }
+  template <class Arg>
+  constexpr bool no_broadcast_vectorize(Arg const &arg)
   {
     return true;
   }

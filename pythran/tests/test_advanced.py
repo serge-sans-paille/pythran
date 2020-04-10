@@ -181,6 +181,14 @@ def combiner_on_empty_list():
                 return W'''
         self.run_test(code, 1, 2, default_arg4=[int,int])
 
+    def test_default_arg5(self):
+        self.run_test('import numpy\ndef default_arg5(m,n=-numpy.inf): return m, n', 1, default_arg5=[int])
+
+    def test_default_arg6(self):
+        code = 'from numpy import empty\ndef default_arg6(x=empty(3)):pass'
+        with self.assertRaises(SyntaxError):
+            self.run_test(code, default_arg6=[])
+
     @skip("lists as zeros parameter are not supported")
     def test_list_as_zeros_parameter(self):
         self.run_test('def list_as_zeros_parameter(n): from numpy import zeros ; return zeros([n,n])', 3, list_as_zeros_parameter=[int])

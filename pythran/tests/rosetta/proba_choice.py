@@ -36,7 +36,7 @@ def probchoice2(items, probs, bincount=1000):
         yield random.choice(bins)
 
 
-def tester(func=probchoice, items='good bad ugly'.split(),
+def tester(func=probchoice, items=('good', 'bad' 'ugly'),
         probs=(0.5, 0.3, 0.2),
         trials = 100000
         ):

@@ -66,10 +66,17 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
         if isinstance(node, ast.Tuple):
             return all(self.is_immutable_constant(elt) for elt in node.elts)
 
-        if isinstance(node, (ast.Call, ast.Attribute)):
+        if isinstance(node, ast.UnaryOp):
+            return self.is_immutable_constant(node.operand)
+
+        if isinstance(node, (ast.Attribute, ast.Call)):
+            target = getattr(node, 'func', node)
             try:
-                aliases = self.strict_aliases[node]
+                aliases = self.strict_aliases[target]
             except KeyError:
+                return False
+
+            if not aliases:
                 return False
 
             if all(is_global_constant(alias) for alias in aliases):

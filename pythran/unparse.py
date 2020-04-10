@@ -17,7 +17,7 @@ import io
 
 # Large float and imaginary literals get turned into infinities in the AST.
 # We unparse those infinities to INFSTR.
-INFSTR = "1e" + repr(sys.float_info.max_10_exp + 1)
+INFSTR = "(1e1000 ** 2)"
 
 
 def interleave(inter, f, seq):

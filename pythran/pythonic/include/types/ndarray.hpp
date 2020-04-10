@@ -210,25 +210,6 @@ namespace types
     static constexpr long step(ndarray<T, array<pS, 1>> const &);
   };
 
-  template <size_t L>
-  struct noffset {
-    template <class Ty, size_t M>
-    long operator()(array<long, M> const &strides,
-                    array<Ty, M> const &indices) const;
-    template <class Ty, size_t M, class pS>
-    long operator()(array<long, M> const &strides, array<Ty, M> const &indices,
-                    pS const &shape) const;
-  };
-
-  template <>
-  struct noffset<0> {
-    template <class Ty, size_t M>
-    long operator()(array<long, M> const &, array<Ty, M> const &indices) const;
-    template <class Ty, size_t M, class pS>
-    long operator()(array<long, M> const &, array<Ty, M> const &indices,
-                    pS const &shape) const;
-  };
-
   /* Multidimensional array of values
    *
    * An ndarray wraps a raw array pointers && manages multiple dimensions
@@ -264,7 +245,9 @@ namespace types
     T *buffer;      // pointer to the first data stored in the equivalent flat
                     // array
     shape_t _shape; // shape of the multidimensional array
-    array<long, value> _strides; // strides
+    sutils::concat_t<types::array<long, value - 1>,
+                     pshape<std::integral_constant<long, 1>>>
+        _strides; // strides
 
     /* mem management */
     void mark_memory_external(extern_type obj)
@@ -362,6 +345,27 @@ namespace types
 
     template <class Expr>
     ndarray &operator^=(Expr const &expr);
+
+    template <class... Indices>
+    void store(dtype elt, Indices... indices)
+    {
+      *(buffer + noffset<std::tuple_size<pS>::value>{}(
+                     *this, array<long, value>{{indices...}})) = elt;
+    }
+    template <class... Indices>
+    dtype load(Indices... indices) const
+    {
+      return *(buffer + noffset<std::tuple_size<pS>::value>{}(
+                            *this, array<long, value>{{indices...}}));
+    }
+
+    template <class Op, class... Indices>
+    void update(dtype elt, Indices... indices) const
+    {
+      Op{}(*(buffer + noffset<std::tuple_size<pS>::value>{}(
+                          *this, array<long, value>{{indices...}})),
+           elt);
+    }
 
     /* element indexing
      * differentiate const from non const, && r-value from l-value
@@ -606,7 +610,17 @@ namespace types
     ndarray<T, pshape<long>> flat() const;
     ndarray<T, pS> copy() const;
     intptr_t id() const;
-    pS const &shape() const;
+    template <size_t I>
+    auto shape() const -> decltype(std::get<I>(_shape))
+    {
+      return std::get<I>(_shape);
+    }
+
+    template <size_t I>
+    auto strides() const -> decltype(std::get<I>(_strides))
+    {
+      return std::get<I>(_strides);
+    }
 
     operator pointer<T>()
     {
@@ -774,8 +788,7 @@ namespace builtins
   }
 
   template <class E>
-  auto getattr(types::attr::SHAPE, E const &a)
-      -> decltype(sutils::array(a.shape()));
+  types::array<long, E::value> getattr(types::attr::SHAPE, E const &a);
 
   template <class E>
   long getattr(types::attr::NDIM, E const &a);
@@ -996,7 +1009,7 @@ namespace std
           pythonic::types::ndarray<T, pS>> end,
       typename pythonic::types::nditerator<pythonic::types::ndarray<T, pS>> out)
   {
-    const long offset = pythonic::sutils::prod_tail(begin.data.shape());
+    const long offset = pythonic::sutils::prod_tail(begin.data);
     std::copy(begin.data.buffer + begin.index * offset,
               end.data.buffer + end.index * offset,
               out.data.buffer + out.index * offset);

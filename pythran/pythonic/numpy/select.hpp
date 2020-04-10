@@ -51,7 +51,7 @@ namespace numpy
   select(C const &condlist, L const &choicelist, typename L::dtype _default)
   {
     constexpr size_t N = L::value - 1;
-    auto &&choicelist0_shape = choicelist[0].shape();
+    auto &&choicelist0_shape = sutils::getshape(choicelist[0]);
     types::ndarray<typename L::dtype, types::array<long, N>> out(
         choicelist0_shape, _default);
     types::ndarray<typename L::dtype, types::array<long, N>> selected(
@@ -69,7 +69,7 @@ namespace numpy
   select_helper(C const &condlist, L const &choicelist, T _default)
   {
     types::ndarray<typename L::dtype, sutils::pop_head_t<typename L::shape_t>>
-        out(choicelist[0].shape(), _default);
+        out(sutils::getshape(choicelist[0]), _default);
     for (long i = 0; i < out.flat_size(); ++i)
       for (long j = 0; j < condlist.size(); ++j)
         if (condlist[j].buffer[i]) {

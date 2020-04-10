@@ -17,7 +17,7 @@ namespace numpy
     using T = typename dtype::type;
     // use calloc even if we have a non integer type. This looks ok on modern
     // architecture, although not really standard
-    auto *buffer = (T *)calloc(sutils::prod(shape), sizeof(T));
+    auto *buffer = (T *)calloc(sutils::sprod(shape), sizeof(T));
     return {buffer, (sutils::shape_t<pS>)shape, types::ownership::owned};
   }
 

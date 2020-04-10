@@ -29,13 +29,12 @@ namespace numpy
     _rfft(types::ndarray<T, pS> const &in_array, long NFFT, bool norm)
     {
       long i;
-      auto &&shape = in_array.shape();
       T *dptr = (T *)in_array.buffer;
-      long npts = std::get<std::tuple_size<pS>::value - 1>(shape);
+      long npts = in_array.template shape<std::tuple_size<pS>::value - 1>();
 
       // Create output array.
       long out_size = NFFT / 2 + 1;
-      auto out_shape = sutils::array(shape);
+      auto out_shape = sutils::getshape(in_array);
       out_shape.back() = out_size;
       types::ndarray<std::complex<typename std::common_type<T, double>::type>,
                      types::array<long, std::tuple_size<pS>::value>>
@@ -132,7 +131,7 @@ namespace numpy
       auto constexpr N = std::tuple_size<pS>::value;
 
       if (NFFT == -1)
-        NFFT = std::get<N - 1>(in_array.shape());
+        NFFT = in_array.template shape<N - 1>();
       if (axis != -1 && axis != N - 1) {
         // Swap axis if the FFT must be computed on an axis that's not the last
         // one.

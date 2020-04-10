@@ -33,7 +33,7 @@ namespace numpy
     return t.reshape(types::pshape<
         std::integral_constant<long, 1>,
         typename std::tuple_element<0, typename T::shape_t>::type>(
-        std::integral_constant<long, 1>(), std::get<0>(t.shape())));
+        std::integral_constant<long, 1>(), t.template shape<0>()));
   }
 
   template <class T>

@@ -826,14 +826,14 @@ def analyse(node, env, non_generic=None):
             if num and is_tuple_type(value_type):
                 try:
                     unify(prune(prune(value_type.types[0]).types[0])
-                          .types[node.slice.value.n],
+                          .types[node.slice.value.value],
                           new_type)
                     return new_type
                 except IndexError:
                     raise PythranTypeError(
                         "Invalid tuple indexing, "
                         "out-of-bound index `{}` for type `{}`".format(
-                            node.slice.value.n,
+                            node.slice.value.value,
                             value_type),
                         node)
         try:

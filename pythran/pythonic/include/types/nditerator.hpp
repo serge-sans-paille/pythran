@@ -91,9 +91,10 @@ namespace types
       return container_.flat_size();
     }
 
-    auto shape() const -> decltype(this->container_.shape())
+    template <size_t I>
+    auto shape() const -> decltype(this->container_.template shape<I>())
     {
-      return container_.shape();
+      return container_.template shape<I>();
     }
   };
 

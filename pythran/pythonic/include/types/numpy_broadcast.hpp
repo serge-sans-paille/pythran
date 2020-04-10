@@ -75,10 +75,12 @@ namespace types
 
     T const ref;
     using shape_t = types::array<long, value>;
-    shape_t _shape;
-    shape_t const &shape() const
+
+    template <size_t I>
+    long shape() const
     {
-      return _shape;
+      return I == 0 ? 1
+                    : (long)(ref.template shape < I == 0 ? 0 : (I - 1) > ());
     }
 
     broadcasted() = default;
@@ -109,6 +111,12 @@ namespace types
       return *this;
     }
     T const &fast(long i) const;
+    template <class... Indices>
+    dtype load(long i, Indices... indices) const
+    {
+      return ref.load(indices...);
+    }
+
 #ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator_nostep<broadcasted>;
     using simd_iterator_nobroadcast = simd_iterator;
@@ -293,12 +301,20 @@ namespace types
       return *this;
     }
     dtype fast(long) const;
+
+    template <class... Indices>
+    dtype load(long i, Indices... indices) const
+    {
+      return _base._value;
+    }
+
     template <class I>
     auto load(I i) const -> decltype(this->_base.load(i));
     template <class... Args>
     dtype operator()(Args &&...) const;
     using shape_t = types::pshape<std::integral_constant<long, 1>>;
-    shape_t shape() const;
+    template <size_t I>
+    std::integral_constant<long, 1> shape() const;
     long flat_size() const;
     const_iterator begin() const
     {

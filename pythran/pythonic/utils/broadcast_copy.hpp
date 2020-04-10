@@ -48,10 +48,69 @@ namespace utils
   template <typename vector_form, size_t N, size_t D>
   struct _broadcast_copy;
 
+  struct fast_novectorize {
+  };
+
+  template <>
+  struct _broadcast_copy<fast_novectorize, 0, 0> {
+    template <class E, class F, class SelfIndices, class OtherIndices,
+              size_t... Is>
+    void helper(E &&self, F const &other, SelfIndices &&self_indices,
+                OtherIndices &&other_indices, utils::index_sequence<Is...>)
+    {
+      self.store(other.load((long)std::get<Is>(other_indices)...),
+                 (long)std::get<Is>(self_indices)...);
+    }
+
+    template <class E, class F, class SelfIndices, class OtherIndices>
+    void operator()(E &&self, F const &other, SelfIndices &&self_indices,
+                    OtherIndices &&other_indices)
+    {
+      helper(std::forward<E>(self), other, self_indices, other_indices,
+             utils::make_index_sequence<std::tuple_size<
+                 typename std::decay<SelfIndices>::type>::value>());
+    }
+  };
+  template <size_t N>
+  struct _broadcast_copy<fast_novectorize, N, 0> {
+    template <class E, class F, class SelfIndices, class OtherIndices>
+    void operator()(E &&self, F const &other, SelfIndices &&self_indices,
+                    OtherIndices &&other_indices)
+    {
+      auto const other_size =
+          other.template shape<std::decay<E>::type::value - N>();
+      auto const self_size =
+          self.template shape<std::decay<E>::type::value - N>();
+      if (self_size == other_size)
+        for (long i = 0; i < self_size; ++i)
+          _broadcast_copy<fast_novectorize, N - 1, 0>{}(
+              std::forward<E>(self), other,
+              std::tuple_cat(self_indices, std::make_tuple(i)),
+              std::tuple_cat(other_indices, std::make_tuple(i)));
+      else
+        for (long i = 0; i < self_size; ++i)
+          _broadcast_copy<fast_novectorize, N - 1, 0>{}(
+              std::forward<E>(self), other,
+              std::tuple_cat(self_indices, std::make_tuple(i)),
+              std::tuple_cat(other_indices, std::make_tuple(0)));
+    }
+  };
+
+  //  template <size_t N, size_t D>
+  //  struct _broadcast_copy<fast_novectorize, N, D> {
+  //    template <class E, class F, class... Indices>
+  //    void operator()(E &&self, F const &other, Indices... indices)
+  //    {
+  //      _broadcast_copy<fast_novectorize, N, D - 1>{}(std::forward<E>(self),
+  //                                                      types::broadcasted<F>(other),
+  //                                                      indices...);
+  //    }
+  //  };
+
   template <size_t N, class vectorizer>
   struct _broadcast_copy<vectorizer, N, 0> {
-    template <class E, class F>
-    void operator()(E &&self, F const &other)
+    template <class E, class F, class... Indices>
+    void operator()(E &&self, F const &other, Indices... indices)
     {
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
@@ -79,7 +138,7 @@ namespace utils
     }
   };
 
-  // ``D'' is ! ``0'' so we should broadcast
+  // ``D'' is not ``0'' so we should broadcast
   template <class vectorizer, size_t N, size_t D>
   struct _broadcast_copy {
     template <class E, class F>
@@ -92,7 +151,27 @@ namespace utils
         auto siter = sfirst;
         *sfirst = other;
 #ifdef _OPENMP
-        long n = std::get<0>(self.shape());
+        long n = self.template shape<0>();
+        if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
+#pragma omp parallel for
+          for (long i = 1; i < n; ++i)
+            *(siter + i) = *sfirst;
+        else
+#endif
+          std::fill(self.begin() + 1, self.end(), *sfirst);
+      }
+    }
+    template <class E, class F, class ES, class FS>
+    void operator()(E &&self, F const &other, ES, FS)
+    {
+      if (types::is_dtype<F>::value) {
+        std::fill(self.begin(), self.end(), other);
+      } else {
+        auto sfirst = self.begin();
+        auto siter = sfirst;
+        *sfirst = other;
+#ifdef _OPENMP
+        long n = self.template shape<0>();
         if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
           for (long i = 1; i < n; ++i)
@@ -179,9 +258,9 @@ namespace utils
   struct broadcast_copy_dispatcher<E, F, N, D, false> {
     void operator()(E &self, F const &other)
     {
-      if (utils::no_broadcast(other))
-        _broadcast_copy<types::novectorize, N, D>{}(
-            self, types::make_fast_range(other));
+      if (utils::no_broadcast_ex(other))
+        _broadcast_copy<fast_novectorize, N, D>{}(
+            self, other, std::make_tuple(), std::make_tuple());
       else
         _broadcast_copy<types::novectorize, N, D>{}(self, other);
     }
@@ -190,8 +269,9 @@ namespace utils
   struct broadcast_copy_dispatcher<E, F, N, D, true> {
     void operator()(E &self, F const &other)
     {
-      if (utils::no_broadcast(other))
-        _broadcast_copy<types::vectorizer_nobroadcast, N, D>{}(self, other);
+      if (utils::no_broadcast_ex(other))
+        _broadcast_copy<fast_novectorize, N, D>{}(
+            self, other, std::make_tuple(), std::make_tuple());
       else
         _broadcast_copy<types::vectorizer, N, D>{}(self, other);
     }
@@ -214,7 +294,7 @@ namespace utils
     template <class E, class F>
     void operator()(E &&self, F const &other)
     {
-      long n = std::get<0>(self.shape());
+      long n = self.template shape<0>();
       auto siter = self.begin();
 #ifdef _OPENMP
       if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
@@ -358,7 +438,7 @@ namespace utils
   struct broadcast_update_dispatcher<Op, true, E, F, N, D> {
     void operator()(E &self, F const &other)
     {
-      if (utils::no_broadcast(other))
+      if (utils::no_broadcast_vectorize(other))
         _broadcast_update<Op, types::vectorizer_nobroadcast, N, D>{}(self,
                                                                      other);
       else

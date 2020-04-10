@@ -82,7 +82,7 @@ namespace numpy
         axis += N;
 
       axis = axis % N;
-      auto out_shape = sutils::array(out.shape());
+      auto out_shape = sutils::getshape(out);
       const long step =
           std::accumulate(out_shape.begin() + axis, out_shape.end(), 1L,
                           std::multiplies<long>());

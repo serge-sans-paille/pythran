@@ -364,13 +364,6 @@ namespace types
   {
     return reinterpret_cast<array_base<T, N, W> const &>(*this);
   }
-  template <typename T, size_t N, class V>
-  typename array_base<T, N, V>::shape_t array_base<T, N, V>::shape() const
-  {
-    shape_t res;
-    details::init_shape(res, *this, utils::int_<value>{});
-    return res;
-  }
 
   /* array */
   template <typename T, size_t N, class V>

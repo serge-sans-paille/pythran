@@ -41,15 +41,16 @@ namespace numpy
     return out;
   }
 
-  template <size_t Shift, class R, class pS, size_t... Is>
+  template <size_t Shift, class R, class S, size_t... Is>
   types::array<long, sizeof...(Is)>
-  tile_init_shape(R const &reps, pS const &expr_shape,
+  tile_init_shape(R const &reps, S const &expr_shape,
                   utils::index_sequence<Is...>)
   {
-    constexpr size_t M = std::tuple_size<pS>::value;
-    return {{(reps[Is] * ((Is < Shift) ? 1 : std::get < (Is < M)
-                                                 ? Is
-                                                 : 0 > (expr_shape)))...}};
+    constexpr size_t M = S::value;
+    return {
+        {(reps[Is] * ((Is < Shift) ? 1 : expr_shape.template shape < (Is < M)
+                                             ? Is
+                                             : 0 > ()))...}};
   }
 
   template <class E, size_t N>
@@ -57,9 +58,8 @@ namespace numpy
   tile(E const &expr, types::array<long, N> const &reps)
   {
     size_t n = expr.flat_size();
-    auto &&expr_shape = expr.shape();
     types::array<long, N> shape = tile_init_shape<N - E::value>(
-        reps, expr_shape, utils::make_index_sequence<N>());
+        reps, expr, utils::make_index_sequence<N>());
 
     long last_rep = (E::value == N) ? std::get<N - 1>(reps) : 1;
     types::ndarray<typename E::dtype, types::array<long, N>> out(

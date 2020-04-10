@@ -15,15 +15,8 @@ namespace types
 
   template <class T>
   broadcasted<T>::broadcasted(T const &ref)
-      : ref(ref), _shape()
+      : ref(ref)
   {
-    _shape[0] = 1;
-    auto &&ref_shape = ref.shape();
-    long *data = _shape.data() + 1;
-    sutils::copy_shape<0, 0>(
-        data, ref_shape,
-        utils::make_index_sequence<std::tuple_size<
-            typename std::decay<decltype(ref_shape)>::type>::value>());
   }
 
   template <class T>
@@ -141,7 +134,8 @@ namespace types
   }
 
   template <class T, class B>
-  typename broadcast<T, B>::shape_t broadcast<T, B>::shape() const
+  template <size_t I>
+  std::integral_constant<long, 1> broadcast<T, B>::shape() const
   {
     return {};
   }

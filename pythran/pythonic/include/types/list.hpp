@@ -104,11 +104,11 @@ namespace types
         !std::is_same<contiguous_normalized_slice, S>::value;
 
     using shape_t = types::array<long, value>;
-    shape_t shape() const
+    template <size_t I>
+    auto shape() const
+        -> decltype(details::extract_shape(*this, utils::int_<I>{}))
     {
-      shape_t res;
-      details::init_shape(res, *this, utils::int_<value>{});
-      return res;
+      return details::extract_shape(*this, utils::int_<I>{});
     }
 
     // constructor
@@ -146,6 +146,16 @@ namespace types
     sliced_list<T, decltype(std::declval<S>() * std::declval<slice>())>
     operator[](slice s) const;
 
+    template <class... Indices>
+    dtype load(long index0, long index1, Indices... indices) const
+    {
+      return fast(index0).load(index1, indices...);
+    }
+
+    dtype load(long index) const
+    {
+      return fast(index);
+    }
     // comparison
     template <class K>
     bool operator==(list<K> const &other) const;
@@ -291,6 +301,17 @@ namespace types
     sliced_list<T, contiguous_slice>
     operator[](contiguous_slice const &s) const;
 
+    template <class... Indices>
+    dtype load(long index0, long index1, Indices... indices) const
+    {
+      return fast(index0).load(index1, indices...);
+    }
+
+    dtype load(long index) const
+    {
+      return fast(index);
+    }
+
     // modifiers
     template <class Tp>
     void push_back(Tp &&x);
@@ -340,11 +361,13 @@ namespace types
 
     long count(T const &x) const;
     using shape_t = array<long, value>;
-    shape_t shape() const
+    template <size_t I>
+    long shape() const
     {
-      shape_t res;
-      details::init_shape(res, *this, utils::int_<value>{});
-      return res;
+      if (I == 0)
+        return size();
+      else
+        return details::extract_shape(*this, utils::int_<I>{});
     }
   };
 
@@ -388,9 +411,10 @@ namespace types
     operator list<T>() const;
     static constexpr long size();
 
-    shape_t shape() const
+    template <size_t I>
+    std::integral_constant<long, 0> shape() const
     {
-      return {0};
+      return {};
     }
 
     char fast(long) const

@@ -25,7 +25,7 @@ namespace numpy
       ndenumerate_iterator<E>::operator*() const
   {
     types::array<long, E::value> out;
-    auto shape = sutils::array(expr.shape());
+    auto shape = sutils::getshape(expr);
     long mult = 1;
     for (long j = E::value - 1; j > 0; j--) {
       out[j] = (index / mult) % shape[j];

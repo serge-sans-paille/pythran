@@ -28,12 +28,12 @@ namespace numpy
                             types::ndarray<T, NpS>>::type
     reshape(types::ndarray<T, pS> const &expr, NpS const &new_shape)
     {
-      long where = sutils::find(
+      long where = sutils::sfind(
           new_shape, -1,
           std::integral_constant<size_t, std::tuple_size<NpS>::value>(),
           [](long a, long b) { return a <= b; });
-      long next = sutils::find(new_shape, -1, where,
-                               [](long a, long b) { return a <= b; });
+      long next = sutils::sfind(new_shape, -1, where,
+                                [](long a, long b) { return a <= b; });
       if (next >= 0) {
         throw pythonic::types::ValueError(
             "Reshape: can only specify one unknown dimension");
@@ -42,11 +42,11 @@ namespace numpy
       if (where >= 0) {
         auto auto_shape = new_shape;
         misc::set(auto_shape, where,
-                  expr.flat_size() / -sutils::prod(new_shape),
+                  expr.flat_size() / -sutils::sprod(new_shape),
                   utils::make_index_sequence<std::tuple_size<NpS>::value>());
         return expr.reshape(auto_shape);
       } else {
-        auto nshape = sutils::prod(new_shape);
+        auto nshape = sutils::sprod(new_shape);
         auto n = expr.flat_size();
         if (n < nshape) {
           types::ndarray<T, NpS> out(new_shape, builtins::None);

@@ -19,7 +19,7 @@ namespace numpy
     auto constexpr N = std::tuple_size<pS>::value;
     if (k % 4 == 0)
       return copy(expr);
-    types::array<long, N> shape = sutils::array(expr.shape());
+    types::array<long, N> shape = sutils::getshape(expr);
     if (k % 4 != 2)
       std::swap(shape[0], shape[1]);
     types::ndarray<T, types::array<long, N>> out(shape, builtins::None);

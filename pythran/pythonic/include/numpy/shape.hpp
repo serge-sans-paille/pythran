@@ -9,8 +9,11 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
+  template <class T, class pS>
+  auto shape(types::ndarray<T, pS> const &e) -> decltype(e._shape);
+
   template <class E>
-  auto shape(E const &e) -> decltype(e.shape());
+  auto shape(E const &e) -> decltype(sutils::getshape(e));
 
   DEFINE_FUNCTOR(pythonic::numpy, shape)
 }

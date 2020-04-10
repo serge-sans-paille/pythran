@@ -15,7 +15,7 @@ namespace numpy
   template <class U, class V>
   bool array_equal(U const &u, V const &v)
   {
-    if (u.shape() == v.shape())
+    if (sutils::getshape(u) == sutils::getshape(v))
       return all(functor::equal{}(u, v));
     return false;
   }

@@ -18,7 +18,7 @@ namespace numpy
   {
     if (builtins::len(args) == 0)
       throw pythonic::types::ValueError("need at least one array to stack");
-    auto shape = args[0].shape();
+    auto shape = sutils::getshape(args[0]);
     const size_t N = std::tuple_size<decltype(
         shape)>::value; // The length of the shape array.
     auto values = sutils::array(

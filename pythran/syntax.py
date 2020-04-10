@@ -25,7 +25,7 @@ class PythranSyntaxError(SyntaxError):
             self.offset = node.col_offset
 
     def __str__(self):
-        if self.filename:
+        if self.filename and self.lineno and self.offset:
             with open(self.filename) as f:
                 for i in range(self.lineno - 1):
                     f.readline()  # and drop it

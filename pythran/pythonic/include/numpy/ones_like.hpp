@@ -11,11 +11,12 @@ namespace numpy
 
   template <class E, class dtype>
   auto ones_like(E const &expr, dtype d = dtype())
-      -> decltype(ones(expr.shape(), d));
+      -> decltype(ones(sutils::getshape(expr), d));
 
   template <class E>
   auto ones_like(E const &expr, types::none_type d = builtins::None)
-      -> decltype(ones(expr.shape(), types::dtype_t<typename E::dtype>()));
+      -> decltype(ones(sutils::getshape(expr),
+                       types::dtype_t<typename E::dtype>()));
 
   DEFINE_FUNCTOR(pythonic::numpy, ones_like)
 }

@@ -26,7 +26,7 @@ namespace types
 
   template <class E>
   numpy_texpr_2<E>::numpy_texpr_2(Arg const &arg)
-      : arg(arg), _shape{std::get<1>(arg.shape()), std::get<0>(arg.shape())}
+      : arg(arg)
   {
   }
 
@@ -39,7 +39,7 @@ namespace types
   template <class E>
   typename numpy_texpr_2<E>::const_iterator numpy_texpr_2<E>::end() const
   {
-    return {*this, std::get<0>(_shape)};
+    return {*this, size()};
   }
 
   template <class E>
@@ -51,7 +51,7 @@ namespace types
   template <class E>
   typename numpy_texpr_2<E>::iterator numpy_texpr_2<E>::end()
   {
-    return {*this, std::get<0>(_shape)};
+    return {*this, size()};
   }
 
   template <class E>
@@ -94,7 +94,7 @@ namespace types
   auto numpy_texpr_2<E>::operator[](long i) const -> decltype(this->fast(i))
   {
     if (i < 0)
-      i += std::get<0>(_shape);
+      i += size();
     return fast(i);
   }
 
@@ -102,7 +102,7 @@ namespace types
   auto numpy_texpr_2<E>::operator[](long i) -> decltype(this->fast(i))
   {
     if (i < 0)
-      i += std::get<0>(_shape);
+      i += size();
     return fast(i);
   }
 
@@ -160,7 +160,7 @@ namespace types
       numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
   numpy_texpr_2<E>::fast(F const &filter) const
   {
-    long sz = std::get<0>(filter.shape());
+    long sz = filter.template shape<0>();
     long *raw = (long *)malloc(sz * sizeof(long));
     long n = 0;
     for (long i = 0; i < sz; ++i)

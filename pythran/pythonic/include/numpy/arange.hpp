@@ -106,9 +106,15 @@ namespace numpy
         return start + i * step;
       }
 
-      shape_t shape() const
+      dtype load(long i) const
       {
-        return {size};
+        return fast(i);
+      }
+
+      template <size_t I>
+      long shape() const
+      {
+        return size;
       }
       types::ndarray<dtype, shape_t> operator[](types::slice s) const
       {

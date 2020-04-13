@@ -2,6 +2,18 @@
 #define PYTHONIC_INCLUDE_TYPES_COMPLEX_HPP
 
 #include <complex>
+
+#if defined(_OPENMP)
+#pragma omp declare reduction(+ : std::complex < float > : omp_out += omp_in)
+#pragma omp declare reduction(* : std::complex < float > : omp_out *= omp_in)
+#pragma omp declare reduction(+ : std::complex < double > : omp_out += omp_in)
+#pragma omp declare reduction(* : std::complex < double > : omp_out *= omp_in)
+#pragma omp declare reduction(+ : std::complex < long double > : omp_out +=    \
+                              omp_in)
+#pragma omp declare reduction(* : std::complex < long double > : omp_out *=    \
+                              omp_in)
+#endif
+
 PYTHONIC_NS_BEGIN
 namespace numpy
 {

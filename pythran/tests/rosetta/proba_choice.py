@@ -1,5 +1,5 @@
 #from http://rosettacode.org/wiki/Probabilistic_choice#Python
-#pythran export test()
+#pythran export test(str?, int?)
 #runas test()
 
 import random, bisect
@@ -62,9 +62,9 @@ def tester(func=probchoice, items=('good', 'bad' 'ugly'),
     print("Attained probability:", problist2string(
         counter[x]/float(trials) for x in items))
 
-def test():
-    items = 'aleph beth gimel daleth he waw zayin heth'.split()
+def test(init_seq='aleph beth gimel daleth he waw zayin heth', bincount=1000000):
+    items = init_seq.split()
     probs = [1/(float(n)+5) for n in range(len(items))]
     probs[-1] = 1-sum(probs[:-1])
-    tester(probchoice, items, probs, 1000000)
+    tester(probchoice, items, probs, bincount)
     tester(probchoice2, items, probs, 1000000)

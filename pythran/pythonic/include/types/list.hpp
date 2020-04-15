@@ -138,10 +138,10 @@ namespace types
     long size() const;
     explicit operator bool() const;
 
-    // accessor
-    T const &fast(long i) const;
-    T const &operator[](long i) const;
-    T &operator[](long i);
+    // accessors
+    const_reference fast(long i) const;
+    const_reference operator[](long i) const;
+    reference operator[](long i);
     sliced_list<T, S> operator[](contiguous_slice s) const;
     sliced_list<T, decltype(std::declval<S>() * std::declval<slice>())>
     operator[](slice s) const;
@@ -159,6 +159,13 @@ namespace types
     template <class vectorizer>
     simd_iterator vend(vectorizer) const;
 #endif
+
+    // other operations
+    template <class V>
+    bool contains(V const &v) const;
+    intptr_t id() const;
+
+    long count(T const &x) const;
   };
 
   /* list */

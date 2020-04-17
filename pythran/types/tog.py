@@ -826,7 +826,7 @@ def analyse(node, env, non_generic=None):
             if num and is_tuple_type(value_type):
                 try:
                     unify(prune(prune(value_type.types[0]).types[0])
-                          .types[node.slice.value.n],
+                          .types[node.slice.value.value],
                           new_type)
                     return new_type
                 except IndexError:

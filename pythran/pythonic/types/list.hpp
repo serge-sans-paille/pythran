@@ -81,17 +81,19 @@ namespace types
 
   // accessor
   template <class T, class S>
-  T const &sliced_list<T, S>::fast(long i) const
+  typename sliced_list<T, S>::const_reference
+  sliced_list<T, S>::fast(long i) const
   {
     return (*data)[slicing.get(i)];
   }
   template <class T, class S>
-  T const &sliced_list<T, S>::operator[](long i) const
+  typename sliced_list<T, S>::const_reference sliced_list<T, S>::
+  operator[](long i) const
   {
     return (*data)[slicing.get(i)];
   }
   template <class T, class S>
-  T &sliced_list<T, S>::operator[](long i)
+  typename sliced_list<T, S>::reference sliced_list<T, S>::operator[](long i)
   {
     return (*data)[slicing.get(i)];
   }
@@ -190,6 +192,26 @@ namespace types
   }
 
 #endif
+
+  // other operations
+  template <class T, class S>
+  template <class V>
+  bool sliced_list<T, S>::contains(V const &v) const
+  {
+    return std::find(data->begin(), data->end(), v) != data->end();
+  }
+  template <class T, class S>
+  intptr_t sliced_list<T, S>::id() const
+  {
+    // sharing is not implemented for sliced list
+    return reinterpret_cast<intptr_t>(this);
+  }
+
+  template <class T, class S>
+  long sliced_list<T, S>::count(T const &x) const
+  {
+    return std::count(begin(), end(), x);
+  }
 
   /// List
 

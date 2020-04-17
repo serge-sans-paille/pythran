@@ -3,6 +3,15 @@ from pythran.typing import List, NDArray
 import numpy as np
 
 class TestList(TestEnv):
+    def test_contains_(self):
+        self.run_test("def contains_(a):\n b=[1,2,3,8,7,4]\n return a in b",
+                      8,
+                      contains_=[int])
+
+    def test_contains_slice(self):
+        self.run_test("def contains_slice(a):\n b=[1,2,3,8,7,4]\n return a in b[1:a//2]",
+                      8,
+                      contains_slice=[int])
 
     def test_extend_(self):
         self.run_test("def extend_(a):\n b=[1,2,3]\n b.extend(a)\n return b", [1.2], extend_=[List[float]])
@@ -27,6 +36,9 @@ class TestList(TestEnv):
 
     def test_count_(self):
         self.run_test("def count_(a):\n b=[1,3,4,5,3,7]\n return b.count(a)",3, count_=[int])
+
+    def test_count_slice(self):
+        self.run_test("def count_slice(a):\n b=[1,3,4,5,3,7]\n return b[:a].count(a)",3, count_slice=[int])
 
     def test_reverse_(self):
         self.run_test("def reverse_():\n b=[1,2,3]\n b.reverse()\n return b", reverse_=[])

@@ -175,9 +175,14 @@ class MethodIntr(FunctionIntr):
 
 class ConstMethodIntr(MethodIntr):
     def __init__(self, *combiners, **kwargs):
-        super(ConstMethodIntr, self).__init__(
-            *combiners,
-            argument_effects=(ReadEffect(),) * DefaultArgNum, **kwargs)
+        kwargs.setdefault('argument_effects', (ReadEffect(),) * DefaultArgNum)
+        super(ConstMethodIntr, self).__init__(*combiners, **kwargs)
+
+
+class ReadOnceMethodIntr(ConstMethodIntr):
+    def __init__(self, **kwargs):
+        super(ReadOnceMethodIntr, self).__init__(
+            argument_effects=(ReadOnceEffect(),) * DefaultArgNum, **kwargs)
 
 
 class AttributeIntr(Intrinsic):

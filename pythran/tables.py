@@ -15,6 +15,7 @@ from pythran.intrinsic import ClassWithReadOnceConstructor
 from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
 from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr, UFunc
+from pythran.intrinsic import ReadOnceMethodIntr
 from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran import interval
 from functools import reduce
@@ -3970,7 +3971,8 @@ MODULES = {
             BINARY_UFUNC,
             signature=_numpy_binary_op_signature,
         ),
-        "sum": ConstMethodIntr(signature=_numpy_unary_op_sum_axis_signature),
+        "sum": ReadOnceMethodIntr(
+            signature=_numpy_unary_op_sum_axis_signature),
         "swapaxes": ConstMethodIntr(),
         "short": ConstFunctionIntr(signature=_int_signature),
         "take": ConstMethodIntr(),

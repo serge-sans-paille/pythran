@@ -3,10 +3,11 @@
 
 import gast as ast
 from collections import defaultdict
+from functools import reduce
 
-from pythran.analyses import Globals, Aliases
+from pythran.analyses import Aliases
 from pythran.intrinsic import Intrinsic
-from pythran.passmanager import FunctionAnalysis
+from pythran.passmanager import ModuleAnalysis
 from pythran.interval import Interval, IntervalTuple, UNKNOWN_RANGE
 from pythran.tables import MODULES, attributes
 
@@ -19,7 +20,87 @@ def combine(op, node0, node1):
         return UNKNOWN_RANGE
 
 
-class RangeValues(FunctionAnalysis):
+def bound_range(mapping, node, modified=None):
+    if modified is None:
+        modified = set()
+
+    if isinstance(node, ast.BoolOp):
+        if isinstance(node.op, ast.And):
+            for value in node.values:
+                bound_range(mapping, value, modified)
+        elif isinstance(node.op, ast.Or):
+            mappings = [mapping.copy() for _ in node.values]
+            for value, mapping_cpy in zip(node.values, mappings):
+                bound_range(mapping_cpy, value, modified)
+            for k in modified:
+                mapping[k] = reduce(lambda x, y: x.union(y[k]),
+                                    mappings[1:],
+                                    mappings[0][k])
+
+    if isinstance(node, ast.Compare):
+        current_bound = None
+        current_identifiers = []
+        if isinstance(node.left, ast.Name):
+            current_identifiers.append(node.left.id)
+            modified.add(node.left.id)
+        elif isinstance(getattr(node.left, 'value', None), (bool, int)):
+            current_bound = node.left.value
+
+        for op, comparator in zip(node.ops, node.comparators):
+            if isinstance(comparator, ast.Name):
+                current_identifiers.append(comparator.id)
+                modified.add(comparator.id)
+
+                if current_bound is None:
+                    continue
+                if isinstance(op, ast.Eq):
+                    interval = Interval(current_bound, current_bound)
+                elif isinstance(op, ast.Lt):
+                    interval = Interval(current_bound + 1, float('inf'))
+                elif isinstance(op, ast.LtE):
+                    interval = Interval(current_bound, float('inf'))
+                elif isinstance(op, ast.Gt):
+                    interval = Interval(-float('inf'), current_bound - 1)
+                elif isinstance(op, ast.GtE):
+                    interval = Interval(float('inf'), current_bound)
+                else:
+                    interval = None
+
+            elif isinstance(comparator, (ast.List, ast.Tuple, ast.Set)):
+                if all(isinstance(getattr(elt, 'value', None), (bool, int))
+                       for elt in comparator.elts):
+                    if isinstance(op, ast.In) and comparator.elts:
+                        low = min(elt.value for elt in comparator.elts)
+                        high = max(elt.value for elt in comparator.elts)
+                        interval = Interval(low, high)
+                    else:
+                        interval = None
+                else:
+                    interval = None
+
+            elif isinstance(getattr(comparator, 'value', None), (bool, int)):
+                current_bound = comparator.value
+                if isinstance(op, ast.Eq):
+                    interval = Interval(current_bound, current_bound)
+                elif isinstance(op, ast.Lt):
+                    interval = Interval(-float('inf'), current_bound - 1)
+                elif isinstance(op, ast.LtE):
+                    interval = Interval(float('inf'), current_bound)
+                elif isinstance(op, ast.Gt):
+                    interval = Interval(current_bound + 1, float('inf'))
+                elif isinstance(op, ast.GtE):
+                    interval = Interval(current_bound, float('inf'))
+                else:
+                    interval = None
+            else:
+                interval = None
+
+            if interval is not None:
+                for name in current_identifiers:
+                    mapping[name] = mapping[name].intersect(interval)
+
+
+class RangeValues(ModuleAnalysis):
 
     """
     This analyse extract positive subscripts from code.
@@ -39,10 +120,12 @@ class RangeValues(FunctionAnalysis):
     (Interval(low=0, high=5), Interval(low=1, high=10))
     """
 
+    ResultHolder = object()
+
     def __init__(self):
         """Initialize instance variable and gather globals name information."""
         self.result = defaultdict(lambda: UNKNOWN_RANGE)
-        super(RangeValues, self).__init__(Globals, Aliases)
+        super(RangeValues, self).__init__(Aliases)
 
     def add(self, variable, range_):
         """
@@ -68,8 +151,45 @@ class RangeValues(FunctionAnalysis):
         >>> res['a']
         Interval(low=-inf, high=inf)
         """
+        if node in self.result:
+            return
+        self.result[node] = UNKNOWN_RANGE
+
+        prev_result = self.result.get(RangeValues.ResultHolder, None)
+
+        # Set this prematurely to avoid infinite callgraph loop
+
         for stmt in node.body:
             self.visit(stmt)
+
+        del self.result[node]
+        self.add(node, self.result[RangeValues.ResultHolder])
+
+        if prev_result is not None:
+            self.result[RangeValues.ResultHolder] = prev_result
+
+    def visit_Return(self, node):
+        if node.value:
+            return_range = self.visit(node.value)
+            return self.add(RangeValues.ResultHolder, return_range)
+        else:
+            return self.generic_visit(node)
+
+    def visit_Assert(self, node):
+        """
+        Constraint the range of variables
+
+        >>> import gast as ast
+        >>> from pythran import passmanager, backend
+        >>> node = ast.parse("def foo(a): assert a >= 1; b = a + 1")
+        >>> pm = passmanager.PassManager("test")
+        >>> res = pm.gather(RangeValues, node)
+        >>> res['a']
+        Interval(low=1, high=inf)
+        >>> res['b']
+        Interval(low=2, high=inf)
+        """
+        bound_range(self.result, node.test)
 
     def visit_Assign(self, node):
         """
@@ -133,6 +253,15 @@ class RangeValues(FunctionAnalysis):
         Interval(low=2, high=inf)
         >>> res['c']
         Interval(low=2, high=2)
+
+        >>> node = ast.parse('''
+        ... def foo():
+        ...     for i in (1, 2, 4):
+        ...         a = i''')
+        >>> pm = passmanager.PassManager("test")
+        >>> res = pm.gather(RangeValues, node)
+        >>> res['a']
+        Interval(low=1, high=4)
         """
         assert isinstance(node.target, ast.Name), "For apply on variables."
         self.visit(node.iter)
@@ -143,7 +272,8 @@ class RangeValues(FunctionAnalysis):
                              alias.return_range_content(
                                  [self.visit(n) for n in node.iter.args]))
 
-        self.visit_loop(node)
+        self.visit_loop(node,
+                        ast.Compare(node.target, [ast.In()], [node.iter]))
 
     def visit_loop(self, node, cond=None):
         """ Handle incremented variables in loop body.
@@ -159,12 +289,18 @@ class RangeValues(FunctionAnalysis):
         >>> pm = passmanager.PassManager("test")
         >>> res = pm.gather(RangeValues, node)
         >>> res['a']
-        Interval(low=-inf, high=2)
+        Interval(low=0, high=2)
         >>> res['b']
         Interval(low=2, high=inf)
         >>> res['c']
         Interval(low=2, high=2)
         """
+
+        if cond is not None:
+            init_range = self.result
+            self.result = self.result.copy()
+            bound_range(self.result, cond)
+
         # visit once to gather newly declared vars
         for stmt in node.body:
             self.visit(stmt)
@@ -180,10 +316,14 @@ class RangeValues(FunctionAnalysis):
         for expr, range_ in old_range.items():
             self.result[expr] = self.result[expr].widen(range_)
 
-        # propagate  the new informations
-        cond and self.visit(cond)
-        for stmt in node.body:
-            self.visit(stmt)
+        # propagate the new informations again
+        if cond is not None:
+            bound_range(self.result, cond)
+            for stmt in node.body:
+                self.visit(stmt)
+            for k, v in init_range.items():
+                self.result[k] = self.result[k].union(v)
+            self.visit(cond)
 
         for stmt in node.orelse:
             self.visit(stmt)
@@ -273,12 +413,45 @@ class RangeValues(FunctionAnalysis):
 
         >>> import gast as ast
         >>> from pythran import passmanager, backend
+        >>> pm = passmanager.PassManager("test")
+
         >>> node = ast.parse('''
         ... def foo(a):
         ...     if a > 1: b = 1
         ...     else: b = 3''')
 
-        >>> pm = passmanager.PassManager("test")
+        >>> res = pm.gather(RangeValues, node)
+        >>> res['b']
+        Interval(low=1, high=3)
+
+        >>> node = ast.parse('''
+        ... def foo(a):
+        ...     if a > 1: b = a
+        ...     else: b = 3''')
+        >>> res = pm.gather(RangeValues, node)
+        >>> res['b']
+        Interval(low=2, high=inf)
+
+        >>> node = ast.parse('''
+        ... def foo(a):
+        ...     if 0 < a < 4: b = a
+        ...     else: b = 3''')
+        >>> res = pm.gather(RangeValues, node)
+        >>> res['b']
+        Interval(low=1, high=3)
+
+        >>> node = ast.parse('''
+        ... def foo(a):
+        ...     if (0 < a) and (a < 4): b = a
+        ...     else: b = 3''')
+        >>> res = pm.gather(RangeValues, node)
+        >>> res['b']
+        Interval(low=1, high=3)
+
+        >>> node = ast.parse('''
+        ... def foo(a):
+        ...     if (a == 1) or (a == 2): b = a
+        ...     else: b = 3''')
         >>> res = pm.gather(RangeValues, node)
         >>> res['b']
         Interval(low=1, high=3)
@@ -287,6 +460,8 @@ class RangeValues(FunctionAnalysis):
         old_range = self.result
 
         self.result = old_range.copy()
+        bound_range(self.result, node.test)
+
         for stmt in node.body:
             self.visit(stmt)
         body_range = self.result
@@ -389,7 +564,12 @@ class RangeValues(FunctionAnalysis):
                 alias_range = alias.return_range(
                     [self.visit(n) for n in node.args])
                 self.add(node, alias_range)
+            elif isinstance(alias, ast.FunctionDef):
+                if alias not in self.result:
+                    self.visit(alias)
+                self.add(node, self.result[alias])
             else:
+                self.result.pop(node, None)
                 return self.generic_visit(node)
         return self.result[node]
 

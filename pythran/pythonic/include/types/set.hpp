@@ -307,6 +307,11 @@ namespace types
     iterator end() const;
     template <class V>
     bool contains(V const &) const;
+
+    constexpr long size() const
+    {
+      return 0;
+    }
   };
 }
 

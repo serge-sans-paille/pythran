@@ -39,6 +39,9 @@ class Interval(object):
         """ Intersect current range with other."""
         return Interval(min(self.low, other.low), max(self.high, other.high))
 
+    def intersect(self, other):
+        return Interval(max(self.low, other.low), min(self.high, other.high))
+
     def copy(self):
         return Interval(self.low, self.high)
 
@@ -383,6 +386,12 @@ class IntervalTuple(object):
             return UNKNOWN_RANGE
         return IntervalTuple(x.union(y) for x, y in zip(self.values,
                                                         other.values))
+
+    def intersect(self, other):
+        if isinstance(other, Interval):
+            return UNKNOWN_RANGE
+        return IntervalTuple(x.intersect(y) for x, y in zip(self.values,
+                                                            other.values))
 
     @property
     def high(self):

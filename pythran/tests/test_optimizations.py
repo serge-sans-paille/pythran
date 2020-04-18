@@ -231,11 +231,26 @@ def readonce_cycle2(n):
 
         self.check_ast(init, ref, ["pythran.optimizations.IterTransformation"])
 
+    def test_readonce_tuple(self):
+        init = "def foo(l): return sum(tuple(l))"
+        ref = """def foo(l):
+    return builtins.sum(l)"""
+
+        self.check_ast(init, ref, ["pythran.optimizations.IterTransformation"])
+
     def test_readonce_array(self):
         init = "def foo(l): import numpy as np; return sum(np.array(l))"
         ref = """import numpy as __pythran_import_numpy
 def foo(l):
     return builtins.sum(l)"""
+
+        self.check_ast(init, ref, ["pythran.optimizations.IterTransformation"])
+
+    def test_readonce_np_sum_copy(self):
+        init = "def foo(l): import numpy as np; return np.sum(np.copy(l))"
+        ref = """import numpy as __pythran_import_numpy
+def foo(l):
+    return __pythran_import_numpy.sum(l)"""
 
         self.check_ast(init, ref, ["pythran.optimizations.IterTransformation"])
 

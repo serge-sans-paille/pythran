@@ -23,7 +23,7 @@ class Scope(FunctionAnalysis):
     def __init__(self):
         self.result = defaultdict(set)
         self.decl_holders = (ast.FunctionDef, ast.For,
-                             ast.While, ast.Try, ast.If)
+                             ast.While, ast.If)
         super(Scope, self).__init__(Ancestors, DefUseChains)
 
     def visit_OMPDirective(self, node):

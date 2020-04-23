@@ -7,6 +7,7 @@ from pythran.analyses import LazynessAnalysis, UseDefChains, DefUseChains
 from pythran.analyses import Literals, Ancestors, Identifiers, CFG, IsAssigned
 from pythran.passmanager import Transformation
 
+from collections import defaultdict
 import gast as ast
 import networkx as nx
 
@@ -24,10 +25,15 @@ class Remover(ast.NodeTransformer):
     def __init__(self, nodes):
         self.nodes = nodes
 
-    def generic_visit(self, node):
+    def visit_Assign(self, node):
         if node in self.nodes:
-            return ast.Pass()
-        return super(Remover, self).generic_visit(node)
+            to_prune = self.nodes[node]
+            node.targets = [tgt for tgt in node.targets if tgt not in to_prune]
+            if node.targets:
+                return node
+            else:
+                return ast.Pass()
+        return node
 
 
 class ForwardSubstitution(Transformation):
@@ -38,18 +44,29 @@ class ForwardSubstitution(Transformation):
     >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> pm = passmanager.PassManager("test")
+
     >>> node = ast.parse("def foo(): a = [2, 3]; builtins.print(a)")
     >>> _, node = pm.apply(ForwardSubstitution, node)
     >>> print(pm.dump(backend.Python, node))
     def foo():
         pass
         builtins.print([2, 3])
+
     >>> node = ast.parse("def foo(): a = 2; builtins.print(a + a)")
     >>> _, node = pm.apply(ForwardSubstitution, node)
     >>> print(pm.dump(backend.Python, node))
     def foo():
         a = 2
         builtins.print((2 + 2))
+
+    >>> node = ast.parse("def foo():\\n a=b=2\\n while a: a -= 1\\n return b")
+    >>> _, node = pm.apply(ForwardSubstitution, node)
+    >>> print(pm.dump(backend.Python, node))
+    def foo():
+        a = 2
+        while a:
+            a -= 1
+        return 2
     """
 
     def __init__(self):
@@ -60,10 +77,10 @@ class ForwardSubstitution(Transformation):
                                                   Ancestors,
                                                   CFG,
                                                   Literals)
-        self.to_remove = set()
+        self.to_remove = None
 
     def visit_FunctionDef(self, node):
-        self.to_remove = set()
+        self.to_remove = defaultdict(list)
         self.locals = self.def_use_chains.locals[node]
 
         # prune some assignment as a second phase, as an assignment could be
@@ -112,7 +129,7 @@ class ForwardSubstitution(Transformation):
             if dnode in self.literals:
                 self.update = True
                 if len(defuse.users()) == 1:
-                    self.to_remove.add(parent)
+                    self.to_remove[parent].append(dnode)
                     return value
                 else:
                     # FIXME: deepcopy here creates an unknown node
@@ -132,7 +149,7 @@ class ForwardSubstitution(Transformation):
                     break
                 else:
                     self.update = True
-                    self.to_remove.add(parent)
+                    self.to_remove[parent].append(dnode)
                     return value
 
         return node

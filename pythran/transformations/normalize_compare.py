@@ -57,6 +57,11 @@ class NormalizeCompare(Transformation):
         self.generic_visit(node)
         return node
 
+    def visit_Assert(self, node):
+        # Assume no side effect in asserts function.
+        # This is checked in extended_syntax check.
+        return node
+
     def visit_Compare(self, node):
         node = self.generic_visit(node)
         if len(node.ops) > 1:

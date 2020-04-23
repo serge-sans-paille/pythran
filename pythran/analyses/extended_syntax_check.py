@@ -32,6 +32,7 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
     def __init__(self):
         self.result = None
         self.update = False
+        self.inassert = False
         self.functions = set()
         ModuleAnalysis.__init__(self, StrictAliases, ArgumentEffects)
 
@@ -58,6 +59,16 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
         else:
             self.functions.add(node.name)
         self.generic_visit(node)
+
+    def check_assert(self, node, arg):
+        if self.inassert:
+            raise PythranSyntaxError("Cannot call a function with side effect "
+                                     "in an assert", node)
+
+    def visit_Assert(self, node):
+        self.inassert = True
+        self.generic_visit(node)
+        self.inassert = False
 
     def is_immutable_constant(self, node):
         if isinstance(node, ast.Constant):
@@ -153,3 +164,4 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
             if i not in argument_effects:
                 continue
             self.check_global(node, arg)
+            self.check_assert(node, arg)

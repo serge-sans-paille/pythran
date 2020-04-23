@@ -3,7 +3,7 @@
 
 #include "pythonic/include/builtins/assert.hpp"
 
-#include "pythonic/types/exceptions.hpp"
+#include "pythonic/builtins/AssertionError.hpp"
 #include "pythonic/types/str.hpp"
 
 PYTHONIC_NS_BEGIN

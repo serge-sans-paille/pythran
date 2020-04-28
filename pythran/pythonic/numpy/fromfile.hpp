@@ -40,11 +40,10 @@ namespace numpy
       count = maxCount;
     }
 
-    types::pshape<long> shape = count;
-    utils::shared_ref<types::raw_array<typename dtype::type>> buffer(
-        std::get<0>(shape));
-    fs.read((char *)buffer->data, sizeof(typename dtype::type) * count);
-    return {buffer, shape};
+    types::ndarray<typename dtype::type, types::pshape<long>> res(
+        types::pshape<long>{count}, types::none_type{});
+    fs.read((char *)res.buffer, sizeof(typename dtype::type) * count);
+    return res;
   }
 }
 PYTHONIC_NS_END

@@ -83,7 +83,7 @@ class PatchReturn(ast.NodeTransformer):
                         ast.Load()),
                     holder,
                     ast.Load()),
-                [value],
+                [value] if value else [ast.Constant(None, None)],
                 []))
 
 
@@ -351,7 +351,6 @@ class SplitStaticExpression(Transformation):
         and then recursively split again, until all static expr are alone in a
         test condition
         '''
-
         NodeTy = type(node)
         if NodeTy is ast.IfExp:
             def W(x):

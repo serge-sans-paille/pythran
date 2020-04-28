@@ -13,6 +13,10 @@ def is_true_predicate(node):
         return True
     if isinstance(node, ast.Attribute) and node.attr == 'True':
         return True
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)) and node.elts:
+        return True
+    if isinstance(node, ast.Dict) and node.keys:
+        return True
     return False
 
 
@@ -89,6 +93,7 @@ class CFG(FunctionAnalysis):
         # add the backward loop
         for curr in currs:
             self.result.add_edge(curr, node)
+
         # the else statement if needed
         if node.orelse:
             for n in node.orelse:
@@ -96,11 +101,16 @@ class CFG(FunctionAnalysis):
                 for curr in currs:
                     self.result.add_edge(curr, n)
                 currs, nraises = self.visit(n)
-        # while only
-        if hasattr(node, 'test') and is_true_predicate(node.test):
-            return break_currs, raises
 
-        return break_currs + currs, raises
+        # while only
+        if isinstance(node, ast.While):
+            if is_true_predicate(node.test):
+                return break_currs, raises
+            else:
+                return break_currs + (node,), raises
+
+        # for only
+        return break_currs + (node,), raises
 
     visit_While = visit_For
 

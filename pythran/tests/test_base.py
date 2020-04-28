@@ -249,7 +249,8 @@ def lambda_():
         self.run_test("def break_():\n for i in range(3):break\n return i", break_=[])
 
     def test_assert(self):
-        self.run_test("def assert_(i): assert i > 0", 1, assert_=[int])
+        with self.assertRaises(AssertionError):
+            self.run_test("def assert_(i): assert i > 0", -1, assert_=[int])
 
     def test_assert_with_msg(self):
         self.run_test("def assert_with_msg(i): assert i > 0, 'hell yeah'", 1, assert_with_msg=[int])

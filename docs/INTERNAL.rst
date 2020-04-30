@@ -48,12 +48,13 @@ When computing variable scope, one gets a dictionary binding nodes to variable n
 
 ``n`` is a formal parameter, so it has function scope::
 
-    >>> scopes[foo_tree.body[0]] == set(['a', 'n'])
-    True
+    >>> sorted(scopes[foo_tree.body[0]])
+    ['a', 'n']
 
 
 ``a`` is used at the function scope (in the ``return`` statement), so even if
-it's declared in an ``if`` it has function scope too.
+it's declared in an ``if`` it has function scpe too.
+
 
 Now let's see what happen if we add a loop to the function::
 
@@ -72,8 +73,8 @@ Now let's see what happen if we add a loop to the function::
 Variable ``a`` is only used in the loop body, so one can declare it inside the
 loop::
 
-    >>> scopes[foo_tree.body[0].body[1]] == set(['i', 'a'])
-    True
+    >>> scopes[tuple(foo_tree.body[0].body[1].body)]
+    {'a'}
 
 In a similar manner, the iteration variable ``i`` gets a new value at each
 iteration step, and is declared at the loop level.
@@ -97,8 +98,10 @@ Without scoping directive, both ``i`` and ``a`` are private::
 
     >>> foo_tree = getast(foo)
     >>> scopes = pm.gather(analyses.Scope, foo_tree)
-    >>> scopes[foo_tree.body[0].body[2]] == set(['i', 'a'])  # 3rd element: omp is not parsed
-    True
+    >>> scopes[foo_tree.body[0].body[2]]
+    {'i'}
+    >>> scopes[tuple(foo_tree.body[0].body[2].body)]
+    {'a'}
 
 But if one adds a
 ``lastprivate`` clause, as in::

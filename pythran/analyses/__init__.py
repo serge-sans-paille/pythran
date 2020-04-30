@@ -10,7 +10,7 @@ import analyses.Foo
 """
 
 from .aliases import Aliases, StrictAliases
-from .ancestors import Ancestors
+from .ancestors import Ancestors, AncestorsWithBody
 from .argument_effects import ArgumentEffects
 from .argument_read_once import ArgumentReadOnce
 from .ast_matcher import ASTMatcher, AST_any, AST_or, Placeholder, Check

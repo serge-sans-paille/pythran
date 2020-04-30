@@ -20,6 +20,7 @@ from .false_polymorphism import FalsePolymorphism
 from .handle_import import HandleImport
 from .normalize_compare import NormalizeCompare
 from .normalize_exception import NormalizeException
+from .normalize_ifelse import NormalizeIfElse
 from .normalize_is_none import NormalizeIsNone
 from .normalize_method_calls import NormalizeMethodCalls
 from .normalize_return import NormalizeReturn

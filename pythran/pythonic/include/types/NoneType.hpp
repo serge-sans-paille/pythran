@@ -292,36 +292,36 @@ struct __combined<T1, pythonic::types::none<T0>> {
 template <class T0, class T1>
 struct __combined<pythonic::types::none<T1>, pythonic::types::none<T0>> {
   static_assert(!pythonic::types::is_none<T0>::value,
-                "none of none should'nt exist");
+                "none of none shouldn't exist");
   static_assert(!pythonic::types::is_none<T1>::value,
-                "none of none should'nt exist");
+                "none of none shouldn't exist");
   using type = pythonic::types::none<typename __combined<T0, T1>::type>;
 };
 
 template <class T>
 struct __combined<pythonic::types::none_type, T> {
   static_assert(!pythonic::types::is_none<T>::value,
-                "none of none should'nt exist");
+                "none of none shouldn't exist");
   using type = pythonic::types::none<T>;
 };
 
 template <class T>
 struct __combined<pythonic::types::none_type, pythonic::types::none<T>> {
   static_assert(!pythonic::types::is_none<T>::value,
-                "none of none should'nt exist");
+                "none of none shouldn't exist");
   using type = pythonic::types::none<T>;
 };
 
 template <class T>
 struct __combined<T, pythonic::types::none_type> {
   static_assert(!pythonic::types::is_none<T>::value,
-                "none of none should'nt exist");
+                "none of none shouldn't exist");
   using type = pythonic::types::none<T>;
 };
 template <class T>
 struct __combined<pythonic::types::none<T>, pythonic::types::none_type> {
   static_assert(!pythonic::types::is_none<T>::value,
-                "none of none should'nt exist");
+                "none of none shouldn't exist");
   using type = pythonic::types::none<T>;
 };
 

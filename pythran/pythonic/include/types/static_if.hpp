@@ -207,6 +207,22 @@ struct __combined<pythonic::types::StaticIfNoReturn<T1>,
                   pythonic::types::StaticIfReturn<T0>> {
   using type = pythonic::types::StaticIfReturnHolder<T0, T1>;
 };
+
+template <class T0>
+struct __combined<pythonic::types::StaticIfNoReturn<T0> &,
+                  pythonic::types::none_type> {
+  using type = pythonic::types::none_type;
+};
+template <class T0>
+struct __combined<pythonic::types::StaticIfNoReturn<T0>,
+                  pythonic::types::none_type> {
+  using type = pythonic::types::none_type;
+};
+template <class T0>
+struct __combined<pythonic::types::none_type,
+                  pythonic::types::StaticIfNoReturn<T0>> {
+  using type = pythonic::types::none_type;
+};
 template <class T0, class T1>
 struct __combined<pythonic::types::StaticIfBreak<T1>,
                   pythonic::types::StaticIfReturn<T0>> {

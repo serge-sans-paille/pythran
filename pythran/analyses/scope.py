@@ -2,7 +2,7 @@
 Scope computes scope information
 """
 
-from pythran.analyses.ancestors import Ancestors
+from pythran.analyses.ancestors import AncestorsWithBody
 from pythran.analyses.use_def_chain import DefUseChains
 from pythran.passmanager import FunctionAnalysis
 
@@ -23,8 +23,9 @@ class Scope(FunctionAnalysis):
     def __init__(self):
         self.result = defaultdict(set)
         self.decl_holders = (ast.FunctionDef, ast.For,
-                             ast.While, ast.If)
-        super(Scope, self).__init__(Ancestors, DefUseChains)
+                             ast.excepthandler,
+                             ast.While, ast.If, tuple)
+        super(Scope, self).__init__(AncestorsWithBody, DefUseChains)
 
     def visit_OMPDirective(self, node):
         for dep in node.deps:
@@ -34,6 +35,8 @@ class Scope(FunctionAnalysis):
                 self.openmp_deps.setdefault(dep.id, []).append(dep)
 
     def visit_FunctionDef(self, node):
+        self.ancestors = self.ancestors_with_body
+
         # first gather some info about OpenMP declarations
         self.openmp_deps = dict()
         self.generic_visit(node)
@@ -78,7 +81,8 @@ class Scope(FunctionAnalysis):
                 # unless another statements uses it before
                 # or the common itselfs holds a dependency
                 if common not in prefs:
-                    for c in common.body:
+                    body = common if isinstance(common, tuple) else common.body
+                    for c in body:
                         if c in prefs:
                             if isinstance(c, ast.Assign):
                                 common = c

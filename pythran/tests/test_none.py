@@ -62,6 +62,24 @@ def returned_none_member(a):
             return A[0] - B[0]'''
         self.run_test(code, 1, 3, is_none_default=[int, int])
 
+    def test_is_none_return_None(self):
+        code = '''
+import numpy as np
+def is_none_return_None(signal=None):
+    if signal is None:
+        return
+    signal[0,] += 1.2'''
+        self.run_test(code, np.array([1.]), is_none_return_None=[NDArray[float, :]])
+
+    def test_is_none_return_None_bis(self):
+        code = '''
+import numpy as np
+def is_none_return_None_bis(signal=None):
+    if signal is None:
+        return
+    signal[0,] += 1.2'''
+        self.run_test(code, is_none_return_None_bis=[])
+
     def test_return_in_true(self):
         code = '''
         def return_in_true(x):

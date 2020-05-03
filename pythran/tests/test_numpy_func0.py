@@ -652,6 +652,9 @@ def np_rosen_der(x):
     def test_sort7(self):
         self.run_test("def np_sort7(a): from numpy import sort ; return sort(a, 2, kind='mergesort')", numpy.arange(2*3*7, 0, -1).reshape(2,3,7), np_sort7=[NDArray[int, :, :, :]])
 
+    def test_sort8(self):
+        self.run_test("def np_sort8(a): from numpy import sort ; return sort(a, None)", numpy.arange(2*3*7, 0, -1).reshape(2,3,7), np_sort8=[NDArray[int, :, :, :]])
+
     def test_sort_complex0(self):
         self.run_test("def np_sort_complex0(a): from numpy import sort_complex ; return sort_complex(a)", numpy.array([[1,6],[7,5]]), np_sort_complex0=[NDArray[int,:,:]])
 

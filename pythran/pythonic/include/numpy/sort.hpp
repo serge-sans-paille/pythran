@@ -10,6 +10,9 @@
 PYTHONIC_NS_BEGIN
 namespace numpy
 {
+  template <class E>
+  types::ndarray<typename E::dtype, types::array<long, 1>>
+  sort(E const &expr, types::none_type);
 
   template <class E>
   types::ndarray<typename E::dtype, types::array<long, E::value>>

@@ -11,10 +11,20 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class pS>
-  decltype(std::declval<T>() + 1.) median(types::ndarray<T, pS> const &arr);
+  decltype(std::declval<T>() + 1.) median(types::ndarray<T, pS> const &arr,
+                                          types::none_type = {});
 
   template <class T, class pS>
-  decltype(std::declval<T>() + 1.) median(types::ndarray<T, pS> &&arr);
+  typename std::enable_if<
+      std::tuple_size<pS>::value != 1,
+      types::ndarray<decltype(std::declval<T>() + 1.),
+                     types::array<long, std::tuple_size<pS>::value - 1>>>::type
+  median(types::ndarray<T, pS> const &arr, long axis);
+
+  template <class T, class pS>
+  typename std::enable_if<std::tuple_size<pS>::value == 1,
+                          decltype(std::declval<T>() + 1.)>::type
+  median(types::ndarray<T, pS> const &arr, long axis);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(median);
 

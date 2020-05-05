@@ -665,3 +665,18 @@ def inner_loop_break(center, pts, radius, spot_radius, target_area=None):
         return pts_list
             '''
         self.run_test(code, 1j, np.array([1j]), 1., 1., 1., inner_loop_break=[complex, NDArray[complex, :], float, float, float])
+
+    def test_escape_redef(self):
+        code = '''
+    def escape_redef(a=None):
+        l = []
+        if a is None:
+            for ii in range(10):
+                l.append(ii)
+        else:
+            a=a
+
+        for ii in range(10):
+            l.append(ii)
+        return l'''
+        self.run_test(code, escape_redef=[])

@@ -16,20 +16,20 @@ class IsAssigned(NodeAnalysis):
 
     def __init__(self):
         """ Basic initialiser. """
-        self.result = set()
+        self.result = list()
         super(IsAssigned, self).__init__()
 
     def visit_Name(self, node):
         """ Stored variable have new value. """
         if isinstance(node.ctx, ast.Store):
-            self.result.add(node.id)
+            self.result.append(node)
 
     def visit_Tuple(self, node):
         if isinstance(node.ctx, ast.Store):
 
             def rec(n):
                 if isinstance(n, ast.Name):
-                    self.result.add(n.id)
+                    self.result.append(n)
                 elif isinstance(n, ast.Tuple):
                     for elt in n.elts:
                         rec(elt)

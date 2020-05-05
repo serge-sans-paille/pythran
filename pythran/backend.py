@@ -662,7 +662,7 @@ class CxxFunction(ast.NodeVisitor):
             args=AST_any(), keywords=[])
         is_assigned = set()
         for stmt in node.body:
-            is_assigned.update(self.gather(IsAssigned, stmt))
+            is_assigned.update({n.id for n in self.gather(IsAssigned, stmt)})
 
         nodes = ASTMatcher(pattern_range).search(node.iter)
         if node.iter not in nodes or node.target.id in is_assigned:

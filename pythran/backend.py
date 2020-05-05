@@ -321,7 +321,7 @@ class CxxFunction(ast.NodeVisitor):
         ctx = CachedTypeVisitor(self.lctx)
         operator_local_declarations = (
             [Statement("{0} {1}".format(
-                self.types[self.local_names[k]].generate(ctx), k))
+                self.types[self.local_names[k]].generate(ctx), cxxid(k)))
              for k in self.ldecls]
         )
         dependent_typedefs = ctx.typedefs()

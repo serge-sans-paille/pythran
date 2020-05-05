@@ -402,3 +402,13 @@ def combiner_on_empty_list():
                 B[0][3]=n
                 return B, X'''
         self.run_test(code, 20, tuple_slicing1=[int])
+
+    def test_reserved_identifier0(self):
+        code = '''
+        def reserved_identifier0(x):
+            if x == 1:
+                case = 1
+            else:
+                case = 2
+            return case'''
+        self.run_test(code, 3, reserved_identifier0=[int])

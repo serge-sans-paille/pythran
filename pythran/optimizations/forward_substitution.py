@@ -142,7 +142,9 @@ class ForwardSubstitution(Transformation):
                 all_paths = nx.all_simple_paths(self.cfg, parent, node_stmt)
                 for path in all_paths:
                     for stmt in path[1:-1]:
-                        if not self.gather(IsAssigned, stmt).isdisjoint(ids):
+                        assigned_ids = {n.id
+                                        for n in self.gather(IsAssigned, stmt)}
+                        if not ids.isdisjoint(assigned_ids):
                             break
                     else:
                         continue

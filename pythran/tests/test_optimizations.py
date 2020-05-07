@@ -667,3 +667,15 @@ class TestAnalyses(TestEnv):
                 return data'''
         self.run_test(code, 'aa', 2, 'bb', '3', subscript_function_aliasing=[str, int, str, str])
 
+    def test_range_simplify_subscript(self):
+        code = '''
+def LooperMaster___init__():
+    self_userUseTempo = 1
+    self = [self_userUseTempo]
+    return self
+
+def range_simplify_subscript(n):
+    ML = LooperMaster___init__()
+    ML[0] = n
+    return ML'''
+        self.run_test(code, 1, range_simplify_subscript=[int])

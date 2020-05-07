@@ -84,6 +84,6 @@ class RangeBasedSimplify(Transformation):
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load):
             return self.visit_range(node)
-        return node
+        return self.generic_visit(node)
 
-    visit_Subscript = visit_range
+    visit_Subscript = visit_Name

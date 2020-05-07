@@ -49,6 +49,7 @@ class ConstantExpressions(NodeAnalysis):
 
     def visit_Subscript(self, node):
         rec = all([self.visit(x) for x in (node.value, node.slice)])
+        rec = isinstance(node.ctx, ast.Load) and rec
         return rec and self.add(node)
 
     def visit_Name(self, node):

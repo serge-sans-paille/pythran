@@ -364,13 +364,13 @@ class SplitStaticExpression(Transformation):
         has_static_expr = self.gather(HasStaticExpression, node.test)
 
         if not has_static_expr:
-            return node
+            return self.generic_visit(node)
 
         if node.test in self.static_expressions:
-            return node
+            return self.generic_visit(node)
 
         if not isinstance(node.test, ast.BinOp):
-            return node
+            return self.generic_visit(node)
 
         before, static = [], []
         values = [node.test.right, node.test.left]
@@ -454,6 +454,6 @@ class SplitStaticExpression(Transformation):
                                      node)
 
         self.update = True
-        return self.visit(node)
+        return self.generic_visit(node)
 
     visit_If = visit_IfExp = visit_Cond

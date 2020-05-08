@@ -294,6 +294,18 @@ def np_rosen_der(x):
     def test_var5(self):
         self.run_test("def np_var5(a): from numpy import var ; return var(a, 2)", numpy.array([[[1, 2], [3, 4.]]]), np_var5=[NDArray[float,:,:,:]])
 
+    def test_var6(self):
+        self.run_test("def np_var6(a): from numpy import var ; return var(1j * a)", numpy.array([[[1, 2], [3, 4.]]]), np_var6=[NDArray[float,:,:,:]])
+
+    def test_var7(self):
+        self.run_test("def np_var7(a): from numpy import var ; return var(1j * a, 2)", numpy.array([[[1, 2], [3, 4.]]]), np_var7=[NDArray[float,:,:,:]])
+
+    def test_var8(self):
+        self.run_test("def np_var8(a): from numpy import var ; return var(1j * a, 2)", numpy.array([[[1, 2], [3, 4]]]), np_var8=[NDArray[int,:,:,:]])
+
+    def test_var9(self):
+        self.run_test("def np_var9(a): from numpy import var ; return var(1j * a)", numpy.array([[[1, 2], [3, 4]]]), np_var9=[NDArray[int,:,:,:]])
+
     def test_std0(self):
         self.run_test("def np_std0(a): from numpy import std ; return std(a)", numpy.array([[[1, 2], [3, 4]]]), np_std0=[NDArray[int, :, :, :]])
 
@@ -302,6 +314,9 @@ def np_rosen_der(x):
 
     def test_std2(self):
         self.run_test("def np_std2(a): from numpy import std ; return std(a, 1)", numpy.array([[[1, 2], [3, 4]]]), np_std2=[NDArray[int, :, :, :]])
+
+    def test_std3(self):
+        self.run_test("def np_std3(a): from numpy import std ; return std(1j*a, 1)", numpy.array([[[1, 2], [3, 4]]]), np_std3=[NDArray[int, :, :, :]])
 
     def test_logspace0(self):
         self.run_test("def np_logspace0(start, stop): from numpy import logspace ; start, stop = 3., 4. ; return logspace(start, stop, 4)", 3., 4., np_logspace0=[float, float])

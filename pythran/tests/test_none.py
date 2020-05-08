@@ -680,3 +680,31 @@ def inner_loop_break(center, pts, radius, spot_radius, target_area=None):
             l.append(ii)
         return l'''
         self.run_test(code, escape_redef=[])
+
+    def test_nested_static_if0(self):
+        code = '''
+def nested_static_if0 (
+        free_age_vars,
+        n_calls
+):
+    if n_calls is not None:
+        n_calls[0] += 1
+
+    cpp_free = free_age_vars[0] and free_age_vars[1]
+
+    QQQQ = 1
+
+
+    if QQQQ == 0:
+        pass
+    elif QQQQ == 1:
+        if cpp_free:
+            if n_calls is not None and n_calls[0] == 1:
+                return 4.
+        else:
+            pass
+    elif QQQQ == 2:
+        pass
+
+    return 123.'''
+        self.run_test(code, [0,1], [0], nested_static_if0=[List[int], List[int]])

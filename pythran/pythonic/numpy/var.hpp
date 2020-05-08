@@ -8,8 +8,10 @@
 #include "pythonic/builtins/None.hpp"
 #include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/add.hpp"
+#include "pythonic/numpy/conjugate.hpp"
 #include "pythonic/numpy/subtract.hpp"
 #include "pythonic/numpy/mean.hpp"
+#include "pythonic/builtins/pythran/abssqr.hpp"
 #include "pythonic/numpy/sum.hpp"
 #include "pythonic/numpy/empty_like.hpp"
 
@@ -22,11 +24,13 @@ namespace numpy
 
   template <class E>
   auto var(E const &expr, types::none_type axis, types::none_type dtype,
-           types::none_type out, long ddof) -> decltype(var_type<E>(mean(expr)))
+           types::none_type out, long ddof)
+      -> decltype(var_type<E>(std::real(mean(expr))))
   {
     auto m = mean(expr);
     auto t = pythonic::numpy::functor::subtract{}(expr, m);
-    return sum(t * t) / var_type<E>(expr.flat_size() - ddof);
+    return sum(builtins::pythran::functor::abssqr{}(t)) /
+           var_type<E>(expr.flat_size() - ddof);
   }
 
   namespace
@@ -63,7 +67,8 @@ namespace numpy
     auto m = mean(expr, axis);
     if (axis == 0) {
       auto t = pythonic::numpy::functor::subtract{}(expr, m);
-      return sum(t * t, axis) /= var_type<E>(std::get<0>(expr.shape()) - ddof);
+      return sum(builtins::pythran::functor::abssqr{}(t), axis) /=
+             var_type<E>(std::get<0>(expr.shape()) - ddof);
     } else {
       types::array<long, E::value> shp = sutils::array(expr.shape());
       shp[axis] = 1;
@@ -71,7 +76,7 @@ namespace numpy
 
       auto t = empty_like(expr);
       _enlarge_copy_minus(t, expr, mp, axis, utils::int_<E::value>());
-      return sum(t * t, axis) /=
+      return sum(builtins::pythran::functor::abssqr{}(t), axis) /=
              var_type<E>(sutils::array(expr.shape())[axis] - ddof);
     }
   }

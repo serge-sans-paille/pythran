@@ -900,6 +900,20 @@ def assign_ndarray(t):
                       10, "b", 10, 10,
                       numpy_lazy_gexpr=[int, str, int, int])
 
+    def test_numpy_lazy_gexpr2(self):
+        code = '''
+            import numpy as np
+            def numpy_lazy_gexpr2(c, y):
+                z = [0] * 2
+                if c:
+                    x = y[1:3]
+                z[0] = x[0]
+                z[1] = x[1]
+                return z'''
+        self.run_test(code,
+                      1, numpy.array([1,2,3,4]),
+                      numpy_lazy_gexpr2=[int, NDArray[int, :]])
+
     def test_fexpr0(self):
         code = '''
             import numpy as np

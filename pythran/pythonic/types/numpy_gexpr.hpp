@@ -424,7 +424,7 @@ namespace types
       // arg = expr.arg;
       const_cast<typename std::decay<Arg>::type &>(arg) = expr.arg;
       slices = expr.slices;
-      buffer = arg.buffer;
+      buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
       _shape = expr.shape();
       return *this;
     } else {

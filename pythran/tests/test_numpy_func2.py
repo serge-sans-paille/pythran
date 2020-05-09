@@ -478,6 +478,9 @@ def test_copy0(x):
     def test_asarray3(self):
         self.run_test("def np_asarray3(a):\n from numpy import asarray; b = asarray(a) ; return a is b", numpy.arange(3), np_asarray3=[NDArray[int,:]])
 
+    def test_asarray4(self):
+        self.run_test("def np_asarray4(a):\n from numpy import asarray\n return asarray(a[1:])", [(1,2),(3,4)], np_asarray4=[List[Tuple[int, int]]])
+
     def test_asfarray0(self):
         self.run_test("def np_asfarray0(a):\n from numpy import asfarray; b = asfarray(a) ; return a is b", numpy.arange(3.), np_asfarray0=[NDArray[float,:]])
 

@@ -8,6 +8,8 @@
 PYTHONIC_NS_BEGIN
 namespace types
 {
+  template <class T, class S>
+  class sliced_list;
   template <class T>
   class list;
   template <class T, size_t N, class V>
@@ -44,13 +46,13 @@ namespace utils
     static const int value = 1 + nested_container_depth<T>::value;
   };
 
-  template <class T>
-  struct nested_container_depth<types::dynamic_tuple<T>> {
+  template <class T, class S>
+  struct nested_container_depth<types::sliced_list<T, S>> {
     static const int value = 1 + nested_container_depth<T>::value;
   };
 
-  template <class T, class S>
-  struct nested_container_depth<types::sliced_list<T, S>> {
+  template <class T>
+  struct nested_container_depth<types::dynamic_tuple<T>> {
     static const int value = 1 + nested_container_depth<T>::value;
   };
 
@@ -110,6 +112,11 @@ namespace utils
 
   template <class T>
   struct nested_container_value_type<types::list<T>> {
+    using type = typename nested_container_value_type<T>::type;
+  };
+
+  template <class T, class S>
+  struct nested_container_value_type<types::sliced_list<T, S>> {
     using type = typename nested_container_value_type<T>::type;
   };
 

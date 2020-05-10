@@ -8,6 +8,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
+#include "pythonic/numpy/array.hpp"
 
 PYTHONIC_NS_BEGIN
 namespace numpy
@@ -123,7 +124,7 @@ namespace numpy
   types::ndarray<typename E::dtype, types::array<long, E::value>>
   sort(E const &expr, long axis)
   {
-    auto out = expr.copy();
+    auto out = functor::array{}(expr);
     _sort(out, axis, quicksorter());
     return out;
   }
@@ -132,7 +133,7 @@ namespace numpy
   types::ndarray<typename E::dtype, types::array<long, 1>>
   sort(E const &expr, types::none_type)
   {
-    auto out = expr.copy().flat();
+    auto out = functor::array{}(expr).flat();
     _sort(out, 0, quicksorter());
     return out;
   }
@@ -141,7 +142,7 @@ namespace numpy
   types::ndarray<typename E::dtype, types::array<long, E::value>>
   sort(E const &expr, long axis, types::str const &kind)
   {
-    auto out = expr.copy();
+    auto out = functor::array{}(expr);
     if (kind == "quicksort")
       _sort(out, axis, quicksorter());
     else if (kind == "mergesort")

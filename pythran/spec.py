@@ -7,7 +7,6 @@ from pythran.types.conversion import pytype_to_pretty_type
 from collections import defaultdict
 from itertools import product
 import re
-import os.path
 import ply.lex as lex
 import ply.yacc as yacc
 
@@ -432,24 +431,14 @@ class SpecParser(object):
                                 debug=False,
                                 write_tables=False)
 
-    def read_path_or_text(self, path_or_text):
-        if os.path.isfile(path_or_text):
-            self.input_file = path_or_text
-            with open(path_or_text) as fd:
-                data = fd.read()
-        else:
-            data = path_or_text
-        return data
-
-    def __call__(self, path_or_text):
+    def __call__(self, text):
         self.exports = defaultdict(tuple)
         self.native_exports = defaultdict(tuple)
         self.input_file = None
 
-        data = self.read_path_or_text(path_or_text)
         lines = []
         in_pythran_export = False
-        for line in data.split("\n"):
+        for line in text.split("\n"):
             if re.match(r'\s*#\s*pythran', line):
                 in_pythran_export = True
                 lines.append(re.sub(r'\s*#\s*pythran', '#pythran', line))
@@ -501,12 +490,11 @@ class ExtraSpecParser(SpecParser):
     Extension of SpecParser that works on extra .pythran files
     '''
 
-    def read_path_or_text(self, path_or_text):
-        data = super(ExtraSpecParser, self).read_path_or_text(path_or_text)
+    def __call__(self, text):
         # make the code looks like a regular pythran file
-        data = re.sub(r'^\s*export', '#pythran export', data,
+        text = re.sub(r'^\s*export', '#pythran export', text,
                       flags=re.MULTILINE)
-        return data
+        return super(ExtraSpecParser, self).__call__(text)
 
 
 def spec_to_string(function_name, spec):
@@ -524,9 +512,9 @@ def signatures_to_string(func_name, signatures):
     return ''.join('\n    - ' + sigdoc for sigdoc in sigdocs)
 
 
-def spec_parser(path_or_text):
-    return SpecParser()(path_or_text)
+def spec_parser(text):
+    return SpecParser()(text)
 
 
-def load_specfile(path_or_text):
-    return ExtraSpecParser()(path_or_text)
+def load_specfile(text):
+    return ExtraSpecParser()(text)

@@ -39,7 +39,8 @@ class TestSpecParser(unittest.TestCase):
 
     def test_parser(self):
         real_path = os.path.splitext(os.path.realpath(__file__))[0]+".py"
-        print(pythran.spec_parser(real_path))
+        with open(real_path) as fd:
+            print(pythran.spec_parser(fd.read()))
 
     def test_invalid_specs0(self):
         code = '#pythran export foo()\ndef foo(n): return n'

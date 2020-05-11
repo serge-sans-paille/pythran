@@ -464,8 +464,9 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     # Look for an extra spec file
     spec_file = os.path.splitext(file_path)[0] + '.pythran'
     if os.path.isfile(spec_file):
-        specs = load_specfile(open(spec_file).read())
-        kwargs.setdefault('specs', specs)
+        with open(spec_file) as fd:
+            specs = load_specfile(fd.read())
+            kwargs.setdefault('specs', specs)
 
     output_file = compile_pythrancode(module_name, open(file_path).read(),
                                       output_file=output_file,

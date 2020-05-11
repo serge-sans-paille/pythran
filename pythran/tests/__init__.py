@@ -397,11 +397,13 @@ class TestFromDir(TestEnv):
         # Look for an extra spec file
         spec_file = os.path.splitext(file_)[0] + '.pythran'
         if os.path.isfile(spec_file):
-            return load_specfile(open(spec_file).read())
+            with open(spec_file) as fd:
+                return load_specfile(fd.read())
         elif file_ is None:
             return Spec({name: []})
         else:
-            return spec_parser(open(file_).read())
+            with open(file_) as fd:
+                return spec_parser(fd.read())
 
     @staticmethod
     def extract_runas(name, filepath):

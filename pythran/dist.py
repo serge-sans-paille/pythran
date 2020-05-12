@@ -5,7 +5,11 @@ This modules contains a distutils extension mechanism for Pythran
 
 import pythran.config as cfg
 
-from collections import defaultdict, Iterable
+from collections import defaultdict
+try:
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
 import os.path
 import os
 

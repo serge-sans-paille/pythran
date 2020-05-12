@@ -1050,7 +1050,7 @@ struct __combined<pythonic::types::none_type,
 template <class Arg, class... S, class T, class pS>
 struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
                   pythonic::types::ndarray<T, pS>> {
-  using type = pythonic::types::numpy_gexpr<Arg, S...>;
+  using type = pythonic::types::ndarray<T, pS>;
 };
 
 template <class Arg, class... S, class T, class pS>

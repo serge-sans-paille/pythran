@@ -167,4 +167,17 @@ struct lazy<types::numpy_vexpr<T, F>> {
 
 PYTHONIC_NS_END
 
+/* combined are sorted such that the assigned type comes first */
+template <class E, class F, class T, class pS>
+struct __combined<pythonic::types::numpy_vexpr<E, F>,
+                  pythonic::types::ndarray<T, pS>> {
+  using type = pythonic::types::ndarray<T, pS>;
+};
+
+template <class E, class F, class T, class pS>
+struct __combined<pythonic::types::ndarray<T, pS>,
+                  pythonic::types::numpy_vexpr<E, F>> {
+  using type = pythonic::types::ndarray<T, pS>;
+};
+
 #endif

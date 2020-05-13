@@ -1188,3 +1188,49 @@ def hanning(M):
         self.run_test(code,
                       numpy.arange(200.).reshape(10, 20),
                       subscripting_slice_array_transpose=[NDArray[float, :, :]])
+
+    def test_combiner_0(self):
+        code = '''
+import numpy as np
+def test_combiner_0(X):
+    O=test1(X[:,0], False)
+    P=test1(X[:,0], True)   # <- Ask to concatenate
+    return O,P
+
+def test1(X,A):
+    N = 20
+    if A:
+        X = np.concatenate((np.zeros(N),X))
+    return X'''
+        self.run_test(code, numpy.ones((10,10)), test_combiner_0=[NDArray[float,:,:]])
+
+    def test_combiner_1(self):
+        code = '''
+import numpy as np
+def test_combiner_1(X):
+    O=test1(X[0], False)
+    P=test1(X[1], True)   # <- Ask to concatenate
+    return O,P
+
+def test1(X,A):
+    N = 20
+    if A:
+        X = np.concatenate((np.zeros((N)),X))
+    return X'''
+        self.run_test(code, numpy.ones((10,10)), test_combiner_1=[NDArray[float,:,:]])
+
+    def test_combiner_2(self):
+        code = '''
+import numpy as np
+def test_combiner_2(X):
+    O=test1(X[X==1], False)
+    P=test1(X[X==1], True)   # <- Ask to concatenate
+    return O,P
+
+def test1(X,A):
+    N = 20
+    if A:
+        X = np.concatenate((np.zeros((N)),X))
+    return X'''
+        self.run_test(code, numpy.ones((10)), test_combiner_2=[NDArray[float,:]])
+

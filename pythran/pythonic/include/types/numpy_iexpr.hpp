@@ -361,5 +361,10 @@ struct __combined<pythonic::types::numpy_iexpr<E0>,
                   pythonic::types::numpy_iexpr<E1>> {
   using type = pythonic::types::numpy_iexpr<typename __combined<E0, E1>::type>;
 };
+template <class E, class T, class pS>
+struct __combined<pythonic::types::numpy_iexpr<E>,
+                  pythonic::types::ndarray<T, pS>> {
+  using type = pythonic::types::ndarray<T, pS>;
+};
 /*}*/
 #endif

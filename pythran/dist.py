@@ -48,10 +48,6 @@ class PythranBuildExt(LegacyBuildExt, object):
                 'linker_so': None,
                 # Windows-like
                 'cc': None,
-                'linker': None,
-                'lib': None,
-                'rc': None,
-                'mc': None,
         }
         # Backup compiler settings
         for key in list(prev.keys()):
@@ -66,6 +62,7 @@ class PythranBuildExt(LegacyBuildExt, object):
                 if hasattr(self.compiler, comp):
                     set_value(self.compiler, comp, ext.cxx)
 
+        find_exe = None
         if getattr(ext, 'cc', None) is not None:
             try:
                 import distutils._msvccompiler as msvc
@@ -75,10 +72,8 @@ class PythranBuildExt(LegacyBuildExt, object):
                 def _find_exe(exe, *args, **kwargs):
                     if exe == 'cl.exe':
                         exe = ext.cc
-                    out = find_exe(exe, *args, **kwargs)
-                    # remove hook
-                    msvc._find_exe = find_exe
-                    return out
+                    return find_exe(exe, *args, **kwargs)
+
                 msvc._find_exe = _find_exe
             except ImportError:
                 pass
@@ -110,6 +105,11 @@ class PythranBuildExt(LegacyBuildExt, object):
             # Revert compiler settings
             for key in prev.keys():
                 set_value(self.compiler, key, prev[key])
+
+            # uninstall hook
+            if find_exe is not None:
+                import distutils._msvccompiler as msvc
+                msvc._find_exe = find_exe
 
 
 class PythranExtension(Extension):

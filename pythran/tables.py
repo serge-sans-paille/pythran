@@ -162,6 +162,8 @@ def update_effects(self, node):
 
 
 BINARY_UFUNC = {"accumulate": FunctionIntr()}
+REDUCED_BINARY_UFUNC = {"accumulate": FunctionIntr(),
+                        "reduce": ConstFunctionIntr()}
 
 CLASSES = {
     "dtype": {
@@ -2876,7 +2878,7 @@ MODULES = {
         "abs": ConstFunctionIntr(signature=_numpy_unary_op_signature),
         "absolute": ConstFunctionIntr(signature=_numpy_ones_signature),
         "add": UFunc(
-            BINARY_UFUNC,
+            REDUCED_BINARY_UFUNC,
             signature=_numpy_binary_op_signature,
         ),
         "alen": ConstFunctionIntr(
@@ -3346,18 +3348,18 @@ MODULES = {
             ],
         ),
         "bitwise_and": UFunc(
-            BINARY_UFUNC,
+            REDUCED_BINARY_UFUNC,
             signature=_numpy_int_binary_op_signature
         ),
         "bitwise_not": ConstFunctionIntr(
             signature=_numpy_int_unary_op_signature
         ),
         "bitwise_or": UFunc(
-            BINARY_UFUNC,
+            REDUCED_BINARY_UFUNC,
             signature=_numpy_int_binary_op_signature
         ),
         "bitwise_xor": UFunc(
-            BINARY_UFUNC,
+            REDUCED_BINARY_UFUNC,
             signature=_numpy_int_binary_op_signature
         ),
         "bool": ConstFunctionIntr(signature=_bool_signature),
@@ -3705,8 +3707,8 @@ MODULES = {
         "float": ConstFunctionIntr(signature=_float_signature),
         "floor": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "floor_divide": UFunc(BINARY_UFUNC),
-        "fmax": UFunc(BINARY_UFUNC),
-        "fmin": UFunc(BINARY_UFUNC),
+        "fmax": UFunc(REDUCED_BINARY_UFUNC),
+        "fmin": UFunc(REDUCED_BINARY_UFUNC),
         "fmod": UFunc(BINARY_UFUNC),
         "frexp": ConstFunctionIntr(),
         "fromfunction": ConstFunctionIntr(),
@@ -3797,7 +3799,7 @@ MODULES = {
         "longlong": ConstFunctionIntr(signature=_int_signature),
         "max": ConstMethodIntr(signature=_numpy_unary_op_axis_signature),
         "maximum": UFunc(
-            BINARY_UFUNC,
+            REDUCED_BINARY_UFUNC,
             signature=_numpy_binary_op_signature
         ),
         "mean": ConstMethodIntr(),
@@ -3806,12 +3808,12 @@ MODULES = {
         ),
         "min": ConstMethodIntr(signature=_numpy_unary_op_axis_signature),
         "minimum": UFunc(
-            BINARY_UFUNC,
+            REDUCED_BINARY_UFUNC,
             signature=_numpy_binary_op_signature
         ),
         "mod": UFunc(BINARY_UFUNC),
         "multiply": UFunc(
-            BINARY_UFUNC,
+            REDUCED_BINARY_UFUNC,
             signature=_numpy_binary_op_signature,
         ),
         "nan": ConstantIntr(),

@@ -345,10 +345,11 @@ namespace types
                               array<Ty, M> const &indices,
                               pS const &shape) const
   {
-    return noffset<L - 1>{}(strides, indices, shape) +
-           strides[M - L] * ((indices[M - L] < 0)
-                                 ? indices[M - L] + std::get<M - L>(shape)
-                                 : indices[M - L]);
+    auto const index =
+        ((indices[M - L] < 0) ? indices[M - L] + std::get<M - L>(shape)
+                              : indices[M - L]);
+    assert(0 <= index and index < std::get<M - L>(shape));
+    return noffset<L - 1>{}(strides, indices, shape) + strides[M - L] * index;
   }
 
   template <>
@@ -365,8 +366,11 @@ namespace types
                               array<Ty, M> const &indices,
                               pS const &shape) const
   {
-    return (indices[M - 1] < 0) ? indices[M - 1] + std::get<M - 1>(shape)
-                                : indices[M - 1];
+    auto const index = (indices[M - 1] < 0)
+                           ? indices[M - 1] + std::get<M - 1>(shape)
+                           : indices[M - 1];
+    assert(0 <= index && index < std::get<M - 1>(shape));
+    return index;
   }
 
   /* constructors */
@@ -618,6 +622,7 @@ namespace types
   typename std::enable_if<std::is_integral<Ty>::value, T &>::type
   ndarray<T, pS>::fast(array<Ty, value> const &indices)
   {
+    assert(inbound_indices(indices));
     return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
   }
 
@@ -626,6 +631,7 @@ namespace types
   typename std::enable_if<std::is_integral<Ty>::value, T>::type
   ndarray<T, pS>::fast(array<Ty, value> const &indices) const
   {
+    assert(inbound_indices(indices));
     return *(buffer + noffset<std::tuple_size<pS>::value>{}(_strides, indices));
   }
 

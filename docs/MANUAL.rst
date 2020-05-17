@@ -383,6 +383,16 @@ they don't match any real Python type. **Any** Pythran type is valid as capsule
 parameter, but beware that non scalar or pointer types only make sense withing
 the Pythran context.
 
+Debug Mode
+----------
+
+Pythran honors the ``NDEBUG`` macro. If set through ``-DNDEBUG`` (which should
+be the default, check ``python-config --cflags``), it disables all ``assert
+statement`` and doesn't perform any runtime check for indexing bounds etc.
+However, if unset through ``-UNDEBUG``, all ``assert`` are executed and
+eventually raise an ``AssertionError``. Additionnaly, many internal checks are
+done and may fail with a C-ish assertion.
+
 Advanced Usage
 --------------
 
@@ -395,8 +405,7 @@ switch that stops the compilation process right after c++ code generation, so
 that you can inspect it.
 
 Want more performance? Big fan of ``-Ofast -march=native``? Pythran
-_automagically_ forwards these switches to the underlying compiler! Pythran is
-sensible to the ``-DNDEBUG`` switch too.
+_automagically_ forwards these switches to the underlying compiler!
 
 Tired of typing the same compiler switches again and again? Store them in
 ``$XDG_CONFIG_HOME/.pythranrc``!

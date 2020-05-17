@@ -362,7 +362,7 @@ namespace types
 
     // Element access.
     reference fast(long n);
-    constexpr const_reference fast(long n) const noexcept;
+    const_reference fast(long n) const noexcept;
 #ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<array_base>;
     using simd_iterator_nobroadcast = simd_iterator;
@@ -374,7 +374,7 @@ namespace types
 
     reference operator[](long __n);
 
-    constexpr const_reference operator[](long __n) const noexcept;
+    const_reference operator[](long __n) const noexcept;
 
     auto operator[](slice s) const -> decltype(array_base_slicer{}(*this, s))
     {

@@ -48,8 +48,6 @@ namespace utils
     } * mem;
 
   public:
-    // This attributs exists for non-Python code to avoid #ifdef everywhere
-
     // Uninitialized ctor
     shared_ref(no_memory const &) noexcept;
 

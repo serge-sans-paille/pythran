@@ -220,13 +220,15 @@ namespace types
   template <typename T, size_t N, class V>
   typename array_base<T, N, V>::reference array_base<T, N, V>::fast(long n)
   {
+    assert(n < size());
     return buffer[n];
   }
 
   template <typename T, size_t N, class V>
-  constexpr typename array_base<T, N, V>::const_reference
+  typename array_base<T, N, V>::const_reference
   array_base<T, N, V>::fast(long n) const noexcept
   {
+    assert(n < size());
     return buffer[n];
   }
 
@@ -254,14 +256,18 @@ namespace types
   typename array_base<T, N, V>::reference array_base<T, N, V>::
   operator[](long __n)
   {
-    return buffer[__n < 0 ? (__n + size()) : __n];
+    auto const index = __n < 0 ? (__n + size()) : __n;
+    assert(0 <= index && index < size());
+    return buffer[index];
   }
 
   template <typename T, size_t N, class V>
-  constexpr typename array_base<T, N, V>::const_reference array_base<T, N, V>::
+  typename array_base<T, N, V>::const_reference array_base<T, N, V>::
   operator[](long __n) const noexcept
   {
-    return buffer[__n < 0 ? (__n + size()) : __n];
+    auto const index = __n < 0 ? (__n + size()) : __n;
+    assert(0 <= index && index < size());
+    return buffer[index];
   }
 
   template <typename T, size_t N, class V>

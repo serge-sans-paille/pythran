@@ -406,6 +406,21 @@ namespace types
     simd_iterator vend(vectorizer) const;
 #endif
 
+#ifndef NDEBUG
+    template <class IndicesTy>
+    bool inbound_indices(IndicesTy const &indices) const
+    {
+      auto const shp = sutils::array(shape());
+      for (size_t i = 0, n = indices.size(); i < n; ++i) {
+        auto const index = indices[i];
+        auto const dim = shp[i];
+        if (0 > index || index >= dim)
+          return false;
+      }
+      return true;
+    }
+#endif
+
     /* slice indexing */
     ndarray<T, sutils::push_front_t<pS, std::integral_constant<long, 1>>>
     operator[](none_type) const;
@@ -496,6 +511,7 @@ namespace types
     {
       if (i < 0)
         i += std::get<0>(_shape);
+      assert(0 <= i && i < std::get<0>(_shape));
       return fast(i);
     }
 
@@ -503,6 +519,7 @@ namespace types
     {
       if (i < 0)
         i += std::get<0>(_shape);
+      assert(0 <= i && i < std::get<0>(_shape));
       return std::move(*this).fast(i);
     }
 

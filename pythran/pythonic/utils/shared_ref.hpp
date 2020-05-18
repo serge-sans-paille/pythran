@@ -86,12 +86,14 @@ namespace utils
   template <class T>
   T &shared_ref<T>::operator*() const noexcept
   {
+    assert(mem);
     return mem->ptr;
   }
 
   template <class T>
   T *shared_ref<T>::operator->() const noexcept
   {
+    assert(mem);
     return &mem->ptr;
   }
 
@@ -110,12 +112,14 @@ namespace utils
   template <class T>
   void shared_ref<T>::external(extern_type obj_ptr)
   {
+    assert(mem);
     mem->foreign = obj_ptr;
   }
 
   template <class T>
   inline extern_type shared_ref<T>::get_foreign()
   {
+    assert(mem);
     return mem->foreign;
   }
 
@@ -136,6 +140,7 @@ namespace utils
   template <class T>
   void shared_ref<T>::acquire()
   {
+    assert(mem);
     ++mem->count;
   }
 }

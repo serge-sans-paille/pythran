@@ -84,18 +84,27 @@ namespace types
   typename sliced_list<T, S>::const_reference
   sliced_list<T, S>::fast(long i) const
   {
-    return (*data)[slicing.get(i)];
+    assert(0 <= i && i < size());
+    auto const index = slicing.get(i);
+    assert(0 <= index && index < data->size());
+    return (*data)[index];
   }
   template <class T, class S>
   typename sliced_list<T, S>::const_reference sliced_list<T, S>::
   operator[](long i) const
   {
-    return (*data)[slicing.get(i)];
+    assert(i < size());
+    auto const index = slicing.get(i);
+    assert(0 <= index && index < data->size());
+    return (*data)[index];
   }
   template <class T, class S>
   typename sliced_list<T, S>::reference sliced_list<T, S>::operator[](long i)
   {
-    return (*data)[slicing.get(i)];
+    assert(i < size());
+    auto const index = slicing.get(i);
+    assert(0 <= index && index < data->size());
+    return (*data)[index];
   }
   template <class T, class S>
   sliced_list<T, S> sliced_list<T, S>::operator[](contiguous_slice s) const
@@ -139,7 +148,7 @@ namespace types
       data->erase(data->begin() + slicing.lower, data->begin() + slicing.upper);
       data->insert(data->begin() + slicing.lower, seq.begin(), seq.end());
     } else
-      assert(!"! implemented yet");
+      assert(!"not implemented yet");
     return *this;
   }
   template <class T, class S>
@@ -481,11 +490,13 @@ namespace types
   {
     if (n < 0)
       n += data->size();
+    assert(0 <= n && n < data->size());
     return fast(n);
   }
   template <class T>
   typename list<T>::const_reference list<T>::fast(long n) const
   {
+    assert(n < data->size());
     return (*data)[n];
   }
   template <class T>
@@ -493,6 +504,7 @@ namespace types
   {
     if (n < 0)
       n += data->size();
+    assert(0 <= n && n < data->size());
     return fast(n);
   }
 

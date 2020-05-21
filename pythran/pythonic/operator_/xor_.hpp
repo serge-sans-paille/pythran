@@ -11,9 +11,9 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto xor_(A const &a, B const &b) -> decltype(a ^ b)
+  auto xor_(A &&a, B &&b) -> decltype(std::forward<A>(a) ^ std::forward<B>(b))
   {
-    return a ^ b;
+    return std::forward<A>(a) ^ std::forward<B>(b);
   }
 
   DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(xor_, ^)

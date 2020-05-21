@@ -11,9 +11,9 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto contains(A const &a, B const &b) -> decltype(in(a, b))
+  auto contains(A &&a, B const &b) -> decltype(in(std::forward<A>(a), b))
   {
-    return in(a, b);
+    return in(std::forward<A>(a), b);
   }
 }
 PYTHONIC_NS_END

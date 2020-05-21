@@ -9,7 +9,8 @@ namespace operator_
 {
 
   template <class A, class B>
-  auto is_not(A const &a, B const &b) -> decltype(a != b);
+  auto is_not(A const &a, B const &b)
+      -> decltype(builtins::id(a) != builtins::id(b));
 
   DEFINE_FUNCTOR(pythonic::operator_, is_not);
 }

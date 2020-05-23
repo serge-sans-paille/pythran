@@ -17,7 +17,13 @@ namespace operator_
     return a * b;
   }
 
-  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(mul, *)
+  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(
+      mul, *,
+      (b == 0 ||
+       (a * b >= 0 &&
+        std::abs(a) <= std::numeric_limits<decltype(b)>::max() / std::abs(b)) ||
+       (a * b <= 0 &&
+        std::abs(a) >= std::numeric_limits<decltype(b)>::min() / std::abs(b))))
 }
 PYTHONIC_NS_END
 

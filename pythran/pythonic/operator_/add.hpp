@@ -16,7 +16,9 @@ namespace operator_
     return a + b;
   }
 
-  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(add, +)
+  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(
+      add, +, (((b >= 0) ? (a <= std::numeric_limits<decltype(b)>::max() - b)
+                         : (std::numeric_limits<decltype(b)>::min() - b <= a))))
 }
 PYTHONIC_NS_END
 

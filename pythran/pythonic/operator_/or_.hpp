@@ -17,7 +17,7 @@ namespace operator_
     return std::forward<A>(a) | std::forward<B>(b);
   }
 
-  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(or_, | )
+  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(or_, |, true)
 }
 PYTHONIC_NS_END
 

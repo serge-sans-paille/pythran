@@ -17,7 +17,8 @@ namespace operator_
     return a << b;
   }
 
-  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(lshift, << )
+  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(
+      lshift, <<, (a <= (std::numeric_limits<decltype(b)>::max() >> b)))
 }
 PYTHONIC_NS_END
 

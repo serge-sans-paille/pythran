@@ -9,8 +9,15 @@
 #define DEFINE_ALL_OPERATOR_OVERLOADS_DECL(opname, op)                         \
   PYTHONIC_OPERATOR_OVERLOAD_DECL(bool, opname, op)                            \
   PYTHONIC_OPERATOR_OVERLOAD_DECL(unsigned char, opname, op)                   \
+  PYTHONIC_OPERATOR_OVERLOAD_DECL(char, opname, op)                            \
   PYTHONIC_OPERATOR_OVERLOAD_DECL(signed char, opname, op)                     \
   PYTHONIC_OPERATOR_OVERLOAD_DECL(unsigned short, opname, op)                  \
-  PYTHONIC_OPERATOR_OVERLOAD_DECL(signed short, opname, op)
+  PYTHONIC_OPERATOR_OVERLOAD_DECL(signed short, opname, op)                    \
+  PYTHONIC_OPERATOR_OVERLOAD_DECL(unsigned int, opname, op)                    \
+  PYTHONIC_OPERATOR_OVERLOAD_DECL(signed int, opname, op)                      \
+  PYTHONIC_OPERATOR_OVERLOAD_DECL(unsigned long, opname, op)                   \
+  PYTHONIC_OPERATOR_OVERLOAD_DECL(signed long, opname, op)                     \
+  PYTHONIC_OPERATOR_OVERLOAD_DECL(unsigned long long, opname, op)              \
+  PYTHONIC_OPERATOR_OVERLOAD_DECL(signed long long, opname, op)
 
 #endif

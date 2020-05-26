@@ -5,7 +5,6 @@ import unittest
 
 
 class TestStr(TestEnv):
-    """
     def test_str_startswith0(self):
         self.run_test("def str_startswith0(s0, s1): return s0.startswith(s1)", "barbapapa", "barba", str_startswith0=[str, str])
 
@@ -106,10 +105,10 @@ class TestStr(TestEnv):
         self.run_test("def str_find1(s): return s.find('pap')", "popop", str_find1=[str])
 
     def test_str_reversal(self):
-        self.run_test("def str_reversal(s): return map(ord,reversed(s))", "dear", str_reversal=[str])
+        self.run_test("def str_reversal(s): return list(map(ord,reversed(s)))", "dear", str_reversal=[str])
 
     def test_str_substring_iteration(self):
-        self.run_test("def str_substring_iteration(s): return map(ord, s[1:-1])", "pythran", str_substring_iteration=[str])
+        self.run_test("def str_substring_iteration(s): return list(map(ord, s[1:-1]))", "pythran", str_substring_iteration=[str])
 
     def test_str_isalpha(self):
         self.run_test("def str_isalpha(s, t, u): return s.isalpha(), t.isalpha(), u.isalpha()", "e", "1", "", str_isalpha=[str,str, str])
@@ -216,7 +215,7 @@ class TestStr(TestEnv):
 
     def test_str_id(self):
         self.run_test("def str_id(x): return id(x) != 0", "hello", str_id=[str])
-"""
+
     def test_str_slice_assign(self):
         self.run_test('''
             def str_slice_assign(s, c):

@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class T>
-  decltype(!std::declval<T const &>()) not_(T const &a);
+  auto not_(T &&a) -> decltype(!std::forward<T>(a));
 
   template <class T>
   bool not_(std::complex<T> const &a);

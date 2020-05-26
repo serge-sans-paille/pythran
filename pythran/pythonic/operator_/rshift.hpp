@@ -16,7 +16,7 @@ namespace operator_
     return a >> b;
   }
 
-  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(rshift, >> )
+  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(rshift, >>, true)
 }
 PYTHONIC_NS_END
 

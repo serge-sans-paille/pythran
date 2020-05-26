@@ -10,6 +10,55 @@ import math
 
 
 class Dependencies(ModuleAnalysis):
+    OpMap = {
+        # binop
+        ast.Add: ('operator', 'add'),
+        ast.Sub: ('operator', 'sub'),
+        ast.Mult: ('operator', 'mul'),
+        ast.Div: ('operator', 'div'),
+        ast.Mod: ('operator', 'mod'),
+        ast.Pow: ('operator', 'pow'),
+        ast.LShift: ('operator', 'lshift'),
+        ast.RShift: ('operator', 'rshift'),
+        ast.BitOr: ('operator', 'or_'),
+        ast.BitXor: ('operator', 'xor_'),
+        ast.BitAnd: ('operator', 'and_'),
+        ast.MatMult: ('operator', 'matmul'),
+        ast.FloorDiv: ('operator', 'floordiv'),
+        # unaryop
+        ast.Invert: ('operator', 'invert'),
+        ast.Not: ('operator', 'not_'),
+        ast.UAdd: ('operator', 'pos'),
+        ast.USub: ('operator', 'neg'),
+        # cmpop
+        ast.Eq: ('operator', 'eq'),
+        ast.NotEq: ('operator', 'ne'),
+        ast.Lt: ('operator', 'lt'),
+        ast.LtE: ('operator', 'le'),
+        ast.Gt: ('operator', 'gt'),
+        ast.GtE: ('operator', 'ge'),
+        ast.Is: ('operator', 'is_'),
+        ast.IsNot: ('operator', 'is_not'),
+        ast.In: ('operator', 'contains'),
+        ast.NotIn: ('operator', 'contains'),
+    }
+
+    IOpMap = {
+        ast.Add: ('operator', 'iadd'),
+        ast.Sub: ('operator', 'isub'),
+        ast.Mult: ('operator', 'imul'),
+        ast.Div: ('operator', 'idiv'),
+        ast.Mod: ('operator', 'imod'),
+        ast.Pow: ('operator', 'ipow'),
+        ast.LShift: ('operator', 'ilshift'),
+        ast.RShift: ('operator', 'irshift'),
+        ast.BitOr: ('operator', 'ior'),
+        ast.BitXor: ('operator', 'ixor'),
+        ast.BitAnd: ('operator', 'iand'),
+        ast.MatMult: ('operator', 'imatmul'),
+        ast.FloorDiv: ('operator', 'ifloordiv'),
+    }
+
     def __init__(self):
         self.result = set()
         super(Dependencies, self).__init__()
@@ -34,49 +83,6 @@ class Dependencies(ModuleAnalysis):
         self.result.add(('types', 'slice'))
         self.generic_visit(node)
 
-    def visit_Pow(self, node):
-        self.result.add(('builtins', 'pow'))
-        self.result.add(('operator', 'ipow'))
-
-    def visit_Add(self, node):
-        self.result.add(('operator', 'add'))
-
-    def visit_Mult(self, node):
-        self.result.add(('operator', 'mul'))
-
-    def visit_MatMult(self, node):
-        self.result.add(('operator', 'matmul'))
-        self.result.add(('operator', 'imatmul'))
-
-    def visit_Eq(self, node):
-        self.result.add(('operator', 'eq'))
-
-    def visit_NotEq(self, node):
-        self.result.add(('operator', 'ne'))
-
-    def visit_Lt(self, node):
-        self.result.add(('operator', 'lt'))
-
-    def visit_LtE(self, node):
-        self.result.add(('operator', 'le'))
-
-    def visit_Gt(self, node):
-        self.result.add(('operator', 'gt'))
-
-    def visit_GtE(self, node):
-        self.result.add(('operator', 'ge'))
-
-    def visit_In(self, node):
-        self.result.add(('builtins', 'in'))
-
-    visit_NotIn = visit_In
-
-    def visit_Is(self, node):
-        self.result.add(('builtins', 'id'))
-        self.generic_visit(node)
-
-    visit_IsNot = visit_Is
-
     def visit_And(self, node):
         self.result.add(('builtins', 'pythran', 'and'))
         self.generic_visit(node)
@@ -84,6 +90,29 @@ class Dependencies(ModuleAnalysis):
     def visit_Or(self, node):
         self.result.add(('builtins', 'pythran', 'or'))
         self.generic_visit(node)
+
+    def visit_BinOp(self, node):
+        self.visit(node.left)
+        self.result.add(Dependencies.OpMap[type(node.op)])
+        self.visit(node.right)
+
+    def visit_UnaryOp(self, node):
+        self.result.add(Dependencies.OpMap[type(node.op)])
+        self.visit(node.operand)
+
+    def visit_Compare(self, node):
+        self.visit(node.left)
+        for op in node.ops:
+            self.result.add(Dependencies.OpMap[type(op)])
+        for comparator in node.comparators:
+            self.visit(comparator)
+
+    def visit_AugAssign(self, node):
+        self.visit(node.target)
+        # because of the way type inference turns augassign into assign
+        self.result.add(Dependencies.OpMap[type(node.op)])
+        self.result.add(Dependencies.IOpMap[type(node.op)])
+        self.visit(node.value)
 
     def visit_Print(self, node):
         self.result.add(('builtins', 'print'))
@@ -96,18 +125,6 @@ class Dependencies(ModuleAnalysis):
     def visit_Yield(self, node):
         self.result.add(('utils', 'yield'))
         self.generic_visit(node)
-
-    def visit_Mod(self, _):
-        self.result.add(('operator', 'mod'))
-        self.result.add(('operator', 'imod'))
-
-    def visit_Div(self, _):
-        self.result.add(('operator', 'div'))
-        self.result.add(('operator', 'idiv'))
-
-    def visit_FloorDiv(self, _):
-        self.result.add(('operator', 'floordiv'))
-        self.result.add(('operator', 'ifloordiv'))
 
     def visit_Constant(self, node):
         if node.value is None:

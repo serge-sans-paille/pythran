@@ -53,7 +53,7 @@ class TestOperator(TestEnv):
         self.run_test("def truth(a):\n from operator import truth\n return truth(a)", True, truth=[bool])
 
     def test_is_(self):
-        self.run_test("def is_(a,b):\n from operator import is_\n return is_(a,b)", 2, 2, is_=[int,int])
+        self.run_test("def is_(a,b):\n from operator import is_\n return is_(a,b)", 1, 2, is_=[int,int])
 
     def test_is_not(self):
         self.run_test("def is_not(a,b):\n from operator import is_not\n return is_not(a,b)", 1, 2, is_not=[int,int])

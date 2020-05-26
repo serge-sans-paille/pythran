@@ -11,12 +11,12 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto and_(A const &a, B const &b) -> decltype(a &b)
+  auto and_(A &&a, B &&b) -> decltype(std::forward<A>(a) & std::forward<B>(b))
   {
-    return a & b;
+    return std::forward<A>(a) & std::forward<B>(b);
   }
 
-  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(and_, &)
+  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(and_, &, true)
 }
 PYTHONIC_NS_END
 

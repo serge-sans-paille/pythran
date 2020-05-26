@@ -38,10 +38,27 @@ namespace builtins
       return res;
     }
 
-    types::list<types::str> split(types::str const &s, types::none_type const &,
-                                  long maxsplit)
+    types::list<types::str> split(types::str const &in,
+                                  types::none_type const &, long maxsplit)
     {
-      return split(s, " ", maxsplit);
+      types::str s = strip(in);
+      types::list<types::str> res(0);
+      size_t current = 0;
+      size_t next = 0;
+      long numsplit = 0;
+      while (next != types::str::npos &&
+             (numsplit++ < maxsplit || maxsplit == -1)) {
+        next = s.find_first_of(" \n\r\t", current);
+        // from the pydoc, we skip any blank list
+        size_t end = s.find_first_not_of(" \n\r\t", next);
+        res.push_back(s.substr(current, next - current));
+        current = end;
+      }
+      if (next != types::str::npos) {
+        current = next + 1;
+        res.push_back(s.substr(current, s.size() - current));
+      }
+      return res;
     }
   }
 }

@@ -78,6 +78,15 @@ class TestStr(TestEnv):
     def test_str_rstrip2(self):
         self.run_test("def str_rstrip2(s): return s.rstrip(\"TSih\")", "ThiS iS a TeST", str_rstrip2=[str])
 
+    def test_str_split1(self):
+        self.run_test("def str_split1(s): return s.split()", "ThiS iS a TeST", str_split1=[str])
+
+    def test_str_split2(self):
+        self.run_test("def str_split2(s): return s.split('S')", "ThiS iS a TeST", str_split2=[str])
+
+    def test_str_split3(self):
+        self.run_test("def str_split3(s): return s.split()", "ThiS  iS\t a TeST", str_split3=[str])
+
     def test_str_format(self):
         self.run_test("def str_format(a): return '%.2f %.2f' % (a, a)", 43.23, str_format=[float])
 

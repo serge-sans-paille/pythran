@@ -11,6 +11,11 @@ def isstr(node):
     return isinstance(node, ast.Constant) and isinstance(node.value, str)
 
 
+def isintegral(node):
+    return isinstance(node, ast.Constant) and isinstance(node.value, (int,
+                                                                      bool))
+
+
 def isnum(node):
     return isinstance(node, ast.Constant) and isinstance(node.value, (int,
                                                                       float,

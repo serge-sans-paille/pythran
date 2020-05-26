@@ -6,7 +6,7 @@ from pythran.tables import MODULES
 from pythran.conversion import to_ast, ConversionError, ToNotEval, mangle
 from pythran.analyses.ast_matcher import DamnTooLongPattern
 from pythran.syntax import PythranSyntaxError
-from pythran.utils import isnum
+from pythran.utils import isintegral, isnum
 
 import gast as ast
 from copy import deepcopy
@@ -152,6 +152,9 @@ class PartialConstantFolding(Transformation):
             return False
         if not isnum(node.right):
             return False
+        # FIXME: remove that check once we have a proper type inference engine
+        if not isintegral(node.right):
+            raise PythranSyntaxError("Multiplying a sequence by a float", node)
         return isinstance(node.op, ast.Mult)
 
     def fold_mult_right(self, node):
@@ -159,6 +162,9 @@ class PartialConstantFolding(Transformation):
             return False
         if not isnum(node.left):
             return False
+        # FIXME: remove that check once we have a proper type inference engine
+        if not isintegral(node.left):
+            raise PythranSyntaxError("Multiplying a sequence by a float", node)
         return isinstance(node.op, ast.Mult)
 
     def fold_add(self, node, ty):
@@ -228,7 +234,7 @@ class PartialConstantFolding(Transformation):
         if not isinstance(node.slice, ast.Index):
             return node
 
-        if not isnum(node.slice.value):
+        if not isintegral(node.slice.value):
             return node
 
         slice_ = node.value.slice

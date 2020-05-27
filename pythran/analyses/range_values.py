@@ -1038,7 +1038,7 @@ class RangeValues(RangeValuesBase):
 
         # if the test may be false, visit the tail
         if 0 in test_range:
-            for successor in self.cfg.successors(node):
+            for successor in list(self.cfg.successors(node)):
                 if successor is not node.body[0]:
                     self.cfg_visit(successor)
 
@@ -1177,7 +1177,7 @@ class RangeValues(RangeValuesBase):
 
         elif 0 in test_range:
             successors = self.cfg.successors(node)
-            for successor in successors:
+            for successor in list(successors):
                 # no else branch
                 if successor not in visited_successors:
                     self.result, prev_state = init_state.copy(), self.result

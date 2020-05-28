@@ -18,6 +18,12 @@ class TestTyping(TestEnv):
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumbo", code, pyonly=True)
 
+    def test_module_invalid_sequence_mult(self):
+        code = 'def foo(x): return [x] * 3.'
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
     def test_immutable_default0(self):
         code = 'def immutable_default0(x=[1]): pass'
 

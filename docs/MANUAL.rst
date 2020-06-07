@@ -557,7 +557,9 @@ This section contains compiler flags configuration. For education purpose, the d
     ``pythran-openblas`` requires the `pythran-openblas
     <https://pypi.org/project/pythran-openblas/>`_ package, which provides a
     statically linked version of `OpenBLAS <https://www.openblas.net/>`_. Other
-    options are system dependant.
+    options are system dependant. Depending on your setup, you *may* need to
+    update ``include_dirs`` to point to the location of the BLAS headers, e.g.
+    ``/usr/include/openblas``.
 
 :``ignoreflags``:
 

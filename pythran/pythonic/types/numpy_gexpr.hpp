@@ -379,18 +379,20 @@ namespace types
      * perform a fuzzy alias check dynamically!
      */
     assert(buffer);
+    constexpr bool vectorize =
+        is_vectorizable &&
+        std::is_same<dtype, typename dtype_of<E>::type>::value &&
+        is_vectorizable_array<E>::value;
     if (may_overlap(*this, expr)) {
       return utils::broadcast_copy<
           numpy_gexpr &, ndarray<typename E::dtype, typename E::shape_t>, value,
-          value - utils::dim_of<E>::value, is_vectorizable>(
+          value - utils::dim_of<E>::value, vectorize>(
           *this, ndarray<typename E::dtype, typename E::shape_t>(expr));
     } else {
       // 100% sure there's no overlap
-      return utils::broadcast_copy < numpy_gexpr &, E, value,
-             value - utils::dim_of<E>::value,
-             is_vectorizable &&
-                 std::is_same<dtype, typename dtype_of<E>::type>::value &&
-                 is_vectorizable_array<E>::value > (*this, expr);
+      return utils::broadcast_copy<numpy_gexpr &, E, value,
+                                   value - utils::dim_of<E>::value, vectorize>(
+          *this, expr);
     }
   }
 
@@ -400,13 +402,15 @@ namespace types
                           numpy_gexpr<Arg, S...> &>::type
   numpy_gexpr<Arg, S...>::_copy(E const &expr)
   {
+    constexpr bool vectorize =
+        is_vectorizable &&
+        std::is_same<dtype, typename dtype_of<E>::type>::value &&
+        is_vectorizable_array<E>::value;
     static_assert(value >= utils::dim_of<E>::value, "dimensions match");
     assert(buffer);
-    return utils::broadcast_copy < numpy_gexpr &, E, value,
-           value - utils::dim_of<E>::value,
-           is_vectorizable &&
-               std::is_same<dtype, typename dtype_of<E>::type>::value &&
-               is_vectorizable_array<E>::value > (*this, expr);
+    return utils::broadcast_copy<numpy_gexpr &, E, value,
+                                 value - utils::dim_of<E>::value, vectorize>(
+        *this, expr);
   }
 
   template <class Arg, class... S>

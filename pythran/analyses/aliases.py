@@ -99,7 +99,14 @@ class Aliases(ModuleAnalysis):
         if isinstance(node, ast.Name):
             return MODULES.get(demangle(node.id), node.id)
         elif isinstance(node, ast.Attribute):
-            return Aliases.access_path(node.value)[demangle(node.attr)]
+            attr_key = demangle(node.attr)
+            value_dict = Aliases.access_path(node.value)
+            if attr_key not in value_dict:
+                raise PythranSyntaxError(
+                    "Unsupported attribute '{}' for this object"
+                    .format(attr_key),
+                    node.value)
+            return value_dict[attr_key]
         elif isinstance(node, ast.FunctionDef):
             return node.name
         else:

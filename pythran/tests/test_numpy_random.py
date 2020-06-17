@@ -1556,3 +1556,56 @@ class TestNumpyRandom(TestEnv):
             return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
         """
         self.run_test(code, 10 ** 3, numpy_logseries2=[int])
+
+    ###########################################################################
+    # Tests for numpy.random.uniform
+    ###########################################################################
+
+    def test_numpy_uniform_no_arg(self):
+        """ Check logseries without argument with mean and variance. """
+        code = """
+        def numpy_uniform_no_arg(size):
+            import numpy as np
+            from numpy.random import uniform
+            low, high = 0.0, 1.0
+            a = np.array([uniform() for _ in range(size)])
+            rmean = 0.5 * (low + high)
+            rvar = (high - low) ** 2 / 12
+            cond_mean = (a.mean() - rmean) / rmean < 0.05
+            cond_var = (np.var(a) - rvar) / rvar < 0.05
+            return cond_mean and cond_var
+        """
+        self.run_test(code, 4000, numpy_uniform_no_arg=[int])
+
+    def test_numpy_uniform_size_int(self):
+        """ Check logseries with arguments with mean and variance. """
+        code = """
+        def numpy_uniform_size_int(size):
+            import numpy as np
+            from numpy.random import uniform
+            low, high = 0., 1234.
+            rmean = 0.5 * (low + high)
+            rvar = (high - low) ** 2 / 12
+            a = uniform(low, high, size)
+            cond_mean = (a.mean() - rmean) / rmean < 0.05
+            cond_var = (np.var(a) - rvar) / rvar < 0.05
+            return cond_mean and cond_var
+        """
+        self.run_test(code, 4000, numpy_uniform_size_int=[int])
+
+
+    def test_numpy_uniform_size_tuple(self):
+        """ Check logseries with arguments with mean and variance. """
+        code = """
+        def numpy_uniform_size_tuple(size):
+            import numpy as np
+            from numpy.random import uniform
+            low, high = -987., 12345.
+            rmean = 0.5 * (low + high)
+            rvar = (high - low) ** 2 / 12
+            a = uniform(low, high, (size, size))
+            cond_mean = (a.mean() - rmean) / rmean < 0.05
+            cond_var = (np.var(a) - rvar) / rvar < 0.05
+            return cond_mean and cond_var
+        """
+        self.run_test(code, 70, numpy_uniform_size_tuple=[int])

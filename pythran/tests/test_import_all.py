@@ -64,3 +64,12 @@ class TestImportAll(TestEnv):
 
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
             pythran.compile_pythrancode("complex_import_manipulation2", dedent(code), pyonly=True)
+
+    def test_complex_import_manipulation3(self):
+        code = """
+            from numpy import random
+            def unsupported_module():
+                return random.i_do_not_exist()"""
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as ex:
+            pythran.compile_pythrancode("complex_import_manipulation3", dedent(code), pyonly=True)

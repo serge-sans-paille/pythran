@@ -88,7 +88,8 @@ class PythranBuildExt(LegacyBuildExt, object):
         for flag in cfg.cfg.get('compiler', "ignoreflags").split():
             for target in ('compiler_so', 'linker_so'):
                 try:
-                    getattr(self.compiler, target).remove(flag)
+                    while True:
+                        getattr(self.compiler, target).remove(flag)
                 except (AttributeError, ValueError):
                     pass
 

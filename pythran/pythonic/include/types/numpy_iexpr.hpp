@@ -11,6 +11,23 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
+  template <size_t L>
+  struct noffset {
+    template <class S, class Ty, size_t M>
+    long operator()(S const &strides, array<Ty, M> const &indices) const;
+    template <class S, class Ty, size_t M, class pS>
+    long operator()(S const &strides, array<Ty, M> const &indices,
+                    pS const &shape) const;
+  };
+
+  template <>
+  struct noffset<0> {
+    template <class S, class Ty, size_t M>
+    long operator()(S const &, array<Ty, M> const &indices) const;
+    template <class S, class Ty, size_t M, class pS>
+    long operator()(S const &, array<Ty, M> const &indices,
+                    pS const &shape) const;
+  };
 
   template <class Arg, class... S>
   struct numpy_gexpr;
@@ -44,23 +61,16 @@ namespace types
                                   const_nditerator<numpy_iexpr>,
                                   dtype const *>::type;
 
+    typename std::decay<Arg>::type arg;
     dtype *buffer;
     using shape_t =
         sutils::pop_head_t<typename std::remove_reference<Arg>::type::shape_t>;
-    shape_t _shape;
 
     numpy_iexpr();
     numpy_iexpr(numpy_iexpr const &) = default;
     numpy_iexpr(numpy_iexpr &&) = default;
 
-    numpy_iexpr(dtype *buffer, array<long, value> const &shape)
-        : buffer(buffer), _shape(shape)
-    {
-    }
-
-    template <class Argp> // ! using the default one, to make it possible to
-    // accept reference && non reference version of
-    // Argp
+    template <class Argp>
     numpy_iexpr(numpy_iexpr<Argp> const &other);
 
     numpy_iexpr(Arg const &arg, long index);
@@ -69,7 +79,23 @@ namespace types
     long size() const;
 
     template <class E>
+    struct is_almost_same : std::false_type {
+    };
+    template <class Argp>
+    struct is_almost_same<numpy_iexpr<Argp>>
+        : std::integral_constant<
+              bool, !std::is_same<Arg, Argp>::value &&
+                        std::is_same<typename std::decay<Arg>::type,
+                                     typename std::decay<Argp>::type>::value> {
+    };
+
+    template <class E, class Requires = typename std::enable_if<
+                           !is_almost_same<E>::value, void>::type>
     numpy_iexpr &operator=(E const &expr);
+    template <class Argp,
+              class Requires = typename std::enable_if<
+                  is_almost_same<numpy_iexpr<Argp>>::value, void>::type>
+    numpy_iexpr &operator=(numpy_iexpr<Argp> const &expr);
     numpy_iexpr &operator=(numpy_iexpr const &expr);
 
     template <class Op, class E>
@@ -173,6 +199,26 @@ namespace types
         numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
+    template <class... Indices>
+    void store(dtype elt, Indices... indices)
+    {
+      *(buffer + noffset<value>{}(*this, array<long, value>{{indices...}})) =
+          elt;
+    }
+    template <class... Indices>
+    dtype load(Indices... indices) const
+    {
+      return *(buffer +
+               noffset<value>{}(*this, array<long, value>{{indices...}}));
+    }
+    template <class Op, class... Indices>
+    void update(dtype elt, Indices... indices) const
+    {
+      Op{}(
+          *(buffer + noffset<value>{}(*this, array<long, value>{{indices...}})),
+          elt);
+    }
+
 #ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<numpy_iexpr>;
     using simd_iterator_nobroadcast = simd_iterator;
@@ -221,17 +267,34 @@ namespace types
 
     explicit operator bool() const;
     long flat_size() const;
-    shape_t const &shape() const
+    template <size_t I>
+    auto shape() const -> decltype(arg.template shape<I + 1>())
     {
-      return _shape;
+      return arg.template shape<I + 1>();
+    }
+    template <size_t I>
+    auto strides() const -> decltype(arg.template strides<I + 1>())
+    {
+      return arg.template strides<I + 1>();
     }
 
     template <class pS>
-    auto reshape(pS const &new_shape) const
-        -> numpy_iexpr<decltype(std::declval<Arg>().reshape(
-            std::declval<sutils::push_front_t<pS, long>>()))>
+    auto reshape(pS const &new_shape) const -> numpy_iexpr<
+        decltype(std::declval<Arg>().reshape(std::declval<sutils::push_front_t<
+            pS, typename std::tuple_element<
+                    0, typename std::decay<Arg>::type::shape_t>::type>>()))>
     {
-      return {buffer, new_shape};
+      sutils::push_front_t<
+          pS, typename std::tuple_element<
+                  0, typename std::decay<Arg>::type::shape_t>::type>
+          fixed_new_shape;
+      sutils::scopy_shape<1, -1>(
+          fixed_new_shape, new_shape,
+          utils::make_index_sequence<std::tuple_size<pS>::value>{});
+      sutils::assign(std::get<0>(fixed_new_shape), arg.template shape<0>());
+      return numpy_iexpr<decltype(arg.reshape(fixed_new_shape))>(
+          arg.reshape(fixed_new_shape),
+          (buffer - arg.buffer) / arg.template strides<0>());
     }
 
     ndarray<dtype, shape_t> copy() const
@@ -259,7 +322,7 @@ namespace types
 
   private:
     /* compute the buffer offset, returning the offset between the
-     * first element of the iexpr && the start of the buffer.
+     * first element of the iexpr and the start of the buffer.
      * This used to be a plain loop, but g++ fails to unroll it, while it
      * unrolls it with the template version...
      */

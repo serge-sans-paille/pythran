@@ -17,7 +17,7 @@ namespace numpy
     constexpr long N = E::value;
     auto arr = asarray(expr);
     long sz = arr.flat_size();
-    auto eshape = sutils::array(arr.shape());
+    auto eshape = sutils::getshape(arr);
 
     utils::shared_ref<types::raw_array<long>> buffer(sz *
                                                      N); // too much memory used

@@ -496,10 +496,10 @@ def assign_ndarray(t):
         self.run_test("def np_sliced8(a): a[1:2] = 1 ; return a", numpy.arange(12).reshape(3,2,2), np_sliced8=[NDArray[int, :,:,:]])
 
     def test_sliced9(self):
-        self.run_test("def np_sliced9(a): from numpy import arange ; a[1:2] = arange(4).reshape((1,2,2)) ; return a", numpy.arange(12).reshape(3,2,2), np_sliced9=[NDArray[int, :,:,:]])
+        self.run_test("def np_sliced9(a): from numpy import arange ; a[1:2] = arange(4.).reshape((1,2,2)) ; return a", numpy.arange(12.).reshape(3,2,2), np_sliced9=[NDArray[float, :,:,:]])
 
     def test_sliced10(self):
-        self.run_test("def np_sliced10(a): from numpy import arange ; a[1:-1:2] = arange(4).reshape((1,2,2)) ; return a", numpy.arange(12).reshape(3,2,2), np_sliced10=[NDArray[int, :,:,:]])
+        self.run_test("def np_sliced10(a): from numpy import arange ; a[1:-1:2] = arange(4.).reshape((1,2,2)) ; return a", numpy.arange(12.).reshape(3,2,2), np_sliced10=[NDArray[float, :,:,:]])
 
     def test_sliced11(self):
         self.run_test("def np_sliced11(a): return a[1::-2]", numpy.arange(12).reshape(3,2,2), np_sliced11=[NDArray[int, :,:,:]])

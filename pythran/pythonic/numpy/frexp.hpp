@@ -48,7 +48,7 @@ namespace numpy
                  types::ndarray<int, typename E::shape_t>>>::type
   frexp(E const &arr)
   {
-    auto &&arr_shape = arr.shape();
+    auto arr_shape = sutils::getshape(arr);
     types::ndarray<typename E::dtype, typename E::shape_t> significands(
         arr_shape, builtins::None);
     types::ndarray<int, typename E::shape_t> exps(arr_shape, builtins::None);

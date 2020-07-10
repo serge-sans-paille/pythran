@@ -8,6 +8,15 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
+  template <size_t I, class Args>
+  bool is_trivial_broadcast()
+  {
+    return std::is_same<typename std::tuple_element<
+                            0, typename std::decay<typename std::tuple_element<
+                                   I, Args>::type>::type::shape_t>::type,
+                        std::integral_constant<long, 1>>::value;
+  }
+
   template <class... Tys>
   struct count_non_integral;
   template <>
@@ -28,6 +37,26 @@ namespace types
   struct is_perfect_stepping<pshape<Tys...>>
       : std::integral_constant<bool, count_non_integral<Tys...>::value == 1> {
   };
+  template <size_t value, class Args, size_t N, size_t... Is>
+  struct all_valid_indices;
+
+  template <size_t value, class Args, size_t... Is>
+  struct all_valid_indices<value, Args, 0, Is...> {
+    using type = utils::index_sequence<Is...>;
+  };
+  template <size_t value, class Args, size_t N, size_t... Is>
+  struct all_valid_indices
+      : std::conditional<(value <=
+                          std::remove_reference<typename std::tuple_element<
+                              N - 1, Args>::type>::type::value),
+                         all_valid_indices<value, Args, N - 1, Is..., N - 1>,
+                         all_valid_indices<value, Args, N - 1, Is...>>::type {
+  };
+
+  template <size_t value, class Args>
+  using valid_indices =
+      typename all_valid_indices<value, Args,
+                                 std::tuple_size<Args>::value>::type;
 
   template <class Expr>
   struct is_numexpr_arg;
@@ -48,6 +77,11 @@ namespace types
   struct step {
     using type = typename T::step_type;
   };
+  namespace details
+  {
+    template <size_t I, class Args, size_t... Is>
+    long init_shape_element(Args const &args, utils::index_sequence<Is...>);
+  }
 
   template <class Op, class Steps, class... Iters>
   struct numpy_expr_iterator
@@ -550,10 +584,10 @@ namespace types
       -> decltype(arg(std::get<J>(ss)...))
   {
     // we need to adapt_slice to take broadcasting into account
-    return arg(
-        adapt_slice(std::get<J>(ss), std::get<J - count_none<S...>(J)>(shp),
-                    std::get<clamp(J - count_none<S...>(J), Arg::value - 1)>(
-                        arg.shape()))...);
+    return arg(adapt_slice(std::get<J>(ss),
+                           shp.template shape<J - count_none<S...>(J)>(),
+                           arg.template shape<clamp(J - count_none<S...>(J),
+                                                    Arg::value - 1)>())...);
   }
 
   /* Expression template for numpy expressions - binary operators
@@ -599,8 +633,6 @@ namespace types
         Op, steps_t, typename std::remove_reference<Args>::type::iterator...>;
     using const_fast_iterator = const_nditerator<numpy_expr>;
 
-    shape_t _shape;
-
     numpy_expr() = default;
     numpy_expr(numpy_expr const &) = default;
     numpy_expr(numpy_expr &&) = default;
@@ -637,6 +669,22 @@ namespace types
         -> decltype(this->_fast(i,
                                 utils::make_index_sequence<sizeof...(Args)>{}));
 
+    template <class... Indices, size_t... I>
+    auto _load(utils::index_sequence<I...>, Indices... indices) const
+        -> decltype(Op()(std::get<I>(args).load(indices...)...))
+    {
+      return Op()(std::get<I>(args).load(indices...)...);
+    }
+
+    template <class... Indices>
+    auto load(Indices... indices) const
+        -> decltype(this->_load(utils::make_index_sequence<sizeof...(Args)>{},
+                                indices...))
+    {
+      return this->_load(utils::make_index_sequence<sizeof...(Args)>{},
+                         indices...);
+    }
+
     template <size_t... I>
     auto _map_fast(array<long, sizeof...(I)> const &indices,
                    utils::index_sequence<I...>) const
@@ -651,13 +699,22 @@ namespace types
                         utils::make_index_sequence<sizeof...(Args)>{}));
 
   public:
-    shape_t const &shape() const
+    template <size_t I>
+    auto shape() const -> decltype(details::init_shape_element<I>(
+        args, valid_indices<value, std::tuple<Args...>>{}))
     {
-      return _shape;
+      return details::init_shape_element<I>(
+          args, valid_indices<value, std::tuple<Args...>>{});
     }
     template <size_t... I>
     bool _no_broadcast(utils::index_sequence<I...>) const;
     bool no_broadcast() const;
+    template <size_t... I>
+    bool _no_broadcast_vectorize(utils::index_sequence<I...>) const;
+    bool no_broadcast_vectorize() const;
+    template <size_t... I>
+    bool _no_broadcast_ex(utils::index_sequence<I...>) const;
+    bool no_broadcast_ex() const;
 
 #ifdef USE_XSIMD
     using simd_iterator = numpy_expr_simd_iterator<
@@ -693,7 +750,7 @@ namespace types
         -> decltype(Op{}(std::get<I>(args)(s...)...))
     {
       return Op{}(make_subslice(utils::make_index_sequence<sizeof...(S)>{},
-                                std::get<I>(args), shape(),
+                                std::get<I>(args), *this,
                                 std::make_tuple(s...))...);
     }
 
@@ -734,7 +791,7 @@ namespace types
                             numpy_vexpr<numpy_expr, F>>::type
     fast(F const &filter) const;
 
-    // FIXME: this does ! take into account bounds && broadcasting
+    // FIXME: this does not take into account bounds && broadcasting
     auto operator[](long i) const -> decltype(this->fast(i));
 
     template <size_t... I, class S>

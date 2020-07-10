@@ -117,7 +117,7 @@ namespace numpy
     long concatenate_axis_size(A const &from, long axis,
                                utils::index_sequence<I...>)
     {
-      long sizes[] = {sutils::array(std::get<I>(from).shape())[axis]...};
+      long sizes[] = {sutils::getshape(std::get<I>(from))[axis]...};
       return std::accumulate(std::begin(sizes), std::end(sizes), 0L,
                              std::plus<long>());
     }
@@ -133,7 +133,7 @@ namespace numpy
     using T =
         typename __combined<typename std::decay<Types>::type::dtype...>::type;
     auto constexpr N = std::decay<decltype(std::get<0>(args))>::type::value;
-    auto shape = sutils::array(std::get<0>(args).shape());
+    auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] = details::concatenate_axis_size(
         args, axis, utils::make_index_sequence<sizeof...(Types)>{});
 
@@ -153,7 +153,7 @@ namespace numpy
   {
     using T = typename E::dtype;
     auto constexpr N = E::value;
-    auto shape = sutils::array(std::get<0>(args).shape());
+    auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] = details::concatenate_axis_size(
         args, axis, utils::make_index_sequence<M>{});
     types::ndarray<typename E::dtype, types::array<long, E::value>> out(
@@ -171,11 +171,11 @@ namespace numpy
         types::ndarray<typename E::dtype, types::array<long, E::value>>;
     using T = typename return_type::dtype;
     auto constexpr N = return_type::value;
-    auto shape = sutils::array(ai[0].shape());
-    shape[axis] = std::accumulate(
-        ai.begin(), ai.end(), 0L, [axis](long v, E const &from) {
-          return v + sutils::array(from.shape())[axis];
-        });
+    auto shape = sutils::getshape(ai[0]);
+    shape[axis] = std::accumulate(ai.begin(), ai.end(), 0L,
+                                  [axis](long v, E const &from) {
+                                    return v + sutils::getshape(from)[axis];
+                                  });
 
     return_type out{shape, types::none_type{}};
     details::concatenate_helper<N>()(out, ai, axis);

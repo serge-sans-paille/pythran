@@ -292,6 +292,21 @@ namespace types
     }
   };
 
+  namespace details
+  {
+    template <class E>
+    auto extract_shape(E const &e, utils::int_<0>) -> decltype(e.size())
+    {
+      return e.size();
+    }
+    template <class E, size_t L>
+    auto extract_shape(E const &e, utils::int_<L>)
+        -> decltype(extract_shape(e[0], utils::int_<L - 1>{}))
+    {
+      return extract_shape(e[0], utils::int_<L - 1>{});
+    }
+  }
+
   /* inspired by std::array implementation */
   template <typename T, size_t N, typename Version>
   struct array_base {
@@ -371,6 +386,16 @@ namespace types
     template <class vectorizer>
     simd_iterator vend(vectorizer) const;
 #endif
+    template <class... Indices>
+    dtype load(long index0, long index1, Indices... indices) const
+    {
+      return fast(index0).load(index1, indices...);
+    }
+
+    dtype load(long index) const
+    {
+      return fast(index);
+    }
 
     reference operator[](long __n);
 
@@ -454,7 +479,12 @@ namespace types
     operator<<(std::ostream &os, types::array_base<T1, N1, Version1> const &v);
 
     using shape_t = typename shape_builder<array_base, value>::type;
-    shape_t shape() const;
+    template <size_t I>
+    auto shape() const
+        -> decltype(details::extract_shape(*this, utils::int_<I>{}))
+    {
+      return details::extract_shape(*this, utils::int_<I>{});
+    }
   };
 
   // Implementation for detection of "same type".
@@ -1009,7 +1039,24 @@ namespace sutils
   {
     std::initializer_list<int> _ = {
         (assign(std::get<Start + Is>(shape0),
+                shape1.template shape<Is + Start + Offset>()),
+         1)...};
+  }
+  template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
+  void scopy_shape(T0 &shape0, T1 const &shape1, utils::index_sequence<Is...>)
+  {
+    std::initializer_list<int> _ = {
+        (assign(std::get<Start + Is>(shape0),
                 std::get<Is + Start + Offset>(shape1)),
+         1)...};
+  }
+  template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
+  void copy_strides(T0 &stride0, T1 const &stride1,
+                    utils::index_sequence<Is...>)
+  {
+    std::initializer_list<int> _ = {
+        (assign(std::get<Start + Is>(stride0),
+                stride1.template strides<Is + Start + Offset>()),
          1)...};
   }
   template <class P, class... Tys>
@@ -1080,6 +1127,18 @@ namespace sutils
   {
     return pS;
   }
+  template <class E, size_t... Is>
+  types::array<long, sizeof...(Is)> getshape(E const &e,
+                                             utils::index_sequence<Is...>)
+  {
+    return {(long)(e.template shape<Is>())...};
+  }
+  template <class E>
+  auto getshape(E const &e)
+      -> decltype(getshape(e, utils::make_index_sequence<E::value>()))
+  {
+    return getshape(e, utils::make_index_sequence<E::value>());
+  }
 
   template <class pS0, class pS1>
   struct concat;
@@ -1118,47 +1177,67 @@ namespace sutils
   long find(S &s, long v, std::integral_constant<size_t, 0>, long start,
             bool comp(long, long))
   {
-    return comp(std::get<0>(s), v) && 0 < start ? 0 : -1;
+    return comp(s.template shape<0>(), v) && 0 < start ? 0 : -1;
   }
   template <class S, size_t I>
   long find(S &s, long v, std::integral_constant<size_t, I>, long start,
             bool comp(long, long))
   {
-    return comp(std::get<I>(s), v) && I < start
+    return comp(s.template shape<I>(), v) && I < start
                ? I
                : find(s, v, std::integral_constant<size_t, I - 1>(), start,
                       comp);
   }
 
   template <class S>
-  long find(S &s, long v, long start = std::tuple_size<S>::value,
+  long find(S &s, long v, long start = S::value,
             bool comp(long, long) = [](long a, long b) { return (a == b); })
   {
-    return find(s, v,
-                std::integral_constant<size_t, std::tuple_size<S>::value - 1>(),
-                start, comp);
+    return find(s, v, std::integral_constant<size_t, S::value - 1>(), start,
+                comp);
+  }
+  template <class S>
+  long sfind(S &s, long v, std::integral_constant<size_t, 0>, long start,
+             bool comp(long, long))
+  {
+    return comp(std::get<0>(s), v) && 0 < start ? 0 : -1;
+  }
+  template <class S, size_t I>
+  long sfind(S &s, long v, std::integral_constant<size_t, I>, long start,
+             bool comp(long, long))
+  {
+    return comp(std::get<I>(s), v) && I < start
+               ? I
+               : sfind(s, v, std::integral_constant<size_t, I - 1>(), start,
+                       comp);
+  }
+
+  template <class S>
+  long sfind(S &s, long v, long start = std::tuple_size<S>::value,
+             bool comp(long, long) = [](long a, long b) { return (a == b); })
+  {
+    return sfind(
+        s, v, std::integral_constant<size_t, std::tuple_size<S>::value - 1>(),
+        start, comp);
   }
 
   template <class S, class B>
   bool equals(S const &s, B const &other, std::integral_constant<size_t, 0>)
   {
-    return std::get<0>(other) == std::get<0>(s);
+    return std::get<0>(other) == s.template shape<0>();
   }
   template <class S, class B, size_t I>
   bool equals(S const &s, B const &other, std::integral_constant<size_t, I>)
   {
-    return std::get<I>(other) == std::get<I>(s) &&
+    return std::get<I>(other) == s.template shape<I>() &&
            equals(s, other, std::integral_constant<size_t, I - 1>());
   }
 
   template <class S, class B>
-  typename std::enable_if<
-      std::tuple_size<S>::value == std::tuple_size<B>::value, bool>::type
+  typename std::enable_if<S::value == std::tuple_size<B>::value, bool>::type
   equals(S const &s, B const &other)
   {
-    return equals(
-        s, other,
-        std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+    return equals(s, other, std::integral_constant<size_t, S::value - 1>());
   }
   template <class S, class B>
   typename std::enable_if<
@@ -1170,80 +1249,90 @@ namespace sutils
   template <class S, class B>
   bool equals(S const &s, B *other)
   {
-    return equals(
-        s, other,
-        std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+    return equals(s, other, std::integral_constant<size_t, S::value - 1>());
   }
   template <class S, class B>
   bool requals(S const &s, B const *other, std::integral_constant<size_t, 0>)
   {
-    return other[std::tuple_size<S>::value - 1] == std::get<0>(s);
+    return other[S::value - 1] == s.template shape<0>();
   }
   template <class S, class B, size_t I>
   bool requals(S const &s, B const *other, std::integral_constant<size_t, I>)
   {
-    return other[std::tuple_size<S>::value - I - 1] == std::get<I>(s) &&
+    return other[S::value - I - 1] == s.template shape<I>() &&
            requals(s, other, std::integral_constant<size_t, I - 1>());
   }
   template <class S, class B>
   bool requals(S const &s, B const *other)
   {
-    return requals(
-        s, other,
-        std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+    return requals(s, other, std::integral_constant<size_t, S::value - 1>());
   }
 
   template <class S, class P>
   bool any_of(S const &s, P pred, std::integral_constant<size_t, 0>)
   {
-    return pred(std::get<0>(s));
+    return pred(s.template shape<0>());
   }
   template <class S, class P, size_t I>
   bool any_of(S const &s, P pred, std::integral_constant<size_t, I>)
   {
-    return pred(std::get<I>(s)) ||
+    return pred(s.template shape<I>()) ||
            any_of(s, pred, std::integral_constant<size_t, I - 1>());
   }
   template <class S, class Pred>
   bool any_of(S const &s, Pred pred)
   {
-    return any_of(
-        s, pred,
-        std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+    return any_of(s, pred, std::integral_constant<size_t, S::value - 1>());
   }
 
   template <class S>
   long min(long curr, S const &s, std::integral_constant<size_t, 0>)
   {
-    return std::min(curr, std::get<0>(s));
+    return std::min(curr, s.template shape<0>());
   }
   template <class S, size_t I>
   long min(long curr, S const &s, std::integral_constant<size_t, I>)
   {
-    return min(std::min(curr, std::get<I>(s)), s,
+    return min(std::min(curr, s.template shape<I>()), s,
                std::integral_constant<size_t, I - 1>());
   }
   template <class S>
   long min(S const &s)
   {
-    return min(std::get<std::tuple_size<S>::value - 1>(s), s,
-               std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+    return min(s.template shape<S::value - 1>(), s,
+               std::integral_constant<size_t, S::value - 1>());
   }
 
   template <class S>
   long prod(S const &s, std::integral_constant<size_t, 0>)
   {
-    return std::get<0>(s);
+    return s.template shape<0>();
   }
   template <class S, size_t I>
   long prod(S const &s, std::integral_constant<size_t, I>)
   {
-    return std::get<I>(s) * prod(s, std::integral_constant<size_t, I - 1>());
+    return s.template shape<I>() *
+           prod(s, std::integral_constant<size_t, I - 1>());
   }
   template <class S>
   long prod(S const &s)
   {
-    return prod(
+    return prod(s, std::integral_constant<size_t, S::value - 1>());
+  }
+  template <class S>
+  long sprod(S const &s, std::integral_constant<size_t, 0>)
+  {
+    return std::get<0>(s);
+  }
+  template <class S, size_t I>
+  long sprod(S const &s, std::integral_constant<size_t, I>)
+  {
+    return std::get<I>(s) * sprod(s, std::integral_constant<size_t, I - 1>());
+  }
+  template <class S>
+  long sprod(S const &s)
+  {
+    return sprod(
         s, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
   }
 
@@ -1255,14 +1344,13 @@ namespace sutils
   template <class S, size_t I>
   long prod_tail(S const &s, std::integral_constant<size_t, I>)
   {
-    return std::get<I>(s) *
+    return s.template shape<I>() *
            prod_tail(s, std::integral_constant<size_t, I - 1>());
   }
   template <class S>
   long prod_tail(S const &s)
   {
-    return prod_tail(
-        s, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+    return prod_tail(s, std::integral_constant<size_t, S::value - 1>());
   }
 
   template <size_t I, class P>
@@ -1292,23 +1380,25 @@ namespace sutils
     typename std::enable_if<
         (0 != std::tuple_size<S2>::value) &&
             !std::tuple_element<0, S2>::type::value,
-        sutils::push_front_t<S0,
-                             typename std::tuple_element<0, S1>::type>>::type
+        sutils::push_front_t<S0, typename std::tuple_element<
+                                     0, typename S1::shape_t>::type>>::type
     doit(S0 s, S1 const &shape, S2 const &new_axis,
          std::integral_constant<size_t, J>)
     {
-      return {std::tuple_cat(std::make_tuple(std::get<0>(shape)), s.values)};
+      return {
+          std::tuple_cat(std::make_tuple(shape.template shape<0>()), s.values)};
     }
 
     template <class S0, class S1, class S2, size_t J>
     typename std::enable_if<
         (0 == std::tuple_size<S2>::value),
-        sutils::push_front_t<S0,
-                             typename std::tuple_element<J, S1>::type>>::type
+        sutils::push_front_t<S0, typename std::tuple_element<
+                                     J, typename S1::shape_t>::type>>::type
     doit(S0 s, S1 const &shape, S2 const &new_axis,
          std::integral_constant<size_t, J>)
     {
-      return {std::tuple_cat(std::make_tuple(std::get<J>(shape)), s.values)};
+      return {
+          std::tuple_cat(std::make_tuple(shape.template shape<J>()), s.values)};
     }
   };
 
@@ -1337,14 +1427,16 @@ namespace sutils
         typename std::enable_if<
             (I >= std::tuple_size<S2>::value),
             decltype(copy_new_axis_helper<I - 1>{}.doit(
-                sutils::push_front_t<
-                    S0, typename std::tuple_element<J, S1>::type>(),
+                sutils::push_front_t<S0, typename std::tuple_element<
+                                             J, typename S1::shape_t>::type>(),
                 shape, new_axis, std::integral_constant < size_t,
                 J == 0 ? J : J - 1 > ()))>::type
     {
       return copy_new_axis_helper<I - 1>{}.doit(
-          sutils::push_front_t<S0, typename std::tuple_element<J, S1>::type>(
-              std::tuple_cat(std::make_tuple(std::get<J>(shape)), s.values)),
+          sutils::push_front_t<
+              S0, typename std::tuple_element<J, typename S1::shape_t>::type>(
+              std::tuple_cat(std::make_tuple(shape.template shape<J>()),
+                             s.values)),
           shape, new_axis, std::integral_constant < size_t,
           J == 0 ? J : J - 1 > ());
     }
@@ -1355,14 +1447,16 @@ namespace sutils
             (I < std::tuple_size<S2>::value) &&
                 !safe_tuple_element<I, S2>::type::value,
             decltype(copy_new_axis_helper<I - 1>{}.doit(
-                sutils::push_front_t<
-                    S0, typename std::tuple_element<J, S1>::type>(),
+                sutils::push_front_t<S0, typename std::tuple_element<
+                                             J, typename S1::shape_t>::type>(),
                 shape, new_axis, std::integral_constant < size_t,
                 J == 0 ? J : J - 1 > ()))>::type
     {
       return copy_new_axis_helper<I - 1>{}.doit(
-          sutils::push_front_t<S0, typename std::tuple_element<J, S1>::type>(
-              std::tuple_cat(std::make_tuple(std::get<J>(shape)), s.values)),
+          sutils::push_front_t<
+              S0, typename std::tuple_element<J, typename S1::shape_t>::type>(
+              std::tuple_cat(std::make_tuple(shape.template shape<J>()),
+                             s.values)),
           shape, new_axis, std::integral_constant < size_t,
           J == 0 ? J : J - 1 > ());
     }
@@ -1372,11 +1466,11 @@ namespace sutils
   auto copy_new_axis(S1 const &shape, S2 const &new_axis)
       -> decltype(copy_new_axis_helper<N - 1>{}.doit(
           types::pshape<>(), shape, new_axis,
-          std::integral_constant<size_t, std::tuple_size<S1>::value - 1>()))
+          std::integral_constant<size_t, S1::value - 1>()))
   {
     return copy_new_axis_helper<N - 1>{}.doit(
         types::pshape<>(), shape, new_axis,
-        std::integral_constant<size_t, std::tuple_size<S1>::value - 1>());
+        std::integral_constant<size_t, S1::value - 1>());
   }
 }
 

@@ -17,9 +17,9 @@ namespace numpy
     types::ndarray<typename E::dtype, types::array<long, E::value>>
     diff(E const &arr, long n, long axis)
     {
-      auto shape = sutils::array(arr.shape());
+      auto shape = sutils::getshape(arr);
       auto stride = (axis == E::value - 1)
-                        ? std::get<E::value - 1>(arr.shape())
+                        ? arr.template shape<E::value - 1>()
                         : std::accumulate(shape.begin() + axis + 1, shape.end(),
                                           1L, std::multiplies<long>());
       --shape[axis];

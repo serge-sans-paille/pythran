@@ -30,10 +30,11 @@ namespace numpy
     double period = _period;
     // Todo: what to do if this condition isn't satisfied? Can't use a statis
     // assert because the size isn't known at compile time.
-    assert(std::get<0>(xp.shape()) == std::get<0>(fp.shape()));
+    assert(xp.template shape<0>() == fp.template shape<0>());
     double outVal(0);
 
-    types::ndarray<double, types::pshape<long>> out = {x.shape(), outVal};
+    types::ndarray<double, types::pshape<long>> out = {
+        (long)(x.template shape<0>()), outVal};
 
     if (period) {
       auto x_rem = pythonic::numpy::functor::remainder{}(x, period);

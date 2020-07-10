@@ -54,6 +54,24 @@ namespace numpy
     return _argminmax_seq<Op>(elts, minmax_elts);
   }
 
+  template <class Op, class E, class T, class... Indices>
+  std::tuple<long, long> _argminmax_fast(E const &elts, T &minmax_elts,
+                                         long current_pos, utils::int_<1>,
+                                         Indices... indices)
+  {
+    long res = -1;
+    long n = elts.template shape<std::decay<E>::type::value - 1>();
+    for (long i = 0; i < n; ++i) {
+      auto elt = elts.load(indices..., i);
+      if (Op::value(elt, minmax_elts)) {
+        minmax_elts = elt;
+        res = current_pos + i;
+      }
+    }
+
+    return std::make_tuple(res, current_pos + n);
+  }
+
 #ifdef USE_XSIMD
   template <bool IsInt>
   struct bool_caster;
@@ -150,6 +168,22 @@ namespace numpy
     }
     return current_minmaxarg;
   }
+  template <class Op, class E, size_t N, class T, class... Indices>
+  typename std::enable_if<N != 1, std::tuple<long, long>>::type
+  _argminmax_fast(E const &elts, T &minmax_elts, long current_pos,
+                  utils::int_<N>, Indices... indices)
+  {
+    long current_minmaxarg = 0;
+    for (long i = 0, n = elts.template shape<std::decay<E>::type::value - N>();
+         i < n; ++i) {
+      long v;
+      std::tie(v, current_pos) = _argminmax_fast<Op>(
+          elts, minmax_elts, current_pos, utils::int_<N - 1>(), indices..., i);
+      if (v >= 0)
+        current_minmaxarg = v;
+    }
+    return std::make_tuple(current_minmaxarg, current_pos);
+  }
 
   template <class Op, class E>
   long argminmax(E const &expr)
@@ -159,10 +193,10 @@ namespace numpy
     using elt_type = typename E::dtype;
     elt_type argminmax_value = Op::limit();
 #ifndef USE_XSIMD
-    if (utils::no_broadcast(expr))
-      return _argminmax<Op>(types::make_fast_range(expr), argminmax_value,
-                            utils::int_<E::value>());
-    else
+    if (utils::no_broadcast_ex(expr)) {
+      return std::get<0>(_argminmax_fast<Op>(expr, argminmax_value, 0,
+                                             utils::int_<E::value>()));
+    } else
 #endif
       return _argminmax<Op>(expr, argminmax_value, utils::int_<E::value>());
   }
@@ -184,7 +218,7 @@ namespace numpy
                   std::integral_constant<size_t, N>)
   {
     static_assert(N >= 1, "specialization ok");
-    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
+    for (long i = 0, n = expr.template shape<0>(); i < n; ++i)
       _argminmax_tail<Op, Dim, Axis>(out.fast(i), expr.fast(i), curr,
                                      curr_minmax.fast(i),
                                      std::integral_constant<size_t, N - 1>());
@@ -195,7 +229,7 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, 1>)
   {
     typename E::dtype val = Op::limit();
-    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
+    for (long i = 0, n = expr.template shape<0>(); i < n; ++i)
       _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr.fast(i), i, val,
                                      std::integral_constant<size_t, 0>());
   }
@@ -206,8 +240,8 @@ namespace numpy
   {
     static_assert(N > 1, "specialization ok");
     types::ndarray<typename E::dtype, types::array<long, N - 1>> val{
-        out.shape(), Op::limit()};
-    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
+        sutils::getshape(out), Op::limit()};
+    for (long i = 0, n = expr.template shape<0>(); i < n; ++i)
       _argminmax_tail<Op, Dim, Axis>(std::forward<T>(out), expr.fast(i), i, val,
                                      std::integral_constant<size_t, N - 1>());
   }
@@ -217,7 +251,7 @@ namespace numpy
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, N>)
   {
     static_assert(N >= 1, "specialization ok");
-    for (long i = 0, n = std::get<0>(expr.shape()); i < n; ++i)
+    for (long i = 0, n = expr.template shape<0>(); i < n; ++i)
       _argminmax_head<Op, Dim, Axis>(out.fast(i), expr.fast(i),
                                      std::integral_constant<size_t, N - 1>());
   }
@@ -240,7 +274,7 @@ namespace numpy
       axis += E::value;
     if (axis < 0 || size_t(axis) >= E::value)
       throw types::ValueError("axis out of bounds");
-    auto shape = sutils::array(array.shape());
+    auto shape = sutils::getshape(array);
     types::array<long, E::value - 1> shp;
     auto next = std::copy(shape.begin(), shape.begin() + axis, shp.begin());
     std::copy(shape.begin() + axis + 1, shape.end(), next);

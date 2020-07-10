@@ -21,7 +21,7 @@ namespace numpy
   auto mean(E const &expr, long axis, dtype d) -> decltype(sum(expr, axis))
   {
     return sum(expr, axis) /=
-           typename dtype::type(sutils::array(expr.shape())[axis]);
+           typename dtype::type(sutils::getshape(expr)[axis]);
   }
 }
 PYTHONIC_NS_END

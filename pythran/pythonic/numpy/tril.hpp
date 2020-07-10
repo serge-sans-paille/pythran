@@ -14,12 +14,11 @@ namespace numpy
   template <class T, class pS>
   types::ndarray<T, pS> tril(types::ndarray<T, pS> const &expr, int k)
   {
-    auto &&expr_shape = expr.shape();
-    types::ndarray<T, pS> out(expr_shape, builtins::None);
-    for (int i = 0; i < std::get<0>(expr_shape); ++i) {
+    types::ndarray<T, pS> out(expr._shape, builtins::None);
+    for (int i = 0; i < std::get<0>(expr._shape); ++i) {
       auto out_i = out[i];
       auto expr_i = expr[i];
-      for (long j = 0; j < std::get<1>(expr_shape); ++j)
+      for (long j = 0; j < std::get<1>(expr._shape); ++j)
         if (j - i <= k)
           out_i[j] = expr_i[j];
         else

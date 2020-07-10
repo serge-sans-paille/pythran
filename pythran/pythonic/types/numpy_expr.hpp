@@ -16,27 +16,6 @@ namespace types
   namespace details
   {
 
-    template <size_t value, class Args, size_t N, size_t... Is>
-    struct all_valid_indices;
-
-    template <size_t value, class Args, size_t... Is>
-    struct all_valid_indices<value, Args, 0, Is...> {
-      using type = utils::index_sequence<Is...>;
-    };
-    template <size_t value, class Args, size_t N, size_t... Is>
-    struct all_valid_indices
-        : std::conditional<(value <=
-                            std::remove_reference<typename std::tuple_element<
-                                N - 1, Args>::type>::type::value),
-                           all_valid_indices<value, Args, N - 1, Is..., N - 1>,
-                           all_valid_indices<value, Args, N - 1, Is...>>::type {
-    };
-
-    template <size_t value, class Args>
-    using valid_indices =
-        typename all_valid_indices<value, Args,
-                                   std::tuple_size<Args>::value>::type;
-
     long best_of()
     {
       return 1;
@@ -51,27 +30,13 @@ namespace types
     template <size_t I, class Args, size_t... Is>
     long init_shape_element(Args const &args, utils::index_sequence<Is...>)
     {
-      return best_of(std::get<I>(std::get<Is>(args).shape())...);
-    }
-
-    template <class pS, class Args, size_t... Is>
-    pS init_shape(Args const &args, utils::index_sequence<Is...>)
-    {
-      return {init_shape_element<Is>(
-          args, valid_indices<std::tuple_size<pS>::value, Args>{})...};
-    }
-
-    template <class pS, class Args>
-    pS init_shape(Args const &args)
-    {
-      return init_shape<pS>(
-          args, utils::make_index_sequence<std::tuple_size<pS>::value>());
+      return best_of(std::get<Is>(args).template shape<I>()...);
     }
   }
 
   template <class Op, class... Args>
   numpy_expr<Op, Args...>::numpy_expr(Args const &... args)
-      : args(args...), _shape(details::init_shape<shape_t>(this->args))
+      : args(args...)
   {
   }
 
@@ -80,8 +45,7 @@ namespace types
   typename numpy_expr<Op, Args...>::const_iterator
       numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>) const
   {
-    return {{make_step(std::get<0>(_shape),
-                       std::get<0>(std::get<I>(args).shape()))...},
+    return {{make_step(size(), std::get<I>(args).template shape<0>())...},
             const_cast<typename std::decay<Args>::type const &>(
                 std::get<I>(args)).begin()...};
   }
@@ -98,8 +62,7 @@ namespace types
   typename numpy_expr<Op, Args...>::const_iterator
       numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>) const
   {
-    return {{make_step(std::get<0>(_shape),
-                       std::get<0>(std::get<I>(args).shape()))...},
+    return {{make_step(size(), std::get<I>(args).template shape<0>())...},
             const_cast<typename std::decay<Args>::type const &>(
                 std::get<I>(args)).end()...};
   }
@@ -137,14 +100,62 @@ namespace types
 
     bool same_shape = true;
     std::initializer_list<bool> _1 = {
-        (same_shape &= (std::get<0>(std::get<I>(args).shape()) == size() ||
-                        std::get<0>(std::get<I>(args).shape()) == 0))...};
+        (same_shape &= (is_trivial_broadcast<I, decltype(args)>() ||
+                        std::get<I>(args).template shape<0>() == size()))...};
     return same_shape;
   }
+
+  template <class Op, class... Args>
+  template <size_t... I>
+  bool numpy_expr<Op, Args...>::_no_broadcast_ex(
+      utils::index_sequence<I...>) const
+  {
+    bool child_broadcast = false;
+    std::initializer_list<bool> _0 = {
+        (child_broadcast |= !utils::no_broadcast_ex(std::get<I>(args)))...};
+    if (child_broadcast)
+      return false;
+
+    bool same_shape = true;
+    auto shp = sutils::getshape(*this);
+    std::initializer_list<bool> _1 = {
+        (same_shape &= (is_trivial_broadcast<I, decltype(args)>() ||
+                        sutils::getshape(std::get<I>(args)) == shp))...};
+    return same_shape;
+  }
+
+  template <class Op, class... Args>
+  template <size_t... I>
+  bool numpy_expr<Op, Args...>::_no_broadcast_vectorize(
+      utils::index_sequence<I...>) const
+  {
+    bool child_broadcast = false;
+    std::initializer_list<bool> _0 = {
+        (child_broadcast |= !utils::no_broadcast(std::get<I>(args)))...};
+    if (child_broadcast)
+      return false;
+
+    bool same_shape = true;
+    std::initializer_list<bool> _1 = {
+        (same_shape &= (std::get<I>(args).template shape<0>() == size()))...};
+    return same_shape;
+  }
+
   template <class Op, class... Args>
   bool numpy_expr<Op, Args...>::no_broadcast() const
   {
     return _no_broadcast(utils::make_index_sequence<sizeof...(Args)>{});
+  }
+  template <class Op, class... Args>
+  bool numpy_expr<Op, Args...>::no_broadcast_ex() const
+  {
+    return _no_broadcast_ex(utils::make_index_sequence<sizeof...(Args)>{});
+  }
+  template <class Op, class... Args>
+  bool numpy_expr<Op, Args...>::no_broadcast_vectorize() const
+  {
+    return _no_broadcast_vectorize(
+        utils::make_index_sequence<sizeof...(Args)>{});
   }
 
   template <class Op, class... Args>
@@ -152,8 +163,7 @@ namespace types
   typename numpy_expr<Op, Args...>::iterator
       numpy_expr<Op, Args...>::_begin(utils::index_sequence<I...>)
   {
-    return {{make_step(std::get<0>(_shape),
-                       std::get<0>(std::get<I>(args).shape()))...},
+    return {{make_step(size(), std::get<I>(args).template shape<0>())...},
             const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
                 .begin()...};
   }
@@ -169,8 +179,7 @@ namespace types
   typename numpy_expr<Op, Args...>::iterator
       numpy_expr<Op, Args...>::_end(utils::index_sequence<I...>)
   {
-    return {{make_step(std::get<0>(_shape),
-                       std::get<0>(std::get<I>(args).shape()))...},
+    return {{make_step(size(), std::get<I>(args).template shape<0>())...},
             const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
                 .end()...};
   }
@@ -204,7 +213,7 @@ namespace types
       -> decltype(this->fast(i))
   {
     if (i < 0)
-      i += std::get<0>(_shape);
+      i += size();
     return fast(i);
   }
 
@@ -215,8 +224,7 @@ namespace types
       numpy_expr<Op, Args...>::_vbegin(vectorize,
                                        utils::index_sequence<I...>) const
   {
-    return {{make_step(std::get<0>(_shape),
-                       std::get<0>(std::get<I>(args).shape()))...},
+    return {{make_step(size(), std::get<I>(args).template shape<0>())...},
             std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
                                 std::get<I>(args)).begin()...),
             std::get<I>(args).vbegin(vectorize{})...};
@@ -235,8 +243,7 @@ namespace types
       numpy_expr<Op, Args...>::_vend(vectorize,
                                      utils::index_sequence<I...>) const
   {
-    return {{make_step(std::get<0>(_shape),
-                       std::get<0>(std::get<I>(args).shape()))...},
+    return {{make_step(size(), std::get<I>(args).template shape<0>())...},
             std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
                                 std::get<I>(args)).end()...),
             std::get<I>(args).vend(vectorize{})...};
@@ -303,7 +310,7 @@ namespace types
       numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, pshape<long>>>>::type
   numpy_expr<Op, Args...>::fast(F const &filter) const
   {
-    long sz = std::get<0>(filter.shape());
+    long sz = filter.template shape<0>();
     long *raw = (long *)malloc(sz * sizeof(long));
     long n = 0;
     for (long i = 0; i < sz; ++i)
@@ -355,7 +362,7 @@ namespace types
   template <class Op, class... Args>
   numpy_expr<Op, Args...>::operator bool() const
   {
-    if (sutils::any_of(_shape, [](long n) { return n != 1; }))
+    if (sutils::any_of(*this, [](long n) { return n != 1; }))
       throw ValueError("The truth value of an array with more than one element "
                        "is ambiguous. Use a.any() or a.all()");
     array<long, value> first = {0};
@@ -365,13 +372,13 @@ namespace types
   template <class Op, class... Args>
   long numpy_expr<Op, Args...>::flat_size() const
   {
-    return sutils::prod(_shape);
+    return prod_helper(*this, utils::make_index_sequence<value>());
   }
 
   template <class Op, class... Args>
   long numpy_expr<Op, Args...>::size() const
   {
-    return std::get<0>(_shape);
+    return this->template shape<0>();
   }
 }
 PYTHONIC_NS_END

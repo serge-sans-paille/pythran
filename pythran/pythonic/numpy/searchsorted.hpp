@@ -61,7 +61,7 @@ namespace numpy
     static_assert(T::value == 1,
                   "Not Implemented : searchsorted for dimension != 1");
 
-    types::ndarray<long, types::array<long, E::value>> out(asarray(v).shape(),
+    types::ndarray<long, types::array<long, E::value>> out(asarray(v)._shape,
                                                            builtins::None);
     _search_sorted(a, v.begin(), v.end(), out.begin(), side,
                    utils::int_<E::value>());

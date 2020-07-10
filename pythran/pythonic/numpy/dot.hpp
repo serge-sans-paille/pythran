@@ -154,8 +154,8 @@ namespace numpy
   dot(types::ndarray<E, pS0> const &f, types::ndarray<E, pS1> const &e)
   {
     types::ndarray<E, types::pshape<long>> out(
-        types::pshape<long>{std::get<0>(f.shape())}, builtins::None);
-    const int m = std::get<1>(f.shape()), n = std::get<0>(f.shape());
+        types::pshape<long>{f.template shape<0>()}, builtins::None);
+    const int m = f.template shape<1>(), n = f.template shape<0>();
     mv(m, n, f.buffer, e.buffer, out.buffer);
     return out;
   }
@@ -190,8 +190,8 @@ namespace numpy
   dot(types::ndarray<E, pS0> const &e, types::ndarray<E, pS1> const &f)
   {
     types::ndarray<E, types::pshape<long>> out(
-        types::pshape<long>{std::get<1>(f.shape())}, builtins::None);
-    const int m = std::get<1>(f.shape()), n = std::get<0>(f.shape());
+        types::pshape<long>{f.template shape<1>()}, builtins::None);
+    const int m = f.template shape<1>(), n = f.template shape<0>();
     vm(m, n, f.buffer, e.buffer, out.buffer);
     return out;
   }
@@ -263,9 +263,9 @@ namespace numpy
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
         types::pshape<long>>
-    out(types::pshape<long>{std::get<1>(f.shape())}, 0);
-    for (long i = 0; i < std::get<0>(out.shape()); i++)
-      for (long j = 0; j < std::get<0>(f.shape()); j++)
+    out(types::pshape<long>{f.template shape<1>()}, 0);
+    for (long i = 0; i < out.template shape<0>(); i++)
+      for (long j = 0; j < f.template shape<0>(); j++)
         out[i] += e[j] * f[types::array<long, 2>{{j, i}}];
     return out;
   }
@@ -285,9 +285,9 @@ namespace numpy
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
         types::pshape<long>>
-    out(types::pshape<long>{std::get<0>(e.shape())}, 0);
-    for (long i = 0; i < std::get<0>(out.shape()); i++)
-      for (long j = 0; j < std::get<0>(f.shape()); j++)
+    out(types::pshape<long>{e.template shape<0>()}, 0);
+    for (long i = 0; i < out.template shape<0>(); i++)
+      for (long j = 0; j < f.template shape<0>(); j++)
         out[i] += e[types::array<long, 2>{{i, j}}] * f[j];
     return out;
   }
@@ -321,8 +321,8 @@ namespace numpy
                           types::ndarray<E, types::array<long, 2>>>::type
   dot(types::ndarray<E, pS0> const &a, types::ndarray<E, pS1> const &b)
   {
-    int n = std::get<1>(b.shape()), m = std::get<0>(a.shape()),
-        k = std::get<0>(b.shape());
+    int n = b.template shape<1>(), m = a.template shape<0>(),
+        k = b.template shape<0>();
 
     types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
                                                  builtins::None);
@@ -338,8 +338,8 @@ namespace numpy
   dot(types::ndarray<E, pS0> const &a, types::ndarray<E, pS1> const &b,
       types::ndarray<E, pS2> &c)
   {
-    int n = std::get<1>(b.shape()), m = std::get<0>(a.shape()),
-        k = std::get<0>(b.shape());
+    int n = b.template shape<1>(), m = a.template shape<0>(),
+        k = b.template shape<0>();
 
     mm(m, n, k, a.buffer, b.buffer, c.buffer);
     return c;
@@ -373,8 +373,8 @@ namespace numpy
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
       types::ndarray<E, pS1> const &b)
   {
-    int n = std::get<1>(b.shape()), m = std::get<0>(a.shape()),
-        k = std::get<0>(b.shape());
+    int n = b.template shape<1>(), m = a.template shape<0>(),
+        k = b.template shape<0>();
 
     types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
                                                  builtins::None);
@@ -410,8 +410,8 @@ namespace numpy
   dot(types::ndarray<E, pS0> const &a,
       types::numpy_texpr<types::ndarray<E, pS1>> const &b)
   {
-    int n = std::get<1>(b.shape()), m = std::get<0>(a.shape()),
-        k = std::get<0>(b.shape());
+    int n = b.template shape<1>(), m = a.template shape<0>(),
+        k = b.template shape<0>();
 
     types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
                                                  builtins::None);
@@ -447,8 +447,8 @@ namespace numpy
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
       types::numpy_texpr<types::ndarray<E, pS1>> const &b)
   {
-    int n = std::get<1>(b.shape()), m = std::get<0>(a.shape()),
-        k = std::get<0>(b.shape());
+    int n = b.template shape<1>(), m = a.template shape<0>(),
+        k = b.template shape<0>();
 
     types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
                                                  builtins::None);
@@ -497,11 +497,11 @@ namespace numpy
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
         types::array<long, 2>>
-    out(types::array<long, 2>{{std::get<0>(e.shape()), std::get<1>(f.shape())}},
+    out(types::array<long, 2>{{e.template shape<0>(), f.template shape<1>()}},
         0);
-    for (long i = 0; i < std::get<0>(out.shape()); i++)
-      for (long j = 0; j < std::get<1>(out.shape()); j++)
-        for (long k = 0; k < std::get<1>(e.shape()); k++)
+    for (long i = 0; i < out.template shape<0>(); i++)
+      for (long j = 0; j < out.template shape<1>(); j++)
+        for (long k = 0; k < e.template shape<1>(); k++)
           out[types::array<long, 2>{{i, j}}] +=
               e[types::array<long, 2>{{i, k}}] *
               f[types::array<long, 2>{{k, j}}];

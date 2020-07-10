@@ -20,7 +20,7 @@ namespace numpy
   template <class E>
   auto average(E const &expr, long axis) -> decltype(sum(expr, axis) / 1.)
   {
-    auto shape = sutils::array(expr.shape());
+    auto shape = sutils::getshape(expr);
     return sum(expr, axis) / double(shape[axis]);
   }
 

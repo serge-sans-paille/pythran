@@ -110,10 +110,10 @@ namespace numpy
     using dtype =
         typename __combined<typename E::dtype, typename F::dtype>::type;
     types::array<long, E::value> out_shape;
-    sutils::copy_shape<0, 0>(out_shape, e.shape(),
+    sutils::copy_shape<0, 0>(out_shape, e,
                              utils::make_index_sequence<E::value - 1>());
-    if (std::get<E::value - 1>(e.shape()) == 2) {
-      if (std::get<F::value - 1>(f.shape()) == 2) {
+    if (e.template shape<E::value - 1>() == 2) {
+      if (f.template shape<F::value - 1>() == 2) {
         out_shape[E::value - 1] = 1;
         types::ndarray<dtype, types::array<long, E::value>> out{
             out_shape, types::none_type{}};
@@ -127,7 +127,7 @@ namespace numpy
         return out;
       }
     } else {
-      if (std::get<F::value - 1>(f.shape()) == 2) {
+      if (f.template shape<F::value - 1>() == 2) {
         out_shape[E::value - 1] = 3;
         types::ndarray<dtype, types::array<long, E::value>> out{
             out_shape, types::none_type{}};

@@ -20,7 +20,7 @@ namespace numpy
     typename std::enable_if<std::tuple_size<pS>::value != 1, void>::type
     _median(T_out *out, types::ndarray<T, pS> const &tmp, long axis)
     {
-      auto tmp_shape = sutils::array(tmp.shape());
+      auto tmp_shape = sutils::getshape(tmp);
       const long step =
           std::accumulate(tmp_shape.begin() + axis, tmp_shape.end(), 1L,
                           std::multiplies<long>());
@@ -94,7 +94,7 @@ namespace numpy
       axis += N;
 
     types::array<long, std::tuple_size<pS>::value - 1> shp;
-    auto stmp = sutils::array(arr.shape());
+    auto stmp = sutils::getshape(arr);
     auto next = std::copy(stmp.begin(), stmp.begin() + axis, shp.begin());
     std::copy(stmp.begin() + axis + 1, stmp.end(), next);
 

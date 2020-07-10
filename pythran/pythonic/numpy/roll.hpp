@@ -17,7 +17,7 @@ namespace numpy
     while (shift < 0)
       shift += expr.flat_size();
     shift %= expr.flat_size();
-    types::ndarray<T, pS> out(expr.shape(), builtins::None);
+    types::ndarray<T, pS> out(expr._shape, builtins::None);
     std::copy(expr.fbegin(), expr.fend() - shift,
               std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
     return out;
@@ -60,10 +60,10 @@ namespace numpy
   types::ndarray<T, pS> roll(types::ndarray<T, pS> const &expr, long shift,
                              long axis)
   {
-    auto expr_shape = sutils::array(expr.shape());
+    auto expr_shape = sutils::array(expr._shape);
     while (shift < 0)
       shift += expr_shape[axis];
-    types::ndarray<T, pS> out(expr.shape(), builtins::None);
+    types::ndarray<T, pS> out(expr._shape, builtins::None);
     _roll(out.fbegin(), expr.fbegin(), shift, axis, expr_shape,
           utils::int_<0>());
     return out;

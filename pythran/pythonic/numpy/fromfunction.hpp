@@ -25,7 +25,7 @@ namespace numpy
     types::ndarray<typename std::remove_cv<typename std::remove_reference<
                        typename std::result_of<F(dtype)>::type>::type>::type,
                    pS> out(shape, builtins::None);
-    long n = std::get<0>(out.shape());
+    long n = out.template shape<0>();
 #ifdef _OPENMP
     if (std::is_same<purity_tag, purity::pure_tag>::value &&
         n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
@@ -51,9 +51,8 @@ namespace numpy
         typename std::remove_cv<typename std::remove_reference<
             typename std::result_of<F(dtype, dtype)>::type>::type>::type,
         pS> out(shape, builtins::None);
-    auto &&out_shape = out.shape();
-    long n = std::get<0>(out_shape);
-    long m = std::get<1>(out_shape);
+    long n = out.template shape<0>();
+    long m = out.template shape<1>();
 #ifdef _OPENMP
     if (std::is_same<purity_tag, purity::pure_tag>::value &&
         (m * n) >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)

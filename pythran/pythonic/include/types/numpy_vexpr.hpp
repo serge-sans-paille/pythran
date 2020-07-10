@@ -30,7 +30,7 @@ namespace types
 
     long flat_size() const
     {
-      return sutils::prod_tail(data_.shape()) * std::get<0>(view_.shape());
+      return sutils::prod_tail(data_) * view_.template shape<0>();
     }
 
     long size() const
@@ -48,11 +48,13 @@ namespace types
     numpy_vexpr &operator=(numpy_vexpr const &);
 
     using shape_t = array<long, value>;
-    shape_t shape() const
+    template <size_t I>
+    long shape() const
     {
-      shape_t res = data_.shape();
-      std::get<0>(res) = (long)std::get<0>(view_.shape());
-      return res;
+      if (I == 0)
+        return view_.template shape<0>();
+      else
+        return data_.template shape<I>();
     }
 
     iterator begin();
@@ -68,6 +70,22 @@ namespace types
     template <class vectorizer>
     simd_iterator vend(vectorizer) const;
 #endif
+
+    template <class... Indices>
+    dtype load(long i, Indices... indices) const
+    {
+      return data_.load(view_.fast(i), indices...);
+    }
+    template <class... Indices>
+    void store(dtype elt, long i, Indices... indices) const
+    {
+      data_.store(elt, view_.fast(i), indices...);
+    }
+    template <class Op, class... Indices>
+    void update(dtype elt, long i, Indices... indices) const
+    {
+      data_.template update<Op>(elt, view_.fast(i), indices...);
+    }
 
     auto fast(long i) -> decltype(data_.fast(i))
     {

@@ -32,11 +32,10 @@ namespace numpy
     _irfft(types::ndarray<T, pS> const &in_array, long NFFT, bool norm)
     {
       long i;
-      auto const &shape = in_array.shape();
-      long npts = std::get<std::tuple_size<pS>::value - 1>(shape);
+      long npts = in_array.template shape<std::tuple_size<pS>::value - 1>();
       // Create output array.
       long out_size = NFFT;
-      auto out_shape = sutils::array(shape);
+      auto out_shape = sutils::getshape(in_array);
       out_shape.back() = out_size;
       types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
           out_array(out_shape, builtins::None);
@@ -111,7 +110,7 @@ namespace numpy
       auto constexpr N = std::tuple_size<pS>::value;
       bool norm = (normalize == "ortho");
       if (NFFT == -1)
-        NFFT = 2 * (std::get<N - 1>(in_array.shape()) - 1);
+        NFFT = 2 * (in_array.template shape<N - 1>() - 1);
       if (axis != -1 && axis != N - 1) {
         // Swap axis if the FFT must be computed on an axis that's not the last
         // one.

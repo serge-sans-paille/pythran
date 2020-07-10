@@ -74,17 +74,16 @@ namespace numpy
     using T = typename E::dtype;
     if (axis < 0 || axis >= long(N))
       throw types::ValueError("axis out of bounds");
-    auto shape = array.shape();
     if (axis == 0) {
       types::array<long, N> shp;
       shp[0] = 1;
-      sutils::copy_shape<1, 0>(shp, shape, utils::make_index_sequence<N - 1>());
+      sutils::copy_shape<1, 0>(shp, array, utils::make_index_sequence<N - 1>());
       types::ndarray<bool, types::array<long, N>> out(shp, false);
       return std::accumulate(array.begin(), array.end(), *out.begin(),
                              numpy::functor::add());
     } else {
       types::array<long, N - 1> shp;
-      sutils::copy_shape<0, 0>(shp, shape, utils::make_index_sequence<N - 1>());
+      sutils::copy_shape<0, 0>(shp, array, utils::make_index_sequence<N - 1>());
       types::ndarray<bool, types::array<long, N - 1>> anyy(shp, builtins::None);
       std::transform(
           array.begin(), array.end(), anyy.begin(),

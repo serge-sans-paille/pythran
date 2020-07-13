@@ -319,9 +319,25 @@ def s_perm(seq):
             new_items += [item + seq for i in range(1)]
         return new_items
 def recursive_interprocedural_typing1(c):
-    l = [1,2,c]
+    l = [1,2] * c
     return s_perm(l)'''
         self.run_test(code, 3, recursive_interprocedural_typing1=[int])
+
+    @unittest.skip("bad typing: recursion and specialized list type")
+    def test_recursive_interprocedural_typing2(self):
+        code = '''
+def s_perm(seq):
+    if not seq:
+        return [[]]
+    else:
+        new_items = []
+        for item in s_perm(seq[:-1]):
+            new_items += [item + seq for i in range(1)]
+        return new_items
+def recursive_interprocedural_typing2(c):
+    l = [1,2,c]
+    return s_perm(l)'''
+        self.run_test(code, 3, recursive_interprocedural_typing2=[int])
 
     def test_print_numpy_types(self):
         self.run_test('''

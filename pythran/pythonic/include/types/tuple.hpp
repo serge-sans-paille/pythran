@@ -448,6 +448,11 @@ namespace types
       return (*this)[s];
     }
 
+    bool operator!() const
+    {
+      return N == 0;
+    }
+
     /* array */
     template <class T1, size_t N1, class Version1>
     friend std::ostream &

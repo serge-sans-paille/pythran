@@ -250,6 +250,17 @@ namespace types
       return {*this, filter};
     }
 
+    template <class F> // indexing through an array of indices -- a view
+    typename std::enable_if<is_numexpr_arg<F>::value &&
+                                !is_array_index<F>::value &&
+                                !std::is_same<bool, typename F::dtype>::value &&
+                                !is_pod_array<F>::value,
+                            numpy_vexpr<numpy_iexpr, F>>::type
+    operator[](F const &filter)
+    {
+      return {*this, filter};
+    }
+
     template <class Ty>
     auto operator[](std::tuple<Ty> const &index) const
         -> decltype((*this)[std::get<0>(index)])

@@ -49,7 +49,7 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
                 raise PythranSyntaxError(
                     ("Cannot modify '{}': global variables are constant "
                      "in pythran.").format(alias.name),
-                    node)
+                    arg.func)
 
     def visit_FunctionDef(self, node):
         if node.name in self.functions:

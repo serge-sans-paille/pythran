@@ -169,15 +169,24 @@ class ArgumentEffects(ModuleAnalysis):
                     if func_alias not in self.node_to_functioneffect:
                         continue
 
-                    func_alias = self.node_to_functioneffect[func_alias]
-                    predecessors = self.result.predecessors(func_alias)
+                    if func_alias is MODULES['functools']['partial']:
+                        base_func_aliases = self.aliases[node.args[0]]
+                        fe = self.node_to_functioneffect[func_alias]
+                        if len(base_func_aliases) == 1:
+                            base_func_alias = next(iter(base_func_aliases))
+                            fe = self.node_to_functioneffect.get(
+                                base_func_alias,
+                                fe)
+                    else:
+                        fe = self.node_to_functioneffect[func_alias]
+                    predecessors = self.result.predecessors(fe)
                     if self.current_function not in predecessors:
                         self.result.add_edge(
                             self.current_function,
-                            func_alias,
+                            fe,
                             effective_parameters=[],
                             formal_parameters=[])
-                    edge = self.result.edges[self.current_function, func_alias]
+                    edge = self.result.edges[self.current_function, fe]
                     edge["effective_parameters"].append(n)
                     edge["formal_parameters"].append(i)
         self.generic_visit(node)

@@ -117,6 +117,21 @@ namespace types
   {
     return {data, slicing * s.normalize(this->size())};
   }
+  // io
+  template <class Tp, class Sp>
+  std::ostream &operator<<(std::ostream &os, sliced_list<Tp, Sp> const &v)
+  {
+    os << '[';
+    auto iter = v.begin();
+    if (iter != v.end()) {
+      while (iter + 1 != v.end()) {
+        os << *iter << ", ";
+        ++iter;
+      }
+      os << *iter;
+    }
+    return os << ']';
+  }
 
   // comparison
   template <class T, class S>

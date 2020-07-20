@@ -39,14 +39,14 @@ namespace numpy
         }
         if (buffer_size % 2 == 1) {
           std::nth_element(buffer, buffer + buffer_size / 2, buffer_iter,
-                           _comp<T>{});
+                           comparator<T>{});
           *out++ = buffer[buffer_size / 2];
         } else {
           std::nth_element(buffer, buffer + buffer_size / 2, buffer_iter,
-                           _comp<T>{});
+                           comparator<T>{});
           auto t0 = buffer[buffer_size / 2];
           std::nth_element(buffer, buffer + buffer_size / 2 - 1,
-                           buffer + buffer_size / 2, _comp<T>{});
+                           buffer + buffer_size / 2, comparator<T>{});
           auto t1 = buffer[buffer_size / 2 - 1];
           *out++ = (t0 + t1) / double(2);
         }
@@ -68,14 +68,14 @@ namespace numpy
     T *tmp = new T[n];
     std::copy(arr.buffer, arr.buffer + n, tmp);
     std::nth_element(arr.buffer, arr.buffer + n / 2, arr.buffer + n,
-                     _comp<T>{});
+                     comparator<T>{});
     T t0 = arr.buffer[n / 2];
     if (n % 2 == 1) {
       delete[] tmp;
       return t0;
     } else {
       std::nth_element(arr.buffer, arr.buffer + n / 2 - 1, arr.buffer + n / 2,
-                       _comp<T>{});
+                       comparator<T>{});
       T t1 = arr.buffer[n / 2 - 1];
       delete[] tmp;
       return (t0 + t1) / 2.;

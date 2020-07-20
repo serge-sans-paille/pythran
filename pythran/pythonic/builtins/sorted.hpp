@@ -5,6 +5,7 @@
 
 #include "pythonic/types/list.hpp"
 #include "pythonic/utils/functor.hpp"
+#include "pythonic/utils/pdqsort.h"
 
 #include <algorithm>
 
@@ -21,7 +22,7 @@ namespace builtins
     types::list<typename std::remove_cv<typename std::iterator_traits<
         typename std::decay<Iterable>::type::iterator>::value_type>::type>
         out(seq.begin(), seq.end());
-    std::sort(out.begin(), out.end());
+    pdqsort(out.begin(), out.end());
     return out;
   }
 
@@ -34,15 +35,15 @@ namespace builtins
         typename std::decay<Iterable>::type::iterator>::value_type>::type;
     types::list<value_type> out(seq.begin(), seq.end());
     if (reverse)
-      std::sort(out.begin(), out.end(),
-                [&key](value_type const &self, value_type const &other) {
-                  return key(self) > key(other);
-                });
+      pdqsort(out.begin(), out.end(),
+              [&key](value_type const &self, value_type const &other) {
+                return key(self) > key(other);
+              });
     else
-      std::sort(out.begin(), out.end(),
-                [&key](value_type const &self, value_type const &other) {
-                  return key(self) < key(other);
-                });
+      pdqsort(out.begin(), out.end(),
+              [&key](value_type const &self, value_type const &other) {
+                return key(self) < key(other);
+              });
     return out;
   }
 
@@ -55,12 +56,12 @@ namespace builtins
         typename std::decay<Iterable>::type::iterator>::value_type>::type;
     types::list<value_type> out(seq.begin(), seq.end());
     if (reverse)
-      std::sort(out.begin(), out.end(),
-                [](value_type const &self, value_type const &other) {
-                  return self > other;
-                });
+      pdqsort(out.begin(), out.end(),
+              [](value_type const &self, value_type const &other) {
+                return self > other;
+              });
     else
-      std::sort(out.begin(), out.end());
+      pdqsort(out.begin(), out.end());
     return out;
   }
 }

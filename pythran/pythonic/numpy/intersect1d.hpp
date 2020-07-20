@@ -7,6 +7,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/combined.hpp"
 #include "pythonic/numpy/asarray.hpp"
+#include "pythonic/utils/pdqsort.h"
 
 #include <algorithm>
 #include <set>
@@ -35,7 +36,7 @@ namespace numpy
         lout.push_back(curr);
       }
     }
-    std::sort(lout.begin(), lout.end());
+    pdqsort(lout.begin(), lout.end());
     return {lout};
   }
 }

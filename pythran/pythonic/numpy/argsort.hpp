@@ -4,6 +4,7 @@
 #include "pythonic/include/numpy/argsort.hpp"
 
 #include "pythonic/utils/functor.hpp"
+#include "pythonic/utils/pdqsort.h"
 #include "pythonic/types/ndarray.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -24,10 +25,10 @@ namespace numpy
       // fill with the original indices
       std::iota(iter_indices, iter_indices + last_axis, 0L);
       // sort the index using the value from a
-      std::sort(iter_indices, iter_indices + last_axis,
-                [&a, j](long i1, long i2) {
-                  return *(a.fbegin() + j + i1) < *(a.fbegin() + j + i2);
-                });
+      pdqsort(iter_indices, iter_indices + last_axis,
+              [&a, j](long i1, long i2) {
+                return *(a.fbegin() + j + i1) < *(a.fbegin() + j + i2);
+              });
     }
     return indices;
   }

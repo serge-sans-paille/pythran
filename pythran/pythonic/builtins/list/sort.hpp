@@ -7,6 +7,7 @@
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
+#include "pythonic/utils/pdqsort.h"
 
 PYTHONIC_NS_BEGIN
 
@@ -19,7 +20,7 @@ namespace builtins
     template <class T>
     types::none_type sort(types::list<T> &seq)
     {
-      std::sort(seq.begin(), seq.end());
+      pdqsort(seq.begin(), seq.end());
       return builtins::None;
     }
   }

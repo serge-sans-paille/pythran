@@ -5,6 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/pdqsort.h"
 
 PYTHONIC_NS_BEGIN
 
@@ -58,7 +59,7 @@ namespace numpy
     // fill with the original indices
     std::iota(out.buffer, out.buffer + n, 0L);
     // then sort using keys as the comparator
-    std::sort(out.buffer, out.buffer + n, details::lexcmp<pS>(keys));
+    pdqsort(out.buffer, out.buffer + n, details::lexcmp<pS>(keys));
     return out;
   }
 }

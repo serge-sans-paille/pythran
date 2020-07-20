@@ -9,6 +9,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 #include "pythonic/numpy/array.hpp"
+#include "pythonic/utils/pdqsort.h"
 
 PYTHONIC_NS_BEGIN
 namespace numpy
@@ -19,7 +20,7 @@ namespace numpy
       template <class... Args>
       void operator()(Args &&... args)
       {
-        std::sort(std::forward<Args>(args)...);
+        pdqsort(std::forward<Args>(args)...);
       }
     };
     struct mergesorter {
@@ -50,13 +51,7 @@ namespace numpy
     };
 
     template <class T>
-    struct _comp {
-      bool operator()(T const &i, T const &j) const
-      {
-        return i < j;
-      }
-    };
-
+    struct _comp;
     template <class T>
     struct _comp<std::complex<T>> {
       bool operator()(std::complex<T> const &i, std::complex<T> const &j) const
@@ -67,11 +62,16 @@ namespace numpy
           return std::real(i) < std::real(j);
       }
     };
+
+    template <class T>
+    using comparator = typename std::conditional<types::is_complex<T>::value,
+                                                 _comp<T>, std::less<T>>::type;
+
     template <class T, class pS, class Sorter>
     typename std::enable_if<std::tuple_size<pS>::value == 1, void>::type
     _sort(types::ndarray<T, pS> &out, long axis, Sorter sorter)
     {
-      sorter(out.begin(), out.end(), _comp<T>{});
+      sorter(out.begin(), out.end(), comparator<T>{});
     }
 
     template <class T, class pS, class Sorter>
@@ -81,42 +81,36 @@ namespace numpy
       constexpr auto N = std::tuple_size<pS>::value;
       if (axis < 0)
         axis += N;
+      long const flat_size = out.flat_size();
+      if (axis == N - 1) {
+        const long step = out.template shape<N - 1>();
+        for (T *out_iter = out.buffer, *end_iter = out.buffer + flat_size;
+             out_iter != end_iter; out_iter += step)
+          sorter(out_iter, out_iter + step, comparator<T>{});
+      } else {
+        auto out_shape = sutils::getshape(out);
+        const long step =
+            std::accumulate(out_shape.begin() + axis, out_shape.end(), 1L,
+                            std::multiplies<long>());
+        long const buffer_size = out_shape[axis];
+        const long stepper = step / out_shape[axis];
+        const long n = flat_size / out_shape[axis];
+        long ith = 0, nth = 0;
+        T *buffer = new T[buffer_size];
+        for (long i = 0; i < n; i++) {
+          for (long j = 0; j < buffer_size; ++j)
+            buffer[j] = out.buffer[ith + j * stepper];
+          sorter(buffer, buffer + buffer_size, comparator<T>{});
+          for (long j = 0; j < buffer_size; ++j)
+            out.buffer[ith + j * stepper] = buffer[j];
 
-      auto out_shape = sutils::getshape(out);
-      const long step =
-          std::accumulate(out_shape.begin() + axis, out_shape.end(), 1L,
-                          std::multiplies<long>());
-      long const buffer_size = out_shape[axis];
-      T *buffer = new T[buffer_size];
-      const long stepper = step / out_shape[axis];
-      const long n = out.flat_size() / out_shape[axis] * step;
-      long ith = 0, nth = 0;
-      for (long i = 0; i < n; i += step) {
-        T *buffer_iter = buffer;
-        T *iter = out.buffer + ith;
-        T *iend = iter + step;
-        while (iter != iend) {
-          *buffer_iter++ = *iter;
-          iter += stepper;
+          ith += step;
+          if (ith >= flat_size) {
+            ith = ++nth;
+          }
         }
-        // FIXME: would probably be faster if we had an iterator adaptor instead
-        // of
-        // these copies.
-        sorter(buffer, buffer + buffer_size, _comp<T>{});
-        iter = out.buffer + ith;
-        buffer_iter = buffer;
-        while (iter != iend) {
-          *iter = *buffer_iter++;
-          iter += stepper;
-        }
-
-        ith += step;
-        if (ith - nth == out.flat_size()) {
-          ++nth;
-          ith = nth;
-        }
+        delete[] buffer;
       }
-      delete[] buffer;
     }
   }
 

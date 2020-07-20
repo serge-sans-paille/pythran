@@ -6,6 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
+#include "pythonic/utils/pdqsort.h"
 
 #include <set>
 #include <algorithm>
@@ -64,8 +65,8 @@ namespace numpy
     auto far1 = numpy::functor::array{}(ar1);
     auto far2 = numpy::functor::array{}(ar2);
     if (assume_unique) {
-      std::sort(far1.fbegin(), far1.fend());
-      std::sort(far2.fbegin(), far2.fend());
+      pdqsort(far1.fbegin(), far1.fend());
+      pdqsort(far2.fbegin(), far2.fend());
       dtype *out =
           (dtype *)malloc(far1.flat_size() * far2.flat_size() * sizeof(dtype));
       dtype *out_last = std::set_difference(far1.fbegin(), far1.fend(),
@@ -74,8 +75,8 @@ namespace numpy
       out = (dtype *)realloc(out, size * sizeof(dtype));
       return {out, types::pshape<long>(size), types::ownership::owned};
     } else {
-      std::sort(far1.fbegin(), far1.fend());
-      std::sort(far2.fbegin(), far2.fend());
+      pdqsort(far1.fbegin(), far1.fend());
+      pdqsort(far2.fbegin(), far2.fend());
       dtype *out =
           (dtype *)malloc(far1.flat_size() * far2.flat_size() * sizeof(dtype));
       dtype *out_last = impl::set_difference_unique(

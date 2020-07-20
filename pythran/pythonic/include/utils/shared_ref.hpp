@@ -5,6 +5,10 @@
 #include <utility>
 #include <unordered_map>
 #ifdef _OPENMP
+#define THREAD_SAFE_REF_COUNT
+#endif
+
+#ifdef THREAD_SAFE_REF_COUNT
 #include <atomic>
 #endif
 #ifdef ENABLE_PYTHON_MODULE
@@ -18,7 +22,7 @@ using extern_type = PyObject *;
 using extern_type = void *;
 #endif
 
-#ifdef _OPENMP
+#ifdef THREAD_SAFE_REF_COUNT
 using atomic_size_t = std::atomic_size_t;
 #else
 using atomic_size_t = size_t;

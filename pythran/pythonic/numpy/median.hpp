@@ -67,16 +67,14 @@ namespace numpy
     size_t n = arr.flat_size();
     T *tmp = new T[n];
     std::copy(arr.buffer, arr.buffer + n, tmp);
-    std::nth_element(arr.buffer, arr.buffer + n / 2, arr.buffer + n,
-                     comparator<T>{});
-    T t0 = arr.buffer[n / 2];
+    std::nth_element(tmp, tmp + n / 2, tmp + n, comparator<T>{});
+    T t0 = tmp[n / 2];
     if (n % 2 == 1) {
       delete[] tmp;
       return t0;
     } else {
-      std::nth_element(arr.buffer, arr.buffer + n / 2 - 1, arr.buffer + n / 2,
-                       comparator<T>{});
-      T t1 = arr.buffer[n / 2 - 1];
+      std::nth_element(tmp, tmp + n / 2 - 1, tmp + n / 2, comparator<T>{});
+      T t1 = tmp[n / 2 - 1];
       delete[] tmp;
       return (t0 + t1) / 2.;
     }

@@ -147,7 +147,7 @@ class PythranExtension(Extension):
             output_file = base + '.cpp'  # target name
 
             if os.path.exists(source) and (not os.path.exists(output_file)
-               or os.stat(output_file) < os.stat(source)):
+               or os.path.getmtime(output_file) < os.path.getmtime(source)):
                 # get the last name in the path
                 if '.' in self.name:
                     module_name = os.path.splitext(self.name)[-1][1:]

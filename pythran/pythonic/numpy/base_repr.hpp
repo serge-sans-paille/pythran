@@ -6,6 +6,8 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
+#include <memory>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy
@@ -42,11 +44,10 @@ namespace numpy
 
   types::str base_repr(long number, long base, long padding)
   {
-    char *mem = new char[sizeof(number) * 8 + 1 + padding];
-    std::fill(mem, mem + padding, '0');
-    details::itoa(number, mem + padding, base);
-    auto res = types::str(mem);
-    delete[] mem;
+    std::unique_ptr<char[]> mem{new char[sizeof(number) * 8 + 1 + padding]};
+    std::fill(mem.get(), mem.get() + padding, '0');
+    details::itoa(number, mem.get() + padding, base);
+    auto res = types::str(mem.get());
     return res;
   }
 }

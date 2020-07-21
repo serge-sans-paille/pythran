@@ -5,6 +5,8 @@
 
 #include "pythonic/numpy/base_repr.hpp"
 
+#include <memory>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy
@@ -36,10 +38,9 @@ namespace numpy
     if (number >= 0)
       return base_repr(number, 2, width - out.size());
     else {
-      char *mem = new char[width + 1];
-      details::int2bin(number, mem, width);
-      auto res = types::str(mem);
-      delete[] mem;
+      std::unique_ptr<char[]> mem{new char[width + 1]};
+      details::int2bin(number, mem.get(), width);
+      auto res = types::str(mem.get());
       return res;
     }
   }

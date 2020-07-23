@@ -19,10 +19,19 @@ namespace numpy
   template <class T,
             class dtype = types::dtype_t<typename std::decay<T>::type::dtype>>
   typename std::enable_if<
-      !types::has_size<typename std::decay<T>::type>::value,
+      !types::has_size<typename std::decay<T>::type>::value &&
+          !types::is_dtype<typename std::decay<T>::type>::value,
       types::ndarray<typename dtype::type,
                      types::array<long, std::decay<T>::type::value>>>::type
   array(T &&iterable, dtype d = dtype());
+
+  template <class T, class dtype = types::dtype_t<typename types::dtype_of<
+                         typename std::decay<T>::type>::type>>
+  typename std::enable_if<
+      !types::has_size<typename std::decay<T>::type>::value &&
+          types::is_dtype<typename std::decay<T>::type>::value,
+      typename dtype::type>::type
+  array(T &&non_iterable, dtype d = dtype());
 
   template <class dtype>
   types::ndarray<typename dtype::type,

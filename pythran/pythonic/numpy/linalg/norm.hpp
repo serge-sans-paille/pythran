@@ -10,7 +10,7 @@
 #include "pythonic/numpy/power.hpp"
 #include "pythonic/numpy/real.hpp"
 #include "pythonic/numpy/sqrt.hpp"
-#include "pythonic/numpy/square.hpp"
+#include "pythonic/builtins/pythran/abssqr.hpp"
 #include "pythonic/numpy/sum.hpp"
 #include "pythonic/builtins/NotImplementedError.hpp"
 PYTHONIC_NS_BEGIN
@@ -20,16 +20,14 @@ namespace numpy
   {
     template <class Array>
     auto norm(Array &&array, types::none_type ord, types::none_type axis)
-        -> decltype(pythonic::numpy::functor::sqrt{}(
-            pythonic::numpy::functor::sum{}(pythonic::numpy::functor::square{}(
-                pythonic::numpy::functor::abs{}(
-                    pythonic::numpy::functor::asfarray{}(
-                        std::forward<Array>(array)))))))
+        -> decltype(
+            pythonic::numpy::functor::sqrt{}(pythonic::numpy::functor::sum{}(
+                pythonic::builtins::pythran::functor::abssqr{}(
+                    std::forward<Array>(array)))))
     {
       return pythonic::numpy::functor::sqrt{}(pythonic::numpy::functor::sum{}(
-          pythonic::numpy::functor::square{}(pythonic::numpy::functor::abs{}(
-              pythonic::numpy::functor::asfarray{}(
-                  std::forward<Array>(array))))));
+          pythonic::builtins::pythran::functor::abssqr{}(
+              std::forward<Array>(array))));
     }
 
     template <class Array>

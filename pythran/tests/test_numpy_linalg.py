@@ -31,6 +31,11 @@ class TestNumpyLinalg(TestEnv):
     def test_linalg_norm7(self):
         self.run_test("def linalg_norm7(x): from numpy.linalg import norm ; return norm(x)", numpy.arange(6).reshape(2,3), linalg_norm7=[NDArray[int,:,:]])
 
+    def test_linalg_norm8(self):
+        self.run_test("def linalg_norm8(x): from numpy.linalg import norm ; return norm(x)",
+                      numpy.arange(6).reshape(2,3) * 1j + 1,
+                      linalg_norm8=[NDArray[complex,:,:]])
+
     def test_linalg_norm_pydoc(self):
         self.run_test('''
             def linalg_norm_pydoc(x):

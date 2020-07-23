@@ -1,9 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_LINALG_NORM_HPP
 #define PYTHONIC_INCLUDE_NUMPY_LINALG_NORM_HPP
 
-#include "pythonic/include/numpy/abs.hpp"
 #include "pythonic/include/numpy/sqrt.hpp"
-#include "pythonic/include/numpy/square.hpp"
+#include "pythonic/include/builtins/pythran/abssqr.hpp"
 #include "pythonic/include/numpy/sum.hpp"
 #include "pythonic/include/numpy/asfarray.hpp"
 
@@ -15,11 +14,10 @@ namespace numpy
     template <class Array>
     auto norm(Array &&array, types::none_type ord = {},
               types::none_type axis = {})
-        -> decltype(pythonic::numpy::functor::sqrt{}(
-            pythonic::numpy::functor::sum{}(pythonic::numpy::functor::square{}(
-                pythonic::numpy::functor::abs{}(
-                    pythonic::numpy::functor::asfarray{}(
-                        std::forward<Array>(array)))))));
+        -> decltype(
+            pythonic::numpy::functor::sqrt{}(pythonic::numpy::functor::sum{}(
+                pythonic::builtins::pythran::functor::abssqr{}(
+                    std::forward<Array>(array)))));
 
     template <class Array>
     using norm_dtype_t = typename std::conditional<

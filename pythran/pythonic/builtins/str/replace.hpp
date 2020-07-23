@@ -6,6 +6,8 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
+#include <memory>
+
 PYTHONIC_NS_BEGIN
 
 namespace builtins
@@ -29,20 +31,19 @@ namespace builtins
         size_t n =
             1 + std::max(self.size(), self.size() * (1 + new_pattern.size()) /
                                           (1 + old_pattern.size()));
-        char *buffer = new char[n];
-        char *iter = buffer;
+        std::unique_ptr<char[]> buffer{new char[n]};
+        char *iter = buffer.get();
         do {
           iter = std::copy(haystack, haystack_next, iter);
           iter = std::copy(new_needle, new_needle_end, iter);
           --count;
           haystack = haystack_next + old_pattern.size();
-          assert(size_t(iter - buffer) < n);
+          assert(size_t(iter - buffer.get()) < n);
         } while (count && (haystack_next = strstr(haystack, needle)));
 
         std::copy(haystack, self.c_str() + self.size() + 1, iter);
 
-        types::str replaced(buffer);
-        delete[] buffer;
+        types::str replaced(buffer.get());
         return replaced;
       }
     }

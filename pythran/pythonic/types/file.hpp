@@ -20,6 +20,7 @@
 #include <string>
 #include <cstdio>
 #include <unistd.h>
+#include <memory>
 
 PYTHONIC_NS_BEGIN
 
@@ -158,11 +159,11 @@ namespace types
     seek(0, SEEK_END);
     size = size < 0 ? tell() - curr_pos : size;
     seek(curr_pos);
-    char *content = new char[size + 1];
+    std::unique_ptr<char[]> content{new char[size + 1]};
     // This part needs a new implementation of types::str(char*) to avoid
     // unnecessary copy.
-    types::str res(content, fread(content, sizeof(char), size, **data));
-    delete[] content;
+    types::str res(content.get(),
+                   fread(content.get(), sizeof(char), size, **data));
     return res;
   }
 

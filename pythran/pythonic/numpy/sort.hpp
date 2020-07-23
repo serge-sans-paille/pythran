@@ -4,6 +4,7 @@
 #include "pythonic/include/numpy/sort.hpp"
 
 #include <algorithm>
+#include <memory>
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -96,11 +97,11 @@ namespace numpy
         const long stepper = step / out_shape[axis];
         const long n = flat_size / out_shape[axis];
         long ith = 0, nth = 0;
-        T *buffer = new T[buffer_size];
+        std::unique_ptr<T[]> buffer{new T[buffer_size]};
         for (long i = 0; i < n; i++) {
           for (long j = 0; j < buffer_size; ++j)
             buffer[j] = out.buffer[ith + j * stepper];
-          sorter(buffer, buffer + buffer_size, comparator<T>{});
+          sorter(buffer.get(), buffer.get() + buffer_size, comparator<T>{});
           for (long j = 0; j < buffer_size; ++j)
             out.buffer[ith + j * stepper] = buffer[j];
 
@@ -109,7 +110,6 @@ namespace numpy
             ith = ++nth;
           }
         }
-        delete[] buffer;
       }
     }
   }

@@ -891,6 +891,20 @@ def np_expand_dims3(a,axis):
         self.run_test(code, numpy.random.randn(10,20,30),3, np_expand_dims3=[NDArray[float,:,:,:],int])
         
 
+    def test_expand_dims4(self):
+        code = '''
+
+import numpy as np
+
+def test1(x):
+    y = np.expand_dims(x, -1)
+    return y
+
+def expand_dims4(x):
+    A = np.array([-1.11312199, -0.99629629])
+    return test1(x - A)'''
+        self.run_test(code, numpy.random.randn(4,3,2), expand_dims4=[NDArray[float,:,:,:]])
+
     def test_duplicate(self):
         """Check array forwarded twice doesn't double free. """
         code = """

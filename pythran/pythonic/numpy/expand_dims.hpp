@@ -18,7 +18,7 @@ namespace numpy
     if (axis == -1)
       axis += N + 1;
     types::array<long, N + 1> dim_array;
-    auto in_shape = sutils::array(input._shape);
+    auto in_shape = sutils::getshape(input);
     long ii, jj;
     for (ii = jj = 0; ii < N + 1; ii++) {
       if (ii == axis) {

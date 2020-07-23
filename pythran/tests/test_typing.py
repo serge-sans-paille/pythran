@@ -66,6 +66,10 @@ class TestTyping(TestEnv):
         code = 'def g(): pass\ndef immutable_default7(x=g): pass'
         pythran.compile_pythrancode("dumbo", code, pyonly=True)
 
+    def test_immutable_default8(self):
+        code = 'def g(): pass\ndef immutable_default8(x=int): pass'
+        pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
     def test_list_of_set(self):
         code = '''
 def list_of_set():

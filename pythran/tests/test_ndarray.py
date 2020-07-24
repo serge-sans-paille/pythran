@@ -881,6 +881,27 @@ def assign_ndarray(t):
                       numpy.array([[1]]),
                       bool_conversion_4=[NDArray[int, :,:]])
 
+    def test_complex_conversion0(self):
+        code = '''
+import numpy as np
+
+def test1(input):
+    fftSize = 1024
+    NN = 10
+    MM = fftSize // 2+1
+    Out = np.empty((MM, NN), dtype=np.complex64)
+    for frm in range(NN):
+        X = np.fft.rfft(input[0:fftSize],fftSize)
+        Out[:,frm] = X
+    return Out
+
+def complex_conversion0(x):
+    return test1(x)
+'''
+        self.run_test(code, numpy.array([10.]*10),
+                      complex_conversion0=[NDArray[float, :]])
+
+
     def test_numpy_lazy_gexpr(self):
         code = '''
             import numpy as np

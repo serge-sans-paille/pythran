@@ -5,7 +5,7 @@
 
 #include "pythonic/types/list.hpp"
 #include "pythonic/utils/functor.hpp"
-#include "pythonic/utils/pdqsort.h"
+#include "pythonic/utils/pdqsort.hpp"
 
 #include <algorithm>
 

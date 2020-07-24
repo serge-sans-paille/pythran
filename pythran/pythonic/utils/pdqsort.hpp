@@ -1,5 +1,5 @@
 /*
-    pdqsort.h - Pattern-defeating quicksort.
+    pdqsort.hpp - Pattern-defeating quicksort.
 
     Copyright (c) 2015 Orson Peters
 
@@ -20,8 +20,8 @@
 */
 
 
-#ifndef PDQSORT_H
-#define PDQSORT_H
+#ifndef PDQSORT_HPP
+#define PDQSORT_HPP
 
 #include <algorithm>
 #include <cstddef>

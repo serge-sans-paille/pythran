@@ -10,7 +10,7 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 #include "pythonic/numpy/array.hpp"
-#include "pythonic/utils/pdqsort.h"
+#include "pythonic/utils/pdqsort.hpp"
 
 PYTHONIC_NS_BEGIN
 namespace numpy

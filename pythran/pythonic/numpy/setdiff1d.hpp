@@ -6,7 +6,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
-#include "pythonic/utils/pdqsort.h"
+#include "pythonic/utils/pdqsort.hpp"
 
 #include <set>
 #include <algorithm>

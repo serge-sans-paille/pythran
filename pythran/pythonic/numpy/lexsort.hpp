@@ -5,7 +5,7 @@
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
-#include "pythonic/utils/pdqsort.h"
+#include "pythonic/utils/pdqsort.hpp"
 
 PYTHONIC_NS_BEGIN
 

@@ -30,10 +30,13 @@ namespace numpy
   template <class E>
   auto asarray(E &&e, types::none_type d) -> decltype(
       _asarray<typename std::decay<E>::type,
-               typename std::decay<E>::type::dtype>{}(std::forward<E>(e)))
+               typename types::dtype_of<typename std::decay<E>::type>::type>{}(
+          std::forward<E>(e)))
   {
-    return _asarray<typename std::decay<E>::type,
-                    typename std::decay<E>::type::dtype>{}(std::forward<E>(e));
+    return _asarray<
+        typename std::decay<E>::type,
+        typename types::dtype_of<typename std::decay<E>::type>::type>{}(
+        std::forward<E>(e));
   }
 
   template <class E, class dtype>

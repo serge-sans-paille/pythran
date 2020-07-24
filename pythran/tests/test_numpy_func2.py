@@ -412,6 +412,15 @@ def test_copy0(x):
     def test_base_repr4(self):
         self.run_test("def np_base_repr4(a): from numpy import base_repr ; return base_repr(a, 16)", 32, np_base_repr4=[int])
 
+    def test_base_repr5(self):
+        self.run_test("def np_base_repr5(a): from numpy import base_repr ; return base_repr(a)", -5, np_base_repr5=[int])
+
+    def test_base_repr6(self):
+        self.run_test("def np_base_repr6(a): from numpy import base_repr ; return base_repr(a)", 0, np_base_repr6=[int])
+
+    def test_base_repr7(self):
+        self.run_test("def np_base_repr7(a): from numpy import base_repr ; return base_repr(a,5)", 0, np_base_repr7=[int])
+
     def test_average0(self):
         self.run_test("def np_average0(a): from numpy import average ; return average(a)", numpy.arange(10), np_average0=[NDArray[int,:]])
 

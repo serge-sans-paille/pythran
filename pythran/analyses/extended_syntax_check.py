@@ -5,7 +5,7 @@ ExtendedSyntaxCheck performs various syntax checks on the pythran AST.
 from pythran.passmanager import ModuleAnalysis
 from pythran.analyses import StrictAliases, ArgumentEffects
 from pythran.syntax import PythranSyntaxError
-from pythran.intrinsic import ConstantIntr
+from pythran.intrinsic import ConstantIntr, FunctionIntr
 from pythran import metadata
 
 import gast as ast
@@ -19,6 +19,11 @@ def is_global_constant(node):
         return False
 
     return metadata.get(node.body[0], metadata.StaticReturn)
+
+
+def is_global(node):
+    return (isinstance(node, (FunctionIntr, ast.FunctionDef)) or
+            is_global_constant(node))
 
 
 class ExtendedSyntaxCheck(ModuleAnalysis):
@@ -36,7 +41,7 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
         self.functions = set()
         ModuleAnalysis.__init__(self, StrictAliases, ArgumentEffects)
 
-    def check_global(self, node, arg):
+    def check_global_with_side_effect(self, node, arg):
         if not isinstance(arg, ast.Call):
             return
         try:
@@ -60,7 +65,7 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
             self.functions.add(node.name)
         self.generic_visit(node)
 
-    def check_assert(self, node, arg):
+    def check_assert_with_side_effect(self, node, arg):
         if self.inassert:
             raise PythranSyntaxError("Cannot call a function with side effect "
                                      "in an assert", node)
@@ -80,7 +85,7 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
         if isinstance(node, ast.UnaryOp):
             return self.is_immutable_constant(node.operand)
 
-        if isinstance(node, (ast.Attribute, ast.Call)):
+        if isinstance(node, ast.Call):
             target = getattr(node, 'func', node)
             try:
                 aliases = self.strict_aliases[target]
@@ -91,6 +96,19 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
                 return False
 
             if all(is_global_constant(alias) for alias in aliases):
+                return True
+
+        if isinstance(node, ast.Attribute):
+            target = getattr(node, 'func', node)
+            try:
+                aliases = self.strict_aliases[target]
+            except KeyError:
+                return False
+
+            if not aliases:
+                return False
+
+            if all(is_global(alias) for alias in aliases):
                 return True
 
         if isinstance(node, ast.Name):
@@ -163,5 +181,5 @@ class ExtendedSyntaxCheck(ModuleAnalysis):
         for i, arg in enumerate(node.args):
             if i not in argument_effects:
                 continue
-            self.check_global(node, arg)
-            self.check_assert(node, arg)
+            self.check_global_with_side_effect(node, arg)
+            self.check_assert_with_side_effect(node, arg)

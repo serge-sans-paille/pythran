@@ -552,8 +552,9 @@ This section contains compiler flags configuration. For education purpose, the d
 
 :``blas``:
 
-    BLAS library to use. ``pythran-openblas``, ``blas``,
+    BLAS library to use. ``none``, ``pythran-openblas``, ``blas``,
     ``openblas``, ``atlas`` or ``mkl`` are viable choices.
+    ``none`` prevents from linking with blas.
     ``pythran-openblas`` requires the `pythran-openblas
     <https://pypi.org/project/pythran-openblas/>`_ package, which provides a
     statically linked version of `OpenBLAS <https://www.openblas.net/>`_. Other

@@ -196,6 +196,7 @@ def make_extension(python, **extra):
             extension['include_dirs'].append(numpy.get_include())
 
         # blas dependency
+        reserved_blas_entries = 'pythran-openblas', 'none'
         user_blas = cfg.get('compiler', 'blas')
         if user_blas == 'pythran-openblas':
             try:
@@ -212,7 +213,7 @@ def make_extension(python, **extra):
                             "setting. Defaulting to 'blas'")
                 user_blas = 'blas'
 
-        if user_blas != 'pythran-openblas':
+        if user_blas not in reserved_blas_entries:
             numpy_blas = numpy_sys.get_info(user_blas)
             # required to cope with atlas missing extern "C"
             extension['define_macros'].append('PYTHRAN_BLAS_{}'

@@ -133,6 +133,7 @@ namespace types
 
     types::str &operator+=(types::str const &s);
 
+    container_type &get_data();
     container_type const &get_data() const;
 
     long size() const;

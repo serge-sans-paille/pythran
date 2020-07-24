@@ -6,48 +6,44 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 
-#include <memory>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  namespace details
-  {
-    char *itoa(int value, char *result, int base)
-    {
-      // check that the base if valid
-      if (base < 2 || base > 16) {
-        *result = 0;
-        return result;
-      }
-
-      char *out = result;
-      int quotient = abs(value);
-
-      do {
-        const int tmp = quotient / base;
-        *out = "0123456789ABCDEF"[quotient - (tmp * base)];
-        ++out;
-        quotient = tmp;
-      } while (quotient);
-
-      // Apply negative sign
-      if (value < 0)
-        *out++ = '-';
-
-      std::reverse(result, out);
-      *out = 0;
-      return result;
-    }
-  }
-
   types::str base_repr(long number, long base, long padding)
   {
-    std::unique_ptr<char[]> mem{new char[sizeof(number) * 8 + 1 + padding]};
-    std::fill(mem.get(), mem.get() + padding, '0');
-    details::itoa(number, mem.get() + padding, base);
-    auto res = types::str(mem.get());
+    types::str res;
+
+    // check that the base if valid
+    if (base < 2 || base > 16) {
+      return res;
+    }
+
+    int const ndigits =
+        (number == 0 ? 1
+                     : std::ceil(std::log(std::labs(number)) / std::log(base)));
+    int const effective_padding =
+        padding - ((number == 0) && (padding > 0) ? 1 : 0);
+
+    res.resize(ndigits + effective_padding + (number < 0 ? 1 : 0));
+
+    // Apply negative sign
+    auto it = res.get_data().begin();
+    if (number < 0)
+      *it++ = '-';
+
+    // Apply padding
+    std::fill(it, std::next(it, effective_padding), '0');
+
+    auto rit = res.get_data().rbegin();
+    long quotient = std::labs(number);
+
+    do {
+      const long tmp = quotient / base;
+      *rit++ = "0123456789ABCDEF"[quotient - (tmp * base)];
+      quotient = tmp;
+    } while (quotient);
+
     return res;
   }
 }

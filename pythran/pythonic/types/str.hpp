@@ -357,6 +357,11 @@ namespace types
     return *this;
   }
 
+  str::container_type &str::get_data()
+  {
+    return *data;
+  }
+
   str::container_type const &str::get_data() const
   {
     return *data;

@@ -679,3 +679,12 @@ def range_simplify_subscript(n):
     ML[0] = n
     return ML'''
         self.run_test(code, 1, range_simplify_subscript=[int])
+
+    def test_insert_none0(self):
+        code = '''
+            def insert_none0(x):
+                for ii in range(len(x)):
+                    if x[ii]: return x[ii]
+                else:
+                    return 0'''
+        self.run_test(code, [], insert_none0=[List[int]])

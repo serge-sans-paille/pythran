@@ -65,7 +65,7 @@ class CFG(FunctionAnalysis):
     visit_Expr = visit_Print = visit_ImportFrom = visit_Pass
     visit_Yield = visit_Delete = visit_Pass
 
-    def visit_Return(self, _):
+    def visit_Return(self, node):
         """OUT = (), RAISES = ()"""
         return (), ()
 
@@ -101,16 +101,18 @@ class CFG(FunctionAnalysis):
                 for curr in currs:
                     self.result.add_edge(curr, n)
                 currs, nraises = self.visit(n)
+        else:
+            currs = node,
 
         # while only
         if isinstance(node, ast.While):
             if is_true_predicate(node.test):
                 return break_currs, raises
             else:
-                return break_currs + (node,), raises
+                return break_currs + currs, raises
 
         # for only
-        return break_currs + (node,), raises
+        return break_currs + currs, raises
 
     visit_While = visit_For
 

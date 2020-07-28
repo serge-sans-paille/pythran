@@ -840,8 +840,12 @@ class RangeValues(RangeValuesBase):
 
     def cfg_visit(self, node):
         successors = [node]
+        visited = set()
         while successors:
             successor = successors.pop()
+            if successor in visited:
+                continue
+            visited.add(successor)
             nexts = self.visit(successor)
             if nexts:
                 successors.extend((n for n in nexts if n is not CFG.NIL))

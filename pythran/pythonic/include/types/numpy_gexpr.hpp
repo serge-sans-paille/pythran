@@ -13,6 +13,10 @@ namespace types
    */
   template <class... T>
   struct count_new_axis;
+  template <>
+  struct count_new_axis<> {
+    static constexpr size_t value = 0;
+  };
 
   template <>
   struct count_new_axis<types::none_type> {

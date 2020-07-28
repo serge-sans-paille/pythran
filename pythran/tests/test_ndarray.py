@@ -542,6 +542,23 @@ def assign_ndarray(t):
         self.run_test("def np_newaxis7(a): from numpy import newaxis; return a[newaxis,1:,newaxis,:1,newaxis]",
                       numpy.ones((2,3)), np_newaxis7=[NDArray[float, :,: ]])
 
+    def test_newaxis8(self):
+        code = '''
+import numpy as np
+def A(N):
+    return B(N + 1)[0:-1]
+def B(M):
+    if M == 1: return np.ones(1, float)
+    n = np.arange(0, M)
+    return 0.5 - 0.5*np.cos(2.0*np.pi*n/(M-1))
+def newaxis8(n):
+    p = 0.5
+    w = np.power(A(n),p)[:,None]
+    return w'''
+        self.run_test(code,
+                      5,
+                      newaxis8=[int])
+
     def test_gexpr_composition0(self):
         self.run_test("def gexpr_composition0(a): return a[:,:,:][1]",
                       numpy.arange(16).reshape(2,2,2,2),

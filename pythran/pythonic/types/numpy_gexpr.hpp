@@ -132,13 +132,32 @@ namespace types
       return t0;
     }
 
+    template <size_t I, class S>
+    constexpr long count_new_axis_until(S const &s)
+    {
+      if (I == 0)
+        return 0;
+    }
+
+    template <class T, size_t... Is>
+    constexpr long count_new_axis_helper(utils::index_sequence<Is...>)
+    {
+      return count_new_axis<typename std::tuple_element<Is, T>::type...>::value;
+    }
+
     template <size_t I, class S, class T, size_t... Is>
     auto normalize_all(S const &s, T const &t, utils::index_sequence<Is...>)
-        -> decltype(std::make_tuple(normalize(std::get<Is>(t),
-                                              s.template shape<I + Is>())...))
+        -> decltype(std::make_tuple(normalize(
+            std::get<Is>(t),
+            s.template shape<I + Is -
+                             count_new_axis_helper<T>(
+                                 utils::make_index_sequence<1 + Is>())>())...))
     {
-      return std::make_tuple(
-          normalize(std::get<Is>(t), s.template shape<I + Is>())...);
+      return std::make_tuple(normalize(
+          std::get<Is>(t),
+          s.template shape<I + Is -
+                           count_new_axis_helper<T>(
+                               utils::make_index_sequence<1 + Is>())>())...);
     }
 
     template <class... T1>

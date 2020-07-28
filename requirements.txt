@@ -4,4 +4,4 @@ decorator
 gast~=0.3.3
 six
 numpy
-beniget>=0.2.1
+beniget~=0.2.1

@@ -642,6 +642,22 @@ namespace types
       return r;
     }
   }
+  template <class T>
+  list<T> const &list<T>::operator*=(long n)
+  {
+    if (size() == 1) {
+      resize(n);
+      std::fill(begin() + 1, end(), fast(0));
+    } else {
+      auto const initial_size = size();
+      resize(n * initial_size);
+      // FIXME: could use less calls to std::copy
+      auto tgt = begin() + initial_size;
+      for (long i = 1; i < n; ++i)
+        tgt = std::copy(begin(), begin() + initial_size, tgt);
+    }
+    return *this;
+  }
 
   template <class T>
   template <class F>

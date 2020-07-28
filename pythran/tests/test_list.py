@@ -49,6 +49,17 @@ class TestList(TestEnv):
     def test_insert_(self):
         self.run_test("def insert_(a,b):\n c=[1,3,5,4,2]\n c.insert(a,b)\n return c",2,5, insert_=[int,int])
 
+    def test_mult_0(self):
+        self.run_test("def mult_0(a):\n b=[1,2,3,8,7,4]\n b*=a\n return b",
+                      8,
+                      mult_0=[int])
+
+    def test_mult_1(self):
+        self.run_test("def mult_1(a):\n b=[1,2,3,8,7,4] * a\n return b",
+                      8,
+                      mult_1=[int])
+
+
     def test_insertneg_(self):
         self.run_test("def insertneg_(a,b):\n c=[1,3,5,4,2]\n c.insert(a,b)\n return c",-1,-2, insertneg_=[int,int])
 

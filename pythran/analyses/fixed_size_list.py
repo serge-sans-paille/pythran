@@ -76,5 +76,7 @@ class FixedSizeList(FunctionAnalysis):
     def visit_Call(self, node):
         self.generic_visit(node)
         for i, arg in enumerate(node.args):
+            if not self.is_fixed_size_list_def(arg):
+                continue
             if self.is_safe_call(node.func, i):
                 self.result.add(arg)

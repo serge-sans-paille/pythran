@@ -354,6 +354,7 @@ namespace types
 
     list<T> operator+(empty_list const &) const;
     list<T> operator*(long t) const;
+    list<T> const &operator*=(long t);
 
     template <class F>
     list<T> &operator+=(F const &s);
@@ -389,6 +390,19 @@ namespace types
       return res;
     }
   };
+
+  template <class T, size_t N>
+  list<T> operator*(static_list<T, N> const &self, long t)
+  {
+    list<T> res(self);
+    res *= t;
+    return res;
+  }
+  template <class T, size_t N>
+  list<T> operator*(long t, static_list<T, N> const &self)
+  {
+    return self * t;
+  }
 
   template <class T0, size_t N, class T1>
   list<typename __combined<T0, T1>::type>

@@ -667,6 +667,26 @@ class TestAnalyses(TestEnv):
                 return data'''
         self.run_test(code, 'aa', 2, 'bb', '3', subscript_function_aliasing=[str, int, str, str])
 
+    def test_range_simplify_jl(self):
+        code = '''
+import numpy as np
+silent = 0
+
+def B(n):
+    TS = 10
+    outSig = []
+    while n:
+        outSamps = np.zeros((10, 2))
+        outSig.append(outSamps.copy())
+    outSamps = np.zeros((10, 2))
+    outSig.append(outSamps.copy())
+    return outSig, TS
+
+def range_simplify_jl(n):
+    outSignal, TS = B(n)
+    return (outSignal)'''
+        self.run_test(code, 0, range_simplify_jl=[int])
+
     def test_range_simplify_subscript(self):
         code = '''
 def LooperMaster___init__():

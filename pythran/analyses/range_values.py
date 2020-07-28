@@ -499,6 +499,8 @@ class RangeValuesBase(ModuleAnalysis):
 
         if prev_result is not None:
             self.result[RangeValuesBase.ResultHolder] = prev_result
+        else:
+            del self.result[RangeValuesBase.ResultHolder]
 
 
 class RangeValuesSimple(RangeValuesBase):

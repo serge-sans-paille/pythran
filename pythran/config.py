@@ -212,6 +212,8 @@ def make_extension(python, **extra):
                             "Please install it or change the compiler.blas "
                             "setting. Defaulting to 'blas'")
                 user_blas = 'blas'
+        elif user_blas == 'none':
+            extension['define_macros'].append('PYTHRAN_BLAS_NONE')
 
         if user_blas not in reserved_blas_entries:
             numpy_blas = numpy_sys.get_info(user_blas)

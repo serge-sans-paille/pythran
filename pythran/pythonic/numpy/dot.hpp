@@ -8,6 +8,10 @@
 #include "pythonic/numpy/multiply.hpp"
 #include "pythonic/types/traits.hpp"
 
+#ifdef PYTHRAN_BLAS_NONE
+#error pythran configured without BLAS but BLAS seem needed
+#endif
+
 #if defined(PYTHRAN_BLAS_ATLAS) || defined(PYTHRAN_BLAS_SATLAS)
 extern "C" {
 #endif

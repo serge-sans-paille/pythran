@@ -1,3 +1,45 @@
+2020-08-01 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* First release only supporting Python3
+
+	* Allow to disable blas usage through blas=none setting
+
+	* Improve range value analysis
+
+	* Change numpy expression evaluator
+
+	* Change sorting algorithm from std::sort to pdqsort
+
+	* Bug fixes in various numpy.* implementation
+
+	* Freeze gast and beniget version
+
+	* Diligently use and document assert behavior
+
+	* Many fix related to static conditions
+
+	* Improve np.sort and np.median argument support
+
+	* Improve scope computation in presence of if/else
+
+	* Refuse assert with side effect
+
+	* Provide sane default for OpenMP reduction on complex
+
+	* Upgrade boost version to 1.72
+
+	* Allow %{ext} substitution in output filename
+
+	* Prettier pythran syntax error
+
+	* Faster compilation (in some cases!)
+
+	* Partial np.tofile implementation
+
+	* Allow to specify --config 'pythran.optimizations=' on the CLI
+
+	* Fix interaction between OpenMP collapse and pythran-generated loops
+
 2019-12-31 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Last release supporting both Python2 and Python3

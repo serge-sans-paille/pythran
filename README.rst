@@ -108,7 +108,9 @@ See MANUAL file.
 Basic Usage
 -----------
 
-A simple pythran input could be ``dprod.py``::
+A simple pythran input could be ``dprod.py``
+
+.. code-block:: python
 
     """
     Naive dotproduct! Pythran supports numpy.dot
@@ -117,6 +119,7 @@ A simple pythran input could be ``dprod.py``::
     def dprod(l0,l1):
         """WoW, generator expression, zip and sum."""
         return sum(x * y for x, y in zip(l0, l1))
+
 
 To turn it into a native module, run::
 

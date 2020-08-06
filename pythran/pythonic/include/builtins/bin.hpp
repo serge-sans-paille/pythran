@@ -5,12 +5,15 @@
 
 #include "pythonic/include/types/str.hpp"
 
+#include <type_traits>
+
 PYTHONIC_NS_BEGIN
 
 namespace builtins
 {
   template <class T>
-  types::str bin(T const &v);
+  typename std::enable_if<std::is_scalar<T>::value, types::str>::type
+  bin(T const &v);
 
   DEFINE_FUNCTOR(pythonic::builtins, bin);
 }

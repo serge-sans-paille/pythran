@@ -6,29 +6,39 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <sstream>
+#include <algorithm>
+#include <cmath>
 
 PYTHONIC_NS_BEGIN
 
 namespace builtins
 {
   template <class T>
-  types::str bin(T const &v)
+  typename std::enable_if<std::is_scalar<T>::value, types::str>::type
+  bin(T const &v)
   {
-    long unsigned int i = 1L << (8 * sizeof(T) - 1);
-    while (i && !(v & i))
-      i >>= 1;
-    if (!i)
+    using UT = typename std::make_unsigned<T>::type;
+    if (v == T{0})
       return "0b0";
     else {
-      std::ostringstream oss;
-      oss << "0b";
+      // Due to rounding errors, we cannot use std::log2(v)
+      // to accuratly find length.
+      size_t len = (8 * sizeof(UT)) - 1;
+      UT i{UT{1} << len};
+      while (!(i & v)) {
+        i >>= 1;
+        len--;
+      }
+      types::str res;
+      res.reserve(2 + len);
+      auto &backend = res.chars();
+      backend.append("0b");
       for (; i; i >>= 1)
         if (v & i)
-          oss << "1";
+          backend.append("1");
         else
-          oss << "0";
-      return oss.str();
+          backend.append("0");
+      return res;
     }
   }
 }

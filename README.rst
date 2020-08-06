@@ -47,7 +47,7 @@ Using ``conda``
 ***************
 
 1. Install ``conda``, following the instruction given in
-   http://conda.pydata.org/docs/install/quick.html
+   `conda user guide <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`__.
 
 2. Run::
 
@@ -73,9 +73,9 @@ Depending on your setup, you may need to add the following to your ``~/.pythranr
 ArchLinux
 =========
 
-Using any working `AUR helper <https://wiki.archlinux.org/index.php/AUR_helpers>`_, say aurman::
+Using any working `AUR helper <https://wiki.archlinux.org/index.php/AUR_helpers>`_, say yay::
 
-    $> aurman -S python-pythran
+    $> yay -S python-pythran
 
 
 Fedora
@@ -174,7 +174,9 @@ The mailing list archive is available at http://www.freelists.org/archive/pythra
 Citing
 ------
 
-If you need to cite a Pythran paper, feel free to use::
+If you need to cite a Pythran paper, feel free to use
+
+.. code-block:: bibtex
 
     @article{guelton2015pythran,
       title={Pythran: Enabling static optimization of scientific python programs},

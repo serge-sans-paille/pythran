@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 PYTHONIC_NS_BEGIN
 
@@ -18,7 +19,23 @@ namespace builtins
   bin(T const &v)
   {
     using UT = typename std::make_unsigned<T>::type;
-    if (v == T{0})
+    if (v < T{0})
+      if (v == std::numeric_limits<T>::min()) {
+        // In this special case, calling -v would overflow so
+        // a special case is needed.
+        types::str res;
+        auto &backend = res.chars();
+        backend.resize(8 * sizeof(T) + 3);
+        auto it = backend.begin();
+        *it++ = '-';
+        *it++ = '0';
+        *it++ = 'b';
+        *it++ = '1';
+        std::fill(it, backend.end(), '0');
+        return res;
+      } else
+        return "-" + bin(-v);
+    else if (v == T{0})
       return "0b0";
     else {
       // Due to rounding errors, we cannot use std::log2(v)

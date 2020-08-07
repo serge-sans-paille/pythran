@@ -1,4 +1,6 @@
 import numpy
+import pytest
+import sys
 import unittest
 
 from pythran.tests import TestEnv
@@ -421,6 +423,17 @@ def nested_def(a):
 
     def test_bin(self):
         self.run_test("def bin_(a): return bin(a)", 54321, bin_=[int])
+
+    def test_bin2(self):
+        self.run_test("def bin2_(a): return bin(a)", -543, bin2_=[int])
+
+    @pytest.mark.skipif(sys.platform == "win32",
+                        reason="Windows uses long of 32-bit, this test assumes they are 64-bit")
+    def test_bin3(self):
+        self.run_test("def bin3_(a): return bin(a)", -sys.maxsize - 1, bin3_=[int])
+
+    def test_bin4(self):
+        self.run_test("def bin4_(a): return bin(a)", -1, bin4_=[int])
 
     def test_chr(self):
         self.run_test("def chr_(a): return chr(a)", 42, chr_=[int])

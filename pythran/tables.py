@@ -4526,9 +4526,10 @@ def save_arguments(module_name, elements):
                     obj = obj.__wrapped__
                 spec = getfullargspec(obj)
                 if signature.args.args:
-                    logger.warn("Overriding pythran description with argspec "
-                                "information for: {}".format(
-                                    ".".join(module_name + (elem,))))
+                    logger.warning(
+                        "Overriding pythran description with argspec "
+                        "information for: {}".format(
+                            ".".join(module_name + (elem,))))
 
                 args = [ast.Name(arg, ast.Param(), None, None)
                         for arg in spec.args]

@@ -272,7 +272,7 @@ def check_exports(pm, mod, specs):
                     .format(fname))
             for i, ty in enumerate(signature):
                 if ae[i] and isinstance(ty, (List, Tuple, Dict, Set)):
-                    logger.warn(
+                    logger.warning(
                         ("Exporting function '{}' that modifies its {} "
                          "argument. Beware that this argument won't be "
                          "modified at Python call site").format(

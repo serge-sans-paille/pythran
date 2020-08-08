@@ -357,7 +357,7 @@ def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
         # remove tempfile
         os.remove(fdpath)
     else:
-        logger.warn("Keeping temporary generated file:" + fdpath)
+        logger.warning("Keeping temporary generated file:" + fdpath)
 
     return output_binary
 
@@ -416,9 +416,10 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
                                           output_binary=output_file,
                                           **kwargs)
         except CompileError:
-            logger.warn("Compilation error, trying hard to find its origin...")
+            logger.warning("Compilation error, "
+                           "trying hard to find its origin...")
             error_checker()
-            logger.warn("Nop, I'm going to flood you with C++ errors!")
+            logger.warning("Nop, I'm going to flood you with C++ errors!")
             raise
 
     return output_file

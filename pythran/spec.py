@@ -91,7 +91,8 @@ class Spec(object):
 
         if not self:
             import logging
-            logging.warn("No pythran specification, nothing will be exported")
+            logging.warning("No pythran specification, "
+                            "nothing will be exported")
 
     def keys(self):
         return list(self.functions.keys()) + list(self.capsules.keys())

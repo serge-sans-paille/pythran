@@ -385,9 +385,7 @@ CLASSES = {
                 Fun[[Dict[T0, T1], T0], T1]
             ],
             return_alias=lambda args: {
-                ast.Subscript(args[0],
-                              ast.Index(args[1]),
-                              ast.Load())
+                ast.Subscript(args[0], args[1], ast.Load())
             }.union({args[2]} if len(args) == 3 else set())
         ),
         "update": MethodIntr(update_effects),

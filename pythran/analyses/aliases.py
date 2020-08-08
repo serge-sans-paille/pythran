@@ -422,16 +422,22 @@ class Aliases(ModuleAnalysis):
         >>> Aliases.dump(result, filter=ast.Subscript)
         [a, b, c][1:] => ['<unbound-value>']
         '''
-        if isinstance(node.slice, ast.Index):
+        if isinstance(node.slice, ast.Tuple):
+            # could be enhanced through better handling of containers
+            self.visit(node.value)
+            for elt in node.slice.elts:
+                self.visit(elt)
+            aliases = None
+        else:
             aliases = set()
             self.visit(node.slice)
             value_aliases = self.visit(node.value)
             for alias in value_aliases:
                 if isinstance(alias, ContainerOf):
-                    if isinstance(node.slice.value, ast.Slice):
+                    if isinstance(node.slice, ast.Slice):
                         continue
-                    if isnum(node.slice.value):
-                        if node.slice.value.value != alias.index:
+                    if isnum(node.slice):
+                        if node.slice.value != alias.index:
                             continue
                     # FIXME: what if the index is a slice variable...
                     aliases.add(alias.containee)
@@ -439,10 +445,6 @@ class Aliases(ModuleAnalysis):
                     aliases.add(ast.Subscript(alias, node.slice, node.ctx))
             if not aliases:
                 aliases = None
-        else:
-            # could be enhanced through better handling of containers
-            aliases = None
-            self.generic_visit(node)
         return self.add(node, aliases)
 
     def visit_OMPDirective(self, node):
@@ -551,8 +553,8 @@ class Aliases(ModuleAnalysis):
         if Aliases.RetId in self.aliases:
             # parametrize the expression
             def parametrize(exp):
-                # constant(?) or global -> no change
-                if isinstance(exp, (ast.Index, Intrinsic, ast.FunctionDef)):
+                # constant or global -> no change
+                if isinstance(exp, (ast.Constant, Intrinsic, ast.FunctionDef)):
                     return lambda _: {exp}
                 elif isinstance(exp, ContainerOf):
                     pcontainee = parametrize(exp.containee)

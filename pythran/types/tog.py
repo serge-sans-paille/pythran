@@ -770,8 +770,6 @@ def analyse(node, env, non_generic=None):
         return Dict(new_key_type, new_value_type)
     elif isinstance(node, gast.Tuple):
         return Tuple([analyse(elt, env, non_generic) for elt in node.elts])
-    elif isinstance(node, gast.Index):
-        return analyse(node.value, env, non_generic)
     elif isinstance(node, gast.Slice):
         def unify_int_or_none(t, name):
             try:
@@ -800,8 +798,6 @@ def analyse(node, env, non_generic=None):
         else:
             step_type = Integer()
         return Slice
-    elif isinstance(node, gast.ExtSlice):
-        return [analyse(dim, env, non_generic) for dim in node.dims]
     elif isinstance(node, gast.Subscript):
         new_type = TypeVariable()
         value_type = prune(analyse(node.value, env, non_generic))
@@ -810,8 +806,8 @@ def analyse(node, env, non_generic=None):
         except PythranTypeError as e:
             raise PythranTypeError(e.msg, node)
 
-        if isinstance(node.slice, gast.ExtSlice):
-            nbslice = len(node.slice.dims)
+        if isinstance(node.slice, gast.Tuple):
+            nbslice = len(node.slice.elts)
             dtype = TypeVariable()
             try:
                 unify(Array(dtype, nbslice), clone(value_type))
@@ -820,20 +816,20 @@ def analyse(node, env, non_generic=None):
                     "Dimension mismatch when slicing `{}`".format(value_type),
                     node)
             return TypeVariable()  # FIXME
-        elif isinstance(node.slice, gast.Index):
+        else:
             # handle tuples in a special way
-            num = isnum(node.slice.value)
+            num = isnum(node.slice)
             if num and is_tuple_type(value_type):
                 try:
                     unify(prune(prune(value_type.types[0]).types[0])
-                          .types[node.slice.value.value],
+                          .types[node.slice.value],
                           new_type)
                     return new_type
                 except IndexError:
                     raise PythranTypeError(
                         "Invalid tuple indexing, "
                         "out-of-bound index `{}` for type `{}`".format(
-                            node.slice.value.value,
+                            node.slice.value,
                             value_type),
                         node)
         try:

@@ -19,7 +19,7 @@ class ConvertToTuple(ast.NodeTransformer):
             nnode = reduce(
                 lambda x, y: ast.Subscript(
                     x,
-                    ast.Index(ast.Constant(y, None)),
+                    ast.Constant(y, None),
                     ast.Load()),
                 self.renamings[node.id],
                 ast.Name(self.tuple_id, ast.Load(), None, None)
@@ -148,7 +148,7 @@ class NormalizeTuples(Transformation):
                         nnode = reduce(
                             lambda x, y: ast.Subscript(
                                 x,
-                                ast.Index(ast.Constant(y, None)),
+                                ast.Constant(y, None),
                                 ast.Load()),
                             state,
                             gload)
@@ -174,7 +174,7 @@ class NormalizeTuples(Transformation):
                     nnode = reduce(
                         lambda x, y: ast.Subscript(
                             x,
-                            ast.Index(ast.Constant(y, None)),
+                            ast.Constant(y, None),
                             ast.Load()),
                         state,
                         ast.Name(gtarget, ast.Load(), None, None))

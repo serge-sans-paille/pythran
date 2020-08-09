@@ -21,6 +21,7 @@ from pythran.tables import pythran_ward
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
 from pythran.utils import attr_to_path, pushpop, cxxid, isstr, isnum
+from pythran.utils import isextslice
 from pythran import metadata, unparse
 
 from math import isnan, isinf
@@ -970,20 +971,18 @@ class CxxFunction(ast.NodeVisitor):
         if isstr(node.value):
             value = 'pythonic::types::str({})'.format(value)
         # positive static index case
-        if (isinstance(node.slice, ast.Index) and
-                isnum(node.slice.value) and
-                (node.slice.value.value >= 0) and
-                isinstance(node.slice.value.value, int)):
-            return "std::get<{0}>({1})".format(node.slice.value.value, value)
-        # extended slice case
-        elif isinstance(node.slice, ast.ExtSlice):
-            slice_ = self.visit(node.slice)
-            return "{1}({0})".format(','.join(slice_), value)
+        if (isnum(node.slice) and
+                (node.slice.value >= 0) and
+                isinstance(node.slice.value, int)):
+            return "std::get<{0}>({1})".format(node.slice.value, value)
         # positive indexing case
-        elif (isinstance(node.slice, ast.Index) and
-              self.all_positive(node.slice.value)):
+        elif self.all_positive(node.slice):
             slice_ = self.visit(node.slice)
             return "{1}.fast({0})".format(slice_, value)
+        # extended slice case
+        elif isextslice(node.slice):
+            slices = [self.visit(elt) for elt in node.slice.elts]
+            return "{1}({0})".format(','.join(slices), value)
         # standard case
         else:
             slice_ = self.visit(node.slice)
@@ -998,8 +997,6 @@ class CxxFunction(ast.NodeVisitor):
             return cxxid(node.id)
 
     # other
-    def visit_ExtSlice(self, node):
-        return [self.visit(dim) for dim in node.dims]
 
     def visit_Slice(self, node):
         args = []
@@ -1014,9 +1011,6 @@ class CxxFunction(ast.NodeVisitor):
                                                                      args[1])
         else:
             return "pythonic::types::slice({},{},{})".format(*args)
-
-    def visit_Index(self, node):
-        return self.visit(node.value)
 
 
 class CxxGenerator(CxxFunction):

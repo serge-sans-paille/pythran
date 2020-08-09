@@ -385,9 +385,7 @@ CLASSES = {
                 Fun[[Dict[T0, T1], T0], T1]
             ],
             return_alias=lambda args: {
-                ast.Subscript(args[0],
-                              ast.Index(args[1]),
-                              ast.Load())
+                ast.Subscript(args[0], args[1], ast.Load())
             }.union({args[2]} if len(args) == 3 else set())
         ),
         "update": MethodIntr(update_effects),
@@ -4528,9 +4526,10 @@ def save_arguments(module_name, elements):
                     obj = obj.__wrapped__
                 spec = getfullargspec(obj)
                 if signature.args.args:
-                    logger.warn("Overriding pythran description with argspec "
-                                "information for: {}".format(
-                                    ".".join(module_name + (elem,))))
+                    logger.warning(
+                        "Overriding pythran description with argspec "
+                        "information for: {}".format(
+                            ".".join(module_name + (elem,))))
 
                 args = [ast.Name(arg, ast.Param(), None, None)
                         for arg in spec.args]

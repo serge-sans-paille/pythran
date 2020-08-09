@@ -127,7 +127,7 @@ def to_ast(value):
             raise PythranSyntaxError("constant folding results in big int")
         return builtin_folding(value)
     elif isinstance(value, np.generic):
-        return to_ast(np.asscalar(value))
+        return to_ast(value.item())
     elif isinstance(value, (numbers.Number, str)):
         return ast.Constant(value, None)
     elif isinstance(value, (list, tuple, set, dict, np.ndarray)):

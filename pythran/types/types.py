@@ -13,11 +13,10 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
 from pythran.types.conversion import pytype_to_ctype
 from pythran.types.reorder import Reorder
-from pythran.utils import attr_to_path, cxxid, isnum
+from pythran.utils import attr_to_path, cxxid, isnum, isextslice
 
 from collections import defaultdict
 from functools import partial
-from numpy import ndarray
 import gast as ast
 import operator
 from functools import reduce
@@ -116,9 +115,9 @@ class Types(ModuleAnalysis):
         try:
             node_id, _ = self.node_to_id(node)
             return (node_id in self.name_to_nodes and
-                    any([isinstance(n, ast.Name) and
-                         isinstance(n.ctx, ast.Param)
-                         for n in self.name_to_nodes[node_id]]))
+                    any(isinstance(n, ast.Name) and
+                        isinstance(n.ctx, ast.Param)
+                        for n in self.name_to_nodes[node_id]))
         except UnboundableRValue:
             return False
 
@@ -472,21 +471,20 @@ class Types(ModuleAnalysis):
     def visit_Subscript(self, node):
         self.visit(node.value)
         # type of a[1:2, 3, 4:1] is the type of: declval(a)(slice, long, slice)
-        if isinstance(node.slice, ast.ExtSlice):
+        if isextslice(node.slice):
             self.visit(node.slice)
 
             def f(t):
                 def et(a, *b):
                     return "{0}({1})".format(a, ", ".join(b))
-                dim_types = tuple(self.result[d] for d in node.slice.dims)
+                dim_types = tuple(self.result[d] for d in node.slice.elts)
                 return self.builder.ExpressionType(et, (t,) + dim_types)
-        elif (isinstance(node.slice, ast.Index) and
-              isnum(node.slice.value) and node.slice.value.value >= 0):
+        elif isnum(node.slice) and node.slice.value >= 0:
             # type of a[2] is the type of an elements of a
             # this special case is to make type inference easier
             # for the back end compiler
             def f(t):
-                return self.builder.ElementType(node.slice.value.value, t)
+                return self.builder.ElementType(node.slice.value, t)
         else:
             # type of a[i] is the return type of the matching function
             self.visit(node.slice)
@@ -498,7 +496,9 @@ class Types(ModuleAnalysis):
         f and self.combine(node, node.value, unary_op=f)
 
     def visit_AssignedSubscript(self, node):
-        if isinstance(node.slice, (ast.Slice, ast.ExtSlice)):
+        if isinstance(node.slice, ast.Slice):
+            return False
+        elif isextslice(node.slice):
             return False
         else:
             self.visit(node.slice)
@@ -567,10 +567,6 @@ class Types(ModuleAnalysis):
         self.generic_visit(node)
         types = [self.result[elt] for elt in node.elts]
         self.result[node] = self.builder.TupleType(types)
-
-    def visit_Index(self, node):
-        self.generic_visit(node)
-        self.combine(node, node.value)
 
     def visit_arguments(self, node):
         for i, arg in enumerate(node.args):

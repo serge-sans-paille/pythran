@@ -22,6 +22,12 @@ def isnum(node):
                                                                       bool))
 
 
+def isextslice(node):
+    if not isinstance(node, ast.Tuple):
+        return False
+    return any(isinstance(elt, ast.Slice) for elt in node.elts)
+
+
 def attr_to_path(node):
     """ Compute path and final object for an attribute node """
 
@@ -85,9 +91,9 @@ def get_variable(assignable):
     >>> ref = ast.Subscript(
     ...     value=ast.Subscript(
     ...         value=ast.Name('a', ast.Load(), None, None),
-    ...         slice=ast.Index(value=ast.Name('i', ast.Load(), None, None)),
+    ...         slice=ast.Name('i', ast.Load(), None, None),
     ...         ctx=ast.Load()),
-    ...     slice=ast.Index(value=ast.Name('j', ast.Load(), None, None)),
+    ...     slice=ast.Name('j', ast.Load(), None, None),
     ...     ctx=ast.Load())
     >>> ast.dump(get_variable(ref))
     "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"

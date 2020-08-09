@@ -62,13 +62,6 @@ class ConstantFolding(Transformation):
     visit_List = visit_Set = Transformation.generic_visit
     visit_Dict = visit_Tuple = Transformation.generic_visit
 
-    def visit_Index(self, node):
-        value = self.visit(node.value)
-        if value is not node.value:
-            return ast.Index(value)
-        else:
-            return node
-
     def generic_visit(self, node):
         if isinstance(node, ast.expr) and node in self.constant_expressions:
             fake_node = ast.Expression(node)
@@ -231,23 +224,20 @@ class PartialConstantFolding(Transformation):
             return node
         if not isinstance(node.value.slice, ast.Slice):
             return node
-        if not isinstance(node.slice, ast.Index):
-            return node
 
-        if not isintegral(node.slice.value):
+        if not isintegral(node.slice):
             return node
 
         slice_ = node.value.slice
         index = node.slice
         node = node.value
 
-        node.slice = index
         lower = slice_.lower or ast.Constant(0, None)
         step = slice_.step or ast.Constant(1, None)
-        node.slice.value = ast.BinOp(lower,
-                                     ast.Add(),
-                                     ast.BinOp(index.value,
-                                               ast.Mult(),
-                                               step))
+        node.slice = ast.BinOp(lower,
+                               ast.Add(),
+                               ast.BinOp(index,
+                                         ast.Mult(),
+                                         step))
         self.update = True
         return node

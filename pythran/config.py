@@ -95,7 +95,7 @@ def lint_cfg(cfgp, **paths):
             "exists:" if exists else "does not exist:",
             path
         ])
-        logger.info(msg) if exists else logger.warn(msg)
+        logger.info(msg) if exists else logger.warning(msg)
 
     for section in cfgp.sections():
         # Check if section in the current configuration exists in the
@@ -114,14 +114,15 @@ def lint_cfg(cfgp, **paths):
                     ).format(section)
                 )
             else:
-                logger.warn(
+                logger.warning(
                     (
                         "pythranrc section [{}] is valid but options {} "
                         "are incorrect!"
                     ).format(section, options.difference(options_ref))
                 )
         else:
-            logger.warn("pythranrc section [{}] is invalid!".format(section))
+            logger.warning("pythranrc section [{}] is invalid!"
+                           .format(section))
 
 
 def make_extension(python, **extra):
@@ -208,9 +209,9 @@ def make_extension(python, **extra):
                     os.path.join(openblas.library_dir, openblas.static_library)
                 )
             except ImportError:
-                logger.warn("Failed to find 'pythran-openblas' package. "
-                            "Please install it or change the compiler.blas "
-                            "setting. Defaulting to 'blas'")
+                logger.warning("Failed to find 'pythran-openblas' package. "
+                               "Please install it or change the compiler.blas "
+                               "setting. Defaulting to 'blas'")
                 user_blas = 'blas'
         elif user_blas == 'none':
             extension['define_macros'].append('PYTHRAN_BLAS_NONE')

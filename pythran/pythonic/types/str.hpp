@@ -173,7 +173,7 @@ namespace types
   sliced_str<S>::operator long() const
   {
     long out;
-    std::istringstream iss(str(*this).get_data());
+    std::istringstream iss(str(*this).chars());
     iss >> out;
     return out;
   }
@@ -226,7 +226,7 @@ namespace types
   {
     if (slicing.step == 1) {
       data->erase(slicing.lower, slicing.upper);
-      data->insert(slicing.lower, s.get_data());
+      data->insert(slicing.lower, s.chars());
     } else
       assert("! implemented yet");
     return *this;
@@ -355,16 +355,6 @@ namespace types
   {
     *data += *s.data;
     return *this;
-  }
-
-  str::container_type &str::get_data()
-  {
-    return *data;
-  }
-
-  str::container_type const &str::get_data() const
-  {
-    return *data;
   }
 
   long str::size() const
@@ -560,7 +550,7 @@ namespace types
 
   str operator+(str const &self, str const &other)
   {
-    return str(self.get_data() + other.get_data());
+    return str(self.chars() + other.chars());
   }
 
   template <size_t N>
@@ -568,7 +558,7 @@ namespace types
   {
     std::string s;
     s.reserve(self.size() + N);
-    s += self.get_data();
+    s += self.chars();
     s += other;
     return {std::move(s)};
   }
@@ -579,7 +569,7 @@ namespace types
     std::string s;
     s.reserve(other.size() + N);
     s += self;
-    s += other.get_data();
+    s += other.chars();
     return {std::move(s)};
   }
 
@@ -647,7 +637,7 @@ namespace std
   size_t hash<pythonic::types::str>::
   operator()(const pythonic::types::str &x) const
   {
-    return hash<std::string>()(x.get_data());
+    return hash<std::string>()(x.chars());
   }
 
   template <size_t I>

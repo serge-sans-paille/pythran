@@ -33,8 +33,7 @@ namespace numpy
         current = next + 1;
         next = string.find_first_of(sep, current);
         typename dtype::type item;
-        std::istringstream iss(
-            string.substr(current, next - current).get_data());
+        std::istringstream iss(string.substr(current, next - current).chars());
         iss >> item;
         res.push_back(item);
       } while (next != types::str::npos && ++numsplit < count);

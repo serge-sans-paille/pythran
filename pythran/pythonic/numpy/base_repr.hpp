@@ -28,14 +28,14 @@ namespace numpy
     res.resize(ndigits + effective_padding + (number < 0 ? 1 : 0));
 
     // Apply negative sign
-    auto it = res.get_data().begin();
+    auto it = res.chars().begin();
     if (number < 0)
       *it++ = '-';
 
     // Apply padding
     std::fill(it, std::next(it, effective_padding), '0');
 
-    auto rit = res.get_data().rbegin();
+    auto rit = res.chars().rbegin();
     long quotient = std::labs(number);
 
     do {

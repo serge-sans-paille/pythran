@@ -34,21 +34,21 @@ namespace builtins
     template <class T>
     types::str __mod__(types::str const &s, T const &arg)
     {
-      const boost::format fmter(s.get_data());
+      const boost::format fmter(s.chars());
       return (boost::format(fmter) % arg).str();
     }
 
     template <class... Ts>
     types::str __mod__(types::str const &s, std::tuple<Ts...> const &args)
     {
-      boost::format fmter(s.get_data());
+      boost::format fmter(s.chars());
       details::fmt(fmter, args, utils::int_<sizeof...(Ts)>());
       return fmter.str();
     }
     template <size_t N, class T>
     types::str __mod__(types::str const &s, types::array<T, N> const &args)
     {
-      boost::format fmter(s.get_data());
+      boost::format fmter(s.chars());
       details::fmt(fmter, args, utils::int_<N>());
       return fmter.str();
     }

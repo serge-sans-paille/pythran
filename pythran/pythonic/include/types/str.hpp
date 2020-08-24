@@ -133,20 +133,17 @@ namespace types
 
     types::str &operator+=(types::str const &s);
 
-    container_type &get_data();
-    container_type const &get_data() const;
-
     long size() const;
     iterator begin() const;
     reverse_iterator rbegin() const;
     iterator end() const;
     reverse_iterator rend() const;
     auto c_str() const -> decltype(data->c_str());
-    std::string &chars()
+    container_type &chars()
     {
       return *data;
     }
-    std::string const &chars() const
+    container_type const &chars() const
     {
       return *data;
     }

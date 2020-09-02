@@ -338,11 +338,13 @@ namespace types
     template <class Expr>
     ndarray &operator^=(Expr const &expr);
 
-    template <class... Indices>
-    void store(dtype elt, Indices... indices)
+    template <class E, class... Indices>
+    void store(E elt, Indices... indices)
     {
+      static_assert(is_dtype<E>::value, "valid store");
       *(buffer + noffset<std::tuple_size<pS>::value>{}(
-                     *this, array<long, value>{{indices...}})) = elt;
+                     *this, array<long, value>{{indices...}})) =
+          static_cast<E>(elt);
     }
     template <class... Indices>
     dtype load(Indices... indices) const
@@ -351,12 +353,13 @@ namespace types
                             *this, array<long, value>{{indices...}}));
     }
 
-    template <class Op, class... Indices>
-    void update(dtype elt, Indices... indices) const
+    template <class Op, class E, class... Indices>
+    void update(E elt, Indices... indices) const
     {
+      static_assert(is_dtype<E>::value, "valid store");
       Op{}(*(buffer + noffset<std::tuple_size<pS>::value>{}(
                           *this, array<long, value>{{indices...}})),
-           elt);
+           static_cast<E>(elt));
     }
 
     /* element indexing

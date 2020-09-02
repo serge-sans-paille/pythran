@@ -199,11 +199,12 @@ namespace types
         numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
     fast(F const &filter) const;
 
-    template <class... Indices>
-    void store(dtype elt, Indices... indices)
+    template <class E, class... Indices>
+    void store(E elt, Indices... indices)
     {
+      static_assert(is_dtype<E>::value, "valid store");
       *(buffer + noffset<value>{}(*this, array<long, value>{{indices...}})) =
-          elt;
+          static_cast<E>(elt);
     }
     template <class... Indices>
     dtype load(Indices... indices) const
@@ -211,12 +212,13 @@ namespace types
       return *(buffer +
                noffset<value>{}(*this, array<long, value>{{indices...}}));
     }
-    template <class Op, class... Indices>
-    void update(dtype elt, Indices... indices) const
+    template <class Op, class E, class... Indices>
+    void update(E elt, Indices... indices) const
     {
+      static_assert(is_dtype<E>::value, "valid store");
       Op{}(
           *(buffer + noffset<value>{}(*this, array<long, value>{{indices...}})),
-          elt);
+          static_cast<E>(elt));
     }
 
 #ifdef USE_XSIMD

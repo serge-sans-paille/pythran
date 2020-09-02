@@ -86,12 +86,13 @@ namespace types
     {
       return arg.load(j, i);
     }
-    void store(dtype elt, long i, long j)
+    template <class Elt>
+    void store(Elt elt, long i, long j)
     {
       arg.store(elt, j, i);
     }
-    template <class Op>
-    void update(dtype elt, long i, long j) const
+    template <class Op, class Elt>
+    void update(Elt elt, long i, long j) const
     {
       arg.template update<Op>(elt, j, i);
     }

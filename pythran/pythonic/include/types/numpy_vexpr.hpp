@@ -76,13 +76,13 @@ namespace types
     {
       return data_.load(view_.fast(i), indices...);
     }
-    template <class... Indices>
-    void store(dtype elt, long i, Indices... indices) const
+    template <class Elt, class... Indices>
+    void store(Elt elt, long i, Indices... indices) const
     {
       data_.store(elt, view_.fast(i), indices...);
     }
-    template <class Op, class... Indices>
-    void update(dtype elt, long i, Indices... indices) const
+    template <class Op, class Elt, class... Indices>
+    void update(Elt elt, long i, Indices... indices) const
     {
       data_.template update<Op>(elt, view_.fast(i), indices...);
     }

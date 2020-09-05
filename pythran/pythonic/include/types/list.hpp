@@ -99,9 +99,8 @@ namespace types
     static_assert(value != 0, "valid shape");
     static const bool is_vectorizable =
         types::is_vectorizable_dtype<dtype>::value &&
-        std::is_same<S, contiguous_slice>::value;
-    static const bool is_strided =
-        !std::is_same<contiguous_normalized_slice, S>::value;
+        !std::is_same<S, slice>::value;
+    static const bool is_strided = std::is_same<slice, S>::value;
 
     using shape_t = types::array<long, value>;
     template <size_t I>
@@ -142,9 +141,11 @@ namespace types
     const_reference fast(long i) const;
     const_reference operator[](long i) const;
     reference operator[](long i);
-    sliced_list<T, S> operator[](contiguous_slice s) const;
-    sliced_list<T, decltype(std::declval<S>() * std::declval<slice>())>
-    operator[](slice s) const;
+    template <class Sp>
+    typename std::enable_if<
+        is_slice<Sp>::value,
+        sliced_list<T, decltype(std::declval<S>() * std::declval<Sp>())>>::type
+    operator[](Sp s) const;
 
     template <class... Indices>
     dtype load(long index0, long index1, Indices... indices) const
@@ -307,9 +308,9 @@ namespace types
     const_reference fast(long n) const;
     const_reference operator[](long n) const;
 
-    sliced_list<T, slice> operator[](slice const &s) const;
-    sliced_list<T, contiguous_slice>
-    operator[](contiguous_slice const &s) const;
+    template <class Sp>
+    typename std::enable_if<is_slice<Sp>::value, sliced_list<T, Sp>>::type
+    operator[](Sp const &s) const;
 
     template <class... Indices>
     dtype load(long index0, long index1, Indices... indices) const
@@ -458,11 +459,9 @@ namespace types
     {
       return {};
     }
-    empty_list operator[](slice) const
-    {
-      return {};
-    }
-    empty_list operator[](contiguous_slice) const
+    template <class S>
+    typename std::enable_if<is_slice<S>::value, empty_list>::type
+    operator[](S) const
     {
       return {};
     }

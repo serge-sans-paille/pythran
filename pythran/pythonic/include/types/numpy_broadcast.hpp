@@ -102,11 +102,10 @@ namespace types
     }
 
     T const &operator[](long i) const;
-    broadcasted const &operator[](slice s) const
-    {
-      return *this;
-    }
-    broadcasted const &operator[](contiguous_slice s) const
+
+    template <class S>
+    typename std::enable_if<is_slice<S>::value, broadcasted const &>::type
+    operator[](S s) const
     {
       return *this;
     }
@@ -126,14 +125,13 @@ namespace types
     simd_iterator vend(vectorizer) const;
 #endif
 
-    broadcasted const &operator()(slice s) const
+    template <class S>
+    typename std::enable_if<is_slice<S>::value, broadcasted const &>::type
+    operator()(S s) const
     {
       return *this;
     }
-    broadcasted const &operator()(contiguous_slice s) const
-    {
-      return *this;
-    }
+
     T operator()(long) const
     {
       return ref;
@@ -143,13 +141,11 @@ namespace types
     auto operator()(long arg0, Arg1 &&arg1, Args &&... args) const
         -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
 
-    template <class Arg1, class... Args>
-    auto operator()(slice arg0, Arg1 &&arg1, Args &&... args) const
-        -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
+    template <class S, class Arg1, class... Args>
+    auto operator()(S arg0, Arg1 &&arg1, Args &&... args) const
+        -> decltype(ref((arg0.step, std::forward<Arg1>(arg1)),
+                        std::forward<Args>(args)...));
 
-    template <class Arg1, class... Args>
-    auto operator()(contiguous_slice arg0, Arg1 &&arg1, Args &&... args) const
-        -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
     long flat_size() const;
   };
 
@@ -292,11 +288,10 @@ namespace types
     dtype operator[](long) const;
     template <size_t N>
     dtype operator[](array<long, N>) const;
-    broadcast operator[](slice) const
-    {
-      return *this;
-    }
-    broadcast operator[](contiguous_slice) const
+
+    template <class S>
+    typename std::enable_if<is_slice<S>::value, broadcast const &>::type
+    operator[](S) const
     {
       return *this;
     }

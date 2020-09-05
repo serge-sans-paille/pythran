@@ -280,13 +280,12 @@ namespace types
                                 contiguous_slice const &s);
 
     template <class T, size_t N>
-    sliced_list<T, slice> operator()(static_list<T, N> const &b, slice const &s)
-    {
-      return {b, s};
-    }
-    template <class T, size_t N>
-    sliced_list<T, contiguous_slice> operator()(static_list<T, N> const &b,
-                                                contiguous_slice const &s)
+    dynamic_tuple<T> operator()(array<T, N> const &b,
+                                fast_contiguous_slice const &s);
+
+    template <class T, size_t N, class S>
+    typename std::enable_if<is_slice<S>::value, sliced_list<T, S>>::type
+    operator()(static_list<T, N> const &b, S const &s)
     {
       return {b, s};
     }
@@ -401,13 +400,9 @@ namespace types
 
     const_reference operator[](long __n) const noexcept;
 
-    auto operator[](slice s) const -> decltype(array_base_slicer{}(*this, s))
-    {
-      return array_base_slicer{}(*this, s);
-    }
-
-    auto operator[](contiguous_slice s) const
-        -> decltype(array_base_slicer{}(*this, s))
+    template <class S>
+    auto operator[](S s) const
+        -> decltype(array_base_slicer{}(*this, (s.lower, s)))
     {
       return array_base_slicer{}(*this, s);
     }

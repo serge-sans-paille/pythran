@@ -150,16 +150,12 @@ namespace types
   }
 
   template <class S>
-  sliced_str<slice> sliced_str<S>::operator[](slice const &s) const
+  template <class Sp>
+  typename std::enable_if<is_slice<Sp>::value, sliced_str<Sp>>::type
+      sliced_str<S>::
+      operator[](Sp const &s) const
   {
-    return sliced_str<slice>(*this, s.normalize(size()));
-  }
-
-  template <class S>
-  sliced_str<contiguous_slice> sliced_str<S>::
-  operator[](contiguous_slice const &s) const
-  {
-    return sliced_str<contiguous_slice>(*this, s.normalize(size()));
+    return {*this, s.normalize(size())};
   }
 
   // conversion
@@ -499,12 +495,9 @@ namespace types
     return true;
   }
 
-  sliced_str<slice> str::operator()(slice const &s) const
-  {
-    return operator[](s);
-  }
-
-  sliced_str<contiguous_slice> str::operator()(contiguous_slice const &s) const
+  template <class S>
+  typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type str::
+  operator()(S const &s) const
   {
     return operator[](s);
   }
@@ -521,14 +514,11 @@ namespace types
     return str((*data)[i]);
   }
 
-  sliced_str<slice> str::operator[](slice const &s) const
+  template <class S>
+  typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type str::
+  operator[](S const &s) const
   {
-    return sliced_str<slice>(*this, s.normalize(size()));
-  }
-
-  sliced_str<contiguous_slice> str::operator[](contiguous_slice const &s) const
-  {
-    return sliced_str<contiguous_slice>(*this, s.normalize(size()));
+    return {*this, s.normalize(size())};
   }
 
   str::operator bool() const

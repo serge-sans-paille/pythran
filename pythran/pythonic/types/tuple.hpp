@@ -419,6 +419,13 @@ namespace types
     contiguous_normalized_slice cns = s.normalize(b.size());
     return {&b[cns.lower], &b[cns.upper]};
   }
+  template <class T, size_t N>
+  dynamic_tuple<T> array_base_slicer::operator()(array<T, N> const &b,
+                                                 fast_contiguous_slice const &s)
+  {
+    contiguous_normalized_slice cns = s.normalize(b.size());
+    return {&b[cns.lower], &b[cns.upper]};
+  }
 }
 PYTHONIC_NS_END
 

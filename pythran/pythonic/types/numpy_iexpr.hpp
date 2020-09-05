@@ -353,32 +353,22 @@ namespace types
   }
 
   template <class Arg>
-  numpy_gexpr<numpy_iexpr<Arg>, normalized_slice> numpy_iexpr<Arg>::
-  operator[](slice const &s0) const
+  template <class Sp>
+  typename std::enable_if<is_slice<Sp>::value,
+                          numpy_gexpr<numpy_iexpr<Arg>, normalize_t<Sp>>>::type
+      numpy_iexpr<Arg>::
+      operator[](Sp const &s0) const
   {
     return make_gexpr(*this, s0);
   }
 
   template <class Arg>
-  numpy_gexpr<numpy_iexpr<Arg>, contiguous_normalized_slice> numpy_iexpr<Arg>::
-  operator[](contiguous_slice const &s0) const
-  {
-    return make_gexpr(*this, s0);
-  }
-
-  template <class Arg>
-  template <class... S>
-  numpy_gexpr<numpy_iexpr<Arg>, normalized_slice, normalize_t<S>...>
-      numpy_iexpr<Arg>::operator()(slice const &s0, S const &... s) const
-  {
-    return make_gexpr(*this, s0, s...);
-  }
-
-  template <class Arg>
-  template <class... S>
-  numpy_gexpr<numpy_iexpr<Arg>, contiguous_normalized_slice, normalize_t<S>...>
-      numpy_iexpr<Arg>::operator()(contiguous_slice const &s0,
-                                   S const &... s) const
+  template <class Sp, class... S>
+  typename std::enable_if<
+      is_slice<Sp>::value,
+      numpy_gexpr<numpy_iexpr<Arg>, normalize_t<Sp>, normalize_t<S>...>>::type
+      numpy_iexpr<Arg>::
+      operator()(Sp const &s0, S const &... s) const
   {
     return make_gexpr(*this, s0, s...);
   }

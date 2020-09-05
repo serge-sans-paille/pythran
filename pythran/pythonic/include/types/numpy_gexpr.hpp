@@ -45,9 +45,9 @@ namespace types
 
   template <>
   struct to_slice<none_type> {
-    using type = contiguous_slice;
+    using type = fast_contiguous_slice;
     static constexpr bool is_new_axis = true;
-    contiguous_slice operator()(none_type);
+    fast_contiguous_slice operator()(none_type);
   };
 
   template <class T>
@@ -116,33 +116,28 @@ namespace types
               std::get<Is>(s).normalize(expr.template shape<Is>())...};
     }
 
-    template <class E, class... S>
-    numpy_gexpr<typename std::decay<E>::type, normalized_slice,
-                normalize_t<S>...>
-    operator()(E &&expr, slice const &s0, S const &... s)
-    {
-      return fwd(std::forward<E>(expr), std::make_tuple(s0, s...),
-                 utils::make_index_sequence<sizeof...(S) + 1>());
-    }
-
-    template <class E, class... S>
-    numpy_gexpr<typename std::decay<E>::type, contiguous_normalized_slice,
-                normalize_t<S>...>
-    operator()(E &&expr, contiguous_slice const &s0, S const &... s)
+    template <class E, class Sp, class... S>
+    typename std::enable_if<
+        is_slice<Sp>::value,
+        numpy_gexpr<typename std::decay<E>::type, normalize_t<Sp>,
+                    normalize_t<S>...>>::type
+    operator()(E &&expr, Sp const &s0, S const &... s)
     {
       return make_gexpr(std::forward<E>(expr), s0, s...);
     }
 
     template <class E, class F, class... S>
-    numpy_gexpr<ndarray<typename std::decay<E>::type::dtype,
-                        array<long, std::decay<E>::type::value>>,
-                contiguous_normalized_slice, normalize_t<S>...>
+    typename std::enable_if<
+        !is_slice<F>::value,
+        numpy_gexpr<ndarray<typename std::decay<E>::type::dtype,
+                            array<long, std::decay<E>::type::value>>,
+                    contiguous_normalized_slice, normalize_t<S>...>>::type
     operator()(E &&expr, F const &s0, S const &... s)
     {
       return numpy_vexpr<ndarray<typename std::decay<E>::type::dtype,
                                  array<long, std::decay<E>::type::value>>,
                          F>{std::forward<E>(expr), s0}(
-          contiguous_slice(none_type{}, none_type{}), s...);
+          fast_contiguous_slice(none_type{}, none_type{}), s...);
     }
   };
 
@@ -549,7 +544,7 @@ namespace types
     // It contains compacted sorted slices value in lower, step && upper is
     // the same as shape.
     // indices for long index are store in the indices array.
-    // position for slice && long value in the extended slice can be found
+    // position for slice and long value in the extended slice can be found
     // through the S... template
     // && compacted values as we know that first S is a slice.
 
@@ -801,10 +796,9 @@ namespace types
     template <class... Sp>
     auto operator()(Sp const &... s) const -> decltype(make_gexpr(*this, s...));
 
-    auto operator[](contiguous_slice const &s0) const
-        -> decltype(make_gexpr(*this, s0));
-
-    auto operator[](slice const &s0) const -> decltype(make_gexpr(*this, s0));
+    template <class Sp>
+    auto operator[](Sp const &s) const -> typename std::enable_if<
+        is_slice<Sp>::value, decltype(make_gexpr(*this, (s.lower, s)))>::type;
 
     template <size_t M>
     auto fast(array<long, M> const &indices) const

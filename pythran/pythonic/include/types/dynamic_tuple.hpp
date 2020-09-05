@@ -150,6 +150,12 @@ namespace types
       return {begin() + ns.lower, begin() + ns.upper};
     }
 
+    dynamic_tuple operator[](fast_contiguous_slice const &s) const
+    {
+      auto ns = s.normalize(size());
+      return {begin() + ns.lower, begin() + ns.upper};
+    }
+
     using shape_t = typename shape_builder<dynamic_tuple, value>::type;
     template <size_t I>
     auto shape() const

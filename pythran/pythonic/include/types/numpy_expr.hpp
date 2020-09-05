@@ -800,13 +800,11 @@ namespace types
     {
       return Op{}(std::get<I>(args)[s]...);
     }
-    auto operator[](slice s) const -> decltype(
-        (*this)._index(s, utils::make_index_sequence<sizeof...(Args)>{}))
-    {
-      return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
-    }
-    auto operator[](contiguous_slice s) const -> decltype(
-        (*this)._index(s, utils::make_index_sequence<sizeof...(Args)>{}))
+    template <class S>
+    auto operator[](S s) const
+        -> decltype((*this)
+                        ._index((s.lower, s),
+                                utils::make_index_sequence<sizeof...(Args)>{}))
     {
       return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
     }

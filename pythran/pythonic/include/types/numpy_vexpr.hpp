@@ -103,15 +103,16 @@ namespace types
     {
       return data_.fast(view_[i]);
     }
-    numpy_gexpr<numpy_vexpr, normalized_slice> operator[](slice s) const
+
+    template <class S>
+    typename std::enable_if<
+        is_slice<S>::value,
+        numpy_gexpr<numpy_vexpr, decltype(std::declval<S>().normalize(1))>>
+    operator[](S s) const
     {
       return {*this, s.normalize(size())};
     }
-    numpy_gexpr<numpy_vexpr, contiguous_normalized_slice>
-    operator[](contiguous_slice s) const
-    {
-      return {*this, s.normalize(size())};
-    }
+
     /* element filtering */
     template <class E> // indexing through an array of boolean -- a mask
     typename std::enable_if<
@@ -123,7 +124,7 @@ namespace types
 
     template <class E> // indexing through an array of boolean -- a mask
     typename std::enable_if<
-        is_numexpr_arg<E>::value &&
+        !is_slice<E>::value && is_numexpr_arg<E>::value &&
             std::is_same<bool, typename E::dtype>::value &&
             !is_pod_array<F>::value,
         numpy_vexpr<numpy_vexpr, ndarray<long, pshape<long>>>>::type

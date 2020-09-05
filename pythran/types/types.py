@@ -5,7 +5,7 @@ This module performs the return type inference, according to symbolic types,
 '''
 
 from pythran.analyses import LazynessAnalysis, StrictAliases, YieldPoints
-from pythran.analyses import LocalNodeDeclarations, Immediates
+from pythran.analyses import LocalNodeDeclarations, Immediates, RangeValues
 from pythran.config import cfg
 from pythran.cxxtypes import TypeBuilder, ordered_set
 from pythran.intrinsic import UserFunction, Class
@@ -49,7 +49,7 @@ class Types(ModuleAnalysis):
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, Reorder, StrictAliases, LazynessAnalysis,
-                                Immediates)
+                                Immediates, RangeValues)
         self.curr_locals_declaration = None
 
     def prepare(self, node):
@@ -462,8 +462,12 @@ class Types(ModuleAnalysis):
         """
         self.generic_visit(node)
         if node.step is None or (isnum(node.step) and node.step.value == 1):
-            self.result[node] = self.builder.NamedType(
-                'pythonic::types::contiguous_slice')
+            if all(self.range_values[p].low >= 0
+                   for p in (node.lower, node.upper)):
+                ntype = "pythonic::types::fast_contiguous_slice"
+            else:
+                ntype = "pythonic::types::contiguous_slice"
+            self.result[node] = self.builder.NamedType(ntype)
         else:
             self.result[node] = self.builder.NamedType(
                 'pythonic::types::slice')

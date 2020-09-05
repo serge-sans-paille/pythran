@@ -264,10 +264,6 @@ namespace types
   {
   }
 
-  contiguous_slice::contiguous_slice()
-  {
-  }
-
   contiguous_slice contiguous_slice::
   operator*(contiguous_slice const &other) const
   {
@@ -371,9 +367,123 @@ namespace types
     return std::max(0L, len);
   }
 
-  inline long contiguous_slice::get(long i) const
+  long contiguous_slice::get(long i) const
   {
     return int(lower) + i;
+  }
+
+  fast_contiguous_slice::fast_contiguous_slice(none<long> lower,
+                                               none<long> upper)
+      : lower(lower.is_none ? 0 : (long)lower), upper(upper)
+  {
+  }
+
+  fast_contiguous_slice fast_contiguous_slice::
+  operator*(fast_contiguous_slice const &other) const
+  {
+    long new_lower = lower + other.lower * step;
+
+    bound<long> new_upper;
+    if (other.upper.is_none())
+      new_upper = upper;
+    else
+      new_upper = lower + (long)other.upper * step;
+
+    return {new_lower, new_upper};
+  }
+  contiguous_slice fast_contiguous_slice::
+  operator*(contiguous_slice const &other) const
+  {
+    long new_lower;
+    if (other.lower < 0)
+      new_lower = upper + other.lower * step;
+    else
+      new_lower = lower + other.lower * step;
+
+    bound<long> new_upper;
+    if (other.upper.is_none())
+      new_upper = upper;
+    else if ((long)other.upper < 0) {
+      if (upper.is_none())
+        new_upper = (long)other.upper * step;
+      else
+        new_upper = upper + (long)other.upper * step;
+    } else
+      new_upper = lower + (long)other.upper * step;
+
+    return {new_lower, new_upper};
+  }
+
+  slice fast_contiguous_slice::operator*(slice const &other) const
+  {
+    none<long> new_lower;
+    if (other.lower.is_none() || (long)other.lower == 0) {
+      if (other.step > 0)
+        new_lower = lower;
+      else if (upper.is_none() || (long)upper == 0)
+        // 0 means the first value && ! the last value
+        new_lower = none_type{};
+      else
+        new_lower = (long)upper - 1;
+    } else {
+      if ((long)other.lower > 0)
+        new_lower = lower + (long)other.lower * step;
+      else if (upper.is_none())
+        new_lower = (long)other.lower * step;
+      else
+        new_lower = (long)upper + (long)other.lower * step;
+    }
+
+    long new_step = other.step;
+
+    bound<long> new_upper;
+    if (other.upper.is_none()) {
+      if (other.step > 0)
+        new_upper = upper;
+      else if ((long)lower == 0)
+        new_upper = none_type{};
+      else
+        new_upper = (long)lower - 1;
+    } else {
+      if ((long)other.upper > 0)
+        new_upper = lower + (long)other.upper * step;
+      else if (upper.is_none())
+        new_upper = (long)other.upper * step;
+      else
+        new_upper = (long)upper + (long)other.upper * step;
+    }
+    return {new_lower, new_upper, new_step};
+  }
+
+  /*
+     Normalize change a[:-1] to a[:len(a)-1] to have positif index.
+     It also check for value bigger than len(a) to fit the size of the
+     container
+     */
+  contiguous_normalized_slice
+  fast_contiguous_slice::normalize(long max_size) const
+  {
+    long normalized_upper;
+    if (upper.is_none())
+      normalized_upper = max_size;
+    else if (upper > max_size)
+      normalized_upper = max_size;
+    else
+      normalized_upper = (long)upper;
+
+    long normalized_lower;
+    if (lower > max_size)
+      normalized_lower = max_size;
+    else
+      normalized_lower = (long)lower;
+
+    return {normalized_lower, normalized_upper};
+  }
+
+  long fast_contiguous_slice::size() const
+  {
+    assert(!upper.is_none());
+    return std::max(0L, upper - lower);
   }
 
   slice slice::operator*(contiguous_slice const &other) const
@@ -384,7 +494,7 @@ namespace types
     assert(!((static_cast<long>(other.upper) < 0 ||
               static_cast<long>(other.lower) < 0) &&
              step != 1 && step != -1) &&
-           "! implemented");
+           "not implemented");
 
     bound<long> new_lower;
     if (other.lower == 0)
@@ -422,12 +532,9 @@ namespace types
   {
     return (b.is_none() ? (os << "None") : (os << (T)b));
   }
-  std::ostream &operator<<(std::ostream &os, slice const &s)
-  {
-    return os << "slice(" << s.lower << ", " << s.upper << ", " << s.step
-              << ")";
-  }
-  std::ostream &operator<<(std::ostream &os, contiguous_slice const &s)
+  template <class S>
+  typename std::enable_if<is_slice<S>::value, std::ostream &>::type
+  operator<<(std::ostream &os, S const &s)
   {
     return os << "slice(" << s.lower << ", " << s.upper << ", " << s.step
               << ")";

@@ -711,9 +711,8 @@ namespace types
 
   template <class T, class pS>
   template <class S>
-  typename std::enable_if<
-      is_slice<S>::value,
-      numpy_gexpr<ndarray<T, pS> const &, normalize_t<S>>>::type
+  typename std::enable_if<is_slice<S>::value,
+                          numpy_gexpr<ndarray<T, pS>, normalize_t<S>>>::type
       ndarray<T, pS>::
       operator[](S const &s) &&
   {

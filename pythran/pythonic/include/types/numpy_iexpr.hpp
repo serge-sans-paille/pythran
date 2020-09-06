@@ -61,7 +61,7 @@ namespace types
                                   const_nditerator<numpy_iexpr>,
                                   dtype const *>::type;
 
-    typename std::decay<Arg>::type arg;
+    Arg arg;
     dtype *buffer;
     using shape_t =
         sutils::pop_head_t<typename std::remove_reference<Arg>::type::shape_t>;
@@ -376,12 +376,12 @@ struct assignable<types::numpy_iexpr<Arg>> {
 
 template <class T, class pS>
 struct assignable<types::numpy_iexpr<types::ndarray<T, pS> &>> {
-  using type = types::numpy_iexpr<types::ndarray<T, pS> &>;
+  using type = types::numpy_iexpr<types::ndarray<T, pS>>;
 };
 
 template <class T, class pS>
-struct assignable<types::numpy_iexpr<types::ndarray<T, pS> const &>> {
-  using type = types::numpy_iexpr<types::ndarray<T, pS> const &>;
+struct assignable<types::numpy_iexpr<types::ndarray<T, pS>>> {
+  using type = types::numpy_iexpr<types::ndarray<T, pS>>;
 };
 
 template <class Arg>
@@ -390,14 +390,9 @@ struct returnable<types::numpy_iexpr<Arg>> {
 };
 
 template <class Arg>
-struct lazy<types::numpy_iexpr<Arg>> {
-  using type = types::numpy_iexpr<typename lazy<Arg>::type>;
+struct lazy<types::numpy_iexpr<Arg>> : assignable<types::numpy_iexpr<Arg>> {
 };
 
-template <class Arg>
-struct lazy<types::numpy_iexpr<Arg const &>> {
-  using type = types::numpy_iexpr<typename lazy<Arg>::type const &>;
-};
 PYTHONIC_NS_END
 
 /* type inference stuff  {*/

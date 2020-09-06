@@ -425,6 +425,24 @@ namespace types
   }
 
   template <class Arg, class... S>
+  template <class Argp>
+  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
+  operator=(numpy_gexpr<Argp, S...> const &expr)
+  {
+    if (buffer == nullptr) {
+      // arg = expr.arg;
+      const_cast<typename std::decay<Arg>::type &>(arg) = expr.arg;
+      slices = expr.slices;
+      buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
+      _shape = expr._shape;
+      _strides = expr._strides;
+      return *this;
+    } else {
+      return _copy(expr);
+    }
+  }
+
+  template <class Arg, class... S>
   template <class Op, class E>
   typename std::enable_if<!may_overlap_gexpr<E>::value,
                           numpy_gexpr<Arg, S...> &>::type

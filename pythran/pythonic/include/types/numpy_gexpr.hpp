@@ -587,7 +587,7 @@ namespace types
                                   const_nditerator<numpy_gexpr>,
                                   dtype const *>::type;
 
-    typename std::remove_reference<Arg>::type arg;
+    Arg arg;
 
     std::tuple<S...> slices;
 
@@ -700,6 +700,9 @@ namespace types
     numpy_gexpr &operator=(E const &expr);
 
     numpy_gexpr &operator=(numpy_gexpr const &expr);
+
+    template <class Argp>
+    numpy_gexpr &operator=(numpy_gexpr<Argp, S...> const &expr);
 
     template <class Op, class E>
     typename std::enable_if<may_overlap_gexpr<E>::value, numpy_gexpr &>::type
@@ -864,19 +867,14 @@ namespace types
   };
 }
 
-template <class Arg, class... S>
-struct returnable<types::numpy_gexpr<Arg, S...>> {
-  using type = types::numpy_gexpr<typename returnable<Arg>::type, S...>;
-};
-
 template <class T, class pS, class... S>
 struct assignable<types::numpy_gexpr<types::ndarray<T, pS> const &, S...>> {
-  using type = types::numpy_gexpr<types::ndarray<T, pS> const &, S...>;
+  using type = types::numpy_gexpr<types::ndarray<T, pS>, S...>;
 };
 
 template <class T, class pS, class... S>
 struct assignable<types::numpy_gexpr<types::ndarray<T, pS> &, S...>> {
-  using type = types::numpy_gexpr<types::ndarray<T, pS> &, S...>;
+  using type = types::numpy_gexpr<types::ndarray<T, pS>, S...>;
 };
 
 template <class Arg, class... S>
@@ -885,16 +883,10 @@ struct assignable<types::numpy_gexpr<Arg, S...>> {
 };
 
 template <class Arg, class... S>
-struct lazy<types::numpy_gexpr<Arg, S...>> {
-  using type =
-      types::numpy_gexpr<typename lazy<Arg>::type, typename lazy<S>::type...>;
+struct lazy<types::numpy_gexpr<Arg, S...>>
+    : assignable<types::numpy_gexpr<Arg, S...>> {
 };
 
-template <class Arg, class... S>
-struct lazy<types::numpy_gexpr<Arg const &, S...>> {
-  using type = types::numpy_gexpr<typename lazy<Arg>::type const &,
-                                  typename lazy<S>::type...>;
-};
 PYTHONIC_NS_END
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"

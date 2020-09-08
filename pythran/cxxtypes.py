@@ -216,10 +216,14 @@ std::declval<bool>()))
 
             def __add__(self, other):
                 worklist = list(self.types)
+                visited = set()
                 while worklist:
                     item = worklist.pop()
                     if item is other:
                         return self
+                    if item in visited:
+                        continue
+                    visited.add(item)
                     if isinstance(item, CombinedTypes):
                         worklist.extend(item.types)
                 return Type.__add__(self, other)

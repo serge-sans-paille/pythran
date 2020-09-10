@@ -424,12 +424,16 @@ namespace types
     ndarray<T, sutils::push_front_t<pS, std::integral_constant<long, 1>>>
     operator[](none_type) const;
 
-    numpy_gexpr<ndarray const &, normalized_slice>
-    operator[](slice const &s) const &;
-    numpy_gexpr<ndarray, normalized_slice> operator[](slice const &s) && ;
+    template <class S>
+    typename std::enable_if<is_slice<S>::value,
+                            numpy_gexpr<ndarray const &, normalize_t<S>>>::type
+    operator[](S const &s) const &;
 
-    numpy_gexpr<ndarray const &, contiguous_normalized_slice>
-    operator[](contiguous_slice const &s) const;
+    template <class S>
+        typename std::enable_if<is_slice<S>::value,
+                                numpy_gexpr<ndarray, normalize_t<S>>>::type
+        operator[](S const &s) &&
+        ;
 
     long size() const;
 

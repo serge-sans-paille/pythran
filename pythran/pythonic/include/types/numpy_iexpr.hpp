@@ -61,7 +61,7 @@ namespace types
                                   const_nditerator<numpy_iexpr>,
                                   dtype const *>::type;
 
-    typename std::decay<Arg>::type arg;
+    Arg arg;
     dtype *buffer;
     using shape_t =
         sutils::pop_head_t<typename std::remove_reference<Arg>::type::shape_t>;
@@ -229,13 +229,12 @@ namespace types
     template <class vectorizer>
     simd_iterator vend(vectorizer) const;
 #endif
-    template <class... S>
-    numpy_gexpr<numpy_iexpr, normalized_slice, normalize_t<S>...>
-    operator()(slice const &s0, S const &... s) const;
 
-    template <class... S>
-    numpy_gexpr<numpy_iexpr, contiguous_normalized_slice, normalize_t<S>...>
-    operator()(contiguous_slice const &s0, S const &... s) const;
+    template <class Sp, class... S>
+    typename std::enable_if<
+        is_slice<Sp>::value,
+        numpy_gexpr<numpy_iexpr, normalize_t<Sp>, normalize_t<S>...>>::type
+    operator()(Sp const &s0, S const &... s) const;
 
     template <class... S>
     auto operator()(long s0, S const &... s) const
@@ -253,10 +252,10 @@ namespace types
     auto operator[](long i) const & -> decltype(this->fast(i));
     auto operator[](long i) & -> decltype(this->fast(i));
     auto operator[](long i) && -> decltype(std::move(*this).fast(i));
-    numpy_gexpr<numpy_iexpr, normalized_slice>
-    operator[](slice const &s0) const;
-    numpy_gexpr<numpy_iexpr, contiguous_normalized_slice>
-    operator[](contiguous_slice const &s0) const;
+    template <class Sp>
+    typename std::enable_if<is_slice<Sp>::value,
+                            numpy_gexpr<numpy_iexpr, normalize_t<Sp>>>::type
+    operator[](Sp const &s0) const;
 
     dtype const &operator[](array<long, value> const &indices) const;
     dtype &operator[](array<long, value> const &indices);
@@ -377,12 +376,12 @@ struct assignable<types::numpy_iexpr<Arg>> {
 
 template <class T, class pS>
 struct assignable<types::numpy_iexpr<types::ndarray<T, pS> &>> {
-  using type = types::numpy_iexpr<types::ndarray<T, pS> &>;
+  using type = types::numpy_iexpr<types::ndarray<T, pS>>;
 };
 
 template <class T, class pS>
-struct assignable<types::numpy_iexpr<types::ndarray<T, pS> const &>> {
-  using type = types::numpy_iexpr<types::ndarray<T, pS> const &>;
+struct assignable<types::numpy_iexpr<types::ndarray<T, pS>>> {
+  using type = types::numpy_iexpr<types::ndarray<T, pS>>;
 };
 
 template <class Arg>
@@ -391,14 +390,9 @@ struct returnable<types::numpy_iexpr<Arg>> {
 };
 
 template <class Arg>
-struct lazy<types::numpy_iexpr<Arg>> {
-  using type = types::numpy_iexpr<typename lazy<Arg>::type>;
+struct lazy<types::numpy_iexpr<Arg>> : assignable<types::numpy_iexpr<Arg>> {
 };
 
-template <class Arg>
-struct lazy<types::numpy_iexpr<Arg const &>> {
-  using type = types::numpy_iexpr<typename lazy<Arg>::type const &>;
-};
 PYTHONIC_NS_END
 
 /* type inference stuff  {*/

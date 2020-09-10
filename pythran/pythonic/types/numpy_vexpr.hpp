@@ -110,7 +110,7 @@ namespace types
   template <class T, class F>
   template <class E> // indexing through an array of boolean -- a mask
   typename std::enable_if<
-      is_numexpr_arg<E>::value &&
+      !is_slice<E>::value && is_numexpr_arg<E>::value &&
           std::is_same<bool, typename E::dtype>::value &&
           !is_pod_array<F>::value,
       numpy_vexpr<numpy_vexpr<T, F>, ndarray<long, pshape<long>>>>::type

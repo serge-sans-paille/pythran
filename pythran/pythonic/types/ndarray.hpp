@@ -699,24 +699,24 @@ namespace types
   }
 
   template <class T, class pS>
-  numpy_gexpr<ndarray<T, pS> const &, normalized_slice> ndarray<T, pS>::
-  operator[](slice const &s) const &
+  template <class S>
+  typename std::enable_if<
+      is_slice<S>::value,
+      numpy_gexpr<ndarray<T, pS> const &, normalize_t<S>>>::type
+      ndarray<T, pS>::
+      operator[](S const &s) const &
   {
     return make_gexpr(*this, s);
   }
 
   template <class T, class pS>
-  numpy_gexpr<ndarray<T, pS>, normalized_slice> ndarray<T, pS>::
-  operator[](slice const &s) &&
+  template <class S>
+  typename std::enable_if<is_slice<S>::value,
+                          numpy_gexpr<ndarray<T, pS>, normalize_t<S>>>::type
+      ndarray<T, pS>::
+      operator[](S const &s) &&
   {
     return make_gexpr(std::move(*this), s);
-  }
-
-  template <class T, class pS>
-  numpy_gexpr<ndarray<T, pS> const &, contiguous_normalized_slice>
-      ndarray<T, pS>::operator[](contiguous_slice const &s) const
-  {
-    return make_gexpr(*this, s);
   }
 
   template <class T, class pS>

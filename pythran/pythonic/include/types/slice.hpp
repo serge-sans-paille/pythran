@@ -11,7 +11,6 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
-
   template <class T>
   class bound
   {
@@ -51,6 +50,7 @@ namespace types
 
   struct slice;
   struct contiguous_slice;
+  struct fast_contiguous_slice;
   struct contiguous_normalized_slice;
 
   struct normalized_slice {
@@ -62,6 +62,7 @@ namespace types
     normalized_slice operator*(contiguous_normalized_slice const &other) const;
     normalized_slice operator*(slice const &other) const;
     normalized_slice operator*(contiguous_slice const &other) const;
+    normalized_slice operator*(fast_contiguous_slice const &other) const;
 
     long size() const;
     inline long get(long i) const;
@@ -77,6 +78,8 @@ namespace types
     slice operator*(slice const &other) const;
 
     slice operator*(contiguous_slice const &other) const;
+
+    slice operator*(fast_contiguous_slice const &other) const;
 
     /*
        Normalize change a[:-1] to a[:len(a)-1] to have positif index.
@@ -103,6 +106,8 @@ namespace types
     contiguous_normalized_slice
     operator*(contiguous_normalized_slice const &other) const;
     contiguous_normalized_slice operator*(contiguous_slice const &other) const;
+    contiguous_normalized_slice
+    operator*(fast_contiguous_slice const &other) const;
     normalized_slice operator*(normalized_slice const &other) const;
     normalized_slice operator*(slice const &other) const;
 
@@ -117,9 +122,10 @@ namespace types
     bound<long> upper;
     static constexpr long step = 1;
     contiguous_slice(none<long> lower, none<long> upper);
-    contiguous_slice();
+    contiguous_slice() = default;
 
     contiguous_slice operator*(contiguous_slice const &other) const;
+    contiguous_slice operator*(fast_contiguous_slice const &other) const;
 
     slice operator*(slice const &other) const;
 
@@ -133,6 +139,22 @@ namespace types
     long size() const;
 
     inline long get(long i) const;
+  };
+
+  struct fast_contiguous_slice {
+    using normalized_type = contiguous_normalized_slice;
+    long lower;
+    bound<long> upper;
+    static constexpr long step = 1;
+    fast_contiguous_slice(none<long> lower, none<long> upper);
+    fast_contiguous_slice() = default;
+
+    fast_contiguous_slice operator*(fast_contiguous_slice const &other) const;
+    contiguous_slice operator*(contiguous_slice const &other) const;
+    slice operator*(slice const &other) const;
+
+    contiguous_normalized_slice normalize(long max_size) const;
+    long size() const;
   };
 
   template <class T>
@@ -150,11 +172,29 @@ namespace types
     using type = contiguous_normalized_slice;
   };
 
+  template <>
+  struct normalized<fast_contiguous_slice> {
+    using type = contiguous_normalized_slice;
+  };
+
+  template <class S>
+  struct is_slice : std::false_type {
+  };
+  template <>
+  struct is_slice<contiguous_slice> : std::true_type {
+  };
+  template <>
+  struct is_slice<fast_contiguous_slice> : std::true_type {
+  };
+  template <>
+  struct is_slice<slice> : std::true_type {
+  };
+
   template <class S>
   using normalize_t = typename normalized<S>::type;
 
   template <class S>
-  S normalize(S s, long n)
+  typename std::enable_if<!is_slice<S>::value, S>::type normalize(S s, long n)
   {
     if (s < 0)
       s += n;
@@ -164,11 +204,8 @@ namespace types
   {
     return {};
   }
-  normalized_slice normalize(slice s, long n)
-  {
-    return s.normalize(n);
-  }
-  contiguous_normalized_slice normalize(contiguous_slice s, long n)
+  template <class S>
+  auto normalize(S s, long n) -> decltype(s.normalize(n))
   {
     return s.normalize(n);
   }
@@ -195,9 +232,17 @@ namespace types
     else
       return s;
   }
+  template <class S, class I0, class I1>
+  contiguous_slice adapt_slice(S const &s, I0 const &index0, I1 const &index1)
+  {
+    if ((long)index0 != (long)index1)
+      return {0, 1};
+    else
+      return s;
+  }
   template <class I0, class I1>
-  contiguous_slice adapt_slice(contiguous_slice const &s, I0 const &index0,
-                               I1 const &index1)
+  fast_contiguous_slice adapt_slice(fast_contiguous_slice const &s,
+                                    I0 const &index0, I1 const &index1)
   {
     if ((long)index0 != (long)index1)
       return {0, 1};
@@ -205,8 +250,9 @@ namespace types
       return s;
   }
 
-  std::ostream &operator<<(std::ostream &os, slice const &s);
-  std::ostream &operator<<(std::ostream &os, contiguous_slice const &s);
+  template <class S>
+  typename std::enable_if<is_slice<S>::value, std::ostream &>::type
+  operator<<(std::ostream &os, S const &s);
 }
 namespace builtins
 {

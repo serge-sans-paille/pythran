@@ -106,17 +106,18 @@ namespace types
     assert(0 <= index && index < data->size());
     return (*data)[index];
   }
+
   template <class T, class S>
-  sliced_list<T, S> sliced_list<T, S>::operator[](contiguous_slice s) const
+  template <class Sp>
+  typename std::enable_if<
+      is_slice<Sp>::value,
+      sliced_list<T, decltype(std::declval<S>() * std::declval<Sp>())>>::type
+      sliced_list<T, S>::
+      operator[](Sp s) const
   {
     return {data, slicing * s.normalize(this->size())};
   }
-  template <class T, class S>
-  sliced_list<T, decltype(std::declval<S>() * std::declval<slice>())>
-      sliced_list<T, S>::operator[](slice s) const
-  {
-    return {data, slicing * s.normalize(this->size())};
-  }
+
   // io
   template <class Tp, class Sp>
   std::ostream &operator<<(std::ostream &os, sliced_list<Tp, Sp> const &v)
@@ -524,15 +525,12 @@ namespace types
   }
 
   template <class T>
-  sliced_list<T, slice> list<T>::operator[](slice const &s) const
+  template <class Sp>
+  typename std::enable_if<is_slice<Sp>::value, sliced_list<T, Sp>>::type
+      list<T>::
+      operator[](Sp const &s) const
   {
-    return sliced_list<T, slice>(*this, s);
-  }
-  template <class T>
-  sliced_list<T, contiguous_slice> list<T>::
-  operator[](contiguous_slice const &s) const
-  {
-    return sliced_list<T, contiguous_slice>(*this, s);
+    return {*this, s};
   }
 
   // modifiers

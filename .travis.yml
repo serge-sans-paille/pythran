@@ -19,7 +19,7 @@ install:
     - $PYTHON setup.py install 1> /dev/null
 
 python:
-    - "3.8"
+    - "3.9-dev"
 
 matrix:
     include:

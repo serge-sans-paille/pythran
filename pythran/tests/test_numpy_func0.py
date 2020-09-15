@@ -420,7 +420,7 @@ def np_rosen_der(x):
 
     def test_tofile2(self):
         temp_name = tempfile.mkstemp()[1]
-        x = numpy.random.randint(0,2**32,1000).astype(numpy.uint32)
+        x = numpy.random.randint(0,2**31,1000).astype(numpy.uint32)
         try:
             self.run_test("def np_tofile2(x,file): import numpy ; x.tofile(file); return numpy.fromfile(file)", x, temp_name, np_tofile2=[NDArray[numpy.uint32,:], str])
         finally:
@@ -462,7 +462,7 @@ def np_rosen_der(x):
 
     def test_fromfile2(self):
         temp_name = tempfile.mkstemp()[1]
-        x = numpy.random.randint(0,2**32,1000).astype(numpy.uint32)
+        x = numpy.random.randint(0,2**31,1000).astype(numpy.uint32)
         x.tofile(temp_name)
         try:
             self.run_test("def np_fromfile2(file): from numpy import fromfile, uint32 ; return fromfile(file, uint32)", temp_name, np_fromfile2=[str])

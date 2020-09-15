@@ -236,6 +236,12 @@ namespace types
     return (*this) * other.normalize(size());
   }
 
+  contiguous_normalized_slice contiguous_normalized_slice::
+  operator*(fast_contiguous_slice const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
+
   normalized_slice contiguous_normalized_slice::
   operator*(normalized_slice const &other) const
   {

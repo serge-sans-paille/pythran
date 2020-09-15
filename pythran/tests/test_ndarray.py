@@ -657,6 +657,11 @@ def newaxis8(n):
                       numpy.arange(24).reshape(2,3,4),
                       gexpr_composition18=[NDArray[int, :,:,:]])
 
+    def test_gexpr_composition19(self):
+        self.run_test("def gexpr_composition19(a): return a[0:3][1:2]",
+                      numpy.arange(24),
+                      gexpr_composition19=[NDArray[int, :]])
+
 
     def test_gexpr_copy0(self):
         self.run_test("def gexpr_copy0(a,b): a[:,0] = b[:,0]; return a",

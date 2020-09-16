@@ -7,9 +7,26 @@ It also turn globals assignment in function definition.
 from pythran.analyses import LocalNameDeclarations
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
+from pythran.utils import path_to_attr
 from pythran import metadata
 
 import gast as ast
+
+class GlobalTransformer(ast.NodeTransformer):
+    '''
+    Use assumptions on globals to improve code generation
+    '''
+
+    def visit_Call(self, node):
+        # because a list can be a call parameter during global init
+        return node
+
+    def visit_List(self, node):
+        # because global lists in pythran are static lists
+        return ast.Call(path_to_attr(('builtins', 'pythran', 'static_list')),
+                        [ast.Tuple([self.visit(elt) for elt in node.elts],
+                                  ast.Load())],
+                        [])
 
 
 class ExpandGlobals(Transformation):
@@ -82,7 +99,7 @@ class ExpandGlobals(Transformation):
                     continue
 
                 self.local_decl = set()
-                cst_value = self.visit(stmt.value)
+                cst_value = GlobalTransformer().visit(self.visit(stmt.value))
                 for target in stmt.targets:
                     assert isinstance(target, ast.Name)
                     module_body.append(

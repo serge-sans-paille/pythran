@@ -2541,7 +2541,8 @@ MODULES = {
         "pythran": {
             "abssqr": ConstFunctionIntr(),
             "static_list": ReadOnceFunctionIntr(
-                signature=Fun[[Iterable[T0]], List[T0]]),
+                signature=Fun[[Iterable[T0]], List[T0]],
+                return_alias=lambda args: {args[0]}),
             "is_none": ConstFunctionIntr(),
             "kwonly": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),

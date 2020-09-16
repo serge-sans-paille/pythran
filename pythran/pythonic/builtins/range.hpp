@@ -64,7 +64,8 @@ namespace builtins
 
   bool range_iterator::operator<(range_iterator const &other) const
   {
-    return step_ * value_ < step_ * other.value_;
+    const long sign = +1 | (step_ >> (sizeof(long) * CHAR_BIT - 1));
+    return sign * value_ < sign * other.value_;
   }
 
   long range_iterator::operator-(range_iterator const &other) const

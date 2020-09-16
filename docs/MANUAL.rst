@@ -396,7 +396,7 @@ done and may fail with a C-ish assertion.
 Thread safety
 -------------
 
-By default Pythran dones not generate thread-safe code for non-OpenMP code: reference
+By default Pythran does not generate thread-safe code for non-OpenMP code: reference
 counting for automatic deletion of objects is not done atomically by default. It's
 still possible to force pythran to generate thread-safe reference counting by defining
 the flag ``THREAD_SAFE_REF_COUNT`` via ``-DTHREAD_SAFE_REF_COUNT``. There is a small

@@ -677,3 +677,13 @@ def recursive_interprocedural_typing2(c):
                 else:
                     return np.arange(n)[1:-1]'''
         return self.run_test(code, 6, numpy_array_combiner5=[int])
+
+    def test_typing_rvalue0(self):
+        code = '''
+            def foo(x, n):
+                x.append(n)
+                return x
+            def typing_rvalue0(n):
+                return foo([], n)'''
+        return self.run_test(code, 6, typing_rvalue0=[int])
+

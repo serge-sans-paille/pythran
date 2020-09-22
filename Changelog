@@ -1,3 +1,15 @@
+2020-09-22 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Improve computation of contiguous slices when bounds are positive
+
+	* Optimize shared reference of array expressions
+
+	* Speedup complex combined types computation
+
+	* Fix pythran-config with cl.exe or clang-cl.exe
+
+	* Support Python 3.9
+
 2020-08-01 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* First release only supporting Python3

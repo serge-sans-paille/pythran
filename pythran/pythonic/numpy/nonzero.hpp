@@ -66,7 +66,8 @@ namespace numpy
     types::array<long, N> indices;
     _nonzero(expr.begin(), expr.end(), out_iters, indices, utils::int_<N>());
 
-    types::array<long, 1> shape = {{out_iters[0] - out_buffers[0]->data}};
+    types::array<long, 1> shape = {
+        {(long)(out_iters[0] - out_buffers[0]->data)}};
 
     out_type out;
     for (size_t i = 0; i < N; ++i)

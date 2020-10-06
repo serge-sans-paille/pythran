@@ -35,7 +35,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import random
                 from numpy import sum
                 s = sum(random((n, n)))
-                return (abs(s / (n * n) - .5) < 5e-3)""",
+                return (abs(s / (n * n) - .5) < .05)""",
                       10 ** 3, numpy_random2=[int])
 
     ###########################################################################
@@ -67,7 +67,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import random_sample
                 from numpy import sum
                 s = sum(random_sample((n, n)))
-                return (abs(s / (n * n) - .5) < 5e-3)""",
+                return (abs(s / (n * n) - .5) < .05)""",
                       10 ** 3, numpy_random_sample2=[int])
 
     ###########################################################################
@@ -101,7 +101,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import ranf
                 from numpy import mean
                 a = ranf((n, n))
-                return (abs(mean(a) - .5) < 5e-3)""",
+                return (abs(mean(a) - .5) < .05)""",
                       10 ** 3, numpy_ranf2=[int])
 
     ###########################################################################
@@ -135,7 +135,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import sample
                 from numpy import mean
                 s = sample((n, n))
-                return (abs(mean(s) - .5) < 5e-3)""",
+                return (abs(mean(s) - .5) < .05)""",
                       10 ** 3, numpy_sample2=[int])
 
     ###########################################################################
@@ -158,7 +158,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import rand
                 from numpy import sum
                 s = sum(rand(n, n))
-                return (abs(s / (n * n) - .5) < 5e-3)""",
+                return (abs(s / (n * n) - .5) < .05)""",
                       10 ** 3, numpy_rand1=[int])
 
     ###########################################################################
@@ -287,7 +287,7 @@ class TestNumpyRandom(TestEnv):
             mu, sigma = 0, 0.1
             a = normal(mu, sigma, size)
             print(mean(a))
-            return (abs(mu - mean(a)) < 0.01 and abs(sigma - sqrt(var(a,ddof=1))) < .01)
+            return (abs(mu - mean(a)) < 0.05 and abs(sigma - sqrt(var(a,ddof=1))) < .05)
         """
         self.run_test(code, 10 ** 5, numpy_normal0b=[int])
 
@@ -830,7 +830,7 @@ class TestNumpyRandom(TestEnv):
             s = 1/2
             rmean = e**(m+(s**2/2))  
             rvar = (e**(s**2) - 1)*e**(2*m+s**2) 
-            return (abs(mean(a) - rmean) < .2 and abs(var(a) - rvar) < .2)
+            return (abs(mean(a) - rmean) < .1 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_lognormal0=[int])
 
@@ -845,7 +845,7 @@ class TestNumpyRandom(TestEnv):
             a = [lognormal(m) for x in range(size)]
             rmean = e**(m+(s**2/2))  
             rvar = (e**(s**2) - 1)*e**(2*m+s**2) 
-            return (abs(mean(a)- rmean) < 0.2 and abs(var(a) - rvar) < .2)
+            return (abs(mean(a)- rmean) < 0.1 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_lognormal0a=[int])
 
@@ -875,7 +875,7 @@ class TestNumpyRandom(TestEnv):
             rmean = e**(m+(s**2/2))  
             rvar = (e**(s**2) - 1)*e**(2*m+s**2) 
             a = lognormal(size=size)
-            return (abs(mean(a) - rmean) < .1 and abs(var(a) - rvar) < .2)
+            return (abs(mean(a) - rmean) < .1 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_lognormal1=[int])
 

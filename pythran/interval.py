@@ -386,13 +386,13 @@ class IntervalTuple(object):
 
     def union(self, other):
         if isinstance(other, Interval):
-            return UNKNOWN_RANGE
+            return UNKNOWN_TUPLE_RANGE
         return IntervalTuple(x.union(y) for x, y in zip(self.values,
                                                         other.values))
 
     def intersect(self, other):
         if isinstance(other, Interval):
-            return UNKNOWN_RANGE
+            return UNKNOWN_TUPLE_RANGE
         return IntervalTuple(x.intersect(y) for x, y in zip(self.values,
                                                             other.values))
 
@@ -421,11 +421,12 @@ class IntervalTuple(object):
 
     def __add__(self, other):
         if isinstance(other, Interval):
-            return UNKNOWN_RANGE
+            return UNKNOWN_TUPLE_RANGE
         return IntervalTuple(self.values + other.values)
 
 
 UNKNOWN_RANGE = Interval(-float("inf"), float("inf"))
+UNKNOWN_TUPLE_RANGE = IntervalTuple([UNKNOWN_RANGE])
 
 
 def range_values(args):

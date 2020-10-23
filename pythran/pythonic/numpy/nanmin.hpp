@@ -2,6 +2,7 @@
 #define PYTHONIC_NUMPY_NANMIN_HPP
 
 #include "pythonic/include/numpy/nanmin.hpp"
+#include "pythonic/include/numpy/nan.hpp"
 
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -15,28 +16,38 @@ namespace numpy
   namespace
   {
     template <class E, class F>
-    void _nanmin(E begin, E end, F &min, utils::int_<1>)
+    bool _nanmin(E begin, E end, F &min, utils::int_<1>)
     {
+      bool found = false;
       for (; begin != end; ++begin) {
         auto curr = *begin;
-        if (!functor::isnan()(curr) && curr < min)
+        if (!functor::isnan()(curr) && curr <= min) {
           min = curr;
+          found = true;
+        }
       }
+      return found;
     }
 
     template <class E, class F, size_t N>
-    void _nanmin(E begin, E end, F &min, utils::int_<N>)
+    bool _nanmin(E begin, E end, F &min, utils::int_<N>)
     {
+      bool found = false;
       for (; begin != end; ++begin)
-        _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
+        found |= _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
+      return found;
     }
+
   }
 
   template <class E>
   typename E::dtype nanmin(E const &expr)
   {
+    bool found = false;
     typename E::dtype min = std::numeric_limits<typename E::dtype>::max();
-    _nanmin(expr.begin(), expr.end(), min, utils::int_<E::value>());
+    found = _nanmin(expr.begin(), expr.end(), min, utils::int_<E::value>());
+    if (!found)
+      min = std::numeric_limits<typename E::dtype>::quiet_NaN();
     return min;
   }
 }

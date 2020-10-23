@@ -114,11 +114,20 @@ class TestNumpyFunc0(TestEnv):
     def test_nanmin1(self):
         self.run_test("def np_nanmin1(a): import numpy as np ; return np.nanmin(a)" , numpy.array([[1, 2], [numpy.NINF, numpy.nan]]), np_nanmin1=[NDArray[float,:,:]])
 
+    def test_nanmin2(self):        
+         self.run_test("def np_nanmin2(a): import numpy as np ; return np.nanmin(a)" , numpy.array([[numpy.nan, numpy.nan], [numpy.nan, numpy.nan]]), np_nanmin2=[NDArray[float,:,:]])
+
+    def test_nanmin3(self):        
+         self.run_test("def np_nanmin3(a): import numpy as np ; return np.nanmin(a)" , numpy.array([[numpy.PINF, numpy.PINF], [numpy.PINF, numpy.PINF]]), np_nanmin3=[NDArray[float,:,:]])
+
     def test_nanmax0(self):
         self.run_test("def np_nanmax0(a): import numpy as np ; return np.nanmax(a)" , numpy.array([[1, 2], [3, numpy.nan]]),  np_nanmax0=[NDArray[float,:,:]])
 
     def test_nanmax1(self):
         self.run_test("def np_nanmax1(a): import numpy as np ; return np.nanmax(a)" , numpy.array([[1, 2], [numpy.inf, numpy.nan]]) , np_nanmax1=[NDArray[float,:,:]])
+
+    def test_nanmax2(self):        
+         self.run_test("def np_nanmax2(a): import numpy as np ; return np.nanmax(a)" , numpy.array([[numpy.nan, numpy.nan], [numpy.nan, numpy.nan]]), np_nanmax2=[NDArray[float,:,:]])
 
     def test_np_residual(self):
         self.run_test("""import numpy as np

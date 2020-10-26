@@ -2,12 +2,11 @@
 #define PYTHONIC_NUMPY_NANMIN_HPP
 
 #include "pythonic/include/numpy/nanmin.hpp"
-#include "pythonic/include/numpy/nan.hpp"
 
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -34,10 +33,10 @@ namespace numpy
     {
       bool found = false;
       for (; begin != end; ++begin)
-        found |= _nanmin((*begin).begin(), (*begin).end(), min, utils::int_<N - 1>());
+        found |= _nanmin((*begin).begin(), (*begin).end(), min,
+                         utils::int_<N - 1>());
       return found;
     }
-
   }
 
   template <class E>

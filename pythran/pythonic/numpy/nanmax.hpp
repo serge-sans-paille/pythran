@@ -3,10 +3,10 @@
 
 #include "pythonic/include/numpy/nanmax.hpp"
 
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/numpy/isnan.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -22,17 +22,19 @@ namespace numpy
         auto curr = *begin;
         if (!functor::isnan()(curr) && curr >= max) {
           max = curr;
-	  found = true;
-	}
+          found = true;
+        }
       }
       return found;
     }
+
     template <class E, class F, size_t N>
     bool _nanmax(E begin, E end, F &max, utils::int_<N>)
     {
       bool found = false;
       for (; begin != end; ++begin)
-        found |= _nanmax((*begin).begin(), (*begin).end(), max, utils::int_<N - 1>());
+        found |= _nanmax((*begin).begin(), (*begin).end(), max,
+                         utils::int_<N - 1>());
       return found;
     }
   }

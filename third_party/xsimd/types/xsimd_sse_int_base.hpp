@@ -65,6 +65,7 @@ namespace xsimd
     public:
 
         using base_type = simd_batch<batch<T, N>>;
+        using batch_bool_type = typename base_type::batch_bool_type;
 
         sse_int_batch();
         explicit sse_int_batch(T i);
@@ -74,7 +75,10 @@ namespace xsimd
         sse_int_batch(const T* src, aligned_mode);
         sse_int_batch(const T* src, unaligned_mode);
         sse_int_batch(const __m128i& rhs);
-        sse_int_batch& operator=(const __m128i& rhs);
+        sse_int_batch(const batch_bool_type& rhs);
+
+        batch<T, N>& operator=(const __m128i& rhs);
+        batch<T, N>& operator=(const batch_bool_type& rhs);
 
         operator __m128i() const;
 
@@ -350,12 +354,25 @@ namespace xsimd
     }
 
     template <class T, std::size_t N>
-    inline sse_int_batch<T, N>& sse_int_batch<T, N>::operator=(const __m128i& rhs)
+    inline sse_int_batch<T, N>::sse_int_batch(const batch_bool_type& rhs)
+        : base_type(_mm_and_si128(rhs, batch<T, N>(1)))
     {
-        this->m_value = rhs;
-        return *this;
     }
 
+    template <class T, std::size_t N>
+    inline batch<T, N>& sse_int_batch<T, N>::operator=(const __m128i& rhs)
+    {
+        this->m_value = rhs;
+        return (*this)();
+    }
+
+    template <class T, std::size_t N>
+    inline batch<T, N>& sse_int_batch<T, N>::operator=(const batch_bool_type& rhs)
+    {
+        this->m_value = _mm_and_si128(rhs, batch<T, N>(1));
+        return (*this)();
+    }
+    
     template <class T, std::size_t N>
     inline sse_int_batch<T, N>::operator __m128i() const
     {
@@ -506,6 +523,19 @@ namespace xsimd
             lhs.store_aligned(&tmp_lhs[0]);
             unroller<N>([&](std::size_t i) {
                 tmp_res[i] = f(tmp_lhs[i], rhs);
+            });
+            return batch<T, N>(tmp_res, aligned_mode());
+        }
+
+        template <class F, class T, class S, std::size_t N>
+        inline batch<T, N> shift_impl(F&& f, const batch<T, N>& lhs, const batch<S, N>& rhs)
+        {
+            alignas(16) T tmp_lhs[N], tmp_res[N];
+            alignas(16) S tmp_rhs[N];
+            lhs.store_aligned(&tmp_lhs[0]);
+            rhs.store_aligned(&tmp_rhs[0]);
+            unroller<N>([&](std::size_t i) {
+              tmp_res[i] = f(tmp_lhs[i], tmp_rhs[i]);
             });
             return batch<T, N>(tmp_res, aligned_mode());
         }

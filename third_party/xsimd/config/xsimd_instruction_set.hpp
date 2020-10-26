@@ -108,10 +108,22 @@
 #if !defined(XSIMD_X86_INSTR_SET) && (defined(__AVX512__) || defined(__KNCNI__) || defined(__AVX512F__)\
     && (!defined(__GNUC__) || __GNUC__ >= 6))
     #define XSIMD_X86_INSTR_SET XSIMD_X86_AVX512_VERSION
-#endif
 
-#if defined(__AVX512BW__)
-    #define XSIMD_AVX512BW_AVAILABLE 1
+    #if defined(__AVX512VL__)
+        #define XSIMD_AVX512VL_AVAILABLE 1
+    #endif
+
+    #if defined(__AVX512DQ__)
+        #define XSIMD_AVX512DQ_AVAILABLE 1
+    #endif
+
+    #if defined(__AVX512BW__)
+        #define XSIMD_AVX512BW_AVAILABLE 1
+    #endif
+
+    #if __GNUC__ == 6
+        #define XSIMD_AVX512_SHIFT_INTRINSICS_IMM_ONLY 1
+    #endif
 #endif
 
 #if !defined(XSIMD_X86_INSTR_SET) && defined(__AVX2__)
@@ -233,8 +245,10 @@
         #endif
     #elif __ARM_ARCH >= 7
         #define XSIMD_ARM_INSTR_SET XSIMD_ARM7_NEON_VERSION
+    #elif defined(XSIMD_ENABLE_FALLBACK)
+        #warning "NEON instruction set not supported, using fallback mode."
     #else
-        static_assert("NEON instruction set not supported.", false);
+        static_assert(false, "NEON instruction set not supported.");
     #endif
 #endif
 

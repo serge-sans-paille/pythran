@@ -16,7 +16,7 @@
 namespace xsimd
 {
 
-#if XSIMD_X86_INSTR_SET < XSIMD_X86_AVX2_VERSION
+#if XSIMD_X86_INSTR_SET < XSIMD_X86_AVX512_VERSION
 
 #define XSIMD_SPLIT_AVX(avx_name)                              \
     __m128i avx_name##_low = _mm256_castsi256_si128(avx_name); \
@@ -32,6 +32,7 @@ namespace xsimd
     __m128i res_low = func(avx_lhs##_low, avx_rhs##_low);    \
     __m128i res_high = func(avx_lhs##_high, avx_rhs##_high); \
     XSIMD_RETURN_MERGED_SSE(res_low, res_high);
+
 #endif
 
     template <class T, std::size_t N>
@@ -74,6 +75,7 @@ namespace xsimd
     public:
 
         using base_type = simd_batch<batch<T, N>>;
+        using batch_bool_type = typename base_type::batch_bool_type;
 
         avx_int_batch();
         explicit avx_int_batch(T i);
@@ -85,7 +87,10 @@ namespace xsimd
         avx_int_batch(const T* src, aligned_mode);
         avx_int_batch(const T* src, unaligned_mode);
         avx_int_batch(const __m256i& rhs);
-        avx_int_batch& operator=(const __m256i& rhs);
+        avx_int_batch(const batch_bool_type& rhs);
+
+        batch<T, N>& operator=(const __m256i& rhs);
+        batch<T, N>& operator=(const batch_bool_type& rhs);
 
         operator __m256i() const;
 
@@ -382,11 +387,36 @@ namespace xsimd
     {
     }
 
+    namespace detail
+    {
+        inline __m256i bitwise_and_impl(__m256i lhs, __m256i rhs)
+        {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+            return _mm256_and_si256(lhs, rhs);
+#else
+            XSIMD_APPLY_SSE_FUNCTION(_mm_and_si128, lhs, rhs);
+#endif
+        }
+    }
+
     template <class T, std::size_t N>
-    inline avx_int_batch<T, N>& avx_int_batch<T, N>::operator=(const __m256i& rhs)
+    inline avx_int_batch<T, N>::avx_int_batch(const batch_bool_type& rhs)
+        : base_type(detail::bitwise_and_impl(rhs, batch<T, N>(1)))
+    {
+    }
+
+    template <class T, std::size_t N>
+    inline batch<T, N>& avx_int_batch<T, N>::operator=(const __m256i& rhs)
     {
         this->m_value = rhs;
-        return *this;
+        return (*this)();
+    }
+
+    template <class T, std::size_t N>
+    inline batch<T, N>& avx_int_batch<T, N>::operator=(const batch_bool_type& rhs)
+    {
+        this->m_value = detail::bitwise_and_impl(rhs, batch<T, N>(1));
+        return (*this)();
     }
 
     template <class T, std::size_t N>
@@ -469,11 +499,7 @@ namespace xsimd
 
             static batch_type bitwise_and(const batch_type& lhs, const batch_type& rhs)
             {
-#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
-                return _mm256_and_si256(lhs, rhs);
-#else
-                XSIMD_APPLY_SSE_FUNCTION(_mm_and_si128, lhs, rhs);
-#endif
+                return detail::bitwise_and_impl(lhs, rhs);
             }
 
             static batch_type bitwise_or(const batch_type& lhs, const batch_type& rhs)
@@ -546,6 +572,19 @@ namespace xsimd
             lhs.store_aligned(&tmp_lhs[0]);
             unroller<N>([&](std::size_t i) {
                 tmp_res[i] = f(tmp_lhs[i], rhs);
+            });
+            return batch<T, N>(tmp_res, aligned_mode());
+        }
+
+        template <class F, class T, class S, std::size_t N>
+        inline batch<T, N> shift_impl(F&& f, const batch<T, N>& lhs, const batch<S, N>& rhs)
+        {
+            alignas(32) T tmp_lhs[N], tmp_res[N];
+            alignas(32) S tmp_rhs[N];
+            lhs.store_aligned(&tmp_lhs[0]);
+            rhs.store_aligned(&tmp_rhs[0]);
+            unroller<N>([&](std::size_t i) {
+              tmp_res[i] = f(tmp_lhs[i], tmp_rhs[i]);
             });
             return batch<T, N>(tmp_res, aligned_mode());
         }

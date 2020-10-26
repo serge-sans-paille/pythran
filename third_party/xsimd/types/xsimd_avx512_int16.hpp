@@ -192,8 +192,12 @@ namespace xsimd
 
     batch<int16_t, 32> operator<<(const batch<int16_t, 32>& lhs, int32_t rhs);
     batch<int16_t, 32> operator>>(const batch<int16_t, 32>& lhs, int32_t rhs);
+    batch<int16_t, 32> operator<<(const batch<int16_t, 32>& lhs, const batch<int16_t, 32>& rhs);
+    batch<int16_t, 32> operator>>(const batch<int16_t, 32>& lhs, const batch<int16_t, 32>& rhs);
     batch<uint16_t, 32> operator<<(const batch<uint16_t, 32>& lhs, int32_t rhs);
     batch<uint16_t, 32> operator>>(const batch<uint16_t, 32>& lhs, int32_t rhs);
+    batch<uint16_t, 32> operator<<(const batch<uint16_t, 32>& lhs, const batch<int16_t, 32>& rhs);
+    batch<uint16_t, 32> operator>>(const batch<uint16_t, 32>& lhs, const batch<int16_t, 32>& rhs);
 
     /*************************************
      * batch<int16_t, 32> implementation *
@@ -336,7 +340,14 @@ namespace xsimd
         {
             static batch_type abs(const batch_type& rhs)
             {
+            #if defined(XSIMD_AVX512BW_AVAILABLE)
                 return _mm512_abs_epi16(rhs);
+            #else
+                XSIMD_SPLIT_AVX512(rhs);
+                __m256i res_low = _mm256_abs_epi16(rhs_low);
+                __m256i res_high = _mm256_abs_epi16(rhs_high);
+                XSIMD_RETURN_MERGED_AVX(res_low, res_high);
+            #endif
             }
 
             static batch_type min(const batch_type& lhs, const batch_type& rhs)
@@ -461,37 +472,112 @@ namespace xsimd
 
     inline batch<int16_t, 32> operator<<(const batch<int16_t, 32>& lhs, int32_t rhs)
     {
-        return avx_detail::shift_impl([](int16_t val, int32_t rhs) {
-            return val << rhs;
-        }, lhs, rhs);
+#if defined(XSIMD_AVX512BW_AVAILABLE)
+#if defined(XSIMD_AVX512_SHIFT_INTRINSICS_IMM_ONLY)
+        return _mm512_sllv_epi16(lhs, _mm512_set1_epi16(rhs));
+#else
+        return _mm512_slli_epi16(lhs, rhs);
+#endif
+#else
+#if defined(XSIMD_AVX512_SHIFT_INTRINSICS_IMM_ONLY)
+        __m512i tmp = _mm512_sllv_epi32(lhs, _mm512_set1_epi32(rhs));
+#else
+        __m512i tmp = _mm512_slli_epi32(lhs, rhs);
+#endif
+        return _mm512_and_si512(_mm512_set1_epi16(0xFFFF << rhs), tmp);
+#endif
     }
 
     inline batch<int16_t, 32> operator>>(const batch<int16_t, 32>& lhs, int32_t rhs)
     {
-        return avx_detail::shift_impl([](int16_t val, int32_t rhs) {
-            return val >> rhs;
-        }, lhs, rhs);
+#if defined(XSIMD_AVX512BW_AVAILABLE)
+#if defined(XSIMD_AVX512_SHIFT_INTRINSICS_IMM_ONLY)
+        return _mm512_srav_epi16(lhs, _mm512_set1_epi16(rhs));
+#else
+        return _mm512_srai_epi16(lhs, rhs);
+#endif
+#else
+        return avx512_detail::shift_impl([](int16_t val, int32_t rhs) { return val >> rhs; }, lhs, rhs);
+#endif
     }
 
-    XSIMD_DEFINE_LOAD_STORE_INT16(int16_t, 32, 32)
-    XSIMD_DEFINE_LOAD_STORE_LONG(int16_t, 32, 32)
+    inline batch<int16_t, 32> operator<<(const batch<int16_t, 32>& lhs, const batch<int16_t, 32>& rhs)
+    {
+#if defined(XSIMD_AVX512BW_AVAILABLE)
+        return _mm512_sllv_epi16(lhs, rhs);
+#else
+        return avx512_detail::shift_impl([](int16_t val, int16_t rhs) { return val << rhs; }, lhs, rhs);
+#endif
+    }
+
+    inline batch<int16_t, 32> operator>>(const batch<int16_t, 32>& lhs, const batch<int16_t, 32>& rhs)
+    {
+#if defined(XSIMD_AVX512BW_AVAILABLE)
+        return _mm512_srav_epi16(lhs, rhs);
+#else
+        return avx512_detail::shift_impl([](int16_t val, int16_t rhs) { return val >> rhs; }, lhs, rhs);
+#endif
+    }
+
+    XSIMD_DEFINE_LOAD_STORE_INT16(int16_t, 32, 64)
+    XSIMD_DEFINE_LOAD_STORE_LONG(int16_t, 32, 64)
 
     inline batch<uint16_t, 32> operator<<(const batch<uint16_t, 32>& lhs, int32_t rhs)
     {
-        return avx_detail::shift_impl([](uint16_t val, int32_t rhs) {
-            return val << rhs;
-        }, lhs, rhs);
+#if defined(XSIMD_AVX512BW_AVAILABLE)
+#if defined(XSIMD_AVX512_SHIFT_INTRINSICS_IMM_ONLY)
+        return _mm512_sllv_epi16(lhs, _mm512_set1_epi16(rhs));
+#else
+        return _mm512_slli_epi16(lhs, rhs);
+#endif
+#else
+#if defined(XSIMD_AVX512_SHIFT_INTRINSICS_IMM_ONLY)
+        __m512i tmp = _mm512_sllv_epi32(lhs, _mm512_set1_epi32(rhs));
+#else
+        __m512i tmp = _mm512_slli_epi32(lhs, rhs);
+#endif
+        return _mm512_and_si512(_mm512_set1_epi16(0xFFFF << rhs), tmp);
+#endif
     }
 
     inline batch<uint16_t, 32> operator>>(const batch<uint16_t, 32>& lhs, int32_t rhs)
     {
-        return avx_detail::shift_impl([](uint16_t val, int32_t rhs) {
-            return val >> rhs;
-        }, lhs, rhs);
+#if defined(XSIMD_AVX512BW_AVAILABLE)
+#if defined(XSIMD_AVX512_SHIFT_INTRINSICS_IMM_ONLY)
+        return _mm512_srlv_epi16(lhs, _mm512_set1_epi16(rhs));
+#else
+        return _mm512_srli_epi16(lhs, rhs);
+#endif
+#else
+#if defined(XSIMD_AVX512_SHIFT_INTRINSICS_IMM_ONLY)
+        __m512i tmp = _mm512_srlv_epi32(lhs, _mm512_set1_epi32(rhs));
+#else
+        __m512i tmp = _mm512_srli_epi32(lhs, rhs);
+#endif
+        return _mm512_and_si512(_mm512_set1_epi16(0xFFFF >> rhs), tmp);
+#endif
     }
 
-    XSIMD_DEFINE_LOAD_STORE_INT16(uint16_t, 32, 32)
-    XSIMD_DEFINE_LOAD_STORE_LONG(uint16_t, 32, 32)
+    inline batch<uint16_t, 32> operator<<(const batch<uint16_t, 32>& lhs, const batch<int16_t, 32>& rhs)
+    {
+#if defined(XSIMD_AVX512BW_AVAILABLE)
+        return _mm512_sllv_epi16(lhs, rhs);
+#else
+        return avx512_detail::shift_impl([](uint16_t val, int16_t rhs) { return val << rhs; }, lhs, rhs);
+#endif
+    }
+
+    inline batch<uint16_t, 32> operator>>(const batch<uint16_t, 32>& lhs, const batch<int16_t, 32>& rhs)
+    {
+#if defined(XSIMD_AVX512BW_AVAILABLE)
+        return _mm512_srlv_epi16(lhs, rhs);
+#else
+        return avx512_detail::shift_impl([](uint16_t val, int16_t rhs) { return val >> rhs; }, lhs, rhs);
+#endif
+    }
+
+    XSIMD_DEFINE_LOAD_STORE_INT16(uint16_t, 32, 64)
+    XSIMD_DEFINE_LOAD_STORE_LONG(uint16_t, 32, 64)
 
 #undef XSIMD_APPLY_AVX2_FUNCTION_INT16
 }

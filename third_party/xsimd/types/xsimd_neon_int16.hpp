@@ -40,6 +40,7 @@ namespace xsimd
 
         using base_type = simd_batch<batch<int16_t, 8>>;
         using storage_type = typename base_type::storage_type;
+        using batch_bool_type = typename base_type::batch_bool_type;
 
         batch();
         explicit batch(int16_t d);
@@ -57,6 +58,9 @@ namespace xsimd
 
         batch(const storage_type& rhs);
         batch& operator=(const storage_type& rhs);
+
+        batch(const batch_bool_type& rhs);
+        batch& operator=(const batch_bool_type& rhs);
 
         operator storage_type() const;
 
@@ -81,8 +85,10 @@ namespace xsimd
         XSIMD_DECLARE_LOAD_STORE_LONG(int16_t, 8)
     };
 
-    batch<int16_t, 8> operator<<(const batch<int16_t, 8>& lhs, int16_t rhs);
-    batch<int16_t, 8> operator>>(const batch<int16_t, 8>& lhs, int16_t rhs);
+    batch<int16_t, 8> operator<<(const batch<int16_t, 8>& lhs, int32_t rhs);
+    batch<int16_t, 8> operator>>(const batch<int16_t, 8>& lhs, int32_t rhs);
+    batch<int16_t, 8> operator<<(const batch<int16_t, 8>& lhs, const batch<int16_t, 8>& rhs);
+    batch<int16_t, 8> operator>>(const batch<int16_t, 8>& lhs, const batch<int16_t, 8>& rhs);
 
     /************************************
      * batch<int16_t, 8> implementation *
@@ -141,6 +147,25 @@ namespace xsimd
     inline batch<int16_t, 8>& batch<int16_t, 8>::operator=(const storage_type& rhs)
     {
         this->m_value = rhs;
+        return *this;
+    }
+
+    namespace detail
+    {
+        inline int16x8_t init_from_bool(uint16x8_t a)
+        {
+            return vandq_s16(reinterpret_cast<int16x8_t>(a), vdupq_n_s16(1));
+        }
+    }
+
+    inline batch<int16_t, 8>::batch(const batch_bool_type& rhs)
+        : base_type(detail::init_from_bool(rhs))
+    {
+    }
+
+    inline batch<int16_t, 8>& batch<int16_t, 8>::operator=(const batch_bool_type& rhs)
+    {
+        this->m_value = detail::init_from_bool(rhs);
         return *this;
     }
 
@@ -342,7 +367,7 @@ namespace xsimd
 
     namespace detail
     {
-        inline batch<int16_t, 8> shift_left(const batch<int16_t, 8>& lhs, const int n)
+        inline batch<int16_t, 8> shift_left(const batch<int16_t, 8>& lhs, int32_t n)
         {
             switch(n)
             {
@@ -353,7 +378,7 @@ namespace xsimd
             return batch<int16_t, 8>(int16_t(0));
         }
 
-        inline batch<int16_t, 8> shift_right(const batch<int16_t, 8>& lhs, const int n)
+        inline batch<int16_t, 8> shift_right(const batch<int16_t, 8>& lhs, int32_t n)
         {
             switch(n)
             {
@@ -365,12 +390,12 @@ namespace xsimd
         }
     }
 
-    inline batch<int16_t, 8> operator<<(const batch<int16_t, 8>& lhs, int16_t rhs)
+    inline batch<int16_t, 8> operator<<(const batch<int16_t, 8>& lhs, int32_t rhs)
     {
         return detail::shift_left(lhs, rhs);
     }
 
-    inline batch<int16_t, 8> operator>>(const batch<int16_t, 8>& lhs, int16_t rhs)
+    inline batch<int16_t, 8> operator>>(const batch<int16_t, 8>& lhs, int32_t rhs)
     {
         return detail::shift_right(lhs, rhs);
     }
@@ -378,6 +403,11 @@ namespace xsimd
     inline batch<int16_t, 8> operator<<(const batch<int16_t, 8>& lhs, const batch<int16_t, 8>& rhs)
     {
         return vshlq_s16(lhs, rhs);
+    }
+
+    inline batch<int16_t, 8> operator>>(const batch<int16_t, 8>& lhs, const batch<int16_t, 8>& rhs)
+    {
+        return vshlq_s16(lhs, vnegq_s16(rhs));
     }
 }
 

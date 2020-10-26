@@ -128,8 +128,12 @@ namespace xsimd
 
     batch<int64_t, 4> operator<<(const batch<int64_t, 4>& lhs, int32_t rhs);
     batch<int64_t, 4> operator>>(const batch<int64_t, 4>& lhs, int32_t rhs);
+    batch<int64_t, 4> operator<<(const batch<int64_t, 4>& lhs, const batch<int64_t, 4>& rhs);
+    batch<int64_t, 4> operator>>(const batch<int64_t, 4>& lhs, const batch<int64_t, 4>& rhs);
     batch<uint64_t, 4> operator<<(const batch<uint64_t, 4>& lhs, int32_t rhs);
     batch<uint64_t, 4> operator>>(const batch<uint64_t, 4>& lhs, int32_t rhs);
+    batch<uint64_t, 4> operator<<(const batch<uint64_t, 4>& lhs, const batch<int64_t, 4>& rhs);
+    batch<uint64_t, 4> operator>>(const batch<uint64_t, 4>& lhs, const batch<int64_t, 4>& rhs);
 
     /************************************
      * batch<int64_t, 4> implementation *
@@ -260,7 +264,9 @@ namespace xsimd
 
             static batch_type abs(const batch_type& rhs)
             {
-#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+#if defined(XSIMD_AVX512VL_AVAILABLE)
+                return _mm256_abs_epi64(rhs);
+#elif XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
                 __m256i sign = _mm256_cmpgt_epi64(_mm256_setzero_si256(), rhs);
                 __m256i inv = _mm256_xor_si256(rhs, sign);
                 return _mm256_sub_epi64(inv, sign);
@@ -491,13 +497,28 @@ namespace xsimd
 
     inline batch<int64_t, 4> operator>>(const batch<int64_t, 4>& lhs, int32_t rhs)
     {
-#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
-        return _mm256_srli_epi64(lhs, rhs);
+#if defined(XSIMD_AVX512VL_AVAILABLE)
+        return _mm256_srai_epi64(lhs, rhs);
 #else
-        XSIMD_SPLIT_AVX(lhs);
-        __m128i res_low = _mm_srli_epi64(lhs_low, rhs);
-        __m128i res_high = _mm_srli_epi64(lhs_high, rhs);
-        XSIMD_RETURN_MERGED_SSE(res_low, res_high);
+        return avx_detail::shift_impl([](int64_t val, int32_t rhs) { return val >> rhs; }, lhs, rhs);
+#endif
+    }
+
+    inline batch<int64_t, 4> operator<<(const batch<int64_t, 4>& lhs, const batch<int64_t, 4>& rhs)
+    {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+        return _mm256_sllv_epi64(lhs, rhs);
+#else
+        return avx_detail::shift_impl([](int64_t val, int64_t rhs) { return val << rhs; }, lhs, rhs);
+#endif
+    }
+
+    inline batch<int64_t, 4> operator>>(const batch<int64_t, 4>& lhs, const batch<int64_t, 4>& rhs)
+    {
+#if defined(XSIMD_AVX512VL_AVAILABLE)
+        return _mm256_srav_epi64(lhs, rhs);
+#else
+        return avx_detail::shift_impl([](int64_t val, int64_t rhs) { return val >> rhs; }, lhs, rhs);
 #endif
     }
 
@@ -522,6 +543,24 @@ namespace xsimd
         __m128i res_low = _mm_srli_epi64(lhs_low, rhs);
         __m128i res_high = _mm_srli_epi64(lhs_high, rhs);
         XSIMD_RETURN_MERGED_SSE(res_low, res_high);
+#endif
+    }
+
+    inline batch<uint64_t, 4> operator<<(const batch<uint64_t, 4>& lhs, const batch<int64_t, 4>& rhs)
+    {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+        return _mm256_sllv_epi64(lhs, rhs);
+#else
+        return avx_detail::shift_impl([](uint64_t val, int64_t rhs) { return val << rhs; }, lhs, rhs);
+#endif
+    }
+
+    inline batch<uint64_t, 4> operator>>(const batch<uint64_t, 4>& lhs, const batch<int64_t, 4>& rhs)
+    {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+        return _mm256_srlv_epi64(lhs, rhs);
+#else
+        return avx_detail::shift_impl([](uint64_t val, int64_t rhs) { return val >> rhs; }, lhs, rhs);
 #endif
     }
 }

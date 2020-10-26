@@ -74,8 +74,10 @@ namespace xsimd
         explicit batch(double d);
         batch(double d0, double d1, double d2, double d3, double d4, double d5, double d6, double d7);
         explicit batch(const double* src);
+
         batch(const double* src, aligned_mode);
         batch(const double* src, unaligned_mode);
+        
         batch(const __m512d& rhs);
         batch& operator=(const __m512d& rhs);
 
@@ -141,6 +143,8 @@ namespace xsimd
     {
         return this->m_value;
     }
+
+    XSIMD_DEFINE_LOAD_STORE(double, 8, bool, 64)
 
     inline batch<double, 8>& batch<double, 8>::load_aligned(const int8_t* src)
     {

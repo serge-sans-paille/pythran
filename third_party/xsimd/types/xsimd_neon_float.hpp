@@ -38,6 +38,7 @@ namespace xsimd
         using self_type = batch<float, 4>;
         using base_type = simd_batch<self_type>;
         using storage_type = typename base_type::storage_type;
+        using batch_bool_type = typename base_type::batch_bool_type;
 
         batch();
         explicit batch(float d);
@@ -49,6 +50,9 @@ namespace xsimd
 
         batch(const storage_type& rhs);
         batch& operator=(const storage_type& rhs);
+
+        batch(const batch_bool_type& rhs);
+        batch& operator=(const batch_bool_type& rhs);
 
         operator storage_type() const;
 
@@ -105,6 +109,18 @@ namespace xsimd
         return *this;
     }
 
+    inline batch<float, 4>::batch(const batch_bool_type& rhs)
+        : base_type(vreinterpretq_f32_u32(vandq_u32(rhs, 
+                                                    vreinterpretq_u32_f32(batch(1.f)))))
+    {
+    }
+
+    inline batch<float, 4>& batch<float, 4>::operator=(const batch_bool_type& rhs)
+    {
+        this->m_value = vreinterpretq_f32_u32(vandq_u32(rhs, vreinterpretq_u32_f32(batch(1.f))));
+        return *this;
+    }
+
     inline batch<float, 4>& batch<float, 4>::load_aligned(const int8_t* src)
     {
         int8x8_t tmp = vld1_s8((const int8_t*)src);
@@ -119,6 +135,8 @@ namespace xsimd
     {
         return load_aligned(src);
     }
+
+    XSIMD_DEFINE_LOAD_STORE(float, 4, bool, XSIMD_DEFAULT_ALIGNMENT)
 
     inline batch<float, 4>& batch<float, 4>::load_aligned(const uint8_t* src)
     {

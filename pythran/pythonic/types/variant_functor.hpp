@@ -57,6 +57,8 @@ namespace types
     variant_functor_impl<Type>::assign(char mem[],
                                        variant_functor_impl<Type> const &other)
     {
+      if (fun != nullptr)
+        fun->~Type();
       if (other.fun)
         fun = new (mem) Type(*other.fun);
     }
@@ -104,7 +106,16 @@ namespace types
     template <class Type>
     void variant_functor_impl<Type>::assign(char mem[], Type const &other)
     {
+      if (fun != nullptr)
+        fun->~Type();
       fun = new (mem) Type(other);
+    }
+
+    template <class Type>
+    variant_functor_impl<Type>::~variant_functor_impl<Type>()
+    {
+      if (fun != nullptr)
+        fun->~Type();
     }
 
     template <class Type>

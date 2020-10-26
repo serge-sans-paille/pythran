@@ -40,6 +40,8 @@ namespace types
       variant_functor_impl() = default;
       variant_functor_impl(variant_functor_impl const &) = delete;
 
+      ~variant_functor_impl();
+
       variant_functor_impl(char mem[], Type const &t);
       variant_functor_impl(char mem[], variant_functor_impl<Type> const &t);
 

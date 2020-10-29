@@ -130,6 +130,10 @@ namespace types
     bool operator!=(dynamic_tuple<T> const &other) const;
 
     bool operator<(dynamic_tuple<T> const &other) const;
+    bool operator<=(dynamic_tuple<T> const &other) const;
+
+    bool operator>(dynamic_tuple<T> const &other) const;
+    bool operator>=(dynamic_tuple<T> const &other) const;
 
     dynamic_tuple<T> operator+(dynamic_tuple<T> const &other) const;
 
@@ -162,6 +166,15 @@ namespace types
         -> decltype(details::extract_shape(*this, utils::int_<I>{}))
     {
       return details::extract_shape(*this, utils::int_<I>{});
+    }
+
+    template <class E, size_t N, class S>
+    operator array_base<E, N, S>() const
+    {
+      assert(N == size() && "compatible sizes");
+      array_base<E, N, S> out;
+      std::copy(begin(), end(), out.begin());
+      return out;
     }
   };
   template <class T>

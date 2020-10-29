@@ -12,6 +12,7 @@
 #include "pythonic/utils/nested_container.hpp"
 
 #include <algorithm>
+#include <functional>
 
 PYTHONIC_NS_BEGIN
 namespace types
@@ -56,7 +57,32 @@ namespace types
   bool dynamic_tuple<T>::operator<(dynamic_tuple<T> const &other) const
   {
     return std::lexicographical_compare(begin(), end(), other.begin(),
-                                        other.end());
+                                        other.end(), std::less<T>());
+  }
+
+  template <typename T>
+  bool dynamic_tuple<T>::operator<=(dynamic_tuple<T> const &other) const
+  {
+    if (size() == other.size() && std::equal(begin(), end(), other.begin()))
+      return true;
+    return std::lexicographical_compare(begin(), end(), other.begin(),
+                                        other.end(), std::less<T>());
+  }
+
+  template <typename T>
+  bool dynamic_tuple<T>::operator>(dynamic_tuple<T> const &other) const
+  {
+    return std::lexicographical_compare(begin(), end(), other.begin(),
+                                        other.end(), std::greater<T>());
+  }
+
+  template <typename T>
+  bool dynamic_tuple<T>::operator>=(dynamic_tuple<T> const &other) const
+  {
+    if (size() == other.size() && std::equal(begin(), end(), other.begin()))
+      return true;
+    return std::lexicographical_compare(begin(), end(), other.begin(),
+                                        other.end(), std::greater<T>());
   }
 
   template <typename T>

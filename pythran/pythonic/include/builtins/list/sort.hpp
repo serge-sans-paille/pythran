@@ -16,6 +16,9 @@ namespace builtins
     template <class T>
     types::none_type sort(types::list<T> &seq);
 
+    template <class T, class K>
+    types::none_type sort(types::list<T> &seq, K key);
+
     DEFINE_FUNCTOR(pythonic::builtins::list, sort);
   }
 }

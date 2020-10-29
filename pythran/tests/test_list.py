@@ -46,6 +46,9 @@ class TestList(TestEnv):
     def test_sort_(self):
         self.run_test("def sort_():\n b=[1,3,5,4,2]\n b.sort()\n return b", sort_=[])
 
+    def test_sort_key(self):
+        self.run_test("def sort_key(n):\n b=[(1,3),(5,4),(2,n)]\n b.sort(key=lambda x: x[1])\n return b", 1, sort_key=[int])
+
     def test_insert_(self):
         self.run_test("def insert_(a,b):\n c=[1,3,5,4,2]\n c.insert(a,b)\n return c",2,5, insert_=[int,int])
 

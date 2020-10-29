@@ -23,6 +23,15 @@ namespace builtins
       pdqsort(seq.begin(), seq.end());
       return builtins::None;
     }
+
+    template <class T, class K>
+    types::none_type sort(types::list<T> &seq, K key)
+    {
+      pdqsort(seq.begin(), seq.end(), [&key](T const &self, T const &other) {
+        return key(self) < key(other);
+      });
+      return builtins::None;
+    }
   }
 }
 PYTHONIC_NS_END

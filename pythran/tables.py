@@ -177,10 +177,7 @@ CLASSES = {
         ),
         "reverse": MethodIntr(signature=Fun[[List[T0]], None]),
         "sort": MethodIntr(
-            signature=Union[
-                Fun[[List[T0]], None],
-                Fun[[List[T0], Fun[[T0, T0], int]], None],
-            ],
+            args=("self", "key",),
         ),
         "count": ConstMethodIntr(signature=Fun[[List[T0], T0], int]),
         "remove": MethodIntr(signature=Fun[[List[T0], T0], None]),

@@ -431,3 +431,11 @@ all_commands = call_partial(g)
 def global_effects_partial0(l):
     return all_commands(l)'''
         self.run_test(code, 3, global_effects_partial0=[int])
+
+    def test_dynamic_tuple_compare(self):
+        code = '''
+           def dynamic_tuple_compare(x, y):
+               y = tuple(y)
+               x = tuple(x)
+               return x < y, x <= y, x > y, x >= y'''
+        self.run_test(code, [1, 2], [1, 3], dynamic_tuple_compare=[List[int], List[int]])

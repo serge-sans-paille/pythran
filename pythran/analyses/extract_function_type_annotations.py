@@ -7,7 +7,6 @@ from pythran.typing import List, Set, Tuple, NDArray
 from pythran.log import logger as log
 from pythran import types
 from pythran import spec
-from astpretty import pprint
 from typing import ClassVar
 
 import gast as ast

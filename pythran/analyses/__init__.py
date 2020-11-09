@@ -18,6 +18,7 @@ from .cfg import CFG
 from .constant_expressions import ConstantExpressions
 from .dependencies import Dependencies
 from .extended_syntax_check import ExtendedSyntaxCheck
+from .extract_function_type_annotations import ExtractFunctionTypeAnnotations
 from .fixed_size_list import FixedSizeList
 from .global_declarations import GlobalDeclarations
 from .global_effects import GlobalEffects

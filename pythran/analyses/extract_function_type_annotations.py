@@ -7,7 +7,6 @@ from pythran.typing import List, Set, Tuple, NDArray
 from pythran.log import logger as log
 from pythran import types
 from pythran import spec
-from astpretty import pprint
 from typing import ClassVar
 
 import gast as ast
@@ -34,10 +33,8 @@ dtypes = {
     'intp': np.intp,
     'float32': np.float32,
     'float64': np.float64,
-    'float128': np.float128,
     'complex64': np.complex64,
     'complex128': np.complex128,
-    'complex256': np.complex256,
     'str': str,
     'None': type(None),
     'bytes': bytes,

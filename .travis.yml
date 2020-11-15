@@ -44,6 +44,9 @@ matrix:
         - env: CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp" TESTCASE='pythran/tests/test_[o]*.py'
         - env: CC=gcc-5 CXX=g++-5 CXXFLAGS="-fopenmp" TESTCASE='pythran/tests/test_[p-w]*.py'
         - env: PYTHRAN_DOC=true
+        - env: PYTHONOPTIMIZE=0 CC=gcc-5 CXX=g++-5 TESTCASE='pythran/tests/test_ca*.py'
+        - env: PYTHONOPTIMIZE=1 CC=gcc-5 CXX=g++-5 TESTCASE='pythran/tests/test_ca*.py'
+        - env: PYTHONOPTIMIZE=2 CC=gcc-5 CXX=g++-5 TESTCASE='pythran/tests/test_ca*.py'
 
         - os: osx
           language: generic

@@ -195,9 +195,10 @@ class SpecParser(object):
     )
 
     def t_IDENTIFER(self, t):
-        r'\#?[a-zA-Z_][a-zA-Z_0-9]*'
         t.type = SpecParser.reserved.get(t.value, 'IDENTIFIER')
         return t
+
+    t_IDENTIFER.__doc__ = r'\#?[a-zA-Z_][a-zA-Z_0-9]*'
 
     # skipped characters
     t_ignore = ' \t\r'
@@ -208,30 +209,29 @@ class SpecParser(object):
 
     # Define a rule so we can track line numbers
     def t_newline(self, t):
-        r'\n+'
         t.lexer.lineno += len(t.value)
+
+    t_newline.__doc__ = r'\n+'
 
     # yacc part
 
     def p_exports(self, p):
-        '''exports :
-                   | PYTHRAN EXPORT export_list opt_craps exports
-                   | PYTHRAN EXPORT CAPSULE export_list opt_craps exports'''
         if len(p) > 1:
             target = self.exports if len(p) == 6 else self.native_exports
             for key, val in p[len(p)-3]:
                 target[key] += val
 
+    p_exports.__doc__ = '''exports :
+                   | PYTHRAN EXPORT export_list opt_craps exports
+                   | PYTHRAN EXPORT CAPSULE export_list opt_craps exports'''
+
     def p_export_list(self, p):
-        '''export_list : export
-                  | export_list COMMA export'''
         p[0] = (p[1],) if len(p) == 2 else (p[1] + (p[3],))
 
+    p_export_list.__doc__ = '''export_list : export
+                  | export_list COMMA export'''
+
     def p_export(self, p):
-        '''export : IDENTIFIER LPAREN opt_param_types RPAREN
-                  | IDENTIFIER
-                  | EXPORT LPAREN opt_param_types RPAREN
-                  | ORDER LPAREN opt_param_types RPAREN'''
         # unlikely case: the IDENTIFIER is an otherwise reserved name
         if len(p) > 2:
             sigs = p[3] or ((),)
@@ -239,12 +239,21 @@ class SpecParser(object):
             sigs = ()
         p[0] = p[1], sigs
 
+    p_export.__doc__ = '''export : IDENTIFIER LPAREN opt_param_types RPAREN
+                  | IDENTIFIER
+                  | EXPORT LPAREN opt_param_types RPAREN
+                  | ORDER LPAREN opt_param_types RPAREN'''
+
     def p_opt_craps(self, p):
-        '''opt_craps :
+        pass
+
+    p_opt_craps.__doc__ = '''opt_craps :
                      | some_crap opt_all_craps'''
 
     def p_opt_all_craps(self, p):
-        '''opt_all_craps :
+        pass
+
+    p_opt_all_craps.__doc__ = '''opt_all_craps :
                      | crap opt_all_craps'''
 
     def p_crap(self, p):
@@ -258,27 +267,24 @@ class SpecParser(object):
     p_some_crap.__doc__ = 'some_crap : ' + '\n| '.join(some_crap)
 
     def p_dtype(self, p):
-        'dtype : '
         import numpy
         p[0] = eval(p[1], numpy.__dict__),
 
-    p_dtype.__doc__ += '\n| '.join(dtypes.values())
+    p_dtype.__doc__ = 'dtype : ' + '\n| '.join(dtypes.values())
 
     def p_opt_param_types(self, p):
-        '''opt_param_types :
-                     | param_types'''
         p[0] = p[1] if len(p) == 2 else tuple()
+
+    p_opt_param_types.__doc__ = '''opt_param_types :
+                     | param_types'''
 
     def p_opt_types(self, p):
-        '''opt_types :
-                     | types'''
         p[0] = p[1] if len(p) == 2 else tuple()
 
+    p_opt_types.__doc__ = '''opt_types :
+                     | types'''
+
     def p_param_types(self, p):
-        '''param_types : type
-                       | type OPT
-                       | type COMMA param_types
-                       | type OPT COMMA default_types'''
         if len(p) == 2:
             p[0] = tuple((t,) for t in p[1])
         elif len(p) == 3:
@@ -288,25 +294,29 @@ class SpecParser(object):
         else:
             p[0] = tuple((t,) + ts for t in p[1] for ts in p[4]) + ((),)
 
-    def p_default_types(self, p):
-        '''default_types : type OPT
+    p_param_types.__doc__ = '''param_types : type
+                       | type OPT
+                       | type COMMA param_types
                        | type OPT COMMA default_types'''
+
+    def p_default_types(self, p):
         if len(p) == 3:
             p[0] = tuple((t,) for t in p[1]) + ((),)
         else:
             p[0] = tuple((t,) + ts for t in p[1] for ts in p[4]) + ((),)
+    p_default_types.__doc__ = '''default_types : type OPT
+                       | type OPT COMMA default_types'''
 
     def p_types(self, p):
-        '''types : type
-                 | type COMMA types'''
         if len(p) == 2:
             p[0] = tuple((t,) for t in p[1])
         else:
             p[0] = tuple((t,) + ts for t in p[1] for ts in p[3])
 
+    p_types.__doc__ = '''types : type
+                 | type COMMA types'''
+
     def p_array_type(self, p):
-        '''array_type : dtype
-                | array_type LARRAY array_indices RARRAY'''
         if len(p) == 2:
             p[0] = p[1][0],
         elif len(p) == 5 and p[4] == ']':
@@ -314,18 +324,10 @@ class SpecParser(object):
                 return t.__args__ if isinstance(t, NDArray) else (t,)
             p[0] = tuple(NDArray[args(t) + p[3]] for t in p[1])
 
+    p_array_type.__doc__ = '''array_type : dtype
+                | array_type LARRAY array_indices RARRAY'''
+
     def p_type(self, p):
-        '''type : term
-                | array_type opt_order
-                | pointer_type
-                | type LIST
-                | type SET
-                | type LPAREN opt_types RPAREN
-                | type COLUMN type DICT
-                | LPAREN types RPAREN
-                | LARRAY type RARRAY
-                | type OR type
-                '''
         if len(p) == 2:
             p[0] = p[1],
         elif len(p) == 3 and p[2] == 'list':
@@ -367,9 +369,19 @@ class SpecParser(object):
             raise PythranSyntaxError("Invalid Pythran spec. "
                                      "Unknown text '{0}'".format(p.value))
 
+    p_type.__doc__ = '''type : term
+                | array_type opt_order
+                | pointer_type
+                | type LIST
+                | type SET
+                | type LPAREN opt_types RPAREN
+                | type COLUMN type DICT
+                | LPAREN types RPAREN
+                | LARRAY type RARRAY
+                | type OR type
+                '''
+
     def p_opt_order(self, p):
-        '''opt_order :
-                     | ORDER LPAREN IDENTIFIER RPAREN'''
         if len(p) > 1:
             if p[3] not in 'CF':
                 raise PythranSyntaxError("Invalid Pythran spec. "
@@ -378,23 +390,24 @@ class SpecParser(object):
         else:
             p[0] = None
 
+    p_opt_order.__doc__ = '''opt_order :
+                     | ORDER LPAREN IDENTIFIER RPAREN'''
+
     def p_pointer_type(self, p):
-        '''pointer_type : dtype STAR'''
         p[0] = Pointer[p[1][0]]
 
+    p_pointer_type.__doc__ = '''pointer_type : dtype STAR'''
+
     def p_array_indices(self, p):
-        '''array_indices : array_index
-                         | array_index COMMA array_indices'''
         if len(p) == 2:
             p[0] = p[1],
         else:
             p[0] = (p[1],) + p[3]
 
+    p_array_indices.__doc__ = '''array_indices : array_index
+                         | array_index COMMA array_indices'''
+
     def p_array_index(self, p):
-        '''array_index :
-                       | NUM
-                       | COLUMN
-                       | COLUMN COLUMN'''
         if len(p) == 3:
             p[0] = slice(0, -1, -1)
         elif len(p) == 1 or p[1] == ':':
@@ -402,11 +415,12 @@ class SpecParser(object):
         else:
             p[0] = slice(0, int(p[1]), 1)
 
+    p_array_index.__doc__ = '''array_index :
+                       | NUM
+                       | COLUMN
+                       | COLUMN COLUMN'''
+
     def p_term(self, p):
-        '''term : STR
-                | NONE
-                | SLICE
-                | dtype'''
         if p[1] == 'str':
             p[0] = str
         elif p[1] == 'slice':
@@ -415,6 +429,11 @@ class SpecParser(object):
             p[0] = type(None)
         else:
             p[0] = p[1][0]
+
+    p_term.__doc__ = '''term : STR
+                | NONE
+                | SLICE
+                | dtype'''
 
     def p_error(self, p):
         p_val = p.value if p else ''

@@ -82,7 +82,9 @@ namespace types
             bool T0_number = is_dtype<T0>::value,
             bool T1_number = is_dtype<T1>::value>
   struct the_common_type {
-    using type = typename std::conditional < T0::value<T1::value, T1, T0>::type;
+    using type =
+        typename std::conditional <
+        std::decay<T0>::type::value<std::decay<T1>::type::value, T1, T0>::type;
   };
 
   template <class T0, class T1>
@@ -136,7 +138,8 @@ namespace types
 
   template <class T, class C>
   struct adapted_type<T, C, false, true> {
-    using type = broadcast<typename C::dtype, typename std::decay<T>::type>;
+    using type = broadcast<typename std::decay<C>::type::dtype,
+                           typename std::decay<T>::type>;
   };
 
   template <class T, size_t N>

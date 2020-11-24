@@ -18,9 +18,9 @@ namespace numpy
 
 #define NUMPY_NARY_EXTRA_METHOD                                                \
   template <class E>                                                           \
-  auto operator()(E const &expr)->decltype(nonzero{}(expr))                    \
+  auto operator()(E && expr)->decltype(nonzero{}(std::forward<E>(expr)))       \
   {                                                                            \
-    return nonzero{}(expr);                                                    \
+    return nonzero{}(std::forward<E>(expr));                                   \
   }
 
 #define NUMPY_NARY_FUNC_NAME where

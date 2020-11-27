@@ -34,6 +34,26 @@ struct lazy : assignable<T> {
 }; // very conservative
 
 template <class T>
+struct assignable_noescape : assignable<T> {
+};
+
+template <class T>
+struct assignable_noescape<T const> : assignable_noescape<T> {
+};
+
+template <class T>
+struct assignable_noescape<T const &> : assignable_noescape<T> {
+};
+
+template <class T>
+struct assignable_noescape<T &> : assignable_noescape<T> {
+};
+
+template <class T>
+struct assignable_noescape<T &&> : assignable_noescape<T> {
+};
+
+template <class T>
 struct returnable : assignable<T> {
 };
 

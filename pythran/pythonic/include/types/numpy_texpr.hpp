@@ -296,6 +296,11 @@ namespace types
 }
 
 template <class Arg>
+struct assignable_noescape<types::numpy_texpr<Arg>> {
+  using type = types::numpy_texpr<Arg>;
+};
+
+template <class Arg>
 struct assignable<types::numpy_texpr<Arg>> {
   using type = types::numpy_texpr<typename assignable<Arg>::type>;
 };

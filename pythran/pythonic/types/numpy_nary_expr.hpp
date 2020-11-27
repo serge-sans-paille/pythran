@@ -35,7 +35,7 @@ namespace functor
       NUMPY_NARY_FUNC_NAME::
       operator()(E &&... args) const
   {
-    return {args...};
+    return {std::forward<E>(args)...};
   }
 }
 

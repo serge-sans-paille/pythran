@@ -40,6 +40,13 @@ namespace numpy
   reduce(E const &expr, types::none_type _ = types::none_type());
 
   template <class Op, class E>
+  reduce_result_type<Op, E> reduce(types::numpy_texpr<E> const &expr,
+                                   types::none_type _ = types::none_type())
+  {
+    return reduce<Op>(expr.arg);
+  }
+
+  template <class Op, class E>
   typename std::enable_if<
       std::is_scalar<E>::value || types::is_complex<E>::value, E>::type
   reduce(E const &expr, types::none_type _ = types::none_type());
@@ -69,6 +76,14 @@ namespace numpy
   typename std::enable_if<E::value != 1, reduced_type<E, Op>>::type
   reduce(E const &array, long axis, types::none_type dtype = types::none_type(),
          types::none_type out = types::none_type());
+
+  template <class Op, class E>
+  reduced_type<E, Op> reduce(types::numpy_texpr<E> const &array, long axis,
+                             types::none_type dtype = types::none_type(),
+                             types::none_type out = types::none_type())
+  {
+    return reduce<Op>(array.arg, (axis + 1) % 2);
+  }
 
   template <class Op, class E, class Out>
   typename std::enable_if<E::value != 1, reduced_type<E, Op>>::type

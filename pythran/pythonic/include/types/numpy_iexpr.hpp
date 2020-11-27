@@ -370,6 +370,11 @@ namespace types
 }
 
 template <class Arg>
+struct assignable_noescape<types::numpy_iexpr<Arg>> {
+  using type = types::numpy_iexpr<Arg>;
+};
+
+template <class Arg>
 struct assignable<types::numpy_iexpr<Arg>> {
   using type = types::numpy_iexpr<typename assignable<Arg>::type>;
 };

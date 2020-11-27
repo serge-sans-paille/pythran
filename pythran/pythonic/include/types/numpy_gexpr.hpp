@@ -119,8 +119,7 @@ namespace types
     template <class E, class Sp, class... S>
     typename std::enable_if<
         is_slice<Sp>::value,
-        numpy_gexpr<typename std::decay<E>::type, normalize_t<Sp>,
-                    normalize_t<S>...>>::type
+        numpy_gexpr<E, normalize_t<Sp>, normalize_t<S>...>>::type
     operator()(E &&expr, Sp const &s0, S const &... s)
     {
       return make_gexpr(std::forward<E>(expr), s0, s...);
@@ -868,6 +867,11 @@ namespace types
     }
   };
 }
+
+template <class E, class... S>
+struct assignable_noescape<types::numpy_gexpr<E, S...>> {
+  using type = types::numpy_gexpr<E, S...>;
+};
 
 template <class T, class pS, class... S>
 struct assignable<types::numpy_gexpr<types::ndarray<T, pS> const &, S...>> {

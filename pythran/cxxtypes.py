@@ -282,6 +282,15 @@ std::declval<bool>()))
                 return 'typename pythonic::assignable<{0}>::type'.format(
                     self.of.generate(ctx))
 
+        class AssignableNoEscape(DependentType):
+            """
+            Similar to Assignable, but it doesn't escape it's declaration scope
+            """
+
+            def generate(self, ctx):
+                return 'typename pythonic::assignable_noescape<{0}>::type'.format(
+                    self.of.generate(ctx))
+
         class Returnable(DependentType):
             """
             A type which can be returned

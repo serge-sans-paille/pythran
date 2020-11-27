@@ -412,7 +412,7 @@ class CxxFunction(ast.NodeVisitor):
             elif isinstance(self.types[node.targets[0]],
                             self.types.builder.Assignable):
                 alltargets = '{} {}'.format(
-                    self.types.builder.Assignable(
+                    self.types.builder.AssignableNoEscape(
                         self.types.builder.NamedType(
                             'decltype({})'.format(value))),
                     alltargets)

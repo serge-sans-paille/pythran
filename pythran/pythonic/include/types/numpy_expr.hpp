@@ -746,8 +746,9 @@ namespace types
 #endif
 
     template <size_t... I, class... S>
-    auto _get(utils::index_sequence<I...> is, S const &... s) const
-        -> decltype(Op{}(std::get<I>(args)(s...)...))
+    auto _get(utils::index_sequence<I...> is, S const &... s) const -> decltype(
+        Op{}(make_subslice(utils::make_index_sequence<sizeof...(S)>{},
+                           std::get<I>(args), *this, std::make_tuple(s...))...))
     {
       return Op{}(make_subslice(utils::make_index_sequence<sizeof...(S)>{},
                                 std::get<I>(args), *this,

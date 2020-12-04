@@ -31,3 +31,4 @@ from .remove_lambdas import RemoveLambdas
 from .remove_nested_functions import RemoveNestedFunctions
 from .unshadow_parameters import UnshadowParameters
 from .remove_named_arguments import RemoveNamedArguments
+from .remove_fstrings import RemoveFStrings

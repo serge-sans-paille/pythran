@@ -38,6 +38,16 @@ class TestNumpyRandom(TestEnv):
                 return (abs(s / (n * n) - .5) < .05)""",
                       10 ** 3, numpy_random2=[int])
 
+    def test_numpy_random3(self):
+        """ Check numpy random with constant size argument. """
+        self.run_test("""
+            def numpy_random3(n):
+                from numpy.random import random
+                s = sum(random(10 ** 5))
+                return (abs(s / n - .5) < .05)""",
+                      10 ** 5, numpy_random3=[int])
+
+
     ###########################################################################
     #Tests for numpy.random.random_sample
     ###########################################################################

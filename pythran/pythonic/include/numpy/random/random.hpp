@@ -16,6 +16,13 @@ namespace numpy
 
     auto random(long size) -> decltype(random(types::array<long, 1>{{size}}));
 
+    template <long N>
+    auto random(std::integral_constant<long, N>)
+        -> decltype(random(types::array<std::integral_constant<long, N>, 1>{}))
+    {
+      return random(types::array<std::integral_constant<long, N>, 1>{});
+    }
+
     double random(types::none_type d = types::none_type());
 
     DEFINE_FUNCTOR(pythonic::numpy::random, random);

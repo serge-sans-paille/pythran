@@ -23,6 +23,14 @@ namespace numpy
   {
     return empty(types::pshape<long>(size), d);
   }
+
+  template <long N, class dtype>
+  types::ndarray<typename dtype::type,
+                 types::pshape<std::integral_constant<long, N>>>
+  empty(std::integral_constant<long, N>, dtype d)
+  {
+    return empty(types::pshape<std::integral_constant<long, N>>({}), d);
+  }
 }
 PYTHONIC_NS_END
 

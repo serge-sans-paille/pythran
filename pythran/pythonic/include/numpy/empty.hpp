@@ -17,6 +17,11 @@ namespace numpy
   types::ndarray<typename dtype::type, types::pshape<long>>
   empty(long size, dtype d = dtype());
 
+  template <long N, class dtype = functor::float64>
+  types::ndarray<typename dtype::type,
+                 types::pshape<std::integral_constant<long, N>>>
+  empty(std::integral_constant<long, N>, dtype d = dtype());
+
   DEFINE_FUNCTOR(pythonic::numpy, empty);
 }
 PYTHONIC_NS_END

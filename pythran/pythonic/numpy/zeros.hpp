@@ -27,6 +27,14 @@ namespace numpy
   {
     return zeros(types::pshape<long>(size), d);
   }
+
+  template <long N, class dtype>
+  types::ndarray<typename dtype::type,
+                 types::pshape<std::integral_constant<long, N>>>
+  zeros(std::integral_constant<long, N>, dtype d)
+  {
+    return zeros(types::pshape<std::integral_constant<long, N>>({}), d);
+  }
 }
 PYTHONIC_NS_END
 

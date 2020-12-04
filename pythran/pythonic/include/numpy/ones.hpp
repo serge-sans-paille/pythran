@@ -18,6 +18,11 @@ namespace numpy
   types::ndarray<typename dtype::type, types::pshape<long>>
   ones(long size, dtype d = dtype());
 
+  template <long N, class dtype = functor::float64>
+  types::ndarray<typename dtype::type,
+                 types::pshape<std::integral_constant<long, N>>>
+  ones(std::integral_constant<long, N>, dtype d = dtype());
+
   DEFINE_FUNCTOR(pythonic::numpy, ones);
 }
 PYTHONIC_NS_END

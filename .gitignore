@@ -19,3 +19,5 @@ docs/AUTHORS.rst
 docs/SUPPORT.rst
 
 docs/_build/*
+.venv/
+.idea/

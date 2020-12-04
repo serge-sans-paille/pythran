@@ -3,6 +3,7 @@ This module contains all the stuff to make your way from python code to
 a dynamic library, see __init__.py for exported interfaces.
 '''
 
+from pythran.analyses.extract_function_type_annotations import ExtractFunctionTypeAnnotations
 from pythran.backend import Cxx, Python
 from pythran.config import cfg
 from pythran.cxxgen import PythonModule, Include, Line, Statement
@@ -130,10 +131,21 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
     a compile error (e.g. due to bad typing)
 
     '''
+    def extract_annotated_specs(module_name, code) -> Spec:
+        pm = PassManager(module_name, module_dir)
+        node, docstrings = frontend.parse(pm, code)
+        return pm.gather(ExtractFunctionTypeAnnotations, node)
+
+    ann_specs = extract_annotated_specs(module_name, code)
+
     if specs:
+        assert set(ann_specs.keys()) == set(specs.keys())
+        for fn, ty in ann_specs.functions.items():
+            specs.functions[fn] = ty
         entry_points = set(specs.keys())
+        print(str(ann_specs.__dict__), str(specs.__dict__))
     else:
-        entry_points = None
+        entry_points = ann_specs
 
     pm, ir, docstrings = front_middle_end(module_name, code, optimizations,
                                           module_dir,
@@ -385,10 +397,36 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
             shutil.move(tmp_file, output_file)
             logger.info("Generated Python source file: " + output_file)
 
+    def extract_annotated_specs(module_name, code) -> Spec:
+        pm = PassManager(module_name, module_dir)
+        node, docstrings = frontend.parse(pm, code)
+        return pm.gather(ExtractFunctionTypeAnnotations, node)
+
+    ann_specs = extract_annotated_specs(module_name, pythrancode)
+
     # Autodetect the Pythran spec if not given as parameter
     from pythran.spec import spec_parser
     if specs is None:
         specs = spec_parser(pythrancode)
+
+    if specs:
+        # if a spec directive could be detected then:
+        # 1. where a name appears empty in the spec directive (eg. #pythran export foo), overwrite the empty
+        #    fn type with the type annotations;
+        # 2. where a name defines a function in the spec directive (eg. #pythran export foo(int8)), verify
+        #    that the types match those in the type annotation.
+        dual_spec_fns = set(specs.functions.keys()) & set(ann_specs.functions.keys())
+        mismatches: list[str] = []
+        for fn in dual_spec_fns:
+            t = specs.functions[fn]
+            u = ann_specs.functions[fn]
+            if not t or t == ():
+                t = u
+            if t != u:
+                mismatches.append(f"Type annotations don't match pythran spec directive for '{fn}': expected {t}; got {u}.")
+        if mismatches:
+            # FIXME: the error should be emitted with the location. Not sure how to do that.
+            raise CompileError(" ".join(mismatches))
 
     # Generate C++, get a PythonModule object
     module, error_checker = generate_cxx(module_name, pythrancode, specs, opts,

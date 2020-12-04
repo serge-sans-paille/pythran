@@ -1,6 +1,6 @@
 """This module turns a python AST into an optimized, pythran compatible ast."""
 
-from pythran.analyses import ExtendedSyntaxCheck
+from pythran.analyses import ExtendedSyntaxCheck, ExtractFunctionTypeAnnotations
 from pythran.optimizations import (ComprehensionPatterns, ListCompToGenexp,
                                    RemoveDeadFunctions)
 from pythran.transformations import (ExpandBuiltins, ExpandImports,
@@ -12,12 +12,14 @@ from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      UnshadowParameters, RemoveNamedArguments,
                                      ExpandGlobals, NormalizeIsNone,
                                      NormalizeIfElse,
-                                     NormalizeStaticIf, SplitStaticExpression)
+                                     NormalizeStaticIf, SplitStaticExpression,
+                                     RemoveTypeAnnotations)
 
 
 def refine(pm, node, optimizations):
     """ Refine node in place until it matches pythran's expectations. """
     # Sanitize input
+    pm.apply(RemoveTypeAnnotations, node)
     pm.apply(RemoveDeadFunctions, node)
     pm.apply(ExpandGlobals, node)
     pm.apply(ExpandImportAll, node)

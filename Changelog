@@ -1,3 +1,15 @@
+2020-11-09 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Basic f-string support
+
+	* Optimize shared reference of array expressions (again)
+
+	* np.nan{min,max}, np.around, np.wrap implementation fixes
+
+	* PYTHONOPTIMIZE={1,2} compatibility
+
+	* Support list.sort with key argument
+
 2020-09-22 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Improve computation of contiguous slices when bounds are positive

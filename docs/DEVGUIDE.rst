@@ -189,4 +189,4 @@ How to
     1. Use the ``github`` interface and the pull/push requests features
     2. Make your dev available on the web and asks for a merge on the IRC
            channel ``#pythran`` on ``irc.freenode.net``
-           ( via your browser: https://webchat.freenode.net/?channel=#pythran )
+           (via your browser: https://webchat.freenode.net/?channel=#pythran)

@@ -30,13 +30,13 @@ namespace random
       }
 
       typedef unsigned result_type;
-      result_type min()
+      static constexpr result_type min()
       {
         return 0;
       }
       /* -1 because of the floor() operation performed by the float->unsigned
        * conversion */
-      result_type max()
+      static constexpr result_type max()
       {
         return std::numeric_limits<result_type>::max() - 1;
       }

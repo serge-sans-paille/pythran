@@ -1,4 +1,7 @@
+include AUTHORS
+include Changelog
 include LICENSE
+include README.rst
 include requirements.txt
 include docs/*
 recursive-include third_party *

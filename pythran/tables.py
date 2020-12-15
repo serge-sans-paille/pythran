@@ -3931,7 +3931,9 @@ MODULES = {
             "weibull": FunctionIntr(args=('a', 'size',),
                                     global_effects=True),
         },
-        "ravel": ConstMethodIntr(),
+        "ravel": ConstMethodIntr(
+            return_alias=lambda args: {args[0]}
+        ),
         "real": FunctionIntr(),
         "reciprocal": ConstFunctionIntr(),
         "remainder": UFunc(BINARY_UFUNC),

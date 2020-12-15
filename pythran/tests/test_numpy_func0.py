@@ -559,6 +559,9 @@ def np_rosen_der(x):
     def test_ravel1(self):
         self.run_test("def np_ravel1(x): return x.ravel()", numpy.arange(6).reshape((2,3)), np_ravel1=[NDArray[int,:,:]])
 
+    def test_ravel2(self):
+        self.run_test("def np_ravel2(x): y = x.ravel(); y[3] = 10; return x", numpy.arange(6).reshape((2,3)), np_ravel2=[NDArray[int,:,:]])
+
     def test_repeat0(self):
         self.run_test("def np_repeat0(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(3), np_repeat0=[NDArray[int,:]])
 

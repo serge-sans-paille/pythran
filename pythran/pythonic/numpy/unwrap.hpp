@@ -26,7 +26,8 @@ namespace numpy
       for (; ibegin != iend; ++ibegin, ++obegin) {
         if (functor::abs{}(*obegin - *ibegin) > discont)
           *(obegin + 1) =
-              *ibegin + 2 * pi * functor::round{}((*obegin - *ibegin) / (2*pi));
+              *ibegin +
+              2 * pi * functor::round{}((*obegin - *ibegin) / (2 * pi));
         else
           *(obegin + 1) = *ibegin;
       }

@@ -3849,6 +3849,10 @@ MODULES = {
             signature=_numpy_float_unary_op_float_signature
         ),
         "fft": {
+            "fft": FunctionIntr(args=("a", "n", "axis", "norm"),
+                                defaults=(None, -1, None), global_effects=True),
+            "ifft": FunctionIntr(args=("a", "n", "axis", "norm"),
+                                 defaults=( None, -1, None), global_effects=True),
             "rfft": FunctionIntr(args=('a','n','axis','norm'), defaults=(None,-1,-1,None),global_effects=True),
             "irfft": FunctionIntr(args=('a','n','axis','norm'), defaults=(None,-1,-1,None),global_effects=True),
         },

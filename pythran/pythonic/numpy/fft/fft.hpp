@@ -43,16 +43,40 @@ namespace numpy
 
     template <class T , class pS>
     types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, long NFFT, long axis,
+    fft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
+          types::str const &norm)
+    {
+        return fft(in_array, -1, axis, norm);
+    }
+
+    template <class T , class pS>
+    types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
+    fft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
+          types::none_type norm)
+    {
+        return fft(in_array, -1, axis, "");
+    }
+
+    template <class T , class pS>
+    types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
+    fft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
+          types::none_type norm)
+    {
+        return fft(in_array, n, axis, "");
+    }
+
+    template <class T , class pS>
+    types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
+    fft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
           types::str const &norm)
     {
       long i;
       long npts = in_array.template shape<std::tuple_size<pS>::value - 1>();
       auto constexpr N = std::tuple_size<pS>::value;
       int inorm = (norm == "ortho");
-      if (NFFT == -1)
-        NFFT = in_array.template shape<N - 1>();
-      long out_size = NFFT;
+      if (n == -1)
+        n = in_array.template shape<N - 1>();
+      long out_size = n;
       auto out_shape = sutils::getshape(in_array);
       out_shape.back() = out_size;
       // Create output array.

@@ -6,9 +6,6 @@
 #include "pythonic/include/utils/array_helper.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/builtins/None.hpp"
-#include "pythonic/numpy/concatenate.hpp"
-#include "pythonic/numpy/zeros.hpp"
-
 
 #include <array>
 #include <cstring>
@@ -46,89 +43,40 @@ namespace numpy
 
     template <class T , class pS>
     types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
-          types::str const &norm)
-    {
-        return fft(in_array, -1, axis, norm);
-    }
-
-    template <class T , class pS>
-    types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
-          types::none_type norm)
-    {
-        return fft(in_array, -1, axis, "");
-    }
-
-    template <class T , class pS>
-    types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
-          types::none_type norm)
-    {
-        return fft(in_array, n, axis, "");
-    }
-
-    template <class T , class pS>
-    stride_t create_strides(types::ndarray<T, pS> const &in_array)
-    {
-        long npts = in_array.template shape<std::tuple_size<pS>::value - 1>();
-        auto constexpr N = std::tuple_size<pS>::value;
-        auto shape = sutils::getshape(in_array);
-        stride_t strides = stride_t(N);
-        strides[N-1] = sizeof(T);
-        std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin(),
-                  strides.rbegin() + 1, std::multiplies<long>());
-        return strides;
-    }
-
-    template <class T , class pS>
-    types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
+    fft(types::ndarray<std::complex<T>, pS> const &in_array, long NFFT, long axis,
           types::str const &norm)
     {
       long i;
+      long npts = in_array.template shape<std::tuple_size<pS>::value - 1>();
       auto constexpr N = std::tuple_size<pS>::value;
       int inorm = (norm == "ortho");
-      if (axis < 0)
-        axis = N + axis;
-      auto in_shape = sutils::getshape(in_array);
-      long npts = in_shape[axis];
-      if (n == -1)
-        n = npts;
+      if (NFFT == -1)
+        NFFT = in_array.template shape<N - 1>();
+      long out_size = NFFT;
       auto out_shape = sutils::getshape(in_array);
-      out_shape[axis] = n;
+      out_shape.back() = out_size;
       // Create output array.
       types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
           out_array(out_shape, builtins::None);
-      std::complex<T> *  d_in;
-      if (n > npts){
-        // extend array with zeros along axis direction
-        auto tmp_shape = sutils::getshape(out_array);
-        tmp_shape[axis] = n - npts;
-        auto tmp_array = zeros(tmp_shape, types::dtype_t<typename std::complex<T>>());
-        types::list<types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>> bi(0);
-        bi.push_back(in_array);
-        bi.push_back(tmp_array);
-        auto extended_array = concatenate(bi, axis);
-        d_in = reinterpret_cast<std::complex<T> *>(extended_array.buffer);
-      } else
-        d_in = reinterpret_cast<std::complex<T> *>(in_array.buffer);
+      auto d_in = reinterpret_cast<const std::complex<T> *>(in_array.buffer);
       auto d_out = reinterpret_cast<std::complex<T> *>(out_array.buffer);
       // axes calculation is for 1D transform
       shape_t axes = shape_t(1);
-      axes[0] = axis;
-      stride_t in_strides;
-      if (n < npts)
-        in_strides = create_strides(in_array); // for cropped arrays we need to use different strides
-      else
-        in_strides = create_strides(out_array);
-      auto out_strides = create_strides(out_array);
+      axes[0] = axis+N;
+      // stride calculation is currently on the strides of the input array, this should be based on the strides
+      // of the input array instead
+      stride_t strides = stride_t(N);
+      strides[N-1] = sizeof(typename std::complex<T>);
+      std::transform(strides.rbegin(), strides.rend() - 1, out_shape.rbegin(),
+                  strides.rbegin() + 1, std::multiplies<long>());
       shape_t shapes = shape_t(size_t(N));
       for (std::size_t i=0; i<N; ++i)
         shapes[i] = size_t(out_shape[i]);
       auto fct = norm_fct<T>(inorm, shapes, axes);
-      pocketfft::c2c(shapes, in_strides, out_strides, axes, true, d_in, d_out, fct);
+      pocketfft::c2c(shapes, strides, strides, axes, true, d_in, d_out, fct);
+      //d_out[0] = norm;
       return out_array;
+
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(fft);

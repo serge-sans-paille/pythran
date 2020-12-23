@@ -177,7 +177,10 @@ CLASSES = {
         ),
         "reverse": MethodIntr(signature=Fun[[List[T0]], None]),
         "sort": MethodIntr(
-            args=("self", "key",),
+            signature=Union[
+                Fun[[List[T0]], None],
+                Fun[[List[T0], Fun[[T0, T0], int]], None],
+            ],
         ),
         "count": ConstMethodIntr(signature=Fun[[List[T0], T0], int]),
         "remove": MethodIntr(signature=Fun[[List[T0], T0], None]),
@@ -2538,8 +2541,7 @@ MODULES = {
         "pythran": {
             "abssqr": ConstFunctionIntr(),
             "static_list": ReadOnceFunctionIntr(
-                signature=Fun[[Iterable[T0]], List[T0]],
-                return_alias=lambda args: {args[0]}),
+                signature=Fun[[Iterable[T0]], List[T0]]),
             "is_none": ConstFunctionIntr(),
             "kwonly": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
@@ -3711,8 +3713,6 @@ MODULES = {
         "fromfile":  FunctionIntr(args=('file', 'dtype', 'count', "sep", "offset"),
                                   defaults=(None, None, -1, None, 0),
                                   global_effects=True),
-        "full": ConstFunctionIntr(signature=_numpy_ones_signature),
-        "full_like": ConstFunctionIntr(signature=_numpy_ones_like_signature),
         "greater": UFunc(
             BINARY_UFUNC,
             signature=_numpy_binary_op_bool_signature,
@@ -3851,8 +3851,7 @@ MODULES = {
         "fft": {
             "rfft": FunctionIntr(args=(), global_effects=True),
             "irfft": FunctionIntr(args=(), global_effects=True),
-            "fft": FunctionIntr(args=("a", "n", "axis", "norm"),
-                                defaults=(None, -1, None), global_effects=True),
+            "fft": FunctionIntr(args=(), global_effects=True),
         },
         "random": {
             "binomial": FunctionIntr(args=('n', 'p', 'size'),
@@ -3935,9 +3934,7 @@ MODULES = {
             "weibull": FunctionIntr(args=('a', 'size',),
                                     global_effects=True),
         },
-        "ravel": ConstMethodIntr(
-            return_alias=lambda args: {args[0]}
-        ),
+        "ravel": ConstMethodIntr(),
         "real": FunctionIntr(),
         "reciprocal": ConstFunctionIntr(),
         "remainder": UFunc(BINARY_UFUNC),

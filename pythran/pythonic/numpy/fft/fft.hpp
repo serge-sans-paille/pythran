@@ -101,6 +101,7 @@ namespace numpy
       types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
           out_array(out_shape, builtins::None);
       std::complex<T> *  d_in;
+      types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>> extended_array;
       if (n > npts){
         // extend array with zeros along axis direction
         auto tmp_shape = sutils::getshape(out_array);
@@ -109,7 +110,7 @@ namespace numpy
         types::list<types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>> bi(0);
         bi.push_back(in_array);
         bi.push_back(tmp_array);
-        auto extended_array = concatenate(bi, axis);
+        extended_array = concatenate(bi, axis);
         d_in = reinterpret_cast<std::complex<T> *>(extended_array.buffer);
       } else
         d_in = reinterpret_cast<std::complex<T> *>(in_array.buffer);

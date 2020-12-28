@@ -85,7 +85,6 @@ class TestDistutils(unittest.TestCase):
         shutil.rmtree(os.path.join(cwd, 'test_distutils_packaged', 'demo_install2'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils_packaged', 'build'))
 
-
     def test_setup_sdist_install2(self):
         check_call(['python', 'setup.py', 'sdist', "--dist-dir=sdist2"],
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
@@ -102,6 +101,43 @@ class TestDistutils(unittest.TestCase):
         tgz = [f for f in os.listdir(dist_path) if f.endswith(".tar.gz")][0]
         check_call(['tar', 'xzf', tgz], cwd=dist_path)
 
+        demo_so = find_so(r"a.*\.so", dist_path)
+        self.assertIsNotNone(demo_so)
+        shutil.rmtree(dist_path)
+
+    def test_setup_build3(self):
+        check_call(['python', 'setup.py', 'build'],
+                   cwd=os.path.join(cwd, 'test_distutils_numpy'))
+        check_call(['python', 'setup.py', 'install', '--prefix=demo_install3'],
+                   cwd=os.path.join(cwd, 'test_distutils_numpy'))
+
+        base = os.path.join(cwd, 'test_distutils_numpy', 'demo_install3',)
+        libdir = os.path.join(base, 'lib')
+        if not os.path.isdir(libdir):
+            libdir = os.path.join(base, 'lib64')
+        check_call(['python', '-c', 'import a'],
+                   cwd=os.path.join(libdir, python_version, 'site-packages',
+                                    'demo3'))
+        check_call(['python', 'setup.py', 'clean'],
+                   cwd=os.path.join(cwd, 'test_distutils_numpy'))
+        shutil.rmtree(os.path.join(cwd, 'test_distutils_numpy', 'demo_install3'))
+        shutil.rmtree(os.path.join(cwd, 'test_distutils_numpy', 'build'))
+
+    def test_setup_sdist_install3(self):
+        check_call(['python', 'setup.py', 'sdist', "--dist-dir=sdist3"],
+                   cwd=os.path.join(cwd, 'test_distutils_numpy'))
+        check_call(['tar', 'xzf', 'demo3-1.0.tar.gz'],
+                   cwd=os.path.join(cwd, 'test_distutils_numpy', 'sdist3'))
+        check_call(['python', 'setup.py', 'install', '--prefix=demo_install3'],
+                   cwd=os.path.join(cwd, 'test_distutils_numpy', 'sdist3', 'demo3-1.0'))
+        shutil.rmtree(os.path.join(cwd, 'test_distutils_numpy', 'sdist3'))
+
+    def test_setup_bdist_install3(self):
+        check_call(['python', 'setup.py', 'bdist', "--dist-dir=bdist"],
+                   cwd=os.path.join(cwd, 'test_distutils_numpy'))
+        dist_path = os.path.join(cwd, 'test_distutils_numpy', 'bdist')
+        tgz = [f for f in os.listdir(dist_path) if f.endswith(".tar.gz")][0]
+        check_call(['tar', 'xzf', tgz], cwd=dist_path)
 
         demo_so = find_so(r"a.*\.so", dist_path)
         self.assertIsNotNone(demo_so)

@@ -357,7 +357,8 @@ When distributing a Python application with Pythran modules, you can either:
           cmdclass={"build_ext": PythranBuildExt})
 
 ``PythranBuildExt`` is optional, but necessary to build extensions with
-different C++ compilers.
+different C++ compilers. It derives from distuil's ``build_ext`` by default, but
+you can change its base class by using ``PythranBuildExt[base_cls]`` instead.
 
 .. note::
 

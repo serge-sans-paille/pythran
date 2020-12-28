@@ -18,13 +18,14 @@ from distutils.command.build_ext import build_ext as LegacyBuildExt
 from numpy.distutils.extension import Extension
 
 
-class PythranBuildExt(LegacyBuildExt, object):
+class PythranBuildExtMixIn(object):
     """Subclass of `distutils.command.build_ext.build_ext` which is required to
     build `PythranExtension` with the configured C++ compiler. It may also be
     subclassed if you want to combine with another build_ext class (NumPy,
     Cython implementations).
 
     """
+
     def build_extension(self, ext):
         StringTypes = str,
 
@@ -105,7 +106,7 @@ class PythranBuildExt(LegacyBuildExt, object):
                     self.compiler.compiler_so[i] = 'x86_64'
 
         try:
-            return super(PythranBuildExt, self).build_extension(ext)
+            return super(PythranBuildExtMixIn, self).build_extension(ext)
         finally:
             # Revert compiler settings
             for key in prev.keys():
@@ -115,6 +116,19 @@ class PythranBuildExt(LegacyBuildExt, object):
             if find_exe is not None:
                 import distutils._msvccompiler as msvc
                 msvc._find_exe = find_exe
+
+
+class PythranBuildExtMeta(type):
+
+    def __getitem__(self, base):
+        class PythranBuildExt(PythranBuildExtMixIn, base):
+            pass
+
+        return PythranBuildExt
+
+
+class PythranBuildExt(PythranBuildExtMixIn, LegacyBuildExt, metaclass=PythranBuildExtMeta):
+    pass
 
 
 class PythranExtension(Extension):

@@ -12,12 +12,12 @@ namespace numpy
   namespace random
   {
     template <class pS>
-    types::ndarray<double, pS> chisquare(float df, pS const &shape);
+    types::ndarray<double, pS> chisquare(double df, pS const &shape);
 
-    auto chisquare(float df, long size)
+    auto chisquare(double df, long size)
         -> decltype(chisquare(df, types::array<long, 1>{{size}}));
 
-    double chisquare(float df, types::none_type size = {});
+    double chisquare(double df, types::none_type size = {});
 
     DEFINE_FUNCTOR(pythonic::numpy::random, chisquare);
   }

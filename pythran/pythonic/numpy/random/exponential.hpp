@@ -22,7 +22,7 @@ namespace numpy
     types::ndarray<double, pS> exponential(double scale, pS const &shape)
     {
       types::ndarray<double, pS> result{shape, types::none_type()};
-      std::exponential_distribution<float> distribution{1 / scale};
+      std::exponential_distribution<double> distribution{1 / scale};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });
       return result;
@@ -37,8 +37,8 @@ namespace numpy
 
     double exponential(double scale, types::none_type d)
     {
-      return std::exponential_distribution<float>{1 /
-                                                  scale}(details::generator);
+      return std::exponential_distribution<double>{1 /
+                                                   scale}(details::generator);
     }
   }
 }

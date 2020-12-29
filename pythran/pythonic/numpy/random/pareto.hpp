@@ -22,7 +22,7 @@ namespace numpy
     types::ndarray<double, pS> pareto(double a, pS const &shape)
     {
       types::ndarray<double, pS> result{shape, types::none_type()};
-      std::exponential_distribution<float> distribution{};
+      std::exponential_distribution<double> distribution{};
       std::generate(result.fbegin(), result.fend(), [&]() {
         return expm1(distribution(details::generator) / a);
       });
@@ -38,7 +38,7 @@ namespace numpy
 
     double pareto(double a, types::none_type d)
     {
-      return expm1(std::exponential_distribution<float>{}(details::generator) /
+      return expm1(std::exponential_distribution<double>{}(details::generator) /
                    a);
     }
   }

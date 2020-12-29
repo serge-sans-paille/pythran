@@ -19,25 +19,25 @@ namespace numpy
   {
 
     template <class pS>
-    types::ndarray<double, pS> weibull(float a, pS const &shape)
+    types::ndarray<double, pS> weibull(double a, pS const &shape)
     {
       types::ndarray<double, pS> result{shape, types::none_type()};
-      std::weibull_distribution<float> distribution{a};
+      std::weibull_distribution<double> distribution{a};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });
       return result;
     }
 
-    auto weibull(float a, long size)
+    auto weibull(double a, long size)
         -> decltype(weibull(a, types::array<long, 1>{{size}}))
     {
 
       return weibull(a, types::array<long, 1>{{size}});
     }
 
-    double weibull(float a, types::none_type d)
+    double weibull(double a, types::none_type d)
     {
-      return std::weibull_distribution<float>{a}(details::generator);
+      return std::weibull_distribution<double>{a}(details::generator);
     }
   }
 }

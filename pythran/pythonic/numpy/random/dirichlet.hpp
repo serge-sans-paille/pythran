@@ -22,7 +22,7 @@ namespace numpy
     types::ndarray<double, pS> dirichlet(double alpha, pS const &shape)
     {
       types::ndarray<double, pS> result{shape, types::none_type()};
-      std::dirichlet_distribution<float> distribution{alpha};
+      std::dirichlet_distribution<double> distribution{alpha};
       std::generate(result.fbegin(), result.fend(),
                     [&]() { return distribution(details::generator); });
       return result;
@@ -37,7 +37,7 @@ namespace numpy
 
     double dirichlet(double alpha, types::none_type d)
     {
-      return std::dirichlet_distribution<float>{alpha}(details::generator);
+      return std::dirichlet_distribution<double>{alpha}(details::generator);
     }
   }
 }

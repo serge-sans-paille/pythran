@@ -22,6 +22,7 @@ import sys
 import unittest
 from functools import reduce
 from operator import add
+import logging
 
 import pytest
 
@@ -32,6 +33,8 @@ from pythran.passmanager import PassManager
 from pythran.toolchain import _parse_optimization
 from pythran.spec import Spec
 
+logger = logging.getLogger("pythran")
+logger.setLevel(logging.INFO)
 
 def harmonize_containers(value):
     if isinstance(value, list):

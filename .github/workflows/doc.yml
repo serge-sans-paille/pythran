@@ -1,0 +1,37 @@
+name: doc
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version: [3.6]
+        cpp-version: [g++-5, clang-5.0]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install ipython nbval pytest-xdist cython scipy wheel
+        sudo apt install libopenblas-dev ${{ matrix.cpp-version }}
+    - name: Setup
+      run: |
+        python setup.py install
+        printf '[commpiler]\nblas=openblas\n' > ~/.pythranrc
+    - name: Testing documentation
+      run: |
+        export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/gcc/'`
+        export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/clang++/'`
+        pytest pythran/tests/notebooks docs/examples --nbval

@@ -1404,7 +1404,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u
             rvar = ((s**2*pi**2)/3)
             a = logistic(u, s, size)
-            return (abs(mean(a) - rmean) < 0.05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < 0.1 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_logistic0b=[int])
 

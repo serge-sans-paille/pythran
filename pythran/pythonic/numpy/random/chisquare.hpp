@@ -19,7 +19,7 @@ namespace numpy
   {
 
     template <class pS>
-    types::ndarray<double, pS> chisquare(float df, pS const &shape)
+    types::ndarray<double, pS> chisquare(double df, pS const &shape)
     {
       types::ndarray<double, pS> result{shape, types::none_type()};
       std::chi_squared_distribution<double> distribution{df};
@@ -28,17 +28,16 @@ namespace numpy
       return result;
     }
 
-    auto chisquare(float df, long size)
+    auto chisquare(double df, long size)
         -> decltype(chisquare(df, types::array<long, 1>{{size}}))
     {
 
       return chisquare(df, types::array<long, 1>{{size}});
     }
 
-    double chisquare(float df, types::none_type d)
+    double chisquare(double df, types::none_type d)
     {
-      return std::chi_squared_distribution<double>{static_cast<float>(df)}(
-          details::generator);
+      return std::chi_squared_distribution<double>{df}(details::generator);
     }
   }
 }

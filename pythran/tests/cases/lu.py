@@ -1,4 +1,4 @@
-#runas import numpy as np; x = np.arange(25.).reshape(5,5); factorMatrix0(x), factorMatrix1(x)
+#runas import numpy as np; x = np.arange(1., 26.).reshape(5,5); factorMatrix0(x), factorMatrix1(x)
 
 import numpy as np
 #pythran export factorMatrix0(float[:,:])

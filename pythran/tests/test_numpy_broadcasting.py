@@ -202,7 +202,7 @@ class TestBroadcasting(TestEnv):
             res = (n+2*pow(n**2,2))/n
             return res'''
         self.run_test(code,
-                      np.arange(100.),
+                      np.arange(1., 100.),
                       broadcast_nth29=[NDArray[float, :]])
 
     def test_broadcasting_expr0(self):

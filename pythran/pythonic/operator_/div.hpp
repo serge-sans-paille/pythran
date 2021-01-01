@@ -22,6 +22,7 @@ namespace operator_
 
   double div(double a, double b)
   {
+    assert(b != 0 && "divide by zero");
     return a / b;
   }
 }

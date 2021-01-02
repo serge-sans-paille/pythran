@@ -7,7 +7,8 @@ from pythran.utils import path_to_attr
 
 import gast as ast
 
-patterns = (MODULES['numpy']['ones'],
+patterns = (MODULES['numpy']['full'],
+            MODULES['numpy']['ones'],
             MODULES['numpy']['zeros'],
             MODULES['numpy']['empty'],
             MODULES['numpy']['concatenate'],

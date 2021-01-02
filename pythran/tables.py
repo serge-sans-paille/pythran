@@ -3711,6 +3711,8 @@ MODULES = {
         "fromfile":  FunctionIntr(args=('file', 'dtype', 'count', "sep", "offset"),
                                   defaults=(None, None, -1, None, 0),
                                   global_effects=True),
+        "full": ConstFunctionIntr(signature=_numpy_ones_signature),
+        "full_like": ConstFunctionIntr(signature=_numpy_ones_like_signature),
         "greater": UFunc(
             BINARY_UFUNC,
             signature=_numpy_binary_op_bool_signature,

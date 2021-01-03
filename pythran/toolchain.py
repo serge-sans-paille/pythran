@@ -17,7 +17,7 @@ from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
 from pythran.spec import load_specfile, Spec
 from pythran.spec import spec_to_string
-from pythran.syntax import check_specs, check_exports
+from pythran.syntax import check_specs, check_exports, PythranSyntaxError
 from pythran.version import __version__
 from pythran.utils import cxxid
 import pythran.frontend as frontend
@@ -465,15 +465,19 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     # Look for an extra spec file
     spec_file = os.path.splitext(file_path)[0] + '.pythran'
     if os.path.isfile(spec_file):
-        with open(spec_file) as fd:
-            specs = load_specfile(fd.read())
-            kwargs.setdefault('specs', specs)
+        specs = load_specfile(spec_file)
+        kwargs.setdefault('specs', specs)
 
-    output_file = compile_pythrancode(module_name, open(file_path).read(),
-                                      output_file=output_file,
-                                      cpponly=cpponly, pyonly=pyonly,
-                                      module_dir=module_dir,
-                                      **kwargs)
+    try:
+        output_file = compile_pythrancode(module_name, open(file_path).read(),
+                                          output_file=output_file,
+                                          cpponly=cpponly, pyonly=pyonly,
+                                          module_dir=module_dir,
+                                          **kwargs)
+    except PythranSyntaxError as e:
+        if e.filename is None:
+            e.filename = file_path
+        raise
 
     return output_file
 

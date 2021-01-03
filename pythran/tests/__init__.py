@@ -400,8 +400,7 @@ class TestFromDir(TestEnv):
         # Look for an extra spec file
         spec_file = os.path.splitext(file_)[0] + '.pythran'
         if os.path.isfile(spec_file):
-            with open(spec_file) as fd:
-                return load_specfile(fd.read())
+            return load_specfile(spec_file)
         elif file_ is None:
             return Spec({name: []})
         else:

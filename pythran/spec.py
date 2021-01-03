@@ -201,22 +201,17 @@ class SpecParser(object):
     t_IDENTIFER.__doc__ = r'\#?[a-zA-Z_][a-zA-Z_0-9]*'
 
     # skipped characters
-    t_ignore = ' \t\r'
+    t_ignore = ' \t\n\r'
 
     # error handling
     def t_error(self, t):
         t.lexer.skip(1)
 
-    # Define a rule so we can track line numbers
-    def t_newline(self, t):
-        t.lexer.lineno += len(t.value)
-
-    t_newline.__doc__ = r'\n+'
-
     # yacc part
 
     def p_exports(self, p):
         if len(p) > 1:
+            isnative = len(p) == 6
             target = self.exports if len(p) == 6 else self.native_exports
             for key, val in p[len(p)-3]:
                 target[key] += val
@@ -238,6 +233,7 @@ class SpecParser(object):
         else:
             sigs = ()
         p[0] = p[1], sigs
+        self.export_info[p[1]] += p.lexpos(1),
 
     p_export.__doc__ = '''export : IDENTIFIER LPAREN opt_param_types RPAREN
                   | IDENTIFIER
@@ -345,9 +341,9 @@ class SpecParser(object):
             elif p[2] == "F":
                 for nd in p[1]:
                     if not istransposable(nd):
-                        raise PythranSyntaxError("Invalid Pythran spec. "
-                                                 "F order is only valid for "
-                                                 "2D plain arrays")
+                        msg = ("Invalid Pythran spec. F order is only valid "
+                               "for 2D plain arrays")
+                        self.p_error(p, msg)
                 p[0] = tuple(NDArray[nd.__args__[0], -1::, -1::]
                              for nd in p[1])
             else:
@@ -366,8 +362,8 @@ class SpecParser(object):
         elif len(p) == 4 and p[3] == ']':
             p[0] = p[2]
         else:
-            raise PythranSyntaxError("Invalid Pythran spec. "
-                                     "Unknown text '{0}'".format(p.value))
+            msg = "Invalid Pythran spec. Unknown text '{0}'".format(p.value)
+            self.p_error(p, msg)
 
     p_type.__doc__ = '''type : term
                 | array_type opt_order
@@ -384,8 +380,8 @@ class SpecParser(object):
     def p_opt_order(self, p):
         if len(p) > 1:
             if p[3] not in 'CF':
-                raise PythranSyntaxError("Invalid Pythran spec. "
-                                         "Unknown order '{}'".format(p[3]))
+                msg = "Invalid Pythran spec. Unknown order '{}'".format(p[3])
+                self.p_error(p, msg)
             p[0] = p[3]
         else:
             p[0] = None
@@ -435,14 +431,19 @@ class SpecParser(object):
                 | SLICE
                 | dtype'''
 
-    def p_error(self, p):
-        p_val = p.value if p else ''
-        err = PythranSyntaxError(
-            "Invalid Pythran spec near '{}'".format(p_val))
-        err.lineno = self.lexer.lineno
+
+    def PythranSpecError(self, msg, lexpos=None):
+        err = PythranSyntaxError(msg)
+        if lexpos is not None:
+            line_start = self.input_text.rfind('\n', 0, lexpos) + 1
+            err.offset = lexpos - line_start
+            err.lineno = 1 + self.input_text.count('\n', 0, lexpos)
         if self.input_file:
             err.filename = self.input_file
-        raise err
+        return err
+
+    def p_error(self, p):
+        raise self.PythranSpecError("invalid pythran spec", p.lexpos)
 
     def __init__(self):
         self.lexer = lex.lex(module=self, debug=False)
@@ -451,10 +452,12 @@ class SpecParser(object):
                                 debug=False,
                                 write_tables=False)
 
-    def __call__(self, text):
+    def __call__(self, text, input_file=None):
         self.exports = defaultdict(tuple)
         self.native_exports = defaultdict(tuple)
-        self.input_file = None
+        self.export_info = defaultdict(tuple)
+        self.input_text = text
+        self.input_file = input_file
 
         lines = []
         in_pythran_export = False
@@ -478,13 +481,14 @@ class SpecParser(object):
 
         for key, overloads in self.native_exports.items():
             if len(overloads) > 1:
-                raise PythranSyntaxError(
-                    "Overloads not supported for capsule '{}'".format(key))
+                msg = "Overloads not supported for capsule '{}'".format(key)
+                loc = self.export_info[key][-1]
+                raise self.PythranSpecError(msg, loc)
             self.native_exports[key] = overloads[0]
 
         for key, overloads in self.exports.items():
             if len(overloads) > cfg.getint("typing", "max_export_overloads"):
-                raise PythranSyntaxError(
+                raise self.PythranSpecError(
                     "Too many overloads for function '{}', probably due to "
                     "automatic generation of C-style and Fortran-style memory "
                     "layout. Please force a layout using `order(C)` or "
@@ -495,12 +499,14 @@ class SpecParser(object):
                 for ty_j in overloads[i+1:]:
                     sty_j = spec_to_string(key, ty_j)
                     if sty_i == sty_j:
-                        raise PythranSyntaxError(
-                            "Duplicate export entry {}.".format(sty_i))
+                        msg = "Duplicate export entry {}.".format(sty_i)
+                        loc = self.export_info[key][-1]
+                        raise self.PythranSpecError(msg, loc)
                     if ambiguous_types(ty_i, ty_j):
                         msg = "Ambiguous overloads\n\t{}\n\t{}.".format(sty_i,
                                                                         sty_j)
-                        raise PythranSyntaxError(msg)
+                        loc = self.export_info[key][i]
+                        raise self.PythranSpecError(msg, loc)
 
         return Spec(self.exports, self.native_exports)
 
@@ -510,11 +516,11 @@ class ExtraSpecParser(SpecParser):
     Extension of SpecParser that works on extra .pythran files
     '''
 
-    def __call__(self, text):
+    def __call__(self, text, input_file=None):
         # make the code looks like a regular pythran file
         text = re.sub(r'^\s*export', '#pythran export', text,
                       flags=re.MULTILINE)
-        return super(ExtraSpecParser, self).__call__(text)
+        return super(ExtraSpecParser, self).__call__(text, input_file)
 
 
 def spec_to_string(function_name, spec):
@@ -536,5 +542,6 @@ def spec_parser(text):
     return SpecParser()(text)
 
 
-def load_specfile(text):
-    return ExtraSpecParser()(text)
+def load_specfile(filepath):
+    with open(filepath) as fd:
+        return ExtraSpecParser()(fd.read(), input_file=filepath)

@@ -191,9 +191,6 @@ def run():
                         "E: " + str(e))
         sys.exit(1)
     except pythran.syntax.PythranSyntaxError as e:
-        if not e.filename:
-            e.filename = args.input_file
-
         logger.critical("I am in trouble. Your input file does not seem "
                         "to match Pythran's constraints...\n" + str(e))
         sys.exit(1)

@@ -1,6 +1,6 @@
 """ NormalizeMethodCalls turns built in method calls into function calls. """
 
-from pythran.analyses import Globals
+from pythran.analyses import Globals, Ancestors
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, MODULES
@@ -25,7 +25,7 @@ class NormalizeMethodCalls(Transformation):
     '''
 
     def __init__(self):
-        Transformation.__init__(self, Globals)
+        Transformation.__init__(self, Globals, Ancestors)
         self.imports = {'builtins': 'builtins'}
         self.to_import = set()
 
@@ -96,11 +96,59 @@ class NormalizeMethodCalls(Transformation):
             node.orelse = [self.visit(n) for n in node.orelse]
         return node
 
+    def baseobj(self, obj):
+        # Get the most left identifier
+        while isinstance(obj, ast.Attribute):
+            obj = obj.value
+
+        # Check if it's a module
+        if isinstance(obj, ast.Name) and obj.id in self.imports:
+            return None
+        else:
+            return obj
+
+    def attr_to_func(self, node):
+        mod = methods[node.attr][0]
+        # Submodules import full module
+        self.to_import.add(mangle(mod[0]))
+        func = reduce(
+            lambda v, o: ast.Attribute(v, o, ast.Load()),
+            mod[1:] + (node.attr,),
+            ast.Name(mangle(mod[0]), ast.Load(), None, None)
+            )
+        return func
+
     def visit_Attribute(self, node):
         node = self.generic_visit(node)
         # method name -> not a getattr
         if node.attr in methods:
-            return node
+
+            # Make sure parent is'nt a call, it's already handled in visit_Call
+            for parent in reversed(self.ancestors.get(node, ())):
+                if isinstance(parent, ast.Attribute):
+                    continue
+                if isinstance(parent, ast.Call):
+                    return node
+                break
+
+            # we have a bound method which is not a call
+            obj = self.baseobj(node)
+            if obj is not None:
+                self.update = True
+                mod = methods[node.attr][0]
+                self.to_import.add(mangle(mod[0]))
+                func = self.attr_to_func(node)
+                z = ast.Call(
+                    ast.Attribute(
+                        ast.Name(mangle('functools'), ast.Load(), None, None),
+                        "partial",
+                        ast.Load()
+                        ),
+                    [func, obj],
+                    [])
+                return z
+            else:
+                return node
         # imported module -> not a getattr
         elif (isinstance(node.value, ast.Name) and
               node.value.id in self.imports):
@@ -171,28 +219,16 @@ class NormalizeMethodCalls(Transformation):
         # Only attributes function can be Pythonic and should be normalized
         if isinstance(node.func, ast.Attribute):
             if node.func.attr in methods:
-                # Get object targeted by methods
-                obj = lhs = node.func.value
-                # Get the most left identifier to check if it is not an
-                # imported module
-                while isinstance(obj, ast.Attribute):
-                    obj = obj.value
-                is_not_module = (not isinstance(obj, ast.Name) or
-                                 obj.id not in self.imports)
-
-                if is_not_module:
+                # Check object targeted by methods
+                if self.baseobj(node.func) is not None:
                     self.update = True
                     # As it was a methods call, push targeted object as first
                     # arguments and add correct module prefix
-                    node.args.insert(0, lhs)
+                    node.args.insert(0, node.func.value)
                     mod = methods[node.func.attr][0]
                     # Submodules import full module
                     self.to_import.add(mangle(mod[0]))
-                    node.func = reduce(
-                        lambda v, o: ast.Attribute(v, o, ast.Load()),
-                        mod[1:] + (node.func.attr,),
-                        ast.Name(mangle(mod[0]), ast.Load(), None, None)
-                        )
+                    node.func = self.attr_to_func(node.func)
                 # else methods have been called using function syntax
             if node.func.attr in methods or node.func.attr in functions:
                 # Now, methods and function have both function syntax

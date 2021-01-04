@@ -101,8 +101,10 @@ class GlobalEffects(ModuleAnalysis):
         for func_alias in func_aliases:
             # special hook for bound functions
             if isinstance(func_alias, ast.Call):
-                bound_name = func_alias.args[0].id
-                func_alias = self.global_declarations[bound_name]
+                fake_call = ast.Call(func_alias.args[0],
+                                     func_alias.args[1:], [])
+                self.visit(fake_call)
+                continue
 
             # conservative choice
             if func_alias not in self.node_to_functioneffect:

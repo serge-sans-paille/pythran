@@ -20,20 +20,20 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::complex<T>,
             types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &a, types::none_type n, long axis ,
+    fft(types::ndarray<std::complex<T>, pS> const &a, types::none_type n, long axis,
           types::str const &norm );
 
     template <class T, class pS>
     types::ndarray<std::complex<T>,
             types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &a, long n, long axis ,
-          types::none_type norm);
+    fft(types::ndarray<std::complex<T>, pS> const &a, long n, long axis,
+          types::none_type norm );
 
     template <class T, class pS>
     types::ndarray<std::complex<T>,
             types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &a, types::none_type n, long axis ,
-          types::none_type norm );
+    fft(types::ndarray<std::complex<T>, pS> const &a, types::none_type n , long axis =-1,
+          types::none_type norm = types::none_type{});
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(fft);
     DEFINE_FUNCTOR(pythonic::numpy::fft, fft);

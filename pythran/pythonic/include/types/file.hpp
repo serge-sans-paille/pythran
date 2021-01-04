@@ -105,7 +105,7 @@ namespace types
 
     void truncate(long size = -1);
 
-    void write(types::str const &str);
+    long write(types::str const &str);
 
     template <class T>
     void writelines(T const &seq);

@@ -15,14 +15,14 @@ namespace builtins
   namespace file
   {
 
-    void write(types::file &f, types::str const &str)
+    long write(types::file &f, types::str const &str)
     {
-      f.write(str);
+      return f.write(str);
     }
 
-    void write(types::file &&f, types::str const &str)
+    long write(types::file &&f, types::str const &str)
     {
-      f.write(str);
+      return f.write(str);
     }
   }
 }

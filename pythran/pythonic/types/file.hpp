@@ -227,13 +227,13 @@ namespace types
       throw RuntimeError(strerror(errno));
   }
 
-  void file::write(types::str const &str)
+  long file::write(types::str const &str)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     if (mode.find_first_of("wa+") == -1)
       throw IOError("file.write() :  File not open for writing.");
-    fwrite(str.c_str(), sizeof(char), str.size(), **data);
+    return fwrite(str.c_str(), sizeof(char), str.size(), **data);
   }
 
   template <class T>

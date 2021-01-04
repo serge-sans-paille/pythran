@@ -20,6 +20,7 @@ from functools import partial
 import gast as ast
 import operator
 from functools import reduce
+from copy import deepcopy
 
 
 class UnboundableRValue(Exception):
@@ -390,11 +391,10 @@ class Types(ModuleAnalysis):
             # this comes from a bind
             if isinstance(alias, ast.Call):
                 a0 = alias.args[0]
-                bounded_name = a0.id
                 # by construction of the bind construct
                 assert len(self.strict_aliases[a0]) == 1
                 bounded_function = next(iter(self.strict_aliases[a0]))
-                fake_name = ast.Name(bounded_name, ast.Load(), None, None)
+                fake_name = deepcopy(a0)
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                                      [])
                 self.combiners[bounded_function].combiner(self, fake_node)

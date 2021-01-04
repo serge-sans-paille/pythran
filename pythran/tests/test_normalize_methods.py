@@ -123,3 +123,21 @@ class TestNormalizeMethods(TestEnv):
         self.run_test("def dispatch_update(s, d): set.update(s, s); dict.update(d,d); s.update(s); d.update(d); return s, d",
                       {1}, {1:1},
                       dispatch_update=[Set[int], Dict[int,int]])
+
+    def test_capture_bound_method(self):
+        code = '''
+def capture_bound_method(fname, r):
+    if r:
+        f = open(fname,'w')
+        write_line = f.write
+    else:
+        write_line = fake_write
+    for i in range(10):
+        write_line(str(i))
+    if r:
+        f.close()
+
+def fake_write(s):
+    return 0'''
+        self.run_test(code, "none", False,
+                      capture_bound_method=[str, bool])

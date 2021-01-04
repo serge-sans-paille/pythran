@@ -26,7 +26,8 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
                     self.result[self.curr].add(alias)
                 elif isinstance(alias, ast.Call):  # this is a bind
                     for alias in self.strict_aliases[alias.args[0]]:
-                        self.result[self.curr].add(alias)
+                        if alias in self.global_declarations:
+                            self.result[self.curr].add(alias)
 
     def run(self, node):
         # compute the weight of each function
@@ -37,7 +38,7 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
         # iteratively propagate weights
         while new_count != old_count:
             for v in result.values():
-                [v.update(result[f]) for f in list(v)]
+                v.update(*[result[f] for f in v])
             old_count = new_count
             new_count = sum(len(value) for value in result.values())
         # return functions, the one with the greatest weight first

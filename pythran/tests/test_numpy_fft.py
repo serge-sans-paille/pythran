@@ -2,6 +2,7 @@ import unittest
 from pythran.tests import TestEnv
 import numpy
 from pythran.typing import NDArray
+import unittest
 
 
 @TestEnv.module
@@ -109,11 +110,11 @@ class TestNumpyFFT(TestEnv):
     def test_fft_1d_c64_1(self):
         self.run_test("def test_fft_1d_c64_1(x): from numpy.fft import fft ; return fft(x)", (numpy.random.randn(10)+1j*numpy.random.randn(10)).astype(numpy.complex64), test_fft_1d_c64_1=[NDArray[numpy.complex64, :]])
 
-    # currently this fails because the python result returns complex128
+    @unittest.skip("numpy returns complex128, unlike pythran")
     def test_fft_1d_c64_2(self):
         self.run_test("def test_fft_1d_c64_2(x): from numpy.fft import fft ; return fft(x)", (numpy.random.randn(2**16)+1j*numpy.random.randn(2**16)).astype(numpy.complex64), test_fft_1d_c64_2=[NDArray[numpy.complex64, :]])
     
-    def test_fft_1d_normNorm(self):
+    def test_fft_1d_normNone(self):
         self.run_test("def test_fft_1d_norm(x): from numpy.fft import fft ; return fft(x, norm=None)", numpy.random.randn(10)+1j*numpy.random.randn(10), test_fft_1d_norm=[NDArray[numpy.complex128, :]])
 
     def test_fft_1d_norm(self):
@@ -125,9 +126,8 @@ class TestNumpyFFT(TestEnv):
             with self.subTest():
                 self.run_test("def test_fft_1d_n(x, n): from numpy.fft import fft; return fft(x, n=n)", numpy.random.randn(10)+1j*numpy.random.randn(10), n, test_fft_1d_n=[NDArray[numpy.complex, :], int])
 
-    # This fails currently
     def test_fft_1d_nNone(self):
-        self.run_test("def test_fft_1d_n(x): from numpy.fft import fft; return fft(x, n=None)", numpy.random.randn(10)+1j*numpy.random.randn(10),  test_fft_1d_n=[NDArray[numpy.complex, :]])
+        self.run_test("def test_fft_1d_n(x): from numpy.fft import fft; return fft(x, n=None)", numpy.random.randn(10)+1j*numpy.random.randn(10), test_fft_1d_n=[NDArray[numpy.complex, :]])
 
     def test_fft_1d_n_norm(self):
         nl = [8, 10, 14, None]
@@ -135,7 +135,21 @@ class TestNumpyFFT(TestEnv):
         for n in nl:
             for nr in norm:
                 with self.subTest():
-                    self.run_test("def test_fft_1d_n(x, n, norm): from numpy.fft import fft; return fft(x, n=n, norm=norm)", numpy.random.randn(10)+1j*numpy.random.randn(10), n, nr, test_fft_1d_n=[NDArray[numpy.complex, :], int, str])
+                    if nr is None:
+                        if n is None:
+                            self.run_test("def test_fft_1d_n1(x): from numpy.fft import fft; return fft(x, n=None, norm=None)", numpy.random.randn(10)+1j*numpy.random.randn(10), test_fft_1d_n1=[NDArray[numpy.complex, :]])
+                        else:
+                            self.run_test("def test_fft_1d_n2(x, n): from numpy.fft import fft; return fft(x, n=n, norm=None)", numpy.random.randn(10)+1j*numpy.random.randn(10), n, test_fft_1d_n2=[NDArray[numpy.complex, :], int])
+                    elif n is None:
+                        self.run_test("def test_fft_1d_n3(x, norm): from numpy.fft import fft; return fft(x, n=None, norm=norm)", numpy.random.randn(10)+1j*numpy.random.randn(10), nr, test_fft_1d_n3=[NDArray[numpy.complex, :], str])
+                    else:
+                        self.run_test("def test_fft_1d_n4(x, n, norm): from numpy.fft import fft; return fft(x, n=n, norm=norm)", numpy.random.randn(10)+1j*numpy.random.randn(10), n, nr, test_fft_1d_n4=[NDArray[numpy.complex, :], int, str])
+                        
+    def test_fft_1d_axis(self):
+        axs = [0, -1]
+        for ax in axs:
+            with self.subTest():
+                self.run_test("def test_fft_1d_axs(x, axis): from numpy.fft import fft; return fft(x, axis=axis)", numpy.random.randn(10)+1j*numpy.random.randn(10), ax, test_fft_1d_axs=[NDArray[numpy.complex, :], int])
 
     def test_fft_2d(self):
         szs  = [3, 5]
@@ -233,12 +247,11 @@ class TestNumpyFFT(TestEnv):
                         else:
                             self.run_test("def test_fft_3d_axis_n_orth3(x, a, n, norm): from numpy.fft import fft ; return fft(x, n=n, axis=a, norm=norm)", (numpy.random.randn(64)+1j*numpy.random.randn(64)).reshape(sz), a, n, nr, test_fft_3d_axis_n_orth3=[NDArray[numpy.complex128, :, :, :], int, int, str])
 
-    # fails to build for me weirdly enough
     def test_fft_parallel(self):
         import numpy
         self.run_test("""
         import numpy as np
-        def test_fft_paralle(x):
+        def test_fft_parallel(x):
             out = [np.empty_like(x) for i in range(20)]
             #omp parallel for
             for ii in range(20):

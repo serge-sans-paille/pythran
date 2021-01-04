@@ -13,8 +13,8 @@ namespace builtins
   namespace file
   {
 
-    void write(types::file &f, types::str const &str);
-    void write(types::file &&f, types::str const &str);
+    long write(types::file &f, types::str const &str);
+    long write(types::file &&f, types::str const &str);
 
     DEFINE_FUNCTOR(pythonic::builtins::file, write);
   }

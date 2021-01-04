@@ -54,7 +54,7 @@ class TestFile(TestEnv):
     def test_write(self):
         self.filename=mkstemp()[1]
         content="""q2\naze23\n"""
-        self.run_test("""def _write(filename):\n f=open(filename,'a+')\n f.write("""+str('str("""q2\naze23\n""")')+""")\n f.close()""", self.filename, _write=[str])
+        self.run_test("""def _write(filename):\n f=open(filename,'a+')\n n = f.write("""+str('str("""q2\naze23\n""")')+""")\n f.close()\n return n""", self.filename, _write=[str])
         self.assertEqual(open(self.filename).read(), content*2)
 
     def test_writelines(self):

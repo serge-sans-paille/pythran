@@ -54,7 +54,7 @@ def test_rfft_12(x):
 
     # Test with arguments
     def test_rfft_13(self):
-        self.run_test("def test_rfft_13(x): from numpy.fft import rfft ; return rfft(x,n=128,axis=1)", numpy.random.random((2,128)), test_rfft_13=[NDArray[float,:,:]])
+        self.run_test("def test_rfft_13(x): from numpy.fft import rfft ; return rfft(x,axis=1)", numpy.random.random((2,128)), test_rfft_13=[NDArray[float,:,:]])
 
     def test_rfft_14(self):
         self.run_test("def test_rfft_14(x): from numpy.fft import rfft ; return rfft(x,n=128,axis=0)", numpy.random.random((2,128)), test_rfft_14=[NDArray[float,:,:]])
@@ -107,7 +107,7 @@ def test_irfft_12(x):
 
     # Test with arguments
     def test_irfft_13(self):
-        self.run_test("def test_irfft_13(x): from numpy.fft import irfft ; return irfft(x,n=128,axis=1)", numpy.exp(1j*numpy.random.random((2,128))), test_irfft_13=[NDArray[numpy.complex,:,:]])
+        self.run_test("def test_irfft_13(x): from numpy.fft import irfft ; return irfft(x,axis=1)", numpy.exp(1j*numpy.random.random((2,128))), test_irfft_13=[NDArray[numpy.complex,:,:]])
 
     def test_irfft_14(self):
         self.run_test("def test_irfft_14(x): from numpy.fft import irfft ; return irfft(x,n=128,axis=0)", numpy.exp(1j*numpy.random.random((2,128))), test_irfft_14=[NDArray[numpy.complex,:,:]])

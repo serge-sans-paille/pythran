@@ -2,6 +2,8 @@
 
 # TODO: check http://code.google.com/p/unladen-swallow/wiki/Benchmarks
 import os
+from distutils.version import LooseVersion
+import numpy
 import unittest
 
 from pythran.tests import TestFromDir
@@ -15,6 +17,10 @@ class TestCases(TestFromDir):
 
 
 TestCases.populate(TestCases)
+
+if LooseVersion(numpy.__version__) >= '1.20':
+    del TestCases.test_train_eq_run0
+    del TestCases.test_train_eq_run1
 
 
 if __name__ == '__main__':

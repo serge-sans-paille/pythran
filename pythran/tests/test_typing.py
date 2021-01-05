@@ -356,7 +356,7 @@ def recursive_interprocedural_typing2(c):
                 print_type(numpy.ones(n, dtype=numpy.uint16).dtype)
                 print_type(numpy.ones(n, dtype=numpy.uint64).dtype)
                 print_type(numpy.ones(n, dtype=numpy.double).dtype)
-                print_type(numpy.ones(n, dtype=numpy.complex).dtype)
+                print_type(numpy.ones(n, dtype=complex).dtype)
             ''',
             3,
             print_numpy_types=[int])

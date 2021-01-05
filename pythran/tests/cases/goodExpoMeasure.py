@@ -5,9 +5,9 @@ def goodExpoMeasure(inRGB, sigma):
     '''
     Compute the good exposition image quality measure on 1 input image.
     '''
-    R = inRGB[0,:,:].astype(numpy.float)
-    G = inRGB[1,:,:].astype(numpy.float)
-    B = inRGB[2,:,:].astype(numpy.float)
+    R = inRGB[0,:,:].astype(numpy.float64)
+    G = inRGB[1,:,:].astype(numpy.float64)
+    B = inRGB[2,:,:].astype(numpy.float64)
     goodExpoR = numpy.exp(- ((R - 128)**2) / sigma)
     goodExpoG = numpy.exp(- ((G - 128)**2) / sigma)
     goodExpoB = numpy.exp(- ((B - 128)**2) / sigma)

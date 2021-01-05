@@ -28,3 +28,4 @@ test_script:
     - "%PYTHON%\\python.exe -m pytest pythran/tests/test_scipy.py -v"
     - "%PYTHON%\\python.exe -m pytest pythran/tests/test_base.py -v"
     - "%PYTHON%\\python.exe -m pytest pythran/tests/test_advanced.py -v"
+    - "%PYTHON%\\python.exe -m pytest pythran/tests/test_conversion.py -v"

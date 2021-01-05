@@ -2,6 +2,7 @@ from pythran.tests import TestEnv
 from pythran.typing import NDArray, Tuple, List
 
 import numpy
+from distutils.version import LooseVersion
 
 import unittest
 
@@ -271,12 +272,12 @@ class TestNdarray(TestEnv):
         self.run_test("""
             def numpy_np_float(n):
                 import numpy
-                return numpy.ones(n, numpy.float)""",
+                return numpy.ones(n, float)""",
                       5,
                       numpy_np_float=[int])
 
     def test_numpy_complex(self):
-        self.run_test("def numpy_complex(n): import numpy ; return numpy.ones(n, numpy.complex)",
+        self.run_test("def numpy_complex(n): import numpy ; return numpy.ones(n, complex)",
                       5,
                       numpy_complex=[int])
 
@@ -1092,6 +1093,8 @@ def complex_conversion0(x):
             5.,
             built_slice_indexing=[NDArray[float, :], int, int, float])
 
+    @unittest.skipIf(LooseVersion(numpy.__version__) >= '1.20',
+                     "numpy.dtype.type changed in 1.20.0")
     def test_dtype_type(self):
         self.run_test('''
             def dtype_type(x):

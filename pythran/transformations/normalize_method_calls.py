@@ -155,7 +155,7 @@ class NormalizeMethodCalls(Transformation):
             module_id = self.imports[node.value.id]
             if node.attr not in MODULES[self.renamer(module_id, MODULES)[1]]:
                 msg = ("`" + node.attr + "' is not a member of " +
-                       module_id + " or Pythran does not support it")
+                       demangle(module_id) + " or Pythran does not support it")
                 raise PythranSyntaxError(msg, node)
             node.value.id = module_id  # patch module aliasing
             self.update = True

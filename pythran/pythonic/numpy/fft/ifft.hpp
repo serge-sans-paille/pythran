@@ -1,11 +1,12 @@
-#ifndef PYTHONIC_NUMPY_FFT_FFT_HPP
-#define PYTHONIC_NUMPY_FFT_FFT_HPP
+#ifndef PYTHONIC_NUMPY_FFT_IFFT_HPP
+#define PYTHONIC_NUMPY_FFT_IFFT_HPP
 
-#include "pythonic/include/numpy/fft/fft.hpp"
+#include "pythonic/include/numpy/fft/ifft.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/builtins/None.hpp"
+#include "pythonic/numpy/concatenate.hpp"
 #include "pythonic/numpy/zeros.hpp"
 
 
@@ -27,37 +28,37 @@ namespace numpy
 
     template <class T , class pS>
     types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
+    ifft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
           types::str const &norm)
     {
-        return c2c(in_array, -1, axis, norm, true);
+        return c2c(in_array, -1, axis, norm, false);
     }
 
     template <class T , class pS>
     types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
+    ifft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
           types::none_type norm)
     {
-        return c2c(in_array, -1, axis, "", true);
+        return c2c(in_array, -1, axis, "", false);
     }
 
     template <class T , class pS>
     types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
+    ifft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
           types::none_type norm)
     {
-        return c2c(in_array, n, axis, "", true);
+        return c2c(in_array, n, axis, "", false);
     }
 
     template <class T , class pS>
     types::ndarray<std::complex<T>, types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
+    ifft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
           types::str const &norm)
     {
-        return c2c(in_array, n, axis, norm, true);
+        return c2c(in_array, n, axis, norm, false);
     }
 
-    NUMPY_EXPR_TO_NDARRAY0_IMPL(fft);
+    NUMPY_EXPR_TO_NDARRAY0_IMPL(ifft);
   }
 }
 PYTHONIC_NS_END

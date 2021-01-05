@@ -3853,6 +3853,8 @@ MODULES = {
             "irfft": FunctionIntr(args=(), global_effects=True),
             "fft": FunctionIntr(args=("a", "n", "axis", "norm"),
                                 defaults=( None, -1, None), global_effects=True),
+            "ifft": FunctionIntr(args=("a", "n", "axis", "norm"),
+                                defaults=( None, -1, None), global_effects=True),
         },
         "random": {
             "binomial": FunctionIntr(args=('n', 'p', 'size'),

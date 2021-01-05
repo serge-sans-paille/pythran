@@ -258,3 +258,25 @@ class TestNumpyFFT(TestEnv):
                 out[ii] = np.fft.fft(x)
             return np.concatenate(out)
         """, (numpy.random.randn(512)+1j*numpy.random.randn(512)).reshape((4,128)), test_fft_parallel=[NDArray[numpy.complex128, :, :]])
+
+@TestEnv.module
+class TestNumpyIFFT(TestEnv):
+    def test_ifft_1d_1(self):
+        self.run_test("def test_ifft_1d_1(x): from numpy.fft import ifft ; return ifft(x)", numpy.random.randn(10)+1j*numpy.random.randn(10), test_ifft_1d_1=[NDArray[numpy.complex128, :]])
+
+    def test_ifft_1d_2(self):
+        self.run_test("def test_ifft_1d_2(x): from numpy.fft import ifft ; return ifft(x)", numpy.random.randn(2**16)+1j*numpy.random.randn(2**16), test_ifft_1d_2=[NDArray[numpy.complex128, :]])
+
+    def test_ifft_2d(self):
+        szs  = [3, 5]
+        for sz in szs:
+            with self.subTest():
+                self.run_test("def test_ifft_2d_2(x): from numpy.fft import ifft ; return ifft(x)", (numpy.random.randn(30)+1j*numpy.random.randn(30)).reshape(sz, -1), test_ifft_2d_2=[NDArray[numpy.complex128, :, :]])
+
+    def test_ifft_3d_axis(self):
+        al = [0, 1, 2, -1]
+        szs  = [(5, 4, -1), (4, 5, -1)]
+        for a in al:
+            for sz in szs:
+                with self.subTest():
+                    self.run_test("def test_ifft_3d_axis(x, a): from numpy.fft import ifft ; return ifft(x, axis=a)", (numpy.random.randn(200)+1j*numpy.random.randn(200)).reshape(sz), a, test_ifft_3d_axis=[NDArray[numpy.complex128, :, :, :], int])

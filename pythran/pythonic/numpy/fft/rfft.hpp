@@ -53,41 +53,41 @@ namespace numpy
     template <class T , class pS>
     types::ndarray<typename std::enable_if<std::is_integral<T>::value, std::complex<double>>::type,
             types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
+    rfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
           types::str const &norm)
     {
         auto tmp_array = _copy_to_double(in_array);
-        return r2c(tmp_array, -1, axis, norm, true, true);
+        return r2c(tmp_array, -1, axis, norm, true, false);
     }
 
     template <class T , class pS>
     types::ndarray<typename std::enable_if<std::is_integral<T>::value, std::complex<double>>::type,
             types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
+    rfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
           types::none_type norm)
     {
         auto tmp_array = _copy_to_double(in_array);
-        return r2c(tmp_array, -1, axis, "", true, true);
+        return r2c(tmp_array, -1, axis, "", true, false);
     }
 
     template <class T , class pS>
     types::ndarray<typename std::enable_if<std::is_integral<T>::value, std::complex<double>>::type,
             types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, long n, long axis,
+    rfft(types::ndarray<T, pS> const &in_array, long n, long axis,
           types::none_type norm)
     {
         auto tmp_array = _copy_to_double(in_array);
-        return c2c(tmp_array, n, axis, "", true, true);
+        return r2c(tmp_array, n, axis, "", true, false);
     }
 
     template <class T , class pS>
     types::ndarray<typename std::enable_if<std::is_integral<T>::value, std::complex<double>>::type,
             types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, long n, long axis,
+    rfft(types::ndarray<T, pS> const &in_array, long n, long axis,
           types::str const &norm)
     {
         auto tmp_array = _copy_to_double(in_array);
-        return r2c(in_array, n, axis, norm, true, true);
+        return r2c(tmp_array, n, axis, norm, true, false);
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(rfft);

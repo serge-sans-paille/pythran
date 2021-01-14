@@ -60,6 +60,19 @@ def test_rfft_12(x):
     def test_rfft_14(self):
         self.run_test("def test_rfft_14(x): from numpy.fft import rfft ; return rfft(x,n=128,axis=0)", numpy.random.random((2,128)), test_rfft_14=[NDArray[float,:,:]])
 
+    @unittest.skip("Mismatch because numpy converts to double before fft (See comment in header file)")
+    def test_rfft_f32(self):
+        self.run_test("def test_rfft_f32(x): from numpy.fft import rfft ; return rfft(x)", numpy.random.random(128).astype(numpy.float32), test_rfft_f32=[NDArray[numpy.float32,:]])
+
+    def test_rfft_int64(self):
+        self.run_test("def test_rfft_int64(x): from numpy.fft import rfft ; return rfft(x)", (100*numpy.random.random(128)).astype(numpy.int64), test_rfft_int64=[NDArray[numpy.int64,:]])
+
+    def test_rfft_byte(self):
+        self.run_test("def test_rfft_byte(x): from numpy.fft import rfft ; return rfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_rfft_byte=[NDArray[numpy.byte,:]])
+
+
+@TestEnv.module
+class TestNumpyIRFFT(TestEnv):
     ############# IRFFT
     # Basic test
     def test_irfft_0(self):
@@ -112,6 +125,21 @@ def test_irfft_12(x):
 
     def test_irfft_14(self):
         self.run_test("def test_irfft_14(x): from numpy.fft import irfft ; return irfft(x,n=128,axis=0)", numpy.exp(1j*numpy.random.random((2,128))), test_irfft_14=[NDArray[numpy.complex,:,:]])
+        
+    def test_irfft_c64(self):
+        self.run_test("def test_irfft_c64(x): from numpy.fft import irfft ; return irfft(x)", numpy.exp(1j*numpy.random.random((2,128))).astype(numpy.complex64), test_irfft_c64=[NDArray[numpy.complex64,:,:]])
+        
+    def test_irfft_f64(self):
+        self.run_test("def test_irfft_f64(x): from numpy.fft import irfft ; return irfft(x)", numpy.random.random(128), test_irfft_f64=[NDArray[numpy.float64,:]])
+        
+    def test_irfft_f32(self):
+        self.run_test("def test_irfft_f32(x): from numpy.fft import irfft ; return irfft(x)", numpy.random.random(128).astype(numpy.float32), test_irfft_f32=[NDArray[numpy.float32,:]])
+        
+    def test_irfft_int64(self):
+        self.run_test("def test_irfft_int64(x): from numpy.fft import irfft ; return irfft(x)", (100*numpy.random.random(128)).astype(numpy.int64), test_irfft_int64=[NDArray[numpy.int64,:]])
+
+    def test_irfft_byte(self):
+        self.run_test("def test_irfft_byte(x): from numpy.fft import irfft ; return irfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_irfft_byte=[NDArray[numpy.byte,:]])
 
 
 @TestEnv.module

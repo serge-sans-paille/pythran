@@ -4,6 +4,19 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
+/**
+/* **Noteable difference to numpy.fft.rfft:**
+/* In contrast to numpy.fft.rfft this implementation preserves precision
+/* of floating point and complex inputs, i.e. complex<float> input yields
+/* complex<float> output. numpy.fft.fft always returns complex<double>, even for
+/* long double input. This follows the same reasoning as given by numpy compiled
+/* with intel_mkl (see here: https://github.com/IntelPython/mkl_fft/issues/10).
+/* Conversion to double precision causes code to be slower and hurts use cases
+/* where single precision preservation is desired, e.g. when interacting with GPUs
+/* or instruments. Moreover for the case of long double inputs, this avoids
+/* loss of precision.
+/**/
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy

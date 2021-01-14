@@ -6,17 +6,7 @@
 #include "pythonic/include/utils/array_helper.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/builtins/None.hpp"
-#include "pythonic/builtins/ValueError.hpp"
-#include "pythonic/numpy/swapaxes.hpp"
-
-#include <array>
-#include <map>
-#include <cstring>
-#include <cmath>
-#include <mutex>
-#include <cstdio>
-
-#include "pythonic/numpy/fft/fftpack.hpp"
+#include "pythonic/numpy/fft/c2c.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -24,101 +14,85 @@ namespace numpy
 {
   namespace fft
   {
-    std::mutex mtx_irfft; // mutex for critical section
 
-    // Aux function
-    template <class T, class pS>
-    types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
-    _irfft(types::ndarray<T, pS> const &in_array, long NFFT, bool norm)
+    template <class T , class pS>
+    types::ndarray<T,
+            types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
+          types::str const &norm)
     {
-      long i;
-      long npts = in_array.template shape<std::tuple_size<pS>::value - 1>();
-      // Create output array.
-      long out_size = NFFT;
-      auto out_shape = sutils::getshape(in_array);
-      out_shape.back() = out_size;
-      types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
-          out_array(out_shape, builtins::None);
-
-      // Create the twiddle factors. These must be kept from call to call as
-      // it's very wasteful to recompute them.
-      // The call to npy_irfftf makes changes to the twiddle factor buffer (then
-      // restores it) so it's
-      // not thread safe. To avoid this:
-      // I keep one copy of the twiddle factors that no thread is allowed to
-      // modify. Then each thread
-      // has its own copy of it that it can modify at will.
-      // This is from fftpack_litemodule.c
-      static std::map<long, std::vector<double>> all_twiddles_irfft_global;
-      static thread_local std::map<long, std::vector<double>>
-          all_twiddles_irfft_local;
-      mtx_irfft.lock();
-      if (all_twiddles_irfft_global.find(NFFT) ==
-          all_twiddles_irfft_global.end()) {
-        // This happens only once across all threads for a give NFFT
-        // Insert a new twiddle array into our map and initialize it
-        all_twiddles_irfft_global.emplace(NFFT,
-                                          std::vector<double>(2 * NFFT + 15));
-        // std::cout << "INIT GLOBAL " << NFFT << " \n";
-        // This is the (costly) initialization of the array.
-        npy_rffti(NFFT, all_twiddles_irfft_global[NFFT].data());
-      }
-
-      if (all_twiddles_irfft_local.find(NFFT) ==
-          all_twiddles_irfft_local.end()) {
-        // This happens once per thread.
-        all_twiddles_irfft_local.emplace(NFFT, all_twiddles_irfft_global[NFFT]);
-      }
-
-      double *twiddle_buffer = all_twiddles_irfft_local[NFFT].data();
-      mtx_irfft.unlock();
-
-      // Call fft (fftpack.py) r = work_function(in_array, wsave)
-      // This is translated from
-      // https://raw.githubusercontent.com/numpy/numpy/master/numpy/fft/fftpack_litemodule.c
-
-      double *rptr = (double *)out_array.buffer;
-      typename T::value_type *dptr = (typename T::value_type *)in_array.buffer;
-      long nrepeats = out_array.flat_size() / out_size;
-      long to_copy = (NFFT / 2 + 1 <= npts) ? (NFFT - 1) : (2 * npts - 2);
-      for (i = 0; i < nrepeats; i++) {
-        // By default npts = floor(NFFT/2)+1.
-        std::copy(dptr + 2, dptr + 2 + to_copy, rptr + 1);
-        rptr[0] = dptr[0];
-        // Zero padding if necessary
-        std::fill(rptr + 1 + to_copy, rptr + 1 + to_copy + (NFFT - 1 - to_copy),
-                  0);
-        npy_rfftb(NFFT, rptr, twiddle_buffer);
-        rptr += out_size;
-        dptr += 2 * npts; // These are comlex numbers.
-      }
-
-      double scale = (norm) ? 1. / sqrt(NFFT) : 1. / NFFT;
-      rptr = (double *)out_array.buffer;
-      long count = out_array.flat_size();
-      for (i = 0; i < count; i++) {
-        rptr[i] *= scale;
-      }
-      return out_array;
+        return c2r(in_array, -1, axis, norm, false);
     }
 
-    template <class T, class pS>
-    types::ndarray<double, types::array<long, std::tuple_size<pS>::value>>
-    irfft(types::ndarray<T, pS> const &in_array, long NFFT, long axis,
-          types::str normalize)
+    template <class T , class pS>
+    types::ndarray<T,
+            types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
+          types::none_type norm)
     {
-      auto constexpr N = std::tuple_size<pS>::value;
-      bool norm = (normalize == "ortho");
-      if (NFFT == -1)
-        NFFT = 2 * (in_array.template shape<N - 1>() - 1);
-      if (axis != -1 && axis != N - 1) {
-        // Swap axis if the FFT must be computed on an axis that's not the last
-        // one.
-        auto swapped_array = swapaxes(in_array, axis, N - 1);
-        return swapaxes(_irfft(swapped_array, NFFT, norm), axis, N - 1);
-      } else {
-        return _irfft(in_array, NFFT, norm);
-      }
+        return c2r(in_array, -1, axis, "", false);
+    }
+
+    template <class T , class pS>
+    types::ndarray<T,
+            types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
+          types::none_type norm)
+    {
+        return c2r(in_array, n, axis, "", false);
+    }
+
+    template <class T , class pS>
+    types::ndarray<T,
+            types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
+          types::str const &norm)
+    {
+        return c2r(in_array, n, axis, norm, false);
+    }
+
+    template <class T , class pS>
+    types::ndarray<typename std::enable_if<!types::is_complex<T>::value,
+            typename std::conditional<std::is_integral<T>::value, double, T>::type>::type,
+            types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
+          types::str const &norm)
+    {
+        auto tmp_array = _copy_to_complex(in_array);
+        return c2r(tmp_array, -1, axis, norm, false);
+    }
+
+    template <class T , class pS>
+    types::ndarray<typename std::enable_if<!types::is_complex<T>::value,
+            typename std::conditional<std::is_integral<T>::value, double, T>::type>::type,
+            types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
+          types::none_type norm)
+    {
+        auto tmp_array = _copy_to_complex(in_array);
+        return c2r(tmp_array, -1, axis, "", false);
+    }
+
+    template <class T , class pS>
+    types::ndarray<typename std::enable_if<!types::is_complex<T>::value,
+            typename std::conditional<std::is_integral<T>::value, double, T>::type>::type,
+            types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<T, pS> const &in_array, long n, long axis,
+          types::none_type norm)
+    {
+        auto tmp_array = _copy_to_complex(in_array);
+        return c2r(tmp_array, n, axis, "", false);
+    }
+
+    template <class T , class pS>
+    types::ndarray<typename std::enable_if<!types::is_complex<T>::value,
+            typename std::conditional<std::is_integral<T>::value, double, T>::type>::type,
+            types::array<long, std::tuple_size<pS>::value>>
+    irfft(types::ndarray<T, pS> const &in_array, long n, long axis,
+          types::str const &norm)
+    {
+        auto tmp_array = _copy_to_complex(in_array);
+        return c2r(tmp_array, n, axis, norm, false);
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(irfft);

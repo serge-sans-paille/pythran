@@ -17,6 +17,7 @@ namespace builtins
 
       type operator()(char const t[], long base) const;
       type operator()(types::str const &t, long base) const;
+      type operator()(types::chr const &t, long base) const;
       template <class T>
       type operator()(T &&t) const;
       type operator()() const;

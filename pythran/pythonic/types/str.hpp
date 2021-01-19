@@ -21,6 +21,11 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
+  chr::operator str() const
+  {
+    return str(c);
+  }
+
   /// const_sliced_str_iterator implementation
   const_sliced_str_iterator::const_sliced_str_iterator(char const *data,
                                                        long step)
@@ -52,9 +57,9 @@ namespace types
     return data != other.data;
   }
 
-  str const_sliced_str_iterator::operator*() const
+  chr const_sliced_str_iterator::operator*() const
   {
-    return str(*data);
+    return (*data);
   }
 
   const_sliced_str_iterator const_sliced_str_iterator::operator-(long n) const
@@ -135,13 +140,13 @@ namespace types
 
   // accessor
   template <class S>
-  str sliced_str<S>::fast(long i) const
+  chr sliced_str<S>::fast(long i) const
   {
-    return str((*data)[slicing.get(i)]);
+    return (*data)[slicing.get(i)];
   }
 
   template <class S>
-  str sliced_str<S>::operator[](long i) const
+  chr sliced_str<S>::operator[](long i) const
   {
     if (i < 0) {
       i += size();
@@ -168,10 +173,21 @@ namespace types
   template <class S>
   sliced_str<S>::operator long() const
   {
-    long out;
-    std::istringstream iss(str(*this).chars());
-    iss >> out;
-    return out;
+    char const *iter = data->c_str() + slicing.lower;
+    char const *end = data->c_str() + slicing.upper;
+    while (iter < end && isblank(*iter))
+      iter += slicing.step;
+    if (iter >= end)
+      return 0;
+    long neg = 1;
+    if (*iter == '-') {
+      iter += slicing.step;
+      neg = -1;
+    }
+    long out = 0;
+    for (; iter < end; iter += slicing.step)
+      out = out * 10 + (*iter - '0');
+    return neg * out;
   }
 
   template <class S>
@@ -186,7 +202,25 @@ namespace types
     return find(v) != std::string::npos;
   }
 
+  template <class S>
+  bool sliced_str<S>::operator==(str const &v) const
+  {
+    if (size() != v.size())
+      return false;
+    for (char const *iter = data->c_str() + slicing.lower,
+                    *end = data->c_str() + slicing.upper,
+                    *oter = v.data->c_str();
+         iter < end; iter += slicing.step, ++oter)
+      if (*iter != *oter)
+        return false;
+    return true;
+  }
+
   // io
+  std::ostream &operator<<(std::ostream &os, types::chr const &v)
+  {
+    return os << v.c;
+  }
   template <class S>
   std::ostream &operator<<(std::ostream &os, types::sliced_str<S> const &v)
   {
@@ -352,6 +386,11 @@ namespace types
     *data += *s.data;
     return *this;
   }
+  str &str::operator+=(chr const &s)
+  {
+    *data += s.c;
+    return *this;
+  }
 
   long str::size() const
   {
@@ -494,6 +533,10 @@ namespace types
         return false;
     return true;
   }
+  bool str::operator==(chr other) const
+  {
+    return size() == 1 && (*data)[0] == other.c;
+  }
 
   template <class S>
   typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type str::
@@ -502,16 +545,16 @@ namespace types
     return operator[](s);
   }
 
-  str str::operator[](long i) const
+  chr str::operator[](long i) const
   {
     if (i < 0)
       i += size();
-    return str(fast(i));
+    return fast(i);
   }
 
-  str str::fast(long i) const
+  chr str::fast(long i) const
   {
-    return str((*data)[i]);
+    return (*data)[i];
   }
 
   template <class S>
@@ -542,6 +585,19 @@ namespace types
   {
     return str(self.chars() + other.chars());
   }
+  str operator+(chr const &self, chr const &other)
+  {
+    char tmp[2] = {self.c, other.c};
+    return str(&tmp[0], 2);
+  }
+  str operator+(chr const &self, str const &other)
+  {
+    return str(self.c + other.chars());
+  }
+  str operator+(str const &self, chr const &other)
+  {
+    return str(self.chars() + other.c);
+  }
 
   template <size_t N>
   str operator+(str const &self, char const(&other)[N])
@@ -549,6 +605,15 @@ namespace types
     std::string s;
     s.reserve(self.size() + N);
     s += self.chars();
+    s += other;
+    return {std::move(s)};
+  }
+  template <size_t N>
+  str operator+(chr const &self, char const(&other)[N])
+  {
+    std::string s;
+    s.reserve(1 + N);
+    s += self.c;
     s += other;
     return {std::move(s)};
   }
@@ -564,7 +629,22 @@ namespace types
   }
 
   template <size_t N>
+  str operator+(char const(&self)[N], chr const &other)
+  {
+    std::string s;
+    s.reserve(1 + N);
+    s += self;
+    s += other.c;
+    return {std::move(s)};
+  }
+
+  template <size_t N>
   bool operator==(char const(&self)[N], str const &other)
+  {
+    return other == self;
+  }
+
+  bool operator==(chr self, str const &other)
   {
     return other == self;
   }
@@ -621,6 +701,21 @@ pythonic::types::str operator*(long t, pythonic::types::str const &s)
   return s * t;
 }
 
+pythonic::types::str operator*(pythonic::types::chr const &s, long n)
+{
+  if (n <= 0)
+    return pythonic::types::str();
+  pythonic::types::str other;
+  other.resize(n);
+  std::fill(other.chars().begin(), other.chars().end(), s.c);
+  return other;
+}
+
+pythonic::types::str operator*(long t, pythonic::types::chr const &c)
+{
+  return c * t;
+}
+
 namespace std
 {
 
@@ -628,6 +723,12 @@ namespace std
   operator()(const pythonic::types::str &x) const
   {
     return hash<std::string>()(x.chars());
+  }
+
+  size_t hash<pythonic::types::chr>::
+  operator()(const pythonic::types::chr &x) const
+  {
+    return x.c;
   }
 
   template <size_t I>
@@ -657,6 +758,11 @@ PYTHONIC_NS_BEGIN
 PyObject *to_python<types::str>::convert(types::str const &v)
 {
   return PyString_FromStringAndSize(v.c_str(), v.size());
+}
+
+PyObject *to_python<types::chr>::convert(types::chr const &v)
+{
+  return PyString_FromStringAndSize(&v.c, 1);
 }
 
 template <class S>

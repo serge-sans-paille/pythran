@@ -23,6 +23,39 @@ namespace types
   class str;
   struct const_sliced_str_iterator;
 
+  struct chr {
+    char c;
+    chr() = default;
+    chr(char c) : c(c)
+    {
+    }
+    bool operator==(chr other) const
+    {
+      return c == other.c;
+    }
+    long size() const
+    {
+      return 1;
+    }
+    operator long() const
+    {
+      return c - '0';
+    }
+    operator str() const;
+    char const *begin() const
+    {
+      return &c;
+    }
+    char const *end() const
+    {
+      return 1 + &c;
+    }
+    std::array<char, 1> chars() const
+    {
+      return {c};
+    }
+  };
+
   template <class S = slice>
   class sliced_str
   {
@@ -69,8 +102,8 @@ namespace types
     long size() const;
 
     // accessor
-    str operator[](long i) const;
-    str fast(long i) const;
+    chr operator[](long i) const;
+    chr fast(long i) const;
     template <class Sp>
     typename std::enable_if<is_slice<Sp>::value, sliced_str<Sp>>::type
     operator[](Sp const &s) const;
@@ -82,6 +115,7 @@ namespace types
 
     size_t find(str const &s, size_t pos = 0) const;
     bool contains(str const &v) const;
+    bool operator==(str const &v) const;
 
     // io
     template <class SS>
@@ -133,6 +167,7 @@ namespace types
     str &operator=(sliced_str<S> const &other);
 
     types::str &operator+=(types::str const &s);
+    types::str &operator+=(types::chr const &s);
 
     long size() const;
     iterator begin() const;
@@ -171,13 +206,14 @@ namespace types
     bool operator>(str const &other) const;
     template <class S>
     bool operator==(sliced_str<S> const &other) const;
+    bool operator==(chr other) const;
 
     template <class S>
     typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type
     operator()(S const &s) const;
 
-    str operator[](long i) const;
-    str fast(long i) const;
+    chr operator[](long i) const;
+    chr fast(long i) const;
 
     template <class S>
     typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type
@@ -198,9 +234,9 @@ namespace types
     string_iterator(std::string::const_iterator iter) : curr(iter)
     {
     }
-    str operator*() const
+    chr operator*() const
     {
-      return str(*curr);
+      return chr(*curr);
     }
     string_iterator &operator++()
     {
@@ -253,7 +289,7 @@ namespace types
     bool operator<(const_sliced_str_iterator const &other) const;
     bool operator==(const_sliced_str_iterator const &other) const;
     bool operator!=(const_sliced_str_iterator const &other) const;
-    str operator*() const;
+    chr operator*() const;
     const_sliced_str_iterator operator-(long n) const;
     long operator-(const_sliced_str_iterator const &other) const;
   };
@@ -261,16 +297,26 @@ namespace types
   size_t hash_value(str const &x);
 
   str operator+(str const &self, str const &other);
+  str operator+(chr const &self, chr const &other);
+  str operator+(chr const &self, str const &other);
+  str operator+(chr const &self, str const &other);
 
   template <size_t N>
   str operator+(str const &self, char const(&other)[N]);
+  template <size_t N>
+  str operator+(chr const &self, char const(&other)[N]);
 
   template <size_t N>
   str operator+(char const(&self)[N], str const &other);
+  template <size_t N>
+  str operator+(char const(&self)[N], chr const &other);
 
   template <size_t N>
   bool operator==(char const(&self)[N], str const &other);
 
+  bool operator==(chr self, str const &other);
+
+  std::ostream &operator<<(std::ostream &os, chr const &s);
   std::ostream &operator<<(std::ostream &os, str const &s);
 }
 
@@ -286,6 +332,11 @@ namespace operator_
   pythonic::types::str mul(char const *self, long other);
   pythonic::types::str mul(long self, char const *other);
 }
+
+template <>
+struct assignable<types::chr> {
+  using type = types::str;
+};
 
 template <>
 struct assignable<char *> {
@@ -307,12 +358,19 @@ PYTHONIC_NS_END
 
 pythonic::types::str operator*(pythonic::types::str const &s, long n);
 pythonic::types::str operator*(long t, pythonic::types::str const &s);
+pythonic::types::str operator*(pythonic::types::chr const &s, long n);
+pythonic::types::str operator*(long t, pythonic::types::chr const &s);
 
 namespace std
 {
   template <>
   struct hash<pythonic::types::str> {
     size_t operator()(const pythonic::types::str &x) const;
+  };
+
+  template <>
+  struct hash<pythonic::types::chr> {
+    size_t operator()(const pythonic::types::chr &x) const;
   };
 
   /* std::get overload */
@@ -358,6 +416,11 @@ PYTHONIC_NS_BEGIN
 template <>
 struct to_python<types::str> {
   static PyObject *convert(types::str const &v);
+};
+
+template <>
+struct to_python<types::chr> {
+  static PyObject *convert(types::chr const &v);
 };
 
 template <class S>

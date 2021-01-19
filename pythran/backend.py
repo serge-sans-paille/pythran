@@ -933,8 +933,12 @@ class CxxFunction(ast.NodeVisitor):
         elif isinstance(node.value, bool):
             ret = str(node.value).lower()
         elif isinstance(node.value, str):
-            quoted = node.value.replace('"', '\\"').replace('\n', '\\n"\n"')
-            ret = 'pythonic::types::str("' + quoted + '")'
+            quoted = node.value.replace('"', r'\"').replace('\n', r'\n')
+            if len(node.value) == 1:
+                quoted = quoted.replace("'", r"\'")
+                ret = 'pythonic::types::chr(\'' + quoted + '\')'
+            else:
+                ret = 'pythonic::types::str("' + quoted + '")'
         elif isinstance(node.value, complex):
             ret = "{0}({1}, {2})".format(
                 PYTYPE_TO_CTYPE_TABLE[complex],

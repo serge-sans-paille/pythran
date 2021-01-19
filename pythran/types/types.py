@@ -438,7 +438,10 @@ class Types(ModuleAnalysis):
     def visit_Constant(self, node):
         """ Set the pythonic constant type. """
         ty = type(node.value)
-        sty = pytype_to_ctype(ty)
+        if ty is str and len(node.value) == 1:
+            sty = 'pythonic::types::chr'
+        else:
+            sty = pytype_to_ctype(ty)
         if node in self.immediates:
             sty = "std::integral_constant<%s, %s>" % (sty, node.value)
         self.result[node] = self.builder.NamedType(sty)

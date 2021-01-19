@@ -22,6 +22,11 @@ namespace builtins
     {
       return (*this)(t.c_str(), base);
     }
+    int_::type int_::operator()(types::chr const &t, long base) const
+    {
+      char tmp[2] = {t.c, 0};
+      return (*this)(&tmp[0], base);
+    }
 
     template <class T>
     int_::type int_::operator()(T &&t) const

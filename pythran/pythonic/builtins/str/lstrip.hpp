@@ -16,8 +16,12 @@ namespace builtins
 
     types::str lstrip(types::str const &self, types::str const &to_del)
     {
-      return {self.chars().begin() + self.find_first_not_of(to_del),
-              self.chars().end()};
+      auto chars = self.chars();
+      auto stop = self.find_first_not_of(to_del);
+      if (stop < 0)
+        return {};
+      else
+        return {chars.begin() + stop, chars.end()};
     }
   }
 }

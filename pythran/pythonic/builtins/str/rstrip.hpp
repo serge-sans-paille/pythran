@@ -16,8 +16,11 @@ namespace builtins
 
     types::str rstrip(types::str const &self, types::str const &to_del)
     {
-      return {self.chars().begin(),
-              self.chars().begin() + self.find_last_not_of(to_del) + 1};
+      auto chars = self.chars();
+      auto stop = self.find_last_not_of(to_del);
+      if (stop < 0)
+        return {};
+      return {chars.begin(), chars.begin() + stop + 1};
     }
   }
 }

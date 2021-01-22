@@ -53,8 +53,8 @@ namespace builtins
         types::str>::type
     join(S const &s, Iterable &&iterable)
     {
-      long ssize = std::distance(std::begin(s), std::end(s)) -
-                   (std::is_same<S, types::str>::value ? 0 : 1);
+      long ssize = builtins::functor::len{}(s);
+
       /* first iterate over iterable to gather sizes */
       long iterable_size = std::distance(iterable.begin(), iterable.end());
       if (iterable_size == 0)
@@ -74,8 +74,9 @@ namespace builtins
         ++iter;
         if (ssize)
           for (; iter != iterable.end(); ++iter) {
-            oter = std::copy(std::begin(s.chars()),
-                             std::begin(s.chars()) + ssize, oter);
+            auto chars = s.chars();
+            oter =
+                std::copy(std::begin(chars), std::begin(chars) + ssize, oter);
             auto tmp = *iter;
             auto const &stmp = tmp.chars();
             oter = std::copy(stmp.begin(), stmp.end(), oter);

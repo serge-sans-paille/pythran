@@ -141,6 +141,143 @@ def test_irfft_12(x):
     def test_irfft_byte(self):
         self.run_test("def test_irfft_byte(x): from numpy.fft import irfft ; return irfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_irfft_byte=[NDArray[numpy.byte,:]])
 
+@TestEnv.module
+class TestNumpyIHFFT(TestEnv):
+
+    # Basic test
+    def test_ihfft_0(self):
+        self.run_test("def test_ihfft(x): from numpy.fft import ihfft ; return ihfft(x)", numpy.arange(0,8.), test_ihfft=[NDArray[float,:]])
+    # Test various values of n, even, odd, greater and smaller than array size
+    def test_ihfft_1(self):
+        self.run_test("def test_ihfft_1(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),8, test_ihfft_1=[NDArray[float,:],int])
+    def test_ihfft_2(self):
+        self.run_test("def test_ihfft_2(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),9, test_ihfft_2=[NDArray[float,:],int])
+    def test_ihfft_3(self):
+        self.run_test("def test_ihfft_3(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),7, test_ihfft_3=[NDArray[float,:],int])
+    def test_ihfft_4(self):
+        self.run_test("def test_ihfft_4(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),6, test_ihfft_4=[NDArray[float,:],int])
+    def test_ihfft_5(self):
+        self.run_test("def test_ihfft_5(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),10, test_ihfft_5=[NDArray[float,:],int])
+
+    # Two dimensional array
+    def test_ihfft_6(self):
+        self.run_test("def test_ihfft_6(x): from numpy.fft import ihfft ; return ihfft(x)", numpy.random.random((4,128)), test_ihfft_6=[NDArray[float,:,:]])
+    # Test axes
+    def test_ihfft_7(self):
+        self.run_test("def test_ihfft_7(x,n,a): from numpy.fft import ihfft ; return ihfft(x,n,a)", numpy.random.random((4,128)),128,1, test_ihfft_7=[NDArray[float,:,:],int,int])
+    def test_ihfft_8(self):
+        self.run_test("def test_ihfft_8(x,n,a): from numpy.fft import ihfft ; return ihfft(x,n,a)", numpy.random.random((4,128)),128,0, test_ihfft_8=[NDArray[float,:,:],int,int])
+    # Test renorm
+    def test_ihfft_9(self):
+        self.run_test("def test_ihfft_9(x,n,a,r): from numpy.fft import ihfft ; return ihfft(x,n,a,r)", numpy.random.random((4,128)),128,1,'ortho', test_ihfft_9=[NDArray[float,:,:],int,int,str])
+
+    # Test float32
+    def test_ihfft_10(self):
+        self.run_test("def test_ihfft_10(x): from numpy.fft import ihfft ; return ihfft(x)", numpy.arange(0,8.).astype(numpy.float32), test_ihfft_10=[NDArray[numpy.float32,:]])
+    def test_ihfft_11(self):
+        self.run_test("def test_ihfft_11(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.).astype(numpy.float32),16,test_ihfft_11=[NDArray[numpy.float32,:],int])
+
+    # Test parallel:
+    def test_ihfft_12(self):
+        self.run_test('''
+import numpy as np
+def test_ihfft_12(x):
+    out = out = [np.empty_like(x, dtype=complex) for i in range(20)] 
+    #omp parallel for
+    for ii in range(20):
+        out[ii] = np.fft.ihfft(x)
+    return np.concatenate(out)
+''',numpy.random.random((4,128)), test_ihfft_12=[NDArray[float,:,:]])
+
+    # Test with arguments
+    def test_ihfft_13(self):
+        self.run_test("def test_ihfft_13(x): from numpy.fft import ihfft ; return ihfft(x,axis=1)", numpy.random.random((2,128)), test_ihfft_13=[NDArray[float,:,:]])
+
+    def test_ihfft_14(self):
+        self.run_test("def test_ihfft_14(x): from numpy.fft import ihfft ; return ihfft(x,n=128,axis=0)", numpy.random.random((2,128)), test_ihfft_14=[NDArray[float,:,:]])
+
+    @unittest.skip("Mismatch because numpy converts to double before fft (See comment in header file)")
+    def test_ihfft_f32(self):
+        self.run_test("def test_ihfft_f32(x): from numpy.fft import ihfft ; return ihfft(x)", numpy.random.random(128).astype(numpy.float32), test_ihfft_f32=[NDArray[numpy.float32,:]])
+
+    def test_ihfft_int64(self):
+        self.run_test("def test_ihfft_int64(x): from numpy.fft import ihfft ; return ihfft(x)", (100*numpy.random.random(128)).astype(numpy.int64), test_ihfft_int64=[NDArray[numpy.int64,:]])
+
+    def test_ihfft_byte(self):
+        self.run_test("def test_ihfft_byte(x): from numpy.fft import ihfft ; return ihfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_ihfft_byte=[NDArray[numpy.byte,:]])
+
+
+@TestEnv.module
+class TestNumpyHFFT(TestEnv):
+    ############# hfft
+    # Basic test
+    def test_hfft_0(self):
+        self.run_test("def test_hfft_0(x): from numpy.fft import hfft ; return hfft(x)", numpy.exp(1j*numpy.random.random(8)), test_hfft_0=[NDArray[numpy.complex,:]])
+    # Test various values of n, even, odd, greater and smaller than array size
+    def test_hfft_1(self):
+        self.run_test("def test_hfft_1(x,n): from numpy.fft import hfft ; return hfft(x,n)", numpy.exp(1j*numpy.random.random(8)),8, test_hfft_1=[NDArray[numpy.complex,:],int])
+    def test_hfft_2(self):
+        self.run_test("def test_hfft_2(x,n): from numpy.fft import hfft ; return hfft(x,n)", numpy.exp(1j*numpy.random.random(8)),9, test_hfft_2=[NDArray[numpy.complex,:],int])
+    def test_hfft_3(self):
+        self.run_test("def test_hfft_3(x,n): from numpy.fft import hfft ; return hfft(x,n)", numpy.exp(1j*numpy.random.random(8)),7, test_hfft_3=[NDArray[numpy.complex,:],int])
+    def test_hfft_4(self):
+        self.run_test("def test_hfft_4(x,n): from numpy.fft import hfft ; return hfft(x,n)", numpy.exp(1j*numpy.random.random(8)),6, test_hfft_4=[NDArray[numpy.complex,:],int])
+    def test_hfft_5(self):
+        self.run_test("def test_hfft_5(x,n): from numpy.fft import hfft ; return hfft(x,n)", numpy.exp(1j*numpy.random.random(8)),10, test_hfft_5=[NDArray[numpy.complex,:],int])
+
+    # Two dimensional array
+    def test_hfft_6(self):
+        self.run_test("def test_hfft_6(x): from numpy.fft import hfft ; return hfft(x)", numpy.exp(1j*numpy.random.random((4,128))), test_hfft_6=[NDArray[numpy.complex,:,:]])
+    # Test axes
+    def test_hfft_7(self):
+        self.run_test("def test_hfft_7(x,n,a): from numpy.fft import hfft ; return hfft(x,n,a)", numpy.exp(1j*numpy.random.random((4,128))),128,1, test_hfft_7=[NDArray[numpy.complex,:,:],int,int])
+    def test_hfft_8(self):
+        self.run_test("def test_hfft_8(x,n,a): from numpy.fft import hfft ; return hfft(x,n,a)", numpy.exp(1j*numpy.random.random((4,128))),128,0, test_hfft_8=[NDArray[numpy.complex,:,:],int,int])
+    # Test renorm
+    def test_hfft_9(self):
+        self.run_test("def test_hfft_9(x,n,a,r): from numpy.fft import hfft ; return hfft(x,n,a,r)", numpy.exp(1j*numpy.random.random((4,128))),128,1,'ortho', test_hfft_9=[NDArray[numpy.complex,:,:],int,int,str])
+
+    # Test complex64
+    def test_hfft_10(self):
+        self.run_test("def test_hfft_10(x): from numpy.fft import hfft ; return hfft(x)", numpy.exp(1j*numpy.random.random(8)).astype(numpy.complex64), test_hfft_10=[NDArray[numpy.complex64,:]])
+    def test_hfft_11(self):
+        self.run_test("def test_hfft_11(x,n): from numpy.fft import hfft ; return hfft(x,n)", numpy.exp(1j*numpy.random.random(8)).astype(numpy.complex64),16,test_hfft_11=[NDArray[numpy.complex64,:],int])
+
+    # Test parallel:
+    def test_hfft_12(self):
+        self.run_test('''
+import numpy as np
+def test_hfft_12(x):
+    out = [np.empty_like(x, dtype=float) for i in range(20)] 
+    #omp parallel for
+    for ii in range(20):
+        out[ii] = np.fft.hfft(x)
+    return np.concatenate(out)
+''',numpy.exp(1j*numpy.random.random((4,128))), test_hfft_12=[NDArray[numpy.complex128,:,:]])
+
+    # Test with arguments
+    def test_hfft_13(self):
+        self.run_test("def test_hfft_13(x): from numpy.fft import hfft ; return hfft(x,axis=1)", numpy.exp(1j*numpy.random.random((2,128))), test_hfft_13=[NDArray[numpy.complex,:,:]])
+
+    def test_hfft_14(self):
+        self.run_test("def test_hfft_14(x): from numpy.fft import hfft ; return hfft(x,n=128,axis=0)", numpy.exp(1j*numpy.random.random((2,128))), test_hfft_14=[NDArray[numpy.complex,:,:]])
+
+    @unittest.skip("Fails because of numpy casting to  double (see documentation in headers for a discussion)")
+    def test_hfft_c64(self):
+        self.run_test("def test_hfft_c64(x): from numpy.fft import hfft ; return hfft(x)", numpy.exp(1j*numpy.random.random((2,128))).astype(numpy.complex64), test_hfft_c64=[NDArray[numpy.complex64,:,:]])
+
+    def test_hfft_f64(self):
+        self.run_test("def test_hfft_f64(x): from numpy.fft import hfft ; return hfft(x)", numpy.random.random(128), test_hfft_f64=[NDArray[numpy.float64,:]])
+
+    @unittest.skip("Fails because of numpy casting to  double (see documentation in headers for a discussion)")
+    def test_hfft_f32(self):
+        self.run_test("def test_hfft_f32(x): from numpy.fft import hfft ; return hfft(x)", numpy.random.random(128).astype(numpy.float32), test_hfft_f32=[NDArray[numpy.float32,:]])
+
+    def test_hfft_int64(self):
+        self.run_test("def test_hfft_int64(x): from numpy.fft import hfft ; return hfft(x)", (100*numpy.random.random(128)).astype(numpy.int64), test_hfft_int64=[NDArray[numpy.int64,:]])
+
+    def test_hfft_byte(self):
+        self.run_test("def test_hfft_byte(x): from numpy.fft import hfft ; return hfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_hfft_byte=[NDArray[numpy.byte,:]])
 
 @TestEnv.module
 class TestNumpyFFT(TestEnv):

@@ -16,6 +16,13 @@ namespace numpy
     std::copy(a.fbegin(), a.fend(), out.fbegin());
     return out;
   }
+  template <class T, class pS, class E>
+  types::ndarray<T, pS> copyto(types::ndarray<T, pS> &out,
+                                E const &expr)
+  {
+    out.initialize_from_expr(expr);
+    return out;
+  }
 }
 PYTHONIC_NS_END
 

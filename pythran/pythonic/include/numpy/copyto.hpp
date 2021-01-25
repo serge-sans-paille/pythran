@@ -11,6 +11,10 @@ namespace numpy
   types::ndarray<T, pS0> copyto(types::ndarray<T, pS0> &out,
                                 types::ndarray<T, pS1> const &a);
 
+  template <class T, class pS, class E>
+  types::ndarray<T, pS> copyto(types::ndarray<T, pS> &out,
+                                E const &expr);
+
   DEFINE_FUNCTOR(pythonic::numpy, copyto);
 }
 PYTHONIC_NS_END

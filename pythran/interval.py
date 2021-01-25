@@ -416,6 +416,8 @@ class IntervalTuple(object):
         return out or UNKNOWN_RANGE
 
     def widen(self, other):
+        if isinstance(other, Interval):
+            return UNKNOWN_TUPLE_RANGE
         return IntervalTuple(s.widen(o) for s, o in zip(self.values,
                                                         other.values))
 

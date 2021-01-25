@@ -267,6 +267,35 @@ class StrJoinPattern(Pattern):
             keywords=[])
 
 
+class FMAPattern1(Pattern):
+    # X * Y + Z => numpy.fma(X, Y, Z)
+
+    pattern = ast.BinOp(ast.BinOp(Placeholder(0), ast.Mult(), Placeholder(1)),
+                        ast.Add(),
+                        Placeholder(2))
+
+    @staticmethod
+    def sub():
+        return ast.Call(
+            func=ast.Attribute(
+                value=ast.Attribute(value=ast.Name(id='builtins',
+                                                   ctx=ast.Load(),
+                                                   annotation=None,
+                                                   type_comment=None),
+                                    attr="pythran", ctx=ast.Load()),
+                attr="fma", ctx=ast.Load()),
+            args=[Placeholder(0), Placeholder(1), Placeholder(2)], keywords=[])
+
+
+
+class FMAPattern2(FMAPattern1):
+    # Z + X * Y => numpy.fma(X, Y, Z)
+
+    pattern = ast.BinOp(Placeholder(2), ast.Add(), ast.BinOp(Placeholder(0),
+                                                             ast.Mult(),
+                                                             Placeholder(1)))
+
+
 know_pattern = [x for x in globals().values() if hasattr(x, "pattern")]
 
 

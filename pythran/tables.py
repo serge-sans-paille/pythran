@@ -2537,6 +2537,7 @@ MODULES = {
     "builtins": {
         "pythran": {
             "abssqr": ConstFunctionIntr(),
+            "fma": ConstFunctionIntr(),
             "static_list": ReadOnceFunctionIntr(
                 signature=Fun[[Iterable[T0]], List[T0]],
                 return_alias=lambda args: {args[0]}),

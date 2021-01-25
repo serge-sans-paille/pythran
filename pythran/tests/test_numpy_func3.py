@@ -346,6 +346,16 @@ def np_trim_zeros2(x):
     def test_unravel_index_1(self):
         self.run_test("def np_unravel_index1(x, y): from numpy import unravel_index; return unravel_index(x, y, 'F')", 1621, (6, 7, 8, 9), np_unravel_index1=[int, Tuple[int, int, int, int]])
 
+    def test_copyto_0(self):
+        self.run_test("def np_copyto0(x, y): from numpy import copyto; copyto(x, y); return x",
+                      numpy.array([1,2]), numpy.array([3,4]),
+                      np_copyto0=[NDArray[int, :], NDArray[int, :]])
+
+    def test_copyto_1(self):
+        self.run_test("def np_copyto1(x, y): from numpy import copyto; copyto(x, y); return x",
+                      numpy.array([[1,2], [7, 8]]), numpy.array([3,4]),
+                      np_copyto1=[NDArray[int, :, :], NDArray[int, :]])
+
     def test_numpy_pow0(self):
         self.run_test('def numpy_pow0(a): return a ** 2',
                       numpy.arange(100).reshape((10, 10)),

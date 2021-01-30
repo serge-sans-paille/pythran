@@ -132,12 +132,14 @@ class SyntaxChecker(ast.NodeVisitor):
             raise PythranSyntaxError("large int not supported", node)
 
     def visit_FunctionDef(self, node):
-        self.generic_visit(node)
+        if node.decorator_list:
+            raise PythranSyntaxError("decorators not supported", node)
         if node.args.vararg:
             raise PythranSyntaxError("Varargs not supported", node)
         if node.args.kwarg:
             raise PythranSyntaxError("Keyword arguments not supported",
                                      node)
+        self.generic_visit(node)
 
     def visit_Raise(self, node):
         self.generic_visit(node)

@@ -37,6 +37,7 @@ def compile_flags(args):
         'extra_compile_args': args.extra_flags,
         'library_dirs': args.libraries_dir,
         'extra_link_args': args.extra_flags,
+        'config': args.config,
     }
     for param in ('opts', ):
         val = getattr(args, param, None)

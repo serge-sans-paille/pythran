@@ -360,6 +360,10 @@ When distributing a Python application with Pythran modules, you can either:
 different C++ compilers. It derives from distuil's ``build_ext`` by default, but
 you can change its base class by using ``PythranBuildExt[base_cls]`` instead.
 
+* all configuration options supported in ``.pythranrc`` can also be passed
+  through the optional ``config`` argument, in the form of a list, e.g.
+  ``config=['compiler.blas=openblas']``
+
 .. note::
 
     There's no strong compatibility guarantee between Pythran version at C++ level. As a

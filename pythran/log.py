@@ -1,5 +1,7 @@
 import logging
+
 logger = logging.getLogger("pythran")
+stream = logging.StreamHandler()
 
 # Initialize logging
 try:
@@ -15,10 +17,16 @@ try:
             'CRITICAL': 'red',
         }
     )
-    stream = logging.StreamHandler()
-    stream.setFormatter(formatter)
-    logger.addHandler(stream)
 except ImportError:
     # No color available, use default config
-    logging.basicConfig(format='%(levelname)s: %(message)s')
+    formatter = logging.Formatter("%(levelname)s: %(message)s")
+    color_disabled = True
+else:
+    color_disabled = False
+
+stream.setFormatter(formatter)
+logger.addHandler(stream)
+
+if color_disabled:
     logger.info("Disabling color, you really want to install colorlog.")
+

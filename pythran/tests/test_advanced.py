@@ -439,3 +439,10 @@ def global_effects_partial0(l):
                x = tuple(x)
                return x < y, x <= y, x > y, x >= y'''
         self.run_test(code, [1, 2], [1, 3], dynamic_tuple_compare=[List[int], List[int]])
+
+    def test_annotations(self):
+        code  = '''
+        import numpy as np
+        def annotations(x: np.ndarray) -> np.ndarray:
+            return x'''
+        self.run_test(code, numpy.ones(1), annotations=[NDArray[float, :]])

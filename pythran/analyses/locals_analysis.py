@@ -64,6 +64,11 @@ class Locals(ModuleAnalysis):
         parent_locals = self.locals.copy()
         for default in node.args.defaults:
             self.visit(default)
+        for arg in node.args.args:
+            if arg.annotation:
+                self.visit(arg.annotation)
+        if node.returns:
+            self.visit(node.returns)
         self.locals.update(arg.id for arg in node.args.args)
         for stmt in node.body:
             self.visit(stmt)

@@ -145,6 +145,7 @@ class ExpandImports(Transformation):
 
         >> numpy.linalg.det(a)
         """
+        self.generic_visit(node)
         if node.id in self.symbols:
             symbol = path_to_node(self.symbols[node.id])
             if not getattr(symbol, 'isliteral', lambda: False)():

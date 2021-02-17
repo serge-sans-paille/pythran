@@ -210,13 +210,19 @@ class ArgumentReadOnce(ModuleAnalysis):
                     if func_alias not in self.node_to_functioneffect:
                         continue
 
-                    func_alias = self.node_to_functioneffect[func_alias]
+                    func = self.node_to_functioneffect[func_alias]
                     index_corres[n] = i
-                    func = func_alias
 
-        return lambda ctx: l0(ctx) + self.recursive_weight(
-            func, index_corres[ctx.index], ctx.path) if (
-            (ctx.index in index_corres) and ctx.global_dependencies) else 0
+        def merger(ctx):
+            base = l0(ctx)
+            if (ctx.index in index_corres) and ctx.global_dependencies:
+                rec = self.recursive_weight(func, index_corres[ctx.index],
+                                            ctx.path)
+            else:
+                rec = 0
+            return base + rec
+
+        return merger
 
     def visit_Subscript(self, node):
         dep = self.generic_visit(node)

@@ -60,6 +60,13 @@ def listcomptomap_alias(n):
     return list([x for x in range(n)])
 """, 10, listcomptomap_alias=[int])
 
+    def test_readonce_nested_calls(self):
+        self.run_test("""
+def readonce_nested_calls(Lq):
+    import numpy as np
+    return np.prod(np.sign(Lq))
+""", [-5.], readonce_nested_calls=[List[float]])
+
     def test_readonce_return(self):
         self.run_test("""
 def foo(l):

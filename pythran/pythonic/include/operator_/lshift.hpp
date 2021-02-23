@@ -10,7 +10,8 @@ namespace operator_
 {
 
   template <class A, class B>
-  auto lshift(A const &a, B const &b) -> decltype(a << b);
+  auto lshift(A &&a, B &&b)
+      -> decltype(std::forward<A>(a) << std::forward<B>(b));
 
   DEFINE_ALL_OPERATOR_OVERLOADS_DECL(lshift, << )
 

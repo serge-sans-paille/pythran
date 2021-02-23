@@ -9,7 +9,7 @@ namespace operator_
 {
 
   template <class A>
-  auto neg(A const &a) -> decltype(-a);
+  auto neg(A &&a) -> decltype(-std::forward<A>(a));
 
   DEFINE_FUNCTOR(pythonic::operator_, neg);
 }

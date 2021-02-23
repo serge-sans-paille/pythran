@@ -58,7 +58,8 @@ namespace utils
     void helper(E &&self, F const &other, SelfIndices &&self_indices,
                 OtherIndices &&other_indices, utils::index_sequence<Is...>)
     {
-      self.store((typename std::decay<E>::type::dtype)other.load(
+      std::forward<E>(self)
+          .store((typename std::decay<E>::type::dtype)other.load(
                      (long)std::get<Is>(other_indices)...),
                  (long)std::get<Is>(self_indices)...);
     }

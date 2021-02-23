@@ -15,84 +15,88 @@ namespace numpy
   namespace fft
   {
 
-    template <class T , class pS>
-    types::ndarray<T,
-            types::array<long, std::tuple_size<pS>::value>>
-    hfft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
-          types::str const &norm)
+    template <class T, class pS>
+    types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
+    hfft(types::ndarray<std::complex<T>, pS> const &in_array,
+         types::none_type n, long axis, types::str const &norm)
     {
-        return c2r(in_array, -1, axis, norm, true);
+      return c2r(in_array, -1, axis, norm, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<T,
-            types::array<long, std::tuple_size<pS>::value>>
-    hfft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
-          types::none_type norm)
+    template <class T, class pS>
+    types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
+    hfft(types::ndarray<std::complex<T>, pS> const &in_array,
+         types::none_type n, long axis, types::none_type norm)
     {
-        return c2r(in_array, -1, axis, "", true);
+      return c2r(in_array, -1, axis, "", true);
     }
 
-    template <class T , class pS>
-    types::ndarray<T,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        return c2r(in_array, n, axis, "", true);
+      return c2r(in_array, n, axis, "", true);
     }
 
-    template <class T , class pS>
-    types::ndarray<T,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        return c2r(in_array, n, axis, norm, true);
+      return c2r(in_array, n, axis, norm, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<!types::is_complex<T>::value,
-            typename std::conditional<std::is_integral<T>::value, double, T>::type>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<
+                       !types::is_complex<T>::value,
+                       typename std::conditional<std::is_integral<T>::value,
+                                                 double, T>::type>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        auto tmp_array = _copy_to_complex(in_array);
-        return c2r(tmp_array, -1, axis, norm, true);
+      auto tmp_array = _copy_to_complex(in_array);
+      return c2r(tmp_array, -1, axis, norm, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<!types::is_complex<T>::value,
-            typename std::conditional<std::is_integral<T>::value, double, T>::type>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<
+                       !types::is_complex<T>::value,
+                       typename std::conditional<std::is_integral<T>::value,
+                                                 double, T>::type>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        auto tmp_array = _copy_to_complex(in_array);
-        return c2r(tmp_array, -1, axis, "", true);
+      auto tmp_array = _copy_to_complex(in_array);
+      return c2r(tmp_array, -1, axis, "", true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<!types::is_complex<T>::value,
-            typename std::conditional<std::is_integral<T>::value, double, T>::type>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<
+                       !types::is_complex<T>::value,
+                       typename std::conditional<std::is_integral<T>::value,
+                                                 double, T>::type>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<T, pS> const &in_array, long n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        auto tmp_array = _copy_to_complex(in_array);
-        return c2r(tmp_array, n, axis, "", true);
+      auto tmp_array = _copy_to_complex(in_array);
+      return c2r(tmp_array, n, axis, "", true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<!types::is_complex<T>::value,
-            typename std::conditional<std::is_integral<T>::value, double, T>::type>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<
+                       !types::is_complex<T>::value,
+                       typename std::conditional<std::is_integral<T>::value,
+                                                 double, T>::type>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<T, pS> const &in_array, long n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        auto tmp_array = _copy_to_complex(in_array);
-        return c2r(tmp_array, n, axis, norm, true);
+      auto tmp_array = _copy_to_complex(in_array);
+      return c2r(tmp_array, n, axis, norm, true);
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(hfft);

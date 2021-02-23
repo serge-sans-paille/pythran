@@ -11,23 +11,23 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto itruediv(A const &a, B const &b) -> decltype(truediv(a, b))
+  auto itruediv(A const &a, B &&b) -> decltype(truediv(a, std::forward<B>(b)))
   {
-    return truediv(a, b);
+    return truediv(a, std::forward<B>(b));
   }
   template <class A, class B>
-  auto itruediv(A &a, B const &b) ->
-      typename std::enable_if<std::is_same<A, decltype(truediv(a, b))>::value,
-                              A &>::type
+  auto itruediv(A &a, B &&b) -> typename std::enable_if<
+      std::is_same<A, decltype(truediv(a, std::forward<B>(b)))>::value,
+      A &>::type
   {
-    return a = truediv(a, b);
+    return a = truediv(a, std::forward<B>(b));
   }
   template <class A, class B>
-  auto itruediv(A &a, B const &b) ->
-      typename std::enable_if<!std::is_same<A, decltype(truediv(a, b))>::value,
-                              decltype(truediv(a, b))>::type
+  auto itruediv(A &a, B &&b) -> typename std::enable_if<
+      !std::is_same<A, decltype(truediv(a, std::forward<B>(b)))>::value,
+      decltype(truediv(a, std::forward<B>(b)))>::type
   {
-    return truediv(a, b);
+    return truediv(a, std::forward<B>(b));
   }
 }
 PYTHONIC_NS_END

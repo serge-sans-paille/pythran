@@ -15,116 +15,128 @@ namespace numpy
   namespace fft
   {
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<types::is_complex<T>::value, T>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<
+        typename std::enable_if<types::is_complex<T>::value, T>::type,
+        types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        return c2c(in_array, -1, axis, norm, false);
+      return c2c(in_array, -1, axis, norm, false);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<types::is_complex<T>::value, T>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<
+        typename std::enable_if<types::is_complex<T>::value, T>::type,
+        types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        return c2c(in_array, -1, axis, "", false);
+      return c2c(in_array, -1, axis, "", false);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<types::is_complex<T>::value, T>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<
+        typename std::enable_if<types::is_complex<T>::value, T>::type,
+        types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        return c2c(in_array, n, axis, "", false);
+      return c2c(in_array, n, axis, "", false);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<types::is_complex<T>::value, T>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<
+        typename std::enable_if<types::is_complex<T>::value, T>::type,
+        types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        return c2c(in_array, n, axis, norm, false);
+      return c2c(in_array, n, axis, norm, false);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value, std::complex<T>>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
+                                           std::complex<T>>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        return r2c(in_array, -1, axis, norm, false);
+      return r2c(in_array, -1, axis, norm, false);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value, std::complex<T>>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
+                                           std::complex<T>>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        return r2c(in_array, -1, axis, "", false, true);
+      return r2c(in_array, -1, axis, "", false, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value, std::complex<T>>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
+                                           std::complex<T>>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        return r2c(in_array, n, axis, "", false, true);
+      return r2c(in_array, n, axis, "", false, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value, std::complex<T>>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
+                                           std::complex<T>>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        return r2c(in_array, n, axis, norm, false, true);
+      return r2c(in_array, n, axis, norm, false, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value, std::complex<double>>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
+                                           std::complex<double>>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        auto tmp_array = _copy_to_double(in_array);
-        return r2c(tmp_array, -1, axis, norm, false, true);
+      auto tmp_array = _copy_to_double(in_array);
+      return r2c(tmp_array, -1, axis, norm, false, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value, std::complex<double>>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
+                                           std::complex<double>>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        auto tmp_array = _copy_to_double(in_array);
-        return r2c(tmp_array, -1, axis, "", false, true);
+      auto tmp_array = _copy_to_double(in_array);
+      return r2c(tmp_array, -1, axis, "", false, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value, std::complex<double>>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
+                                           std::complex<double>>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis,
-          types::none_type norm)
+         types::none_type norm)
     {
-        auto tmp_array = _copy_to_double(in_array);
-        return r2c(tmp_array, n, axis, "", false, true);
+      auto tmp_array = _copy_to_double(in_array);
+      return r2c(tmp_array, n, axis, "", false, true);
     }
 
-    template <class T , class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value, std::complex<double>>::type,
-            types::array<long, std::tuple_size<pS>::value>>
+    template <class T, class pS>
+    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
+                                           std::complex<double>>::type,
+                   types::array<long, std::tuple_size<pS>::value>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis,
-          types::str const &norm)
+         types::str const &norm)
     {
-        auto tmp_array = _copy_to_double(in_array);
-        return r2c(tmp_array, n, axis, norm, false, true);
+      auto tmp_array = _copy_to_double(in_array);
+      return r2c(tmp_array, n, axis, norm, false, true);
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(ifft);

@@ -12,10 +12,10 @@ namespace operator_
 {
 
   template <class A, class B>
-  auto is_(A const &a, B const &b)
-      -> decltype(builtins::id(a) == builtins::id(b))
+  auto is_(A &&a, B &&b) -> decltype(builtins::id(std::forward<A>(a)) ==
+                                     builtins::id(std::forward<B>(b)))
   {
-    return builtins::id(a) == builtins::id(b);
+    return builtins::id(std::forward<A>(a)) == builtins::id(std::forward<B>(b));
   }
 }
 PYTHONIC_NS_END

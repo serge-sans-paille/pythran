@@ -10,9 +10,9 @@ namespace operator_
 {
 
   template <class A, class B>
-  A imatmul(A const &a, B const &b);
+  A imatmul(A const &a, B &&b);
   template <class A, class B>
-  A imatmul(A &a, B const &b);
+  A imatmul(A &a, B &&b);
 
   DEFINE_FUNCTOR(pythonic::operator_, imatmul);
 }

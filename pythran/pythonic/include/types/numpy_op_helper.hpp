@@ -146,7 +146,7 @@ namespace types
   struct broadcasted_n;
   template <class T>
   struct broadcasted_n<T, 1> {
-    using type = broadcasted<typename std::decay<T>::type>;
+    using type = broadcasted<T>;
   };
   template <class T, size_t N>
   struct broadcasted_n {
@@ -200,7 +200,7 @@ namespace types
 
   template <class T, class C>
   struct reshaped_type<T, C, false, false> {
-    using type = broadcasted<typename std::decay<T>::type>;
+    using type = broadcasted<T>;
   };
 
   template <class T, class... OtherTypes>

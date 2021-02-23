@@ -11,9 +11,9 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  long countOf(A const &a, B const &b)
+  long countOf(A &&a, B &&b)
   {
-    return std::count(a.begin(), a.end(), b);
+    return std::count(a.begin(), a.end(), std::forward<B>(b));
   }
 }
 PYTHONIC_NS_END

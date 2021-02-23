@@ -9,10 +9,10 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  A ifloordiv(A &&a, B const &b);
+  A ifloordiv(A &&a, B &&b);
 
   template <class A, class B>
-  auto ifloordiv(A const &a, B const &b) -> decltype((a - mod(a, b)) / b);
+  auto ifloordiv(A const &a, B &&b) -> decltype((a - mod(a, b)) / b);
 
   DEFINE_FUNCTOR(pythonic::operator_, ifloordiv);
 }

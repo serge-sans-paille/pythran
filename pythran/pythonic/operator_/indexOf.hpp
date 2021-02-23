@@ -15,7 +15,7 @@ namespace operator_
 {
 
   template <class A, class B>
-  long indexOf(A const &a, B const &b)
+  long indexOf(A &&a, B &&b)
   {
     auto where = std::find(a.begin(), a.end(), b);
     if (where == a.end())

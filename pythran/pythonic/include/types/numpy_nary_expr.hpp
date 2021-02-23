@@ -38,6 +38,7 @@ namespace functor
             NUMPY_NARY_FUNC_NAME,
             typename types::NUMPY_NARY_RESHAPE_MODE<E, E...>::type...>>::type
     operator()(E &&... args) const;
+
     friend std::ostream &operator<<(std::ostream &os, NUMPY_NARY_FUNC_NAME)
     {
       return os << STR(NUMPY_NARY_FUNC_NAME);

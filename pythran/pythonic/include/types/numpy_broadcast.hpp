@@ -60,7 +60,7 @@ namespace types
 
   /* Type adaptor for broadcasted array values
    *
-   * Used when the args of a binary operator do ! have the same dimensions:
+   * Used when the args of a binary operator do not have the same dimensions:
    * in that case their first dimension always yields a copy
    */
   template <class T>
@@ -73,7 +73,7 @@ namespace types
     using const_iterator = broadcasted_iterator<T>;
     using iterator = const_iterator;
 
-    T const ref;
+    T ref;
     using shape_t = types::array<long, value>;
 
     template <size_t I>
@@ -85,10 +85,9 @@ namespace types
 
     broadcasted() = default;
 
-    broadcasted(T const &ref);
     template <class E>
-    broadcasted(E const &other)
-        : broadcasted(broadcasted<E>{other})
+    broadcasted(E &&other)
+        : ref(std::forward<E>(other))
     {
     }
 

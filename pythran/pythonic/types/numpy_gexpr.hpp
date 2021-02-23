@@ -237,7 +237,7 @@ namespace types
   }
 
   template <class Arg, class... S>
-  template <class Argp> // ! using the default one, to make it possible to
+  template <class Argp> // not using the default one, to make it possible to
   // accept reference && non reference version of Argp
   numpy_gexpr<Arg, S...>::numpy_gexpr(numpy_gexpr<Argp, S...> const &other)
       : arg(other.arg), slices(other.slices), _shape(other._shape),
@@ -247,6 +247,7 @@ namespace types
                                typename returnable<Argp>::type>::value,
                   "this constructor is only here to adapt reference / non "
                   "reference type, nothing else");
+    assert(buffer);
   }
 
   template <class Arg, class... S>
@@ -308,6 +309,7 @@ namespace types
                                       std::tuple<S const &...> const &values)
       : arg(arg), slices(values), buffer(const_cast<dtype *>(this->arg.buffer))
   {
+    assert(buffer);
     init_shape(std::get<0>(slices), utils::int_<sizeof...(S)>(),
                utils::int_<0>());
 
@@ -335,6 +337,7 @@ namespace types
                                       Arg arg)
       : arg(arg), slices(tuple_pop(expr.slices)), buffer(expr.buffer)
   {
+    assert(buffer);
     sutils::copy_shape<0, 1>(_shape, expr, utils::make_index_sequence<value>());
     buffer += arg.buffer - expr.arg.buffer;
     sutils::copy_strides<0, 1>(_strides, expr,
@@ -347,6 +350,7 @@ namespace types
       : arg(std::forward<Arg>(arg)), slices(tuple_pop(expr.slices)),
         buffer(expr.buffer)
   {
+    assert(buffer);
     sutils::copy_shape<0, 1>(_shape, expr, utils::make_index_sequence<value>());
     buffer += (arg.buffer - expr.arg.buffer);
     sutils::copy_strides<0, 1>(_strides, expr,
@@ -415,6 +419,7 @@ namespace types
       // arg = expr.arg;
       const_cast<typename std::decay<Arg>::type &>(arg) = expr.arg;
       slices = expr.slices;
+      assert(expr.buffer);
       buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
       _shape = expr._shape;
       _strides = expr._strides;
@@ -433,6 +438,7 @@ namespace types
       // arg = expr.arg;
       const_cast<typename std::decay<Arg>::type &>(arg) = expr.arg;
       slices = expr.slices;
+      assert(expr.buffer);
       buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
       _shape = expr._shape;
       _strides = expr._strides;

@@ -9,7 +9,7 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  types::none_type delitem(A &&a, B const &b);
+  types::none_type delitem(A &&a, B &&b);
 
   DEFINE_FUNCTOR(pythonic::operator_, delitem);
 }

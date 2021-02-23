@@ -9,7 +9,7 @@ namespace operator_
 {
 
   template <class A>
-  decltype(~std::declval<A const &>()) invert(A const &a);
+  auto invert(A &&a) -> decltype(~std::forward<A>(a));
 
   DEFINE_FUNCTOR(pythonic::operator_, invert);
 }

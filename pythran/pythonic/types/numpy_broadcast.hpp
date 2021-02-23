@@ -14,12 +14,6 @@ namespace types
 {
 
   template <class T>
-  broadcasted<T>::broadcasted(T const &ref)
-      : ref(ref)
-  {
-  }
-
-  template <class T>
   T const &broadcasted<T>::operator[](long i) const
   {
     return ref;

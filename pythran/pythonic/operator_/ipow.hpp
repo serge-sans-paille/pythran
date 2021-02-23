@@ -12,14 +12,14 @@ namespace operator_
 {
 
   template <class A, class B>
-  A ipow(A const &a, B const &b)
+  A ipow(A const &a, B &&b)
   {
-    return builtins::pow(a, b);
+    return builtins::pow(a, std::forward<B>(b));
   }
   template <class A, class B>
-  A &ipow(A &a, B const &b)
+  A &ipow(A &a, B &&b)
   {
-    return a = builtins::pow(a, b);
+    return a = builtins::pow(a, std::forward<B>(b));
   }
 }
 PYTHONIC_NS_END

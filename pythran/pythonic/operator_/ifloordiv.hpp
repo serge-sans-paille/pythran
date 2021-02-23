@@ -12,7 +12,7 @@ namespace operator_
 {
 
   template <class A, class B>
-  A ifloordiv(A &&a, B const &b)
+  A ifloordiv(A &&a, B &&b)
   {
     a -= mod(a, b);
     a /= b;

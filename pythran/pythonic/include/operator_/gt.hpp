@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto gt(A const &a, B const &b) -> decltype(a > b);
+  auto gt(A &&a, B &&b) -> decltype(std::forward<A>(a) > std::forward<B>(b));
 
   bool gt(char const *, char const *);
 

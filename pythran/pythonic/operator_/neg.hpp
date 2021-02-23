@@ -11,9 +11,9 @@ namespace operator_
 {
 
   template <class A>
-  auto neg(A const &a) -> decltype(-a)
+  auto neg(A &&a) -> decltype(-std::forward<A>(a))
   {
-    return -a;
+    return -std::forward<A>(a);
   }
 }
 PYTHONIC_NS_END

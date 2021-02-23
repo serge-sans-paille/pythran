@@ -12,9 +12,9 @@ namespace operator_
 {
 
   template <class A, class B>
-  auto lt(A const &a, B const &b) -> decltype(a < b)
+  auto lt(A &&a, B &&b) -> decltype(std::forward<A>(a) < std::forward<B>(b))
   {
-    return a < b;
+    return std::forward<A>(a) < std::forward<B>(b);
   }
   bool lt(char const *self, char const *other)
   {

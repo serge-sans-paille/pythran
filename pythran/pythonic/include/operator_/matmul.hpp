@@ -10,7 +10,9 @@ namespace operator_
 {
 
   template <class A, class B>
-  auto matmul(A const &a, B const &b) -> decltype(numpy::functor::dot{}(a, b));
+  auto matmul(A &&a, B &&b)
+      -> decltype(numpy::functor::dot{}(std::forward<A>(a),
+                                        std::forward<B>(b)));
 
   DEFINE_FUNCTOR(pythonic::operator_, matmul);
 }

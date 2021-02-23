@@ -11,15 +11,16 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  A imatmul(A const &a, B const &b)
+  A imatmul(A const &a, B &&b)
   {
-    return numpy::functor::dot{}(a, b);
+    return numpy::functor::dot{}(a, std::forward<B>(b));
   }
 
   template <class A, class B>
-  A &imatmul(A &a, B const &b)
+  A &imatmul(A &a, B &&b)
   {
-    return a = numpy::functor::dot(a, b); // FIXME: improve that
+    return a = numpy::functor::dot(a,
+                                   std::forward<B>(b)); // FIXME: improve that
   }
 }
 PYTHONIC_NS_END

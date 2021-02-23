@@ -10,9 +10,9 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto getitem(A const &a, B const &b) -> decltype(a[b])
+  auto getitem(A &&a, B &&b) -> decltype(std::forward<A>(a)[std::forward<B>(b)])
   {
-    return a[b];
+    return std::forward<A>(a)[std::forward<B>(b)];
   }
 }
 PYTHONIC_NS_END

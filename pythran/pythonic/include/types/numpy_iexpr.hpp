@@ -34,7 +34,7 @@ namespace types
 
   /* Expression template for numpy expressions - indexing
    */
-  template <class T, size_t N>
+  template <size_t N>
   struct numpy_iexpr_helper;
 
   template <class Arg> // Arg often is a reference, e.g. for something as
@@ -47,8 +47,7 @@ namespace types
         std::remove_reference<Arg>::type::is_vectorizable;
     using dtype = typename std::remove_reference<Arg>::type::dtype;
     using value_type = typename std::remove_reference<decltype(
-        numpy_iexpr_helper<numpy_iexpr, value>::get(std::declval<numpy_iexpr>(),
-                                                    0L))>::type;
+        numpy_iexpr_helper<value>::get(std::declval<numpy_iexpr>(), 0L))>::type;
 
     static constexpr bool is_strided =
         std::remove_reference<Arg>::type::is_strided;
@@ -70,6 +69,8 @@ namespace types
     numpy_iexpr(numpy_iexpr const &) = default;
     numpy_iexpr(numpy_iexpr &&) = default;
 
+    template <class Argp>
+    numpy_iexpr(numpy_iexpr<Argp &> const &other);
     template <class Argp>
     numpy_iexpr(numpy_iexpr<Argp> const &other);
 
@@ -164,22 +165,20 @@ namespace types
      *   the buffer of ``a`` that is ! temp.
      */
     auto fast(long i) const
-        & -> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i))
+        & -> decltype(numpy_iexpr_helper<value>::get(*this, i))
     {
-      return numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i);
+      return numpy_iexpr_helper<value>::get(*this, i);
     }
 
-    auto fast(long i) &
-        -> decltype(numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i))
+    auto fast(long i) & -> decltype(numpy_iexpr_helper<value>::get(*this, i))
     {
-      return numpy_iexpr_helper<numpy_iexpr, value>::get(*this, i);
+      return numpy_iexpr_helper<value>::get(*this, i);
     }
 
     auto fast(long i) &&
-        -> decltype(
-            numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i))
+        -> decltype(numpy_iexpr_helper<value>::get(std::move(*this), i))
     {
-      return numpy_iexpr_helper<numpy_iexpr, value>::get(std::move(*this), i);
+      return numpy_iexpr_helper<value>::get(std::move(*this), i);
     }
 
     dtype const &fast(array<long, value> const &indices) const;
@@ -203,12 +202,14 @@ namespace types
     void store(E elt, Indices... indices)
     {
       static_assert(is_dtype<E>::value, "valid store");
+      assert(buffer);
       *(buffer + noffset<value>{}(*this, array<long, value>{{indices...}})) =
           static_cast<E>(elt);
     }
     template <class... Indices>
     dtype load(Indices... indices) const
     {
+      assert(buffer);
       return *(buffer +
                noffset<value>{}(*this, array<long, value>{{indices...}}));
     }
@@ -216,6 +217,7 @@ namespace types
     void update(E elt, Indices... indices) const
     {
       static_assert(is_dtype<E>::value, "valid store");
+      assert(buffer);
       Op{}(
           *(buffer + noffset<value>{}(*this, array<long, value>{{indices...}})),
           static_cast<E>(elt));
@@ -285,6 +287,7 @@ namespace types
             pS, typename std::tuple_element<
                     0, typename std::decay<Arg>::type::shape_t>::type>>()))>
     {
+      assert(buffer);
       sutils::push_front_t<
           pS, typename std::tuple_element<
                   0, typename std::decay<Arg>::type::shape_t>::type>
@@ -349,9 +352,10 @@ namespace types
 
   // Indexing an numpy_iexpr that has a dimension greater than one yields a
   // new numpy_iexpr
-  template <class T, size_t N>
+  template <size_t N>
   struct numpy_iexpr_helper {
-    static numpy_iexpr<T> get(T const &e, long i);
+    template <class T>
+    static numpy_iexpr<T> get(T &&e, long i);
   };
 
   // Indexing an iexpr that has a dimension of one yields a qualified scalar.
@@ -361,10 +365,13 @@ namespace types
   // - a reference if the numpy_iexpr is a r-value, as in ``a[i][j] = 1``
   // - a value if the numpy_iexpr is a const ref, as in ``b = a[i] ; c =
   // b[i]``
-  template <class T>
-  struct numpy_iexpr_helper<T, 1> {
+  template <>
+  struct numpy_iexpr_helper<1> {
+    template <class T>
     static typename T::dtype get(T const &e, long i);
+    template <class T>
     static typename T::dtype &get(T &&e, long i);
+    template <class T>
     static typename T::dtype &get(T &e, long i);
   };
 }

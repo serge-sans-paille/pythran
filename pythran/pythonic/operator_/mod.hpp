@@ -11,12 +11,12 @@ namespace operator_
 {
 
   template <class A, class B>
-  auto mod(A const &a, B const &b) ->
-      typename std::enable_if<std::is_fundamental<A>::value &&
-                                  std::is_fundamental<B>::value,
-                              decltype(a % b)>::type
+  auto mod(A &&a, B &&b) -> typename std::enable_if<
+      std::is_fundamental<typename std::decay<A>::type>::value &&
+          std::is_fundamental<typename std::decay<B>::type>::value,
+      decltype(std::forward<A>(a) % std::forward<B>(b))>::type
   {
-    auto t = a % b;
+    auto t = std::forward<A>(a) % b;
     return t < 0 ? (t + b) : t;
   }
 
@@ -33,12 +33,13 @@ namespace operator_
   }
 
   template <class A, class B>
-  auto mod(A const &a, B const &b) // for ndarrays
-      -> typename std::enable_if<!std::is_fundamental<A>::value ||
-                                     !std::is_fundamental<B>::value,
-                                 decltype(a % b)>::type
+  auto mod(A &&a, B &&b) // for ndarrays
+      -> typename std::enable_if<
+          !std::is_fundamental<typename std::decay<A>::type>::value ||
+              !std::is_fundamental<typename std::decay<B>::type>::value,
+          decltype(std::forward<A>(a) % std::forward<B>(b))>::type
   {
-    return a % b;
+    return std::forward<A>(a) % std::forward<B>(b);
   }
 }
 PYTHONIC_NS_END

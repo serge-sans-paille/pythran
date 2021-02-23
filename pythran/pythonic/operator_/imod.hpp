@@ -10,15 +10,15 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  A imod(A const &a, B const &b)
+  A imod(A const &a, B &&b)
   {
-    return a % b;
+    return a % std::forward<B>(b);
   }
 
   template <class A, class B>
-  A &imod(A &a, B const &b)
+  A &imod(A &a, B &&b)
   {
-    return a %= b;
+    return a %= std::forward<B>(b);
   }
 }
 PYTHONIC_NS_END

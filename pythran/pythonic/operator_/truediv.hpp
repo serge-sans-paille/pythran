@@ -10,9 +10,10 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto truediv(A const &a, B const &b) -> decltype(a / (double)b)
+  auto truediv(A &&a, B &&b)
+      -> decltype(std::forward<A>(a) / (double)std::forward<B>(b))
   {
-    return a / ((double)b);
+    return std::forward<A>(a) / ((double)std::forward<B>(b));
   }
 }
 PYTHONIC_NS_END

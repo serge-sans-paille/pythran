@@ -39,11 +39,21 @@ namespace types
   {
     assert(buffer);
   }
+  template <class Arg>
+  template <class Argp> // not using the default one, to make it possible to
+  // accept reference and non reference version of Argp
+  numpy_iexpr<Arg>::numpy_iexpr(numpy_iexpr<Argp &> const &other)
+      : arg(const_cast<typename std::decay<Argp>::type &>(other.arg)),
+        buffer(other.buffer)
+  {
+    assert(buffer);
+  }
 
   template <class Arg>
   numpy_iexpr<Arg>::numpy_iexpr(Arg const &arg, long index)
       : arg(arg), buffer(arg.buffer + index * arg.template strides<0>())
   {
+    assert(buffer);
   }
 
   template <class Arg>
@@ -470,26 +480,27 @@ namespace types
     return index * arg.template strides<0>();
   }
 
-  template <class T, size_t N>
-  numpy_iexpr<T> numpy_iexpr_helper<T, N>::get(T const &e, long i)
+  template <size_t N>
+  template <class T>
+  numpy_iexpr<T> numpy_iexpr_helper<N>::get(T &&e, long i)
   {
-    return {e, i};
+    return {std::forward<T>(e), i};
   }
 
   template <class T>
-  typename T::dtype numpy_iexpr_helper<T, 1>::get(T const &e, long i)
-  {
-    return e.buffer[i * e.template strides<T::value - 1>()];
-  }
-
-  template <class T>
-  typename T::dtype &numpy_iexpr_helper<T, 1>::get(T &&e, long i)
+  typename T::dtype numpy_iexpr_helper<1>::get(T const &e, long i)
   {
     return e.buffer[i * e.template strides<T::value - 1>()];
   }
 
   template <class T>
-  typename T::dtype &numpy_iexpr_helper<T, 1>::get(T &e, long i)
+  typename T::dtype &numpy_iexpr_helper<1>::get(T &&e, long i)
+  {
+    return e.buffer[i * e.template strides<T::value - 1>()];
+  }
+
+  template <class T>
+  typename T::dtype &numpy_iexpr_helper<1>::get(T &e, long i)
   {
     return e.buffer[i * e.template strides<T::value - 1>()];
   }

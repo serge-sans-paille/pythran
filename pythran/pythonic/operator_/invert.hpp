@@ -11,9 +11,9 @@ namespace operator_
 {
 
   template <class A>
-  decltype(~std::declval<A const &>()) invert(A const &a)
+  auto invert(A &&a) -> decltype(~std::forward<A>(a))
   {
-    return ~a;
+    return ~std::forward<A>(a);
   }
 }
 PYTHONIC_NS_END

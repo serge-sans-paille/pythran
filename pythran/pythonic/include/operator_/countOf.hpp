@@ -9,7 +9,7 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  long countOf(A const &a, B const &b);
+  long countOf(A &&a, B &&b);
 
   DEFINE_FUNCTOR(pythonic::operator_, countOf);
 }

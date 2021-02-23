@@ -9,9 +9,9 @@ namespace operator_
 {
 
   template <class A, class B>
-  A &imod(A &a, B const &b);
+  A &imod(A &a, B &&b);
   template <class A, class B>
-  A imod(A const &a, B const &b);
+  A imod(A const &a, B &&b);
 
   DEFINE_FUNCTOR(pythonic::operator_, imod);
 }

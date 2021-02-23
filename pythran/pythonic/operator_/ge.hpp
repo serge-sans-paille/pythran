@@ -12,9 +12,9 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto ge(A const &a, B const &b) -> decltype(a >= b)
+  auto ge(A &&a, B &&b) -> decltype(std::forward<A>(a) >= std::forward<B>(b))
   {
-    return a >= b;
+    return std::forward<A>(a) >= std::forward<B>(b);
   }
 
   bool ge(char const *self, char const *other)

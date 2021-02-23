@@ -9,7 +9,7 @@ namespace operator_
 {
 
   template <class A, class B>
-  auto lt(A const &a, B const &b) -> decltype(a < b);
+  auto lt(A &&a, B &&b) -> decltype(std::forward<A>(a) < std::forward<B>(b));
   bool lt(char const *self, char const *other);
 
   DEFINE_FUNCTOR(pythonic::operator_, lt);

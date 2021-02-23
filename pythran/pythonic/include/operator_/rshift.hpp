@@ -9,7 +9,8 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
   template <class A, class B>
-  auto rshift(A const &a, B const &b) -> decltype(a >> b);
+  auto rshift(A &&a, B &&b)
+      -> decltype(std::forward<A>(a) >> std::forward<B>(b));
 
   DEFINE_ALL_OPERATOR_OVERLOADS_DECL(rshift, >> )
 

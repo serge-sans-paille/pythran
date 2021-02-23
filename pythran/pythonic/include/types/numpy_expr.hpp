@@ -792,7 +792,7 @@ namespace types
                             numpy_vexpr<numpy_expr, F>>::type
     fast(F const &filter) const;
 
-    // FIXME: this does not take into account bounds && broadcasting
+    // FIXME: this does not take into account bounds and broadcasting
     auto operator[](long i) const -> decltype(this->fast(i));
 
     template <size_t... I, class S>

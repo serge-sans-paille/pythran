@@ -9,7 +9,7 @@ namespace operator_
 {
 
   template <class A, class B>
-  long indexOf(A const &a, B const &b);
+  long indexOf(A &&a, B &&b);
 
   DEFINE_FUNCTOR(pythonic::operator_, indexOf);
 }

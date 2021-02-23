@@ -11,9 +11,9 @@ namespace operator_
 {
 
   template <class A, class B>
-  auto ne(A const &a, B const &b) -> decltype(a != b)
+  auto ne(A &&a, B &&b) -> decltype(std::forward<A>(a) != std::forward<B>(b))
   {
-    return a != b;
+    return std::forward<A>(a) != std::forward<B>(b);
   }
 
   bool ne(char const *a, char const *b)

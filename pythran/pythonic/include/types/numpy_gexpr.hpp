@@ -575,8 +575,7 @@ namespace types
                            sizeof...(S)-1, std::tuple<S...>>::type>::value);
 
     using value_type = typename std::decay<decltype(
-        numpy_iexpr_helper<numpy_gexpr, value>::get(std::declval<numpy_gexpr>(),
-                                                    1))>::type;
+        numpy_iexpr_helper<value>::get(std::declval<numpy_gexpr>(), 1))>::type;
 
     using iterator =
         typename std::conditional<is_strided || value != 1,
@@ -586,7 +585,7 @@ namespace types
                                   const_nditerator<numpy_gexpr>,
                                   dtype const *>::type;
 
-    Arg arg;
+    typename std::remove_cv<Arg>::type arg;
 
     std::tuple<S...> slices;
 
@@ -753,15 +752,14 @@ namespace types
     iterator end();
 
     auto fast(long i) const
-        & -> decltype(numpy_iexpr_helper<numpy_gexpr, value>::get(*this, i))
+        & -> decltype(numpy_iexpr_helper<value>::get(*this, i))
     {
-      return numpy_iexpr_helper<numpy_gexpr, value>::get(*this, i);
+      return numpy_iexpr_helper<value>::get(*this, i);
     }
 
-    auto fast(long i) &
-        -> decltype(numpy_iexpr_helper<numpy_gexpr, value>::get(*this, i))
+    auto fast(long i) & -> decltype(numpy_iexpr_helper<value>::get(*this, i))
     {
-      return numpy_iexpr_helper<numpy_gexpr, value>::get(*this, i);
+      return numpy_iexpr_helper<value>::get(*this, i);
     }
 
     template <class E, class... Indices>

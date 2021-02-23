@@ -12,9 +12,9 @@ namespace operator_
 {
 
   template <class A, class B>
-  types::none_type delitem(A &&a, B const &b)
+  types::none_type delitem(A &&a, B &&b)
   {
-    a.remove(b);
+    std::forward<A>(a).remove(std::forward<B>(b));
     return builtins::None;
   }
 }

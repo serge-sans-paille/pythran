@@ -21,7 +21,7 @@ from pythran.tables import pythran_ward
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
 from pythran.utils import attr_to_path, pushpop, cxxid, isstr, isnum
-from pythran.utils import isextslice
+from pythran.utils import isextslice, ispowi
 from pythran import metadata, unparse
 
 from math import isnan, isinf
@@ -842,6 +842,10 @@ class CxxFunction(ast.NodeVisitor):
     def visit_BinOp(self, node):
         left = self.visit(node.left)
         right = self.visit(node.right)
+        # special case pow for positive integral exponent
+        if ispowi(node):
+            right = 'std::integral_constant<long, {}>{{}}'.format(
+                node.right.value)
         if isstr(node.left):
             left = "pythonic::types::str({})".format(left)
         elif isstr(node.right):

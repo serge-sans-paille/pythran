@@ -150,6 +150,22 @@ class AbsSqrPatternNumpy(AbsSqrPattern):
                        keywords=[])
 
 
+class PowFuncPattern(Pattern):
+    # builtins.pow(X, Y) => X ** Y
+
+    pattern = ast.Call(func=ast.Attribute(
+        value=ast.Name(id=mangle('builtins'), ctx=ast.Load(),
+                       annotation=None,
+                       type_comment=None),
+        attr='pow', ctx=ast.Load()),
+        args=[Placeholder(0), Placeholder(1)],
+        keywords=[])
+
+    @staticmethod
+    def sub():
+        return ast.BinOp(Placeholder(0), ast.Pow(), Placeholder(1))
+
+
 class SqrtPattern(Pattern):
     # X ** .5 => numpy.sqrt(X)
 

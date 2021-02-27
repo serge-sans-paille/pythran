@@ -13,7 +13,7 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
 from pythran.types.conversion import pytype_to_ctype
 from pythran.types.reorder import Reorder
-from pythran.utils import attr_to_path, cxxid, isnum, isextslice
+from pythran.utils import attr_to_path, cxxid, isnum, isextslice, ispowi
 
 from collections import defaultdict
 from functools import partial
@@ -348,7 +348,13 @@ class Types(ModuleAnalysis):
         [self.combine(node, value) for value in node.values]
 
     def visit_BinOp(self, node):
-        self.generic_visit(node)
+        if ispowi(node):
+            self.visit(node.op)
+            self.visit(node.left)
+            cty = "std::integral_constant<long, %s>" % (node.right.value)
+            self.result[node.right] = self.builder.NamedType(cty)
+        else:
+            self.generic_visit(node)
 
         def F(x, y):
             return self.builder.ExpressionType(

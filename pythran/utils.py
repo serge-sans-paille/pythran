@@ -28,6 +28,14 @@ def isextslice(node):
     return any(isinstance(elt, ast.Slice) for elt in node.elts)
 
 
+def ispowi(node):
+    if not isinstance(node.op, ast.Pow):
+        return False
+    if not isintegral(node.right):
+        return False
+    return node.right.value >= 0
+
+
 def attr_to_path(node):
     """ Compute path and final object for an attribute node """
 

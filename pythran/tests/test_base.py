@@ -465,6 +465,18 @@ def nested_def(a):
     def test_pow(self):
         self.run_test("def pow_(a): return pow(a,5)", 18, pow_=[int])
 
+    def test_pow_op0(self):
+        self.run_test("def pow_op0(a): return a ** 0, a ** 1, a **2, a ** 3, a ** 4, a ** 5, a ** 6, a** 7",
+                      18, pow_op0=[int])
+
+    def test_pow_op1(self):
+        self.run_test("def pow_op1(a): return a ** -0, a ** -1, a **-2, a ** -3, a ** -4, a ** -5, a ** -6, a** -7",
+                      18, pow_op1=[int])
+
+    def test_pow_op2(self):
+        self.run_test("def pow_op2(a): return int(a ** a), a ** -a",
+                      7, pow_op2=[int])
+
     def test_reversed(self):
         self.run_test("def reversed_(l): return [x for x in reversed(l)]", [1,2,3], reversed_=[List[int]])
 

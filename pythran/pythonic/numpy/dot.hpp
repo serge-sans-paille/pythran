@@ -164,7 +164,7 @@ namespace numpy
     return out;
   }
 
-// The trick is to ! transpose the matrix so that MV become VM
+// The trick is to not transpose the matrix so that MV become VM
 #define VM_DEF(T, L)                                                           \
   void vm(int m, int n, T *A, T *B, T *C)                                      \
   {                                                                            \
@@ -206,7 +206,8 @@ namespace numpy
   typename std::enable_if<
       types::is_numexpr_arg<E>::value &&
           types::is_numexpr_arg<F>::value // It is an array_like
-          && !(types::is_ndarray<E>::value && types::is_ndarray<F>::value) &&
+          && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
+              !std::is_same<typename E::dtype, typename F::dtype>::value) &&
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
@@ -232,7 +233,8 @@ namespace numpy
   typename std::enable_if<
       types::is_numexpr_arg<E>::value &&
           types::is_numexpr_arg<F>::value // It is an array_like
-          && !(types::is_ndarray<E>::value && types::is_ndarray<F>::value) &&
+          && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
+              !std::is_same<typename E::dtype, typename F::dtype>::value) &&
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
@@ -466,7 +468,8 @@ namespace numpy
   typename std::enable_if<
       types::is_numexpr_arg<E>::value &&
           types::is_numexpr_arg<F>::value // It is an array_like
-          && !(types::is_ndarray<E>::value && types::is_ndarray<F>::value) &&
+          && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
+              !std::is_same<typename E::dtype, typename F::dtype>::value) &&
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas

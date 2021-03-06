@@ -218,7 +218,44 @@ class TestNumpyFunc3(TestEnv):
                       numpy.array(numpy.arange(18.).reshape(6,3)),
                       np_dot19=[NDArray[float,:,:], NDArray[float,:,:]])
 
+    def test_dot20(self):
+        ''' Mixed type: matrix x matrix'''
+        self.run_test("""
+        def np_dot20(x, y):
+            from numpy import dot
+            return dot(x, y)""",
+                      numpy.array(numpy.arange(6.).reshape(2, 3),
+                                  dtype=numpy.float32),
+                      numpy.array(numpy.arange(18.).reshape(3,6),
+                                  dtype=numpy.float64),
+                      np_dot20=[NDArray[numpy.float32,:,:],
+                                NDArray[numpy.float64,:,:]])
 
+    def test_dot21(self):
+        ''' Mixed type: matrix x vector'''
+        self.run_test("""
+        def np_dot21(x, y):
+            from numpy import dot
+            return dot(x, y)""",
+                      numpy.array(numpy.arange(6.).reshape(2, 3),
+                                  dtype=numpy.float32),
+                      numpy.array(numpy.arange(3.).reshape(3),
+                                  dtype=numpy.float64),
+                      np_dot21=[NDArray[numpy.float32,:,:],
+                                NDArray[numpy.float64,:]])
+
+    def test_dot22(self):
+        ''' Mixed type: matrix x vector'''
+        self.run_test("""
+        def np_dot22(x, y):
+            from numpy import dot
+            return dot(y, x)""",
+                      numpy.array(numpy.arange(6.).reshape(3, 2),
+                                  dtype=numpy.float32),
+                      numpy.array(numpy.arange(3.).reshape(3),
+                                  dtype=numpy.float64),
+                      np_dot22=[NDArray[numpy.float32,:,:],
+                                NDArray[numpy.float64,:]])
 
     def test_digitize0(self):
         self.run_test("def np_digitize0(x): from numpy import array, digitize ; bins = array([0.0, 1.0, 2.5, 4.0, 10.0]) ; return digitize(x, bins)", numpy.array([0.2, 6.4, 3.0, 1.6]), np_digitize0=[NDArray[float,:]])

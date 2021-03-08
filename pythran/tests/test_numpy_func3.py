@@ -257,6 +257,54 @@ class TestNumpyFunc3(TestEnv):
                       np_dot22=[NDArray[numpy.float32,:,:],
                                 NDArray[numpy.float64,:]])
 
+    def test_vdot0(self):
+        self.run_test("""
+        def np_vdot0(x, y):
+            from numpy import vdot
+            return vdot(x, y)""",
+                      numpy.array(numpy.arange(6.).reshape(3, 2),
+                                  dtype=numpy.float32),
+                      numpy.array(numpy.arange(6.).reshape(6),
+                                  dtype=numpy.float32),
+                      np_vdot0=[NDArray[numpy.float32,:,:],
+                                NDArray[numpy.float32,:]])
+
+    def test_vdot1(self):
+        self.run_test("""
+        def np_vdot1(x, y):
+            from numpy import vdot
+            return vdot(x, y)""",
+                      numpy.array(numpy.arange(6.).reshape(3, 2),
+                                  dtype=numpy.float32),
+                      numpy.array(numpy.arange(6.).reshape(6),
+                                  dtype=numpy.float64),
+                      np_vdot1=[NDArray[numpy.float32,:,:],
+                                NDArray[numpy.float64,:]])
+
+    def test_vdot2(self):
+        self.run_test("""
+        def np_vdot2(x, y):
+            from numpy import vdot
+            return vdot(x, y)""",
+                      numpy.array(numpy.arange(6.).reshape(3, 2),
+                                  dtype=numpy.complex128),
+                      numpy.array(numpy.arange(6.).reshape(6),
+                                  dtype=numpy.complex128),
+                      np_vdot2=[NDArray[numpy.complex128,:,:],
+                                NDArray[numpy.complex128,:]])
+
+    def test_vdot3(self):
+        self.run_test("""
+        def np_vdot3(x, y):
+            from numpy import vdot
+            return vdot(x, y)""",
+                      numpy.array(numpy.arange(6.),
+                                  dtype=numpy.complex128),
+                      numpy.array(numpy.arange(6.),
+                                  dtype=numpy.complex128) * -1j,
+                      np_vdot3=[NDArray[numpy.complex128,:],
+                                NDArray[numpy.complex128,:]])
+
     def test_digitize0(self):
         self.run_test("def np_digitize0(x): from numpy import array, digitize ; bins = array([0.0, 1.0, 2.5, 4.0, 10.0]) ; return digitize(x, bins)", numpy.array([0.2, 6.4, 3.0, 1.6]), np_digitize0=[NDArray[float,:]])
 

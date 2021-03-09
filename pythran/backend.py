@@ -920,7 +920,19 @@ class CxxFunction(ast.NodeVisitor):
         return " and ".join(op(x, y) for x, op, y in all_cmps)
 
     def visit_Call(self, node):
-        args = [self.visit(n) for n in node.args]
+        args = []
+        args_cast = []
+        for arg in node.args:
+            args.append(self.visit(arg))
+            if isinstance(arg, ast.Name):
+                args_cast.append("")
+            else:
+                arg_ty = self.types.get(arg, None)
+                if isinstance(arg_ty, self.types.builder.CombinedTypes):
+                    args_cast.append("({})".format(arg_ty))
+                else:
+                    args_cast.append("")
+
         func = self.visit(node.func)
         # special hook for getattr, as we cannot represent it in C++
         if func == 'pythonic::builtins::functor::getattr{}':
@@ -929,7 +941,9 @@ class CxxFunction(ast.NodeVisitor):
                             + node.args[1].value.upper(),
                             args[0]))
         else:
-            return "{}({})".format(func, ", ".join(args))
+            return "{}({})".format(
+                func,
+                ", ".join("{}{}".format(*z) for z in zip(args_cast, args)))
 
     def visit_Constant(self, node):
         if node.value is None:

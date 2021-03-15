@@ -910,7 +910,12 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Tuple(self, node):
         elts = [self.visit(elt) for elt in node.elts]
-        return "pythonic::types::make_tuple({0})".format(", ".join(elts))
+        tuple_type = self.types[node]
+        result = "pythonic::types::make_tuple({0})".format(", ".join(elts))
+        if isinstance(tuple_type, self.types.builder.CombinedTypes):
+            return '({}){}'.format(tuple_type.generate(self.lctx), result)
+        else:
+            return result
 
     def visit_Compare(self, node):
         left = self.visit(node.left)

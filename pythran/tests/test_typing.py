@@ -677,3 +677,17 @@ def recursive_interprocedural_typing2(c):
                 else:
                     return np.arange(n)[1:-1]'''
         return self.run_test(code, 6, numpy_array_combiner5=[int])
+
+    def test_numpy_array_in_tuple0(self):
+        code = '''
+import numpy as np
+
+
+def Test_reset(self, P, Q):
+    print('In SHAPE', P, Q)
+    self[0][0] = np.zeros((P, Q))
+    print('Out SHAPE', self[0][0].shape)
+
+def numpy_array_in_tuple0(n):
+    Test_reset(([np.zeros((1, 1))],), 64, n)'''
+        return self.run_test(code, 6, numpy_array_in_tuple0=[int])

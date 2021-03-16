@@ -203,12 +203,13 @@ class TestEnv(unittest.TestCase):
             if not check_exception or e.args[0] == err_msg:
                 raise
             return type(e)
-        finally:
-            # Clean temporary DLL
-            # FIXME: We can't remove this file while it is used in an import
-            # through the exec statement (Windows constraints...)
-            if sys.platform != "win32":
-                os.remove(module_path)
+
+    def cleanup_pythran(self, module_path):
+        # Clean temporary DLL
+        # FIXME: We can't remove this file while it is used in an import
+        # through the exec statement (Windows constraints...)
+        if sys.platform != "win32":
+            os.remove(module_path)
 
     def run_test_case(self, code, module_name, runas, module_dir=None, **interface):
         """
@@ -258,6 +259,7 @@ class TestEnv(unittest.TestCase):
 
             python_ref = self.run_python(code, runas)
             pythran_res = self.run_pythran(modname, cxx_compiled, runas)
+            self.cleanup_pythran(cxx_compiled)
 
             print("Python result: ", python_ref)
             print("Pythran result: ", pythran_res)
@@ -328,6 +330,7 @@ class TestEnv(unittest.TestCase):
                 thread.start()
             for thread in threads:
                 thread.join()
+        self.cleanup_pythran(cxx_compiled)
 
 
     @staticmethod

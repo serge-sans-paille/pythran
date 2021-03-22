@@ -3,6 +3,8 @@
 
 #include "pythonic/include/builtins/range.hpp"
 
+#include <climits>
+
 #include "pythonic/builtins/range.hpp"
 #include "pythonic/types/list.hpp"
 

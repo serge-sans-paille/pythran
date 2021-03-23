@@ -167,6 +167,11 @@ def make_extension(python, **extra):
         extension['cxx'] = cxx
         extension['cc'] = cc or cxx
 
+    # Honor CFLAGS
+    cflags = os.environ.get('CFLAGS', None)
+    if cflags is not None:
+        extension['extra_compile_args'].extend(cflags.split())
+
     for k, w in extra.items():
         extension[k].extend(w)
     if cfg.getboolean('pythran', 'complex_hook'):

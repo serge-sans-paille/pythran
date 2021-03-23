@@ -424,9 +424,11 @@ _automagically_ forwards these switches to the underlying compiler!
 Tired of typing the same compiler switches again and again? Store them in
 ``$XDG_CONFIG_HOME/.pythranrc``!
 
-Wants to try your own compiler? Update the `CC` and `CXX` fields from your
-`pythranrc`, or set the same environment variables to the right compilers. Environment
+Wants to try your own compiler? Update the ``CC`` and ``CXX`` fields from your
+``pythranrc``, or set the same environment variables to the right compilers. Environment
 variables have greater precedence than configuration file.
+
+Pythran also honors the ``CFLAGS`` environment variable.
 
 The careful reader might have noticed the ``-p`` flag from the command line. It
 makes it possible to define your own optimization sequence::

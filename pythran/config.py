@@ -24,7 +24,11 @@ def get_paths_cfg(
 
     user_config_path = os.environ.get('PYTHRANRC', None)
     if not user_config_path:
-        user_config_dir = os.environ.get('XDG_CONFIG_HOME', '~')
+        user_config_dir = os.environ.get('XDG_CONFIG_HOME', None)
+        if not user_config_dir:
+            user_config_dir = os.environ.get('HOME', None)
+        if not user_config_dir:
+            user_config_dir = '~'
         user_config_path = os.path.expanduser(
             os.path.join(user_config_dir, user_file))
     return {"sys": sys_config_path,

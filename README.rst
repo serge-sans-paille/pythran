@@ -92,11 +92,8 @@ Windows support is on going and only targets Python 3.5+ with either Visual Stud
 
     $> pip install pythran
 
-If you plan to use clang-cl, also add the following to ``%HOMEPATH%/.pythranrc``::
-
-    [compiler]
-    CC=clang-cl.exe
-    CXX=clang-cl.exe
+Note that using ``clang-cl.exe`` is the default setting. It can be changed
+through the ``CXX`` and ``CC`` environment variables.
 
 
 Other Platform

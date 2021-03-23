@@ -10,9 +10,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      CC: clang-cl.exe
-      CXX: clang-cl.exe
     steps:
     - uses: actions/checkout@v2
     - name: Setup Python

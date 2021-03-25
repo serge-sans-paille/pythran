@@ -1,3 +1,35 @@
+2021-03-30 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Always honor $HOME for user configuration lookup (even on Windows)
+
+	* Default to clang-cl on windows 
+
+	* Honor CFLAGS environment variable
+
+	* Correctly type tuples that are not bound to a variable
+
+	* Move to pocketfft for fft related operations
+
+	* Support numpy.vdot, numpy.dot between array of different dtype, improve
+	  numpy.copyto, numpy.ndarray constructor, numpy.ihfft, numpy.hfft,
+	  numpy.full and numpy.full_like
+
+	* Return a floating point type when computing builtins.pow, unless the
+	  exponenent is a positive integer literal
+
+	* Optimize shared reference of array expressions (not you again!)
+
+	* Introduce a specific type for strings of one element, aka chr
+
+	* Fix implementation of str.lstrip and str.rstrip, harden str.join
+
+	* Improve quality of the error report
+
+	* Detect divide by zero in debug mode
+
+	* Improve PythranBuildExt to support base class customization
+
+
 2020-11-09 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Basic f-string support

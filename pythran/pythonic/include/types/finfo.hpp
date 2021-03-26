@@ -21,8 +21,7 @@ PYTHONIC_NS_BEGIN
 namespace builtins
 {
   template <class T>
-  T getattr(pythonic::types::finfo<T> const &f,
-            std::integral_constant<size_t, types::attr::EPS>);
+  T getattr(types::attr::EPS, pythonic::types::finfo<T> const &f);
 }
 PYTHONIC_NS_END
 /* } */

@@ -853,6 +853,14 @@ namespace builtins
     return {getattr(types::attr::REAL{}, a.arg)};
   }
 
+  template <class T, class F>
+  auto getattr(types::attr::REAL, types::numpy_vexpr<T, F> const &a) -> decltype(
+      types::numpy_vexpr<decltype(getattr(types::attr::REAL{}, a.data_)), F>{
+          getattr(types::attr::REAL{}, a.data_), a.view_})
+  {
+    return {getattr(types::attr::REAL{}, a.data_), a.view_};
+  }
+
   template <class E, class... S>
   auto getattr(types::attr::REAL, types::numpy_gexpr<E, S...> const &a)
       -> decltype(
@@ -886,6 +894,14 @@ namespace builtins
           getattr(types::attr::IMAG{}, a.arg)})
   {
     return {getattr(types::attr::IMAG{}, a.arg)};
+  }
+
+  template <class T, class F>
+  auto getattr(types::attr::IMAG, types::numpy_vexpr<T, F> const &a) -> decltype(
+      types::numpy_vexpr<decltype(getattr(types::attr::IMAG{}, a.data_)), F>{
+          getattr(types::attr::IMAG{}, a.data_), a.view_})
+  {
+    return {getattr(types::attr::IMAG{}, a.data_), a.view_};
   }
 
   template <class E, class... S>

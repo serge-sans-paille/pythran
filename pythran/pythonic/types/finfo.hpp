@@ -12,6 +12,12 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
   template <class T>
+  T finfo<std::complex<T>>::eps() const
+  {
+    return std::numeric_limits<T>::epsilon();
+  }
+
+  template <class T>
   T finfo<T>::eps() const
   {
     return std::numeric_limits<T>::epsilon();
@@ -24,7 +30,8 @@ PYTHONIC_NS_BEGIN
 namespace builtins
 {
   template <class T>
-  T getattr(types::attr::EPS, pythonic::types::finfo<T> const &f)
+  auto getattr(types::attr::EPS, pythonic::types::finfo<T> const &f)
+      -> decltype(f.eps())
   {
     return f.eps();
   }

@@ -831,6 +831,9 @@ def np_rosen_der(x):
     def test_finfo1(self):
         self.run_test("def np_finfo1(x): from numpy import finfo ; f = finfo(x.dtype) ; return f.eps", numpy.ones(1), np_finfo1=[NDArray[float,:]])
 
+    def test_finfo2(self):
+        self.run_test("def np_finfo2(z): from numpy import finfo ; f = finfo(z.dtype) ; return f.eps < 1.0", numpy.array([1+1j]), np_finfo2=[NDArray[complex,:]])
+
     def test_fill0(self):
         self.run_test("def np_fill0(x): x.fill(5) ; return x", numpy.ones((2, 3)), np_fill0=[NDArray[float,:,:]])
 

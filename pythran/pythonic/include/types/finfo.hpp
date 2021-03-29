@@ -13,6 +13,11 @@ namespace types
   struct finfo {
     T eps() const;
   };
+
+  template <class T>
+  struct finfo<std::complex<T>> {
+    T eps() const;
+  };
 }
 PYTHONIC_NS_END
 
@@ -21,7 +26,8 @@ PYTHONIC_NS_BEGIN
 namespace builtins
 {
   template <class T>
-  T getattr(types::attr::EPS, pythonic::types::finfo<T> const &f);
+  auto getattr(types::attr::EPS, pythonic::types::finfo<T> const &f)
+      -> decltype(f.eps());
 }
 PYTHONIC_NS_END
 /* } */

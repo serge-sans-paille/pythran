@@ -1352,6 +1352,22 @@ namespace sutils
   {
     return prod_tail(s, std::integral_constant<size_t, S::value - 1>());
   }
+  template <class S>
+  long prod_head(S, std::integral_constant<size_t, 0>)
+  {
+    return 1;
+  }
+  template <class S, size_t I>
+  long prod_head(S const &s, std::integral_constant<size_t, I>)
+  {
+    return s.template shape<S::value - 1 - I>() *
+           prod_head(s, std::integral_constant<size_t, I - 1>());
+  }
+  template <class S>
+  long prod_head(S const &s)
+  {
+    return prod_head(s, std::integral_constant<size_t, S::value - 1>());
+  }
 
   template <size_t I, class P>
   struct safe_tuple_element {

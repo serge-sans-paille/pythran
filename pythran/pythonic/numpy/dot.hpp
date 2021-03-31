@@ -514,6 +514,22 @@ namespace numpy
               f[types::array<long, 2>{{k, j}}];
     return out;
   }
+
+  template <class E, class F>
+  typename std::enable_if<
+      (E::value >= 3 && F::value == 1), // And it is matrix / matrix
+      types::ndarray<
+          typename __combined<typename E::dtype, typename F::dtype>::type,
+          types::array<long, E::value - 1>>>::type
+  dot(E const &e, F const &f)
+  {
+    auto out = dot(
+        e.reshape(types::array<long, 2>{{sutils::prod_head(e), f.size()}}), f);
+    types::array<long, E::value - 1> out_shape;
+    auto tmp = sutils::getshape(e);
+    std::copy(tmp.begin(), tmp.end() - 1, out_shape.begin());
+    return out.reshape(out_shape);
+  }
 }
 PYTHONIC_NS_END
 

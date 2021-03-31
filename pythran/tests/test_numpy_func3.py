@@ -257,6 +257,19 @@ class TestNumpyFunc3(TestEnv):
                       np_dot22=[NDArray[numpy.float32,:,:],
                                 NDArray[numpy.float64,:]])
 
+    def test_dot23(self):
+        ''' Nd x 1d, N > 2'''
+        self.run_test("""
+        def np_dot23(x, y):
+            from numpy import dot
+            return dot(x, y)""",
+                      numpy.array(numpy.arange(24.).reshape(4, 3, 2),
+                                  dtype=numpy.float32),
+                      numpy.array(numpy.arange(2.).reshape(2),
+                                  dtype=numpy.float64),
+                      np_dot23=[NDArray[numpy.float32,:,:,:],
+                                NDArray[numpy.float64,:]])
+
     def test_vdot0(self):
         self.run_test("""
         def np_vdot0(x, y):

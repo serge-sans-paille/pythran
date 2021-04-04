@@ -252,6 +252,15 @@ namespace numpy
           types::array<long, E::value - 1>>>::type
   dot(E const &e, F const &f);
 
+  // N x M where N >= 3 and M >= 2
+  template <class E, class F>
+  typename std::enable_if<
+      (E::value >= 3 && F::value >= 2),
+      types::ndarray<
+          typename __combined<typename E::dtype, typename F::dtype>::type,
+          types::array<long, E::value - 1>>>::type
+  dot(E const &e, F const &f);
+
   DEFINE_FUNCTOR(pythonic::numpy, dot);
 }
 PYTHONIC_NS_END

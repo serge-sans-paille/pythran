@@ -530,6 +530,17 @@ namespace numpy
     std::copy(tmp.begin(), tmp.end() - 1, out_shape.begin());
     return out.reshape(out_shape);
   }
+
+  template <class E, class F>
+  typename std::enable_if<
+      (E::value >= 3 && F::value >= 2),
+      types::ndarray<
+          typename __combined<typename E::dtype, typename F::dtype>::type,
+          types::array<long, E::value - 1>>>::type
+  dot(E const &e, F const &f)
+  {
+    static_assert(E::value == 0, "not implemented yet");
+  }
 }
 PYTHONIC_NS_END
 

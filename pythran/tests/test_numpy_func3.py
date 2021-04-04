@@ -270,6 +270,20 @@ class TestNumpyFunc3(TestEnv):
                       np_dot23=[NDArray[numpy.float32,:,:,:],
                                 NDArray[numpy.float64,:]])
 
+    @unittest.skip("not implemented yet")
+    def test_dot24(self):
+        ''' Nd x 1d, N > 2'''
+        self.run_test("""
+        def np_dot24(x, y):
+            from numpy import dot
+            return dot(x, y)""",
+                      numpy.array(numpy.arange(24.).reshape(4, 3, 2),
+                                  dtype=numpy.float32),
+                      numpy.array(numpy.arange(24.).reshape(2,3,2,2),
+                                  dtype=numpy.float64),
+                      np_dot24=[NDArray[numpy.float32,:,:,:],
+                                NDArray[numpy.float64,:,:,:,:]])
+
     def test_vdot0(self):
         self.run_test("""
         def np_vdot0(x, y):

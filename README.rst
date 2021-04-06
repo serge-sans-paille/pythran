@@ -39,15 +39,14 @@ Using ``pip``
         $> sudo apt-get install libatlas-base-dev
         $> sudo apt-get install python-dev python-ply python-networkx python-numpy
 
-2. Use ``easy_install`` or ``pip``::
+2. Install with ``pip``::
 
         $> pip install pythran
 
 Using ``conda``
 ***************
 
-1. Install ``conda``, following the instruction given in
-   `conda user guide <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`__.
+1. Install ``conda`` (if you don't have it installed yet) from https://github.com/conda-forge/miniforge
 
 2. Run::
 
@@ -57,8 +56,6 @@ Mac OSX
 =======
 
 Using brew (http://brew.sh/)::
-
-    $> easy_install pip
 
     $> pip install pythran
     $> brew install openblas

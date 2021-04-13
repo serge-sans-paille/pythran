@@ -24,7 +24,7 @@ Pythran sources are hosted on https://github.com/serge-sans-paille/pythran.
 
 Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
 
-Pythran is available through Conda on https://anaconda.org/conda-forge/pythran.
+Pythran is available on conda-forge on https://anaconda.org/conda-forge/pythran.
 
 Debian/Ubuntu
 =============
@@ -43,12 +43,16 @@ Using ``pip``
 
         $> pip install pythran
 
-Using ``conda``
-***************
+Using ``Mamba``` or ``conda``
+*****************************
 
-1. Install ``conda`` (if you don't have it installed yet) from https://github.com/conda-forge/miniforge
+1. Install ``mamba`` or ``conda`` (if you don't have it installed yet) from https://github.com/conda-forge/miniforge#mambaforge
 
 2. Run::
+
+       $> mamba install -c conda-forge pythran
+
+   or::
 
        $> conda install -c conda-forge pythran
 

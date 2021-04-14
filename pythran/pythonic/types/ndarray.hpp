@@ -1361,25 +1361,32 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
     }
 
     if (sutils::equals(n, pshape)) {
-      if (transpose && !(PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS))
-        return PyArray_Transpose(arr, nullptr);
-      else
+      if (transpose && !(PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS)) {
+        PyObject *Transposed = PyArray_Transpose(arr, nullptr);
+        Py_DECREF(arr);
+        return Transposed;
+      } else
         return p;
     } else if (sutils::requals(n, pshape)) {
       if (transpose)
         return p;
-      else
-        return PyArray_Transpose(arr, nullptr);
+      else {
+        PyObject *Transposed = PyArray_Transpose(arr, nullptr);
+        Py_DECREF(arr);
+        return Transposed;
+      }
     } else {
       Py_INCREF(PyArray_DESCR(arr));
       auto array = sutils::array(n._shape);
       auto *res = pyarray_new<long, std::tuple_size<pS>::value>{}.from_descr(
           Py_TYPE(arr), PyArray_DESCR(arr), array.data(), PyArray_DATA(arr),
           PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
-      if (transpose && (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS))
-        return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(arr),
-                                 nullptr);
-      else
+      if (transpose && (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS)) {
+        PyObject *Transposed =
+            PyArray_Transpose(reinterpret_cast<PyArrayObject *>(arr), nullptr);
+        Py_DECREF(arr);
+        return Transposed;
+      } else
         return res;
     }
   } else {
@@ -1393,10 +1400,12 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
       return nullptr;
     PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject *>(result),
                         NPY_ARRAY_OWNDATA);
-    if (transpose)
-      return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(result),
-                               nullptr);
-    else
+    if (transpose) {
+      PyObject *Transposed =
+          PyArray_Transpose(reinterpret_cast<PyArrayObject *>(result), nullptr);
+      Py_DECREF(result);
+      return Transposed;
+    } else
       return result;
   }
 }
@@ -1409,9 +1418,12 @@ to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v,
   PyObject *res =
       ::to_python(types::ndarray<typename types::numpy_iexpr<Arg>::dtype,
                                  typename types::numpy_iexpr<Arg>::shape_t>(v));
-  if (transpose)
-    return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
-  else
+  if (transpose) {
+    PyObject *Transposed =
+        PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
+    Py_DECREF(res);
+    return Transposed;
+  } else
     return res;
 }
 
@@ -1424,9 +1436,12 @@ PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
   PyObject *base = ::to_python(v.arg);
   PyObject *res = PyObject_GetItem(base, slices);
   Py_DECREF(base);
-  if (transpose)
-    return PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
-  else
+  if (transpose) {
+    PyObject *Transposed =
+        PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
+    Py_DECREF(res);
+    return Transposed;
+  } else
     return res;
 }
 

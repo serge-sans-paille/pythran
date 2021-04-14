@@ -7,7 +7,6 @@ import numpy
 from pythran.typing import List, Dict, Set, Tuple, NDArray, Pointer, Fun
 
 PYTYPE_TO_CTYPE_TABLE = {
-    numpy.int: 'npy_int',
     numpy.uint: 'npy_uint',
     #
     complex: 'std::complex<double>',

@@ -5,6 +5,7 @@
 
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/array.hpp"
+#include "pythonic/numpy/transpose.hpp"
 
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/operator_/iand.hpp"

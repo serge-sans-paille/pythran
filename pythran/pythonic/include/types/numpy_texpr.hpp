@@ -3,6 +3,7 @@
 
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/builtins/None.hpp"
+#include "pythonic/include/numpy/transpose.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -196,9 +197,10 @@ namespace types
 
     template <class S, size_t... I>
     auto _reverse_index(S const &indices, utils::index_sequence<I...>) const
-        -> decltype(this->arg(std::get<I>(indices)...))
+        -> decltype(
+            numpy::functor::transpose{}(this->arg(std::get<I>(indices)...)))
     {
-      return arg(std::get<I>(indices)...);
+      return numpy::functor::transpose{}(arg(std::get<I>(indices)...));
     }
     ndarray<dtype, typename E::shape_t> copy() const
     {

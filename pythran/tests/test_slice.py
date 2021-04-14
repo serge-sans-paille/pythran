@@ -815,3 +815,13 @@ def step1slice_combination19(a):
         """.format(begin=-80, end=-2, step=2)
         self.run_test(code, numpy.arange(90),
         step1slice_combination19=[NDArray[int, :]])
+
+    def test_slice_transpose0(self):
+        code = '''
+import numpy as np
+def slice_transpose0(n):
+    base = np.zeros((16, n)).T
+    slice1 = base[:10, 10:] # should have shape (10, 6)
+    slice2 = slice1[:1, 1:]
+    return slice1, slice2'''
+        self.run_test(code, 16, slice_transpose0=[int])

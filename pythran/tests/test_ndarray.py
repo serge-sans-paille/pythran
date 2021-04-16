@@ -1143,6 +1143,15 @@ def complex_conversion0(x):
                               (10, 20),
                               transposed_slice_assign2=[Tuple[int, int]])
 
+    def test_transposed_slice_assign3(self):
+                self.run_test("""def transposed_slice_assign3(shape):
+                                  import numpy as np
+                                  xx = np.ones(shape, dtype=int).T
+                                  xx[:1, :2] = 3
+                                  return xx""",
+                              (10, 20),
+                              transposed_slice_assign3=[Tuple[int, int]])
+
     def test_slice_through_list0(self):
                 self.run_test("""def slice_through_list0(shape):
                                   import numpy as np

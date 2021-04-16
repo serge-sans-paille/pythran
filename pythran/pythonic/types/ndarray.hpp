@@ -1669,10 +1669,11 @@ types::numpy_texpr<E> from_python<types::numpy_texpr<E>>::convert(PyObject *obj)
   static_assert(N == 2, "only support texpr of matrices");
   sutils::assign(std::get<0>(shape), std::get<1>(dims));
   sutils::assign(std::get<1>(shape), std::get<0>(dims));
+
+  PyObject *tobj = PyArray_Transpose(arr, nullptr);
   types::ndarray<T, typename E::shape_t> base_array((T *)PyArray_BYTES(arr),
-                                                    shape, obj);
+                                                    shape, tobj);
   types::numpy_texpr<types::ndarray<T, typename E::shape_t>> r(base_array);
-  Py_INCREF(obj);
   return r;
 }
 PYTHONIC_NS_END

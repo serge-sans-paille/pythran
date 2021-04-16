@@ -13,19 +13,6 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class T>
-  types::numpy_texpr<types::ndarray<T, types::array<long, 2>>>
-  transpose(types::ndarray<T, types::array<long, 2>> const &arr)
-  {
-    return {arr};
-  }
-
-  template <class T, class pS0, class pS1>
-  types::numpy_texpr<types::ndarray<T, types::pshape<pS0, pS1>>>
-  transpose(types::ndarray<T, types::pshape<pS0, pS1>> const &arr)
-  {
-    return {arr};
-  }
   namespace
   {
     template <class T, class pS, class O, class Indices, class S, class Perm>
@@ -82,7 +69,9 @@ namespace numpy
   }
 
   template <class T, class pS>
-  types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
+  typename std::enable_if<
+      (std::tuple_size<pS>::value > 2),
+      types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>>::type
   transpose(types::ndarray<T, pS> const &a)
   {
     long t[std::tuple_size<pS>::value];
@@ -102,8 +91,6 @@ namespace numpy
       throw types::ValueError("invalid axis for this array");
     return _transpose(a, &t[0]);
   }
-
-  NUMPY_EXPR_TO_NDARRAY0_IMPL(transpose);
 }
 PYTHONIC_NS_END
 

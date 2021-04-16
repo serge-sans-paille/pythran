@@ -10,24 +10,45 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+  template <class E>
+  E transpose(types::numpy_texpr<E> const &arr)
+  {
+    return arr.arg;
+  }
 
-  template <class T>
-  types::numpy_texpr<types::ndarray<T, types::array<long, 2>>>
-  transpose(types::ndarray<T, types::array<long, 2>> const &arr);
+  template <class E>
+  typename std::enable_if<E::value == 2, types::numpy_texpr<E>>::type
+  transpose(E const &arr)
+  {
+    return {arr};
+  }
 
-  template <class T, class pS0, class pS1>
-  types::numpy_texpr<types::ndarray<T, types::pshape<pS0, pS1>>>
-  transpose(types::ndarray<T, types::pshape<pS0, pS1>> const &arr);
+  template <class E>
+  typename std::enable_if<E::value == 1, E>::type transpose(E const &arr)
+  {
+    return arr;
+  }
 
   template <class T, class pS>
-  types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
+  typename std::enable_if<
+      (std::tuple_size<pS>::value > 2),
+      types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>>::type
   transpose(types::ndarray<T, pS> const &a);
 
   template <class T, class pS, size_t M>
   types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
   transpose(types::ndarray<T, pS> const &a, types::array<long, M> const &t);
 
-  NUMPY_EXPR_TO_NDARRAY0_DECL(transpose);
+  template <class E>
+  auto transpose(E const &expr) -> typename std::enable_if<
+      (E::value > 2),
+      decltype(transpose(types::ndarray<typename E::dtype, typename E::shape_t>{
+          expr}))>::type
+  {
+    return transpose(
+        types::ndarray<typename E::dtype, typename E::shape_t>{expr});
+  }
+
   DEFINE_FUNCTOR(pythonic::numpy, transpose);
 }
 PYTHONIC_NS_END

@@ -171,10 +171,16 @@ def make_extension(python, **extra):
         extension['cxx'] = cxx
         extension['cc'] = cc or cxx
 
-    # Honor CFLAGS
-    cflags = os.environ.get('CFLAGS', None)
+    # Honor CXXFLAGS (note: Pythran calls this `cflags` everywhere, however the
+    # standard environment variable is `CXXFLAGS` not `CFLAGS`).
+    cflags = os.environ.get('CXXFLAGS', None)
     if cflags is not None:
         extension['extra_compile_args'].extend(cflags.split())
+
+    # Honor LDFLAGS
+    ldflags = os.environ.get('LDFLAGS', None)
+    if ldflags is not None:
+        extension['extra_link_args'].extend(ldflags.split())
 
     for k, w in extra.items():
         extension[k].extend(w)
@@ -330,7 +336,7 @@ def run():
             cflags.append('-I' + numpy.get_include())
             cflags.append('-I' + distutils.sysconfig.get_python_inc())
 
-        logger.info('CFLAGS = '.rjust(10) + ' '.join(cflags))
+        logger.info('CXXFLAGS = '.rjust(10) + ' '.join(cflags))
         if args.cflags:
             output.extend(cflags)
 

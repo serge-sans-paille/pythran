@@ -10,12 +10,16 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+          architectures: [x86, x64]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
         python-version: 3.7
+        architecture: ${{ matrix.architecture }}
     - name: Install clang-cl
       run: |
         choco install llvm --yes

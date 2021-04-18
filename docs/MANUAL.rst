@@ -428,7 +428,7 @@ Wants to try your own compiler? Update the ``CC`` and ``CXX`` fields from your
 ``pythranrc``, or set the same environment variables to the right compilers. Environment
 variables have greater precedence than configuration file.
 
-Pythran also honors the ``CFLAGS`` environment variable.
+Pythran also honors the ``CXXFLAGS`` and ``LDFLAGS`` environment variables.
 
 The careful reader might have noticed the ``-p`` flag from the command line. It
 makes it possible to define your own optimization sequence::
@@ -512,7 +512,7 @@ For example::
 
     pythran --config compiler.blas=pythran-openblas this_file.py
 
-would specify that pythran-openblas is the blas library to use. 
+would specify that pythran-openblas is the blas library to use.
 
 Options specified using command-line arguments override the options found in the ``.pythranrc`` file
 

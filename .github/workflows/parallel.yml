@@ -25,7 +25,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install ipython nbval pytest-xdist cython scipy wheel
+        # libgomp comes with gcc-5, for clang we need to install libomp
         sudo apt install libopenblas-dev ${{ matrix.cpp-version }}
+        if [[ ${{ matrix.cpp-version }} == 'clang-5.0' ]]; then
+          sudo apt install libomp5 libomp-dev;
+        fi
     - name: Setup
       run: |
         python setup.py install

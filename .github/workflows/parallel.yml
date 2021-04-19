@@ -41,4 +41,5 @@ jobs:
         export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/gcc/'`
         export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/clang++/'`
         export CXXFLAGS="-fopenmp"
+        export LDFLAGS="-fopenmp"
         pytest pythran/tests/test_cases.py -v --numprocesses=1

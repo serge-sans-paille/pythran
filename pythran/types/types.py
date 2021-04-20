@@ -92,14 +92,15 @@ class Types(ModuleAnalysis):
             return True
         return False
 
-    def node_to_id(self, n, depth=0):
+    def node_to_id(self, n, depth=()):
         if isinstance(n, ast.Name):
             return (n.id, depth)
         elif isinstance(n, ast.Subscript):
             if isinstance(n.slice, ast.Slice):
                 return self.node_to_id(n.value, depth)
             else:
-                return self.node_to_id(n.value, 1 + depth)
+                index = n.slice.value if isnum(n.slice) else None
+                return self.node_to_id(n.value, depth + (index,))
         # use alias information if any
         elif isinstance(n, ast.Call):
             for alias in self.strict_aliases[n]:
@@ -154,15 +155,26 @@ class Types(ModuleAnalysis):
             if register:
                 try:
                     node_id, depth = self.node_to_id(node)
-                    if depth > 0:
+                    if depth:
                         node = ast.Name(node_id, ast.Load(), None, None)
                         former_unary_op = unary_op
 
                         # update the type to reflect container nesting
+                        def merge_container_type(ty, index):
+                            # integral index make it possible to correctly
+                            # update tuple type
+                            if isinstance(index, int):
+                                kty = self.builder.NamedType(
+                                        'std::integral_constant<long,{}>'
+                                        .format(index))
+                                return self.builder.IndexableContainerType(kty,
+                                                                           ty)
+                            else:
+                                return self.builder.ContainerType(ty)
+
                         def unary_op(x):
-                            return reduce(lambda t, n:
-                                          self.builder.ContainerType(t),
-                                          range(depth), former_unary_op(x))
+                            return reduce(merge_container_type, depth,
+                                          former_unary_op(x))
 
                         # patch the op, as we no longer apply op,
                         # but infer content

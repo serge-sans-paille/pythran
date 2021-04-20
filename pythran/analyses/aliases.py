@@ -441,7 +441,8 @@ class Aliases(ModuleAnalysis):
                             continue
                     # FIXME: what if the index is a slice variable...
                     aliases.add(alias.containee)
-                elif isinstance(getattr(alias, 'ctx', None), ast.Param):
+                elif isinstance(getattr(alias, 'ctx', None), (ast.Param,
+                                                              ast.Store)):
                     aliases.add(ast.Subscript(alias, node.slice, node.ctx))
             if not aliases:
                 aliases = None

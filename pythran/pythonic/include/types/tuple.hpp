@@ -776,25 +776,25 @@ struct __combined<pythonic::types::array_base<T, N, V>, container<K>> {
       pythonic::types::array_base<typename __combined<T, K>::type, N, V>;
 };
 
-template <class K, class V, class T, size_t N>
+template <class K, class V, class T, size_t N, class AV>
 struct __combined<indexable_container<K, V>,
-                  pythonic::types::array_base<T, N, V>> {
+                  pythonic::types::array_base<T, N, AV>> {
   using type =
-      pythonic::types::array_base<typename __combined<V, T>::type, N, V>;
+      pythonic::types::array_base<typename __combined<V, T>::type, N, AV>;
 };
 
-template <class K, class V, class T, size_t N>
-struct __combined<pythonic::types::array_base<T, N, V>,
+template <class K, class V, class T, size_t N, class AV>
+struct __combined<pythonic::types::array_base<T, N, AV>,
                   indexable_container<K, V>> {
   using type =
-      pythonic::types::array_base<typename __combined<T, V>::type, N, V>;
+      pythonic::types::array_base<typename __combined<T, V>::type, N, AV>;
 };
 
 template <class... t0, class... t1>
 struct __combined<std::tuple<t0...>, std::tuple<t1...>> {
-  using type = std::tuple<typename __combined<t0, t1>::type...>; // no further
-                                                                 // combination
+  using type = std::tuple<typename __combined<t0, t1>::type...>;
 };
+
 template <class t, class... t0>
 struct __combined<std::tuple<t0...>, container<t>> {
   using type = std::tuple<t0...>;
@@ -803,6 +803,26 @@ struct __combined<std::tuple<t0...>, container<t>> {
 template <class t, class... t0>
 struct __combined<container<t>, std::tuple<t0...>> {
   using type = std::tuple<t0...>;
+};
+
+template <long I, class t, class... t0>
+struct __combined<std::tuple<t0...>,
+                  indexable_container<std::integral_constant<long, I>, t>> {
+  using holder = std::tuple<t0...>;
+  template <size_t... Is>
+  static std::tuple<typename std::conditional<
+      I == Is, typename __combined<
+                   t, typename std::tuple_element<Is, holder>::type>::type,
+      typename std::tuple_element<Is, holder>::type>::type...>
+      make_type(pythonic::utils::index_sequence<Is...>);
+  static auto make_type() -> decltype(
+      make_type(pythonic::utils::make_index_sequence<sizeof...(t0)>()));
+  using type = decltype(make_type());
+};
+
+template <class k, class t, class... t0>
+struct __combined<indexable_container<k, t>, std::tuple<t0...>>
+    : __combined<std::tuple<t0...>, indexable_container<k, t>> {
 };
 
 template <class t, size_t n, class... types>

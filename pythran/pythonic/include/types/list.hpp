@@ -251,6 +251,8 @@ namespace types
     list<T> &operator=(list<F> const &other);
     list<T> &operator=(list<T> const &other);
     list<T> &operator=(empty_list const &);
+    template <class Tp, size_t N, class V>
+    list<T> &operator=(array_base<Tp, N, V> const &);
     template <class Tp, class S>
     list<T> &operator=(sliced_list<Tp, S> const &other);
 
@@ -640,6 +642,16 @@ template <class T, size_t N, class V>
 struct __combined<pythonic::types::empty_list,
                   pythonic::types::array_base<T, N, V>> {
   typedef pythonic::types::list<T> type;
+};
+template <class T, size_t N, class V, class Tp>
+struct __combined<pythonic::types::array_base<T, N, V>,
+                  pythonic::types::list<Tp>> {
+  typedef pythonic::types::list<typename __combined<T, Tp>::type> type;
+};
+template <class T, size_t N, class V, class Tp>
+struct __combined<pythonic::types::list<Tp>,
+                  pythonic::types::array_base<T, N, V>> {
+  typedef pythonic::types::list<typename __combined<T, Tp>::type> type;
 };
 
 /* } */

@@ -331,6 +331,13 @@ namespace types
     return *this;
   }
   template <class T>
+  template <class Tp, size_t N, class V>
+  list<T> &list<T>::operator=(array_base<Tp, N, V> const &other)
+  {
+    data = utils::shared_ref<container_type>(other.begin(), other.end());
+    return *this;
+  }
+  template <class T>
   template <class Tp, class S>
   list<T> &list<T>::operator=(sliced_list<Tp, S> const &other)
   {

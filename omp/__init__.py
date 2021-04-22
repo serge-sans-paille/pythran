@@ -48,7 +48,7 @@ class OpenMP(object):
         compiler detected."""
         if cxx is None:
             # Can't tell what compiler we're using, guessing we need libgomp
-            names ['libgomp']
+            names = ['libgomp']
         else:
             cmd = [cxx, '--version']
             try:

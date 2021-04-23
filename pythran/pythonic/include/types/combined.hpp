@@ -23,9 +23,11 @@ struct __combined<T> {
 
 template <class T0, class T1, class T2, class... Types>
 struct __combined<T0, T1, T2, Types...> {
-  using type =
-      typename __combined<typename __combined<T0, T1>::type,
-                          typename __combined<T2, Types...>::type>::type;
+  // This is less efficient that doing a binary split, but it's not equivalent
+  // as the lhs dominates the rhs (a.k.a __combined is neither commutative nor
+  // associative)
+  using type = typename __combined<typename __combined<T0, T1>::type, T2,
+                                   Types...>::type;
 };
 
 template <class T0, class T1>
@@ -40,7 +42,7 @@ struct __combined<T0, T1> {
   static decltype(std::declval<F0>() + std::declval<F1>())
   get(std::integral_constant<bool, false>);
 
-  // operator+ does ! exists -> pick first one, better than error
+  // operator+ does not exists -> pick first one, better than error
   // note that this is needed because broadcasting is too complex to be modeled
   // by our clumsy type inference scheme
   // so we sometime endup with __combined<indexable_container<...>, int> which

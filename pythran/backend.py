@@ -124,13 +124,14 @@ class CachedTypeVisitor:
     def __call__(self, node):
         if node not in self.mapping:
             t = node.generate(self)
-            if t in self.rcache:
-                self.mapping[node] = self.mapping[self.rcache[t]]
-                self.cache[node] = self.cache[self.rcache[t]]
-            else:
-                self.rcache[t] = node
-                self.mapping[node] = len(self.mapping)
-                self.cache[node] = t
+            if node not in self.mapping:
+                if t in self.rcache:
+                    self.mapping[node] = self.mapping[self.rcache[t]]
+                    self.cache[node] = self.cache[self.rcache[t]]
+                else:
+                    self.rcache[t] = node
+                    self.mapping[node] = len(self.mapping)
+                    self.cache[node] = t
         return "__type{0}".format(self.mapping[node])
 
     def typedefs(self):
@@ -870,20 +871,16 @@ class CxxFunction(ast.NodeVisitor):
         if not node.elts:  # empty list
             return '{}(pythonic::types::empty_list())'.format(self.types[node])
         else:
+
             elts = [self.visit(n) for n in node.elts]
-            elts_type = reduce(
-                self.types.builder.Type.__add__,
-                {self.types.builder.DeclType(elt) for elt in elts})
+            node_type = self.types[node]
 
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
                 elts.append('pythonic::types::single_value()')
 
-            node_type = self.types.builder.CombinedTypes(
-                self.types[node],
-                self.types.builder.ListType(elts_type))
             return "{0}({{{1}}})".format(
-                self.types.builder.Assignable(node_type),
+                self.types.builder.Assignable(node_type).generate(self.lctx),
                 ", ".join(elts))
 
     def visit_Set(self, node):

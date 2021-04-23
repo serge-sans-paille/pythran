@@ -22,6 +22,12 @@ class ordered_set(object):
     def __iter__(self):
         return iter(self.values)
 
+    def __len__(self):
+        return len(self.values)
+
+    def __getitem__(self, index):
+        return self.values[index]
+
 
 class TypeBuilder(object):
     '''
@@ -181,6 +187,20 @@ std::declval<bool>()))
                     return builder.UnknownType
                 else:
                     return InstantiatedType(self.fun, self.name, arguments)
+
+        class LType(Type):
+            def __init__(self, base, node):
+                super(LType, self).__init__(node=node)
+                self.isrec = False
+                self.orig = base
+                self.final_type = base
+
+            def generate(self, ctx):
+                if self.isrec:
+                    return self.orig.generate(ctx)
+                else:
+                    self.isrec = True
+                    return self.final_type.generate(ctx)
 
         class InstantiatedType(Type):
             """

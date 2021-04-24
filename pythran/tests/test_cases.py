@@ -23,6 +23,10 @@ if LooseVersion(numpy.__version__) >= '1.20':
     del TestCases.test_train_eq_run0
     del TestCases.test_train_eq_run1
 
+# too template intensive for old g++
+if os.environ.get('CXX', None) == 'g++-5':
+    del TestCases.test_loopy_jacob_run0
+
 
 if __name__ == '__main__':
     unittest.main()

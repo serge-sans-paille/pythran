@@ -19,14 +19,17 @@ class RemoveFStrings(Transformation, ast.NodeTransformer):
     """
 
     def visit_JoinedStr(self, node):
+        if len(node.values) == 1:
+            # f-strings with no reference to variable (like `f"bar"`, see #1767)
+            return node.values[0]
+
+        
         if not any(
             isinstance(value, ast.FormattedValue) for value in node.values
         ):
-            if len(node.values) == 1:
-                # f-strings with no reference to variable (like `f"bar"`, see #1767)
-                return node.values[0]
             # nothing to do (not a f-string)
             return node
+
         base_str = ""
         elements = []
         for value in node.values:

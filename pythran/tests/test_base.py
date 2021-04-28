@@ -178,6 +178,9 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
 
     def test_print_tuple(self):
         self.run_test("def print_tuple(a,b,c,d): t = (a,b,c,d,'e',1.5,); print(t)", [1.,2.,3.1],3,True, "d", print_tuple=[List[float], int, bool, str])
+	
+    def test_fstring_noarg(self):
+        self.run_test("def fstring_noarg(): return f'hello'", fstring_noarg=[])
 
     def test_fstring(self):
         self.run_test("def fstring(a,b,c): return f'a: {a: 4d}; b: {b:.2f}; c: {c:s}'", 2, 6.28, "c", fstring=[int, float, str])

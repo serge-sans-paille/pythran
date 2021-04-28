@@ -43,8 +43,8 @@ Using ``pip``
 
         $> pip install pythran
 
-Using ``mamba``` or ``conda``
-*****************************
+Using ``mamba`` or ``conda``
+****************************
 
 1. Using ``mamba`` (https://github.com/conda-forge/miniforge#mambaforge) or ``conda`` (https://github.com/conda-forge/miniforge)
  

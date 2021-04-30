@@ -1103,8 +1103,6 @@ def complex_conversion0(x):
             5.,
             built_slice_indexing=[NDArray[float, :], int, int, float])
 
-    @unittest.skipIf(LooseVersion(numpy.__version__) >= '1.20',
-                     "numpy.dtype.type changed in 1.20.0")
     def test_dtype_type(self):
         self.run_test('''
             def dtype_type(x):

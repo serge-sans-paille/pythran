@@ -164,7 +164,7 @@ REDUCED_BINARY_UFUNC = {"accumulate": FunctionIntr(),
 
 CLASSES = {
     "dtype": {
-        "type": ConstMethodIntr(),
+        "type": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),

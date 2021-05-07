@@ -103,6 +103,9 @@ class TestStr(TestEnv):
     def test_str_split3(self):
         self.run_test("def str_split3(s): return s.split()", "ThiS  iS\t a TeST", str_split3=[str])
 
+    def test_str_split4(self):
+        self.run_test("def str_split4(s): return s.split()", "", str_split4=[str])
+
     def test_str_format(self):
         self.run_test("def str_format(a): return '%.2f %.2f' % (a, a)", 43.23, str_format=[float])
 

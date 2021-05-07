@@ -22,6 +22,9 @@ namespace builtins
     {
       types::str s = strip(in);
       types::list<types::str> res(0);
+      if (s.empty())
+        return res;
+
       size_t current = 0;
       size_t next = 0;
       long numsplit = 0;
@@ -43,6 +46,9 @@ namespace builtins
     {
       types::str s = strip(in);
       types::list<types::str> res(0);
+      if (s.empty())
+        return res;
+
       size_t current = 0;
       size_t next = 0;
       long numsplit = 0;

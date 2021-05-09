@@ -1,3 +1,19 @@
+2021-05-09 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Honor CXXFLAGS and LDFLAGS
+
+	* Generalize numpy.dot to higher dimenson (partial support)
+
+	* Fix important memory leak in handling of transposed matrices
+
+	* Fix several string interaction (str.split, f-string)
+
+	* Fix interaction with numpy.dtype.type
+
+	* Improve OpenMP detection
+
+	* Optimize some matrix transpose cases
+
 2021-03-30 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Always honor $HOME for user configuration lookup (even on Windows)

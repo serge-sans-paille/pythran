@@ -545,8 +545,8 @@ PyObject *to_python<std::tuple<Types...>>::
     do_convert(std::tuple<Types...> const &t, utils::index_sequence<S...>)
 {
   PyObject *out = PyTuple_New(sizeof...(Types));
-  std::initializer_list<void *> _ = {
-      PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
+  std::initializer_list<bool> _ = {
+      (PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t))), true)...};
   return out;
 }
 

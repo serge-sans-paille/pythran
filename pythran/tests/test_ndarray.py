@@ -425,6 +425,16 @@ def assign_ndarray(t):
     def test_iexpr2(self):
         self.run_test("def np_iexpr2(a,m): a[m==False] = 1; return a", numpy.arange(10).reshape(5,2), numpy.arange(10).reshape(5,2), np_iexpr2=[NDArray[int, :,:], NDArray[int, :,:]])
 
+    def test_iexpr3(self):
+        code = '''
+import numpy as np
+def np_iexpr3 (x, nbits):
+    out = np.zeros ((len(x), 1<<nbits), dtype=complex)
+    for e in range (len (x)):
+        out[e,x[e]] = 1
+    return out'''
+        self.run_test(code, numpy.arange(16, dtype=numpy.int16), 4, np_iexpr3=[NDArray[numpy.int16, :], int])
+
     def test_item0(self):
         self.run_test("def np_item0(a): return a.item(3)", numpy.array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]), np_item0=[NDArray[int, :,: ]])
 

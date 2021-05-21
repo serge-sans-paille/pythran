@@ -368,7 +368,7 @@ namespace types
   template <>
   struct numpy_iexpr_helper<1> {
     template <class T>
-    static typename T::dtype get(T const &e, long i);
+    static typename T::dtype &get(T const &e, long i);
     template <class T>
     static typename T::dtype &get(T &&e, long i);
     template <class T>

@@ -488,7 +488,7 @@ namespace types
   }
 
   template <class T>
-  typename T::dtype numpy_iexpr_helper<1>::get(T const &e, long i)
+  typename T::dtype &numpy_iexpr_helper<1>::get(T const &e, long i)
   {
     return e.buffer[i * e.template strides<T::value - 1>()];
   }

@@ -29,7 +29,7 @@ The generated native ``.so`` module can then be used with the Python interpreter
 Pythran version can be dumped through ``--version``::
 
   $> pythran --version 2>&1
-  0.9.12dev
+  0.9.12.dev0
 
 The module-level ``__pythran__`` variable indicates that the module loaded has been pythranized::
 
@@ -78,13 +78,13 @@ To know more options about Pythran, you can check::
                  [-I include_dir] [-L ldflags] [-D macro_definition]
                  [-U macro_definition] [--config config]
                  input_file
-  
+
   pythran: a python to C++ compiler
-  
+
   positional arguments:
     input_file           the pythran module to compile, either a .py or a .cpp
                          file
-  
+
   optional arguments:
     -h, --help           show this help message and exit
     -o OUTPUT_FILE       path to generated file. Honors %{ext}.
@@ -102,5 +102,5 @@ To know more options about Pythran, you can check::
                          compiler
     -U macro_definition  any macro undef relevant to the underlying C++ compiler
     --config config      config additional params
-  
+
   It's a megablast!

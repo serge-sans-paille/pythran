@@ -1,3 +1,7 @@
+2021-05-23 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Fix compatibility issue with python 3.10
+
 2021-05-09 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Honor CXXFLAGS and LDFLAGS

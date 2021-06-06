@@ -7,7 +7,7 @@
 PYTHONIC_NS_BEGIN
 namespace types
 {
-  struct str;
+  class str;
 
   template <class Ty0, class Ty1>
   struct isinstance

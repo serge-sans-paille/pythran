@@ -48,6 +48,13 @@ namespace types
   }
 
   template <class T>
+  set<T>::set(T const &value, single_value)
+      : data()
+  {
+    data->insert(value);
+  }
+
+  template <class T>
   set<T>::set(std::initializer_list<value_type> l)
       : data(std::move(l))
   {

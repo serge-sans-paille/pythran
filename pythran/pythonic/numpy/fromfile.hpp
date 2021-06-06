@@ -32,7 +32,7 @@ namespace numpy
     fs.seekp(offset, std::fstream::beg);
     auto n1 = fs.tellp();
     fs.seekp(0, std::fstream::end);
-    auto maxCount = (fs.tellp() - n1) / sizeof(typename dtype::type);
+    long maxCount = (fs.tellp() - n1) / sizeof(typename dtype::type);
     fs.seekp(offset, std::fstream::beg);
     if (count < 0) {
       count = maxCount;

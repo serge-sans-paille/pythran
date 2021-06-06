@@ -79,8 +79,6 @@ namespace types
   typename numpy_vexpr<T, F>::simd_iterator
       numpy_vexpr<T, F>::vend(vectorizer) const
   {
-    using vector_type = typename xsimd::simd_type<dtype>;
-    static const std::size_t vector_size = vector_type::size;
     return {*this, 0};
   }
 #endif

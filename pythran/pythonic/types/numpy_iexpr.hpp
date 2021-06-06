@@ -447,7 +447,7 @@ namespace types
   long prod_helper(S const &shape, utils::index_sequence<Is...>)
   {
     long res = 1;
-    std::initializer_list<long> _ = {
+    (void)std::initializer_list<long>{
         (res *= (long)(shape.template shape<Is>()))...};
     return res;
   }

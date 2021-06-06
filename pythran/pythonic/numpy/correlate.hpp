@@ -12,9 +12,9 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
-  template <class A, class B, typename U>
+  template <class A, class B>
   types::ndarray<typename A::dtype, types::pshape<long>>
-  do_correlate(A const &inA, B const &inB, U type, int out_inc)
+  do_correlate(A const &inA, B const &inB, types::str const &type, int out_inc)
   // out_inc is used to indicate the inputs were swapped, which means that the
   // output must be time reversed and conjugated
   {
@@ -31,19 +31,20 @@ namespace numpy
     auto inB_ = functor::asarray{}(inB);
 
     auto outN = 0;
-    int iLeft, iRight;
+    int iLeft;
     if (type == "full") {
       outN = NA + NB - 1;
       iLeft = -NB + 1;
     } else if (type == "valid") {
       outN = NA - NB + 1;
       iLeft = 0;
-    } else if (type == "same") {
+    } else {
+      assert(type == "same" && "valid type");
       outN = NA;
       iLeft = -NB + 1 + (NB - 1) / 2;
     }
     // We need outN output values, no matter what.
-    iRight = iLeft + outN;
+    int iRight = iLeft + outN;
 
     // Allocate output array
     types::ndarray<out_type, types::pshape<long>> out = {outN, out_type()};
@@ -95,9 +96,9 @@ namespace numpy
     return out;
   }
 
-  template <class A, class B, typename U>
+  template <class A, class B>
   types::ndarray<typename A::dtype, types::pshape<long>>
-  correlate(A const &inA, B const &inB, U type)
+  correlate(A const &inA, B const &inB, types::str const &type)
   {
     long NA = inA.template shape<0>();
     long NB = inB.template shape<0>();
@@ -110,13 +111,6 @@ namespace numpy
       auto inA_conj = functor::conjugate{}(inA);
       return do_correlate(inB, inA_conj, type, -1);
     }
-  }
-
-  template <class A, class B>
-  types::ndarray<typename A::dtype, types::pshape<long>> correlate(A const &inA,
-                                                                   B const &inB)
-  {
-    return correlate(inA, inB, "valid");
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(correlate)

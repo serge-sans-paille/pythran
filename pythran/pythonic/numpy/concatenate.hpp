@@ -51,9 +51,10 @@ namespace numpy
       {
         if (axis == 0) {
           auto out_iter = out.begin();
-          int _[] = {(out_iter = std::copy(std::get<I>(from).begin(),
-                                           std::get<I>(from).end(), out_iter),
-                      1)...};
+          (void)std::initializer_list<int>{
+              (out_iter = std::copy(std::get<I>(from).begin(),
+                                    std::get<I>(from).end(), out_iter),
+               1)...};
         } else {
           types::array<typename A::value_type::const_iterator, sizeof...(I)>
               ifroms = {std::get<I>(from).begin()...};
@@ -65,7 +66,7 @@ namespace numpy
                 sizeof...(I)> difroms = {*std::get<I>(ifroms)...};
             concatenate_helper<N - 1>()(iout, difroms, axis - 1,
                                         utils::index_sequence<I...>{});
-            int _[] = {(++std::get<I>(ifroms), 0)...};
+            (void)std::initializer_list<int>{(++std::get<I>(ifroms), 0)...};
           }
         }
       }
@@ -76,9 +77,10 @@ namespace numpy
       {
         if (axis == 0) {
           auto out_iter = out.begin();
-          int _[] = {(out_iter = std::copy(std::get<I>(from).begin(),
-                                           std::get<I>(from).end(), out_iter),
-                      1)...};
+          (void)std::initializer_list<int>{
+              (out_iter = std::copy(std::get<I>(from).begin(),
+                                    std::get<I>(from).end(), out_iter),
+               1)...};
         } else {
           auto ifroms = std::make_tuple(std::get<I>(from).begin()...);
 
@@ -86,7 +88,7 @@ namespace numpy
             auto difroms = std::make_tuple(*std::get<I>(ifroms)...);
             concatenate_helper<N - 1>()(iout, difroms, axis - 1,
                                         utils::index_sequence<I...>{});
-            int _[] = {(++std::get<I>(ifroms), 0)...};
+            (void)std::initializer_list<int>{(++std::get<I>(ifroms), 0)...};
           }
         }
       }

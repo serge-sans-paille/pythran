@@ -79,9 +79,9 @@ namespace utils
     void operator()(E &&self, F const &other, SelfIndices &&self_indices,
                     OtherIndices &&other_indices)
     {
-      auto const other_size =
+      long const other_size =
           other.template shape<std::decay<E>::type::value - N>();
-      auto const self_size =
+      long const self_size =
           self.template shape<std::decay<E>::type::value - N>();
       if (self_size == other_size)
         for (long i = 0; i < self_size; ++i)
@@ -156,9 +156,9 @@ namespace utils
         std::fill(self.begin(), self.end(), other);
       } else {
         auto sfirst = self.begin();
-        auto siter = sfirst;
         *sfirst = other;
 #ifdef _OPENMP
+        auto siter = sfirst;
         long n = self.template shape<0>();
         if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
@@ -176,9 +176,9 @@ namespace utils
         std::fill(self.begin(), self.end(), other);
       } else {
         auto sfirst = self.begin();
-        auto siter = sfirst;
         *sfirst = other;
 #ifdef _OPENMP
+        auto siter = sfirst;
         long n = self.template shape<0>();
         if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
 #pragma omp parallel for
@@ -429,8 +429,7 @@ namespace utils
   {
     using T = typename F::dtype;
     using vT = typename xsimd::simd_type<T>;
-    long self_size = std::distance(self.begin(), self.end()),
-         other_size = std::distance(other.begin(), other.end());
+    long other_size = std::distance(other.begin(), other.end());
 
     static const std::size_t vN = vT::size;
     auto oiter = vectorizer::vbegin(other);

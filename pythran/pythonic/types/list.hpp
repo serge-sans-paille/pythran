@@ -86,7 +86,7 @@ namespace types
   {
     assert(0 <= i && i < size());
     auto const index = slicing.get(i);
-    assert(0 <= index && index < data->size());
+    assert(0 <= index && index < (long)data->size());
     return (*data)[index];
   }
   template <class T, class S>
@@ -95,7 +95,7 @@ namespace types
   {
     assert(i < size());
     auto const index = slicing.get(i);
-    assert(0 <= index && index < data->size());
+    assert(0 <= index && index < (long)data->size());
     return (*data)[index];
   }
   template <class T, class S>
@@ -103,7 +103,7 @@ namespace types
   {
     assert(i < size());
     auto const index = slicing.get(i);
-    assert(0 <= index && index < data->size());
+    assert(0 <= index && index < (long)data->size());
     return (*data)[index];
   }
 
@@ -353,7 +353,7 @@ namespace types
   template <class S>
   list<T> &list<T>::operator+=(sliced_list<T, S> const &other)
   {
-    data->resize(data->size() + other.size());
+    data->resize(size() + other.size());
     std::copy(other.begin(), other.end(), data->begin());
     return *this;
   }
@@ -363,7 +363,7 @@ namespace types
   list<T> list<T>::operator+(sliced_list<T, S> const &other) const
   {
     list<T> new_list(begin(), end());
-    new_list.reserve(data->size() + other.size());
+    new_list.reserve(size() + other.size());
     std::copy(other.begin(), other.end(), std::back_inserter(new_list));
     return new_list;
   }
@@ -373,7 +373,7 @@ namespace types
   list<T> list<T>::operator+(array_base<T, N, V> const &other) const
   {
     list<T> new_list(begin(), end());
-    new_list.reserve(data->size() + other.size());
+    new_list.reserve(size() + other.size());
     std::copy(other.begin(), other.end(), std::back_inserter(new_list));
     return new_list;
   }
@@ -512,22 +512,22 @@ namespace types
   typename list<T>::reference list<T>::operator[](long n)
   {
     if (n < 0)
-      n += data->size();
-    assert(0 <= n && n < data->size());
+      n += size();
+    assert(0 <= n && n < size());
     return fast(n);
   }
   template <class T>
   typename list<T>::const_reference list<T>::fast(long n) const
   {
-    assert(n < data->size());
+    assert(n < size());
     return (*data)[n];
   }
   template <class T>
   typename list<T>::const_reference list<T>::operator[](long n) const
   {
     if (n < 0)
-      n += data->size();
-    assert(0 <= n && n < data->size());
+      n += size();
+    assert(0 <= n && n < size());
     return fast(n);
   }
 
@@ -610,7 +610,7 @@ namespace types
   list<typename __combined<T, F>::type> list<T>::
   operator+(list<F> const &s) const
   {
-    list<typename __combined<T, F>::type> clone(data->size() + s.data->size());
+    list<typename __combined<T, F>::type> clone(size() + s.size());
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), clone.begin()));
     return clone;
   }
@@ -623,7 +623,7 @@ namespace types
   {
     list<decltype(std::declval<T>() +
                   std::declval<typename sliced_list<F, S>::value_type>())>
-        clone(data->size() + len(s));
+        clone(size() + len(s));
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), clone.begin()));
     return clone;
   }
@@ -640,7 +640,7 @@ namespace types
     if (size() == 1) {
       return list<T>(fast(0), single_value{}, n);
     } else {
-      list<T> r(data->size() * n);
+      list<T> r(size() * n);
       auto start = r.begin();
       while (start != r.end())
         start = std::copy(this->begin(), this->end(), start);

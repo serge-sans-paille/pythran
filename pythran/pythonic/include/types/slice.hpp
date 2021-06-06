@@ -200,7 +200,7 @@ namespace types
       s += n;
     return s;
   }
-  none_type normalize(none_type s, long n)
+  inline none_type normalize(none_type s, long n)
   {
     return {};
   }

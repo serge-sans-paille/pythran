@@ -24,7 +24,7 @@ namespace types
     long best_of(V0 v0, Vs... vs)
     {
       long vtail = best_of(vs...);
-      return (v0 == vtail) ? v0 : (v0 * vtail);
+      return ((long)v0 == vtail) ? v0 : (v0 * vtail);
     }
 
     template <size_t I, class Args, size_t... Is>
@@ -93,13 +93,13 @@ namespace types
   bool numpy_expr<Op, Args...>::_no_broadcast(utils::index_sequence<I...>) const
   {
     bool child_broadcast = false;
-    std::initializer_list<bool> _0 = {
+    (void)std::initializer_list<bool>{
         (child_broadcast |= !utils::no_broadcast(std::get<I>(args)))...};
     if (child_broadcast)
       return false;
 
     bool same_shape = true;
-    std::initializer_list<bool> _1 = {
+    (void)std::initializer_list<bool>{
         (same_shape &= (is_trivial_broadcast<I, decltype(args)>() ||
                         std::get<I>(args).template shape<0>() == size()))...};
     return same_shape;
@@ -111,14 +111,14 @@ namespace types
       utils::index_sequence<I...>) const
   {
     bool child_broadcast = false;
-    std::initializer_list<bool> _0 = {
+    (void)std::initializer_list<bool>{
         (child_broadcast |= !utils::no_broadcast_ex(std::get<I>(args)))...};
     if (child_broadcast)
       return false;
 
     bool same_shape = true;
     auto shp = sutils::getshape(*this);
-    std::initializer_list<bool> _1 = {
+    (void)std::initializer_list<bool>{
         (same_shape &= (is_trivial_broadcast<I, decltype(args)>() ||
                         sutils::getshape(std::get<I>(args)) == shp))...};
     return same_shape;
@@ -130,14 +130,15 @@ namespace types
       utils::index_sequence<I...>) const
   {
     bool child_broadcast = false;
-    std::initializer_list<bool> _0 = {
+    (void)std::initializer_list<bool>{
         (child_broadcast |= !utils::no_broadcast(std::get<I>(args)))...};
     if (child_broadcast)
       return false;
 
     bool same_shape = true;
-    std::initializer_list<bool> _1 = {
-        (same_shape &= (std::get<I>(args).template shape<0>() == size()))...};
+    (void)std::initializer_list<bool>{
+        (same_shape &=
+         ((long)std::get<I>(args).template shape<0>() == size()))...};
     return same_shape;
   }
 

@@ -141,7 +141,7 @@ namespace types
     template <size_t... I>
     void _incr(utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> _{_incr_opt<I>(std::integral_constant<
+      (void)std::initializer_list<bool>{_incr_opt<I>(std::integral_constant<
           bool, std::is_same<long, typename std::tuple_element<
                                        I, Steps>::type>::value>{})...};
     }
@@ -160,7 +160,7 @@ namespace types
     template <size_t... I>
     void _update(long i, utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> _{
+      (void)std::initializer_list<bool>{
           (std::get<I>(iters_) += std::get<I>(steps_) * i, true)...};
     }
     numpy_expr_iterator &operator+=(long i)
@@ -304,7 +304,7 @@ namespace types
     template <size_t... I>
     void _incr(utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> _{_incr_opt<I>(std::integral_constant<
+      (void)std::initializer_list<bool>{_incr_opt<I>(std::integral_constant<
           bool, std::is_same<long, typename std::tuple_element<
                                        I, Steps>::type>::value>{})...};
     }
@@ -323,7 +323,7 @@ namespace types
     template <size_t... I>
     void _update(long i, utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> _{
+      (void)std::initializer_list<bool>{
           (std::get<I>(iters_) += std::get<I>(steps_) * i, true)...};
     }
     numpy_expr_simd_iterator &operator+=(long i)
@@ -444,7 +444,7 @@ namespace types
     template <size_t... I>
     void _incr(utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> _{(++std::get<I>(iters_), true)...};
+      (void)std::initializer_list<bool>{(++std::get<I>(iters_), true)...};
     }
     numpy_expr_simd_iterator_nobroadcast &operator++()
     {
@@ -475,7 +475,7 @@ namespace types
     template <size_t... I>
     void _update(long i, utils::index_sequence<I...>)
     {
-      std::initializer_list<bool> _{(std::get<I>(iters_) += i, true)...};
+      (void)std::initializer_list<bool>{(std::get<I>(iters_) += i, true)...};
     }
     numpy_expr_simd_iterator_nobroadcast &operator+=(long i)
     {
@@ -553,7 +553,7 @@ namespace types
   template <class T0, class T1>
   long make_step(T0 n0, T1 n1)
   {
-    return n0 == n1;
+    return (long)n0 == (long)n1;
   }
 
   template <class S>

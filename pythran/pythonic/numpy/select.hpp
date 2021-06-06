@@ -71,7 +71,7 @@ namespace numpy
     types::ndarray<typename L::dtype, sutils::pop_head_t<typename L::shape_t>>
         out(sutils::getshape(choicelist[0]), _default);
     for (long i = 0; i < out.flat_size(); ++i)
-      for (long j = 0; j < condlist.size(); ++j)
+      for (long j = 0; j < (long)condlist.size(); ++j)
         if (condlist[j].buffer[i]) {
           out.buffer[i] = choicelist[j].buffer[i];
           break;

@@ -19,14 +19,14 @@ namespace numpy
     if (builtins::len(args) == 0)
       throw pythonic::types::ValueError("need at least one array to stack");
     auto shape = sutils::getshape(args[0]);
-    const size_t N = std::tuple_size<decltype(
+    constexpr long N = std::tuple_size<decltype(
         shape)>::value; // The length of the shape array.
     auto values = sutils::array(
         shape); // You can't do shape[i] but you can do shape.array()[i]
     types::array<long, N + 1>
         new_shape; // A new array that's 1 element longer than shape.
     // Insert a "0" at the position indicated by axis.
-    for (size_t i = 0; i < N + 1; i++) {
+    for (long i = 0; i < N + 1; i++) {
       if (i < axis)
         new_shape[i] = values[i];
       if (i == axis)

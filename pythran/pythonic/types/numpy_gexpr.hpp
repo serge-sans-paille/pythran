@@ -132,13 +132,6 @@ namespace types
       return t0;
     }
 
-    template <size_t I, class S>
-    constexpr long count_new_axis_until(S const &s)
-    {
-      if (I == 0)
-        return 0;
-    }
-
     template <class T, size_t... Is>
     constexpr long count_new_axis_helper(utils::index_sequence<Is...>)
     {

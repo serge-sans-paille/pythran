@@ -8,13 +8,10 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class A, class B, typename U>
-  types::ndarray<typename A::dtype, types::pshape<long>>
-  correlate(A const &inA, B const &inB, U renorm = types::str("valid"));
-
   template <class A, class B>
   types::ndarray<typename A::dtype, types::pshape<long>>
-  correlate(A const &inA, B const &inB);
+  correlate(A const &inA, B const &inB,
+            types::str const &renorm = types::str("valid"));
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(correlate)
   DEFINE_FUNCTOR(pythonic::numpy, correlate)

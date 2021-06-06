@@ -907,9 +907,8 @@ namespace std
   }
 
   template <class... Tys>
-  class tuple_size<pythonic::types::pshape<Tys...>>
-      : public std::integral_constant<std::size_t, sizeof...(Tys)>
-  {
+  struct tuple_size<pythonic::types::pshape<Tys...>>
+      : public std::integral_constant<std::size_t, sizeof...(Tys)> {
   };
 
   template <size_t I, class... Tys>
@@ -1051,13 +1050,13 @@ namespace sutils
   template <class T0, T0 N, class T1>
   void assign(std::integral_constant<T0, N> &t0, T1 t1)
   {
-    assert(t0 == t1 && "consistent");
+    assert((long)t0 == (long)t1 && "consistent");
   }
 
   template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
   void copy_shape(T0 &shape0, T1 const &shape1, utils::index_sequence<Is...>)
   {
-    std::initializer_list<int> _ = {
+    (void)std::initializer_list<int>{
         (assign(std::get<Start + Is>(shape0),
                 shape1.template shape<Is + Start + Offset>()),
          1)...};
@@ -1065,7 +1064,7 @@ namespace sutils
   template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
   void scopy_shape(T0 &shape0, T1 const &shape1, utils::index_sequence<Is...>)
   {
-    std::initializer_list<int> _ = {
+    (void)std::initializer_list<int>{
         (assign(std::get<Start + Is>(shape0),
                 std::get<Is + Start + Offset>(shape1)),
          1)...};
@@ -1074,7 +1073,7 @@ namespace sutils
   void copy_strides(T0 &stride0, T1 const &stride1,
                     utils::index_sequence<Is...>)
   {
-    std::initializer_list<int> _ = {
+    (void)std::initializer_list<int>{
         (assign(std::get<Start + Is>(stride0),
                 stride1.template strides<Is + Start + Offset>()),
          1)...};
@@ -1226,8 +1225,8 @@ namespace sutils
   long sfind(S &s, long v, std::integral_constant<size_t, I>, long start,
              bool comp(long, long))
   {
-    return comp(std::get<I>(s), v) && I < start
-               ? I
+    return comp(std::get<I>(s), v) && (long)I < start
+               ? (long)I
                : sfind(s, v, std::integral_constant<size_t, I - 1>(), start,
                        comp);
   }

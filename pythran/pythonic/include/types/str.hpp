@@ -52,7 +52,7 @@ namespace types
     }
     std::array<char, 1> chars() const
     {
-      return {c};
+      return {{c}};
     }
   };
 

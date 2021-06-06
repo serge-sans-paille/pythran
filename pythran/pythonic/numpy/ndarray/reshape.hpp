@@ -19,8 +19,8 @@ namespace numpy
       template <class P, size_t... Is>
       void set(P &p, long i, long v, utils::index_sequence<Is...>)
       {
-        std::initializer_list<int> _{
-            ((i == Is && (sutils::assign(std::get<Is>(p), v), true)), 1)...};
+        (void)std::initializer_list<bool>{
+            (i == Is && (sutils::assign(std::get<Is>(p), v), true))...};
       }
     }
     template <class T, class pS, class NpS>

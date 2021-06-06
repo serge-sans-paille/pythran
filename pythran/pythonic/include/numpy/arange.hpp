@@ -23,7 +23,7 @@ namespace numpy
             index_{static_cast<long>(n / vector_type::size)}
       {
         T from[vector_type::size];
-        for (long i = 0; i < vector_type::size; ++i)
+        for (size_t i = 0; i < vector_type::size; ++i)
           from[i] = start + i * step;
         curr_ = xsimd::load_unaligned(from);
       }

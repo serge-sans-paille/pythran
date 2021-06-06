@@ -77,15 +77,13 @@ namespace numpy
 
     Inorm _get_inorm(types::str const &norm, bool forward)
     {
-      Inorm inorm;
       if (norm == "ortho") {
-        inorm = Inorm::ortho;
+        return Inorm::ortho;
       } else if (!forward) {
-        inorm = Inorm::backward;
+        return Inorm::backward;
       } else {
-        inorm = Inorm::forward;
+        return Inorm::forward;
       }
-      return inorm;
     }
 
     template <typename T>
@@ -98,6 +96,9 @@ namespace numpy
         return T(1 / ldbl_t(N));
       case Inorm::forward:
         return T(1);
+      default:
+        assert(false && "unreachable");
+        return T(0);
       }
     }
 
@@ -116,7 +117,6 @@ namespace numpy
     template <class T, class pS>
     stride_t create_strides(types::ndarray<T, pS> const &in_array)
     {
-      long npts = in_array.template shape<std::tuple_size<pS>::value - 1>();
       auto constexpr N = std::tuple_size<pS>::value;
       auto shape = sutils::getshape(in_array);
       stride_t strides = stride_t(N);
@@ -148,7 +148,6 @@ namespace numpy
     c2r(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
         types::str const &norm, bool forward)
     {
-      long i;
       auto constexpr N = std::tuple_size<pS>::value;
       Inorm inorm = _get_inorm(norm, forward);
       if (axis < 0)
@@ -196,7 +195,6 @@ namespace numpy
     c2c(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
         types::str const &norm, bool forward)
     {
-      long i;
       auto constexpr N = std::tuple_size<pS>::value;
       Inorm inorm = _get_inorm(norm, forward);
       if (axis < 0)
@@ -247,7 +245,6 @@ namespace numpy
     r2c(types::ndarray<T, pS> const &in_array, long n, long axis,
         types::str const &norm, bool forward, bool extend = true)
     {
-      long i;
       auto constexpr N = std::tuple_size<pS>::value;
       Inorm inorm = _get_inorm(norm, forward);
       if (axis < 0)

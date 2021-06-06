@@ -749,7 +749,7 @@ namespace std
 #define PyString_AS_STRING (char *) _PyUnicode_COMPACT_DATA
 #endif
 #ifndef PyString_GET_SIZE
-#define PyString_GET_SIZE PyUnicode_GET_SIZE
+#define PyString_GET_SIZE PyUnicode_GET_LENGTH
 #endif
 #endif
 

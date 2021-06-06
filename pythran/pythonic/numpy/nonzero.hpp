@@ -45,7 +45,8 @@ namespace numpy
   types::array<utils::shared_ref<types::raw_array<long>>, sizeof...(Is)>
   init_buffers(long sz, utils::index_sequence<Is...>)
   {
-    return {{(Is, types::raw_array<long>(sz))...}}; // too much memory used
+    auto fwd = [](long ret, long) { return ret; }; // just to avoid a warning
+    return {{fwd(sz, Is)...}};                     // too much memory used
   }
 
   template <class E>

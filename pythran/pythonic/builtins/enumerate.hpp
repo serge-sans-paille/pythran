@@ -29,9 +29,8 @@ namespace builtins
     }
 
     template <class Iterator>
-    typename enumerate_iterator<Iterator>::enumerate_iterator &
-        enumerate_iterator<Iterator>::
-        operator+=(long n)
+    enumerate_iterator<Iterator> &enumerate_iterator<Iterator>::
+    operator+=(long n)
     {
       value += n, iter += n;
       return *this;
@@ -43,33 +42,29 @@ namespace builtins
     // TODO : We could handle case with && without size if there is a
     // performances benefits
     template <class Iterator>
-    bool enumerate_iterator<Iterator>::operator!=(
-        typename enumerate_iterator<Iterator>::enumerate_iterator const &other)
-        const
+    bool enumerate_iterator<Iterator>::
+    operator!=(enumerate_iterator<Iterator> const &other) const
     {
       return !(*this == other);
     }
 
     template <class Iterator>
-    bool enumerate_iterator<Iterator>::operator<(
-        typename enumerate_iterator<Iterator>::enumerate_iterator const &other)
-        const
+    bool enumerate_iterator<Iterator>::
+    operator<(enumerate_iterator const &other) const
     {
       return iter < other.iter;
     }
 
     template <class Iterator>
-    bool enumerate_iterator<Iterator>::operator==(
-        typename enumerate_iterator<Iterator>::enumerate_iterator const &other)
-        const
+    bool enumerate_iterator<Iterator>::
+    operator==(enumerate_iterator<Iterator> const &other) const
     {
       return iter == other.iter;
     }
 
     template <class Iterator>
-    long enumerate_iterator<Iterator>::operator-(
-        typename enumerate_iterator<Iterator>::enumerate_iterator const &other)
-        const
+    long enumerate_iterator<Iterator>::
+    operator-(enumerate_iterator<Iterator> const &other) const
     {
       return iter - other.iter;
     }

@@ -54,7 +54,7 @@ namespace numpy
         shp[i] = shape[l[i]];
 
       types::array<long, std::tuple_size<pS>::value> perm;
-      for (long i = 0; i < std::tuple_size<pS>::value; ++i)
+      for (std::size_t i = 0; i < std::tuple_size<pS>::value; ++i)
         perm[l[i]] = i;
 
       types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>

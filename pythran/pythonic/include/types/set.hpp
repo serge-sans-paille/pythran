@@ -151,6 +151,7 @@ namespace types
     template <class InputIterator>
     set(InputIterator start, InputIterator stop);
     set(empty_set const &);
+    set(T const &value, single_value);
     set(std::initializer_list<value_type> l);
     set(set<T> const &other);
     template <class F>

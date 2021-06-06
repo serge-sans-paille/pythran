@@ -77,7 +77,7 @@ namespace types
   {
     array<long, std::tuple_size<pS>::value> out;
     out[std::tuple_size<pS>::value - 1] = 1;
-    std::initializer_list<long> _ = {
+    (void)std::initializer_list<long>{
         (out[std::tuple_size<pS>::value - Is - 2] =
              out[std::tuple_size<pS>::value - Is - 1] *
              std::get<std::tuple_size<pS>::value - Is - 1>(shape))...};

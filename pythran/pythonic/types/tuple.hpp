@@ -220,7 +220,7 @@ namespace types
   template <typename T, size_t N, class V>
   typename array_base<T, N, V>::reference array_base<T, N, V>::fast(long n)
   {
-    assert(n < size());
+    assert(n < (long)size());
     return buffer[n];
   }
 
@@ -228,7 +228,7 @@ namespace types
   typename array_base<T, N, V>::const_reference
   array_base<T, N, V>::fast(long n) const noexcept
   {
-    assert(n < size());
+    assert(n < (long)size());
     return buffer[n];
   }
 
@@ -545,7 +545,7 @@ PyObject *to_python<std::tuple<Types...>>::
     do_convert(std::tuple<Types...> const &t, utils::index_sequence<S...>)
 {
   PyObject *out = PyTuple_New(sizeof...(Types));
-  std::initializer_list<bool> _ = {
+  (void)std::initializer_list<bool>{
       (PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t))), true)...};
   return out;
 }
@@ -563,7 +563,7 @@ PyObject *to_python<types::array<T, N>>::do_convert(types::array<T, N> const &t,
                                                     utils::index_sequence<S...>)
 {
   PyObject *out = PyTuple_New(N);
-  std::initializer_list<void *> _ = {
+  (void)std::initializer_list<void *>{
       PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
   return out;
 }
@@ -574,7 +574,7 @@ PyObject *to_python<types::static_list<T, N>>::do_convert(
     types::static_list<T, N> const &t, utils::index_sequence<S...>)
 {
   PyObject *out = PyList_New(N);
-  std::initializer_list<void *> _ = {
+  (void)std::initializer_list<void *>{
       PyList_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
   return out;
 }

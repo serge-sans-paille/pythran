@@ -11,6 +11,13 @@
   }                                                                            \
   }
 
+// mostly to flag '_' as unused in generated code
+#ifdef WIN32
+#define PYTHRAN_UNUSED
+#else
+#define PYTHRAN_UNUSED __attribute__((unused))
+#endif
+
 // for backward compatibility
 #ifdef USE_BOOST_SIMD
 #define USE_XSIMD

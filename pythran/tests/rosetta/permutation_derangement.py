@@ -25,7 +25,7 @@ def subfact(n):
 def _iterlen(iter):
     'length of an iterator without taking much memory'
     l = 0
-    for x in iter:
+    for _ in iter:
         l += 1
     return l
 

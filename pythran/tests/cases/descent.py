@@ -15,7 +15,6 @@ def np_descent(x, d, mu, N_epochs):
     grad = np.empty(2)
 
     for _ in it.repeat(None, N_epochs):
-        print(_)  # just to prevent a warning
         #np.subtract(d, y, out=err)
         err[:] = d - y
         grad[:] = f * np.sum(err), f * (np.dot(err, x))

@@ -275,7 +275,10 @@ class AutoFor(Loop):
         self.iter = iter_
 
     def intro_line(self):
-        return "for (auto&& {0}: {1})".format(self.target, self.iter)
+        if self.target == '_':
+            return "for (PYTHRAN_UNUSED auto&& {0}: {1})".format(self.target, self.iter)
+        else:
+            return "for (auto&& {0}: {1})".format(self.target, self.iter)
 
 
 # simple statements -----------------------------------------------------------

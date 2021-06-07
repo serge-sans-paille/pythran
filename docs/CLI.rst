@@ -78,13 +78,13 @@ To know more options about Pythran, you can check::
                  [-I include_dir] [-L ldflags] [-D macro_definition]
                  [-U macro_definition] [--config config]
                  input_file
-
+  
   pythran: a python to C++ compiler
-
+  
   positional arguments:
     input_file           the pythran module to compile, either a .py or a .cpp
                          file
-
+  
   optional arguments:
     -h, --help           show this help message and exit
     -o OUTPUT_FILE       path to generated file. Honors %{ext}.
@@ -102,5 +102,5 @@ To know more options about Pythran, you can check::
                          compiler
     -U macro_definition  any macro undef relevant to the underlying C++ compiler
     --config config      config additional params
-
+  
   It's a megablast!

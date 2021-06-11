@@ -3,6 +3,8 @@
 
 #include "pythonic/include/types/raw_array.hpp"
 
+#include <cstdlib>
+
 PYTHONIC_NS_BEGIN
 
 namespace types

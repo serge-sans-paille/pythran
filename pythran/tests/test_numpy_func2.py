@@ -614,6 +614,12 @@ def test_copy0(x):
     def test_argmin4(self):
         self.run_test("def np_argmin4(a): from numpy import argmin ; return argmin(a, 2)", numpy.arange(30).reshape(2,3,5), np_argmin4=[NDArray[int,:,:,:]])
 
+    def test_argmin5(self):
+        self.run_test("def np_argmin5(a): from numpy import argmin ; return argmin(a[None, :] + a[:, None], 0)", numpy.arange(30), np_argmin5=[NDArray[int,:]])
+
+    def test_argmin6(self):
+        self.run_test("def np_argmin6(a): from numpy import argmin ; return argmin(a[None, :] + a[:, None], 1)", numpy.arange(30), np_argmin6=[NDArray[int,:]])
+
     def test_append0(self):
         self.run_test("def np_append0(a): from numpy import append ; b = [[4, 5, 6], [7, 8, 9]] ; return append(a,b)", [1, 2, 3], np_append0=[List[int]])
 

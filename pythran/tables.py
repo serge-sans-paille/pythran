@@ -757,6 +757,10 @@ CLASSES = {
         ),
         "size": AttributeIntr(signature=Fun[[NDArray[T0, :]], int],
                               return_range=interval.positive_values),
+        "sort": MethodIntr(
+            args=("self", "axis", "kind"),
+            defaults=(-1, None)
+        ),
         "strides": AttributeIntr(
             signature=Union[
                 # bool
@@ -4466,6 +4470,7 @@ MODULES = {
         ),
         "pop": MethodIntr(),
         "remove": MethodIntr(),
+        "sort": MethodIntr(),
         "update": MethodIntr(update_effects),
     },
 }
@@ -4575,6 +4580,7 @@ fill_constants_types((), MODULES)
 # a method name to module binding
 # {method_name : ((full module path), signature)}
 methods = {}
+duplicated_methods = {}
 
 
 def save_method(elements, module_path):
@@ -4587,6 +4593,10 @@ def save_method(elements, module_path):
         elif signature.ismethod():
             # in case of duplicates, there must be a __dispatch__ record
             # and it is the only recorded one
+            if elem in MODULES['__dispatch__'] and module_path[0] != '__dispatch__':
+                duplicated_methods.setdefault(elem, []).append((module_path,
+                                                                signature))
+
             if elem in methods and module_path[0] != '__dispatch__':
                 assert elem in MODULES['__dispatch__']
                 path = ('__dispatch__',)

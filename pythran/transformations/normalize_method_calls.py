@@ -4,6 +4,7 @@ from pythran.analyses import Globals, Ancestors
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, MODULES
+from pythran.tables import duplicated_methods
 from pythran.conversion import mangle, demangle
 from pythran.utils import isstr
 
@@ -107,8 +108,26 @@ class NormalizeMethodCalls(Transformation):
         else:
             return obj
 
-    def attr_to_func(self, node):
-        mod = methods[node.attr][0]
+    def keyword_based_disambiguification(self, node):
+        assert isinstance(node.func, ast.Attribute)
+        if getattr(node.func.value, 'id', None) != mangle('__dispatch__'):
+            return
+        if not node.keywords:
+            return
+        if node.func.attr not in duplicated_methods:
+            return
+
+        node_keywords = {kw.arg for kw in node.keywords}
+        for disamb_path, disamb_node in duplicated_methods[node.func.attr]:
+            disamb_args = {arg.id for arg in disamb_node.args.args}
+            if all(kw in disamb_args for kw in node_keywords):
+                node.func = self.attr_to_func(node.func, disamb_path)
+                return
+
+
+    def attr_to_func(self, node, mod=None):
+        if mod is None:
+            mod = methods[node.attr][0]
         # Submodules import full module
         self.to_import.add(mangle(mod[0]))
         func = reduce(
@@ -216,6 +235,7 @@ class NormalizeMethodCalls(Transformation):
         >> builtins.__dict__.fromkeys([1, 2, 3])
         """
         node = self.generic_visit(node)
+
         # Only attributes function can be Pythonic and should be normalized
         if isinstance(node.func, ast.Attribute):
             if node.func.attr in methods:
@@ -259,6 +279,7 @@ class NormalizeMethodCalls(Transformation):
                 # Rename module path to avoid naming issue.
                 node.func.value, _ = rec(node.func.value, MODULES)
                 self.update = True
+            self.keyword_based_disambiguification(node)
 
         return node
 

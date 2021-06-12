@@ -700,6 +700,9 @@ def np_rosen_der(x):
     def test_sort10(self):
         self.run_test("def np_sort10(a): from numpy import sort ; return sort(3*a, 0)", numpy.arange(2*3*4, 0, -1).reshape(2,3,4), np_sort10=[NDArray[int, :, :, :]])
 
+    def test_sort11(self):
+        self.run_test("def np_sort11(a): a.sort(kind='heapsort'); return a", numpy.arange(2*3*4, 0, -1).reshape(2,3,4), np_sort11=[NDArray[int, :, :, :]])
+
     def test_sort_complex0(self):
         self.run_test("def np_sort_complex0(a): from numpy import sort_complex ; return sort_complex(a)", numpy.array([[1,6],[7,5]]), np_sort_complex0=[NDArray[int,:,:]])
 

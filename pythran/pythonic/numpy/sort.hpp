@@ -2,124 +2,18 @@
 #define PYTHONIC_NUMPY_SORT_HPP
 
 #include "pythonic/include/numpy/sort.hpp"
-
-#include <algorithm>
-#include <memory>
-
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/str.hpp"
-#include "pythonic/numpy/array.hpp"
-#include "pythonic/utils/pdqsort.hpp"
+#include "pythonic/numpy/ndarray/sort.hpp"
 
 PYTHONIC_NS_BEGIN
 namespace numpy
 {
-  namespace
-  {
-    struct quicksorter {
-      template <class... Args>
-      void operator()(Args &&... args)
-      {
-        pdqsort(std::forward<Args>(args)...);
-      }
-    };
-    struct mergesorter {
-      template <class It, class Cmp = std::less<typename It::value_type>>
-      void operator()(It first, It last, Cmp cmp = Cmp())
-      {
-        if (last - first > 1) {
-          It middle = first + (last - first) / 2;
-          operator()(first, middle, cmp);
-          operator()(middle, last, cmp);
-          std::inplace_merge(first, middle, last, cmp);
-        }
-      }
-    };
-    struct heapsorter {
-      template <class... Args>
-      void operator()(Args &&... args)
-      {
-        return std::sort_heap(std::forward<Args>(args)...);
-      }
-    };
-    struct stablesorter {
-      template <class... Args>
-      void operator()(Args &&... args)
-      {
-        return std::stable_sort(std::forward<Args>(args)...);
-      }
-    };
-
-    template <class T>
-    struct _comp;
-    template <class T>
-    struct _comp<std::complex<T>> {
-      bool operator()(std::complex<T> const &i, std::complex<T> const &j) const
-      {
-        if (std::real(i) == std::real(j))
-          return std::imag(i) < std::imag(j);
-        else
-          return std::real(i) < std::real(j);
-      }
-    };
-
-    template <class T>
-    using comparator = typename std::conditional<types::is_complex<T>::value,
-                                                 _comp<T>, std::less<T>>::type;
-
-    template <class T, class pS, class Sorter>
-    typename std::enable_if<std::tuple_size<pS>::value == 1, void>::type
-    _sort(types::ndarray<T, pS> &out, long axis, Sorter sorter)
-    {
-      sorter(out.begin(), out.end(), comparator<T>{});
-    }
-
-    template <class T, class pS, class Sorter>
-    typename std::enable_if<std::tuple_size<pS>::value != 1, void>::type
-    _sort(types::ndarray<T, pS> &out, long axis, Sorter sorter)
-    {
-      constexpr auto N = std::tuple_size<pS>::value;
-      if (axis < 0)
-        axis += N;
-      long const flat_size = out.flat_size();
-      if (axis == N - 1) {
-        const long step = out.template shape<N - 1>();
-        for (T *out_iter = out.buffer, *end_iter = out.buffer + flat_size;
-             out_iter != end_iter; out_iter += step)
-          sorter(out_iter, out_iter + step, comparator<T>{});
-      } else {
-        auto out_shape = sutils::getshape(out);
-        const long step =
-            std::accumulate(out_shape.begin() + axis, out_shape.end(), 1L,
-                            std::multiplies<long>());
-        long const buffer_size = out_shape[axis];
-        const long stepper = step / out_shape[axis];
-        const long n = flat_size / out_shape[axis];
-        long ith = 0, nth = 0;
-        std::unique_ptr<T[]> buffer{new T[buffer_size]};
-        for (long i = 0; i < n; i++) {
-          for (long j = 0; j < buffer_size; ++j)
-            buffer[j] = out.buffer[ith + j * stepper];
-          sorter(buffer.get(), buffer.get() + buffer_size, comparator<T>{});
-          for (long j = 0; j < buffer_size; ++j)
-            out.buffer[ith + j * stepper] = buffer[j];
-
-          ith += step;
-          if (ith >= flat_size) {
-            ith = ++nth;
-          }
-        }
-      }
-    }
-  }
 
   template <class E>
   types::ndarray<typename E::dtype, types::array<long, E::value>>
   sort(E const &expr, long axis)
   {
     auto out = functor::array{}(expr);
-    _sort(out, axis, quicksorter());
+    ndarray::sort(out, axis);
     return out;
   }
 
@@ -128,7 +22,7 @@ namespace numpy
   sort(E const &expr, types::none_type)
   {
     auto out = functor::array{}(expr).flat();
-    _sort(out, 0, quicksorter());
+    ndarray::sort(out, types::none_type{});
     return out;
   }
 
@@ -137,18 +31,9 @@ namespace numpy
   sort(E const &expr, long axis, types::str const &kind)
   {
     auto out = functor::array{}(expr);
-    if (kind == "quicksort")
-      _sort(out, axis, quicksorter());
-    else if (kind == "mergesort")
-      _sort(out, axis, mergesorter());
-    else if (kind == "heapsort")
-      _sort(out, axis, heapsorter());
-    else if (kind == "stable")
-      _sort(out, axis, stablesorter());
+    ndarray::sort(out, axis, kind);
     return out;
   }
-
-  NUMPY_EXPR_TO_NDARRAY0_IMPL(sort);
 }
 PYTHONIC_NS_END
 

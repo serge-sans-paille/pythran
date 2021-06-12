@@ -40,14 +40,15 @@ namespace numpy
         }
         if (buffer_size % 2 == 1) {
           std::nth_element(buffer.get(), buffer.get() + buffer_size / 2,
-                           buffer_iter, comparator<T>{});
+                           buffer_iter, ndarray::comparator<T>{});
           *out++ = buffer[buffer_size / 2];
         } else {
           std::nth_element(buffer.get(), buffer.get() + buffer_size / 2,
-                           buffer_iter, comparator<T>{});
+                           buffer_iter, ndarray::comparator<T>{});
           auto t0 = buffer[buffer_size / 2];
           std::nth_element(buffer.get(), buffer.get() + buffer_size / 2 - 1,
-                           buffer.get() + buffer_size / 2, comparator<T>{});
+                           buffer.get() + buffer_size / 2,
+                           ndarray::comparator<T>{});
           auto t1 = buffer[buffer_size / 2 - 1];
           *out++ = (t0 + t1) / double(2);
         }
@@ -68,13 +69,13 @@ namespace numpy
     std::unique_ptr<T[]> tmp{new T[n]};
     std::copy(arr.buffer, arr.buffer + n, tmp.get());
     std::nth_element(tmp.get(), tmp.get() + n / 2, tmp.get() + n,
-                     comparator<T>{});
+                     ndarray::comparator<T>{});
     T t0 = tmp[n / 2];
     if (n % 2 == 1) {
       return t0;
     } else {
       std::nth_element(tmp.get(), tmp.get() + n / 2 - 1, tmp.get() + n / 2,
-                       comparator<T>{});
+                       ndarray::comparator<T>{});
       T t1 = tmp[n / 2 - 1];
       return (t0 + t1) / 2.;
     }

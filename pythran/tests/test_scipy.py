@@ -127,3 +127,20 @@ class TestScipySpecial(TestEnv):
             return spherical_jn(v, x)""",
                       5, np.array([[1.0, 2.0], [3.0, 4.0]]),
                       spherical_bessel_j_2d=[int, NDArray[float,:,:]])
+
+    def test_binom_scalar(self):
+        self.run_test("""
+        from scipy.special import binom
+        def binom_scalar(v, x):
+            return binom(v, x)""",
+                      5, 4,
+                      binom_scalar=[int, int])
+
+    def test_binom_arg1d(self):
+        self.run_test("""
+        from scipy.special import binom
+        def binom_1d(v, x):
+            return binom(v, x)""",
+                      5, np.array([1, 2, 3]),
+                      binom_1d=[int, NDArray[int,:]])
+

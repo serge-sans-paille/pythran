@@ -2815,6 +2815,9 @@ MODULES = {
     },
     "scipy": {
         "special": {
+            "binom": ConstFunctionIntr(
+                signature=_numpy_binary_op_float_signature
+            ),
             "gammaln": ConstFunctionIntr(
                 signature=_numpy_unary_op_float_signature
             ),

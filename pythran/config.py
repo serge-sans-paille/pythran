@@ -13,6 +13,11 @@ import sys
 logger = logging.getLogger('pythran')
 
 
+def get_include():
+    # using / as separator as advised in the distutils doc
+    return (os.path.dirname(os.path.dirname(__file__)) or '.') + '/pythran'
+
+
 class silent(object):
     '''
     Silent sys.stderr at the system level
@@ -180,9 +185,9 @@ def make_extension(python, **extra):
     extension['define_macros'].append(
         '__PYTHRAN__={}'.format(sys.version_info.major))
 
-    here = os.path.dirname(os.path.dirname(__file__)) or '.'
-    # using / as separator as advised in the distutils doc
-    extension["include_dirs"].append(here + '/pythran')
+    pythonic_dir = get_include()
+
+    extension["include_dirs"].append(pythonic_dir)
 
     extra.pop('language', None)  # forced to c++ anyway
     cxx = extra.pop('cxx', None)
@@ -209,7 +214,7 @@ def make_extension(python, **extra):
         extension[k].extend(w)
     if cfg.getboolean('pythran', 'complex_hook'):
         # the patch is *not* portable
-        extension["include_dirs"].append(here + '/pythran/pythonic/patch')
+        extension["include_dirs"].append(pythonic_dir + '/pythonic/patch')
 
     # numpy specific
     if python:

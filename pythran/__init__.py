@@ -37,6 +37,7 @@ Cleanup
 '''
 
 import pythran.log
+from pythran.config import get_include
 from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
                                test_compile)

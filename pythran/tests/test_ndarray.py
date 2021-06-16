@@ -17,6 +17,12 @@ except AttributeError:
 @TestEnv.module
 class TestNdarray(TestEnv):
 
+    def test_ndarray_memory_error(self):
+        with self.assertRaises(MemoryError):
+            self.run_test('def ndarray_memory_error(n): import numpy as np; return np.ones(n)',
+                          999999999999,
+                          ndarray_memory_error=[int])
+
     def test_ndarray_intc(self):
         self.run_test('def ndarray_intc(a): import numpy as np; return np.intc(a), np.array([a, a], dtype=np.intc)',
                       numpy.intc(5),

@@ -2,8 +2,10 @@
 #define PYTHONIC_TYPES_RAW_ARRAY_HPP
 
 #include "pythonic/include/types/raw_array.hpp"
+#include "pythonic/builtins/MemoryError.hpp"
 
 #include <cstdlib>
+#include <sstream>
 
 PYTHONIC_NS_BEGIN
 
@@ -23,6 +25,11 @@ namespace types
   raw_array<T>::raw_array(size_t n)
       : data((T *)malloc(n * sizeof(T))), external(false)
   {
+    if (!data) {
+      std::ostringstream oss;
+      oss << "unable to allocate " << n << " bytes";
+      throw types::MemoryError(oss.str());
+    }
   }
 
   template <class T>

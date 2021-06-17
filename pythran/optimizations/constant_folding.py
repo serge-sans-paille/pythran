@@ -10,6 +10,9 @@ from pythran.utils import isintegral, isnum
 
 import gast as ast
 from copy import deepcopy
+import logging
+
+logger = logging.getLogger('pythran')
 
 
 class ConstantFolding(Transformation):
@@ -40,7 +43,10 @@ class ConstantFolding(Transformation):
             # __dispatch__ is the only fake top-level module
             if module_name != '__dispatch__':
                 alias_module_name = mangle(module_name)
-                self.env[alias_module_name] = __import__(module_name)
+                try:
+                    self.env[alias_module_name] = __import__(module_name)
+                except ImportError:
+                    pass
 
         # we need to parse the whole code to be able to apply user-defined pure
         # function but import are resolved before so we remove them to avoid
@@ -83,20 +89,19 @@ class ConstantFolding(Transformation):
             except ToNotEval:
                 return Transformation.generic_visit(self, node)
             except AttributeError as e:
-                # FIXME union_ function is not handle by constant folding
-                if "union" in e.args[0]:
-                    return Transformation.generic_visit(self, node)
-                elif "pythran" in e.args[0]:
-                    # FIXME: Can be fix giving a Python implementation for
-                    # these functions.
-                    return Transformation.generic_visit(self, node)
-                raise
+                # this may miss a few optimization
+                logger.info('During constant folding, bailing out due to: ' +
+                            e.args[0])
+                return Transformation.generic_visit(self, node)
             except NameError as e:
                 # FIXME dispatched function are not processed by constant
                 # folding
                 if "__dispatch__" in e.args[0]:
                     return Transformation.generic_visit(self, node)
-                raise
+                # this may miss a few optimization
+                logger.info('During constant folding, bailing out due to: ' +
+                            e.args[0])
+                return Transformation.generic_visit(self, node)
             except Exception as e:
                 raise PythranSyntaxError(str(e), node)
         else:

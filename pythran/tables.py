@@ -4491,15 +4491,14 @@ if 'WindowsError' in sys.modules['builtins'].__dict__:
     MODULES['builtins']['WindowsError'] = ConstExceptionIntr()
 
 # detect and prune unsupported modules
-for module_name in ["omp", "scipy.special", "scipy"]:
+for module_name in ["omp", "scipy", "scipy.special"]:
     try:
         __import__(module_name)
     except:
-        logger.info(
-            "Pythran support disabled for module: {}".format(module_name)
+        logger.warn(
+            "Pythran support for package '{}' will be reduced: "
+            "this module is not available at runtime.".format(module_name)
         )
-        parts = module_name.split(".")
-        del reduce(lambda m, field: m[field], parts[:-1], MODULES)[parts[-1]]
 
 # check and delete unimplemented numpy methods
 for method in list(MODULES['numpy'].keys()):

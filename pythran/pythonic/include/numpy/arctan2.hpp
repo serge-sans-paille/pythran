@@ -13,8 +13,11 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
+#define TRIGO_FUN atan2
+#include "pythonic/include/numpy/trigo2.hpp"
+
 #define NUMPY_NARY_FUNC_NAME arctan2
-#define NUMPY_NARY_FUNC_SYM xsimd::atan2
+#define NUMPY_NARY_FUNC_SYM wrapper::atan2
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 }
 PYTHONIC_NS_END

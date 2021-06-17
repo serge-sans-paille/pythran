@@ -180,6 +180,8 @@ def make_extension(python, **extra):
     extension['define_macros'].append(
         '__PYTHRAN__={}'.format(sys.version_info.major))
 
+    extension['define_macros'].append('XSIMD_ENABLE_FALLBACK')
+
     here = os.path.dirname(os.path.dirname(__file__)) or '.'
     # using / as separator as advised in the distutils doc
     extension["include_dirs"].append(here + '/pythran')

@@ -11,6 +11,7 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+
 #define NUMPY_NARY_FUNC_NAME sinh
 #define NUMPY_NARY_FUNC_SYM xsimd::sinh
 #include "pythonic/include/types/numpy_nary_expr.hpp"

@@ -74,9 +74,9 @@ Depending on your setup, you may need to add the following to your ``~/.pythranr
 ArchLinux
 =========
 
-Using any working `AUR helper <https://wiki.archlinux.org/index.php/AUR_helpers>`_, say yay::
+Using ``pacman``::
 
-    $> yay -S python-pythran
+    $> pacman -S python-pythran
 
 
 Fedora

@@ -276,3 +276,17 @@ class TestStr(TestEnv):
         def str_slice_assign2(s1):
             sample_datatype(s1)
             return s1''', "LEFT-B6", str_slice_assign2=[str])
+
+    def test_str_logical_and(self):
+        code = "def test_and_op(s: str, s1: str, s2: str):\n"\
+               "    if s and s1 == s2:\n"\
+               "        return s1 and s2\n"\
+               "    return s1 or s2"
+        self.run_test(code, ("1", "2", "3"), test_and_op=[str, str, str])
+
+    def test_str_logical_or(self):
+        code = "def test_or_op(s: str, s1: str, s2: str):\n"\
+               "    if s or s1 == s2:\n"\
+               "        return s1 or s2\n"\
+               "    return s1 and s2"
+        self.run_test(code, ("", "2", "3"), test_or_op=[str, str, str])

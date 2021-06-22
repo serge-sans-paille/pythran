@@ -12,39 +12,48 @@ class LogicOperateToBool(Transformation):
     >>> import gast as ast
     >>> from pythran import passmanager, backend
     >>> code = '''
-    ... def foo():
-    ...     if a and b in c:
-    ...         return 1
-    ...     else:
-    ...         return 0'''
+    ... def foo(a, b, c, d):
+    ...     if bar(a and b) or d:
+    ...         return a and c
+    ...     elif c and bar(c and d):
+    ...         return c or d
+    ...     elif bar(d or c):
+    ...         tmp = a or b and c
+    ...         return tmp if tmp else 1
+    ...     elif (lambda x, y: x and y if x or y else y)(a, b):
+    ...         return b or d
+    ...     else
+    ...         return b and d'''
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(LogicOperateToBool, node)
     >>> print(pm.dump(backend.Python, node))
-    def foo():
-        if bool(a) and bool(b in c):
-            return 1
+    def foo(a, b, c, d):
+        if (bool(bar((a and b))) or bool(d)):
+            return (a and c)
+        elif (bool(c) and bool(bar((c and d)))):
+            return (c or d)
+        elif bar((d or c)):
+            tmp = (a or (b and c))
+            return (tmp if tmp else 1)
+        elif (lambda x, y: ((x and y) if (bool(x) or bool(y)) else y))(a, b):
+            return (b or d)
         else:
-            return 0
+            return (b and d)
     """
     
     def __init__(self):
         super(LogicOperateToBool, self).__init__()
         self._if_stmt = False
-    
-    def visit_If(self, node: ast.If) -> ast.If:
-        self._if_stmt = True
-        node.test = self.visit(node.test)
 
-        orelse = []
-        for stmt in node.orelse:
-            orelse.append(
-                self.visit(stmt)
-            )
-        node.orelse[:] = orelse
+    def visit(self, node: ast.AST):
+        if isinstance(node, (ast.If, ast.IfExp)):
+            # just handle BoolOp in If and IfExp
+            self._if_stmt = True
+        res = super().visit(node)
         self._if_stmt = False
-        return node
-
+        return res
+    
     def visit_BoolOp(self, node: ast.BoolOp) -> ast.BoolOp:
         if not self._if_stmt:
             return node

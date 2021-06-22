@@ -49,8 +49,9 @@ atomic operations (N3290) and variadic template (N2555).
 Installation from Sources
 -------------------------
 
-The prefered way to install Pythran is using ``pip``. Yet if you want to install
-from sources, here is the procedure.
+The prefered way to install Pythran is using ``pip install pythran`` or
+``conda install pythran``. Yet if you want to install from sources,
+here is the procedure.
 
 First get the sources::
 
@@ -58,9 +59,11 @@ First get the sources::
 
 From the source directory, run::
 
-    $> python setup.py install --user
+    $> pip install .
 
-And set your path to::
+``pythran`` should now be on your ``PATH``. If not, it's possible ``pip``
+installed to ``.local`` (this happens if the default ``site-packages``
+location requires elevated permissions) - fix this by setting your path to::
 
     $> export PATH=$PATH:$HOME/.local/bin
 

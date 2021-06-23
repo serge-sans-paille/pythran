@@ -20,11 +20,11 @@ def refine(pm, node, optimizations):
     """ Refine node in place until it matches pythran's expectations. """
     # Sanitize input
     pm.apply(RemoveDeadFunctions, node)
-    pm.apply(LogicOperateToBool, node)
     pm.apply(ExpandGlobals, node)
     pm.apply(ExpandImportAll, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(RemoveFStrings, node)
+    pm.apply(LogicOperateToBool, node)
     pm.apply(ExpandBuiltins, node)
     pm.apply(ExpandImports, node)
     pm.apply(NormalizeMethodCalls, node)

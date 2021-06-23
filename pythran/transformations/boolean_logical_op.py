@@ -22,21 +22,21 @@ class LogicOperateToBool(Transformation):
     ...         return tmp if tmp else 1
     ...     elif (lambda x, y: x and y if x or y else y)(a, b):
     ...         return b or d
-    ...     else
+    ...     else:
     ...         return b and d'''
     >>> node = ast.parse(code)
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(LogicOperateToBool, node)
     >>> print(pm.dump(backend.Python, node))
     def foo(a, b, c, d):
-        if (bool(bar((a and b))) or bool(d)):
+        if (builtins.bool(bar((a and b))) or builtins.bool(d)):
             return (a and c)
-        elif (bool(c) and bool(bar((c and d)))):
+        elif (builtins.bool(c) and builtins.bool(bar((c and d)))):
             return (c or d)
         elif bar((d or c)):
             tmp = (a or (b and c))
             return (tmp if tmp else 1)
-        elif (lambda x, y: ((x and y) if (bool(x) or bool(y)) else y))(a, b):
+        elif (lambda x, y: ((x and y) if (builtins.bool(x) or builtins.bool(y)) else y))(a, b):
             return (b or d)
         else:
             return (b and d)
@@ -62,9 +62,12 @@ class LogicOperateToBool(Transformation):
 
         for value in node.values:
             val = ast.Call(
-                func=ast.Name(
-                    id="bool", ctx=ast.Load(), 
-                    annotation=None, type_comment=None),
+                func=ast.Attribute(
+                    value=ast.Name(id='builtins', ctx=ast.Load(), 
+                        annotation=None, type_comment=None),
+                    attr='bool',
+                    ctx=ast.Load(),
+                ),
                 args=[value],
                 keywords=[]
             )

@@ -443,7 +443,14 @@ class SpecParser(object):
         return err
 
     def p_error(self, p):
-        raise self.PythranSpecError("invalid pythran spec", p.lexpos)
+        if p.type == 'IDENTIFIER':
+            raise self.PythranSpecError(
+                "Unexpected identifier `{}` at that point".format(p.value),
+                p.lexpos)
+        else:
+            raise self.PythranSpecError(
+                "Unexpected token `{}` at that point".format(p.value),
+                p.lexpos)
 
     def __init__(self):
         self.lexer = lex.lex(module=self, debug=False)

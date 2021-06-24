@@ -145,6 +145,19 @@ _complex_signature = Union[
     Fun[[float, float], complex],
 ]
 
+# workaround changes in numpy interaction with getfullargspec
+try:
+    import numpy
+    getfullargspec(numpy.asarray)
+    # if we have a description, honor it
+    extra_numpy_asarray_descr = {}
+except TypeError:
+    extra_numpy_asarray_descr = {'args':('a', 'dtype'),
+                                 'defaults': (None,)}
+
+
+
+
 
 def update_effects(self, node):
     """
@@ -3177,7 +3190,8 @@ MODULES = {
             ]
         ),
         "array_str": ConstFunctionIntr(signature=_numpy_array_str_signature),
-        "asarray": ReadOnceFunctionIntr(signature=_numpy_array_signature),
+        "asarray": ReadOnceFunctionIntr(signature=_numpy_array_signature,
+                                        **extra_numpy_asarray_descr),
         "asarray_chkfinite": ConstFunctionIntr(
             signature=_numpy_array_signature),
         "ascontiguousarray": ConstFunctionIntr(

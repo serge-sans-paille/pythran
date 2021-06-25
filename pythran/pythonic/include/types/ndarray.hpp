@@ -952,6 +952,16 @@ struct __combined<pythonic::types::ndarray<T, pS>, O> {
   using type = pythonic::types::ndarray<T, pS>;
 };
 
+template <class pS, class T, class O>
+struct __combined<pythonic::types::ndarray<T, pS>, pythonic::types::none<O>> {
+  using type = pythonic::types::none<typename __combined<pythonic::types::ndarray<T, pS>, O>::type>;
+};
+
+template <class pS, class T, class O>
+struct __combined<pythonic::types::none<O>, pythonic::types::ndarray<T, pS>> {
+  using type = pythonic::types::none<typename __combined<O, pythonic::types::ndarray<T, pS>>::type>;
+};
+
 template <class pS, class T, class C, class I>
 struct __combined<indexable_container<C, I>, pythonic::types::ndarray<T, pS>> {
   using type = pythonic::types::ndarray<T, pS>;

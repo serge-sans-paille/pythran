@@ -190,6 +190,9 @@ class TestNumpyFunc1(TestEnv):
     def test_transpose_expr(self):
         self.run_test("def np_transpose_expr(a): return (a + a).transpose()", numpy.ones(24).reshape(2,3,4), np_transpose_expr=[NDArray[float,:,:,:]])
 
+    def test_transpose_expr2(self):
+        self.run_test("def np_transpose_expr2(a): import numpy as np; return np.conj(a).T", 1j * numpy.ones(6).reshape(2,3), np_transpose_expr2=[NDArray[complex,:,:]])
+
     def test_transpose2_(self):
         self.run_test("def np_transpose2_(a): return a.transpose((2,0,1))", numpy.arange(24).reshape(2,3,4), np_transpose2_=[NDArray[int,:,:,:]])
 

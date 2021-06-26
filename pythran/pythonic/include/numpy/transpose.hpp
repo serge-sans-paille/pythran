@@ -5,6 +5,7 @@
 #include "pythonic/include/utils/numpy_conversion.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/numpy_expr.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -38,6 +39,22 @@ namespace numpy
   template <class T, class pS, size_t M>
   types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
   transpose(types::ndarray<T, pS> const &a, types::array<long, M> const &t);
+
+  template <class Op, class... Args, size_t... Is>
+  auto _transpose(types::numpy_expr<Op, Args...> const &expr,
+                  utils::index_sequence<Is...>)
+      -> decltype(Op{}(transpose(std::get<Is>(expr.args)...)))
+  {
+    return Op{}(transpose(std::get<Is>(expr.args)...));
+  }
+
+  template <class Op, class... Args>
+  auto transpose(types::numpy_expr<Op, Args...> const &expr)
+      -> decltype(_transpose(expr,
+                             utils::make_index_sequence<sizeof...(Args)>()))
+  {
+    return _transpose(expr, utils::make_index_sequence<sizeof...(Args)>());
+  }
 
   template <class E>
   auto transpose(E const &expr) -> typename std::enable_if<

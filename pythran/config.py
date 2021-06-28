@@ -49,6 +49,9 @@ def get_paths_cfg(
     sys_config_path = os.path.join(sys_config_dir, sys_file)
 
     platform_config_path = os.path.join(sys_config_dir, platform_file)
+    if not os.path.exists(platform_config_path):
+        platform_config_path = os.path.join(sys_config_dir,
+                                            "pythran-default.cfg")
 
     user_config_path = os.environ.get('PYTHRANRC', None)
     if not user_config_path:

@@ -46,7 +46,7 @@ namespace numpy
                                 std::declval<typename E::dtype>()),
                        types::pshape<long>>>::type
     out(types::pshape<long>(length), 0L);
-    auto iweight = weights.fbegin();
+    auto iweight = weights.begin();
     for (auto iter = expr.fbegin(), end = expr.fend(); iter != end;
          ++iter, ++iweight)
       out[*iter] += *iweight;

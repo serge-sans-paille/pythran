@@ -342,5 +342,27 @@ struct __combined<pythonic::types::numpy_texpr<E0>,
   using type = pythonic::types::numpy_texpr<E0>;
 };
 
+template <class E, class O>
+struct __combined<pythonic::types::numpy_texpr<E>, pythonic::types::none<O>> {
+  using type = pythonic::types::none<
+      typename __combined<pythonic::types::numpy_texpr<E>, O>::type>;
+};
+
+template <class E, class O>
+struct __combined<pythonic::types::none<O>, pythonic::types::numpy_texpr<E>> {
+  using type = pythonic::types::none<
+      typename __combined<O, pythonic::types::numpy_texpr<E>>::type>;
+};
+
+template <class E>
+struct __combined<pythonic::types::numpy_texpr<E>, pythonic::types::none_type> {
+  using type = pythonic::types::none<pythonic::types::numpy_texpr<E>>;
+};
+
+template <class E>
+struct __combined<pythonic::types::none_type, pythonic::types::numpy_texpr<E>> {
+  using type = pythonic::types::none<pythonic::types::numpy_texpr<E>>;
+};
+
 /*}*/
 #endif

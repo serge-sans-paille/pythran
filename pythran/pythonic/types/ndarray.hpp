@@ -388,6 +388,16 @@ namespace types
     std::copy(other.fbegin(), other.fend(), fbegin());
   }
 
+  template <class T, class pS>
+  template <class pSp>
+  ndarray<T, pS>::ndarray(ndarray<T, pSp> const &other)
+      : mem(other.mem), buffer(mem->data), _shape(other._shape),
+        _strides(other._strides)
+  {
+    static_assert(std::tuple_size<pS>::value == std::tuple_size<pSp>::value,
+                  "compatible shapes");
+  }
+
   /* from a seed */
   template <class T, class pS>
   ndarray<T, pS>::ndarray(pS const &shape, none_type init)

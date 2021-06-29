@@ -265,6 +265,8 @@ namespace types
     /* from other array */
     template <class Tp, class pSp>
     ndarray(ndarray<Tp, pSp> const &other);
+    template <class pSp>
+    ndarray(ndarray<T, pSp> const &other);
 
     /* from a seed */
     ndarray(pS const &shape, none_type init);

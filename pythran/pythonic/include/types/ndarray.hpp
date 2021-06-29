@@ -954,12 +954,24 @@ struct __combined<pythonic::types::ndarray<T, pS>, O> {
 
 template <class pS, class T, class O>
 struct __combined<pythonic::types::ndarray<T, pS>, pythonic::types::none<O>> {
-  using type = pythonic::types::none<typename __combined<pythonic::types::ndarray<T, pS>, O>::type>;
+  using type = pythonic::types::none<
+      typename __combined<pythonic::types::ndarray<T, pS>, O>::type>;
 };
 
 template <class pS, class T, class O>
 struct __combined<pythonic::types::none<O>, pythonic::types::ndarray<T, pS>> {
-  using type = pythonic::types::none<typename __combined<O, pythonic::types::ndarray<T, pS>>::type>;
+  using type = pythonic::types::none<
+      typename __combined<O, pythonic::types::ndarray<T, pS>>::type>;
+};
+
+template <class pS, class T>
+struct __combined<pythonic::types::ndarray<T, pS>, pythonic::types::none_type> {
+  using type = pythonic::types::none<pythonic::types::ndarray<T, pS>>;
+};
+
+template <class pS, class T>
+struct __combined<pythonic::types::none_type, pythonic::types::ndarray<T, pS>> {
+  using type = pythonic::types::none<pythonic::types::ndarray<T, pS>>;
 };
 
 template <class pS, class T, class C, class I>

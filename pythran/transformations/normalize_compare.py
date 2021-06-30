@@ -96,7 +96,7 @@ class NormalizeCompare(Transformation):
                 body.append(
                     ast.Assign(
                         [ast.Name('$0', ast.Store(), None, None)],
-                        node.left))
+                        node.left, None))
                 prev_holder = ast.Name('$0', ast.Load(), None, None)
 
             for i, exp in enumerate(node.comparators):
@@ -105,7 +105,7 @@ class NormalizeCompare(Transformation):
                 else:
                     body.append(ast.Assign([ast.Name('${}'.format(i+1),
                                                      ast.Store(), None, None)],
-                                           exp))
+                                           exp, None))
                     holder = ast.Name('${}'.format(i+1), ast.Load(),
                                       None, None)
                 cond = ast.Compare(prev_holder,

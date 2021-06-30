@@ -76,8 +76,8 @@ class _NestedFunctionRemover(ast.NodeTransformer):
                     ),
                 [proxy_call] + binded_args,
                 [],
-                )
-            )
+                ),
+            None)
 
         self.generic_visit(node)
         return new_node

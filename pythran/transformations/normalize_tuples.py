@@ -157,9 +157,10 @@ class NormalizeTuples(Transformation):
                                 ast.Assign(
                                     [ast.Name(rename, ast.Store(),
                                               None, None)],
-                                    nnode))
+                                    nnode, None))
                         else:
-                            extra_assign.append(ast.Assign([rename], nnode))
+                            extra_assign.append(ast.Assign([rename],
+                                                           nnode, None))
         return extra_assign or node
 
     def visit_For(self, node):
@@ -184,10 +185,10 @@ class NormalizeTuples(Transformation):
                                              [ast.Name(rename,
                                                        ast.Store(),
                                                        None, None)],
-                                             nnode)
+                                             nnode, None)
                                          )
                     else:
-                        node.body.insert(0, ast.Assign([rename], nnode))
+                        node.body.insert(0, ast.Assign([rename], nnode, None))
 
         self.generic_visit(node)
         return node

@@ -84,7 +84,8 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
                                        ctx=ast.Store(),
                                        annotation=None, type_comment=None)
                     self.defs.append(ast.Assign(targets=[new_var],
-                                                value=arg_call))
+                                                value=arg_call,
+                                               type_comment=None))
                     arg_to_value[arg_fun.id] = ast.Name(id=v_name,
                                                         ctx=ast.Load(),
                                                         annotation=None,

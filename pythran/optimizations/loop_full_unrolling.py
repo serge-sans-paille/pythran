@@ -74,7 +74,7 @@ class LoopFullUnrolling(Transformation):
         node_count = self.gather(NodeCount, node)
 
         def unroll(elt, body):
-            return [ast.Assign([deepcopy(node.target)], elt)] + body
+            return [ast.Assign([deepcopy(node.target)], elt, None)] + body
 
         def dc(body, i, n):
             if i == n - 1:

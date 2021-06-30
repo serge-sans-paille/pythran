@@ -37,8 +37,8 @@ class UnshadowParameters(Transformation):
                 0,
                 ast.Assign(
                     [ast.Name(v, ast.Store(), None, None)],
-                    ast.Name(k, ast.Load(), None, None)
-                    )
+                    ast.Name(k, ast.Load(), None, None),
+                    None)
                 )
         self.update |= bool(self.renaming)
         return node

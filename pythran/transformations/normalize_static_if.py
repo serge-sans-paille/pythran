@@ -213,7 +213,7 @@ class NormalizeStaticIf(Transformation):
         if expected_return:
             assign = cont_ass = [ast.Assign(
                 [ast.Tuple(expected_return, ast.Store())],
-                ast.Name(cont_n, ast.Load(), None, None))]
+                ast.Name(cont_n, ast.Load(), None, None), None)]
         else:
             assign = cont_ass = []
 
@@ -298,7 +298,7 @@ class NormalizeStaticIf(Transformation):
 
             if always_return:
                 return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
-                                   actual_call),
+                                   actual_call, None),
                         ast.Return(ast.Name(return_n, ast.Load(), None, None))]
             else:
                 cont_ass = self.make_control_flow_handlers(cont_n, status_n,
@@ -308,7 +308,7 @@ class NormalizeStaticIf(Transformation):
                 cmpr = ast.Compare(ast.Name(status_n, ast.Load(), None, None),
                                    [ast.Eq()], [ast.Constant(EARLY_RET, None)])
                 return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
-                                   actual_call),
+                                   actual_call, None),
                         ast.If(cmpr,
                                [ast.Return(ast.Name(return_n, ast.Load(),
                                                     None, None))],
@@ -321,10 +321,10 @@ class NormalizeStaticIf(Transformation):
             fast_return = [ast.Name(status_n, ast.Store(), None, None),
                            ast.Name(cont_n, ast.Store(), None, None)]
             return [ast.Assign([ast.Tuple(fast_return, ast.Store())],
-                               actual_call)] + cont_ass
+                               actual_call, None)] + cont_ass
         elif expected_return:
             return ast.Assign([ast.Tuple(expected_return, ast.Store())],
-                              actual_call)
+                              actual_call, None)
         else:
             return ast.Expr(actual_call)
 

@@ -104,7 +104,8 @@ class ModIndex(Transformation):
                                           ast.Sub(),
                                           ast.Constant(1, None)),
                                 ast.Mod(),
-                                deepcopy(node.right)))
+                                deepcopy(node.right)),
+                            None)
         incr = ast.BinOp(ast.Name(new_id, ast.Load(), None, None),
                          ast.Add(),
                          ast.Constant(1, None))
@@ -113,7 +114,8 @@ class ModIndex(Transformation):
                               ast.Compare(incr,
                                           [ast.Eq()], [deepcopy(node.right)]),
                               ast.Constant(0, None),
-                              deepcopy(incr)))
+                              deepcopy(incr)),
+                          None)
 
         self.loops_mod.setdefault(loop, []).append((header, step))
         self.update = True

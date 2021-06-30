@@ -1,7 +1,11 @@
 """ Check unary functions for the numpy module. """
 
 import numpy
-import scipy
+
+try:
+    import scipy
+except ImportError:
+    scipy = None
 
 from pythran.tests import TestEnv
 from pythran.tables import MODULES
@@ -36,6 +40,9 @@ for ns, f in binary_ufunc:
             setattr(TestNumpyUFuncBinary, 'test_reduce_' + f, eval("lambda self: self.run_test('def np_{0}_reduce(a): from {1} import {0} ; return {0}.reduce(a)', numpy.ones(10, numpy.int32), np_{0}_reduce=[NDArray[numpy.int32, :]])".format(f, ns)))
             setattr(TestNumpyUFuncBinary, 'test_reduce_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix_reduce(a): from {1} import {0} ; return {0}.reduce(a)', numpy.ones((2,5), numpy.int32), np_{0}_matrix_reduce=[NDArray[numpy.int32,:,:]])".format(f, ns)))
     else:
+        if 'scipy' in ns and scipy is None:
+            continue
+
         if 'spherical' in f and 'scipy' in ns:
             setattr(TestNumpyUFuncBinary, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from {1} import {0}; import numpy; return {0}(numpy.array(a, dtype=int) +2 ,a)', numpy.ones(10), np_{0}=[NDArray[float, :]])".format(f, ns)))
             setattr(TestNumpyUFuncBinary, 'test_' + f + '_scalar', eval("lambda self: self.run_test('def np_{0}_scalar(a): from {1} import {0} ; return {0}(int(a+3), a+0.5)', 0.5, np_{0}_scalar=[float])".format(f, ns)))

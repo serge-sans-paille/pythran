@@ -52,6 +52,9 @@ class TestDoctest(unittest.TestCase):
             # hidden doctest
             sp = re.sub(r'\.\.(\s+>>>)', r'\1', rst_doc.read())
             sp = re.sub(r'^([ ]+)$', r'\1<BLANKLINE>', sp, flags=re.MULTILINE)
+            # harmonize argparse output after python 3.10
+            if sys.version_info >= (3, 10):
+                sp = sp.replace('optional arguments:', 'options:')
 
         # hack to support setuptools-generated pythran / pythran-config scripts
         for tool, sub in (('pythran-config', 'python -m pythran.config'),

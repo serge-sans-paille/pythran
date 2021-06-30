@@ -20,7 +20,7 @@ Python ships a standard module, ``ast`` to turn Python code into an AST. For ins
   >>> code = "a=1"
   >>> tree = ast.parse(code)  # turn the code into an AST
   >>> print(ast.dump(tree))  # view it as a string
-  Module(body=[Assign(targets=[Name(id='a', ctx=Store(), annotation=None, type_comment=None)], value=Constant(value=1, kind=None))], type_ignores=[])
+  Module(body=[Assign(targets=[Name(id='a', ctx=Store(), annotation=None, type_comment=None)], value=Constant(value=1, kind=None), type_comment=None)], type_ignores=[])
 
 Deciphering the above line, one learns that the single assignment is parsed as
 a module containing a single statement, which is an assignment to a single

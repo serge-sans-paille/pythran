@@ -362,7 +362,8 @@ class TypeDependencies(ModuleAnalysis):
         """
         body = node.body
         if node.target.id in self.naming:
-            body = [ast.Assign(targets=[node.target], value=node.iter)] + body
+            body = [ast.Assign(targets=[node.target], value=node.iter,
+                               type_comment=None)] + body
             self.visit_any_conditionnal(body, node.orelse)
         else:
             iter_dep = self.visit(node.iter)

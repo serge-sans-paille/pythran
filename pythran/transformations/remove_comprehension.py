@@ -106,8 +106,8 @@ class RemoveComprehension(Transformation):
                     comp_type,
                     ast.Load()
                     ),
-                [], [],)
-            )
+                [], [],),
+            None)
         result = ast.Return(ast.Name(starget, ast.Load(), None, None))
         sargs = [ast.Name(arg, ast.Param(), None, None) for arg in args]
         fd = ast.FunctionDef(name,

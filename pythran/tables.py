@@ -4509,7 +4509,7 @@ for module_name in ["omp", "scipy", "scipy.special"]:
     try:
         __import__(module_name)
     except:
-        logger.warn(
+        logger.info(
             "Pythran support for package '{}' will be reduced: "
             "this module is not available at runtime.".format(module_name)
         )

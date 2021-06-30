@@ -1,7 +1,12 @@
 import unittest
 from pythran.tests import TestEnv
-import numpy, scipy
+import numpy
 from pythran.typing import NDArray
+
+try:
+    import scipy
+except ImportError:
+    scipy = None
 
 
 @TestEnv.module
@@ -31,6 +36,9 @@ unary_func_by_module = {
     ),
     'scipy.special': ('gammaln', 'gamma')
 }
+
+if scipy is None:
+    del unary_func_by_module['scipy.special']
 
 test_inputs_by_type = {
     'float': {

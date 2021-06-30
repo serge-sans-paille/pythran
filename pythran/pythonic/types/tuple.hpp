@@ -563,8 +563,8 @@ PyObject *to_python<types::array<T, N>>::do_convert(types::array<T, N> const &t,
                                                     utils::index_sequence<S...>)
 {
   PyObject *out = PyTuple_New(N);
-  (void)std::initializer_list<void *>{
-      PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
+  (void)std::initializer_list<bool>{
+      (PyTuple_SET_ITEM(out, S, ::to_python(std::get<S>(t))), true)...};
   return out;
 }
 
@@ -574,8 +574,8 @@ PyObject *to_python<types::static_list<T, N>>::do_convert(
     types::static_list<T, N> const &t, utils::index_sequence<S...>)
 {
   PyObject *out = PyList_New(N);
-  (void)std::initializer_list<void *>{
-      PyList_SET_ITEM(out, S, ::to_python(std::get<S>(t)))...};
+  (void)std::initializer_list<bool>{
+      (PyList_SET_ITEM(out, S, ::to_python(std::get<S>(t))), true)...};
   return out;
 }
 

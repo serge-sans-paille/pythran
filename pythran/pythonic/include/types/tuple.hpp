@@ -805,15 +805,29 @@ struct __combined<container<t>, std::tuple<t0...>> {
   using type = std::tuple<t0...>;
 };
 
+PYTHONIC_NS_BEGIN
+namespace details
+{
+  template <class T, class P, bool Same>
+  struct pick_combined;
+  template <class T, class P>
+  struct pick_combined<T, P, true> {
+    using type = typename __combined<T, P>::type;
+  };
+  template <class T, class P>
+  struct pick_combined<T, P, false> {
+    using type = P;
+  };
+}
+PYTHONIC_NS_END
+
 template <long I, class t, class... t0>
 struct __combined<std::tuple<t0...>,
                   indexable_container<std::integral_constant<long, I>, t>> {
   using holder = std::tuple<t0...>;
   template <size_t... Is>
-  static std::tuple<typename std::conditional<
-      I == Is, typename __combined<
-                   t, typename std::tuple_element<Is, holder>::type>::type,
-      typename std::tuple_element<Is, holder>::type>::type...>
+  static std::tuple<typename pythonic::details::pick_combined<
+      t, typename std::tuple_element<Is, holder>::type, I == Is>::type...>
       make_type(pythonic::utils::index_sequence<Is...>);
   static auto make_type() -> decltype(
       make_type(pythonic::utils::make_index_sequence<sizeof...(t0)>()));

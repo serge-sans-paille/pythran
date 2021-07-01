@@ -446,3 +446,38 @@ def global_effects_partial0(l):
         def annotations(x: np.ndarray) -> np.ndarray:
             return x'''
         self.run_test(code, numpy.ones(1), annotations=[NDArray[float, :]])
+
+    def test_tuple_indexable_container(self):
+        code = """
+import numpy as np
+def A_I():
+    s = np.array([0.70817816, 0.68863678], dtype=np.float64)
+    m = np.array([-1.11312199, -0.99629629], dtype=np.float64)
+    self = tuple([100, s, m])
+    return self
+
+def A_F1(self, Input_x):
+    Input_x = (Input_x - self[2]) / self[1]
+    return Input_x
+
+def B_I():
+    self = tuple([0.0, 0])
+    return self
+
+
+def C_I(sRate):
+    a = A_I()
+    b = B_I()
+    self = tuple([0, sRate, 0, a, b])
+    return self
+
+
+def C_Test(self):
+    F = np.zeros((1, 1, 1))
+    ret = A_F1(self[3], F.astype(np.float32))
+    return ret
+
+def tuple_indexable_container(n):
+    TD = C_I(n)
+    return C_Test(TD)"""
+        self.run_test(code, 44100, tuple_indexable_container=[int])

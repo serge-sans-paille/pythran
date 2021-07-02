@@ -207,6 +207,7 @@ namespace xsimd
     {
         template <class T>
         struct avx512_int8_batch_kernel
+            : avx512_int_kernel_base<batch<T, 64>>
         {
             using batch_type = batch<T, 64>;
             using value_type = T;
@@ -239,6 +240,24 @@ namespace xsimd
                 return _mm512_sub_epi8(lhs, rhs);
             #else
                 XSIMD_APPLY_AVX2_FUNCTION_INT8(sub, lhs, rhs);
+            #endif
+            }
+
+            static batch_type sadd(const batch_type &lhs, const batch_type &rhs)
+            {
+            #if defined(XSIMD_AVX512BW_AVAILABLE)
+                return _mm512_adds_epi8(lhs, rhs);
+            #else
+                XSIMD_APPLY_AVX2_FUNCTION_INT8(sadd, lhs, rhs);
+            #endif
+            }
+
+            static batch_type ssub(const batch_type &lhs, const batch_type &rhs)
+            {
+            #if defined(XSIMD_AVX512BW_AVAILABLE)
+                return _mm512_subs_epi8(lhs, rhs);
+            #else
+                XSIMD_APPLY_AVX2_FUNCTION_INT8(ssub, lhs, rhs);
             #endif
             }
 
@@ -334,6 +353,17 @@ namespace xsimd
                 XSIMD_RETURN_MERGED_AVX(res_lo, res_hi);
             #endif
             }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm512_unpacklo_epi8(lhs, rhs);
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm512_unpackhi_epi8(lhs, rhs);
+            }
+
         };
 
         template <>
@@ -469,6 +499,24 @@ namespace xsimd
                 XSIMD_APPLY_AVX2_FUNCTION_INT8(lte, lhs, rhs);
             #endif
             }
+            
+            static batch_type sadd(const batch_type &lhs, const batch_type &rhs)
+            {
+            #if defined(XSIMD_AVX512BW_AVAILABLE)
+                return _mm512_adds_epu8(lhs, rhs);
+            #else
+                XSIMD_APPLY_AVX2_FUNCTION_UINT8(sadd, lhs, rhs);
+            #endif
+            }
+
+            static batch_type ssub(const batch_type &lhs, const batch_type &rhs)
+            {
+            #if defined(XSIMD_AVX512BW_AVAILABLE)
+                return _mm512_subs_epu8(lhs, rhs);
+            #else
+                XSIMD_APPLY_AVX2_FUNCTION_UINT8(ssub, lhs, rhs);
+            #endif
+            }
         };
     }
 
@@ -496,18 +544,18 @@ namespace xsimd
 #endif
         return _mm512_or_si512(cmp_sign_mask, _mm512_andnot_si512(sign_mask, res));
 #else
-        return avx512_detail::shift_impl([](int8_t val, int32_t rhs) { return val >> rhs; }, lhs, rhs);
+        return avx512_detail::shift_impl([](int8_t val, int32_t s) { return val >> s; }, lhs, rhs);
 #endif
     }
 
     inline batch<int8_t, 64> operator<<(const batch<int8_t, 64>& lhs, const batch<int8_t, 64>& rhs)
     {
-        return avx512_detail::shift_impl([](int8_t val, int8_t rhs) { return val << rhs; }, lhs, rhs);
+        return avx512_detail::shift_impl([](int8_t val, int8_t s) { return val << s; }, lhs, rhs);
     }
 
     inline batch<int8_t, 64> operator>>(const batch<int8_t, 64>& lhs, const batch<int8_t, 64>& rhs)
     {
-        return avx512_detail::shift_impl([](int8_t val, int8_t rhs) { return val >> rhs; }, lhs, rhs);
+        return avx512_detail::shift_impl([](int8_t val, int8_t s) { return val >> s; }, lhs, rhs);
     }
 
     XSIMD_DEFINE_LOAD_STORE_INT8(int8_t, 64, 64)
@@ -535,12 +583,12 @@ namespace xsimd
 
     inline batch<uint8_t, 64> operator<<(const batch<uint8_t, 64>& lhs, const batch<int8_t, 64>& rhs)
     {
-        return avx512_detail::shift_impl([](uint8_t val, int8_t rhs) { return val << rhs; }, lhs, rhs);
+        return avx512_detail::shift_impl([](uint8_t val, int8_t s) { return val << s; }, lhs, rhs);
     }
 
     inline batch<uint8_t, 64> operator>>(const batch<uint8_t, 64>& lhs, const batch<int8_t, 64>& rhs)
     {
-        return avx512_detail::shift_impl([](uint8_t val, int8_t rhs) { return val >> rhs; }, lhs, rhs);
+        return avx512_detail::shift_impl([](uint8_t val, int8_t s) { return val >> s; }, lhs, rhs);
     }
 
     XSIMD_DEFINE_LOAD_STORE_INT8(uint8_t, 64, 64)

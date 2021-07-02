@@ -16,6 +16,8 @@
 #include <cmath>
 #include <utility>
 
+#include "xsimd_scalar.hpp"
+
 #include "xsimd_base.hpp"
 #include "xsimd_complex_base.hpp"
 #include "xsimd_utils.hpp"
@@ -523,12 +525,12 @@ namespace xsimd
 
             static batch_type bitwise_not(const batch_type& rhs)
             {
-                XSIMD_FALLBACK_UNARY_OP(batch_bool, ~, rhs)
+                XSIMD_FALLBACK_UNARY_OP(batch_bool, !, rhs)
             }
 
             static batch_type bitwise_andnot(const batch_type& lhs, const batch_type& rhs)
             {
-                XSIMD_FALLBACK_MAPPING_LOOP(batch_bool, (~(lhs[i] & rhs[i])))
+                XSIMD_FALLBACK_MAPPING_LOOP(batch_bool, (!(lhs[i] & rhs[i])))
             }
 
             static batch_type equal(const batch_type& lhs, const batch_type& rhs)
@@ -603,7 +605,8 @@ namespace xsimd
             {
                 T res(0);
                 using int_type = as_unsigned_integer_t<T>;
-                *reinterpret_cast<int_type*>(&res) = ~int_type(0);
+                int_type value(~int_type(0));
+                std::memcpy(&res, &value, sizeof(int_type));
                 return res;
             }
         };
@@ -773,6 +776,16 @@ namespace xsimd
                 XSIMD_FALLBACK_BINARY_OP(batch, -, lhs, rhs)
             }
 
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                XSIMD_FALLBACK_BATCH_BINARY_FUNC(xsimd::sadd, lhs, rhs)
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                XSIMD_FALLBACK_BATCH_BINARY_FUNC(xsimd::ssub, lhs, rhs)
+            }
+
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
             {
                 XSIMD_FALLBACK_BINARY_OP(batch, *, lhs, rhs)
@@ -917,9 +930,37 @@ namespace xsimd
                 XSIMD_FALLBACK_MAPPING_LOOP(batch, (cond[i] ? a[i] : b[i]))
             }
 
+            template<bool... Values>
+            static batch_type select(const batch_bool_constant<value_type, Values...>& cond, const batch_type& a, const batch_type& b)
+            {
+                XSIMD_FALLBACK_MAPPING_LOOP(batch, (cond[i] ? a[i] : b[i]))
+            }
+
             static batch_bool_type isnan(const batch_type& x)
             {
                 XSIMD_FALLBACK_MAPPING_LOOP(batch_bool, std::isnan(x[i]))
+            }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                batch_type b_lo;
+                for (std::size_t i = 0, j = 0; i < N/2; ++i, j = j + 2)
+                {
+                    b_lo[j] = lhs[i];
+                    b_lo[j + 1] = rhs[i];
+                }
+                return b_lo;
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                batch_type b_hi;
+                for (std::size_t i = 0, j = 0; i < N/2; ++i, j = j + 2)
+                {
+                    b_hi[j] = lhs[i + N/2];
+                    b_hi[j + 1] = rhs[i+ N/2];
+                }
+                return b_hi;
             }
         };
     }

@@ -12,6 +12,7 @@
 #define XSIMD_BASE_HPP
 
 #include <cstddef>
+#include <cstring>
 #include <complex>
 #include <iterator>
 #include <ostream>
@@ -24,6 +25,7 @@
 #include "../memory/xsimd_alignment.hpp"
 #include "xsimd_utils.hpp"
 #include "xsimd_base_bool.hpp"
+#include "xsimd_base_constant.hpp"
 
 namespace xsimd
 {
@@ -152,6 +154,14 @@ namespace xsimd
         using reverse_iterator = std::reverse_iterator<iterator>;
         using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+        static X broadcast(value_type v);
+
+        template <class T>
+        static X from_unaligned(T* src);
+
+        template <class T>
+        static X from_aligned(T* src);
+
         X& operator+=(const X& rhs);
         X& operator+=(const value_type& rhs);
 
@@ -211,7 +221,7 @@ namespace xsimd
         simd_batch(simd_batch&&) = default;
         simd_batch& operator=(simd_batch&&) = default;
 
-        simd_batch(storage_type value);
+        constexpr simd_batch(storage_type value);
 
         using char_itype =
             typename std::conditional<std::is_signed<char>::value, int8_t, uint8_t>::type;
@@ -271,6 +281,12 @@ namespace xsimd
 
     template <class X>
     batch_type_t<X> select(const typename simd_batch_traits<X>::batch_bool_type& cond, const simd_base<X>& a, const simd_base<X>& b);
+
+    template <class X>
+    batch_type_t<X> zip_lo(const simd_base<X>& lhs, const simd_base<X>& rhs);
+
+    template <class X>
+    batch_type_t<X> zip_hi(const simd_base<X>& lhs, const simd_base<X>& rhs);
 
     template <class X>
     typename simd_batch_traits<X>::batch_bool_type
@@ -603,7 +619,8 @@ namespace xsimd
     {                                                                          \
         TYPE z0(0), z1(0);                                                     \
         using int_type = as_unsigned_integer_t<TYPE>;                          \
-        *reinterpret_cast<int_type*>(&z1) = ~int_type(0);                      \
+        int_type value(~int_type(0));                                          \
+        std::memcpy(&z1, &value, sizeof(int_type));                            \
         return select(src, batch<TYPE, N>(z1), batch<TYPE ,N>(z0));            \
     }
 
@@ -669,11 +686,57 @@ namespace xsimd
      *****************************/
 
     template <class X>
-    inline simd_batch<X>::simd_batch(storage_type value)
+    constexpr inline simd_batch<X>::simd_batch(storage_type value)
         : m_value(value)
     {
     }
 
+    /**
+     * @name Static builders
+     */
+    //@{
+    /**
+     * Creates a batch from the single value \c v.
+     * @param v the value used to initialize the batch
+     * @return a new batch instance
+     */
+    template <class X>
+    inline X simd_batch<X>::broadcast(value_type v)
+    {
+        return X(v);
+    }
+
+    /**
+     * Creates a batch from the buffer \c src. The
+     * memory does not need to be aligned.
+     * @param src the memory buffer to read
+     * @return a new batch instance
+     */
+    template <class X>
+    template <class T>
+    inline X simd_batch<X>::from_unaligned(T* src)
+    {
+        X res;
+        res.load_unaligned(src);
+        return res;
+    }
+
+    /**
+     * Creates a batch from the buffer \c src. The
+     * memory needs to be aligned.
+     * @param src the memory buffer to read
+     * @return a new batch instance
+     */
+    template <class X>
+    template <class T>
+    inline X simd_batch<X>::from_aligned(T* src)
+    {
+        X res;
+        res.load_aligned(src);
+        return res;
+    }
+    //@}
+    
     /**
      * @name Arithmetic computed assignment
      */
@@ -1137,6 +1200,61 @@ namespace xsimd
 
     XSIMD_BINARY_OP(+, add)
 
+
+    /**
+     * @ingroup simd_batch_arithmetic
+     *
+     * Computes the saturate sum of the batch \c lhs and the batch \c rhs.
+     * \c lhs.
+     * @tparam X the actual type of batch.
+     * @param lhs batch involved in the saturated addition.
+     * @param rhs batch involved in the saturated addition.
+     * @return the result of the saturated addition.
+     */
+    template <class X>
+    inline batch_type_t<X> sadd(const simd_base<X>& lhs, const simd_base<X>& rhs)
+    {
+        using value_type = typename simd_batch_traits<X>::value_type;
+        using kernel = detail::batch_kernel<value_type, simd_batch_traits<X>::size>;
+        return kernel::sadd(lhs(), rhs());
+    }
+
+    /**
+     * @ingroup simd_batch_arithmetic
+     *
+     * Computes the saturate sum of the scalar \c lhs and the batch \c rhs. Equivalent to the
+     * saturated sum of two batches where all the values of the first one are initialized to
+     * \c lhs.
+     * @tparam X the actual type of batch.
+     * @param lhs scalar involved in the saturated addition.
+     * @param rhs batch involved in the saturated addition.
+     * @return the result of the saturated addition.
+     */
+    template <class X>
+    inline batch_type_t<X> sadd(const typename simd_batch_traits<X>::value_type& lhs,
+                                       const simd_base<X>& rhs)
+    {
+        return sadd(batch_type_t<X>(lhs),rhs());
+    }
+
+    /**
+     * @ingroup simd_batch_arithmetic
+     *
+     * Computes the saturate sum of the batch \c lhs and the scalar \c rhs. Equivalent to the
+     * saturated sum of two batches where all the values of the second one are initialized to
+     * \c rhs.
+     * @tparam X the actual type of batch.
+     * @param lhs batch involved in the saturated addition.
+     * @param rhs scalar involved in the saturated addition.
+     * @return the result of the saturated addition.
+     */
+    template <class X>
+    inline batch_type_t<X> sadd(const simd_base<X>& lhs,
+                                       const typename simd_batch_traits<X>::value_type& rhs)
+    {
+        return sadd(lhs(),batch_type_t<X>(rhs));
+    }
+
     /**
      * @ingroup simd_batch_arithmetic
      *
@@ -1178,6 +1296,60 @@ namespace xsimd
     batch_type_t<X> operator-(const typename simd_batch_traits<X>::value_type& lhs, const simd_base<X>& rhs);
 
     XSIMD_BINARY_OP(-, sub)
+
+    /**
+     * @ingroup simd_batch_arithmetic
+     *
+     * Computes the saturate difference of the batch \c lhs and the batch \c rhs.
+     * \c lhs.
+     * @tparam X the actual type of batch.
+     * @param lhs batch involved in the saturated difference.
+     * @param rhs batch involved in the saturated difference.
+     * @return the result of the saturated difference.
+     */                 
+    template <class X>                                                                    
+    inline batch_type_t<X> ssub(const simd_base<X>& lhs, const simd_base<X>& rhs)           
+    {                                                                                              
+        using value_type = typename simd_batch_traits<X>::value_type;                              
+        using kernel = detail::batch_kernel<value_type, simd_batch_traits<X>::size>;               
+        return kernel::ssub(lhs(), rhs());                                                         
+    }                                                                                              
+
+    /**
+     * @ingroup simd_batch_arithmetic
+     *
+     * Computes the saturate difference of the scalar \c lhs and the batch \c rhs. Equivalent to the
+     * saturated sum of two batches where all the values of the first one are initialized to
+     * \c lhs.
+     * @tparam X the actual type of batch.
+     * @param lhs scalar involved in the saturated difference.
+     * @param rhs batch involved in the saturated difference.
+     * @return the result of the saturated difference.
+     */                                                                                               
+    template <class X>                                                                             
+    inline batch_type_t<X> ssub(const typename simd_batch_traits<X>::value_type& lhs,       
+                                       const simd_base<X>& rhs)                                    
+    {                                                                                              
+        return ssub(batch_type_t<X>(lhs),rhs());                                                      
+    }                                                                                              
+
+    /**
+     * @ingroup simd_batch_arithmetic
+     *
+     * Computes the saturate difference of the batch \c lhs and the scalar \c rhs. Equivalent to the
+     * saturated difference of two batches where all the values of the second one are initialized to
+     * \c rhs.
+     * @tparam X the actual type of batch.
+     * @param lhs batch involved in the saturated difference.
+     * @param rhs scalar involved in the saturated difference.
+     * @return the result of the saturated difference.
+     */                                                                                                     
+    template <class X>                                                                             
+    inline batch_type_t<X> ssub(const simd_base<X>& lhs,                                    
+                                       const typename simd_batch_traits<X>::value_type& rhs)       
+    {                                                                                              
+        return ssub(lhs(),batch_type_t<X>(rhs));                                                      
+    }
 
     /**
      * @ingroup simd_batch_arithmetic
@@ -1696,6 +1868,58 @@ namespace xsimd
         using value_type = typename simd_batch_traits<X>::value_type;
         using kernel = detail::batch_kernel<value_type, simd_batch_traits<X>::size>;
         return kernel::select(cond(), a(), b());
+    }
+
+    /**
+     * @ingroup simd_batch_miscellaneous
+     *
+     * Ternary operator for batches: selects values from the batches \c a or \c b
+     * depending on the boolean values in the constant batch \c cond. Equivalent to
+     * \code{.cpp}
+     * for(std::size_t i = 0; i < N; ++i)
+     *     res[i] = cond[i] ? a[i] : b[i];
+     * \endcode
+     * @param cond constant batch condition.
+     * @param a batch values for truthy condition.
+     * @param b batch value for falsy condition.
+     * @return the result of the selection.
+     */
+    template <class X, bool... Masks>
+    inline batch_type_t<X> select(const batch_bool_constant<typename simd_batch_traits<X>::value_type, Masks...>& cond, const simd_base<X>& a, const simd_base<X>& b)
+    {
+        using value_type = typename simd_batch_traits<X>::value_type;
+        using kernel = detail::batch_kernel<value_type, simd_batch_traits<X>::size>;
+        return kernel::select(cond, a(), b());
+    }
+
+    /**
+     * Unpack and interleave data from the LOW half of batches \c lhs and \c rhs.
+     * Store the results in the Return value.
+     * @param lhs a batch of integer or floating point or double precision values.
+     * @param rhs a batch of integer or floating point or double precision values.
+     * @return a batch of the low part of shuffled values.
+     */
+    template <class X>
+    inline batch_type_t<X> zip_lo(const simd_base<X>& lhs, const simd_base<X>& rhs)
+    {
+        using value_type = typename simd_batch_traits<X>::value_type;
+        using kernel = detail::batch_kernel<value_type, simd_batch_traits<X>::size>;
+        return kernel::zip_lo(lhs(), rhs());
+    }
+
+    /**
+     * Unpack and interleave data from the HIGH half of batches \c lhs and \c rhs.
+     * Store the results in the Return value.
+     * @param lhs a batch of integer or floating point or double precision values.
+     * @param rhs a batch of integer or floating point or double precision values.
+     * @return a batch of the high part of shuffled values.
+     */
+    template <class X>
+    inline batch_type_t<X> zip_hi(const simd_base<X>& lhs, const simd_base<X>& rhs)
+    {
+        using value_type = typename simd_batch_traits<X>::value_type;
+        using kernel = detail::batch_kernel<value_type, simd_batch_traits<X>::size>;
+        return kernel::zip_hi(lhs(), rhs());
     }
 
     /**

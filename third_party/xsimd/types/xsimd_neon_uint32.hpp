@@ -15,6 +15,7 @@
 
 #include "xsimd_base.hpp"
 #include "xsimd_neon_bool.hpp"
+#include "xsimd_neon_int_base.hpp"
 #include "xsimd_neon_utils.hpp"
 
 namespace xsimd
@@ -295,6 +296,7 @@ namespace xsimd
     {
         template <>
         struct batch_kernel<uint32_t, 4>
+            : neon_int_kernel_base<batch<uint32_t, 4>>
         {
             using batch_type = batch<uint32_t, 4>;
             using value_type = uint32_t;
@@ -315,6 +317,15 @@ namespace xsimd
                 return vsubq_u32(lhs, rhs);
             }
 
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                return vqaddq_u32(lhs, rhs);
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return vqsubq_u32(lhs, rhs);
+            }
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
             {
                 return vmulq_u32(lhs, rhs);
@@ -398,26 +409,6 @@ namespace xsimd
                 return rhs;
             }
 
-            static batch_type fma(const batch_type& x, const batch_type& y, const batch_type& z)
-            {
-                return x * y + z;
-            }
-
-            static batch_type fms(const batch_type& x, const batch_type& y, const batch_type& z)
-            {
-                return x * y - z;
-            }
-
-            static batch_type fnma(const batch_type& x, const batch_type& y, const batch_type& z)
-            {
-                return -x * y + z;
-            }
-
-            static batch_type fnms(const batch_type& x, const batch_type& y, const batch_type& z)
-            {
-                return -x * y - z;
-            }
-
             static value_type hadd(const batch_type& rhs)
             {
 #if XSIMD_ARM_INSTR_SET >= XSIMD_ARM8_64_NEON_VERSION
@@ -433,6 +424,27 @@ namespace xsimd
             {
                 return vbslq_u32(cond, a, b);
             }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+#if XSIMD_ARM_INSTR_SET >= XSIMD_ARM8_64_NEON_VERSION
+                return vzip1q_u32(lhs, rhs);
+#else
+                uint32x2x2_t tmp = vzip_u32(vget_low_u32(lhs), vget_low_u32(rhs));
+                return vcombine_u32(tmp.val[0], tmp.val[1]);
+#endif
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+#if XSIMD_ARM_INSTR_SET >= XSIMD_ARM8_64_NEON_VERSION
+                return vzip2q_u32(lhs, rhs);
+#else
+                uint32x2x2_t tmp = vzip_u32(vget_high_u32(lhs), vget_high_u32(rhs));
+                return vcombine_u32(tmp.val[0], tmp.val[1]);
+#endif
+            }
+
         };
 
         inline batch<uint32_t, 4> shift_left(const batch<uint32_t, 4>& lhs, int32_t n)

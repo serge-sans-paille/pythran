@@ -70,7 +70,7 @@ namespace xsimd
         sse_int_batch();
         explicit sse_int_batch(T i);
         template <class... Args, class Enable = detail::is_array_initializer_t<T, N, Args...>>
-        sse_int_batch(Args... args);
+        constexpr sse_int_batch(Args... args);
         explicit sse_int_batch(const T* src);
         sse_int_batch(const T* src, aligned_mode);
         sse_int_batch(const T* src, unaligned_mode);
@@ -324,7 +324,7 @@ namespace xsimd
 
     template <class T, std::size_t N>
     template <class... Args, class>
-    inline sse_int_batch<T, N>::sse_int_batch(Args... args)
+    constexpr inline sse_int_batch<T, N>::sse_int_batch(Args... args)
         : base_type(sse_detail::int_init(std::integral_constant<std::size_t, sizeof(T)>{}, args...))
     {
     }
@@ -490,6 +490,21 @@ namespace xsimd
             static batch_type bitwise_andnot(const batch_type& lhs, const batch_type& rhs)
             {
                 return _mm_andnot_si128(lhs, rhs);
+            }
+
+            static batch_type fmin(const batch_type& lhs, const batch_type& rhs)
+            {
+                return min(lhs, rhs);
+            }
+
+            static batch_type fmax(const batch_type& lhs, const batch_type& rhs)
+            {
+                return max(lhs, rhs);
+            }
+
+            static batch_type fabs(const batch_type& rhs)
+            {
+                return abs(rhs);
             }
 
             static batch_type fma(const batch_type& x, const batch_type& y, const batch_type& z)

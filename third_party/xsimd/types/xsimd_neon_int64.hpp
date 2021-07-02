@@ -12,6 +12,7 @@
 #define XSIMD_NEON_INT64_HPP
 
 #include "xsimd_base.hpp"
+#include "xsimd_neon_int_base.hpp"
 
 namespace xsimd
 {
@@ -303,6 +304,7 @@ namespace xsimd
     {
         template <>
         struct batch_kernel<int64_t, 2>
+            : neon_int_kernel_base<batch<int64_t, 2>>
         {
             using batch_type = batch<int64_t, 2>;
             using value_type = int64_t;
@@ -325,6 +327,16 @@ namespace xsimd
             static batch_type sub(const batch_type& lhs, const batch_type& rhs)
             {
                 return vsubq_s64(lhs, rhs);
+            }
+
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                return vqaddq_s64(lhs, rhs);
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return vqsubq_s64(lhs, rhs);
             }
 
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
@@ -424,26 +436,6 @@ namespace xsimd
 #endif
             }
 
-            static batch_type fma(const batch_type& x, const batch_type& y, const batch_type& z)
-            {
-                return x * y + z;
-            }
-
-            static batch_type fms(const batch_type& x, const batch_type& y, const batch_type& z)
-            {
-                return x * y - z;
-            }
-
-            static batch_type fnma(const batch_type& x, const batch_type& y, const batch_type& z)
-            {
-                return -x * y + z;
-            }
-
-            static batch_type fnms(const batch_type& x, const batch_type& y, const batch_type& z)
-            {
-                return -x * y - z;
-            }
-
             static value_type hadd(const batch_type& rhs)
             {
 #if XSIMD_ARM_INSTR_SET >= XSIMD_ARM8_64_NEON_VERSION
@@ -456,6 +448,24 @@ namespace xsimd
             static batch_type select(const batch_bool_type& cond, const batch_type& a, const batch_type& b)
             {
                 return vbslq_s64(cond, a, b);
+            }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+#if XSIMD_ARM_INSTR_SET >= XSIMD_ARM8_64_NEON_VERSION
+                return vzip1q_s64(lhs, rhs);
+#else
+                return vcombine_s64(vget_low_s64(lhs), vget_low_s64(rhs));
+#endif
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+#if XSIMD_ARM_INSTR_SET >= XSIMD_ARM8_64_NEON_VERSION
+                return vzip2q_s64(lhs, rhs);
+#else
+                return vcombine_s64(vget_high_s64(lhs), vget_high_s64(rhs));
+#endif
             }
         };
     }

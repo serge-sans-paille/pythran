@@ -161,6 +161,16 @@ namespace xsimd
                 return _mm_sub_epi16(lhs, rhs);
             }
 
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_adds_epi16(lhs, rhs);
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_subs_epi16(lhs, rhs);
+            }
+
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
             {
             	return _mm_mullo_epi16(lhs, rhs);
@@ -191,6 +201,16 @@ namespace xsimd
 #else
                 return _mm_or_si128(_mm_and_si128(cond, a), _mm_andnot_si128(cond, b));
 #endif
+            }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_unpacklo_epi16(lhs, rhs);
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_unpackhi_epi16(lhs, rhs);
             }
         };
 
@@ -258,6 +278,16 @@ namespace xsimd
             static batch_type abs(const batch_type& rhs)
             {
                 return rhs;
+            }
+
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_adds_epu16(lhs, rhs);
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_subs_epu16(lhs, rhs);
             }
         };
     }

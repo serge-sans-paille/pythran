@@ -179,6 +179,17 @@ namespace xsimd
                 return _mm_sub_epi8(lhs, rhs);
             }
 
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_adds_epi8(lhs, rhs);
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_subs_epi8(lhs,rhs);
+            }
+
+
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
             {
                 return sse_int8_batch_kernel::bitwise_or(
@@ -212,6 +223,16 @@ namespace xsimd
 #else
                 return _mm_or_si128(_mm_and_si128(cond, a), _mm_andnot_si128(cond, b));
 #endif
+            }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_unpacklo_epi8(lhs, rhs);
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_unpackhi_epi8(lhs, rhs);
             }
         };
 
@@ -288,6 +309,18 @@ namespace xsimd
             {
                 return rhs;
             }
+
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_adds_epu8(lhs, rhs);
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_subs_epu8(lhs,rhs);
+            }
+
+
         };
     }
 

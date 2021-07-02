@@ -13,7 +13,9 @@
 
 #include <complex>
 #include <cstddef>
+#include <limits>
 #include <ostream>
+#include <cassert>
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
 #include "xtl/xcomplex.hpp"
@@ -143,7 +145,9 @@ namespace xsimd
         explicit simd_complex_batch(const value_type& v);
         explicit simd_complex_batch(const real_value_type& v);
         explicit simd_complex_batch(const real_batch& re);
+        explicit simd_complex_batch(const real_value_type* v) : simd_complex_batch(real_batch(v)) {}
         simd_complex_batch(const real_batch& re, const real_batch& im);
+        simd_complex_batch(const real_value_type* re, const real_value_type* im) : simd_complex_batch(real_batch(re), real_batch(im)) {}
 
         real_batch& real();
         real_batch& imag();
@@ -196,9 +200,18 @@ namespace xsimd
         load_unaligned(const T* src);
 
         template <class T>
-        void store_aligned(T* dst) const;
+        inline typename std::enable_if<detail::is_complex<T>::value, void>::type
+        store_aligned(T* dst) const;
         template <class T>
-        void store_unaligned(T* dst) const;
+        inline typename std::enable_if<detail::is_complex<T>::value, void>::type
+        store_unaligned(T* dst) const;
+
+        template <class T>
+        inline typename std::enable_if<!detail::is_complex<T>::value, void>::type
+        store_aligned(T* dst) const;
+        template <class T>
+        inline typename std::enable_if<!detail::is_complex<T>::value, void>::type
+        store_unaligned(T* dst) const;
 
         value_type operator[](std::size_t index) const;
 
@@ -210,6 +223,9 @@ namespace xsimd
         real_batch m_real;
         real_batch m_imag;
     };
+
+    template <class X>
+    X operator+(const simd_complex_batch<X>& rhs);
 
     template <class X>
     X operator-(const simd_complex_batch<X>& rhs);
@@ -818,12 +834,13 @@ namespace xsimd
     /// @endcond
 
     /**
-     * Stores the N values of the batch into a contiguous array
+     * Stores the N values of the batch into a contiguous array of complex
      * pointed by \c dst. \c dst must be aligned.
      */
     template <class X>
     template <class T>
-    inline void simd_complex_batch<X>::store_aligned(T* dst) const
+    inline typename std::enable_if<detail::is_complex<T>::value, void>::type
+    simd_complex_batch<X>::store_aligned(T* dst) const
     {
         real_batch hi = (*this)().get_complex_high();
         real_batch lo = (*this)().get_complex_low();
@@ -834,12 +851,26 @@ namespace xsimd
     }
 
     /**
-     * Stores the N values of the batch into a contiguous array
+     * Stores the N values of the batch into a contiguous array of reals
+     * pointed by \c dst. \c dst must be aligned.
+     */
+    template <class X>
+    template <class T>
+    inline typename std::enable_if<!detail::is_complex<T>::value, void>::type
+    simd_complex_batch<X>::store_aligned(T* dst) const
+    {
+        m_real.store_aligned(dst);
+        assert(all(m_imag == 0) && "no imaginary part");
+    }
+
+    /**
+     * Stores the N values of the batch into a contiguous array of complex
      * pointed by \c dst. \c dst is not required to be aligned.
      */
     template <class X>
     template <class T>
-    inline void simd_complex_batch<X>::store_unaligned(T* dst) const
+    inline typename std::enable_if<detail::is_complex<T>::value, void>::type
+    simd_complex_batch<X>::store_unaligned(T* dst) const
     {
         real_batch hi = (*this)().get_complex_high();
         real_batch lo = (*this)().get_complex_low();
@@ -848,6 +879,20 @@ namespace xsimd
         hi.store_unaligned(rbuf);
         lo.store_unaligned(rbuf + size);
     }
+
+    /**
+     * Stores the N values of the batch into a contiguous array of reals
+     * pointed by \c dst. \c dst is not required to be aligned.
+     */
+    template <class X>
+    template <class T>
+    inline typename std::enable_if<!detail::is_complex<T>::value, void>::type
+    simd_complex_batch<X>::store_unaligned(T* dst) const
+    {
+        m_real.store_aligned(dst);
+        assert(all(m_imag == 0) && "no imaginary part");
+    }
+
     //@}
 
     template <class X>
@@ -875,6 +920,20 @@ namespace xsimd
     /**
      * @defgroup simd_complex_batch_arithmetic Arithmetic operators
      */
+
+    /**
+     * @ingroup simd_complex_batch_arithmetic
+     *
+     * No-op on \c rhs.
+     * @tparam X the actual type of batch.
+     * @param rhs batch involved in the operation.
+     * @return the opposite of \c rhs.
+     */
+    template <class X>
+    inline X operator+(const simd_complex_batch<X>& rhs)
+    {
+        return rhs();
+    }
 
     /**
      * @ingroup simd_complex_batch_arithmetic

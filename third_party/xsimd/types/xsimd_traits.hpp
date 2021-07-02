@@ -47,10 +47,11 @@
 #define XSIMD_BATCH_INT32_SIZE 4
 #define XSIMD_BATCH_INT64_SIZE 2
 #define XSIMD_BATCH_FLOAT_SIZE 4
-#endif
-
 #if XSIMD_ARM_INSTR_SET >= XSIMD_ARM8_64_NEON_VERSION
 #define XSIMD_BATCH_DOUBLE_SIZE 2
+#elif defined(XSIMD_ENABLE_FALLBACK)
+#define XSIMD_BATCH_DOUBLE_SIZE 1
+#endif
 #endif
 
 namespace xsimd
@@ -404,6 +405,20 @@ namespace xsimd
 
     template <class T1, class T2, std::size_t N = simd_traits<T2>::size>
     using simd_return_type = typename detail::simd_return_type_impl<T1, T2, N>::type;
+
+    /************
+     * is_batch *
+     ************/
+
+    template <class V>
+    struct is_batch : std::false_type
+    {
+    };
+
+    template <class T, std::size_t N>
+    struct is_batch<batch<T, N>> : std::true_type
+    {
+    };
 
     /*****************
      * is_batch_bool *

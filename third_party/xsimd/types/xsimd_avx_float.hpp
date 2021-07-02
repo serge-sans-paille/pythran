@@ -522,6 +522,16 @@ namespace xsimd
                 return _mm256_sub_ps(lhs, rhs);
             }
 
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                return add(lhs, rhs); //FIXME something special for inf ?
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return sub(lhs,rhs); //FIXME something special for inf ?
+            }
+
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
             {
                 return _mm256_mul_ps(lhs, rhs);
@@ -704,6 +714,23 @@ namespace xsimd
             static batch_type select(const batch_bool_type& cond, const batch_type& a, const batch_type& b)
             {
                 return _mm256_blendv_ps(b, a, cond);
+            }
+
+            template<bool... Values>
+            static batch_type select(const batch_bool_constant<value_type, Values...>&, const batch_type& a, const batch_type& b)
+            {
+                constexpr int mask = batch_bool_constant<value_type, Values...>::mask();
+                return _mm256_blend_ps(b, a, mask);
+            }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm256_unpacklo_ps(lhs, rhs);
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm256_unpackhi_ps(lhs, rhs);
             }
 
             static batch_bool_type isnan(const batch_type& x)

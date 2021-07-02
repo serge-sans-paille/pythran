@@ -196,6 +196,24 @@ namespace xsimd
 #endif
             }
 
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+                return _mm256_adds_epi8(lhs, rhs);
+#else
+                XSIMD_APPLY_SSE_FUNCTION(_mm_adds_epi8, lhs, rhs);
+#endif
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+                return _mm256_subs_epi8(lhs, rhs);
+#else
+                XSIMD_APPLY_SSE_FUNCTION(_mm_subs_epi8, lhs, rhs);
+#endif
+            }
+
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
             {
 #if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
@@ -312,6 +330,17 @@ namespace xsimd
                 XSIMD_RETURN_MERGED_SSE(res_low, res_high);
 #endif
             }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm256_unpacklo_epi8(lhs, rhs);
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm256_unpackhi_epi8(lhs, rhs);
+            }
+
         };
 
         template <>
@@ -402,6 +431,24 @@ namespace xsimd
             {
                 return rhs;
             }
+
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+                return _mm256_adds_epu8(lhs, rhs);
+#else
+                XSIMD_APPLY_SSE_FUNCTION(_mm_adds_epu8, lhs, rhs);
+#endif
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
+                return _mm256_subs_epu8(lhs, rhs);
+#else
+                XSIMD_APPLY_SSE_FUNCTION(_mm_subs_epu8, lhs, rhs);
+#endif
+            }
         };
     }
 
@@ -410,7 +457,7 @@ namespace xsimd
 #if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
         return _mm256_and_si256(_mm256_set1_epi8(0xFF << rhs), _mm256_slli_epi32(lhs, rhs));
 #else
-        return avx_detail::shift_impl([](int8_t val, int32_t rhs) { return val << rhs; }, lhs, rhs);
+        return avx_detail::shift_impl([](int8_t val, int32_t s) { return val << s; }, lhs, rhs);
 #endif
     }
 
@@ -422,18 +469,18 @@ namespace xsimd
         __m256i res = _mm256_srai_epi16(lhs, rhs);
         return _mm256_or_si256(_mm256_and_si256(sign_mask, cmp_is_negative), _mm256_andnot_si256(sign_mask, res));
 #else
-        return avx_detail::shift_impl([](int8_t val, int32_t rhs) { return val >> rhs; }, lhs, rhs);
+        return avx_detail::shift_impl([](int8_t val, int32_t s) { return val >> s; }, lhs, rhs);
 #endif
     }
 
     inline batch<int8_t, 32> operator<<(const batch<int8_t, 32>& lhs, const batch<int8_t, 32>& rhs)
     {
-        return avx_detail::shift_impl([](int8_t val, int8_t rhs) { return val << rhs; }, lhs, rhs);
+        return avx_detail::shift_impl([](int8_t val, int8_t s) { return val << s; }, lhs, rhs);
     }
 
     inline batch<int8_t, 32> operator>>(const batch<int8_t, 32>& lhs, const batch<int8_t, 32>& rhs)
     {
-        return avx_detail::shift_impl([](int8_t val, int8_t rhs) { return val >> rhs; }, lhs, rhs);
+        return avx_detail::shift_impl([](int8_t val, int8_t s) { return val >> s; }, lhs, rhs);
     }
 
     XSIMD_DEFINE_LOAD_STORE_INT8(int8_t, 32, 32)
@@ -444,7 +491,7 @@ namespace xsimd
 #if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
         return _mm256_and_si256(_mm256_set1_epi8(0xFF << rhs), _mm256_slli_epi32(lhs, rhs));
 #else
-        return avx_detail::shift_impl([](int8_t val, int32_t rhs) { return val << rhs; }, lhs, rhs);
+        return avx_detail::shift_impl([](int8_t val, int32_t s) { return val << s; }, lhs, rhs);
 #endif
     }
 
@@ -453,18 +500,18 @@ namespace xsimd
 #if XSIMD_X86_INSTR_SET >= XSIMD_X86_AVX2_VERSION
         return _mm256_and_si256(_mm256_set1_epi8(0xFF >> rhs), _mm256_srli_epi32(lhs, rhs));
 #else
-        return avx_detail::shift_impl([](uint8_t val, int32_t rhs) { return val >> rhs; }, lhs, rhs);
+        return avx_detail::shift_impl([](uint8_t val, int32_t s) { return val >> s; }, lhs, rhs);
 #endif
     }
 
     inline batch<uint8_t, 32> operator<<(const batch<uint8_t, 32>& lhs, const batch<int8_t, 32>& rhs)
     {
-        return avx_detail::shift_impl([](uint8_t val, int8_t rhs) { return val << rhs; }, lhs, rhs);
+        return avx_detail::shift_impl([](uint8_t val, int8_t s) { return val << s; }, lhs, rhs);
     }
 
     inline batch<uint8_t, 32> operator>>(const batch<uint8_t, 32>& lhs, const batch<int8_t, 32>& rhs)
     {
-        return avx_detail::shift_impl([](uint8_t val, int8_t rhs) { return val >> rhs; }, lhs, rhs);
+        return avx_detail::shift_impl([](uint8_t val, int8_t s) { return val >> s; }, lhs, rhs);
     }
 
     XSIMD_DEFINE_LOAD_STORE_INT8(uint8_t, 32, 32)

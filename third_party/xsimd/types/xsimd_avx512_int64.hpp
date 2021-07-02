@@ -213,6 +213,7 @@ namespace xsimd
     {
         template <class T>
         struct avx512_int64_batch_kernel
+            : avx512_int_kernel_base<batch<T, 8>>
         {
             using batch_type = batch<T, 8>;
             using value_type = T;
@@ -231,6 +232,19 @@ namespace xsimd
             static batch_type sub(const batch_type& lhs, const batch_type& rhs)
             {
                 return _mm512_sub_epi64(lhs, rhs);
+            }
+
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                batch_bool_type mask = _mm512_movepi64_mask(rhs);
+                batch_type lhs_pos_branch = min(std::numeric_limits<value_type>::max() - rhs, lhs);
+                batch_type lhs_neg_branch = max(std::numeric_limits<value_type>::min() - rhs, lhs);
+                return rhs + select(mask, lhs_neg_branch, lhs_pos_branch);
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return sadd(lhs, neg(rhs));
             }
 
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
@@ -292,14 +306,37 @@ namespace xsimd
             {
                 __m256i tmp1 = _mm512_extracti32x8_epi32(rhs, 0);
                 __m256i tmp2 = _mm512_extracti32x8_epi32(rhs, 1);
-                __m256i res1 = tmp1 + tmp2;
+                __m256i res1 = _mm256_add_epi64(tmp1, tmp2);
                 return xsimd::hadd(batch<int64_t, 4>(res1));
             }
 
             static batch_type select(const batch_bool_type& cond, const batch_type& a, const batch_type& b)
             {
+            #if !defined(_MSC_VER)
                 return _mm512_mask_blend_epi64(cond, b, a);
+            #else
+                __m512i mcond = _mm512_maskz_broadcastq_epi64((__mmask8)cond, _mm_set1_epi32(~0));
+                XSIMD_SPLIT_AVX512(mcond);
+                XSIMD_SPLIT_AVX512(a);
+                XSIMD_SPLIT_AVX512(b);
+
+                auto res_lo = _mm256_blendv_epi8(b_low, a_low, mcond_low);
+                auto res_hi = _mm256_blendv_epi8(b_high, a_high, mcond_high);
+
+                XSIMD_RETURN_MERGED_AVX(res_lo, res_hi);
+            #endif
             }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm512_unpacklo_epi64(lhs, rhs);
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm512_unpackhi_epi64(lhs, rhs);
+            }
+
         };
 
         template <>
@@ -405,6 +442,19 @@ namespace xsimd
             static batch_type abs(const batch_type& rhs)
             {
                 return rhs;
+            }
+
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                const auto diffmax = batch_type(std::numeric_limits<value_type>::max()) - lhs;
+                const auto mindiff = min(diffmax, rhs);
+                return lhs + mindiff;
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                const auto diff = min(lhs, rhs);
+                return lhs - diff;
             }
         };
     }

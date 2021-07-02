@@ -155,6 +155,7 @@ namespace xsimd
     {
         template <class T>
         struct avx512_int32_batch_kernel
+            : avx512_int_kernel_base<batch<T, 16>>
         {
             using batch_type = batch<T, 16>;
             using value_type = T;
@@ -173,6 +174,19 @@ namespace xsimd
             static batch_type sub(const batch_type& lhs, const batch_type& rhs)
             {
                 return _mm512_sub_epi32(lhs, rhs);
+            }
+
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                batch_bool_type mask = _mm512_movepi32_mask(rhs);
+                batch_type lhs_pos_branch = min(std::numeric_limits<value_type>::max() - rhs, lhs);
+                batch_type lhs_neg_branch = max(std::numeric_limits<value_type>::min() - rhs, lhs);
+                return rhs + select(mask, lhs_neg_branch, lhs_pos_branch);
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return sadd(lhs, neg(rhs));
             }
 
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
@@ -235,7 +249,7 @@ namespace xsimd
                 // TODO Why not _mm512_reduce_add_...?
                 __m256i tmp1 = _mm512_extracti32x8_epi32(rhs, 0);
                 __m256i tmp2 = _mm512_extracti32x8_epi32(rhs, 1);
-                __m256i res1 = tmp1 + tmp2;
+                __m256i res1 = _mm256_add_epi32(tmp1, tmp2);
                 return xsimd::hadd(batch<int32_t, 8>(res1));
             }
 
@@ -243,6 +257,17 @@ namespace xsimd
             {
                 return _mm512_mask_blend_epi32(cond, b, a);
             }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm512_unpacklo_epi32(lhs, rhs);
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm512_unpackhi_epi32(lhs, rhs);
+            }
+
         };
 
         template <>
@@ -348,6 +373,19 @@ namespace xsimd
             static batch_type abs(const batch_type& rhs)
             {
                 return rhs;
+            }
+
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                const auto diffmax = batch_type(std::numeric_limits<value_type>::max()) - lhs;
+                const auto mindiff = min(diffmax, rhs);
+                return lhs + mindiff;
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                const auto diff = min(lhs, rhs);
+                return lhs - diff;
             }
         };
     }

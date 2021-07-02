@@ -465,6 +465,16 @@ namespace xsimd
                 return _mm_sub_pd(lhs, rhs);
             }
 
+            static batch_type sadd(const batch_type& lhs, const batch_type& rhs)
+            {
+                return add(lhs, rhs); //do something special for inf?
+            }
+
+            static batch_type ssub(const batch_type& lhs, const batch_type& rhs)
+            {
+                return sub(lhs, rhs); //do something special for inf?
+            }
+
             static batch_type mul(const batch_type& lhs, const batch_type& rhs)
             {
                 return _mm_mul_pd(lhs, rhs);
@@ -629,9 +639,31 @@ namespace xsimd
 #endif
             }
 
+            template<bool... Values>
+            static batch_type select(const batch_bool_constant<value_type, Values...>& cond, const batch_type& a, const batch_type& b)
+            {
+#if XSIMD_X86_INSTR_SET >= XSIMD_X86_SSE4_1_VERSION
+                (void)cond;
+                constexpr int mask = batch_bool_constant<value_type, Values...>::mask();
+                return _mm_blend_pd(b, a, mask);
+#else
+                return select(cond(), a, b);
+#endif
+            }
+
             static batch_bool_type isnan(const batch_type& x)
             {
                 return _mm_cmpunord_pd(x, x);
+            }
+
+            static batch_type zip_lo(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_unpacklo_pd(lhs, rhs);
+            }
+
+            static batch_type zip_hi(const batch_type& lhs, const batch_type& rhs)
+            {
+                return _mm_unpackhi_pd(lhs, rhs);
             }
         };
     }

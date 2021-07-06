@@ -1,3 +1,28 @@
+2021-07-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+	* Remove six, networkx and decorator dependency
+
+	* Bump gast and Beniget requirements to support python 3.10
+
+	* Bump xsimd to 7.5.0
+
+	* Minimal default support for non-linux, non-osx, now-windows platform
+
+	* Numpy improvements for np.bincount, np.transpose, np.searchsorted
+
+	* Restore (and test) cython compatibility
+
+	* Expose pythran.get_include for toolchain integration
+
+	* Improve error message on invalid spec
+
+	* Handle static dispatching based on keyword signature
+
+	* Raise Memory Error upon (too) large numpy alloc
+
+	* Support scalar case of scipy.special.binom
+
+	* Trim the number of warnings in pythonic codebase
+
 2021-05-23 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix compatibility issue with python 3.10

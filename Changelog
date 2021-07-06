@@ -264,7 +264,7 @@
 
 	* Fix np.transpose regression
 
-	* Updgrade xsimd to 7.1.2
+	* Upgrade xsimd to 7.1.2
 
 	* Fix setup.py test target
 
@@ -307,7 +307,7 @@
 
 	* Improved Cython integration
 
-	* Improved documentation, add exemple section
+	* Improved documentation, add example section
 
 	* Updated ArchLinux Packaging
 
@@ -352,7 +352,7 @@
 
 	* Better support for view arguments (but still lotta missing :-/)
 
-	* Better Windows support (fix compiler-specific bugs) incuding OpenMP
+	* Better Windows support (fix compiler-specific bugs) including OpenMP
 
 
 2018-06-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
@@ -548,7 +548,7 @@
 
 	* Better user feedback on invalid pythran spec
 
-	* More efficient support of string litterals
+	* More efficient support of string literals
 
 	* Faster exponentiation when index is an integer
 

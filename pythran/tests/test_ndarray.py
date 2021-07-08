@@ -13,15 +13,27 @@ except AttributeError:
     has_float128 = False
 
 
+huge = numpy.iinfo(numpy.intp).max // numpy.intp().itemsize
+
+def raisesMemoryError():
+    try:
+        numpy.ones(huge)
+        return False
+    except MemoryError:
+        return True
+    except ValueError:
+        return False
+
 
 @TestEnv.module
 class TestNdarray(TestEnv):
 
+    @unittest.skipIf(not raisesMemoryError(), "memory error not triggered on that arch")
     def test_ndarray_memory_error(self):
-        with self.assertRaises(MemoryError):
-            self.run_test('def ndarray_memory_error(n): import numpy as np; return np.ones(n)',
-                          999999999999,
-                          ndarray_memory_error=[int])
+        code = 'def ndarray_memory_error(n): import numpy as np; return np.ones(n)'
+        self.run_test(code, huge,
+                      ndarray_memory_error=[numpy.intp],
+                      check_exception=True)
 
     def test_ndarray_intc(self):
         self.run_test('def ndarray_intc(a): import numpy as np; return np.intc(a), np.array([a, a], dtype=np.intc)',

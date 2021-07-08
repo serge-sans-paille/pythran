@@ -318,10 +318,12 @@ class TestEnv(unittest.TestCase):
         pythran_res = self.run_pythran(*run_pythran_args)
 
         if check_exception:
-            if pythran_res != python_ref:
+            if not issubclass(python_ref, pythran_res):
                 raise AssertionError(
                     "expected exception was %s, but received %s" %
                     (python_ref, pythran_res))
+            else:
+                return
 
         print("Python result: ", python_ref)
         print("Pythran result: ", pythran_res)

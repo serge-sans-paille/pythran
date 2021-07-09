@@ -6,10 +6,10 @@ computation code.
 from pythran.analyses import LazynessAnalysis, UseDefChains, DefUseChains
 from pythran.analyses import Literals, Ancestors, Identifiers, CFG, IsAssigned
 from pythran.passmanager import Transformation
+import pythran.graph as graph
 
 from collections import defaultdict
 import gast as ast
-import networkx as nx
 
 try:
     from math import isfinite
@@ -139,7 +139,7 @@ class ForwardSubstitution(Transformation):
                 ids = self.gather(Identifiers, value)
                 node_stmt = next(reversed([s for s in self.ancestors[node]
                                  if isinstance(s, ast.stmt)]))
-                all_paths = nx.all_simple_paths(self.cfg, parent, node_stmt)
+                all_paths = graph.all_simple_paths(self.cfg, parent, node_stmt)
                 for path in all_paths:
                     for stmt in path[1:-1]:
                         assigned_ids = {n.id

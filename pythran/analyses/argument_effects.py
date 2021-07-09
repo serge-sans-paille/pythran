@@ -4,11 +4,11 @@ from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
+from pythran.graph import DiGraph
 # FIXME: investigate why we need to import it that way
 from pythran import intrinsic
 
 import gast as ast
-import networkx as nx
 from functools import reduce
 
 
@@ -53,7 +53,7 @@ class ArgumentEffects(ModuleAnalysis):
     """Gathers inter-procedural effects on function arguments."""
 
     def __init__(self):
-        self.result = nx.DiGraph()
+        self.result = DiGraph()
         self.node_to_functioneffect = IntrinsicArgumentEffects.copy()
         for fe in IntrinsicArgumentEffects.values():
             self.result.add_node(fe)

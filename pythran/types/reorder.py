@@ -2,12 +2,11 @@
 
 import gast as ast
 
-import networkx as nx
-
 from pythran.analyses import OrderedGlobalDeclarations
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.types.type_dependencies import TypeDependencies
+import pythran.graph as graph
 
 
 def topological_sort(G, nbunch):
@@ -33,7 +32,7 @@ def topological_sort(G, nbunch):
             for n in G[w]:
                 if n not in explored:
                     if n in seen:  # CYCLE !!
-                        raise nx.NetworkXUnfeasible(
+                        raise graph.Unfeasible(
                             "Graph contains a cycle at %s." % n)
                     new_nodes.append(n)
             if new_nodes:   # Add new_nodes to fringe
@@ -84,7 +83,7 @@ class Reorder(Transformation):
             for n in candidates:
                 # remove edges that imply a circular dependency
                 for p in list(self.type_dependencies.predecessors(n)):
-                    if nx.has_path(self.type_dependencies, n, p):
+                    if graph.has_path(self.type_dependencies, n, p):
                         self.type_dependencies.remove_edge(p, n)
                 if n not in self.type_dependencies.successors(n):
                     new_candidates.extend(self.type_dependencies.successors(n))
@@ -109,7 +108,7 @@ class Reorder(Transformation):
                 self.type_dependencies,
                 self.ordered_global_declarations)
             newdef = [f for f in newdef if isinstance(f, ast.FunctionDef)]
-        except nx.exception.NetworkXUnfeasible:
+        except graph.Unfeasible:
             raise PythranSyntaxError("Infinite function recursion")
 
         assert set(newdef) == set(olddef), "A function have been lost..."

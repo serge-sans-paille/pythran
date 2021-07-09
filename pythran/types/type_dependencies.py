@@ -4,14 +4,13 @@ import gast as ast
 import itertools
 import os
 
-import networkx as nx
-
 from pythran.analyses import GlobalDeclarations
 from pythran.errors import PythranInternalError
 from pythran.passmanager import ModuleAnalysis
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 from pythran.utils import get_variable
 from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun
+from pythran.graph import DiGraph
 
 
 def pytype_to_deps_hpp(t):
@@ -70,7 +69,7 @@ class TypeDependencies(ModuleAnalysis):
     ... def copy(n):
     ...     return n == 2''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     3
 
     foo result depend on : NoDeps and copy
@@ -84,7 +83,7 @@ class TypeDependencies(ModuleAnalysis):
     ... def copy(n):
     ...     return n == 2''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     3
 
     foo result depend on : NoDeps and copy
@@ -101,7 +100,7 @@ class TypeDependencies(ModuleAnalysis):
     ... def copy(n):
     ...     return n == 2''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     5
 
     bar result depend on : NoDeps
@@ -119,7 +118,7 @@ class TypeDependencies(ModuleAnalysis):
     ...         n = 4
     ...     return 1 or n''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     3
 
     Check we do not add everything from a conditional statement.
@@ -134,7 +133,7 @@ class TypeDependencies(ModuleAnalysis):
     ...         n = 4
     ...     return 1 or n''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     2
 
     bar result depend on : NoDeps
@@ -149,7 +148,7 @@ class TypeDependencies(ModuleAnalysis):
     ...         i = 2
     ...     return i''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     2
 
     bar result depend on : NoDeps
@@ -165,7 +164,7 @@ class TypeDependencies(ModuleAnalysis):
     ...         pass
     ...     return i''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     3
 
     bar result depend on : NoDeps
@@ -180,7 +179,7 @@ class TypeDependencies(ModuleAnalysis):
     ...         pass
     ...     return i''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     2
 
     bar result depend on : NoDeps
@@ -194,7 +193,7 @@ class TypeDependencies(ModuleAnalysis):
     ...         res = foo(n - 1)
     ...     return res''')
     >>> res = pm.gather(TypeDependencies, node)
-    >>> len(res.edges())
+    >>> len(res.edges)
     2
 
     foo result depend on : NoDeps and foo
@@ -215,7 +214,7 @@ class TypeDependencies(ModuleAnalysis):
     ..         j = bar2(n)
     ..     return j''')
     >> res = pm.gather(TypeDependencies, node)
-    >> len(res.edges())
+    >> len(res.edges)
     4
 
     bar result depend on : NoDeps
@@ -227,7 +226,7 @@ class TypeDependencies(ModuleAnalysis):
 
     def __init__(self):
         """ Create empty result graph and gather global declarations. """
-        self.result = nx.DiGraph()
+        self.result = DiGraph()
         self.current_function = None
         self.naming = dict()  # variable to dependencies for current function.
         # variable to dependencies for current conditional statement

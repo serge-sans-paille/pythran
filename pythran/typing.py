@@ -1,6 +1,3 @@
-from six import with_metaclass
-
-
 class FunMeta(type):
 
     def __getitem__(cls, item):
@@ -81,47 +78,47 @@ class Type(type):
         pass
 
 
-class Fun(with_metaclass(FunMeta, Type)):
+class Fun(Type, metaclass=FunMeta):
     pass
 
 
-class Dict(with_metaclass(DictMeta, Type)):
+class Dict(Type, metaclass=DictMeta):
     pass
 
 
-class Union(with_metaclass(UnionMeta, Type)):
+class Union(Type, metaclass=UnionMeta):
     pass
 
 
-class Set(with_metaclass(SetMeta, Type)):
+class Set(Type, metaclass=SetMeta):
     pass
 
 
-class List(with_metaclass(ListMeta, Type)):
+class List(Type, metaclass=ListMeta):
     pass
 
 
-class Iterable(with_metaclass(IterableMeta, Type)):
+class Iterable(Type, metaclass=IterableMeta):
     pass
 
 
-class Generator(with_metaclass(GeneratorMeta, Type)):
+class Generator(Type, metaclass=GeneratorMeta):
     pass
 
 
-class Tuple(with_metaclass(TupleMeta, Type)):
+class Tuple(Type, metaclass=TupleMeta):
     pass
 
 
-class Optional(with_metaclass(OptionalMeta, Type)):
+class Optional(Type, metaclass=OptionalMeta):
     pass
 
 
-class NDArray(with_metaclass(NDArrayMeta, Type)):
+class NDArray(Type, metaclass=NDArrayMeta):
     pass
 
 
-class Pointer(with_metaclass(PointerMeta, Type)):
+class Pointer(Type, metaclass=PointerMeta):
     pass
 
 

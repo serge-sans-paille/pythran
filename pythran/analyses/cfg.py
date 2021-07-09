@@ -2,9 +2,9 @@
 
 from pythran.passmanager import FunctionAnalysis
 from pythran.utils import isnum
+from pythran.graph import DiGraph
 
 import gast as ast
-import networkx as nx
 
 
 def is_true_predicate(node):
@@ -36,7 +36,7 @@ class CFG(FunctionAnalysis):
     NIL = object()
 
     def __init__(self):
-        self.result = nx.DiGraph()
+        self.result = DiGraph()
         super(CFG, self).__init__()
 
     def visit_FunctionDef(self, node):

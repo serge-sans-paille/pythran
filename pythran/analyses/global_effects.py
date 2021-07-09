@@ -4,10 +4,10 @@ from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
+from pythran.graph import DiGraph
 import pythran.intrinsic as intrinsic
 
 import gast as ast
-import networkx as nx
 from functools import reduce
 
 
@@ -35,7 +35,7 @@ class GlobalEffects(ModuleAnalysis):
                 raise NotImplementedError
 
     def __init__(self):
-        self.result = nx.DiGraph()
+        self.result = DiGraph()
         self.node_to_functioneffect = dict()
         super(GlobalEffects, self).__init__(Aliases, GlobalDeclarations)
 

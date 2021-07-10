@@ -469,11 +469,12 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
         kwargs.setdefault('specs', specs)
 
     try:
-        output_file = compile_pythrancode(module_name, open(file_path).read(),
-                                          output_file=output_file,
-                                          cpponly=cpponly, pyonly=pyonly,
-                                          module_dir=module_dir,
-                                          **kwargs)
+        with open(file_path) as fd:
+            output_file = compile_pythrancode(module_name, fd.read(),
+                                              output_file=output_file,
+                                              cpponly=cpponly, pyonly=pyonly,
+                                              module_dir=module_dir,
+                                              **kwargs)
     except PythranSyntaxError as e:
         if e.filename is None:
             e.filename = file_path

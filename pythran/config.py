@@ -38,6 +38,7 @@ class silent(object):
         sys.stderr = self.prevstream
         if self.prevfd:
             os.dup2(self.prevfd, sys.stderr.fileno())
+            os.close(self.prevfd)
 
 
 def get_paths_cfg(

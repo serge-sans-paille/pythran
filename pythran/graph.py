@@ -61,7 +61,7 @@ def has_path(graph, src, dest):
         worklist.extend(graph.successors(current))
     return False
 
-# Copied verbatim from NetworkX
+# Copied verbatim from NetworkX 2.6.1
 #
 # NetworkX is distributed with the 3-clause BSD license.
 #

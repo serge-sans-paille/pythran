@@ -4520,7 +4520,7 @@ for method in list(MODULES['numpy'].keys()):
         del MODULES['numpy'][method]
 
 # if openmp is available, check its version and populate the API accordingly
-if 'omp' in MODULES:
+try:
     omp_version = getattr(__import__('omp'), 'VERSION', 45)
     if omp_version >= 30:
         MODULES['omp'].update({
@@ -4535,6 +4535,8 @@ if 'omp' in MODULES:
             "get_active_level": FunctionIntr(global_effects=True),
             "in_final": FunctionIntr(global_effects=True),
         })
+except ImportError:
+    pass
 
 
 # populate argument description through introspection

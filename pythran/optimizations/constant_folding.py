@@ -89,6 +89,10 @@ class ConstantFolding(Transformation):
             except ToNotEval:
                 return Transformation.generic_visit(self, node)
             except AttributeError as e:
+                # FIXME builtins.pythran function don't have a python
+                # implementation
+                if "pythran" in e.args[0]:
+                    return Transformation.generic_visit(self, node)
                 # this may miss a few optimization
                 logger.info('During constant folding, bailing out due to: ' +
                             e.args[0])

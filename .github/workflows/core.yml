@@ -30,9 +30,10 @@ jobs:
     - name: Setup
       run: |
         python setup.py install
-        printf '[commpiler]\nblas=openblas\n' > ~/.pythranrc
+        printf '[compiler]\nblas=openblas\n' > ~/.pythranrc
     - name: Testing sequential
       run: |
+          if test ${{ matrix.python-version }} == 3.9 ; then export CXXFLAGS=-m32;  export LDFLAGS=-m32 ; fi
         export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/gcc/'`
         export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/clang++/'`
         pytest pythran/tests/test_*.py -v -x --numprocesses=auto $PYTEST_ARGS

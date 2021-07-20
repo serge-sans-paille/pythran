@@ -1,7 +1,7 @@
 """ This modules provides the translation tables from python to c++. """
 
 import gast as ast
-from inspect import getfullargspec
+import inspect
 import logging
 import sys
 
@@ -148,7 +148,7 @@ _complex_signature = Union[
 # workaround changes in numpy interaction with getfullargspec
 try:
     import numpy
-    getfullargspec(numpy.asarray)
+    inspect.getfullargspec(numpy.asarray)
     # if we have a description, honor it
     extra_numpy_asarray_descr = {}
 except TypeError:
@@ -4552,12 +4552,9 @@ def save_arguments(module_name, elements):
                 obj = getattr(themodule, elem)
                 while hasattr(obj, '__wrapped__'):
                     obj = obj.__wrapped__
-                spec = getfullargspec(obj)
-                if signature.args.args:
-                    logger.warning(
-                        "Overriding pythran description with argspec "
-                        "information for: {}".format(
-                            ".".join(module_name + (elem,))))
+
+                # first try to gather info through getfullargspec
+                spec = inspect.getfullargspec(obj)
 
                 args = [ast.Name(arg, ast.Param(), None, None)
                         for arg in spec.args]
@@ -4566,9 +4563,16 @@ def save_arguments(module_name, elements):
                          for arg in spec.kwonlyargs]
                 defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
 
+                # Sanity check
+                if signature.args.args:
+                    logger.warning(
+                        "Overriding pythran description with argspec "
+                        "information for: {}".format(
+
+                            ".".join(module_name + (elem,))))
                 # Avoid use of comprehension to fill "as much args/defauls" as
                 # possible
-                signature.args.args = args[:-len(defaults)]
+                signature.args.args = args[:-len(defaults) or None]
                 signature.args.defaults = []
                 for arg, value in zip(args[-len(defaults):], defaults):
                     signature.args.defaults.append(to_ast(value))

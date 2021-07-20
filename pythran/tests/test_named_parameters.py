@@ -53,6 +53,13 @@ def call_with_default_and_named_arguments(n, m):
                 return numpy.ones(n, dtype=numpy.uint8).nbytes""",
                       4, intrinsic_named_argument=[int])
 
+    def test_intrinsic_named_argument_without_default(self):
+        self.run_test("""
+            def intrinsic_named_argument_without_default(n):
+                import numpy as np
+                return np.expand_dims(np.ones(n), axis=0)""",
+                      4, intrinsic_named_argument_without_default=[int])
+
     def test_nested_function_with_named_arguments(self):
         self.run_test('''
 def nested_function_with_named_arguments(a):

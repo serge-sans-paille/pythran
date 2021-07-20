@@ -12,7 +12,7 @@ Pythran integration into IPython.
 # -----------------------------------------------------------------------------
 
 import hashlib
-import imp
+import importlib
 from IPython.core.magic import Magics, magics_class, cell_magic
 from IPython.core import magic_arguments
 
@@ -65,7 +65,10 @@ class PythranMagics(Magics):
         m.update(cell.encode('utf-8'))
         module_name = "pythranized_" + m.hexdigest()
         module_path = pythran.compile_pythrancode(module_name, cell, **kwargs)
-        module = imp.load_dynamic(module_name, module_path)
+        loader = importlib.machinery.ExtensionFileLoader(module_name, module_path)
+        spec = importlib.machinery.ModuleSpec(name=module_name, loader=loader,
+                                              origin=module_path)
+        pymod = importlib._bootstrap._load(spec)
         self._import_all(module)
 
 

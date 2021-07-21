@@ -68,7 +68,7 @@ class PythranMagics(Magics):
         loader = importlib.machinery.ExtensionFileLoader(module_name, module_path)
         spec = importlib.machinery.ModuleSpec(name=module_name, loader=loader,
                                               origin=module_path)
-        pymod = importlib._bootstrap._load(spec)
+        module = importlib._bootstrap._load(spec)
         self._import_all(module)
 
 

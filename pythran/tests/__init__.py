@@ -1,6 +1,6 @@
 """ Base file for all Pythran tests. """
 
-from imp import load_dynamic
+import importlib
 from numpy import float32, float64, complex128
 try:
     from numpy import float128, complex256
@@ -192,7 +192,10 @@ class TestEnv(unittest.TestCase):
         """
         # Caller may requires some cleaning
         prelude and prelude()
-        pymod = load_dynamic(modname, module_path)
+        loader = importlib.machinery.ExtensionFileLoader(modname, module_path)
+        spec = importlib.machinery.ModuleSpec(name=modname, loader=loader,
+                                              origin=module_path)
+        pymod = importlib._bootstrap._load(spec)
 
         err_msg = "Excepected exception but none raise."
         try:

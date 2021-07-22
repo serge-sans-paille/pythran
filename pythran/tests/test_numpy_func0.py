@@ -632,7 +632,7 @@ def np_rosen_der(x):
         self.run_test("def np_searchsorted1(x): from numpy import searchsorted; return searchsorted(x, 3)", numpy.arange(6), np_searchsorted1=[NDArray[int,:]])
 
     def test_searchsorted0(self):
-        self.run_test("def np_searchsorted0(x): from numpy import searchsorted; return searchsorted(x, 3, 'right')", numpy.arange(6), np_searchsorted0=[NDArray[int,:]])
+        self.run_test("def np_searchsorted0(x): from numpy import searchsorted; return x.searchsorted(3, 'right')", numpy.arange(6), np_searchsorted0=[NDArray[int,:]])
 
     def test_rot904(self):
         self.run_test("def np_rot904(x): from numpy import rot90; return rot90(x, 4)", numpy.arange(24).reshape(2,3,4), np_rot904=[NDArray[int, :, :, :]])

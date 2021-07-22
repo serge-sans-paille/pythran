@@ -3979,7 +3979,7 @@ MODULES = {
         "rot90": ConstFunctionIntr(),
         "round": ConstMethodIntr(),
         "round_": ConstMethodIntr(),
-        "searchsorted": ConstFunctionIntr(),
+        "searchsorted": ConstMethodIntr(),
         "select": ConstFunctionIntr(),
         "setdiff1d": ConstFunctionIntr(),
         "shape": ConstFunctionIntr(),

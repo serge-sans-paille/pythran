@@ -15,6 +15,81 @@ from pythran.syntax import PythranSyntaxError
 from pythran.config import cfg
 
 
+def is_integer(ty):
+    from numpy import integer
+    return issubclass(ty, (int, integer))
+
+
+def is_floating(ty):
+    from numpy import floating
+    return issubclass(ty, (float, floating))
+
+
+def is_scalar(ty):
+    return is_integer(ty) or is_floating(ty)
+
+
+def is_convertible(t0, t1):
+    '''
+    Check if t0 is convertible to t1, or t1 is convertible to t0
+    '''
+    if is_integer(t0) and is_floating(t1):
+        return True
+
+    if is_integer(t1) and is_floating(t0):
+        return True
+
+    return False
+
+
+def compute_missing_overload(ty0, ty1, overloads):
+    '''
+    Among all overloads, check if ty0 and ty1 are signatures that may lead to
+    ambiguous overloads due to conversion from int to float.
+    '''
+    if len(ty0) != len(ty1):
+        return None
+
+    ambiguous_indices = []
+    matching_overloads = list(overloads)
+    for i, (t0, t1) in enumerate(zip(ty0, ty1)):
+        if is_convertible(t0, t1):
+            ambiguous_indices.append(i)
+            matching_overloads = [o for o in matching_overloads
+                                  if is_scalar(o[i])]
+            continue
+        # two equal types don't bring any info
+        elif t0 is t1:
+            matching_overloads = [o for o in matching_overloads if o[i] is t0]
+            continue
+        # two non-convertible, non-equal types are enough to disambiguate
+        return None
+
+    # We need at least two convertible arguments to trigger an implicit
+    # conversion chaos
+    if len(ambiguous_indices) <= 1:
+        return None
+
+    required_overload = tuple(ty0[i] if is_integer(ty0[i]) else ty1[i]
+                              for i in ambiguous_indices)
+
+    matching_overloads_view = {tuple(overload[i] for i in ambiguous_indices)
+                               for overload in matching_overloads}
+
+    # check if we have overloads with a compatible match for each ambiguous
+    # argument index
+    for matching_overloads in matching_overloads_view:
+        for rty, mty in zip(required_overload, matching_overloads):
+            if all(is_integer(t) for t in (rty, mty)):
+                continue
+            if all(is_floating(t) for t in (rty, mty)):
+                continue
+            return tuple(required_overload[i] if i in ambiguous_indices else ti
+                         for i, ti in enumerate(ty0))
+    return None
+
+
+
 def ambiguous_types(ty0, ty1):
     from numpy import complex64, complex128
     from numpy import float32, float64
@@ -89,6 +164,7 @@ class Spec(object):
             if not isinstance(signatures, tuple):
                 self.functions[fname] = (signatures,)
 
+        # perform various checks
         if not self:
             import logging
             logging.warning("No pythran specification, "
@@ -514,6 +590,16 @@ class SpecParser(object):
                                                                         sty_j)
                         loc = self.export_info[key][i]
                         raise self.PythranSpecError(msg, loc)
+
+                    missing_overload = compute_missing_overload(ty_i, ty_j,
+                                                                  overloads)
+                    if missing_overload is not None:
+                        msg = ("An overload is missing to avoid "
+                               "implicit conversion chaos:\n\t{}.".format(
+                                   spec_to_string(key, missing_overload)))
+                        loc = self.export_info[key][i]
+                        raise self.PythranSpecError(msg, loc)
+
 
         return Spec(self.exports, self.native_exports)
 

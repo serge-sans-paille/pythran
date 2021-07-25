@@ -980,7 +980,7 @@ class CxxFunction(ast.NodeVisitor):
         if node in self.immediates:
             assert isinstance(node.value, int)
             return "std::integral_constant<%s, %s>{}" % (
-                PYTYPE_TO_CTYPE_TABLE[type(node.value)], node.value)
+                PYTYPE_TO_CTYPE_TABLE[type(node.value)], str(node.value).lower())
         return ret
 
     def visit_Attribute(self, node):

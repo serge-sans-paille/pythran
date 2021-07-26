@@ -27,32 +27,32 @@ namespace numpy
   }
 
   template <class E, class dtype>
-  auto mean(E const &expr, types::none_type axis, dtype d, std::false_type keepdims)
+  auto mean(E const &expr, types::none_type axis, dtype d, types::none_type out, std::false_type keepdims)
       -> decltype(sum(expr) / typename dtype::type(expr.flat_size()))
   {
     return sum(expr) / typename dtype::type(expr.flat_size());
   }
 
   template <class E, class dtype>
-  auto mean(E const &expr, long axis, dtype d, std::false_type keepdims) 
+  auto mean(E const &expr, long axis, dtype d, types::none_type out, std::false_type keepdims) 
       -> decltype(sum(expr, axis))
   {
     return sum(expr, axis) /=
            typename dtype::type(sutils::getshape(expr)[axis]);
   }
 
-  template <class E, class dtype>
-  auto mean(E const &expr, types::none_type axis, dtype d, std::true_type keepdims)
-  {
-    const long N = E::value;
-    types::array<long, N> out_shape;
-    std::fill_n (out_shape, N, 1);
-    return numpy::functor::asarray{}(sum(expr) / 
-           typename dtype::type(expr.flat_size())).reshape(out_shape);
-  }
+  // template <class E, class dtype>
+  // auto mean(E const &expr, types::none_type axis, dtype d, types::none_type out, std::true_type keepdims)
+  // {
+  //   const long N = E::value;
+  //   types::array<long, N> out_shape;
+  //   std::fill_n (out_shape, N, 1);
+  //   return numpy::functor::asarray{}(sum(expr) / 
+  //          typename dtype::type(expr.flat_size())).reshape(out_shape);
+  // }
 
   template <class E, class dtype>
-  auto mean(E const &expr, long axis, dtype d, std::true_type keepdims) 
+  auto mean(E const &expr, long axis, dtype d, types::none_type out, std::true_type keepdims) 
       -> decltype(expand_dims(sum(expr, axis), axis))
   {
     return expand_dims(sum(expr, axis) /=

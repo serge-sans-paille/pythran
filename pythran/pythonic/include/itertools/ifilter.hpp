@@ -79,4 +79,16 @@ namespace itertools
   DEFINE_FUNCTOR(pythonic::itertools, ifilter);
 }
 PYTHONIC_NS_END
+
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <class E, class Op, class T>
+struct __combined<E, pythonic::itertools::details::ifilter<Op, T>> {
+  using type =
+      typename __combined<E, container<typename pythonic::itertools::details::
+                                           ifilter<Op, T>::value_type>>::type;
+};
+
+/* } */
 #endif

@@ -3,7 +3,7 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/itertools/common.hpp"
-#include "pythonic/include/builtins/xrange.hpp"
+#include "pythonic/include/builtins/range.hpp"
 #include <iterator>
 
 PYTHONIC_NS_BEGIN
@@ -20,14 +20,14 @@ namespace itertools
     typename std::remove_reference<
         typename std::remove_cv<Iterable>::type>::type::iterator iterable;
 
-    builtins::xrange xr_ref;
-    builtins::xrange_iterator state;
-    builtins::xrange_iterator::value_type prev;
+    builtins::range xr_ref;
+    builtins::range_iterator state;
+    builtins::range_iterator::value_type prev;
 
     islice_iterator();
-    islice_iterator(Iterable const &iterable, builtins::xrange const &xr);
+    islice_iterator(Iterable const &iterable, builtins::range const &xr);
     islice_iterator(npos const &n, Iterable const &iterable,
-                    builtins::xrange const &xr);
+                    builtins::range const &xr);
 
     typename Iterable::value_type operator*() const;
     islice_iterator &operator++();
@@ -46,7 +46,7 @@ namespace itertools
     iterator end_iter;
 
     _islice();
-    _islice(Iterable const &iterable, builtins::xrange const &xr);
+    _islice(Iterable const &iterable, builtins::range const &xr);
 
     iterator &begin();
     iterator const &begin() const;
@@ -66,5 +66,16 @@ namespace itertools
   DEFINE_FUNCTOR(pythonic::itertools, islice);
 }
 PYTHONIC_NS_END
+
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <class E, class T>
+struct __combined<E, pythonic::itertools::_islice<T>> {
+  using type = typename __combined<
+      E, container<typename pythonic::itertools::_islice<T>::value_type>>::type;
+};
+
+/* } */
 
 #endif

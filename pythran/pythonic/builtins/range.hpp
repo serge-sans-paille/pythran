@@ -54,6 +54,25 @@ namespace builtins
     return *this;
   }
 
+  range_iterator &range_iterator::operator--()
+  {
+    value_ -= step_;
+    return *this;
+  }
+
+  range_iterator range_iterator::operator--(int)
+  {
+    range_iterator self(*this);
+    value_ -= step_;
+    return self;
+  }
+
+  range_iterator &range_iterator::operator-=(long n)
+  {
+    value_ -= step_ * n;
+    return *this;
+  }
+
   bool range_iterator::operator!=(range_iterator const &other) const
   {
     return value_ != other.value_;

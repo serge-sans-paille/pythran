@@ -20,8 +20,11 @@ namespace builtins
       range_iterator(long v, long s);
       long operator*() const;
       range_iterator &operator++();
+      range_iterator &operator--();
       range_iterator operator++(int);
+      range_iterator operator--(int);
       range_iterator &operator+=(long n);
+      range_iterator &operator-=(long n);
       bool operator!=(range_iterator const &other) const;
       bool operator==(range_iterator const &other) const;
       bool operator<(range_iterator const &other) const;
@@ -68,5 +71,13 @@ namespace std
     typedef long type;
   };
 }
+
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <class E>
+struct __combined<E, pythonic::builtins::range> {
+  using type = typename __combined<E, container<long>>::type;
+};
 
 #endif

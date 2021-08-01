@@ -138,4 +138,14 @@ namespace types
 }
 PYTHONIC_NS_END
 
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <class E, class Op, class... Iter>
+struct __combined<E, pythonic::builtins::details::map<Op, Iter...>> {
+  using type =
+      typename __combined<E, container<typename pythonic::builtins::details::
+                                           map<Op, Iter...>::value_type>>::type;
+};
+
 #endif

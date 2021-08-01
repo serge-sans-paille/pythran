@@ -957,7 +957,7 @@ class CxxFunction(ast.NodeVisitor):
     def visit_Constant(self, node):
         if node in self.immediates and isinstance(node.value, bool):
             ret = "std::integral_constant<%s, %s>{}" % (
-                PYTYPE_TO_CTYPE_TABLE[type(node.value)], node.value)
+                PYTYPE_TO_CTYPE_TABLE[type(node.value)], str(node.value).lower())
         elif node.value is None:
             ret = 'pythonic::builtins::None'
         elif isinstance(node.value, bool):

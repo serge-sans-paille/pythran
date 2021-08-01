@@ -42,7 +42,7 @@ namespace itertools
     template <class T>
     struct combination : combination_iterator<T> {
       using iterator = combination_iterator<T>;
-      using value_type = T;
+      using value_type = typename iterator::value_type;
 
       long num_elts;
 
@@ -64,5 +64,17 @@ namespace itertools
   DEFINE_FUNCTOR(pythonic::itertools, combinations);
 }
 PYTHONIC_NS_END
+
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <class E, class T>
+struct __combined<E, pythonic::itertools::details::combination<T>> {
+  using type =
+      typename __combined<E, container<typename pythonic::itertools::details::
+                                           combination<T>::value_type>>::type;
+};
+
+/* } */
 
 #endif

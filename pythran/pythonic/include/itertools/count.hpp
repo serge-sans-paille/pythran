@@ -50,4 +50,16 @@ namespace itertools
 }
 PYTHONIC_NS_END
 
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <class E, class T>
+struct __combined<E, pythonic::itertools::details::count<T>> {
+  using type =
+      typename __combined<E, container<typename pythonic::itertools::details::
+                                           count<T>::value_type>>::type;
+};
+
+/* } */
+
 #endif

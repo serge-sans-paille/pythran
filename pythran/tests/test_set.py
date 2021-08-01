@@ -85,6 +85,27 @@ def are_equal(s1):
     def test_update_list(self):
         self.run_test("def _update_list(b, c):\n a={1.}; a.update(b, c); return a", {1,3}, [1.,3.,4.,5.,6.] , _update_list=[Set[int],List[float]])
 
+    def test_update_range(self):
+        self.run_test("def _update_range(b):\n a=set(); a.update(range(b)); return a", 3, _update_range=[int])
+
+    def test_update_map(self):
+        self.run_test("def _update_map(b):\n a=set(); a.update((x**2 for x in range(b))); return a", 3, _update_map=[int])
+
+    def test_update_prod(self):
+        self.run_test("def _update_prod(b):\n from itertools import product; a=set(); a.update(product(range(b), range(b))); return a", 3, _update_prod=[int])
+
+    def test_update_combinations(self):
+        self.run_test("def _update_comb(b):\n from itertools import combinations; a=set(); a.update(combinations(range(b), 2)); return a", 3, _update_comb=[int])
+
+    def test_update_islice(self):
+        self.run_test("def _update_islice(b):\n from itertools import islice; a=set(); a.update(islice(range(b), 1, 4)); return a", 8, _update_islice=[int])
+
+    def test_update_permutations(self):
+        self.run_test("def _update_perm(b):\n from itertools import permutations; a=set(); a.update(permutations(range(b))); return a", 3, _update_perm=[int])
+
+    def test_update_repeat(self):
+        self.run_test("def _update_rep(b):\n from itertools import repeat; a=set(); a.update(repeat(b, 2)); return a", 3, _update_rep=[int])
+
     def test_update_empty_set_list(self):
         self.run_test("def _update_empty_set_list(b, c):\n a=set()\n a.update(b, c)\n return a", {1,3}, [1.,3.,4.,5.,6.] , _update_empty_set_list=[Set[int],List[float]])
 

@@ -1,7 +1,7 @@
 Pythran
 #######
 
-http://pythran.readthedocs.io
+https://pythran.readthedocs.io
 
 What is it?
 -----------
@@ -22,7 +22,7 @@ Installation
 
 Pythran sources are hosted on https://github.com/serge-sans-paille/pythran.
 
-Pythran releases are hosted on http://pypi.python.org/pypi/pythran.
+Pythran releases are hosted on https://pypi.python.org/pypi/pythran.
 
 Pythran is available on conda-forge on https://anaconda.org/conda-forge/pythran.
 
@@ -59,7 +59,7 @@ Using ``mamba`` or ``conda``
 Mac OSX
 =======
 
-Using brew (http://brew.sh/)::
+Using brew (https://brew.sh/)::
 
     $> pip install pythran
     $> brew install openblas
@@ -161,13 +161,13 @@ Contact
 
 Praise, flame and cookies:
 
-- pythran@freelists.org -- register at http://www.freelists.org/list/pythran first!
+- pythran@freelists.org -- register at https://www.freelists.org/list/pythran first!
 
-- #pythran on FreeNode
+- #pythran on OFTC, https://oftc.net 
 
 - serge.guelton@telecom-bretagne.eu
 
-The mailing list archive is available at http://www.freelists.org/archive/pythran/.
+The mailing list archive is available at https://www.freelists.org/archive/pythran/.
 
 Citing
 ------

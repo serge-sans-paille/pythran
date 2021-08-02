@@ -642,6 +642,6 @@ Troubleshooting
 Plenty of them! Seriously, Pythran is software, so it will crash. You
 may make it abort in unusual ways! And more importantly, please provide
 feedback to serge_sans_paille using its email ``serge.guelton@telecom-bretagne.eu``,
-the IRC channel ``#pythran`` on FreeNode, or the mailing list ``pythran@freelists.org``
+the IRC channel ``#pythran`` on OFTC, or the mailing list ``pythran@freelists.org``
 
 **glhf!**

@@ -155,6 +155,11 @@ class SyntaxChecker(ast.NodeVisitor):
                 "Attribute '{0}' unknown".format(node.attr),
                 node)
 
+    def visit_NamedExpr(self, node):
+        raise PythranSyntaxError(
+            "named expression are not supported yet, please open an issue :-)",
+            node)
+
     def visit_Import(self, node):
         """ Check if imported module exists in MODULES. """
         for alias in node.names:

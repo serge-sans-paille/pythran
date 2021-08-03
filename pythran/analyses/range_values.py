@@ -29,18 +29,6 @@ def combine(op, node0, node1):
         return UNKNOWN_RANGE
 
 
-@contextmanager
-def predecessor_pruner(node, cfg):
-    predecessors = list(cfg.predecessors(node))
-    for predecessor in predecessors:
-        cfg.remove_edge(predecessor, node)
-    try:
-        yield predecessors
-    finally:
-        for predecessor in predecessors:
-            cfg.add_edge(predecessor, node)
-
-
 def negate(node):
     if isinstance(node, ast.Name):
         # Not type info, could be anything :(
@@ -838,9 +826,9 @@ class RangeValues(RangeValuesBase):
         else:
             return self.add(node, UNKNOWN_RANGE)
 
-    def cfg_visit(self, node):
+    def cfg_visit(self, node, skip=None):
         successors = [node]
-        visited = set()
+        visited = set() if skip is None else skip.copy()
         while successors:
             successor = successors.pop()
             if successor in visited:
@@ -996,25 +984,25 @@ class RangeValues(RangeValuesBase):
                                                            [ast.In()],
                                                            [node.iter]))
 
-        with predecessor_pruner(node, self.cfg):
+        # visit body
+        skip = {x for x in self.cfg.successors(node) if x is not node.body[0]}
+        skip.add(node)
+        next_ = self.cfg_visit(node.body[0], skip=skip)
 
-            # visit body
-            self.cfg_visit(node.body[0])
+        if self.no_backward:
+            return self.visit_loop_successor(node)
+        else:
+            pass #self.no_backward += 1
 
-            if self.no_backward:
-                return self.visit_loop_successor(node)
-            else:
-                self.no_backward += 1
+        prev_state = self.result
+        self.result = prev_state.copy()
 
-            prev_state = self.result
-            self.result = prev_state.copy()
+        self.cfg_visit(node.body[0], skip=skip)
 
-            self.cfg_visit(node.body[0])
-
-            self.widen(self.result, prev_state)
-            self.cfg_visit(node.body[0])
-            self.unionify(init_state)
-            self.no_backward -= 1
+        self.widen(self.result, prev_state)
+        self.cfg_visit(node.body[0], skip=skip)
+        self.unionify(init_state)
+        pass #self.no_backward -= 1
 
         return self.visit_loop_successor(node)
 
@@ -1041,44 +1029,45 @@ class RangeValues(RangeValuesBase):
         """
         test_range = self.visit(node.test)
         init_state = self.result.copy()
+        skip = {x for x in self.cfg.successors(node) if x is not node.body[0]}
+        skip.add(node)
 
         # if the test may be false, visit the tail
         if 0 in test_range:
             for successor in list(self.cfg.successors(node)):
                 if successor is not node.body[0]:
-                    self.cfg_visit(successor)
+                    self.cfg_visit(successor, skip=skip)
 
         bound_range(self.result, self.aliases, node.test)
 
         # visit body
-        with predecessor_pruner(node, self.cfg):
-            self.cfg_visit(node.body[0])
+        self.cfg_visit(node.body[0], skip=skip)
 
-            if self.no_backward:
-                if 0 in test_range:
-                    self.unionify(init_state)
-                return self.visit_loop_successor(node)
-            else:
-                self.no_backward += 1
-
-            prev_state = self.result
-            self.result = prev_state.copy()
-
-            self.cfg_visit(node.body[0])
-
-            self.widen(self.result, prev_state)
-
-            # propagate the result of the widening
-            self.cfg_visit(node.body[0])
-
+        if self.no_backward:
             if 0 in test_range:
                 self.unionify(init_state)
-            else:
-                self.unionify(prev_state)
+            return self.visit_loop_successor(node)
+        else:
+            pass #self.no_backward += 1
 
-            self.visit(node.test)
+        prev_state = self.result
+        self.result = prev_state.copy()
 
-            self.no_backward -= 1
+        self.cfg_visit(node.body[0], skip=skip)
+
+        self.widen(self.result, prev_state)
+
+        # propagate the result of the widening
+        self.cfg_visit(node.body[0], skip=skip)
+
+        if 0 in test_range:
+            self.unionify(init_state)
+        else:
+            self.unionify(prev_state)
+
+        self.visit(node.test)
+
+        pass #self.no_backward -= 1
 
         # exit from the while test
         return self.visit_loop_successor(node)

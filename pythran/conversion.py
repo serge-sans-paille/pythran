@@ -138,6 +138,11 @@ def to_ast(value):
     # only meaningful for python3
     elif isinstance(value, (filter, map, zip)):
         return to_ast(list(value))
+    elif isinstance(value, np._globals._NoValueType):
+        return ast.Attribute(ast.Attribute(ast.Name('numpy', ast.Load(), None,
+                                                    None), '_globals',
+                                           ast.Load()),
+                             '_NoValueType', ast.Load())
     raise ToNotEval()
 
 

@@ -19,9 +19,9 @@ class Immediates(NodeAnalysis):
         func_aliases = self.aliases[node.func]
         if len(func_aliases) == 1 and next(iter(func_aliases)) is MODULES['numpy']['mean']:
             if len(node.args) >= 5:
-                keep_dims = node.args[4]
-                if isinstance(keep_dims, ast.Constant):
-                    self.result.add(keep_dims)
+                keepdims = node.args[4]
+                if isinstance(keepdims, ast.Constant):
+                    self.result.add(keepdims)
 
         if len(func_aliases) == 1 and next(iter(func_aliases)) is _make_shape:
             self.result.update(a for a in node.args

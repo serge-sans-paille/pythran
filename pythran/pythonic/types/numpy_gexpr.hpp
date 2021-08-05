@@ -61,9 +61,8 @@ namespace types
     return may_overlap_helper(gexpr, expr.args,
                               utils::make_index_sequence<sizeof...(E)-1>{});
   }
-  template <class T, class pS, class Tp, class pSp, class... S, class... Sp>
-  bool may_overlap(numpy_gexpr<ndarray<T, pS> const &, S...> const &gexpr,
-                   numpy_gexpr<ndarray<Tp, pSp> const &, Sp...> const &expr)
+  template <class T, class pS, class Tp, class pSp, class E0, class E1>
+  bool may_gexpr_overlap(E0 const &gexpr, E1 const &expr)
   {
     if (!std::is_same<T, Tp>::value) {
       return false;
@@ -78,6 +77,30 @@ namespace types
                             std::get<0>(expr.slices)))
       return false;
     return true;
+  }
+  template <class T, class pS, class Tp, class pSp, class... S, class... Sp>
+  bool may_overlap(numpy_gexpr<ndarray<T, pS> const &, S...> const &gexpr,
+                   numpy_gexpr<ndarray<Tp, pSp> const &, Sp...> const &expr)
+  {
+    return may_gexpr_overlap<T, pS, Tp, pSp>(gexpr, expr);
+  }
+  template <class T, class pS, class Tp, class pSp, class... S, class... Sp>
+  bool may_overlap(numpy_gexpr<ndarray<T, pS> &, S...> const &gexpr,
+                   numpy_gexpr<ndarray<Tp, pSp> &, Sp...> const &expr)
+  {
+    return may_gexpr_overlap<T, pS, Tp, pSp>(gexpr, expr);
+  }
+  template <class T, class pS, class Tp, class pSp, class... S, class... Sp>
+  bool may_overlap(numpy_gexpr<ndarray<T, pS> &, S...> const &gexpr,
+                   numpy_gexpr<ndarray<Tp, pSp> const &, Sp...> const &expr)
+  {
+    return may_gexpr_overlap<T, pS, Tp, pSp>(gexpr, expr);
+  }
+  template <class T, class pS, class Tp, class pSp, class... S, class... Sp>
+  bool may_overlap(numpy_gexpr<ndarray<T, pS> const &, S...> const &gexpr,
+                   numpy_gexpr<ndarray<Tp, pSp> &, Sp...> const &expr)
+  {
+    return may_gexpr_overlap<T, pS, Tp, pSp>(gexpr, expr);
   }
 
   template <class T>

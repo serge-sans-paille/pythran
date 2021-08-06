@@ -103,8 +103,12 @@ class OpenMP(object):
                               " you may need to install it or adjust the "
                               "LD_LIBRARY_PATH environment variable.")
         else:
-            # Load the library (shouldn't fail with an absolute path right?)
-            self.libomp = ctypes.CDLL(libgomp_path)
+            # Load the library
+            try:
+                self.libomp = ctypes.CDLL(libgomp_path)
+            except OSError:
+                raise ImportError("I couldn't load the openmp library found."
+                                  " This can happen if you are cross-compiling.")
             self.version = 45
 
     def __getattr__(self, name):

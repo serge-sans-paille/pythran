@@ -285,8 +285,8 @@ def np_rosen_der(x):
     def test_mean5(self):
         self.run_test("def np_mean5(a): from numpy import mean ; return mean(a, 2)", numpy.array([[[1, 2], [3, 4.]]]), np_mean5=[NDArray[float,:,:,:]])
 
-    def test_mean6(self):
-        self.run_test("def np_mean6(a): from numpy import mean ; from numpy import float64; return mean(a, 2, float64, None, False)", numpy.array([[[1, 2], [3, 4.]]]), np_mean6=[NDArray[float,:,:,:]])
+    # def test_mean6(self):
+    #     self.run_test("def np_mean6(a): from numpy import mean ; from numpy import float64; return mean(a, 2, float64, None, False)", numpy.array([[[1, 2], [3, 4.]]]), np_mean6=[NDArray[float,:,:,:]])
 
     def test_mean7(self):
         self.run_test("def np_mean7(a): from numpy import mean ; return mean(a, 2, out=None, keepdims=False)", numpy.array([[[1, 2], [3, 4.]]]), np_mean7=[NDArray[float,:,:,:]])
@@ -296,6 +296,18 @@ def np_rosen_der(x):
 
     def test_mean9(self):
         self.run_test("def np_mean9(a): from numpy import mean ; return mean(a, keepdims=False)", numpy.array([[[1, 2], [3, 4.]]]), np_mean9=[NDArray[float,:,:,:]])
+
+    #def test_mean10(self):
+    #    self.run_test("def np_mean10(a): from numpy import mean ; return mean(a, 2, dtype=int, keepdims=True)", numpy.array([[[0, 2], [3, 4.]]]), np_mean10=[NDArray[float,:,:,:]])
+
+    def test_mean11(self):
+        self.run_test("def np_mean11(a): from numpy import mean ; return mean(a, 2, keepdims=True)", numpy.array([[[1, 2], [3, 4.]]]), np_mean11=[NDArray[float,:,:,:]])
+
+    def test_mean12(self):
+        self.run_test("def np_mean12(a): from numpy import mean ; return mean(a, keepdims=True)", numpy.array([[[1, 2], [3, 4.]]]), np_mean12=[NDArray[float,:,:,:]])
+
+    def test_mean13(self):
+        self.run_test("def np_mean13(a): from numpy import mean ; return mean(a, keepdims=True, dtype=int)", numpy.array([[[0, 2], [3, 4.]]]), np_mean13=[NDArray[float,:,:,:]])
 
     def test_var0(self):
         self.run_test("def np_var0(a): return a.var()", numpy.array([[1, 2], [3, 4]], dtype=float), np_var0=[NDArray[float,:,:]])

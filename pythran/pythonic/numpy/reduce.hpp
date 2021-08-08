@@ -130,8 +130,8 @@ namespace numpy
 
   template <class Op, class E>
   struct reduce_helper<Op, E, false> {
-    reduce_result_type<Op, E> operator()(E const &expr,
-                                         reduce_result_type<Op, E> p) const
+    template <class T>
+    reduce_result_type<Op, E> operator()(E const &expr, T p) const
     {
       if (utils::no_broadcast_ex(expr))
         return _reduce<Op, E::value, types::novectorize_nobroadcast>{}(expr, p);
@@ -141,8 +141,8 @@ namespace numpy
   };
   template <class Op, class E>
   struct reduce_helper<Op, E, true> {
-    reduce_result_type<Op, E> operator()(E const &expr,
-                                         reduce_result_type<Op, E> p) const
+    template <class T>
+    reduce_result_type<Op, E> operator()(E const &expr, T p) const
     {
       if (utils::no_broadcast_vectorize(expr))
         return _reduce<Op, E::value, types::vectorizer_nobroadcast>{}(expr, p);
@@ -151,14 +151,16 @@ namespace numpy
     }
   };
 
-  template <class Op, class E>
+  template <class Op, class E, class dtype>
   typename std::enable_if<types::is_numexpr_arg<E>::value,
-                          reduce_result_type<Op, E>>::type
-  reduce(E const &expr, types::none_type)
+                          reduce_result_type<Op, E, dtype>>::type
+  reduce(E const &expr, types::none_type axis, dtype)
   {
+    using rrt = reduce_result_type<Op, E, dtype>;
     bool constexpr is_vectorizable =
-        E::is_vectorizable && !std::is_same<typename E::dtype, bool>::value;
-    reduce_result_type<Op, E> p = utils::neutral<Op, typename E::dtype>::value;
+        E::is_vectorizable && !std::is_same<typename E::dtype, bool>::value &&
+        std::is_same<rrt, typename E::dtype>::value;
+    rrt p = utils::neutral<Op, rrt>::value;
     return reduce_helper<Op, E, is_vectorizable>{}(expr, p);
   }
 
@@ -180,13 +182,13 @@ namespace numpy
     return reduce<Op>(array);
   }
 
-  template <class Op, class E>
-  typename std::enable_if<E::value == 1, reduce_result_type<Op, E>>::type
-  reduce(E const &array, long axis, types::none_type, types::none_type)
+  template <class Op, class E, class dtype>
+  typename std::enable_if<E::value == 1, reduce_result_type<Op, E, dtype>>::type
+  reduce(E const &array, long axis, dtype d, types::none_type)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
-    return reduce<Op>(array);
+    return reduce<Op>(array, types::none_type{}, d);
   }
 
   template <class Op, class E, class Out>
@@ -268,9 +270,9 @@ namespace numpy
     }
   };
 
-  template <class Op, class E>
-  typename std::enable_if<E::value != 1, reduced_type<E, Op>>::type
-  reduce(E const &array, long axis, types::none_type, types::none_type)
+  template <class Op, class E, class dtype>
+  typename std::enable_if<E::value != 1, reduced_type<E, Op, dtype>>::type
+  reduce(E const &array, long axis, dtype, types::none_type)
   {
     if (axis < 0)
       axis += E::value;
@@ -280,7 +282,7 @@ namespace numpy
     auto tmp = sutils::getshape(array);
     auto next = std::copy(tmp.begin(), tmp.begin() + axis, shp.begin());
     std::copy(tmp.begin() + axis + 1, tmp.end(), next);
-    reduced_type<E, Op> out{shp, builtins::None};
+    reduced_type<E, Op, dtype> out{shp, builtins::None};
     std::fill(out.begin(), out.end(),
               utils::neutral<Op, typename E::dtype>::value);
     return reduce<Op>(array, axis, types::none_type{}, out);
@@ -303,7 +305,7 @@ namespace numpy
       if (axis == 0) {
         std::fill(out.begin(), out.end(),
                   utils::neutral<Op, typename E::dtype>::value);
-        return _reduce<Op, 1, types::novectorize /* ! on scalars*/>{}(
+        return _reduce<Op, 1, types::novectorize /* not on scalars*/>{}(
             array, std::forward<Out>(out));
       } else {
         std::transform(array.begin(), array.end(), out.begin(),

@@ -37,11 +37,9 @@ namespace numpy
             types::none_type out = {}, std::false_type keep_dims = {})
       -> decltype(sum(expr, axis));
 
-  // FIXME: need to implement dtype support for numpy::sum / numpy::reduce
-  // template <class E, class dtype>
-  // auto mean(E const &expr, long axis, dtype d, types::none_type out={},
-  // std::false_type keep_dims={})
-  //     -> decltype(sum(expr, axis, d));
+  template <class E, class dtype>
+  auto mean(E const &expr, long axis, dtype d, types::none_type out = {},
+            std::false_type keep_dims = {}) -> decltype(sum(expr, axis, d));
 
   template <class E>
   types::ndarray<double, typename details::make_scalar_pshape<E::value>::type>
@@ -59,11 +57,10 @@ namespace numpy
             std::true_type keep_dims)
       -> decltype(expand_dims(mean(expr, axis), axis));
 
-  // FIXME: need to implement dtype support for numpy::sum / numpy::reduce
-  // template <class E, class dtype>
-  // auto mean(E const &expr, long axis, dtype d, types::none_type out,
-  // std::true_type keep_dims)
-  //     -> decltype(expand_dims(mean(expr, axis, d), axis));
+  template <class E, class dtype>
+  auto mean(E const &expr, long axis, dtype d, types::none_type out,
+            std::true_type keep_dims)
+      -> decltype(expand_dims(mean(expr, axis, d), axis));
 
   DEFINE_FUNCTOR(pythonic::numpy, mean);
 }

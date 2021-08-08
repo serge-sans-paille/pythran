@@ -32,18 +32,27 @@ namespace numpy
             typename std::conditional<std::is_signed<typename E::dtype>::value,
                                       long, unsigned long>::type>::type,
         typename E::dtype>::type;
+
+    template <class Op, class E, class T>
+    struct reduce_pick_dtype {
+      using type = typename T::type;
+    };
+    template <class Op, class E>
+    struct reduce_pick_dtype<Op, E, types::none_type> {
+      using type = reduce_result_type<Op, E>;
+    };
   }
 
-  template <class Op, class E>
+  template <class Op, class E, class dtype = types::none_type>
   typename std::enable_if<types::is_numexpr_arg<E>::value,
-                          reduce_result_type<Op, E>>::type
-  reduce(E const &expr, types::none_type _ = types::none_type());
+                          typename reduce_pick_dtype<Op, E, dtype>::type>::type
+  reduce(E const &expr, types::none_type axis = {}, dtype d = {});
 
-  template <class Op, class E>
+  template <class Op, class E, class dtype = types::none_type>
   reduce_result_type<Op, E> reduce(types::numpy_texpr<E> const &expr,
-                                   types::none_type _ = types::none_type())
+                                   types::none_type axis = {}, dtype d = {})
   {
-    return reduce<Op>(expr.arg);
+    return reduce<Op>(expr.arg, axis, d);
   }
 
   template <class Op, class E>
@@ -67,14 +76,15 @@ namespace numpy
 
   namespace
   {
-    template <class E, class Op>
-    using reduced_type = types::ndarray<reduce_result_type<Op, E>,
-                                        types::array<long, E::value - 1>>;
+    template <class E, class Op, class dtype = types::none_type>
+    using reduced_type =
+        types::ndarray<typename reduce_pick_dtype<Op, E, dtype>::type,
+                       types::array<long, E::value - 1>>;
   }
 
-  template <class Op, class E>
-  typename std::enable_if<E::value != 1, reduced_type<E, Op>>::type
-  reduce(E const &array, long axis, types::none_type dtype = types::none_type(),
+  template <class Op, class E, class dtype = types::none_type>
+  typename std::enable_if<E::value != 1, reduced_type<E, Op, dtype>>::type
+  reduce(E const &array, long axis, dtype d = {},
          types::none_type out = types::none_type());
 
   template <class Op, class E>

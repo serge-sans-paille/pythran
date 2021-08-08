@@ -59,6 +59,10 @@ class TestNumpyFunc1(TestEnv):
         self.run_test("def np_sum14_(a): import numpy as np ; return np.sum(a)",
                       numpy.array([2**31-1, 2**31 +1 , 2**31 + 1], dtype=numpy.int32), np_sum14_=[NDArray[numpy.int32,:]])
 
+    def test_sum15_(self):
+        self.run_test("def np_sum15_(a): import numpy as np ; return np.sum(a, dtype=int)",
+                      numpy.array([0.5, 1.5, 2.5]), np_sum15_=[NDArray[float,:]])
+
     def test_prod_(self):
         """ Check prod function for numpy array. """
         self.run_test("""

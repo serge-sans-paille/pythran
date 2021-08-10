@@ -12,27 +12,15 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class E>
-  auto mean(E const &expr, types::none_type axis, types::none_type d,
-            types::none_type out, std::false_type keepdims)
-      -> decltype(sum(expr) / double(expr.flat_size()))
-  {
-    return sum(expr) / double(expr.flat_size());
-  }
 
   template <class E, class dtype>
   auto mean(E const &expr, types::none_type axis, dtype d, types::none_type out,
             std::false_type keepdims)
-      -> decltype(sum(expr) / typename dtype::type(expr.flat_size()))
+      -> decltype(sum(expr, axis, d) /
+                  details::dtype_or_double<dtype>(expr.flat_size()))
   {
-    return sum(expr) / typename dtype::type(expr.flat_size());
-  }
-
-  template <class E>
-  auto mean(E const &expr, long axis, types::none_type d, types::none_type out,
-            std::false_type keepdims) -> decltype(sum(expr, axis))
-  {
-    return sum(expr, axis) /= double(sutils::getshape(expr)[axis]);
+    return sum(expr, axis, d) /
+           details::dtype_or_double<dtype>(expr.flat_size());
   }
 
   template <class E, class dtype>
@@ -40,34 +28,17 @@ namespace numpy
             std::false_type keepdims) -> decltype(sum(expr, axis, d))
   {
     return sum(expr, axis, d) /=
-           typename dtype::type(sutils::getshape(expr)[axis]);
-  }
-
-  template <class E>
-  types::ndarray<double, typename details::make_scalar_pshape<E::value>::type>
-  mean(E const &expr, types::none_type axis, types::none_type d,
-       types::none_type out, std::true_type keep_dims)
-  {
-    return {typename details::make_scalar_pshape<E::value>::type(),
-            mean(expr, axis, d, out)};
+           details::dtype_or_double<dtype>(sutils::getshape(expr)[axis]);
   }
 
   template <class E, class dtype>
-  types::ndarray<typename dtype::type,
+  types::ndarray<details::dtype_or_double<dtype>,
                  typename details::make_scalar_pshape<E::value>::type>
   mean(E const &expr, types::none_type axis, dtype d, types::none_type out,
        std::true_type keep_dims)
   {
     return {typename details::make_scalar_pshape<E::value>::type(),
             mean(expr, axis, d, out)};
-  }
-
-  template <class E>
-  auto mean(E const &expr, long axis, types::none_type d, types::none_type out,
-            std::true_type keepdims)
-      -> decltype(expand_dims(mean(expr, axis), axis))
-  {
-    return expand_dims(mean(expr, axis), axis);
   }
 
   template <class E, class dtype>

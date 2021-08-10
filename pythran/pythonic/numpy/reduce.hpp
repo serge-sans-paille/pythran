@@ -150,20 +150,6 @@ namespace numpy
         return _reduce<Op, E::value, types::vectorizer>{}(expr, p);
     }
   };
-
-  template <class Op, class E, class dtype>
-  typename std::enable_if<types::is_numexpr_arg<E>::value,
-                          reduce_result_type<Op, E, dtype>>::type
-  reduce(E const &expr, types::none_type axis, dtype)
-  {
-    using rrt = reduce_result_type<Op, E, dtype>;
-    bool constexpr is_vectorizable =
-        E::is_vectorizable && !std::is_same<typename E::dtype, bool>::value &&
-        std::is_same<rrt, typename E::dtype>::value;
-    rrt p = utils::neutral<Op, rrt>::value;
-    return reduce_helper<Op, E, is_vectorizable>{}(expr, p);
-  }
-
   template <class Op, class E>
   typename std::enable_if<
       std::is_scalar<E>::value || types::is_complex<E>::value, E>::type
@@ -180,6 +166,19 @@ namespace numpy
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
     return reduce<Op>(array);
+  }
+
+  template <class Op, class E, class dtype>
+  typename std::enable_if<types::is_numexpr_arg<E>::value,
+                          reduce_result_type<Op, E, dtype>>::type
+  reduce(E const &expr, types::none_type axis, dtype)
+  {
+    using rrt = reduce_result_type<Op, E, dtype>;
+    bool constexpr is_vectorizable =
+        E::is_vectorizable && !std::is_same<typename E::dtype, bool>::value &&
+        std::is_same<rrt, typename E::dtype>::value;
+    rrt p = utils::neutral<Op, rrt>::value;
+    return reduce_helper<Op, E, is_vectorizable>{}(expr, p);
   }
 
   template <class Op, class E, class dtype>

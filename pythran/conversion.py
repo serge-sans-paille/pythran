@@ -118,8 +118,6 @@ def to_ast(value):
     List(elts=[Num(n=1), Num(n=2), Num(n=3)], ctx=Load())
     """
 
-    if isinstance(value, (type(None), bool)):
-        return builtin_folding(value)
     if any(value is t for t in (bool, int, float)):
         iinfo = np.iinfo(int)
         if isinstance(value, int) and not (iinfo.min <= value <= iinfo.max):
@@ -128,7 +126,7 @@ def to_ast(value):
         return builtin_folding(value)
     elif isinstance(value, np.generic):
         return to_ast(value.item())
-    elif isinstance(value, (numbers.Number, str)):
+    elif isinstance(value, (numbers.Number, str, bool, type(None))):
         return ast.Constant(value, None)
     elif isinstance(value, (list, tuple, set, dict, np.ndarray)):
         return size_container_folding(value)

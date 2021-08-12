@@ -196,14 +196,16 @@ namespace types
     long sstep = step.is_none() ? 1 : (long)step;
     assert(!(upper.is_none() && lower.is_none()));
     long len;
+#define SIGN(x) (((long)x >= 0l) ? 0 : 1)
     if (upper.is_none()) {
-      assert(std::signbit(sstep) != std::signbit((long)lower));
+      assert(SIGN(sstep) != SIGN(lower));
       len = -(long)lower;
     } else if (lower.is_none()) {
-      assert(std::signbit(sstep) == std::signbit((long)upper));
+      assert(SIGN(sstep) == SIGN((long)upper));
       len = upper;
     } else
       len = upper - lower;
+#undef SIGN
     return std::max(0L, details::roundup_divide(len, sstep));
   }
 

@@ -443,6 +443,45 @@ def np_trim_zeros2(x):
     def test_unique4(self):
         self.run_test("def np_unique4(x): from numpy import unique ; return unique(x, True, True, True)", numpy.array([1,1,2,2,2,1,5]), np_unique4=[NDArray[int,:]])
 
+    def test_unique5(self):
+        self.run_test("def np_unique5(x): from numpy import unique ; return unique(x, False)", numpy.array([1,1,2,2,2,1,5]), np_unique5=[NDArray[int,:]])
+
+    def test_unique6(self):
+        self.run_test("def np_unique6(x): from numpy import unique ; return unique(x, False, True)", numpy.array([1,1,2,2,2,1,5]), np_unique6=[NDArray[int,:]])
+
+    def test_unique7(self):
+        self.run_test("def np_unique7(x): from numpy import unique ; return unique(x, False, False)", numpy.array([1,1,2,2,2,1,5]), np_unique7=[NDArray[int,:]])
+
+    def test_unique8(self):
+        self.run_test("def np_unique8(x): from numpy import unique ; return unique(x, return_inverse=True)", numpy.array([1,1,2,2,2,1,5]), np_unique8=[NDArray[int,:]])
+
+    def test_unique9(self):
+        self.run_test("def np_unique9(x): from numpy import unique ; return unique(x, True, False)", numpy.array([1,1,2,2,2,1,5]), np_unique9=[NDArray[int,:]])
+
+    def test_unique10(self):
+        self.run_test("def np_unique10(x): from numpy import unique ; return unique(x, True, True, False)", numpy.array([1,1,2,2,2,1,5]), np_unique10=[NDArray[int,:]])
+
+    def test_unique11(self):
+        self.run_test("def np_unique11(x): from numpy import unique ; return unique(x, True, False, False)", numpy.array([1,1,2,2,2,1,5]), np_unique11=[NDArray[int,:]])
+
+    def test_unique12(self):
+        self.run_test("def np_unique12(x): from numpy import unique ; return unique(x, True, False, True)", numpy.array([1,1,2,2,2,1,5]), np_unique12=[NDArray[int,:]])
+
+    def test_unique13(self):
+        self.run_test("def np_unique13(x): from numpy import unique ; return unique(x, False, True, False)", numpy.array([1,1,2,2,2,1,5]), np_unique13=[NDArray[int,:]])
+
+    def test_unique14(self):
+        self.run_test("def np_unique14(x): from numpy import unique ; return unique(x, False, True, True)", numpy.array([1,1,2,2,2,1,5]), np_unique14=[NDArray[int,:]])
+
+    def test_unique15(self):
+        self.run_test("def np_unique15(x): from numpy import unique ; return unique(x, False, False, False)", numpy.array([1,1,2,2,2,1,5]), np_unique15=[NDArray[int,:]])
+
+    def test_unique16(self):
+        self.run_test("def np_unique16(x): from numpy import unique ; return unique(x, False, False, True)", numpy.array([1,1,2,2,2,1,5]), np_unique16=[NDArray[int,:]])
+
+    def test_unique17(self):
+        self.run_test("def np_unique17(x): from numpy import unique ; return unique(x, return_counts=True)", numpy.array([1,1,2,2,2,1,5]), np_unique17=[NDArray[int,:]])
+
     def test_unwrap0(self):
         self.run_test("def np_unwrap0(x): from numpy import unwrap, pi ; x[:3] += 2.6*pi; return unwrap(x)", numpy.arange(6, dtype=float), np_unwrap0=[NDArray[float,:]])
 

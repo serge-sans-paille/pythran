@@ -10,10 +10,7 @@
 
 #include <fstream>
 #include <iterator>
-#include <cstring>
 #include <string>
-#include <cstdio>
-#include <unistd.h>
 
 PYTHONIC_NS_BEGIN
 

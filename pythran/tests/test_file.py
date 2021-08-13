@@ -73,6 +73,10 @@ def file_close(filename):
 		f.write("q")
 	except:pass""", filename, file_close=[str])
 
+    def test_truncate(self):
+        self.tempfile()
+        self.run_test("def _truncate(filename):\n f=open(filename)\n f.truncate(3); return f.read()", self.filename, _truncate=[str])
+
     def test_read(self):
         self.tempfile()
         self.run_test("def _read(filename):\n f=open(filename)\n return f.read()", self.filename, _read=[str])

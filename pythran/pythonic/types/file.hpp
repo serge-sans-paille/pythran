@@ -19,8 +19,13 @@
 #include <cstring>
 #include <string>
 #include <cstdio>
-#include <unistd.h>
 #include <memory>
+
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 PYTHONIC_NS_BEGIN
 
@@ -222,9 +227,12 @@ namespace types
       throw IOError("file.write() :  File not open for writing.");
     if (size < 0)
       size = this->tell();
+#ifdef _WIN32
+    long error = _chsize_s(fileno(), size);
+#else
     long error = ftruncate(fileno(), size);
-    if (error == -1)
-      throw RuntimeError(strerror(errno));
+#endif
+        if (error == -1) throw RuntimeError(strerror(errno));
   }
 
   long file::write(types::str const &str)

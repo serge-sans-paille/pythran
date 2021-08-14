@@ -40,6 +40,14 @@ namespace numpy
   types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
   transpose(types::ndarray<T, pS> const &a, types::array<long, M> const &t);
 
+  template <class T, class pS, class... Args>
+  types::ndarray<T, types::array<long, 1 + sizeof...(Args)>>
+  transpose(types::ndarray<T, pS> const &a, long index, Args const &... indices)
+  {
+    return transpose(
+        a, types::array<long, 1 + sizeof...(Args)>{{index, (long)indices...}});
+  }
+
   template <class Op, class... Args, size_t... Is>
   auto _transpose(types::numpy_expr<Op, Args...> const &expr,
                   utils::index_sequence<Is...>)

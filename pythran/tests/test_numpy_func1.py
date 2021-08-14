@@ -204,6 +204,9 @@ class TestNumpyFunc1(TestEnv):
     def test_transpose2_(self):
         self.run_test("def np_transpose2_(a): return a.transpose((2,0,1))", numpy.arange(24).reshape(2,3,4), np_transpose2_=[NDArray[int,:,:,:]])
 
+    def test_transpose3_(self):
+        self.run_test("def np_transpose3_(a): return a.transpose(2,1,0)", numpy.arange(24).reshape(2,3,4), np_transpose3_=[NDArray[int,:,:,:]])
+
     def test_alen0(self):
         self.run_test("def np_alen0(a): from numpy import alen ; return alen(a)", numpy.ones((5,6)), np_alen0=[NDArray[float,:,:]])
 

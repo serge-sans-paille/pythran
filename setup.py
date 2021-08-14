@@ -171,8 +171,6 @@ setup(name='pythran',
       entry_points={'console_scripts':
                     ['pythran = pythran.run:run',
                      'pythran-config = pythran.config:run']},
-      setup_requires=["pytest-runner"],
-      tests_require=['pytest', 'flake8'],
       extras_require={
           'doc': open('docs/requirements.txt').read().splitlines(),
       },

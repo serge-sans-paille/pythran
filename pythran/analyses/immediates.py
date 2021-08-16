@@ -17,25 +17,12 @@ class Immediates(NodeAnalysis):
 
     def visit_Call(self, node):
         func_aliases = self.aliases[node.func]
-        if len(func_aliases) == 1 and next(iter(func_aliases)) is MODULES['numpy']['mean']:
-            if len(node.args) >= 5:
-                keepdims = node.args[4]
-                if isinstance(keepdims, ast.Constant):
-                    self.result.add(keepdims)
-
-        if len(func_aliases) == 1 and next(iter(func_aliases)) is MODULES['numpy']['unique']:
-            if len(node.args) >= 2:
-                return_index = node.args[1]
-                if isinstance(return_index, ast.Constant):
-                    self.result.add(return_index)
-            if len(node.args) >= 3:
-                return_inverse = node.args[2]
-                if isinstance(return_inverse, ast.Constant):    
-                    self.result.add(return_inverse)
-            if len(node.args) >= 4:
-                return_counts = node.args[3]
-                if isinstance(return_counts, ast.Constant): 
-                    self.result.add(return_counts)
+        for alias in func_aliases:
+            if getattr(alias, "immediate_arguments", []):
+                for i, arg in enumerate(node.args):
+                    if i in alias.immediate_arguments:
+                        if isinstance(arg, ast.Constant):
+                            self.result.add(arg)
 
         if len(func_aliases) == 1 and next(iter(func_aliases)) is _make_shape:
             self.result.update(a for a in node.args

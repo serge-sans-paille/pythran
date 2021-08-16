@@ -3819,7 +3819,7 @@ MODULES = {
             REDUCED_BINARY_UFUNC,
             signature=_numpy_binary_op_signature
         ),
-        "mean": ConstMethodIntr(),
+        "mean": ConstMethodIntr(immediate_arguments=[4]),
         "median": ConstFunctionIntr(
             signature=_numpy_unary_op_sum_axis_signature
         ),
@@ -4027,7 +4027,7 @@ MODULES = {
         "uint8": ConstFunctionIntr(signature=_int_signature),
         "ulonglong": ConstFunctionIntr(signature=_int_signature),
         "union1d": ConstFunctionIntr(),
-        "unique": ConstFunctionIntr(),
+        "unique": ConstFunctionIntr(immediate_arguments=[1, 2, 3]),
         "unwrap": ConstFunctionIntr(),
         "unravel_index": ConstFunctionIntr(),
         "ushort": ConstFunctionIntr(signature=_int_signature),

@@ -118,6 +118,10 @@ class FunctionIntr(Intrinsic):
                         self.return_range = bool_values
         else:
             self.signature = Any
+        if 'immediate_arguments' in kwargs:
+            self.immediate_arguments = kwargs['immediate_arguments']
+        else:
+            self.immediate_arguments = []
 
     def isfunction(self):
         return True

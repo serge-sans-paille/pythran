@@ -99,7 +99,7 @@ namespace numpy
       long>::type
   _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
   {
-    using vT = xsimd::simd_type<T>;
+    using vT = xsimd::batch<T>;
     using iT = xsimd::as_integer_t<T>;
     static const size_t vN = vT::size;
     const long n = elts.size();
@@ -117,9 +117,9 @@ namespace numpy
       iT iota[vN] = {0};
       for (long i = 0; i < (long)vN; ++i)
         iota[i] = i;
-      auto curr = xsimd::load_unaligned(iota);
-      xsimd::simd_type<iT> indices = curr;
-      xsimd::simd_type<iT> step{vN};
+      xsimd::batch<iT> curr = xsimd::load_unaligned(iota);
+      xsimd::batch<iT> indices = curr;
+      xsimd::batch<iT> step(vN);
 
       for (++viter; viter != vend; ++viter) {
         curr += step;

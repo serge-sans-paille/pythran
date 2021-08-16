@@ -98,9 +98,9 @@ namespace types
   template <class E>
   struct const_simd_nditerator
       : public std::iterator<std::random_access_iterator_tag,
-                             xsimd::simd_type<typename E::dtype>> {
+                             xsimd::batch<typename E::dtype>> {
 
-    using vector_type = typename xsimd::simd_type<typename E::dtype>;
+    using vector_type = typename xsimd::batch<typename E::dtype>;
     typename E::dtype const *data;
     static const std::size_t vector_size = vector_type::size;
 
@@ -116,7 +116,7 @@ namespace types
     bool operator==(const_simd_nditerator const &other) const;
     bool operator<(const_simd_nditerator const &other) const;
     const_simd_nditerator &operator=(const_simd_nditerator const &other);
-    void store(xsimd::simd_type<typename E::dtype> const &);
+    void store(xsimd::batch<typename E::dtype> const &);
   };
   template <class E>
   struct const_simd_nditerator_nostep : const_simd_nditerator<E> {

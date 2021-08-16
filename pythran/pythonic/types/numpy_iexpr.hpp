@@ -331,7 +331,7 @@ namespace types
   typename numpy_iexpr<Arg>::simd_iterator
       numpy_iexpr<Arg>::vend(vectorizer) const
   {
-    using vector_type = typename xsimd::simd_type<dtype>;
+    using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
     return {buffer + long(size() / vector_size * vector_size)};
   }

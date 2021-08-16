@@ -689,7 +689,7 @@ namespace types
   template <class vectorizer>
   typename ndarray<T, pS>::simd_iterator ndarray<T, pS>::vend(vectorizer) const
   {
-    using vector_type = typename xsimd::simd_type<dtype>;
+    using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
     return {buffer + long(std::get<0>(_shape) / vector_size * vector_size)};
   }

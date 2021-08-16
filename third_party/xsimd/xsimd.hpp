@@ -2,6 +2,7 @@
 * Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
 * Martin Renou                                                             *
 * Copyright (c) QuantStack                                                 *
+* Copyright (c) Serge Guelton                                              *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -11,15 +12,17 @@
 #ifndef XSIMD_HPP
 #define XSIMD_HPP
 
-#include "memory/xsimd_alignment.hpp"
-#include "config/xsimd_config.hpp"
-#include "types/xsimd_traits.hpp"
-#include "math/xsimd_math.hpp"
-#include "math/xsimd_math_complex.hpp"
-#include "memory/xsimd_load_store.hpp"
-
-#include "stl/algorithms.hpp"
-#include "stl/iterator.hpp"
-
+#if defined(__GNUC__)
+#define XSIMD_NO_DISCARD __attribute__((warn_unused_result))
+#else
+#define XSIMD_NO_DISCARD
 #endif
 
+
+#include "types/xsimd_batch.hpp"
+#include "types/xsimd_batch_constant.hpp"
+#include "types/xsimd_api.hpp"
+#include "arch/xsimd_scalar.hpp"
+#include "memory/xsimd_aligned_allocator.hpp"
+#include "types/xsimd_traits.hpp"
+#endif

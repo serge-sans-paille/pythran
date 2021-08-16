@@ -271,10 +271,12 @@ namespace types
     auto _dereference(utils::index_sequence<I...>) const
         -> decltype(Op{}(*std::get<I>(iters_)...))
     {
-      return Op{}(((std::get<I>(steps_))
-                       ? (*std::get<I>(iters_))
-                       : (xsimd::simd_type<decltype(*std::get<I>(iters_))>(
-                             *std::get<I>(siters_))))...);
+      return Op{}((
+          (std::get<I>(steps_))
+              ? (*std::get<I>(iters_))
+              : (xsimd::batch<
+                    typename std::decay<decltype(*std::get<I>(siters_))>::type>(
+                    *std::get<I>(siters_))))...);
     }
 
     auto operator*() const -> decltype(

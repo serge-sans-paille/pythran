@@ -76,7 +76,7 @@ namespace numpy
   F vreduce(E e, F acc)
   {
     using T = typename E::dtype;
-    using vT = xsimd::simd_type<T>;
+    using vT = xsimd::batch<T>;
     static const size_t vN = vT::size;
     const long n = e.size();
     auto viter = vectorizer::vbegin(e), vend = vectorizer::vend(e);

@@ -14,7 +14,7 @@ namespace numpy
 #ifdef USE_XSIMD
     template <class T>
     struct arange_simd_iterator {
-      using vector_type = xsimd::simd_type<T>;
+      using vector_type = xsimd::batch<T>;
       vector_type curr_;
       vector_type step_;
       long index_;

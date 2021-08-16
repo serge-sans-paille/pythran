@@ -2,6 +2,7 @@
 * Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
 * Martin Renou                                                             *
 * Copyright (c) QuantStack                                                 *
+* Copyright (c) Serge Guelton                                              *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -13,6 +14,8 @@
 
 #include <complex>
 #include <cstdint>
+#include <cstring>
+#include <tuple>
 #include <type_traits>
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
@@ -22,10 +25,10 @@
 namespace xsimd
 {
 
-    template <class T, size_t N>
+    template <class T, class A>
     class batch;
 
-    template <class T, std::size_t N>
+    template <class T, class A>
     class batch_bool;
 
     /**************
@@ -49,14 +52,14 @@ namespace xsimd
         using type = int64_t;
     };
 
-    template <class T, std::size_t N>
-    struct as_integer<batch<T, N>>
+    template <class T, class A>
+    struct as_integer<batch<T, A>>
     {
-        using type = batch<typename as_integer<T>::type, N>;
+        using type = batch<typename as_integer<T>::type, A>;
     };
 
-    template <class T>
-    using as_integer_t = typename as_integer<T>::type;
+    template <class B>
+    using as_integer_t = typename as_integer<B>::type;
 
     /***********************
      * as_unsigned_integer *
@@ -79,14 +82,26 @@ namespace xsimd
         using type = uint64_t;
     };
 
-    template <class T, std::size_t N>
-    struct as_unsigned_integer<batch<T, N>>
+    template <class T, class A>
+    struct as_unsigned_integer<batch<T, A>>
     {
-        using type = batch<typename as_unsigned_integer<T>::type, N>;
+        using type = batch<typename as_unsigned_integer<T>::type, A>;
     };
 
     template <class T>
     using as_unsigned_integer_t = typename as_unsigned_integer<T>::type;
+
+    /*********************
+     * as_signed_integer *
+     *********************/
+
+    template <class T>
+    struct as_signed_integer : std::make_signed<T>
+    {
+    };
+
+    template <class T>
+    using as_signed_integer_t = typename as_signed_integer<T>::type;
 
     /******************
      * flip_sign_type *
@@ -133,10 +148,10 @@ namespace xsimd
         using type = double;
     };
 
-    template <class T, std::size_t N>
-    struct as_float<batch<T, N>>
+    template <class T, class A>
+    struct as_float<batch<T, A>>
     {
-        using type = batch<typename as_float<T>::type, N>;
+        using type = batch<typename as_float<T>::type, A>;
     };
 
     template <class T>
@@ -149,83 +164,30 @@ namespace xsimd
     template <class T>
     struct as_logical;
 
-    template <class T, std::size_t N>
-    struct as_logical<batch<T, N>>
+    template <class T, class A>
+    struct as_logical<batch<T, A>>
     {
-        using type = batch_bool<T, N>;
+        using type = batch_bool<T, A>;
     };
 
     template <class T>
     using as_logical_t = typename as_logical<T>::type;
 
     /********************
-     * primitive caster *
+     * bit_cast *
      ********************/
 
-    namespace detail
-    {
-        template <class UI, class I, class F>
-        union generic_caster {
-            UI ui;
-            I i;
-            F f;
-
-            constexpr generic_caster(UI t)
-                : ui(t) {}
-            constexpr generic_caster(I t)
-                : i(t) {}
-            constexpr generic_caster(F t)
-                : f(t) {}
-        };
-
-        using caster32_t = generic_caster<uint32_t, int32_t, float>;
-        using caster64_t = generic_caster<uint64_t, int64_t, double>;
-
-        template <class T>
-        struct caster;
-
-        template <>
-        struct caster<float>
-        {
-            using type = caster32_t;
-        };
-
-        template <>
-        struct caster<double>
-        {
-            using type = caster64_t;
-        };
-
-        template <class T>
-        using caster_t = typename caster<T>::type;
+    template<class To, class From>
+    To bit_cast(From val) {
+      static_assert(sizeof(From) == sizeof(To), "casting between compatible layout");
+      // FIXME: Some old version of GCC don't support that trait
+      //static_assert(std::is_trivially_copyable<From>::value, "input type is trivially copyable");
+      //static_assert(std::is_trivially_copyable<To>::value, "output type is trivially copyable");
+      To res;
+      std::memcpy(&res, &val, sizeof(val));
+      return res;
     }
 
-    /****************************
-     * to/from_unsigned_integer *
-     ****************************/
-
-    namespace detail
-    {
-        template <typename T>
-        union unsigned_convertor {
-            T data;
-            as_unsigned_integer_t<T> bits;
-        };
-
-        template <typename T>
-        as_unsigned_integer_t<T> to_unsigned_integer(const T& input) {
-            unsigned_convertor<T> convertor;
-            convertor.data = input;
-            return convertor.bits;
-        }
-
-        template <typename T>
-        T from_unsigned_integer(const as_unsigned_integer_t<T>& input) {
-            unsigned_convertor<T> convertor;
-            convertor.bits = input;
-            return convertor.data;
-        }
-    }
 
     /*****************************************
      * Backport of index_sequence from c++14 *
@@ -239,70 +201,124 @@ namespace xsimd
 
         #ifdef __cpp_lib_integer_sequence
             using std::integer_sequence;
+            using std::make_integer_sequence;
             using std::index_sequence;
             using std::make_index_sequence;
+
             using std::index_sequence_for;
         #else
             template <typename T, T... Is>
             struct integer_sequence {
-            using value_type = T;
-            static constexpr std::size_t size() noexcept { return sizeof...(Is); }
+              using value_type = T;
+              static constexpr std::size_t size() noexcept { return sizeof...(Is); }
             };
+
+            template <typename Lhs, typename Rhs>
+            struct make_integer_sequence_concat;
+
+            template <typename T, T... Lhs, T... Rhs>
+            struct make_integer_sequence_concat<integer_sequence<T, Lhs...>,
+                                                integer_sequence<T, Rhs...>>
+              : identity<integer_sequence<T, Lhs..., (sizeof...(Lhs) + Rhs)...>> {};
+
+            template <typename T>
+            struct make_integer_sequence_impl;
+
+            template <typename T>
+            struct make_integer_sequence_impl<std::integral_constant<T, (T)0>> : identity<integer_sequence<T>> {};
+
+            template <typename T>
+            struct make_integer_sequence_impl<std::integral_constant<T, (T)1>> : identity<integer_sequence<T, 0>> {};
+
+            template <typename T, T N>
+            struct make_integer_sequence_impl<std::integral_constant<T, N>>
+              : make_integer_sequence_concat<typename make_integer_sequence_impl<std::integral_constant<T, N / 2>>::type,
+                                             typename make_integer_sequence_impl<std::integral_constant<T, N - (N / 2)>>::type> {};
+
+
+            template <typename T, T N>
+            using make_integer_sequence = typename make_integer_sequence_impl<std::integral_constant<T, N>>::type;
+
 
             template <std::size_t... Is>
             using index_sequence = integer_sequence<std::size_t, Is...>;
 
-            template <typename Lhs, typename Rhs>
-            struct make_index_sequence_concat;
-
-            template <std::size_t... Lhs, std::size_t... Rhs>
-            struct make_index_sequence_concat<index_sequence<Lhs...>,
-                                            index_sequence<Rhs...>>
-              : identity<index_sequence<Lhs..., (sizeof...(Lhs) + Rhs)...>> {};
-
             template <std::size_t N>
-            struct make_index_sequence_impl;
-
-            template <std::size_t N>
-            using make_index_sequence = typename make_index_sequence_impl<N>::type;
-
-            template <std::size_t N>
-            struct make_index_sequence_impl
-              : make_index_sequence_concat<make_index_sequence<N / 2>,
-                                           make_index_sequence<N - (N / 2)>> {};
-
-            template <>
-            struct make_index_sequence_impl<0> : identity<index_sequence<>> {};
-
-            template <>
-            struct make_index_sequence_impl<1> : identity<index_sequence<0>> {};
+            using make_index_sequence = make_integer_sequence<std::size_t, N>;
 
             template <typename... Ts>
             using index_sequence_for = make_index_sequence<sizeof...(Ts)>;
+
         #endif
+
+          template <int... Is>
+          using int_sequence = integer_sequence<int, Is...>;
+
+          template <int N>
+          using make_int_sequence = make_integer_sequence<int, N>;
+
+          template <typename... Ts>
+          using int_sequence_for = make_int_sequence<sizeof...(Ts)>;
+
     }
 
-#define XSIMD_MACRO_UNROLL_BINARY(FUNC)                                                                   \
-    constexpr std::size_t size = simd_batch_traits<batch_type>::size;                                     \
-    using tmp_value_type = typename simd_batch_traits<batch_type>::value_type;                                \
-    alignas(simd_batch_traits<batch_type>::align) tmp_value_type tmp_lhs[size], tmp_rhs[size], tmp_res[size]; \
-    lhs.store_aligned(tmp_lhs);                                                                           \
-    rhs.store_aligned(tmp_rhs);                                                                           \
-    unroller<size>([&](std::size_t i) {                                                                   \
-        tmp_res[i] = tmp_lhs[i] FUNC tmp_rhs[i];                                                          \
-    });                                                                                                   \
-    return batch_type(&tmp_res[0], aligned_mode());
+    /***********************************
+     * Backport of std::get from C++14 *
+     ***********************************/
 
-    template <class F, std::size_t... I>
-    inline void unroller_impl(F&& f, detail::index_sequence<I...>)
+    namespace detail
     {
-        static_cast<void>(std::initializer_list<int>{(f(I), 0)...});
+        template <class T, class... Types, size_t I, size_t... Is>
+        const T& get_impl(const std::tuple<Types...>& t, std::is_same<T, T>, index_sequence<I, Is...>)
+        {
+            return std::get<I>(t);
+        }
+
+        template <class T, class U, class... Types, size_t I, size_t... Is>
+        const T& get_impl(const std::tuple<Types...>& t, std::is_same<T, U>, index_sequence<I, Is...>)
+        {
+            using tuple_elem = typename std::tuple_element<I+1, std::tuple<Types...>>::type;
+            return get_impl<T>(t, std::is_same<T, tuple_elem>(), index_sequence<Is...>());
+        }
+
+        template <class T, class... Types>
+        const T& get(const std::tuple<Types...>& t)
+        {
+            using tuple_elem = typename std::tuple_element<0, std::tuple<Types...>>::type;
+            return get_impl<T>(t, std::is_same<T, tuple_elem>(), make_index_sequence<sizeof...(Types)>());
+        }
     }
 
-    template <std::size_t N, class F>
-    inline void unroller(F&& f)
+    /*********************************
+     * Backport of void_t from C++17 *
+     *********************************/
+
+    namespace detail
     {
-        unroller_impl(f, detail::make_index_sequence<N>{});
+        template <class... T>
+        struct make_void
+        {
+            using type = void;
+        };
+
+        template <class... T>
+        using void_t = typename make_void<T...>::type;
+    }
+
+    /**************************************************
+     * Equivalent of void_t but with size_t parameter *
+     **************************************************/
+
+    namespace detail
+    {
+        template <std::size_t>
+        struct check_size
+        {
+            using type = void;
+        };
+
+        template <std::size_t S>
+        using check_size_t = typename check_size<S>::type;
     }
 
     /*****************************************
@@ -314,7 +330,8 @@ namespace xsimd
         // std::array constructor from scalar value ("broadcast")
         template <typename T, std::size_t... Is>
         constexpr std::array<T, sizeof...(Is)>
-        array_from_scalar_impl(const T& scalar, index_sequence<Is...>) {
+        array_from_scalar_impl(const T& scalar, index_sequence<Is...>)
+        {
             // You can safely ignore this silly ternary, the "scalar" is all
             // that matters. The rest is just a dirty workaround...
             return std::array<T, sizeof...(Is)>{ (Is+1) ? scalar : T() ... };
@@ -322,20 +339,23 @@ namespace xsimd
 
         template <typename T, std::size_t N>
         constexpr std::array<T, N>
-        array_from_scalar(const T& scalar) {
+        array_from_scalar(const T& scalar)
+        {
             return array_from_scalar_impl(scalar, make_index_sequence<N>());
         }
 
         // std::array constructor from C-style pointer (handled as an array)
         template <typename T, std::size_t... Is>
         constexpr std::array<T, sizeof...(Is)>
-        array_from_pointer_impl(const T* c_array, index_sequence<Is...>) {
+        array_from_pointer_impl(const T* c_array, index_sequence<Is...>)
+        {
             return std::array<T, sizeof...(Is)>{ c_array[Is]... };
         }
 
         template <typename T, std::size_t N>
         constexpr std::array<T, N>
-        array_from_pointer(const T* c_array) {
+        array_from_pointer(const T* c_array)
+        {
             return array_from_pointer_impl(c_array, make_index_sequence<N>());
         }
     }
@@ -396,8 +416,7 @@ namespace xsimd
         };
 #endif
     }
-
-
 }
 
 #endif
+

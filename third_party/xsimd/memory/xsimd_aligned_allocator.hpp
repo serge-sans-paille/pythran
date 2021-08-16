@@ -2,6 +2,7 @@
 * Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
 * Martin Renou                                                             *
 * Copyright (c) QuantStack                                                 *
+* Copyright (c) Serge Guelton                                              *
 *                                                                          *
 * Distributed under the terms of the BSD 3-Clause License.                 *
 *                                                                          *
@@ -12,19 +13,18 @@
 #define XSIMD_ALIGNED_ALLOCATOR_HPP
 
 #include <algorithm>
-#include <memory>
 #include <cstddef>
-#include <stdlib.h>
-
-#include "../config/xsimd_align.hpp"
-
-#if defined(XSIMD_ALLOCA)
-#if defined(__GNUC__)
-#include <alloca.h>
-#elif defined(_MSC_VER)
+#include <utility>
+#ifdef _WIN32
 #include <malloc.h>
+#else
+#include <cstdlib>
 #endif
-#endif
+
+#include <cassert>
+#include <memory>
+
+#include "../config/xsimd_arch.hpp"
 
 namespace xsimd
 {
@@ -39,7 +39,7 @@ namespace xsimd
      * @tparam T type of objects to allocate.
      * @tparam Align alignment in bytes.
      */
-    template <class T, size_t Align>
+    template <class T, size_t Align=default_arch::alignment()>
     class aligned_allocator
     {
     public:
@@ -281,22 +281,27 @@ namespace xsimd
     {
         inline void* xaligned_malloc(size_t size, size_t alignment)
         {
-            void* res = 0;
-            void* ptr = malloc(size + alignment);
-            if (ptr != 0 && alignment != 0)
+            assert(((alignment & (alignment - 1)) == 0) && "alignment must be a power of two");
+            assert((alignment >= sizeof(void*)) && "alignment must be at least the size of a pointer");
+            void* res = nullptr;
+#ifdef _WIN32
+            res = _aligned_malloc(size, alignment);
+#else
+            if(posix_memalign(&res, alignment, size) != 0)
             {
-                res = reinterpret_cast<void*>(
-                    (reinterpret_cast<size_t>(ptr) & ~(size_t(alignment - 1))) +
-                    alignment);
-                *(reinterpret_cast<void**>(res) - 1) = ptr;
+                res = nullptr;
             }
+#endif
             return res;
         }
 
         inline void xaligned_free(void* ptr)
         {
-            if (ptr != 0)
-                free(*(reinterpret_cast<void**>(ptr) - 1));
+#ifdef _WIN32
+            _aligned_free(ptr);
+#else
+            free(ptr);
+#endif
         }
     }
 
@@ -336,6 +341,12 @@ namespace xsimd
                 size);
         }
     }
+
+    template<class T, class A=default_arch>
+    using default_allocator = typename std::conditional<A::requires_alignment(),
+              aligned_allocator<T, A::alignment()>,
+              std::allocator<T>
+            >::type;
 }
 
 #endif

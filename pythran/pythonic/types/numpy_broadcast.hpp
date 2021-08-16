@@ -77,7 +77,7 @@ namespace types
   template <class dtype>
   template <class V>
   broadcast_base<dtype, true>::broadcast_base(V v)
-      : _value(v), _splated(xsimd::simd_type<dtype>(_value))
+      : _value(v), _splated(xsimd::batch<dtype>(_value))
   {
   }
 

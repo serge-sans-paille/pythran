@@ -18,14 +18,14 @@ namespace numpy
     {
       return std::conj(v);
     }
-    template <class T, std::size_t N>
-    xsimd::batch<std::complex<T>, N>
-    conjugate(xsimd::batch<std::complex<T>, N> const &v)
+    template <class T, class A>
+    xsimd::batch<std::complex<T>, A>
+    conjugate(xsimd::batch<std::complex<T>, A> const &v)
     {
       return xsimd::conj(v);
     }
-    template <class T, std::size_t N>
-    xsimd::batch<T, N> conjugate(xsimd::batch<T, N> const &v)
+    template <class T, class A>
+    xsimd::batch<T, A> conjugate(xsimd::batch<T, A> const &v)
     {
       return v;
     }

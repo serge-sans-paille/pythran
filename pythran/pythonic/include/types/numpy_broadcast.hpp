@@ -176,7 +176,7 @@ namespace types
   template <class dtype>
   struct broadcast_base<dtype, true> {
     dtype _value;
-    xsimd::simd_type<dtype> _splated;
+    xsimd::batch<dtype> _splated;
     broadcast_base() = default;
 
     template <class V>

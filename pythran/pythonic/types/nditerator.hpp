@@ -211,8 +211,8 @@ namespace types
   }
 
   template <class E>
-  void const_simd_nditerator<E>::store(
-      xsimd::simd_type<typename E::dtype> const &val)
+  void
+  const_simd_nditerator<E>::store(xsimd::batch<typename E::dtype> const &val)
   {
     val.store_unaligned(const_cast<typename E::dtype *>(data));
   }

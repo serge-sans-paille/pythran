@@ -198,7 +198,7 @@ namespace utils
   void vbroadcast_copy(E &&self, F const &other)
   {
     using T = typename F::dtype;
-    using vT = xsimd::simd_type<T>;
+    using vT = xsimd::batch<T>;
 
     static const std::size_t vN = vT::size;
 
@@ -428,7 +428,7 @@ namespace utils
   void vbroadcast_update(E &&self, F const &other)
   {
     using T = typename F::dtype;
-    using vT = typename xsimd::simd_type<T>;
+    using vT = typename xsimd::batch<T>;
     long other_size = std::distance(other.begin(), other.end());
 
     static const std::size_t vN = vT::size;

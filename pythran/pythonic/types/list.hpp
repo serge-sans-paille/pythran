@@ -210,7 +210,7 @@ namespace types
   typename sliced_list<T, S>::simd_iterator
       sliced_list<T, S>::vend(vectorizer) const
   {
-    using vector_type = typename xsimd::simd_type<dtype>;
+    using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
     return {data->data() + slicing.lower +
             long(size() / vector_size * vector_size)};
@@ -497,7 +497,7 @@ namespace types
   template <class vectorizer>
   typename list<T>::simd_iterator list<T>::vend(vectorizer) const
   {
-    using vector_type = typename xsimd::simd_type<dtype>;
+    using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
     return {data->data() + long(size() / vector_size * vector_size)};
   }

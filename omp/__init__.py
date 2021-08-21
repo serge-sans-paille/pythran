@@ -102,8 +102,8 @@ class OpenMP(object):
                 if libomp_path:
                     break
                 path = path.strip()
-                if os.path.isdir(path):
-                    libomp_path = find_library(os.path.join(str(path), libomp_name))
+                if os.path.isfile(os.path.join(path, libomp_name)):
+                    libomp_path = os.path.join(path, libomp_name)
 
             if libomp_path:
                 # Load the library

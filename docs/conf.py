@@ -38,7 +38,7 @@ with open("../README.rst") as readme:
     Changelog
 '''
 
-    readme_body = readme_body.replace('http://pythran.readthedocs.io', toc)
+    readme_body = readme_body.replace('https://pythran.readthedocs.io', toc)
 
     with open("index.rst", "w") as index:
         index.write(readme_body)

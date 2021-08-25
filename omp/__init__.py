@@ -107,8 +107,8 @@ class OpenMP(object):
             try:
                 self.libomp = ctypes.CDLL(libgomp_path)
             except OSError:
-                raise ImportError("I couldn't load the openmp library found."
-                                  " This can happen if you are cross-compiling.")
+                raise ImportError("found openMP library '{}' but couldn't load it. "
+                                  "This may happen if you are cross-compiling.".format(libgomp_path))
             self.version = 45
 
     def __getattr__(self, name):

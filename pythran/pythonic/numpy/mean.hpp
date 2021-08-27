@@ -15,7 +15,7 @@ namespace numpy
 
   template <class E, class dtype>
   auto mean(E const &expr, types::none_type axis, dtype d, types::none_type out,
-            std::false_type keepdims)
+            types::false_immediate keepdims)
       -> decltype(sum(expr, axis, d) /
                   details::dtype_or_double<dtype>(expr.flat_size()))
   {
@@ -25,7 +25,7 @@ namespace numpy
 
   template <class E, class dtype>
   auto mean(E const &expr, long axis, dtype d, types::none_type out,
-            std::false_type keepdims) -> decltype(sum(expr, axis, d))
+            types::false_immediate keepdims) -> decltype(sum(expr, axis, d))
   {
     return sum(expr, axis, d) /=
            details::dtype_or_double<dtype>(sutils::getshape(expr)[axis]);
@@ -35,7 +35,7 @@ namespace numpy
   types::ndarray<details::dtype_or_double<dtype>,
                  typename details::make_scalar_pshape<E::value>::type>
   mean(E const &expr, types::none_type axis, dtype d, types::none_type out,
-       std::true_type keep_dims)
+       types::true_immediate keep_dims)
   {
     return {typename details::make_scalar_pshape<E::value>::type(),
             mean(expr, axis, d, out)};
@@ -43,7 +43,7 @@ namespace numpy
 
   template <class E, class dtype>
   auto mean(E const &expr, long axis, dtype d, types::none_type out,
-            std::true_type keepdims)
+            types::true_immediate keepdims)
       -> decltype(expand_dims(mean(expr, axis, d), axis))
   {
     return expand_dims(mean(expr, axis, d), axis);

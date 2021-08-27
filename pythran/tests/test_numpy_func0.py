@@ -301,7 +301,7 @@ def np_rosen_der(x):
         self.run_test("def np_mean10(a): from numpy import mean ; return mean(a, 2, dtype=int, keepdims=True)", numpy.array([[[0, 2], [3, 4.]]]), np_mean10=[NDArray[float,:,:,:]])
 
     def test_mean11(self):
-        self.run_test("def np_mean11(a): from numpy import mean ; return mean(a, 2, keepdims=True)", numpy.array([[[1, 2], [3, 4.]]]), np_mean11=[NDArray[float,:,:,:]])
+        self.run_test("def np_mean11(a): from numpy import mean ; return mean(a, 2, keepdims=1)", numpy.array([[[1, 2], [3, 4.]]]), np_mean11=[NDArray[float,:,:,:]])
 
     def test_mean12(self):
         self.run_test("def np_mean12(a): from numpy import mean ; return mean(a, keepdims=True)", numpy.array([[[1, 2], [3, 4.]]]), np_mean12=[NDArray[float,:,:,:]])

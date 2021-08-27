@@ -4,6 +4,7 @@
 #include "pythonic/include/numpy/sum.hpp"
 #include "pythonic/include/numpy/expand_dims.hpp"
 #include "pythonic/include/builtins/None.hpp"
+#include "pythonic/include/types/immediate.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -36,23 +37,24 @@ namespace numpy
 
   template <class E, class dtype = types::none_type>
   auto mean(E const &expr, types::none_type axis = {}, dtype d = {},
-            types::none_type out = {}, std::false_type keep_dims = {})
+            types::none_type out = {}, types::false_immediate keep_dims = {})
       -> decltype(sum(expr, axis, d) /
                   details::dtype_or_double<dtype>(expr.flat_size()));
 
   template <class E, class dtype = types::none_type>
   auto mean(E const &expr, long axis, dtype d = {}, types::none_type out = {},
-            std::false_type keep_dims = {}) -> decltype(sum(expr, axis, d));
+            types::false_immediate keep_dims = {})
+      -> decltype(sum(expr, axis, d));
 
   template <class E, class dtype>
   types::ndarray<details::dtype_or_double<dtype>,
                  typename details::make_scalar_pshape<E::value>::type>
   mean(E const &expr, types::none_type axis, dtype d, types::none_type out,
-       std::true_type keep_dims);
+       types::true_immediate keep_dims);
 
   template <class E, class dtype>
   auto mean(E const &expr, long axis, dtype d, types::none_type out,
-            std::true_type keep_dims)
+            types::true_immediate keep_dims)
       -> decltype(expand_dims(mean(expr, axis, d), axis));
 
   DEFINE_FUNCTOR(pythonic::numpy, mean);

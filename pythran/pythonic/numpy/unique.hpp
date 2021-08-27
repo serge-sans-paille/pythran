@@ -88,8 +88,7 @@ namespace numpy
                  utils::int_<N - 1>());
     }
     template <class I, class O0, class O2>
-    void _unique5(I begin, I end, O0 &out0, O2 &out2, long &i,
-                  utils::int_<1>)
+    void _unique5(I begin, I end, O0 &out0, O2 &out2, long &i, utils::int_<1>)
     {
       for (; begin != end; ++begin, ++i) {
         auto pair = out0.insert(*begin);
@@ -97,8 +96,7 @@ namespace numpy
       }
     }
     template <class I, class O0, class O2, size_t N>
-    void _unique5(I begin, I end, O0 &out0, O2 &out2, long &i,
-                  utils::int_<N>)
+    void _unique5(I begin, I end, O0 &out0, O2 &out2, long &i, utils::int_<N>)
     {
       for (; begin != end; ++begin)
         _unique5((*begin).begin(), (*begin).end(), out0, out2, i,
@@ -106,8 +104,7 @@ namespace numpy
     }
 
     template <class I, class O1, class O3>
-    void _unique6(I begin, I end, O1 &out1, O3 &out3, long &i,
-                  utils::int_<1>)
+    void _unique6(I begin, I end, O1 &out1, O3 &out3, long &i, utils::int_<1>)
     {
       for (; begin != end; ++begin, ++i) {
         auto res = out3.insert(std::make_pair(*begin, 0));
@@ -118,8 +115,7 @@ namespace numpy
       }
     }
     template <class I, class O1, class O3, size_t N>
-    void _unique6(I begin, I end, O1 &out1, O3 &out3, long &i,
-                  utils::int_<N>)
+    void _unique6(I begin, I end, O1 &out1, O3 &out3, long &i, utils::int_<N>)
     {
       for (; begin != end; ++begin)
         _unique6((*begin).begin(), (*begin).end(), out1, out3, i,
@@ -127,8 +123,7 @@ namespace numpy
     }
 
     template <class I, class O2, class O3>
-    void _unique7(I begin, I end, O2 &out2, O3 &out3, long &i,
-                  utils::int_<1>)
+    void _unique7(I begin, I end, O2 &out2, O3 &out3, long &i, utils::int_<1>)
     {
       for (; begin != end; ++begin, ++i) {
         auto res = out3.insert(std::make_pair(*begin, 0));
@@ -137,8 +132,7 @@ namespace numpy
       }
     }
     template <class I, class O2, class O3, size_t N>
-    void _unique7(I begin, I end, O2 &out2, O3 &out3, long &i,
-                  utils::int_<N>)
+    void _unique7(I begin, I end, O2 &out2, O3 &out3, long &i, utils::int_<N>)
     {
       for (; begin != end; ++begin)
         _unique7((*begin).begin(), (*begin).end(), out2, out3, i,
@@ -146,17 +140,15 @@ namespace numpy
     }
 
     template <class I, class O3>
-    void _unique8(I begin, I end, O3 &out3, long &i,
-                  utils::int_<1>)
+    void _unique8(I begin, I end, O3 &out3, long &i, utils::int_<1>)
     {
       for (; begin != end; ++begin, ++i) {
         auto res = out3.insert(std::make_pair(*begin, 0));
         res.first->second += 1;
       }
     }
-    template <class I,  class O3, size_t N>
-    void _unique8(I begin, I end, O3 &out3, long &i,
-                  utils::int_<N>)
+    template <class I, class O3, size_t N>
+    void _unique8(I begin, I end, O3 &out3, long &i, utils::int_<N>)
     {
       for (; begin != end; ++begin)
         _unique8((*begin).begin(), (*begin).end(), out3, i,
@@ -175,7 +167,7 @@ namespace numpy
   template <class E>
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::true_type return_index)
+  unique(E const &expr, types::true_immediate return_index)
   {
     std::set<typename E::dtype> res;
     std::vector<long> return_index_res;
@@ -189,7 +181,7 @@ namespace numpy
 
   template <class E>
   types::ndarray<typename E::dtype, types::pshape<long>>
-  unique(E const &expr, std::false_type return_index)
+  unique(E const &expr, types::false_immediate return_index)
   {
     std::set<typename E::dtype> res;
     _unique1(expr.begin(), expr.end(), res, utils::int_<E::value>());
@@ -199,14 +191,15 @@ namespace numpy
   template <class E>
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::false_type return_index, std::true_type return_inverse)
+  unique(E const &expr, types::false_immediate return_index,
+         types::true_immediate return_inverse)
   {
     std::set<typename E::dtype> res;
     types::ndarray<long, types::pshape<long>> return_inverse_res(
         types::pshape<long>{expr.flat_size()}, builtins::None);
     long i = 0;
-    _unique5(expr.begin(), expr.end(), res, 
-             return_inverse_res, i, utils::int_<E::value>());
+    _unique5(expr.begin(), expr.end(), res, return_inverse_res, i,
+             utils::int_<E::value>());
     return std::make_tuple(
         types::ndarray<typename E::dtype, types::pshape<long>>(res),
         return_inverse_res);
@@ -214,7 +207,8 @@ namespace numpy
 
   template <class E>
   types::ndarray<typename E::dtype, types::pshape<long>>
-  unique(E const &expr, std::false_type return_index, std::false_type return_inverse)
+  unique(E const &expr, types::false_immediate return_index,
+         types::false_immediate return_inverse)
   {
     std::set<typename E::dtype> res;
     _unique1(expr.begin(), expr.end(), res, utils::int_<E::value>());
@@ -224,7 +218,8 @@ namespace numpy
   template <class E>
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::true_type return_index, std::false_type return_inverse)
+  unique(E const &expr, types::true_immediate return_index,
+         types::false_immediate return_inverse)
   {
     return unique(expr, return_index);
   }
@@ -233,7 +228,8 @@ namespace numpy
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::true_type return_index, std::true_type return_inverse)
+  unique(E const &expr, types::true_immediate return_index,
+         types::true_immediate return_inverse)
   {
     assert(return_inverse && "invalid signature otherwise");
 
@@ -255,8 +251,9 @@ namespace numpy
              types::ndarray<long, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::true_type return_index, std::true_type return_inverse,
-         std::true_type return_counts)
+  unique(E const &expr, types::true_immediate return_index,
+         types::true_immediate return_inverse,
+         types::true_immediate return_counts)
   {
     assert(return_counts && "invalid signature otherwise");
 
@@ -296,8 +293,9 @@ namespace numpy
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::true_type return_index, std::true_type return_inverse,
-         std::false_type return_counts)
+  unique(E const &expr, types::true_immediate return_index,
+         types::true_immediate return_inverse,
+         types::false_immediate return_counts)
   {
     return unique(expr, return_index, return_inverse);
   }
@@ -305,8 +303,9 @@ namespace numpy
   template <class E>
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::true_type return_index, std::false_type return_inverse,
-         std::false_type return_counts)
+  unique(E const &expr, types::true_immediate return_index,
+         types::false_immediate return_inverse,
+         types::false_immediate return_counts)
   {
     return unique(expr, return_index);
   }
@@ -315,16 +314,17 @@ namespace numpy
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::true_type return_index, std::false_type return_inverse,
-         std::true_type return_counts)
+  unique(E const &expr, types::true_immediate return_index,
+         types::false_immediate return_inverse,
+         types::true_immediate return_counts)
   {
     std::vector<long> return_index_res;
 
     std::map<typename E::dtype, long> return_counts_map;
     {
       long i = 0;
-      _unique6(expr.begin(), expr.end(), return_index_res, 
-               return_counts_map, i, utils::int_<E::value>());
+      _unique6(expr.begin(), expr.end(), return_index_res, return_counts_map, i,
+               utils::int_<E::value>());
     }
 
     types::pshape<long> shp{(long)return_counts_map.size()};
@@ -351,8 +351,9 @@ namespace numpy
   template <class E>
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::false_type return_index, std::true_type return_inverse,
-         std::false_type return_counts)
+  unique(E const &expr, types::false_immediate return_index,
+         types::true_immediate return_inverse,
+         types::false_immediate return_counts)
   {
     return unique(expr, return_index, return_inverse);
   }
@@ -361,8 +362,9 @@ namespace numpy
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::false_type return_index, std::true_type return_inverse,
-         std::true_type return_counts)
+  unique(E const &expr, types::false_immediate return_index,
+         types::true_immediate return_inverse,
+         types::true_immediate return_counts)
   {
     types::ndarray<long, types::pshape<long>> return_inverse_res(
         types::pshape<long>{expr.flat_size()}, builtins::None);
@@ -370,8 +372,8 @@ namespace numpy
     std::map<typename E::dtype, long> return_counts_map;
     {
       long i = 0;
-      _unique7(expr.begin(), expr.end(), return_inverse_res,
-               return_counts_map, i, utils::int_<E::value>());
+      _unique7(expr.begin(), expr.end(), return_inverse_res, return_counts_map,
+               i, utils::int_<E::value>());
     }
 
     types::pshape<long> shp{(long)return_counts_map.size()};
@@ -389,14 +391,15 @@ namespace numpy
       }
     }
 
-    return std::make_tuple(
-        unique_array, return_inverse_res, return_counts_array);
+    return std::make_tuple(unique_array, return_inverse_res,
+                           return_counts_array);
   }
-  
+
   template <class E>
-  types::ndarray<typename E::dtype, types::pshape<long>> 
-  unique(E const &expr, std::false_type return_index, std::false_type return_inverse,
-         std::false_type return_counts)
+  types::ndarray<typename E::dtype, types::pshape<long>>
+  unique(E const &expr, types::false_immediate return_index,
+         types::false_immediate return_inverse,
+         types::false_immediate return_counts)
   {
     return unique(expr);
   }
@@ -404,14 +407,15 @@ namespace numpy
   template <class E>
   std::tuple<types::ndarray<typename E::dtype, types::pshape<long>>,
              types::ndarray<long, types::pshape<long>>>
-  unique(E const &expr, std::false_type return_index, std::false_type return_inverse,
-         std::true_type return_counts)
+  unique(E const &expr, types::false_immediate return_index,
+         types::false_immediate return_inverse,
+         types::true_immediate return_counts)
   {
     std::map<typename E::dtype, long> return_counts_map;
     {
       long i = 0;
-      _unique8(expr.begin(), expr.end(), 
-               return_counts_map, i, utils::int_<E::value>());
+      _unique8(expr.begin(), expr.end(), return_counts_map, i,
+               utils::int_<E::value>());
     }
 
     types::pshape<long> shp{(long)return_counts_map.size()};
@@ -429,8 +433,7 @@ namespace numpy
       }
     }
 
-    return std::make_tuple(
-        unique_array, return_counts_array);
+    return std::make_tuple(unique_array, return_counts_array);
   }
 }
 PYTHONIC_NS_END

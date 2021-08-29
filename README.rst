@@ -37,7 +37,7 @@ Using ``pip``
    Pythran depends on a few Python modules and several C++ libraries. On a debian-like platform, run::
 
         $> sudo apt-get install libatlas-base-dev
-        $> sudo apt-get install python-dev python-ply python-networkx python-numpy
+        $> sudo apt-get install python-dev python-ply python-numpy
 
 2. Install with ``pip``::
 

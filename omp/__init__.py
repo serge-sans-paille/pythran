@@ -76,7 +76,7 @@ class OpenMP(object):
         env_vars = []
         if sys.platform == 'darwin':
             env_vars = ['DYLD_LIBRARY_PATH', 'DYLD_FALLBACK_LIBRARY_PATH']
-        elif sys.platform.startswith('linux'):
+        else:
             env_vars = ['LD_LIBRARY_PATH']
 
         paths = []
@@ -121,15 +121,9 @@ class OpenMP(object):
                 self.version = 45
                 return
 
-        msg = "I can't find a shared library for libomp, you may need to install it"
-        if env_vars:
-            msg += " or adjust the "
-            msg += " or ".join(env_vars)
-            msg += " environment variable"
-            if len(env_vars) > 1:
-                msg += "s"
-        msg += "."
-        raise ImportError(msg)
+        raise ImportError("I can't find a shared library for libomp, you may need to install it "
+                          "or adjust the {} environment variable.".format(env_vars[O]))
+
 
     def __getattr__(self, name):
         """

@@ -154,7 +154,8 @@ class FunctionAnalysis(Analysis):
             for stmt in node.body:
                 if isinstance(stmt, ast.FunctionDef):
                     last = self.gather(type(self), stmt)
-            return last
+            # last is None if there's no function to process
+            return self.result if last is None else last
         elif not isinstance(node, ast.FunctionDef):
             if self.ctx.function is None:
                 raise ValueError("{} called in an uninitialized context"

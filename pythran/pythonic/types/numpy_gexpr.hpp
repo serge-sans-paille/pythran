@@ -18,7 +18,10 @@ namespace types
   template <class S0, class S1>
   bool slices_may_overlap(S0 const &s0, S1 const &s1)
   {
-    return s0.lower > s1.lower;
+    if (s0.step >= 0 && s1.step >= 0)
+      return s0.lower > s1.lower;
+    else
+      return s0.lower < s1.lower;
   }
   template <class S>
   bool slices_may_overlap(S const &s, long const &i)

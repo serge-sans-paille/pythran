@@ -69,10 +69,22 @@ class OpenMP(object):
 
     def init_not_msvc(self):
         """ Find OpenMP library and try to load if using ctype interface. """
-        # find_library() does not search automatically LD_LIBRARY_PATH
-        paths = os.environ.get('LD_LIBRARY_PATH', '').split(':')
+        # find_library() does not automatically search LD_LIBRARY_PATH
+        # until Python 3.6+, so we explicitly add it.
+        # LD_LIBRARY_PATH is used on Linux, while macOS uses DYLD_LIBRARY_PATH
+        # and DYLD_FALLBACK_LIBRARY_PATH.
+        env_vars = []
+        if sys.platform == 'darwin':
+            env_vars = ['DYLD_LIBRARY_PATH', 'DYLD_FALLBACK_LIBRARY_PATH']
+        else:
+            env_vars = ['LD_LIBRARY_PATH']
 
-        for libomp_name in self.get_libomp_names():
+        paths = []
+        for env_var in env_vars:
+            paths += os.environ.get(env_var, '').split(os.pathsep)
+
+        libomp_names = self.get_libomp_names()
+        for libomp_name in libomp_names:
             if cxx is None or sys.platform == 'win32':
                 # Note: Clang supports -print-file-name, but not yet for
                 # clang-cl as of v12.0.0 (April '21)
@@ -87,29 +99,31 @@ class OpenMP(object):
             except (OSError, CalledProcessError):
                 pass
 
-        # Try to load find libgomp shared library using loader search dirs
-        libgomp_path = find_library("gomp")
+        for libomp_name in libomp_names:
+            # Try to load find libomp shared library using loader search dirs
+            libomp_path = find_library(libomp_name)
 
-        # Try to use custom paths if lookup failed
-        for path in paths:
-            if libgomp_path:
-                break
-            path = path.strip()
-            if os.path.isdir(path):
-                libgomp_path = find_library(os.path.join(str(path), "libgomp"))
+            # Try to use custom paths if lookup failed
+            for path in paths:
+                if libomp_path:
+                    break
+                path = path.strip()
+                if os.path.isfile(os.path.join(path, libomp_name)):
+                    libomp_path = os.path.join(path, libomp_name)
 
-        if not libgomp_path:
-            raise ImportError("I can't find a shared library for libgomp,"
-                              " you may need to install it or adjust the "
-                              "LD_LIBRARY_PATH environment variable.")
-        else:
-            # Load the library
-            try:
-                self.libomp = ctypes.CDLL(libgomp_path)
-            except OSError:
-                raise ImportError("found openMP library '{}' but couldn't load it. "
-                                  "This may happen if you are cross-compiling.".format(libgomp_path))
-            self.version = 45
+            if libomp_path:
+                # Load the library
+                try:
+                    self.libomp = ctypes.CDLL(libomp_path)
+                except OSError:
+                    raise ImportError("found openMP library '{}' but couldn't load it. "
+                                      "This may happen if you are cross-compiling.".format(libomp_path))
+                self.version = 45
+                return
+
+        raise ImportError("I can't find a shared library for libomp, you may need to install it "
+                          "or adjust the {} environment variable.".format(env_vars[O]))
+
 
     def __getattr__(self, name):
         """

@@ -122,7 +122,7 @@ class OpenMP(object):
                 return
 
         raise ImportError("I can't find a shared library for libomp, you may need to install it "
-                          "or adjust the {} environment variable.".format(env_vars[O]))
+                          "or adjust the {} environment variable.".format(env_vars[0]))
 
 
     def __getattr__(self, name):

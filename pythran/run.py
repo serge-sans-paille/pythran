@@ -122,6 +122,10 @@ def run():
                         help='config additional params',
                         default=list())
 
+    parser.add_argument('-ftime-report', dest='report_times',
+                        action='store_true',
+                        help='report time spent by pythran in each optimization/transformation')
+
     parser.convert_arg_line_to_args = convert_arg_line_to_args
 
     args, extra = parser.parse_known_args(sys.argv[1:])
@@ -177,6 +181,7 @@ def run():
                                         output_file=args.output_file,
                                         cpponly=args.translate_only,
                                         pyonly=args.optimize_only,
+                                        report_times=args.report_times,
                                         **compile_flags(args))
 
     except IOError as e:

@@ -76,7 +76,7 @@ To know more options about Pythran, you can check::
   $> pythran --help
   usage: pythran [-h] [-o OUTPUT_FILE] [-P] [-E] [-e] [-v] [-w] [-V] [-p pass]
                  [-I include_dir] [-L ldflags] [-D macro_definition]
-                 [-U macro_definition] [--config config]
+                 [-U macro_definition] [--config config] [-ftime-report]
                  input_file
   
   pythran: a python to C++ compiler
@@ -102,5 +102,6 @@ To know more options about Pythran, you can check::
                          compiler
     -U macro_definition  any macro undef relevant to the underlying C++ compiler
     --config config      config additional params
+    -ftime-report        report time spent by pythran in each optimization/transformation
   
   It's a megablast!

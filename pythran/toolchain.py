@@ -87,7 +87,7 @@ def has_argument(module, fname):
 
 
 def front_middle_end(module_name, code, optimizations=None, module_dir=None,
-                     entry_points=None):
+                     entry_points=None, report_times = False):
     """Front-end and middle-end compilation steps"""
 
     pm = PassManager(module_name, module_dir)
@@ -102,7 +102,7 @@ def front_middle_end(module_name, code, optimizations=None, module_dir=None,
     if optimizations is None:
         optimizations = cfg.get('pythran', 'optimizations').split()
     optimizations = [_parse_optimization(opt) for opt in optimizations]
-    refine(pm, ir, optimizations)
+    refine(pm, ir, optimizations, report_times)
 
     return pm, ir, docstrings
 
@@ -110,19 +110,19 @@ def front_middle_end(module_name, code, optimizations=None, module_dir=None,
 # PUBLIC INTERFACE STARTS HERE
 
 
-def generate_py(module_name, code, optimizations=None, module_dir=None):
+def generate_py(module_name, code, optimizations=None, module_dir=None, report_times=False):
     '''python + pythran spec -> py code
 
     Prints and returns the optimized python code.
 
     '''
 
-    pm, ir, _ = front_middle_end(module_name, code, optimizations, module_dir)
+    pm, ir, _ = front_middle_end(module_name, code, optimizations, module_dir, report_times=report_times)
     return pm.dump(Python, ir)
 
 
 def generate_cxx(module_name, code, specs=None, optimizations=None,
-                 module_dir=None):
+                 module_dir=None, report_times=False):
     '''python + pythran spec -> c++ code
     returns a PythonModule object and an error checker
 
@@ -137,6 +137,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
 
     pm, ir, docstrings = front_middle_end(module_name, code, optimizations,
                                           module_dir,
+                                          report_times=report_times,
                                           entry_points=entry_points)
 
     # back-end
@@ -364,7 +365,7 @@ def compile_cxxcode(module_name, cxxcode, output_binary=None, keep_temp=False,
 
 def compile_pythrancode(module_name, pythrancode, specs=None,
                         opts=None, cpponly=False, pyonly=False,
-                        output_file=None, module_dir=None, **kwargs):
+                        output_file=None, module_dir=None, report_times=False, **kwargs):
     '''Pythran code (string) -> c++ code -> native module
 
     if `cpponly` is set to true, return the generated C++ filename
@@ -375,7 +376,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     if pyonly:
         # Only generate the optimized python code
-        content = generate_py(module_name, pythrancode, opts, module_dir)
+        content = generate_py(module_name, pythrancode, opts, module_dir, report_times)
         if output_file is None:
             print(content)
             return None
@@ -392,7 +393,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
     # Generate C++, get a PythonModule object
     module, error_checker = generate_cxx(module_name, pythrancode, specs, opts,
-                                         module_dir)
+                                         module_dir, report_times)
 
     if 'ENABLE_PYTHON_MODULE' in kwargs.get('undef_macros', []):
         module.preamble.insert(0, Line('#undef ENABLE_PYTHON_MODULE'))
@@ -426,7 +427,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 
 
 def compile_pythranfile(file_path, output_file=None, module_name=None,
-                        cpponly=False, pyonly=False, **kwargs):
+                        cpponly=False, pyonly=False, report_times=False, **kwargs):
     """
     Pythran file -> c++ file -> native module.
 
@@ -474,6 +475,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
                                               output_file=output_file,
                                               cpponly=cpponly, pyonly=pyonly,
                                               module_dir=module_dir,
+                                              report_times=report_times,
                                               **kwargs)
     except PythranSyntaxError as e:
         if e.filename is None:

@@ -14,52 +14,59 @@ from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      NormalizeIfElse,
                                      NormalizeStaticIf, SplitStaticExpression,
                                      RemoveFStrings)
+import re
 
 
-def refine(pm, node, optimizations):
+def refine(pm, node, optimizations, report_times=False):
     """ Refine node in place until it matches pythran's expectations. """
+    run_times = {}
     # Sanitize input
-    pm.apply(RemoveDeadFunctions, node)
-    pm.apply(ExpandGlobals, node)
-    pm.apply(ExpandImportAll, node)
-    pm.apply(NormalizeTuples, node)
-    pm.apply(RemoveFStrings, node)
-    pm.apply(ExpandBuiltins, node)
-    pm.apply(ExpandImports, node)
-    pm.apply(NormalizeMethodCalls, node)
-    pm.apply(NormalizeIfElse, node)
-    pm.apply(NormalizeIsNone, node)
-    pm.apply(SplitStaticExpression, node)
-    pm.apply(NormalizeStaticIf, node)
-    pm.apply(NormalizeTuples, node)
-    pm.apply(NormalizeException, node)
-    pm.apply(NormalizeMethodCalls, node)
+    pm.apply(RemoveDeadFunctions, node, run_times)
+    pm.apply(ExpandGlobals, node, run_times)
+    pm.apply(ExpandImportAll, node, run_times)
+    pm.apply(NormalizeTuples, node, run_times)
+    pm.apply(RemoveFStrings, node, run_times)
+    pm.apply(ExpandBuiltins, node, run_times)
+    pm.apply(ExpandImports, node, run_times)
+    pm.apply(NormalizeMethodCalls, node, run_times)
+    pm.apply(NormalizeIfElse, node, run_times)
+    pm.apply(NormalizeIsNone, node, run_times)
+    pm.apply(SplitStaticExpression, node, run_times)
+    pm.apply(NormalizeStaticIf, node, run_times)
+    pm.apply(NormalizeTuples, node, run_times)
+    pm.apply(NormalizeException, node, run_times)
+    pm.apply(NormalizeMethodCalls, node, run_times)
 
     # Some early optimizations
-    pm.apply(ComprehensionPatterns, node)
+    pm.apply(ComprehensionPatterns, node, run_times)
 
-    pm.apply(RemoveLambdas, node)
-    pm.apply(RemoveNestedFunctions, node)
-    pm.apply(NormalizeCompare, node)
+    pm.apply(RemoveLambdas, node, run_times)
+    pm.apply(RemoveNestedFunctions, node, run_times)
+    pm.apply(NormalizeCompare, node, run_times)
 
-    pm.gather(ExtendedSyntaxCheck, node)
+    pm.gather(ExtendedSyntaxCheck, node, run_times)
 
-    pm.apply(ListCompToGenexp, node)
-    pm.apply(RemoveComprehension, node)
-    pm.apply(RemoveNamedArguments, node)
+    pm.apply(ListCompToGenexp, node, run_times)
+    pm.apply(RemoveComprehension, node, run_times)
+    pm.apply(RemoveNamedArguments, node, run_times)
 
     # sanitize input
-    pm.apply(NormalizeReturn, node)
-    pm.apply(UnshadowParameters, node)
-    pm.apply(FalsePolymorphism, node)
+    pm.apply(NormalizeReturn, node, run_times)
+    pm.apply(UnshadowParameters, node, run_times)
+    pm.apply(FalsePolymorphism, node, run_times)
 
     # some extra optimizations
     apply_optimisation = True
     while apply_optimisation:
         apply_optimisation = False
         for optimization in optimizations:
-            apply_optimisation |= pm.apply(optimization, node)[0]
-
+            apply_optimisation |= pm.apply(optimization, node, run_times)[0]
+            
+    if report_times and len(run_times):
+        print("Optimization run times:")
+        for key,val in run_times.items():
+            k = re.findall("'(.*)'",str(key))
+            print(f"{k[0]:<70s} : {val:>5.1f} s")
 
 def mark_unexported_functions(ir, exported_functions):
     from pythran.metadata import add as MDadd, Local as MDLocal

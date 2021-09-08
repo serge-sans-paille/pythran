@@ -1291,9 +1291,11 @@ class Cxx(Backend):
           typedef typename pythonic::returnable<pythonic::types::str>::type \
 result_type;
         }  ;
+        inline
         typename type::result_type operator()() const;
         ;
       }  ;
+      inline
       typename foo::type::result_type foo::operator()() const
       {
         return pythonic::types::str("hello world");

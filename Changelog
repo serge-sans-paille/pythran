@@ -1,4 +1,18 @@
+2021-09-08 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Fix performance issue with assert handling
+
+	* Fix issue in libomp detection
+
+	* Support immediate value for some keyword parameters, esp; keep_dims
+	  parameter
+
+	* Better detection of generalized expression overlap
+
+	* And extra minor fixes :-)
+
 2021-07-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
 	* Remove six, networkx and decorator dependency
 
 	* Bump gast and Beniget requirements to support python 3.10

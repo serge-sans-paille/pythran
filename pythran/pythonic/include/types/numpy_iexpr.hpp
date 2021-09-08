@@ -20,15 +20,6 @@ namespace types
                     pS const &shape) const;
   };
 
-  template <>
-  struct noffset<0> {
-    template <class S, class Ty, size_t M>
-    long operator()(S const &, array<Ty, M> const &indices) const;
-    template <class S, class Ty, size_t M, class pS>
-    long operator()(S const &, array<Ty, M> const &indices,
-                    pS const &shape) const;
-  };
-
   template <class Arg, class... S>
   struct numpy_gexpr;
 

@@ -26,7 +26,7 @@ namespace numpy
                                  std::is_integral<Arg1>::value),
                                 decltype(arg0 / arg1)>::type
     {
-      bool opposite_sign = (arg0 > 0 && arg1 < 0) || (arg0 < 0 && arg1 > 0);
+      bool opposite_sign = (arg0 >= 0 && arg1 < 0) || (arg0 < 0 && arg1 >= 0);
       return (arg0 + opposite_sign * (-arg1 + 1)) / arg1;
     }
 

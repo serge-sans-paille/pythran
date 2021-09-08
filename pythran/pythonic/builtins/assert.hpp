@@ -8,6 +8,14 @@
 
 PYTHONIC_NS_BEGIN
 
+void pythran_assert(bool cond)
+{
+#ifndef NDEBUG
+  if (!cond)
+    throw types::AssertionError();
+#endif
+}
+
 void pythran_assert(bool cond, types::str const &what)
 {
 #ifndef NDEBUG

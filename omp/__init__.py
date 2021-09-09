@@ -1,7 +1,7 @@
 """OpenMP wrapper using a libgomp dynamically loaded library."""
 
 from ctypes.util import find_library
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError, DEVNULL
 from numpy.distutils.misc_util import (
     msvc_runtime_major, get_shared_lib_extension
 )
@@ -44,28 +44,8 @@ class OpenMP(object):
             self.version = 20
 
     def get_libomp_names(self):
-        """Return list of OpenMP libraries to try, based on platform and
-        compiler detected."""
-        if cxx is None:
-            # Can't tell what compiler we're using, guessing we need libgomp
-            names = ['libgomp']
-        else:
-            cmd = [cxx, '--version']
-            try:
-                version_str = os.path.dirname(check_output(cmd).decode().strip())
-            except (OSError, CalledProcessError):
-                version_str = ''
-
-            if 'clang' in version_str:
-                names = ['libomp', 'libiomp5', 'libgomp']
-            elif version_str.startswith('Intel'):
-                names = ['libiomp5']
-            else:
-                # Too many GCC flavors and version strings, make this the default
-                # rather than try to detect if it's GCC
-                names = ['libgomp']
-
-        return [name + get_shared_lib_extension() for name in names]
+        """Return list of OpenMP libraries to try"""
+        return ['omp', 'gomp', 'iomp5']
 
     def init_not_msvc(self):
         """ Find OpenMP library and try to load if using ctype interface. """
@@ -81,38 +61,48 @@ class OpenMP(object):
 
         paths = []
         for env_var in env_vars:
-            paths += os.environ.get(env_var, '').split(os.pathsep)
+            env_paths = os.environ.get(env_var, '')
+            if env_paths:
+                paths.extend(env_paths.split(os.pathsep))
+
 
         libomp_names = self.get_libomp_names()
-        for libomp_name in libomp_names:
-            if cxx is None or sys.platform == 'win32':
-                # Note: Clang supports -print-file-name, but not yet for
-                # clang-cl as of v12.0.0 (April '21)
-                continue
 
-            cmd = [cxx, '-print-file-name=' + libomp_name]
-            # the subprocess can fail in various ways in that case just give up
-            try:
-                path = os.path.dirname(check_output(cmd).decode().strip())
-                if path:
-                    paths.append(path)
-            except (OSError, CalledProcessError):
-                pass
+        if cxx is not None:
+            for libomp_name in libomp_names:
+                cmd = [cxx,
+                       '-print-file-name=lib{}{}'.format(
+                           libomp_name,
+                           get_shared_lib_extension())]
+                # The subprocess can fail in various ways, including because it
+                # doesn't support '-print-file-name'. In that case just give up.
+                try:
+                    output = check_output(cmd,
+                                          stderr=DEVNULL)
+                    path = os.path.dirname(output.decode().strip())
+                    if path:
+                        paths.append(path)
+                except (OSError, CalledProcessError):
+                    pass
+
 
         for libomp_name in libomp_names:
             # Try to load find libomp shared library using loader search dirs
             libomp_path = find_library(libomp_name)
 
             # Try to use custom paths if lookup failed
-            for path in paths:
-                if libomp_path:
-                    break
-                path = path.strip()
-                if os.path.isfile(os.path.join(path, libomp_name)):
-                    libomp_path = os.path.join(path, libomp_name)
+            if not libomp_path:
+                for path in paths:
+                    candidate_path = os.path.join(
+                        path,
+                        'lib{}{}'.format(libomp_name,
+                                         get_shared_lib_extension()))
+                    if os.path.isfile(candidate_path):
+                        libomp_path = candidate_path
+                        break
 
+            # Load the library
             if libomp_path:
-                # Load the library
                 try:
                     self.libomp = ctypes.CDLL(libomp_path)
                 except OSError:

@@ -7,6 +7,13 @@ try:
 except ImportError:
     scipy = None
 
+import platform
+
+# Scipy special function implementation relies on boost, and boost doesn't
+# support them on ppc64le
+if platform.machine().startswith('ppc64'):
+    scipy = None
+
 from pythran.tests import TestEnv
 from pythran.tables import MODULES
 from pythran.intrinsic import UFunc

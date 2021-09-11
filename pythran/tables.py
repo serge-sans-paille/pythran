@@ -3,6 +3,7 @@
 import gast as ast
 import inspect
 import logging
+import numpy
 import sys
 
 from pythran.typing import Dict, Set, List, TypeVar, Union, Optional, NDArray
@@ -147,7 +148,6 @@ _complex_signature = Union[
 
 # workaround changes in numpy interaction with getfullargspec
 try:
-    import numpy
     inspect.getfullargspec(numpy.asarray)
     # if we have a description, honor it
     extra_numpy_asarray_descr = {}
@@ -4492,6 +4492,7 @@ MODULES = {
     },
 }
 
+
 if sys.version_info < (3, 5):
     del MODULES['operator']['matmul']
     del MODULES['operator']['__matmul__']
@@ -4516,7 +4517,7 @@ for module_name in ["omp", "scipy", "scipy.special"]:
 
 # check and delete unimplemented numpy methods
 for method in list(MODULES['numpy'].keys()):
-    if method not in sys.modules['numpy'].__dict__:
+    if not hasattr(numpy, method):
         del MODULES['numpy'][method]
 
 # if openmp is available, check its version and populate the API accordingly

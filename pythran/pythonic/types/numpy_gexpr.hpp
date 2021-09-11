@@ -442,6 +442,8 @@ namespace types
       buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
       _shape = expr._shape;
       _strides = expr._strides;
+      assert(sutils::getshape(*this) == sutils::getshape(expr) &&
+             "compatible sizes");
       return *this;
     } else {
       return _copy(expr);

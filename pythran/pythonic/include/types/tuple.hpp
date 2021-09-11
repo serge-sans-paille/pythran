@@ -144,10 +144,12 @@ namespace types
   {
     return value;
   }
-  template <long N>
+
+  template <long N, long P>
   std::integral_constant<long, N> check_type(std::integral_constant<long, N>,
-                                             std::integral_constant<long, N>)
+                                             std::integral_constant<long, P>)
   {
+    assert(N == P && "consistent init");
     return {};
   }
   template <long N>

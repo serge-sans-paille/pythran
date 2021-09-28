@@ -610,6 +610,18 @@ class TestIsInstance(TestEnv):
         code = 'def isinstance_int3(x):\n if isinstance(x, int) or x is None: return 1\n else: return  "3"'
         self.run_test(code, 1, isinstance_int3=[int])
 
+    def test_isinstance_multi0(self):
+        code = 'def isinstance_multi0(x):\n if isinstance(x, (int, float)): return 1\n else: return  "3"'
+        self.run_test(code, 1, isinstance_multi0=[int])
+
+    def test_isinstance_multi1(self):
+        code = 'def isinstance_multi1(x):\n if isinstance(x, (int, float)): return 1\n else: return  "3"'
+        self.run_test(code, 1., isinstance_multi1=[float])
+
+    def test_isinstance_multi2(self):
+        code = 'def isinstance_multi2(x):\n if isinstance(x, (int, float)): return 1\n else: return  "3"'
+        self.run_test(code, "1", isinstance_multi2=[str])
+
     def test_isinstance_complex0(self):
         code = '''
             import numpy as np

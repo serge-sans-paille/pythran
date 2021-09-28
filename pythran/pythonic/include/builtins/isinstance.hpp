@@ -3,6 +3,7 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/builtins/pythran/is_none.hpp"
+#include "pythonic/include/utils/meta.hpp"
 
 PYTHONIC_NS_BEGIN
 namespace types
@@ -28,10 +29,29 @@ namespace types
 
 namespace builtins
 {
+  namespace details
+  {
+    template <class Obj, class Cls>
+    struct isinstance {
+      using type = typename types::isinstance<
+          Obj,
+          typename std::decay<decltype(std::declval<Cls>()())>::type>::type;
+    };
+
+    template <class Obj, class... Clss>
+    struct isinstance<Obj, std::tuple<Clss...>> {
+      using type = typename std::conditional<
+          utils::any_of<
+              std::is_same<typename types::isinstance<
+                               Obj, typename std::decay<decltype(
+                                        std::declval<Clss>()())>::type>::type,
+                           types::true_type>::value...>::value,
+          types::true_type, types::false_type>::type;
+    };
+  }
+
   template <class Obj, class Cls>
-  typename types::isinstance<
-      Obj, typename std::decay<decltype(std::declval<Cls>()())>::type>::type
-      isinstance(Obj, Cls)
+  typename details::isinstance<Obj, Cls>::type isinstance(Obj, Cls)
   {
     return {};
   }

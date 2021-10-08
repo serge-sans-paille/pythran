@@ -1315,10 +1315,11 @@ result_type;
         """ Build a compilation unit. """
         # build all types
         header_deps = sorted(self.dependencies)
-        headers = [Include(os.path.join("pythonic", "include",
-                                        *map(cxxid, t)) + ".hpp")
+        headers = [Include('/'.join(["pythonic", "include"] +
+                                    [cxxid(x) for x in t]) + ".hpp")
                    for t in header_deps]
-        headers += [Include(os.path.join("pythonic", *map(cxxid, t)) + ".hpp")
+        headers += [Include('/'.join(["pythonic"] + [cxxid(x) for x in t])
+                            + ".hpp")
                     for t in header_deps]
 
         decls_n_defns = list(filter(None, (self.visit(stmt) for stmt in

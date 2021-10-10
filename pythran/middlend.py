@@ -2,7 +2,8 @@
 
 from pythran.analyses import ExtendedSyntaxCheck
 from pythran.optimizations import (ComprehensionPatterns, ListCompToGenexp,
-                                   RemoveDeadFunctions)
+                                   RemoveDeadFunctions, ExpandBooleanOperator,
+                                   CombineBoolCall)
 from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      ExpandImportAll, FalsePolymorphism,
                                      NormalizeCompare, NormalizeException,
@@ -13,7 +14,7 @@ from pythran.transformations import (ExpandBuiltins, ExpandImports,
                                      ExpandGlobals, NormalizeIsNone,
                                      NormalizeIfElse,
                                      NormalizeStaticIf, SplitStaticExpression,
-                                     RemoveFStrings)
+                                     RemoveFStrings, LogicOperateToBool)
 
 
 def refine(pm, node, optimizations):
@@ -24,7 +25,12 @@ def refine(pm, node, optimizations):
     pm.apply(ExpandImportAll, node)
     pm.apply(NormalizeTuples, node)
     pm.apply(RemoveFStrings, node)
+
+    pm.apply(LogicOperateToBool, node)
     pm.apply(ExpandBuiltins, node)
+    pm.apply(ExpandBooleanOperator, node)
+    pm.apply(CombineBoolCall, node)
+    
     pm.apply(ExpandImports, node)
     pm.apply(NormalizeMethodCalls, node)
     pm.apply(NormalizeIfElse, node)

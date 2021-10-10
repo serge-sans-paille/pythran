@@ -715,3 +715,35 @@ def range_simplify_subscript(n):
                 else:
                     return 0'''
         self.run_test(code, [], insert_none0=[List[int]])
+
+    def test_boolean_logical(self):
+        init = """
+def expand_bool(a, b, c, d):
+    if bool(a and bool(b)) or int(d - c or a) :
+        return a and c
+    elif (b or d and a or not c):
+        return c or d
+    elif bool(b + (d or c + (a and d))):
+        tmp = a or b and c
+        return tmp if tmp else 1
+    else:
+        return b and d"""
+
+        ref = """
+def expand_bool(a, b, c, d):
+    if ((builtins.bool(a) and builtins.bool(b)) or builtins.bool(builtins.int(((d - c) or a)))):
+        return (a and c)
+    elif (builtins.bool(b) or (builtins.bool(d) and builtins.bool(a)) or builtins.bool((not c))):
+        return (c or d)
+    elif builtins.bool((b + (d or (c + (a and d))))):
+        tmp = (a or (b and c))
+        return (tmp if tmp else 1)
+    else:
+        return (b and d)
+        """
+        self.check_ast(init, ref, [
+            "pythran.transformations.LogicOperateToBool",
+            "pythran.transformations.ExpandBuiltins",
+            "pythran.optimizations.ExpandBooleanOperator",
+            "pythran.optimizations.CombineBoolCall"
+        ])

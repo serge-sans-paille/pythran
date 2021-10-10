@@ -19,6 +19,3 @@ docs/AUTHORS.rst
 docs/SUPPORT.rst
 
 docs/_build/*
-/.project
-/.pydevproject
-/_rbfinterp_pythran.cpp

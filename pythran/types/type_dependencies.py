@@ -46,8 +46,8 @@ def pytype_to_deps(t):
     """ python -> pythonic type header full path. """
     res = set()
     for hpp_dep in pytype_to_deps_hpp(t):
-        res.add(os.path.join('pythonic', 'types', hpp_dep))
-        res.add(os.path.join('pythonic', 'include', 'types', hpp_dep))
+        res.add('/'.join(["pythonic", "types", hpp_dep]))
+        res.add('/'.join(['pythonic', 'include', 'types', hpp_dep]))
     return res
 
 

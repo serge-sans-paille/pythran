@@ -3961,8 +3961,12 @@ MODULES = {
             "weibull": FunctionIntr(args=('a', 'size',),
                                     global_effects=True),
         },
+        # We currently don't accurately model the fact that the return of ravel
+        # shares memory with its argument, but not the type.
+        # Use a global effect to prevent the optimizer from removing it.
         "ravel": ConstMethodIntr(
-            return_alias=lambda args: {args[0]}
+            #return_alias=lambda args: {args[0]},
+            global_effects=True,
         ),
         "real": FunctionIntr(),
         "reciprocal": ConstFunctionIntr(),

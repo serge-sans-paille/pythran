@@ -586,6 +586,34 @@ def np_rosen_der(x):
     def test_ravel2(self):
         self.run_test("def np_ravel2(x): y = x.ravel(); y[3] = 10; return x", numpy.arange(6).reshape((2,3)), np_ravel2=[NDArray[int,:,:]])
 
+    def test_ravel3(self):
+        code = '''
+import numpy as np
+
+def advance_positions(positions, velocities, time_step):
+    positions += time_step * velocities
+
+def advance_positions_ravel(positions, velocities, time_step):
+    positions_flat = positions.ravel()
+    velocities_flat = velocities.ravel()
+    positions_flat += time_step * velocities_flat
+
+def np_ravel3(v):
+    time_step = v
+
+    positions = np.zeros((2, 2))
+    velocities = np.ones_like(positions)
+
+    advance_positions(positions, velocities, time_step)
+    r0 = positions[0, 0]
+
+    positions = np.zeros((2, 2))
+    advance_positions_ravel(positions, velocities, time_step)
+    r1 = positions[0, 0]
+    return r0, r1
+        '''
+        self.run_test(code, 1, np_ravel3=[int])
+
     def test_repeat0(self):
         self.run_test("def np_repeat0(x): from numpy import repeat; return repeat(x, 3)", numpy.arange(3), np_repeat0=[NDArray[int,:]])
 

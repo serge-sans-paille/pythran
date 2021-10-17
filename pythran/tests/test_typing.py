@@ -687,7 +687,30 @@ def Test_reset(self, P, Q):
     print('In SHAPE', P, Q)
     self[0][0] = np.zeros((P, Q))
     print('Out SHAPE', self[0][0].shape)
+    return self
 
 def numpy_array_in_tuple0(n):
-    Test_reset(([np.zeros((1, 1))],), 64, n)'''
+    return Test_reset(([np.zeros((1, 1))],), 64, n)'''
         return self.run_test(code, 6, numpy_array_in_tuple0=[int])
+
+    def test_numpy_array_in_tuple1(self):
+        code = '''
+import numpy as np
+
+def CL___init__(N):
+    self_X = np.zeros((0, 0))
+    return [self_X]
+
+def CL_test(self):
+    self[0] = np.zeros((3, 3))
+    Y = []
+    X = self[0]
+    for ii in range(2):
+        Y.append(X[:, ii:ii+1])
+    Y = np.stack(Y, axis=0)
+    return(Y)
+
+def numpy_array_in_tuple1(N = 10):
+    CL = CL___init__(N)
+    return CL_test(CL)'''
+        return self.run_test(code, 6, numpy_array_in_tuple1=[int])

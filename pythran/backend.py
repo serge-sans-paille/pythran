@@ -947,12 +947,19 @@ class CxxFunction(ast.NodeVisitor):
         func = self.visit(node.func)
         # special hook for getattr, as we cannot represent it in C++
         if func == 'pythonic::builtins::functor::getattr{}':
-            return ('pythonic::builtins::getattr({}{{}}, {})'
+            result = ('pythonic::builtins::getattr({}{{}}, {})'
                     .format('pythonic::types::attr::'
                             + node.args[1].value.upper(),
                             args[0]))
         else:
-            return "{}({})".format(func, ", ".join(args))
+            result = "{}({})".format(func, ", ".join(args))
+
+        # When we have extra type information to inject as a cast
+        if isinstance(self.types.get(node), self.types.builder.CombinedTypes):
+            return '({}){}'.format(self.types[node].generate(self.lctx),
+                                   result)
+        else:
+            return result
 
     def visit_Constant(self, node):
         if node.value is None:

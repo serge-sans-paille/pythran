@@ -5,16 +5,6 @@
 
 #include "pythonic/types/tuple.hpp"
 
-#ifdef _OPENMP
-#include <omp.h>
-
-// as a macro so that an enlightened user can modify this variable :-)
-#ifndef PYTHRAN_OPENMP_MIN_ITERATION_COUNT
-#define PYTHRAN_OPENMP_MIN_ITERATION_COUNT 1000
-#endif
-
-#endif
-
 PYTHONIC_NS_BEGIN
 
 namespace utils
@@ -122,25 +112,9 @@ namespace utils
     {
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
-#ifdef _OPENMP
-      if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT) {
-        auto siter = self.begin();
-        auto oiter = other.begin();
-#pragma omp parallel for
-        for (long i = 0; i < other_size; ++i)
-          *(siter + i) = *(oiter + i);
-      } else
-#endif
         std::copy(other.begin(), other.end(), self.begin());
 
 // eventually repeat the pattern
-#ifdef _OPENMP
-      if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
-#pragma omp parallel for
-        for (long i = other_size; i < self_size; i += other_size)
-          std::copy_n(self.begin(), other_size, self.begin() + i);
-      else
-#endif
         for (long i = other_size; i < self_size; i += other_size)
           std::copy_n(self.begin(), other_size, self.begin() + i);
     }
@@ -157,15 +131,6 @@ namespace utils
       } else {
         auto sfirst = self.begin();
         *sfirst = other;
-#ifdef _OPENMP
-        auto siter = sfirst;
-        long n = self.template shape<0>();
-        if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-          for (long i = 1; i < n; ++i)
-            *(siter + i) = *sfirst;
-        else
-#endif
           std::fill(self.begin() + 1, self.end(), *sfirst);
       }
     }
@@ -177,15 +142,6 @@ namespace utils
       } else {
         auto sfirst = self.begin();
         *sfirst = other;
-#ifdef _OPENMP
-        auto siter = sfirst;
-        long n = self.template shape<0>();
-        if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-          for (long i = 1; i < n; ++i)
-            *(siter + i) = *sfirst;
-        else
-#endif
           std::fill(self.begin() + 1, self.end(), *sfirst);
       }
     }
@@ -208,15 +164,6 @@ namespace utils
     const long bound =
         std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
-#ifdef _OPENMP
-    if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT) {
-      auto iter = vectorizer::vbegin(self);
-#pragma omp parallel for
-      for (long i = 0; i < bound; ++i) {
-        (iter + i).store(*(oiter + i));
-      }
-    } else
-#endif
       for (auto iter = vectorizer::vbegin(self), end = vectorizer::vend(self);
            iter != end; ++iter, ++oiter) {
         iter.store(*oiter);
@@ -229,13 +176,6 @@ namespace utils
         *(siter + i) = *(oiter + i);
     }
 
-#ifdef _OPENMP
-    if (self_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT * other_size)
-#pragma omp parallel for
-      for (long i = other_size; i < self_size; i += other_size)
-        std::copy_n(self.begin(), other_size, self.begin() + i);
-    else
-#endif
       for (long i = other_size; i < self_size; i += other_size)
         std::copy_n(self.begin(), other_size, self.begin() + i);
   }
@@ -304,13 +244,6 @@ namespace utils
     {
       long n = self.template shape<0>();
       auto siter = self.begin();
-#ifdef _OPENMP
-      if (n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-        for (long i = 0; i < n; ++i)
-          Op{}(*(siter + i), other);
-      else
-#endif
         for (long i = 0; i < n; ++i)
           Op{}(*(siter + i), other);
     }
@@ -324,13 +257,6 @@ namespace utils
       long other_size = std::distance(other.begin(), other.end());
       auto siter = self.begin();
       auto oiter = other.begin();
-#ifdef _OPENMP
-      if (other_size >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-        for (long i = 0; i < other_size; ++i)
-          Op{}(*(siter + i), *(oiter + i));
-      else
-#endif
           if (other_size == 1) {
         auto value = *oiter;
         for (auto send = self.end(); siter != send; ++siter)
@@ -437,14 +363,6 @@ namespace utils
     const long bound =
         std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
-#ifdef _OPENMP
-    if (bound >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-      for (long i = 0; i < bound; i++) {
-        (iter + i).store(Op{}(*(iter + i), *(oiter + i)));
-      }
-    else
-#endif
       for (auto end = vectorizer::vend(self); iter != end; ++iter, ++oiter) {
         iter.store(Op{}(*iter, *oiter));
       }

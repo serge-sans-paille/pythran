@@ -378,9 +378,9 @@ CLASSES = {
                 Fun[[Dict[T0, T1], T0, T1], T1],
             ],
         ),
-        "items": MethodIntr(
+        "items": ConstMethodIntr(
             signature=Fun[[Dict[T0, T1]], List[Tuple[T0, T1]]]),
-        "keys": MethodIntr(signature=Fun[[Dict[T0, T1]], List[T0]]),
+        "keys": ConstMethodIntr(signature=Fun[[Dict[T0, T1]], List[T0]]),
         "pop": MethodIntr(
             signature=Union[
                 Fun[[Dict[T0, T1], T0], T1],
@@ -399,7 +399,7 @@ CLASSES = {
             }.union({args[2]} if len(args) == 3 else set())
         ),
         "update": MethodIntr(update_effects),
-        "values": MethodIntr(signature=Fun[[Dict[T0, T1]], List[T1]]),
+        "values": ConstMethodIntr(signature=Fun[[Dict[T0, T1]], List[T1]]),
     },
     "file": {
         # Member variables

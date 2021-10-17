@@ -26,16 +26,8 @@ namespace numpy
                        typename std::result_of<F(dtype)>::type>::type>::type,
                    pS> out(shape, builtins::None);
     long n = out.template shape<0>();
-#ifdef _OPENMP
-    if (std::is_same<purity_tag, purity::pure_tag>::value &&
-        n >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for
-      for (long i = 0; i < n; ++i)
-        out[i] = f(i);
-    else
-#endif
-      for (long i = 0; i < n; ++i)
-        out[i] = f(i);
+    for (long i = 0; i < n; ++i)
+      out[i] = f(i);
     return out;
   }
 
@@ -53,18 +45,9 @@ namespace numpy
         pS> out(shape, builtins::None);
     long n = out.template shape<0>();
     long m = out.template shape<1>();
-#ifdef _OPENMP
-    if (std::is_same<purity_tag, purity::pure_tag>::value &&
-        (m * n) >= PYTHRAN_OPENMP_MIN_ITERATION_COUNT)
-#pragma omp parallel for collapse(2)
-      for (long i = 0; i < n; ++i)
-        for (long j = 0; j < m; ++j)
-          out[i][j] = f(i, j);
-    else
-#endif
-      for (long i = 0; i < n; ++i)
-        for (long j = 0; j < m; ++j)
-          out[i][j] = f(i, j);
+    for (long i = 0; i < n; ++i)
+      for (long j = 0; j < m; ++j)
+        out[i][j] = f(i, j);
     return out;
   }
 

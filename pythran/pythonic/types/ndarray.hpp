@@ -1352,7 +1352,10 @@ struct pyarray_new<npy_intp, N> {
   }
 };
 
-void wrapfree(PyObject *obj){ free(obj); };
+void wrapfree(PyObject *capsule){
+  void * obj = PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule));
+  free(obj);
+};
 
 template <class T, class pS>
 PyObject *
@@ -1410,16 +1413,17 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
       return nullptr;
     // Take responsibility for n.buffer by wrapping it in a capsule and
     // setting result.base to the capsule
-    PyObject *capsule = PyCapsule_New(n.buffer, "wrapped_data", wrapfree);
+    PyObject *capsule = PyCapsule_New(n.buffer, "wrapped_data",
+                                      (PyCapsule_Destructor)&wrapfree);
     if (!capsule) {
       Py_DECREF(result);
       return nullptr;
     }
-    n.mark_memory_external(capsule);
-    Py_INCREF(capsule); // because it's going to be decrefed when n is destroyed
+    n.mark_memory_external(result);
+    Py_INCREF(result);  // because it's going to be decrefed when n is destroyed
     if (PyArray_SetBaseObject(reinterpret_cast<PyArrayObject *>(result), capsule) == -1) {
       Py_DECREF(result);
-      Py_DECREF(capsule);
+      Py_DECREF(capsule);  // will free n.buffer
       return nullptr;
     }
     if (transpose) {

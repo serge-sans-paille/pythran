@@ -1393,7 +1393,6 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
       auto *res = pyarray_new<long, std::tuple_size<pS>::value>{}.from_descr(
           Py_TYPE(arr), PyArray_DESCR(arr), array.data(), PyArray_DATA(arr),
           PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
-      // XXX who is responsible for releasing array.data() ??
       if (transpose && (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS)) {
         PyObject *Transposed =
             PyArray_Transpose(reinterpret_cast<PyArrayObject *>(arr), nullptr);
@@ -1407,17 +1406,17 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
     PyObject *result =
         pyarray_new<long, std::tuple_size<pS>::value>{}.from_data(
             array.data(), c_type_to_numpy_type<T>::value, n.buffer);
-    n.mark_memory_external(result);
     if (!result)
       return nullptr;
-    Py_INCREF(result); // because it's going to be decrefed when n is destroyed
-    // Take responsibility for array.data() by wrapping it in a capsule and
+    // Take responsibility for n.buffer by wrapping it in a capsule and
     // setting result.base to the capsule
-    auto capsule = PyCapsule_New(array.data(), "wrapped_data", wrapfree);
+    PyObject *capsule = PyCapsule_New(n.buffer, "wrapped_data", wrapfree);
     if (!capsule) {
       Py_DECREF(result);
       return nullptr;
     }
+    n.mark_memory_external(capsule);
+    Py_INCREF(capsule); // because it's going to be decrefed when n is destroyed
     if (PyArray_SetBaseObject(reinterpret_cast<PyArrayObject *>(result), capsule) == -1) {
       Py_DECREF(result);
       Py_DECREF(capsule);

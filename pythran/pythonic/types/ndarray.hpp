@@ -1352,6 +1352,11 @@ struct pyarray_new<npy_intp, N> {
   }
 };
 
+void wrapfree(PyObject *capsule){
+  void * obj = PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule));
+  free(obj);
+};
+
 template <class T, class pS>
 PyObject *
 to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
@@ -1404,12 +1409,23 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
     PyObject *result =
         pyarray_new<long, std::tuple_size<pS>::value>{}.from_data(
             array.data(), c_type_to_numpy_type<T>::value, n.buffer);
-    n.mark_memory_external(result);
-    Py_INCREF(result); // because it's going to be decrefed when n is destroyed
     if (!result)
       return nullptr;
-    PyArray_ENABLEFLAGS(reinterpret_cast<PyArrayObject *>(result),
-                        NPY_ARRAY_OWNDATA);
+    // Take responsibility for n.buffer by wrapping it in a capsule and
+    // setting result.base to the capsule
+    PyObject *capsule = PyCapsule_New(n.buffer, "wrapped_data",
+                                      (PyCapsule_Destructor)&wrapfree);
+    if (!capsule) {
+      Py_DECREF(result);
+      return nullptr;
+    }
+    n.mark_memory_external(result);
+    Py_INCREF(result);  // because it's going to be decrefed when n is destroyed
+    if (PyArray_SetBaseObject(reinterpret_cast<PyArrayObject *>(result), capsule) == -1) {
+      Py_DECREF(result);
+      Py_DECREF(capsule);  // will free n.buffer
+      return nullptr;
+    }
     if (transpose) {
       PyObject *Transposed =
           PyArray_Transpose(reinterpret_cast<PyArrayObject *>(result), nullptr);

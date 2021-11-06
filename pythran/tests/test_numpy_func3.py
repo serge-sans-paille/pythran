@@ -713,6 +713,88 @@ def np_trim_zeros2(x):
                       numpy.random.randn(100),
                       10.,
                       interp5=[NDArray[float,:],float])
+                      
+    def test_interp_6(self):
+        self.run_test('def interp6(x,xp,fp): import numpy as np; return np.interp(x,xp,fp)',
+                      1.4,
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000),
+                      interp6=[float,NDArray[float,:],NDArray[float,:]])
+
+    def test_interp_7(self):
+        self.run_test('def interp7(x,xp,fp): import numpy as np; return np.interp(x,xp,fp)',
+                      1,
+                      numpy.sort(10*numpy.random.randn(1000)),
+                      numpy.random.randn(1000),
+                      interp7=[int,NDArray[float,:],NDArray[float,:]])
+
+    def test_interp_8(self):
+        self.run_test('def interp8(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,-10,10)',
+                      1.4,
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000),
+                      interp8=[float,NDArray[float,:],NDArray[float,:]])
+
+    def test_interp_0c(self):
+        self.run_test('def interp0c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
+                      interp0c=[NDArray[float,:],NDArray[float,:],NDArray[complex,:]])
+                      
+    def test_interp_1c(self):
+        self.run_test('def interp1c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,-10.j,10.j)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
+                      interp1c=[NDArray[float,:],NDArray[float,:],NDArray[complex,:]])
+                      
+    def test_interp_2c(self):
+        self.run_test('def interp2c(x,xp,fp): import numpy as np; return np.interp(x,xp[::2],fp[::2],-10.,10.)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
+                      interp2c=[NDArray[float,:],NDArray[float,:],NDArray[complex,:]])
+    def test_interp_3c(self):
+        self.run_test('def interp3c(x,xp,fp): import numpy as np; return np.interp(x[::3],xp[::2],fp[::2],-10.j)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
+                      interp3c=[NDArray[float,:],NDArray[float,:],NDArray[complex,:]])
+                      
+    def test_interp_4c(self):
+        self.run_test('def interp4c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,period=1.1)',
+                      numpy.random.randn(100),
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
+                      interp4c=[NDArray[float,:],NDArray[float,:],NDArray[complex,:]])
+
+    def test_interp_5c(self):
+        self.run_test('def interp5c(x,factor): N = len(x); import numpy as np; return np.interp(np.arange(0, N - 1, factor), np.arange(N), x, None, None, None)',
+                      numpy.random.randn(100) + 1j*numpy.random.randn(100),
+                      10.,
+                      interp5c=[NDArray[complex,:],float])
+                      
+    def test_interp_6c(self):
+        self.run_test('def interp6c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp)',
+                      1.4,
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
+                      interp6c=[float,NDArray[float,:],NDArray[complex,:]])
+
+    def test_interp_7c(self):
+        self.run_test('def interp7c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp)',
+                      1,
+                      numpy.sort(10*numpy.random.randn(1000)),
+                      numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
+                      interp7c=[int,NDArray[float,:],NDArray[complex,:]])
+
+    def test_interp_8c(self):
+        self.run_test('def interp8c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,-10j,10j)',
+                      1.4,
+                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
+                      interp8c=[float,NDArray[float,:],NDArray[complex,:]])
 
     def test_setdiff1d0(self):
         self.run_test('def setdiff1d0(x,y): import numpy as np; return np.setdiff1d(x,y)',

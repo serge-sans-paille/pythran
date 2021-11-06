@@ -20,10 +20,11 @@
  * @param guess initial guess of index
  * @return index
  */
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/numpy/isnan.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #define LIKELY_IN_CACHE_SIZE 8
+PYTHONIC_NS_BEGIN
 
 template <typename npy_intp, typename npy_double, class T>
 static npy_intp binary_search_with_guess(const npy_double key, const T &arr,
@@ -182,19 +183,24 @@ static npy_intp binary_search_with_guess(const npy_double key, const T &arr,
 //    }
 
 // xp->dx   fp->dy  x -> dz
+// This is the output type, based on the type of T, which can be complex.
+template <class T>
+using out_type =
+    typename std::conditional<types::is_complex<typename T::dtype>::value,
+                              std::complex<double>, double>::type;
 
-template <typename npy_intp, typename npy_double, class T1, class T2, class T3,
+template <typename npy_intp, typename T5, class T1, class T2, class T3,
           class T4>
 void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
-               npy_intp lenxp, npy_intp lenx, npy_double lval, npy_double rval)
+               npy_intp lenxp, npy_intp lenx, T5 lval, T5 rval)
 {
   npy_intp i;
-  npy_double *slopes = NULL;
-  std::vector<npy_double> slope_vect;
+  out_type<T3> *slopes = NULL;
+  std::vector<out_type<T3>> slope_vect;
   /* binary_search_with_guess needs at least a 3 item long array */
   if (lenxp == 1) {
     const npy_double xp_val = dx[0];
-    const npy_double fp_val = dy[0];
+    const out_type<T3> fp_val = dy[0];
 
     //        NPY_BEGIN_THREADS_THRESHOLDED(lenx);
     for (i = 0; i < lenx; ++i) {
@@ -238,7 +244,7 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
         /* Avoid potential non-finite interpolation */
         dres[i] = dy[j];
       } else {
-        const npy_double slope =
+        const out_type<T3> slope =
             (slopes != NULL) ? slopes[j]
                              : (dy[j + 1] - dy[j]) / (dx[j + 1] - dx[j]);
         dres[i] = slope * (x_val - dx[j]) + dy[j];
@@ -248,3 +254,4 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
     //        NPY_END_THREADS;
   }
 }
+PYTHONIC_NS_END

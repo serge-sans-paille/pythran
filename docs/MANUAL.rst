@@ -296,8 +296,9 @@ Unfortunately it's not always possible:
 
 - Pythran does not support heterogeneous containers (except tuples).
 
-- There is no BigInt support. All integer operations are performed on ``long``
-  (probably ``int64_t`` on a 64 bit machine.)
+- There is no BigInt support. All integer operations are performed on
+  ``np.int_``, which maps to C ``long`` type. Beware that as a consequence, the
+  size of this type is system-dependent.
 
 - In most cases (with the notable exception of ``numpy.ndarray``), Pythran is
   working on a deep copy of the original Python arguments. This copy shares no memory

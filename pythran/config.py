@@ -8,6 +8,7 @@ import logging
 import numpy.distutils.system_info as numpy_sys
 import numpy
 import os
+from shlex import split as shsplit
 import sys
 
 logger = logging.getLogger('pythran')
@@ -168,19 +169,19 @@ def make_extension(python, **extra):
         "language": "c++",
         # forcing str conversion to handle Unicode case (the default on MS)
         "define_macros": [str(x) for x in
-                          cfg.get('compiler', 'defines').split()],
+                          shsplit(cfg.get('compiler', 'defines'))],
         "undef_macros": [str(x) for x in
-                         cfg.get('compiler', 'undefs').split()],
+                         shsplit(cfg.get('compiler', 'undefs'))],
         "include_dirs": [str(x) for x in
-                         cfg.get('compiler', 'include_dirs').split()],
+                         shsplit(cfg.get('compiler', 'include_dirs'))],
         "library_dirs": [str(x) for x in
-                         cfg.get('compiler', 'library_dirs').split()],
+                         shsplit(cfg.get('compiler', 'library_dirs'))],
         "libraries": [str(x) for x in
-                      cfg.get('compiler', 'libs').split()],
+                      shsplit(cfg.get('compiler', 'libs'))],
         "extra_compile_args": [str(x) for x in
-                               cfg.get('compiler', 'cflags').split()],
+                               shsplit(cfg.get('compiler', 'cflags'))],
         "extra_link_args": [str(x) for x in
-                            cfg.get('compiler', 'ldflags').split()],
+                            shsplit(cfg.get('compiler', 'ldflags'))],
         "extra_objects": []
     }
 
@@ -207,12 +208,12 @@ def make_extension(python, **extra):
     # standard environment variable is `CXXFLAGS` not `CFLAGS`).
     cflags = os.environ.get('CXXFLAGS', None)
     if cflags is not None:
-        extension['extra_compile_args'].extend(cflags.split())
+        extension['extra_compile_args'].extend(shsplit(cflags))
 
     # Honor LDFLAGS
     ldflags = os.environ.get('LDFLAGS', None)
     if ldflags is not None:
-        extension['extra_link_args'].extend(ldflags.split())
+        extension['extra_link_args'].extend(shsplit(ldflags))
 
     for k, w in extra.items():
         extension[k].extend(w)
@@ -377,7 +378,7 @@ def run():
 
         if args.python:
             ldflags.append(compiler_obj.library_dir_option(distutils.sysconfig.get_config_var('LIBPL')))
-            ldflags.extend(distutils.sysconfig.get_config_var('LIBS').split())
+            ldflags.extend(shsplit(distutils.sysconfig.get_config_var('LIBS')))
             ldflags.append(compiler_obj.library_option('python')
                            + distutils.sysconfig.get_config_var('VERSION'))
 

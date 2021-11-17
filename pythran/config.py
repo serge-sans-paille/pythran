@@ -377,8 +377,12 @@ def run():
                        for include in extension['libraries'])
 
         if args.python:
-            ldflags.append(compiler_obj.library_dir_option(distutils.sysconfig.get_config_var('LIBPL')))
-            ldflags.extend(shsplit(distutils.sysconfig.get_config_var('LIBS')))
+            libpl = distutils.sysconfig.get_config_var('LIBPL')
+            if libpl:
+                ldflags.append(libpl)
+            libs = distutils.sysconfig.get_config_var('LIBS')
+            if libs:
+                ldflags.extend(shsplit(libs))
             ldflags.append(compiler_obj.library_option('python')
                            + distutils.sysconfig.get_config_var('VERSION'))
 

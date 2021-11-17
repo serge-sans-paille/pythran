@@ -32,6 +32,11 @@ jobs:
     - name: Setup
       run: |
         python setup.py install
+    - name: Testing minimal CLI
+      run: |
+        pythran --version
+        pythran --help
+        pythran-config -vvv
     - name: Testing sequential
       run: |
         pytest pythran/tests/test_ndarray.py -v -x

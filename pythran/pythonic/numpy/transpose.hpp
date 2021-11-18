@@ -16,9 +16,9 @@ namespace numpy
   namespace
   {
     template <class T, class pS, class O, class Indices, class S, class Perm>
-    O const *_transpose(types::ndarray<T, pS> &expr, O const *iter,
-                        Indices &indices, S const &shape, Perm const &perm,
-                        utils::int_<std::tuple_size<pS>::value - 1>)
+    O const *_transposer(types::ndarray<T, pS> &expr, O const *iter,
+                         Indices &indices, S const &shape, Perm const &perm,
+                         utils::int_<std::tuple_size<pS>::value - 1>)
     {
       for (long i = 0, n = shape[std::tuple_size<pS>::value - 1]; i < n; ++i) {
         indices[perm[std::tuple_size<pS>::value - 1]] = i;
@@ -32,21 +32,21 @@ namespace numpy
               size_t I>
     typename std::enable_if<std::tuple_size<pS>::value - 1 != I,
                             O const *>::type
-    _transpose(types::ndarray<T, pS> &expr, O const *iter, Indices &indices,
-               S const &shape, Perm const &perm, utils::int_<I>)
+    _transposer(types::ndarray<T, pS> &expr, O const *iter, Indices &indices,
+                S const &shape, Perm const &perm, utils::int_<I>)
     {
       for (long i = 0, n = shape[I]; i < n; ++i) {
         indices[perm[I]] = i;
         iter =
-            _transpose(expr, iter, indices, shape, perm, utils::int_<I + 1>());
+            _transposer(expr, iter, indices, shape, perm, utils::int_<I + 1>());
       }
       indices[perm[I]] = 0;
       return iter;
     }
     template <class T, class pS>
     types::ndarray<T, types::array<long, std::tuple_size<pS>::value>>
-    _transpose(types::ndarray<T, pS> const &a,
-               long const l[std::tuple_size<pS>::value])
+    _transposer(types::ndarray<T, pS> const &a,
+                long const l[std::tuple_size<pS>::value])
     {
       auto shape = sutils::getshape(a);
       types::array<long, std::tuple_size<pS>::value> shp;
@@ -62,7 +62,7 @@ namespace numpy
 
       auto const *iter = a.buffer;
       types::array<long, std::tuple_size<pS>::value> indices;
-      _transpose(new_array, iter, indices, shape, perm, utils::int_<0>{});
+      _transposer(new_array, iter, indices, shape, perm, utils::int_<0>{});
 
       return new_array;
     }
@@ -77,7 +77,7 @@ namespace numpy
     long t[std::tuple_size<pS>::value];
     for (unsigned long i = 0; i < std::tuple_size<pS>::value; ++i)
       t[std::tuple_size<pS>::value - 1 - i] = i;
-    return _transpose(a, t);
+    return _transposer(a, t);
   }
 
   template <class T, class pS, size_t M>
@@ -89,7 +89,7 @@ namespace numpy
     long val = t[M - 1];
     if (val >= long(std::tuple_size<pS>::value))
       throw types::ValueError("invalid axis for this array");
-    return _transpose(a, &t[0]);
+    return _transposer(a, &t[0]);
   }
 }
 PYTHONIC_NS_END

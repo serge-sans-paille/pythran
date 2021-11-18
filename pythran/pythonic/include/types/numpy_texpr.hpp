@@ -295,6 +295,60 @@ namespace types
 
     using numpy_texpr_2<numpy_gexpr<E, S...>>::operator=;
   };
+  template <class E>
+  struct numpy_texpr<broadcasted<E>> {
+    static constexpr auto value = broadcasted<E>::value;
+    using value_type = broadcast<typename E::dtype, typename E::dtype>;
+    using dtype = typename broadcasted<E>::dtype;
+    using shape_t = types::array<long, value>;
+    using iterator = nditerator<numpy_texpr<broadcasted<E>>>;
+    using const_iterator = const_nditerator<numpy_texpr<broadcasted<E>>>;
+    static constexpr bool is_vectorizable = false;
+    static constexpr bool is_strided = true;
+
+    broadcasted<E> arg;
+    numpy_texpr() = default;
+    numpy_texpr(numpy_texpr const &) = default;
+    numpy_texpr(numpy_texpr &&) = default;
+    numpy_texpr(broadcasted<E> const &arg) : arg(arg)
+    {
+    }
+    value_type fast(long i) const
+    {
+      return arg.ref.fast(i);
+    }
+    template <size_t I>
+    long shape() const
+    {
+      return arg.template shape < I == 0 ? 1 : 0 > ();
+    }
+    auto load(long i, long j) const -> decltype(arg.ref.load(i))
+    {
+      return arg.ref.load(i);
+    }
+    template <class Elt>
+    void store(Elt elt, long i, long j)
+    {
+      arg.ref.store(elt, i);
+    }
+    const_iterator begin() const
+    {
+      return {*this, 0};
+    }
+    const_iterator end() const
+    {
+      return {*this, shape<0>()};
+    }
+
+    iterator begin()
+    {
+      return {*this, 0};
+    }
+    iterator end()
+    {
+      return {*this, shape<0>()};
+    }
+  };
 }
 
 template <class Arg>

@@ -153,6 +153,25 @@ def dict_of_complex64_and_complex_128(l):
     def test_transposed_argt2(self):
         self.run_test("def np_transposed_argt2(a): return a.T", np.arange(12, dtype=complex).reshape(3,4), np_transposed_argt2=[NDArray[complex, :, :]])
 
+    def test_transposed_expr0(self):
+        self.run_test("def np_transposed_expr0(a): return (a + 1).T",
+                      np.arange(12, dtype=complex).reshape(3,4),
+                      np_transposed_expr0=[NDArray[complex, :, :]])
+
+    def test_transposed_expr1(self):
+        self.run_test("def np_transposed_expr1(a, b): return (a + b[0]).T",
+                      np.arange(16, dtype=complex).reshape(4,4),
+                      1j*np.arange(16, dtype=complex).reshape(4,4),
+                      np_transposed_expr1=[NDArray[complex, :, :],
+                                           NDArray[complex, :, :]])
+
+    def test_transposed_expr2(self):
+        self.run_test("def np_transposed_expr2(a, b): return (-(a + b[0])).T",
+                      np.arange(16, dtype=complex).reshape(4,4),
+                      1j*np.arange(16, dtype=complex).reshape(4,4),
+                      np_transposed_expr2=[NDArray[complex, :, :],
+                                           NDArray[complex, :, :]])
+
     def test_broadcasted_int8(self):
         self.run_test('def broadcasted_int8(l): return l + 4', np.ones(10,dtype=np.int8).reshape(5,2), broadcasted_int8=[NDArray[np.int8, :, :]])
 

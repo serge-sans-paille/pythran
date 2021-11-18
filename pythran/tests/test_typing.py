@@ -521,6 +521,7 @@ def recursive_interprocedural_typing2(c):
     def test_alias_update_in_multiple_opaque_tests(self):
         code = '''
             def alias_update_in_multiple_opaque_tests(X,f):
+                A = X[:, 0]
                 if f > 3:
                     A = (f * X[:, 0])
                 else:
@@ -529,7 +530,8 @@ def recursive_interprocedural_typing2(c):
                 if f <= 3:
                     A = (f * X[:, 1])
                 else:
-                    A += (f * X[:, 1])'''
+                    A += (f * X[:, 1])
+                return A'''
 
         return self.run_test(code, np.arange(9).reshape(3,3), 9, alias_update_in_multiple_opaque_tests=[NDArray[int,:,:], int])
 

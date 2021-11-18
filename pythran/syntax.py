@@ -9,11 +9,26 @@ from pythran.intrinsic import Class
 from pythran.typing import Tuple, List, Set, Dict
 from pythran.utils import isstr
 
+import beniget
 import gast as ast
 import logging
 import numpy as np
 
 logger = logging.getLogger('pythran')
+
+# NB: this purposely ignores OpenMP metadata
+class ExtendedDefUseChains(beniget.DefUseChains):
+
+    def __init__(self, ancestors):
+        super(ExtendedDefUseChains, self).__init__()
+        self.unbounds = dict()
+        self.ancestors = ancestors
+
+    def unbound_identifier(self, name, node):
+        for n in reversed(self.ancestors.parents(node)):
+            if hasattr(n, 'lineno'):
+                break
+        self.unbounds.setdefault(name, []).append(n)
 
 
 class PythranSyntaxError(SyntaxError):
@@ -84,6 +99,12 @@ class SyntaxChecker(ast.NodeVisitor):
             if isinstance(n, WhiteList):
                 continue
             raise PythranSyntaxError(err, n)
+        ancestors = beniget.Ancestors()
+        ancestors.visit(node)
+        duc = ExtendedDefUseChains(ancestors)
+        duc.visit(node)
+        for k, v in duc.unbounds.items():
+            raise PythranSyntaxError("Unbound identifier {}".format(k), v[0])
         self.generic_visit(node)
 
     def visit_Interactive(self, node):

@@ -3,7 +3,6 @@
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.intrinsic import Intrinsic, Class, UnboundValue
 from pythran.passmanager import ModuleAnalysis
-from pythran.syntax import PythranSyntaxError
 from pythran.tables import functions, methods, MODULES
 from pythran.unparse import Unparser
 from pythran.conversion import demangle
@@ -17,6 +16,9 @@ import io
 
 
 IntrinsicAliases = dict()
+
+class UnboundIdentifierError(RuntimeError):
+    pass
 
 
 class ContainerOf(object):
@@ -457,11 +459,7 @@ class Aliases(ModuleAnalysis):
 
     def visit_Name(self, node):
         if node.id not in self.aliases:
-            err = ("identifier {0} unknown, either because "
-                   "it is an unsupported intrinsic, "
-                   "the input code is faulty, "
-                   "or... pythran is buggy.")
-            raise PythranSyntaxError(err.format(node.id), node)
+            raise UnboundIdentifierError
         return self.add(node, self.aliases[node.id])
 
     def visit_Tuple(self, node):
@@ -716,7 +714,7 @@ class Aliases(ModuleAnalysis):
                 self.visit(stmt)
             true_aliases = self.aliases
             self.aliases = tmp
-        except PythranSyntaxError:
+        except UnboundIdentifierError:
             pass
 
         # then try the false branch
@@ -724,7 +722,7 @@ class Aliases(ModuleAnalysis):
             for stmt in node.orelse:
                 self.visit(stmt)
             false_aliases = self.aliases
-        except PythranSyntaxError:
+        except UnboundIdentifierError:
             pass
 
         if true_aliases and not false_aliases:

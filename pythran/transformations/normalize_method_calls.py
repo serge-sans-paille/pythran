@@ -269,10 +269,6 @@ class NormalizeMethodCalls(Transformation):
                                 cur_module[mname])
                     else:
                         new_id, mname = self.renamer(path.id, cur_module)
-                        if mname not in cur_module:
-                            raise PythranSyntaxError(
-                                "Unbound identifier '{}'".format(mname), node)
-
                         return (ast.Name(new_id, ast.Load(), None, None),
                                 cur_module[mname])
 

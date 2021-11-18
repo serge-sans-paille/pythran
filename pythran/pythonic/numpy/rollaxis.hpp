@@ -33,7 +33,7 @@ namespace numpy
       for (long i = axis + 1, n = N; i < n; ++i)
         t[i] = i;
     }
-    return _transpose(a, t);
+    return _transposer(a, t);
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(rollaxis);

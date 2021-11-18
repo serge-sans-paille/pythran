@@ -11,6 +11,14 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+
+  template <class E>
+  types::numpy_texpr<types::broadcasted<E>>
+  transpose(types::broadcasted<E> const &arr)
+  {
+    return {arr};
+  }
+
   template <class E>
   E transpose(types::numpy_texpr<E> const &arr)
   {
@@ -48,21 +56,27 @@ namespace numpy
         a, types::array<long, 1 + sizeof...(Args)>{{index, (long)indices...}});
   }
 
-  template <class Op, class... Args, size_t... Is>
-  auto _transpose(types::numpy_expr<Op, Args...> const &expr,
-                  utils::index_sequence<Is...>)
-      -> decltype(Op{}(transpose(std::get<Is>(expr.args)...)))
-  {
-    return Op{}(transpose(std::get<Is>(expr.args)...));
-  }
+  template <class T>
+  struct _transpose;
 
   template <class Op, class... Args>
   auto transpose(types::numpy_expr<Op, Args...> const &expr)
-      -> decltype(_transpose(expr,
-                             utils::make_index_sequence<sizeof...(Args)>()))
+      -> decltype(_transpose<types::numpy_expr<Op, Args...>>{}(
+          expr, utils::make_index_sequence<sizeof...(Args)>()))
   {
-    return _transpose(expr, utils::make_index_sequence<sizeof...(Args)>());
+    return _transpose<types::numpy_expr<Op, Args...>>{}(
+        expr, utils::make_index_sequence<sizeof...(Args)>());
   }
+  template <class Op, class... Args>
+  struct _transpose<types::numpy_expr<Op, Args...>> {
+    template <size_t... Is>
+    auto operator()(types::numpy_expr<Op, Args...> const &expr,
+                    utils::index_sequence<Is...>)
+        -> decltype(Op{}(transpose(std::get<Is>(expr.args))...))
+    {
+      return Op{}(transpose(std::get<Is>(expr.args))...);
+    }
+  };
 
   template <class E>
   auto transpose(E const &expr) -> typename std::enable_if<

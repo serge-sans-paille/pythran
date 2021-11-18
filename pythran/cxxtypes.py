@@ -516,9 +516,9 @@ std::declval<bool>()))
                 return any(expr.iscombined() for expr in self.exprs)
 
             def generate(self, ctx):
-                texprs = (ctx(expr) for expr in self.exprs)
-                return 'decltype({0})'.format(self.op(
-                    *["std::declval<{0}>()".format(t) for t in texprs]))
+                gexprs = ["std::declval<{0}>()".format(ctx(expr))
+                          for expr in self.exprs]
+                return 'decltype({0})'.format(self.op(*gexprs))
 
         builder.UnknownType = Type()
 

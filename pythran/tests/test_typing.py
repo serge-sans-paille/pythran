@@ -18,6 +18,12 @@ class TestTyping(TestEnv):
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumbo", code, pyonly=True)
 
+    def test_module_bad_call(self):
+        code = 'def module_bad_call(): import numpy.int32 as i32; return i32()'
+
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumbo", code, pyonly=True)
+
     def test_module_invalid_sequence_mult(self):
         code = 'def foo(x): return [x] * 3.'
 

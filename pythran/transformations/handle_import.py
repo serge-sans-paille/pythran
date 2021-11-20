@@ -157,6 +157,13 @@ class HandleImport(Transformation):
 
         return node
 
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name):
+            renaming = self.lookup(node.func.id)
+            if renaming and is_mangled_module(renaming):
+                raise PythranSyntaxError("Invalid module call", node)
+        return self.generic_visit(node)
+
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load):
             renaming = self.lookup(node.id)

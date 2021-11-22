@@ -792,7 +792,7 @@ def np_trim_zeros2(x):
     def test_interp_8c(self):
         self.run_test('def interp8c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,-10j,10j)',
                       1.4,
-                      numpy.sort(numpy.random.randn(1000)),
+                      numpy.sort(10*numpy.random.randn(1000)),
                       numpy.random.randn(1000) + 1j*numpy.random.randn(1000),
                       interp8c=[float,NDArray[float,:],NDArray[complex,:]])
 

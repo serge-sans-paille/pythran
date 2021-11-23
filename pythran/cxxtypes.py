@@ -197,10 +197,10 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 if self.isrec:
-                    return self.orig.generate(ctx)
+                    return ctx(self.orig)
                 else:
                     self.isrec = True
-                    return self.final_type.generate(ctx)
+                    return ctx(self.final_type)
 
         class InstantiatedType(Type):
             """
@@ -300,7 +300,7 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 return 'typename pythonic::assignable<{0}>::type'.format(
-                    self.of.generate(ctx))
+                    ctx(self.of))
 
         class AssignableNoEscape(DependentType):
             """
@@ -309,7 +309,7 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 return 'typename pythonic::assignable_noescape<{0}>::type'.format(
-                    self.of.generate(ctx))
+                    ctx(self.of))
 
         class Returnable(DependentType):
             """
@@ -324,7 +324,7 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 return 'typename pythonic::returnable<{0}>::type'.format(
-                    self.of.generate(ctx))
+                    ctx(self.of))
 
         class Lazy(DependentType):
             """

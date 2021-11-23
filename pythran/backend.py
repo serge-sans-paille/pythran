@@ -254,7 +254,7 @@ class CxxFunction(ast.NodeVisitor):
         if isinstance(node, str):
             return self.typeof(self.local_names[node])
         else:
-            return self.types[node].generate(self.lctx)
+            return self.lctx(self.types[node])
 
     def prepare_functiondef_context(self, node):
         # prepare context and visit function body
@@ -327,7 +327,7 @@ class CxxFunction(ast.NodeVisitor):
         ctx = CachedTypeVisitor(self.lctx)
         operator_local_declarations = (
             [Statement("{0} {1}".format(
-                self.types[self.local_names[k]].generate(ctx), cxxid(k)))
+                ctx(self.types[self.local_names[k]]), cxxid(k)))
              for k in self.ldecls]
         )
         dependent_typedefs = ctx.typedefs()
@@ -340,10 +340,10 @@ class CxxFunction(ast.NodeVisitor):
 
         ctx = CachedTypeVisitor()
         extra_typedefs = (
-            [Typedef(Value(t.generate(ctx), t.name))
+            [Typedef(Value(ctx(t), t.name))
              for t in self.types[node][1]] +
             [Typedef(Value(
-                result_type.generate(ctx),
+                ctx(result_type),
                 "result_type"))]
         )
         extra_typedefs = ctx.typedefs() + extra_typedefs
@@ -890,11 +890,11 @@ class CxxFunction(ast.NodeVisitor):
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
                 return "{0}({1}, pythonic::types::single_value())".format(
-                    self.types.builder.Assignable(node_type).generate(self.lctx),
+                    self.lctx(self.types.builder.Assignable(node_type)),
                     elts[0])
             else:
                 return "{0}({{{1}}})".format(
-                    self.types.builder.Assignable(node_type).generate(self.lctx),
+                    self.lctx(self.types.builder.Assignable(node_type)),
                     ", ".join(elts))
 
     def visit_Set(self, node):
@@ -907,7 +907,7 @@ class CxxFunction(ast.NodeVisitor):
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
                 return "{0}({1}, pythonic::types::single_value())".format(
-                    self.types.builder.Assignable(node_type).generate(self.lctx),
+                    self.lctx(self.types.builder.Assignable(node_type)),
                     elts[0])
             else:
                 return "{0}{{{{{1}}}}}".format(
@@ -931,7 +931,7 @@ class CxxFunction(ast.NodeVisitor):
         tuple_type = self.types[node]
         result = "pythonic::types::make_tuple({0})".format(", ".join(elts))
         if isinstance(tuple_type, self.types.builder.CombinedTypes):
-            return '({}){}'.format(tuple_type.generate(self.lctx), result)
+            return '({}){}'.format(self.lctx(tuple_type), result)
         else:
             return result
 
@@ -956,7 +956,7 @@ class CxxFunction(ast.NodeVisitor):
 
         # When we have extra type information to inject as a cast
         if isinstance(self.types.get(node), self.types.builder.CombinedTypes):
-            return '({}){}'.format(self.types[node].generate(self.lctx),
+            return '({}){}'.format(self.lctx(self.types[node]),
                                    result)
         else:
             return result
@@ -1173,7 +1173,7 @@ class CxxGenerator(CxxFunction):
         next_members = ([Statement("{0} {1}".format(ft, fa))
                          for (ft, fa) in zip(formal_types, formal_args)] +
                         [Statement("{0} {1}".format(
-                            self.types[self.local_names[k]].generate(ctx),
+                            ctx(self.types[self.local_names[k]]),
                             k))
                          for k in self.ldecls] +
                         [Statement("{0} {1}".format(v, k))
@@ -1183,7 +1183,7 @@ class CxxGenerator(CxxFunction):
                                 instanciated_next_name,
                                 CxxGenerator.StateValue))])
 
-        extern_typedefs = [Typedef(Value(t.generate(ctx), t.name))
+        extern_typedefs = [Typedef(Value(ctx(t), t.name))
                            for t in self.types[node][1]]
         iterator_typedef = [
             Typedef(
@@ -1191,10 +1191,10 @@ class CxxGenerator(CxxFunction):
                     "{0}<{1}>".format(next_name, ", ".join(formal_types))
                     if formal_types else next_name),
                     "iterator")),
-            Typedef(Value(result_type.generate(ctx),
+            Typedef(Value(ctx(result_type),
                           "value_type"))]
         result_typedef = [
-            Typedef(Value(result_type.generate(ctx), "result_type"))]
+            Typedef(Value(ctx(result_type), "result_type"))]
         extra_typedefs = (ctx.typedefs() +
                           extern_typedefs +
                           iterator_typedef +
@@ -1295,8 +1295,9 @@ class Cxx(Backend):
         typedef void pure;
         struct type
         {
-          typedef typename pythonic::returnable<pythonic::types::str>::type \
-result_type;
+          typedef pythonic::types::str __type0;
+          typedef typename pythonic::returnable<__type0>::type __type1;
+          typedef __type1 result_type;
         }  ;
         inline
         typename type::result_type operator()() const;

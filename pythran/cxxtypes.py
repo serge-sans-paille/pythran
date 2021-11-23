@@ -252,18 +252,29 @@ std::declval<bool>()))
                 return self.__add__(other)
 
             def generate(self, ctx):
+                # Degenerated trees may lead to very deep call stacks.
+                # In that case try hard to recover by cutting the tree
                 import sys
                 current_recursion_limit = sys.getrecursionlimit()
-                try:
-                    return 'typename __combined<{}>::type'.format(
-                        ','.join(ctx(t) for t in self.types))
-                except RuntimeError:
-                    # this is a situation where we accept to somehow extend
-                    # the recursion limit, because of degenerated trees
-                    sys.setrecursionlimit(current_recursion_limit * 2)
-                    res = self.generate(ctx)
+                stypes = []
+                for t in self.types:
+                    try:
+                        stypes.append(ctx(t))
+                    except RecursionError:
+                        sys.setrecursionlimit(current_recursion_limit * 2)
+                        break
+
+                if not stypes:
                     sys.setrecursionlimit(current_recursion_limit)
-                    return res
+                    raise RecursionError
+                elif len(stypes) == 1:
+                    sys.setrecursionlimit(current_recursion_limit)
+                    return stypes[0]
+                else:
+                    stmp = 'typename __combined<{}>::type'.format(
+                        ','.join(stypes))
+                    sys.setrecursionlimit(current_recursion_limit)
+                    return stmp
 
         class ArgumentType(Type):
             """

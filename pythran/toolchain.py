@@ -410,6 +410,9 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
         shutil.move(tmp_file, output_file)
         logger.info("Generated C++ source file: " + output_file)
     else:
+        if not specs:
+            raise ValueError("Empty spec files while generating native module")
+
         # Compile to binary
         try:
             output_file = compile_cxxcode(module_name,

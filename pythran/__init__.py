@@ -22,11 +22,12 @@ Eventually, the type information can be translated from a string:
 >>> cxx = generate_cxx('my_module', code, spec)
 
 Higher level entry points include:
+>>> export = '#pythran export foo(int)\\n'
 >>> with open('my_module.py', 'w') as fd:
-...     _ = fd.write(code)
+...     _ = fd.write(export + code)
 >>> dll_file = compile_pythranfile("my_module.py")
 >>> cpp_file = compile_pythranfile("my_module.py",cpponly=True)
->>> dll_file = compile_pythrancode("my_module", code)
+>>> dll_file = compile_pythrancode("my_module", export + code)
 >>> dll_file = compile_cxxfile("my_module", cpp_file)
 
 Cleanup

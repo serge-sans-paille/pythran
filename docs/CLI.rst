@@ -43,6 +43,17 @@ You can choose your optimization level by using ``-O`` flag::
   $> ls cli_foo.so
   cli_foo.so
 
+You can use ``-p`` option to apply a Pythran optimization. For example, the python
+code can propagate constants using the Pythran ConstantFolding optimization::
+
+  $> pythran -e cli_foo.py -p pythran.optimizations.ConstantFolding
+
+If you want to specify the path of generated file::
+
+  $> pythran cli_foo.py -o /tmp/cli_foo.so -DNDEBUG
+  $> ls /tmp/cli_foo.so
+  /tmp/cli_foo.so
+
 Out of curiosity, you can check the generated output::
 
   $> pythran -E cli_foo.py
@@ -59,17 +70,6 @@ Pythran can also generate raw C++ code, using the ``-e`` switch::
   $> `pythran-config --compiler --cflags` -std=c++11 cli_foo.cpp -o cli_foo
   $> ./cli_foo
   hello world
-
-You can use ``-p`` option to apply a Pythran optimization. For example, the python
-code can propagate constants using the Pythran ConstantFolding optimization::
-
-  $> pythran -e cli_foo.py -p pythran.optimizations.ConstantFolding
-
-If you want to specify the path of generated file::
-
-  $> pythran cli_foo.py -o /tmp/cli_foo.so -DNDEBUG
-  $> ls /tmp/cli_foo.so
-  /tmp/cli_foo.so
 
 To know more options about Pythran, you can check::
 

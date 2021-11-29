@@ -114,9 +114,9 @@ static npy_intp binary_search_with_guess(const npy_double key, const T &arr,
 //    PyObject *left = NULL, *right = NULL;
 //    PyArrayObject *afp = NULL, *axp = NULL, *ax = NULL, *af = NULL;
 //    npy_intp i, lenx, lenxp;
-//    npy_double lval, rval;
-//    const npy_double *dy, *dx, *dz;
-//    npy_double *dres, *slopes = NULL;
+//    double lval, rval;
+//    const double *dy, *dx, *dz;
+//    double *dres, *slopes = NULL;
 //
 //    static char *kwlist[] = {"x", "xp", "fp", "left", "right", NULL};
 //
@@ -127,15 +127,15 @@ static npy_intp binary_search_with_guess(const npy_double key, const T &arr,
 //        return NULL;
 //    }
 //
-//    afp = (PyArrayObject *)PyArray_ContiguousFromAny(fp, NPY_DOUBLE, 1, 1);
+//    afp = (PyArrayObject *)PyArray_ContiguousFromAny(fp, double, 1, 1);
 //    if (afp == NULL) {
 //        return NULL;
 //    }
-//    axp = (PyArrayObject *)PyArray_ContiguousFromAny(xp, NPY_DOUBLE, 1, 1);
+//    axp = (PyArrayObject *)PyArray_ContiguousFromAny(xp, double, 1, 1);
 //    if (axp == NULL) {
 //        goto fail;
 //    }
-//    ax = (PyArrayObject *)PyArray_ContiguousFromAny(x, NPY_DOUBLE, 0, 0);
+//    ax = (PyArrayObject *)PyArray_ContiguousFromAny(x, double, 0, 0);
 //    if (ax == NULL) {
 //        goto fail;
 //    }
@@ -152,16 +152,16 @@ static npy_intp binary_search_with_guess(const npy_double key, const T &arr,
 //    }
 //
 //    af = (PyArrayObject *)PyArray_SimpleNew(PyArray_NDIM(ax),
-//                                            PyArray_DIMS(ax), NPY_DOUBLE);
+//                                            PyArray_DIMS(ax), double);
 //    if (af == NULL) {
 //        goto fail;
 //    }
 //    lenx = PyArray_SIZE(ax);
 //
-//    dy = (const npy_double *)PyArray_DATA(afp);
-//    dx = (const npy_double *)PyArray_DATA(axp);
-//    dz = (const npy_double *)PyArray_DATA(ax);
-//    dres = (npy_double *)PyArray_DATA(af);
+//    dy = (const double *)PyArray_DATA(afp);
+//    dx = (const double *)PyArray_DATA(axp);
+//    dz = (const double *)PyArray_DATA(ax);
+//    dres = (double *)PyArray_DATA(af);
 //    /* Get left and right fill values. */
 //    if ((left == NULL) || (left == Py_None)) {
 //        lval = dy[0];
@@ -199,12 +199,12 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
   std::vector<out_type<T3>> slope_vect;
   /* binary_search_with_guess needs at least a 3 item long array */
   if (lenxp == 1) {
-    const npy_double xp_val = dx[0];
+    const double xp_val = dx[0];
     const out_type<T3> fp_val = dy[0];
 
     //        NPY_BEGIN_THREADS_THRESHOLDED(lenx);
     for (i = 0; i < lenx; ++i) {
-      const npy_double x_val = dz[i];
+      const double x_val = dz[i];
       dres[i] = (x_val < xp_val) ? lval : ((x_val > xp_val) ? rval : fp_val);
     }
     //        NPY_END_THREADS;
@@ -226,7 +226,7 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
     }
 
     for (i = 0; i < lenx; ++i) {
-      const npy_double x_val = dz[i];
+      const double x_val = dz[i];
 
       if (pythonic::numpy::functor::isnan()(x_val)) {
         dres[i] = x_val;

@@ -404,7 +404,8 @@ namespace types
 
   typename str::reverse_iterator str::rbegin() const
   {
-    return {data->rbegin()};
+    string_iterator iter(data->end());
+    return typename str::reverse_iterator(iter);
   }
 
   typename str::iterator str::end() const
@@ -414,7 +415,8 @@ namespace types
 
   typename str::reverse_iterator str::rend() const
   {
-    return {data->rend()};
+    string_iterator iter(data->begin());
+    return typename str::reverse_iterator(iter);
   }
 
   auto str::c_str() const -> decltype(data->c_str())

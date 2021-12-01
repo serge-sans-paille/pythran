@@ -129,6 +129,16 @@ class TestList(TestEnv):
                       [[1,2,3],[1,4,1],[1,4,8,9]],
                       assigned_slice=[List[List[int]]])
 
+    def test_assigned_self_slice0(self):
+        self.run_test("def assigned_self_slice0(t): l = [t,-1,-1]; l[2] = 0;  l[:2]=l[1:] ; return l",
+                      -5,
+                      assigned_self_slice0=[int])
+
+    def test_assigned_self_slice1(self):
+        self.run_test("def assigned_self_slice1(t): l = [t,-1,-1]; l[2] = 0;  l[1:]=l[:2] ; return l",
+                      -5,
+                      assigned_self_slice1=[int])
+
     def test_add_list_of_arrays(self):
         self.run_test("def add_list_of_arrays(x, y): return x + y",
                       [np.array([1,2])],

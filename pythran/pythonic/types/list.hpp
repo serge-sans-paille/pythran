@@ -152,17 +152,25 @@ namespace types
   inline sliced_list<T, S> &sliced_list<T, S>::
   operator=(sliced_list<T, S> const &s)
   {
-    slicing = s.slicing;
-    if (data != s.data)
-      data = s.data;
+    if (slicing.step == 1) {
+      // inserting before erasing in case of self-copy
+      auto insert_pt = data->begin() + slicing.lower;
+      data->insert(insert_pt, s.begin(), s.end());
+      auto erase_pt = data->begin() + s.size();
+      data->erase(erase_pt + slicing.lower, erase_pt + slicing.upper);
+    } else
+      assert(!"not implemented yet");
     return *this;
   }
   template <class T, class S>
   sliced_list<T, S> &sliced_list<T, S>::operator=(list<T> const &seq)
   {
     if (slicing.step == 1) {
-      data->erase(data->begin() + slicing.lower, data->begin() + slicing.upper);
-      data->insert(data->begin() + slicing.lower, seq.begin(), seq.end());
+      // inserting before erasing in case of self-copy
+      auto insert_pt = data->begin() + slicing.lower;
+      data->insert(insert_pt, seq.begin(), seq.end());
+      auto erase_pt = data->begin() + seq.size();
+      data->erase(erase_pt + slicing.lower, erase_pt + slicing.upper);
     } else
       assert(!"not implemented yet");
     return *this;

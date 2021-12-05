@@ -232,7 +232,8 @@ namespace types
 #else
     long error = ftruncate(fileno(), size);
 #endif
-        if (error == -1) throw RuntimeError(strerror(errno));
+    if (error == -1)
+      throw RuntimeError(strerror(errno));
   }
 
   long file::write(types::str const &str)

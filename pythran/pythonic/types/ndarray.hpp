@@ -1352,8 +1352,9 @@ struct pyarray_new<npy_intp, N> {
   }
 };
 
-void wrapfree(PyObject *capsule){
-  void * obj = PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule));
+void wrapfree(PyObject *capsule)
+{
+  void *obj = PyCapsule_GetPointer(capsule, PyCapsule_GetName(capsule));
   free(obj);
 };
 
@@ -1420,10 +1421,11 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
       return nullptr;
     }
     n.mark_memory_external(result);
-    Py_INCREF(result);  // because it's going to be decrefed when n is destroyed
-    if (PyArray_SetBaseObject(reinterpret_cast<PyArrayObject *>(result), capsule) == -1) {
+    Py_INCREF(result); // because it's going to be decrefed when n is destroyed
+    if (PyArray_SetBaseObject(reinterpret_cast<PyArrayObject *>(result),
+                              capsule) == -1) {
       Py_DECREF(result);
-      Py_DECREF(capsule);  // will free n.buffer
+      Py_DECREF(capsule); // will free n.buffer
       return nullptr;
     }
     if (transpose) {

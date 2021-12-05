@@ -332,7 +332,7 @@ class Types(ModuleAnalysis):
             if isinstance(t, ast.Subscript):
                 if self.visit_AssignedSubscript(t):
                     for alias in self.strict_aliases[t.value]:
-                        fake = ast.Subscript(alias, t.value, ast.Store())
+                        fake = ast.Subscript(alias, t.slice, ast.Store())
                         self.combine(fake, node.value, register=True)
 
     def visit_AugAssign(self, node):
@@ -340,7 +340,7 @@ class Types(ModuleAnalysis):
         if isinstance(node.target, ast.Subscript):
             if self.visit_AssignedSubscript(node.target):
                 for alias in self.strict_aliases[node.target.value]:
-                    fake = ast.Subscript(alias, node.target.value, ast.Store())
+                    fake = ast.Subscript(alias, node.target.slice, ast.Store())
                     # We don't check more aliasing as it is a fake node.
                     self.combine(fake,
                                  node.value,

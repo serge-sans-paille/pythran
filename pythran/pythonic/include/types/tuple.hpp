@@ -171,8 +171,6 @@ namespace types
   struct pshape {
     static_assert(utils::all_of<is_pshape_element<Tys>::value...>::value,
                   "valid pshape");
-    struct checked {
-    };
 
     std::tuple<Tys...> values;
 

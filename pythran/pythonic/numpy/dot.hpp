@@ -139,6 +139,18 @@ namespace numpy
   MV_DEF(float, s)
 
 #undef MV_DEF
+
+#define TV_DEF(T, L)                                                           \
+  void tv(int m, int n, T *A, T *B, T *C)                                      \
+  {                                                                            \
+    cblas_##L##gemv(CblasRowMajor, CblasTrans, m, n, 1, A, n, B, 1, 0, C, 1);  \
+  }
+
+  TV_DEF(double, d)
+  TV_DEF(float, s)
+
+#undef TV_DEF
+
 #define MV_DEF(T, K, L)                                                        \
   void mv(int m, int n, T *A, T *B, T *C)                                      \
   {                                                                            \
@@ -164,6 +176,21 @@ namespace numpy
     return out;
   }
 
+  template <class E, class pS0, class pS1>
+  typename std::enable_if<is_blas_type<E>::value &&
+                              std::tuple_size<pS0>::value == 2 &&
+                              std::tuple_size<pS1>::value == 1,
+                          types::ndarray<E, types::pshape<long>>>::type
+  dot(types::numpy_texpr<types::ndarray<E, pS0>> const &f,
+      types::ndarray<E, pS1> const &e)
+  {
+    types::ndarray<E, types::pshape<long>> out(
+        types::pshape<long>{f.template shape<0>()}, builtins::None);
+    const int m = f.template shape<1>(), n = f.template shape<0>();
+    tv(m, n, f.arg.buffer, e.buffer, out.buffer);
+    return out;
+  }
+
 // The trick is to not transpose the matrix so that MV become VM
 #define VM_DEF(T, L)                                                           \
   void vm(int m, int n, T *A, T *B, T *C)                                      \
@@ -173,6 +200,17 @@ namespace numpy
 
   VM_DEF(double, d)
   VM_DEF(float, s)
+
+#undef VM_DEF
+#define VT_DEF(T, L)                                                           \
+  void vt(int m, int n, T *A, T *B, T *C)                                      \
+  {                                                                            \
+    cblas_##L##gemv(CblasRowMajor, CblasNoTrans, m, n, 1, A, n, B, 1, 0, C,    \
+                    1);                                                        \
+  }
+
+  VT_DEF(double, d)
+  VT_DEF(float, s)
 
 #undef VM_DEF
 #define VM_DEF(T, K, L)                                                        \
@@ -197,6 +235,21 @@ namespace numpy
         types::pshape<long>{f.template shape<1>()}, builtins::None);
     const int m = f.template shape<1>(), n = f.template shape<0>();
     vm(m, n, f.buffer, e.buffer, out.buffer);
+    return out;
+  }
+
+  template <class E, class pS0, class pS1>
+  typename std::enable_if<is_blas_type<E>::value &&
+                              std::tuple_size<pS0>::value == 1 &&
+                              std::tuple_size<pS1>::value == 2,
+                          types::ndarray<E, types::pshape<long>>>::type
+  dot(types::ndarray<E, pS0> const &e,
+      types::numpy_texpr<types::ndarray<E, pS1>> const &f)
+  {
+    types::ndarray<E, types::pshape<long>> out(
+        types::pshape<long>{f.template shape<1>()}, builtins::None);
+    const int m = f.template shape<1>(), n = f.template shape<0>();
+    vt(m, n, f.arg.buffer, e.buffer, out.buffer);
     return out;
   }
 

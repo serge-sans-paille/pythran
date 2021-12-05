@@ -139,6 +139,16 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(6, 8),
                       np_dot12=[NDArray[int,:,:], NDArray[int,:]])
 
+    def test_dot12b(self):
+        """ Check for dot gemv transposed. """
+        self.run_test("""
+        def np_dot12b(x, y):
+            from numpy import dot
+            return dot(x.T,y)""",
+                      numpy.arange(6.).reshape(2, 3),
+                      numpy.arange(6, 8.),
+                      np_dot12b=[NDArray[float,:,:], NDArray[float,:]])
+
     def test_dot13(self):
         """ Check for gevm version of dot. """
         self.run_test("""
@@ -158,6 +168,16 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(9, 12),
                       numpy.arange(9).reshape(3, 3),
                       np_dot14=[NDArray[int,:], NDArray[int,:,:]])
+
+    def test_dot14b(self):
+        """ Check for dot gevm trabsposed. """
+        self.run_test("""
+        def np_dot14b(x, y):
+            from numpy import dot
+            return dot(x,y.T)""",
+                      numpy.arange(9, 12.),
+                      numpy.arange(12.).reshape(4, 3),
+                      np_dot14b=[NDArray[float,:], NDArray[float,:,:]])
 
     def test_dot15(self):
         """ Check for gevm version of dot with rectangular shape. """

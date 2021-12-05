@@ -112,11 +112,11 @@ namespace utils
     {
       long self_size = std::distance(self.begin(), self.end()),
            other_size = std::distance(other.begin(), other.end());
-        std::copy(other.begin(), other.end(), self.begin());
+      std::copy(other.begin(), other.end(), self.begin());
 
-// eventually repeat the pattern
-        for (long i = other_size; i < self_size; i += other_size)
-          std::copy_n(self.begin(), other_size, self.begin() + i);
+      // eventually repeat the pattern
+      for (long i = other_size; i < self_size; i += other_size)
+        std::copy_n(self.begin(), other_size, self.begin() + i);
     }
   };
 
@@ -131,7 +131,7 @@ namespace utils
       } else {
         auto sfirst = self.begin();
         *sfirst = other;
-          std::fill(self.begin() + 1, self.end(), *sfirst);
+        std::fill(self.begin() + 1, self.end(), *sfirst);
       }
     }
     template <class E, class F, class ES, class FS>
@@ -142,7 +142,7 @@ namespace utils
       } else {
         auto sfirst = self.begin();
         *sfirst = other;
-          std::fill(self.begin() + 1, self.end(), *sfirst);
+        std::fill(self.begin() + 1, self.end(), *sfirst);
       }
     }
   };
@@ -164,10 +164,10 @@ namespace utils
     const long bound =
         std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
-      for (auto iter = vectorizer::vbegin(self), end = vectorizer::vend(self);
-           iter != end; ++iter, ++oiter) {
-        iter.store(*oiter);
-      }
+    for (auto iter = vectorizer::vbegin(self), end = vectorizer::vend(self);
+         iter != end; ++iter, ++oiter) {
+      iter.store(*oiter);
+    }
     // tail
     {
       auto siter = self.begin();
@@ -176,8 +176,8 @@ namespace utils
         *(siter + i) = *(oiter + i);
     }
 
-      for (long i = other_size; i < self_size; i += other_size)
-        std::copy_n(self.begin(), other_size, self.begin() + i);
+    for (long i = other_size; i < self_size; i += other_size)
+      std::copy_n(self.begin(), other_size, self.begin() + i);
   }
 
   template <>
@@ -244,8 +244,8 @@ namespace utils
     {
       long n = self.template shape<0>();
       auto siter = self.begin();
-        for (long i = 0; i < n; ++i)
-          Op{}(*(siter + i), other);
+      for (long i = 0; i < n; ++i)
+        Op{}(*(siter + i), other);
     }
   };
 
@@ -257,7 +257,7 @@ namespace utils
       long other_size = std::distance(other.begin(), other.end());
       auto siter = self.begin();
       auto oiter = other.begin();
-          if (other_size == 1) {
+      if (other_size == 1) {
         auto value = *oiter;
         for (auto send = self.end(); siter != send; ++siter)
           Op{}(*siter, value);
@@ -363,9 +363,9 @@ namespace utils
     const long bound =
         std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
 
-      for (auto end = vectorizer::vend(self); iter != end; ++iter, ++oiter) {
-        iter.store(Op{}(*iter, *oiter));
-      }
+    for (auto end = vectorizer::vend(self); iter != end; ++iter, ++oiter) {
+      iter.store(Op{}(*iter, *oiter));
+    }
     // tail
     {
       auto siter = self.begin();

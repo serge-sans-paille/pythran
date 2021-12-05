@@ -101,6 +101,14 @@ namespace numpy
                           types::ndarray<E, types::pshape<long>>>::type
   dot(types::ndarray<E, pS0> const &f, types::ndarray<E, pS1> const &e);
 
+  template <class E, class pS0, class pS1>
+  typename std::enable_if<is_blas_type<E>::value &&
+                              std::tuple_size<pS0>::value == 2 &&
+                              std::tuple_size<pS1>::value == 1,
+                          types::ndarray<E, types::pshape<long>>>::type
+  dot(types::numpy_texpr<types::ndarray<E, pS0>> const &f,
+      types::ndarray<E, pS1> const &e);
+
   // The trick is to not transpose the matrix so that MV become VM
   template <class E, class pS0, class pS1>
   typename std::enable_if<is_blas_type<E>::value &&
@@ -108,6 +116,14 @@ namespace numpy
                               std::tuple_size<pS1>::value == 2,
                           types::ndarray<E, types::pshape<long>>>::type
   dot(types::ndarray<E, pS0> const &e, types::ndarray<E, pS1> const &f);
+
+  template <class E, class pS0, class pS1>
+  typename std::enable_if<is_blas_type<E>::value &&
+                              std::tuple_size<pS0>::value == 1 &&
+                              std::tuple_size<pS1>::value == 2,
+                          types::ndarray<E, types::pshape<long>>>::type
+  dot(types::ndarray<E, pS0> const &e,
+      types::numpy_texpr<types::ndarray<E, pS1>> const &f);
 
   // If arguments could be use with blas, we evaluate them as we need pointer
   // on array for blas

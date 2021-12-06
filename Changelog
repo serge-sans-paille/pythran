@@ -1,3 +1,18 @@
+2021-12-08 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Upgrade xsimd version to 8.0.5
+
+	* Performance fix on np.dot with transposed parameters
+
+	* Raise an error when no specs are given and we want to generate a native module
+
+	* Support more complex transpose expression
+
+	* Honor quotes in config files for *FLAGS
+
+	* Add pythran option -ftime-report to print out the time spent on optimizations
+	* Support isinstance when second argument is a tuple
+
 2021-09-08 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix performance issue with assert handling

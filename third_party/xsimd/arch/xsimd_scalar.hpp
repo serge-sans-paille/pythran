@@ -1,13 +1,13 @@
 /***************************************************************************
-* Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
-* Martin Renou                                                             *
-* Copyright (c) QuantStack                                                 *
-* Copyright (c) Serge Guelton                                              *
-*                                                                          *
-* Distributed under the terms of the BSD 3-Clause License.                 *
-*                                                                          *
-* The full license is in the file LICENSE, distributed with this software. *
-****************************************************************************/
+ * Copyright (c) Johan Mabille, Sylvain Corlay, Wolf Vollprecht and         *
+ * Martin Renou                                                             *
+ * Copyright (c) QuantStack                                                 *
+ * Copyright (c) Serge Guelton                                              *
+ *                                                                          *
+ * Distributed under the terms of the BSD 3-Clause License.                 *
+ *                                                                          *
+ * The full license is in the file LICENSE, distributed with this software. *
+ ****************************************************************************/
 
 #ifndef XSIMD_SCALAR_HPP
 #define XSIMD_SCALAR_HPP
@@ -17,8 +17,16 @@
 #include <limits>
 #include <type_traits>
 
+#ifdef XSIMD_ENABLE_XTL_COMPLEX
+#include "xtl/xcomplex.hpp"
+#endif
+
 namespace xsimd
 {
+    template <class T, class A>
+    class batch;
+    template <class T, class A>
+    class batch_bool;
 
     using std::abs;
 
@@ -26,8 +34,8 @@ namespace xsimd
     using std::acosh;
     using std::asin;
     using std::asinh;
-    using std::atan2;
     using std::atan;
+    using std::atan2;
     using std::atanh;
     using std::cbrt;
     using std::ceil;
@@ -36,30 +44,28 @@ namespace xsimd
     using std::cosh;
     using std::erf;
     using std::erfc;
-    using std::exp2;
     using std::exp;
+    using std::exp2;
     using std::expm1;
     using std::fabs;
     using std::fdim;
+    using std::floor;
     using std::fmax;
     using std::fmin;
-    using std::floor;
     using std::fmod;
     using std::hypot;
-    using std::lgamma;
     using std::ldexp;
+    using std::lgamma;
+    using std::log;
     using std::log10;
     using std::log1p;
     using std::log2;
-    using std::log;
     using std::modf;
     using std::nearbyint;
     using std::nextafter;
     using std::proj;
     using std::remainder;
     using std::rint;
-    using std::rint;
-    using std::round;
     using std::round;
     using std::sin;
     using std::sinh;
@@ -76,43 +82,43 @@ namespace xsimd
 #else
     // Windows defines catch all templates
     template <class T>
-    typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-    isfinite(T var)
+    inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
+    isfinite(T var) noexcept
     {
         return std::isfinite(var);
     }
 
     template <class T>
-    typename std::enable_if<std::is_integral<T>::value, bool>::type
-    isfinite(T var)
+    inline typename std::enable_if<std::is_integral<T>::value, bool>::type
+    isfinite(T var) noexcept
     {
         return isfinite(double(var));
     }
 
     template <class T>
-    typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-    isinf(T var)
+    inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
+    isinf(T var) noexcept
     {
         return std::isinf(var);
     }
 
     template <class T>
-    typename std::enable_if<std::is_integral<T>::value, bool>::type
-    isinf(T var)
+    inline typename std::enable_if<std::is_integral<T>::value, bool>::type
+    isinf(T var) noexcept
     {
         return isinf(double(var));
     }
 
     template <class T>
-    typename std::enable_if<std::is_floating_point<T>::value, bool>::type
-    isnan(T var)
+    inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
+    isnan(T var) noexcept
     {
         return std::isnan(var);
     }
 
     template <class T>
-    typename std::enable_if<std::is_integral<T>::value, bool>::type
-    isnan(T var)
+    inline typename std::enable_if<std::is_integral<T>::value, bool>::type
+    isnan(T var) noexcept
     {
         return isnan(double(var));
     }
@@ -120,13 +126,13 @@ namespace xsimd
 
 #ifdef XSIMD_ENABLE_NUMPY_COMPLEX
     template <class T>
-    bool isnan(std::complex<T> var)
+    inline bool isnan(std::complex<T> var) noexcept
     {
         return std::isnan(std::real(var)) || std::isnan(std::imag(var));
     }
 
     template <class T>
-    bool isinf(std::complex<T> var)
+    inline bool isinf(std::complex<T> var) noexcept
     {
         return std::isinf(std::real(var)) || std::isinf(std::imag(var));
     }
@@ -134,77 +140,75 @@ namespace xsimd
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     using xtl::abs;
-    using xtl::norm;
-    using xtl::proj;
+    using xtl::acos;
+    using xtl::acosh;
+    using xtl::asin;
+    using xtl::asinh;
+    using xtl::atan;
+    using xtl::atanh;
+    using xtl::cos;
+    using xtl::cosh;
     using xtl::exp;
     using xtl::log;
     using xtl::log10;
+    using xtl::norm;
     using xtl::pow;
-    using xtl::sqrt;
+    using xtl::proj;
     using xtl::sin;
-    using xtl::cos;
-    using xtl::tan;
-    using xtl::asin;
-    using xtl::acos;
-    using xtl::atan;
     using xtl::sinh;
-    using xtl::cosh;
+    using xtl::sqrt;
+    using xtl::tan;
     using xtl::tanh;
-    using xtl::asinh;
-    using xtl::acosh;
-    using xtl::atanh;
 #endif
 
     template <class T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
-    inline bool is_flint(const T& x)
+    inline bool is_flint(const T& x) noexcept
     {
         return std::isnan(x - x) ? std::numeric_limits<T>::quiet_NaN() : x - std::trunc(x);
     }
 
     template <class T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
-    inline bool is_odd(const T& x)
+    inline bool is_odd(const T& x) noexcept
     {
         return is_even(x - 1.);
     }
 
     template <class T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
-    inline bool is_even(const T& x)
+    inline bool is_even(const T& x) noexcept
     {
         return is_flint(x * T(0.5));
     }
 
     template <class T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
-    inline T exp10(const T& x)
+    inline T exp10(const T& x) noexcept
     {
         // FIXME: faster alternatives exist
         return std::pow(T(10), x);
     }
 
-
     namespace detail
     {
         template <class C>
-        inline C expm1_complex_scalar_impl(const C& val)
+        inline C expm1_complex_scalar_impl(const C& val) noexcept
         {
             using T = typename C::value_type;
             T isin = std::sin(val.imag());
             T rem1 = std::expm1(val.real());
             T re = rem1 + T(1.);
             T si = std::sin(val.imag() * T(0.5));
-            return std::complex<T>(rem1 - T(2.) * re *si * si, re * isin);
+            return std::complex<T>(rem1 - T(2.) * re * si * si, re * isin);
         }
     }
 
-
     template <class T>
-    inline std::complex<T> expm1(const std::complex<T>& val)
+    inline std::complex<T> expm1(const std::complex<T>& val) noexcept
     {
         return detail::expm1_complex_scalar_impl(val);
     }
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     template <class T, bool i3ec>
-    inline xtl::xcomplex<T, T, i3ec> expm1(const xtl::xcomplex<T, T, i3ec>& val)
+    inline xtl::xcomplex<T, T, i3ec> expm1(const xtl::xcomplex<T, T, i3ec>& val) noexcept
     {
         return detail::expm1_complex_scalar_impl(val);
     }
@@ -213,7 +217,7 @@ namespace xsimd
     namespace detail
     {
         template <class C>
-        inline C log1p_complex_scalar_impl(const C& val)
+        inline C log1p_complex_scalar_impl(const C& val) noexcept
         {
             using T = typename C::value_type;
             C u = C(1.) + val;
@@ -222,19 +226,19 @@ namespace xsimd
     }
 
     template <class T>
-    inline std::complex<T> log1p(const std::complex<T>& val)
+    inline std::complex<T> log1p(const std::complex<T>& val) noexcept
     {
         return detail::log1p_complex_scalar_impl(val);
     }
 
     template <class T>
-    std::complex<T> log2(const std::complex<T>& val)
+    inline std::complex<T> log2(const std::complex<T>& val) noexcept
     {
         return log(val) / std::log(T(2));
     }
 
-    template<typename T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
-    T sadd(const T& lhs, const T& rhs)
+    template <typename T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
+    inline T sadd(const T& lhs, const T& rhs) noexcept
     {
         if (std::numeric_limits<T>::is_signed)
         {
@@ -246,7 +250,8 @@ namespace xsimd
             {
                 return std::numeric_limits<T>::lowest();
             }
-            else {
+            else
+            {
                 return lhs + rhs;
             }
         }
@@ -260,12 +265,11 @@ namespace xsimd
             {
                 return lhs + rhs;
             }
-
         }
     }
 
-    template<typename T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
-    T ssub(const T& lhs, const T& rhs)
+    template <typename T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
+    inline T ssub(const T& lhs, const T& rhs) noexcept
     {
         if (std::numeric_limits<T>::is_signed)
         {
@@ -281,57 +285,61 @@ namespace xsimd
             {
                 return lhs - rhs;
             }
-
         }
     }
 
-    namespace detail {
-      template <class T> struct value_type_or_type_helper {
-        using type = T;
-      };
-      template<class T, class A> struct value_type_or_type_helper<batch<T, A>> {
-        using type = T;
-      };
-
-      template<class T>
-      using value_type_or_type = typename value_type_or_type_helper<T>::type;
-
-      template <class T0, class T1>
-      inline typename std::enable_if<std::is_integral<T1>::value, T0>::type
-      ipow(const T0& x, const T1& n)
-      {
-        static_assert(std::is_integral<T1>::value, "second argument must be an integer");
-        T0 a = x;
-        T1 b = n;
-        bool const recip = b < 0;
-        T0 r(static_cast<value_type_or_type<T0>>(1));
-        while (1)
+    namespace detail
+    {
+        template <class T>
+        struct value_type_or_type_helper
         {
-            if (b & 1)
+            using type = T;
+        };
+        template <class T, class A>
+        struct value_type_or_type_helper<batch<T, A>>
+        {
+            using type = T;
+        };
+
+        template <class T>
+        using value_type_or_type = typename value_type_or_type_helper<T>::type;
+
+        template <class T0, class T1>
+        inline typename std::enable_if<std::is_integral<T1>::value, T0>::type
+        ipow(const T0& x, const T1& n) noexcept
+        {
+            static_assert(std::is_integral<T1>::value, "second argument must be an integer");
+            T0 a = x;
+            T1 b = n;
+            bool const recip = b < 0;
+            T0 r(static_cast<value_type_or_type<T0>>(1));
+            while (1)
             {
-                r *= a;
+                if (b & 1)
+                {
+                    r *= a;
+                }
+                b /= 2;
+                if (b == 0)
+                {
+                    break;
+                }
+                a *= a;
             }
-            b /= 2;
-            if (b == 0)
-            {
-                break;
-            }
-            a *= a;
+            return recip ? 1 / r : r;
         }
-        return recip ? 1 / r : r;
-      }
     }
 
     template <class T0, class T1>
     inline typename std::enable_if<std::is_integral<T1>::value, T0>::type
-    pow(const T0& x, const T1& n)
+    pow(const T0& x, const T1& n) noexcept
     {
-      return detail::ipow(x, n);
+        return detail::ipow(x, n);
     }
 
     template <class T0, class T1>
     inline auto
-    pow(const T0& t0, const T1& t1)
+    pow(const T0& t0, const T1& t1) noexcept
         -> typename std::enable_if<std::is_scalar<T0>::value && std::is_floating_point<T1>::value, decltype(std::pow(t0, t1))>::type
     {
         return std::pow(t0, t1);
@@ -339,53 +347,54 @@ namespace xsimd
 
     template <class T0, class T1>
     inline typename std::enable_if<std::is_integral<T1>::value, std::complex<T0>>::type
-    pow(const std::complex<T0>& t0, const T1& t1)
+    pow(const std::complex<T0>& t0, const T1& t1) noexcept
     {
         return detail::ipow(t0, t1);
     }
 
     template <class T0, class T1>
     inline typename std::enable_if<!std::is_integral<T1>::value, std::complex<T0>>::type
-    pow(const std::complex<T0>& t0, const T1& t1)
+    pow(const std::complex<T0>& t0, const T1& t1) noexcept
     {
-      return std::pow(t0, t1);
+        return std::pow(t0, t1);
     }
 
     template <class T0, class T1>
     inline auto
-    pow(const T0& t0, const std::complex<T1>& t1)
+    pow(const T0& t0, const std::complex<T1>& t1) noexcept
         -> typename std::enable_if<std::is_scalar<T0>::value, decltype(std::pow(t0, t1))>::type
     {
-      return std::pow(t0, t1);
+        return std::pow(t0, t1);
     }
 
     template <class T>
-    inline auto bitofsign(T const& x) -> decltype(std::signbit(x))
+    inline auto bitofsign(T const& x) noexcept -> decltype(std::signbit(x))
     {
         return std::signbit(x);
     }
 
     template <class T>
-    inline auto signbit(T const& v) -> decltype(bitofsign(v))
+    inline auto signbit(T const& v) noexcept -> decltype(bitofsign(v))
     {
         return bitofsign(v);
     }
 
-   inline double sign(bool const &v)
+    inline double sign(bool const& v) noexcept
     {
         return v;
     }
 
     template <class T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
-    inline T sign(const T& v)
+    inline T sign(const T& v) noexcept
     {
-        return v < T(0) ? T(-1.) : v == T(0) ? T(0.) : T(1.);
+        return v < T(0) ? T(-1.) : v == T(0) ? T(0.)
+                                             : T(1.);
     }
 
     namespace detail
     {
         template <class C>
-        inline C sign_complex_scalar_impl(const C& v)
+        inline C sign_complex_scalar_impl(const C& v) noexcept
         {
             using value_type = typename C::value_type;
             if (v.real())
@@ -400,14 +409,14 @@ namespace xsimd
     }
 
     template <class T>
-    inline std::complex<T> sign(const std::complex<T>& v)
+    inline std::complex<T> sign(const std::complex<T>& v) noexcept
     {
         return detail::sign_complex_scalar_impl(v);
     }
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     template <class T, bool i3ec>
-    inline xtl::xcomplex<T, T, i3ec> sign(const xtl::xcomplex<T, T, i3ec>& v)
+    inline xtl::xcomplex<T, T, i3ec> sign(const xtl::xcomplex<T, T, i3ec>& v) noexcept
     {
         return detail::sign_complex_scalar_impl(v);
     }
@@ -415,25 +424,24 @@ namespace xsimd
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     template <class T, bool i3ec>
-    inline xtl::xcomplex<T, T, i3ec> log2(const xtl::xcomplex<T, T, i3ec>& val)
+    inline xtl::xcomplex<T, T, i3ec> log2(const xtl::xcomplex<T, T, i3ec>& val) noexcept
     {
         return log(val) / log(T(2));
     }
 #endif
 
-
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     template <class T, bool i3ec>
-    inline xtl::xcomplex<T, T, i3ec> log1p(const xtl::xcomplex<T, T, i3ec>& val)
+    inline xtl::xcomplex<T, T, i3ec> log1p(const xtl::xcomplex<T, T, i3ec>& val) noexcept
     {
         return detail::log1p_complex_scalar_impl(val);
     }
 #endif
 
     template <class T0, class T1>
-    inline auto min(T0 const &self, T1 const &other) ->
-        typename std::enable_if<std::is_scalar<T0>::value && std::is_scalar<T1>::value,
-                                typename std::decay<decltype(self > other ? other : self)>::type>::type
+    inline auto min(T0 const& self, T1 const& other) noexcept
+        -> typename std::enable_if<std::is_scalar<T0>::value && std::is_scalar<T1>::value,
+                                   typename std::decay<decltype(self > other ? other : self)>::type>::type
     {
         return self > other ? other : self;
     }
@@ -441,15 +449,15 @@ namespace xsimd
     // numpy defines minimum operator on complex using lexical comparison
     template <class T0, class T1>
     inline std::complex<typename std::common_type<T0, T1>::type>
-    min(std::complex<T0> const &self, std::complex<T1> const &other)
+    min(std::complex<T0> const& self, std::complex<T1> const& other) noexcept
     {
         return (self.real() < other.real()) ? (self) : (self.real() == other.real() ? (self.imag() < other.imag() ? self : other) : other);
     }
 
-   template <class T0, class T1>
-    inline auto max(T0 const &self, T1 const &other) ->
-        typename std::enable_if<std::is_scalar<T0>::value && std::is_scalar<T1>::value,
-                                typename std::decay<decltype(self > other ? other : self)>::type>::type
+    template <class T0, class T1>
+    inline auto max(T0 const& self, T1 const& other) noexcept
+        -> typename std::enable_if<std::is_scalar<T0>::value && std::is_scalar<T1>::value,
+                                   typename std::decay<decltype(self > other ? other : self)>::type>::type
     {
         return self < other ? other : self;
     }
@@ -457,13 +465,13 @@ namespace xsimd
     // numpy defines maximum operator on complex using lexical comparison
     template <class T0, class T1>
     inline std::complex<typename std::common_type<T0, T1>::type>
-    max(std::complex<T0> const &self, std::complex<T1> const &other)
+    max(std::complex<T0> const& self, std::complex<T1> const& other) noexcept
     {
         return (self.real() > other.real()) ? (self) : (self.real() == other.real() ? (self.imag() > other.imag() ? self : other) : other);
     }
 
     template <class T>
-    inline typename std::enable_if<std::is_scalar<T>::value, T>::type fma(const T& a, const T& b, const T& c)
+    inline typename std::enable_if<std::is_scalar<T>::value, T>::type fma(const T& a, const T& b, const T& c) noexcept
     {
         return std::fma(a, b, c);
     }
@@ -471,22 +479,22 @@ namespace xsimd
     namespace detail
     {
         template <class C>
-        inline C fma_complex_scalar_impl(const C& a, const C& b, const C& c)
+        inline C fma_complex_scalar_impl(const C& a, const C& b, const C& c) noexcept
         {
-            return {fms(a.real(), b.real(), fms(a.imag(), b.imag(), c.real())),
-                    fma(a.real(), b.imag(), fma(a.imag(), b.real(), c.imag()))};
+            return { fms(a.real(), b.real(), fms(a.imag(), b.imag(), c.real())),
+                     fma(a.real(), b.imag(), fma(a.imag(), b.real(), c.imag())) };
         }
     }
 
     template <class T>
-    inline std::complex<T> fma(const std::complex<T>& a, const std::complex<T>& b, const std::complex<T>& c)
+    inline std::complex<T> fma(const std::complex<T>& a, const std::complex<T>& b, const std::complex<T>& c) noexcept
     {
         return detail::fma_complex_scalar_impl(a, b, c);
     }
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     template <class T, bool i3ec>
-    inline xtl::xcomplex<T, T, i3ec> fma(const xtl::xcomplex<T, T, i3ec>& a, const xtl::xcomplex<T, T, i3ec>& b, const xtl::xcomplex<T, T, i3ec>& c)
+    inline xtl::xcomplex<T, T, i3ec> fma(const xtl::xcomplex<T, T, i3ec>& a, const xtl::xcomplex<T, T, i3ec>& b, const xtl::xcomplex<T, T, i3ec>& c) noexcept
     {
         return detail::fma_complex_scalar_impl(a, b, c);
     }
@@ -494,14 +502,15 @@ namespace xsimd
 
     namespace detail
     {
-#define XSIMD_HASSINCOS_TRAIT(func) \
-        template<class S> \
-        struct has##func \
-        { \
-          template<class T> static auto get(T* ptr) -> decltype(func(std::declval<T>(), std::declval<T*>(), std::declval<T*>()), std::true_type{});\
-          static std::false_type get(...); \
-          static constexpr bool value = decltype(get((S*)nullptr))::value; \
-        }
+#define XSIMD_HASSINCOS_TRAIT(func)                                                                                              \
+    template <class S>                                                                                                           \
+    struct has##func                                                                                                             \
+    {                                                                                                                            \
+        template <class T>                                                                                                       \
+        static auto get(T* ptr) -> decltype(func(std::declval<T>(), std::declval<T*>(), std::declval<T*>()), std::true_type {}); \
+        static std::false_type get(...);                                                                                         \
+        static constexpr bool value = decltype(get((S*)nullptr))::value;                                                         \
+    }
 
 #define XSIMD_HASSINCOS(func, T) has##func<T>::value
 
@@ -512,48 +521,48 @@ namespace xsimd
 
         struct generic_sincosf
         {
-            template<class T>
+            template <class T>
             typename std::enable_if<XSIMD_HASSINCOS(sincosf, T), void>::type
-            operator()(float val, T &s, T &c)
+            operator()(float val, T& s, T& c)
             {
                 sincosf(val, &s, &c);
             }
 
-            template<class T>
+            template <class T>
             typename std::enable_if<!XSIMD_HASSINCOS(sincosf, T) && XSIMD_HASSINCOS(__sincosf, T), void>::type
-            operator()(float val, T &s, T &c)
+            operator()(float val, T& s, T& c)
             {
                 __sincosf(val, &s, &c);
             }
 
-            template<class T>
+            template <class T>
             typename std::enable_if<!XSIMD_HASSINCOS(sincosf, T) && !XSIMD_HASSINCOS(__sincosf, T), void>::type
-            operator()(float val, T &s, T &c)
+            operator()(float val, T& s, T& c)
             {
                 s = std::sin(val);
                 c = std::cos(val);
             }
         };
 
-       struct generic_sincos
+        struct generic_sincos
         {
-            template<class T>
+            template <class T>
             typename std::enable_if<XSIMD_HASSINCOS(sincos, T), void>::type
-            operator()(double val, T &s, T &c)
+            operator()(double val, T& s, T& c)
             {
                 sincos(val, &s, &c);
             }
 
-            template<class T>
+            template <class T>
             typename std::enable_if<!XSIMD_HASSINCOS(sincos, T) && XSIMD_HASSINCOS(__sincos, T), void>::type
-            operator()(double val, T &s, T &c)
+            operator()(double val, T& s, T& c)
             {
                 __sincos(val, &s, &c);
             }
 
-            template<class T>
+            template <class T>
             typename std::enable_if<!XSIMD_HASSINCOS(sincos, T) && !XSIMD_HASSINCOS(__sincos, T), void>::type
-            operator()(double val, T &s, T &c)
+            operator()(double val, T& s, T& c)
             {
                 s = std::sin(val);
                 c = std::cos(val);
@@ -564,18 +573,18 @@ namespace xsimd
 #undef XSIMD_HASSINCOS
     }
 
-    inline void sincos(float val, float&s, float& c)
+    inline void sincos(float val, float& s, float& c) noexcept
     {
-        detail::generic_sincosf{}(val, s, c);
+        detail::generic_sincosf {}(val, s, c);
     }
 
-    inline void sincos(double val, double&s, double& c)
+    inline void sincos(double val, double& s, double& c) noexcept
     {
-        detail::generic_sincos{}(val, s, c);
+        detail::generic_sincos {}(val, s, c);
     }
 
     template <class T>
-    inline void sincos(const std::complex<T>& val, std::complex<T>& s, std::complex<T>& c)
+    inline void sincos(const std::complex<T>& val, std::complex<T>& s, std::complex<T>& c) noexcept
     {
         s = std::sin(val);
         c = std::cos(val);
@@ -583,7 +592,7 @@ namespace xsimd
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     template <class T>
-    inline void sincos(const xtl::xcomplex<T>& val, xtl::xcomplex<T>& s, xtl::xcomplex<T>& c)
+    inline void sincos(const xtl::xcomplex<T>& val, xtl::xcomplex<T>& s, xtl::xcomplex<T>& c) noexcept
     {
         s = sin(val);
         c = cos(val);
@@ -591,18 +600,17 @@ namespace xsimd
 #endif
 
     template <class T>
-    inline T frexp(T const& val, int& exp)
+    inline T frexp(T const& val, int& exp) noexcept
     {
         return std::frexp(val, &exp);
     }
 
     template <class T>
-    inline decltype(abs(std::declval<T>())) norm(const T& val)
+    inline decltype(abs(std::declval<T>())) norm(const T& val) noexcept
     {
         auto tmp = abs(val);
         return tmp * tmp;
     }
-
 
 }
 

@@ -7,6 +7,16 @@
 
 #include <xsimd/xsimd.hpp>
 
+// Inject some extra symbol in xsimd namespace, until that's fixed upstream
+#if XSIMD_VERSION_MAJOR < 8 ||                                                 \
+    (XSIMD_VERSION_MAJOR == 8 && XSIMD_VERSION_MINOR == 0 &&                   \
+     XSIMD_VERSION_PATCH <= 5)
+namespace xsimd
+{
+  using std::conj;
+}
+#endif
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy

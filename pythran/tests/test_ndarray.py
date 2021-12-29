@@ -1065,6 +1065,29 @@ def complex_conversion0(x):
                       numpy.array([[False,True],[True, False]]),
                       vexpr_of_texpr=[NDArray[numpy.float32,:,:], NDArray[numpy.bool,:,:]])
 
+    def test_indexing_through_various_int0(self):
+        code = '''
+            def indexing_through_various_int0(x):
+                return x[x[0,0],1]'''
+        self.run_test(code,
+                      numpy.arange(10, dtype=numpy.uint8).reshape(5,2),
+                      indexing_through_various_int0=[NDArray[numpy.uint8,:,:]])
+
+    def test_indexing_through_various_int1(self):
+        code = '''
+            def indexing_through_various_int1(x):
+                return x[x[0,0,0],1]'''
+        self.run_test(code,
+                      numpy.arange(8, dtype=numpy.uint8).reshape(2,2,2),
+                      indexing_through_various_int1=[NDArray[numpy.uint8,:,:,:]])
+
+    def test_indexing_through_various_int2(self):
+        code = '''
+            def indexing_through_various_int2(x):
+                return (x.T)[x[0,0],1]'''
+        self.run_test(code,
+                      numpy.arange(10, dtype=numpy.uint8).reshape(5,2),
+                      indexing_through_various_int2=[NDArray[numpy.uint8,:,:]])
     def test_indexing_through_int8(self):
         code = '''
             def indexing_through_int8(x):

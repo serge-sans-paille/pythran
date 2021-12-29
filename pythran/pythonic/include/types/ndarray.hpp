@@ -547,17 +547,50 @@ namespace types
                                    decltype(nget<M - 1>()(std::move(*this),
                                                           indices))>::type;
 
-    template <class Ty>
-    auto operator[](std::tuple<Ty> const &indices) const
-        -> decltype((*this)[std::get<0>(indices)])
+    template <class... Tys, size_t... Is>
+    auto _fwdlongindex(std::tuple<Tys...> const &indices,
+                       utils::index_sequence<Is...>) const
+        -> decltype((*this)(static_cast<long>(Is)...))
     {
-      return (*this)[std::get<0>(indices)];
+      return (*this)(static_cast<long>(std::get<Is>(indices))...);
+    }
+
+    template <class... Tys>
+    auto operator[](std::tuple<Tys...> const &indices) const ->
+        typename std::enable_if<
+            utils::all_of<std::is_integral<Tys>::value...>::value,
+            decltype(this->_fwdlongindex(
+                indices, utils::make_index_sequence<sizeof...(Tys)>()))>::type
+    {
+      return _fwdlongindex(indices,
+                           utils::make_index_sequence<sizeof...(Tys)>());
+    }
+
+    template <class... Tys, size_t... Is>
+    auto _fwdlongindex(std::tuple<Tys...> const &indices,
+                       utils::index_sequence<Is...>)
+        -> decltype((*this)(static_cast<long>(Is)...))
+    {
+      return (*this)(static_cast<long>(std::get<Is>(indices))...);
+    }
+
+    template <class... Tys>
+    auto operator[](std::tuple<Tys...> const &indices) ->
+        typename std::enable_if<
+            utils::all_of<std::is_integral<Tys>::value...>::value,
+            decltype(this->_fwdlongindex(
+                indices, utils::make_index_sequence<sizeof...(Tys)>()))>::type
+    {
+      return _fwdlongindex(indices,
+                           utils::make_index_sequence<sizeof...(Tys)>());
     }
 
     template <class Ty0, class Ty1, class... Tys>
     auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
         typename std::enable_if<
-            std::is_integral<Ty0>::value,
+            std::is_integral<Ty0>::value &&
+                !utils::all_of<std::is_integral<Ty1>::value,
+                               std::is_integral<Tys>::value...>::value,
             decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>::type
     {
       return (*this)[std::get<0>(indices)][tuple_tail(indices)];
@@ -569,6 +602,7 @@ namespace types
     {
       return (*this)(std::get<Is>(indices)...);
     }
+
     template <class S, size_t... Is>
     auto _fwdindex(dynamic_tuple<S> const &indices,
                    utils::index_sequence<Is...>) const

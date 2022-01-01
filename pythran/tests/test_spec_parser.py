@@ -133,3 +133,10 @@ def bar(i): return
 coo = 1
             '''
         self.assertTrue(pythran.spec_parser(code))
+
+    def test_trailing_comma_arg0(self):
+        code = '''
+#      pythran export foo(int,)
+def foo(n): return n
+            '''
+        self.assertTrue(pythran.spec_parser(code))

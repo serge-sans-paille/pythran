@@ -60,11 +60,6 @@ class TestComplex(TestEnv):
                       np.array([[3 + 2j]]),
                       test_complex_array_abs=[NDArray[complex, :, :]])
 
-    def test_complex_floordiv(self):
-        self.run_test('def complex_floordiv(x): import numpy as np; return np.floor_divide(x, 2 + 2j)',
-                      3.5 - 3.5j,
-                      complex_floordiv=[complex])
-
     def test_complex_array_sqr(self):
         self.run_test('def test_complex_array_sqr(a): return a ** 2',
                       np.array([[3 + 2j]]),

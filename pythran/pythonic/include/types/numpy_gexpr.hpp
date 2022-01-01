@@ -272,6 +272,22 @@ namespace types
           "all slices are normalized");
     };
 
+    template <class... T1>
+    struct merge_gexpr<std::tuple<>, std::tuple<none_type, T1...>> {
+      template <size_t I, class S>
+      auto run(S const &s, std::tuple<> const &t0,
+               std::tuple<none_type, T1...> const &t1)
+          -> decltype(tuple_push_head(
+              std::get<0>(t1), merge_gexpr<std::tuple<>, std::tuple<T1...>>{}
+                                   .template run<I + 1>(s, t0, tuple_tail(t1))))
+      {
+        return tuple_push_head(
+            std::get<0>(t1),
+            merge_gexpr<std::tuple<>, std::tuple<T1...>>{}.template run<I + 1>(
+                s, t0, tuple_tail(t1)));
+      }
+    };
+
     template <class S0, class... T0, class... T1>
     struct merge_gexpr<std::tuple<S0, T0...>, std::tuple<none_type, T1...>> {
       template <size_t I, class S>

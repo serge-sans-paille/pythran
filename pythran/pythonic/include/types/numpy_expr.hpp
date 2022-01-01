@@ -561,14 +561,14 @@ namespace types
   template <class S>
   constexpr size_t count_none(size_t I)
   {
-    return std::is_same<S, none_type>::value;
+    return I == 0 ? 0 : std::is_same<S, none_type>::value;
   }
 
   template <class S, class Sp, class... Ss>
   constexpr size_t count_none(size_t I)
   {
-    return std::is_same<S, none_type>::value +
-           (I == 0 ? 0 : count_none<Sp, Ss...>(I - 1));
+    return I == 0 ? 0 : (std::is_same<S, none_type>::value +
+                         count_none<Sp, Ss...>(I - 1));
   }
 
   template <class BT, class T>
@@ -586,10 +586,11 @@ namespace types
       -> decltype(arg(std::get<J>(ss)...))
   {
     // we need to adapt_slice to take broadcasting into account
-    return arg(adapt_slice(std::get<J>(ss),
-                           shp.template shape<J - count_none<S...>(J)>(),
-                           arg.template shape<clamp(J - count_none<S...>(J),
-                                                    Arg::value - 1)>())...);
+    return arg(adapt_slice(
+        std::get<J>(ss),
+        shp.template shape<clamp(J - count_none<S...>(J), Shp::value - 1)>(),
+        arg.template shape<clamp(J - count_none<S...>(J),
+                                 Arg::value - 1)>())...);
   }
 
   /* Expression template for numpy expressions - binary operators

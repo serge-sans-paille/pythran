@@ -281,9 +281,9 @@ class SpecParser(object):
                      | types'''
 
     def p_param_types(self, p):
-        if len(p) == 2:
+        if len(p) == 2 or (len(p) == 3 and p[2] == ','):
             p[0] = tuple((t,) for t in p[1])
-        elif len(p) == 3:
+        elif len(p) == 3 and p[2] == '?':
             p[0] = tuple((t,) for t in p[1]) + ((),)
         elif len(p) == 4:
             p[0] = tuple((t,) + ts for t in p[1] for ts in p[3])
@@ -292,6 +292,7 @@ class SpecParser(object):
 
     p_param_types.__doc__ = '''param_types : type
                        | type OPT
+                       | type COMMA
                        | type COMMA param_types
                        | type OPT COMMA default_types'''
 

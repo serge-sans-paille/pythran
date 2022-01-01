@@ -31,6 +31,9 @@ binary_ufunc = ([("numpy", k) for k, v in MODULES["numpy"].items() if isinstance
 reduced_ufunc = {'add', 'minimum', 'maximum', 'multiply', 'bitwise_or',
                  'bitwise_and', 'bitwise_xor'}
 
+cmp_ufunc = ('equal', 'greater_equal', 'less_equal', 'not_equal', 'greater',
+             'less')
+
 for ns, f in binary_ufunc:
     if 'bitwise_' in f or 'ldexp' in f or '_shift' in f :
         setattr(TestNumpyUFuncBinary, 'test_' + f, eval("lambda self: self.run_test('def np_{0}(a): from {1} import {0} ; return {0}(a,a)', numpy.ones(10, numpy.int32), np_{0}=[NDArray[numpy.int32,:]])".format(f, ns)))
@@ -78,7 +81,7 @@ for ns, f in binary_ufunc:
                 pass
 
         ## Tests for accumulation
-        if 'scipy' not in ns:
+        if 'scipy' not in ns and f not in cmp_ufunc:
             setattr(TestNumpyUFuncBinary, 'test_accumulate_' + f, eval("lambda self: self.run_test('def np_{0}_accumulate(a): from {1} import {0} ; return {0}.accumulate(a)', numpy.ones(10), np_{0}_accumulate=[NDArray[float,:]])".format(f, ns)))
             setattr(TestNumpyUFuncBinary, 'test_accumulate_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix_accumulate(a): from {1} import {0} ; return {0}.accumulate(a)', numpy.ones((2,5)) - 0.2 , np_{0}_matrix_accumulate=[NDArray[float, :, :]])".format(f, ns)))
         ## Tests for reduction

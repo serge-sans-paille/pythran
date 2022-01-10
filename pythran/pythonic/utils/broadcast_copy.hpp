@@ -218,8 +218,7 @@ namespace utils
     void operator()(E &self, F const &other)
     {
       if (utils::no_broadcast_ex(other))
-        _broadcast_copy<fast_novectorize, N, D>{}(
-            self, other, std::make_tuple(), std::make_tuple());
+        _broadcast_copy<types::vectorizer_nobroadcast, N, D>{}(self, other);
       else
         _broadcast_copy<types::vectorizer, N, D>{}(self, other);
     }

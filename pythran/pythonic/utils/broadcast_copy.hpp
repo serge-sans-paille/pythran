@@ -217,9 +217,9 @@ namespace utils
   struct broadcast_copy_dispatcher<E, F, N, D, true> {
     void operator()(E &self, F const &other)
     {
-      if (utils::no_broadcast_ex(other))
+      if (utils::no_broadcast_vectorize(other)) {
         _broadcast_copy<types::vectorizer_nobroadcast, N, D>{}(self, other);
-      else
+      } else
         _broadcast_copy<types::vectorizer, N, D>{}(self, other);
     }
   };
@@ -427,9 +427,9 @@ namespace utils
   struct broadcast_update_dispatcher<Op, true, E, F, N, D> {
     void operator()(E &self, F const &other)
     {
-      if (utils::no_broadcast_ex(other))
-        _broadcast_update<Op, fast_novectorize, N, D>{}(
-            self, other, std::make_tuple(), std::make_tuple());
+      if (utils::no_broadcast_vectorize(other))
+        _broadcast_update<Op, types::vectorizer_nobroadcast, N, D>{}(self,
+                                                                     other);
       else
         _broadcast_update<Op, types::vectorizer, N, D>{}(self, other);
     }

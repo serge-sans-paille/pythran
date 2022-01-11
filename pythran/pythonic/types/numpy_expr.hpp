@@ -131,7 +131,8 @@ namespace types
   {
     bool child_broadcast = false;
     (void)std::initializer_list<bool>{
-        (child_broadcast |= !utils::no_broadcast(std::get<I>(args)))...};
+        (child_broadcast |=
+         !utils::no_broadcast_vectorize(std::get<I>(args)))...};
     if (child_broadcast)
       return false;
 

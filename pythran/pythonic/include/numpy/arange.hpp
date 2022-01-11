@@ -19,8 +19,8 @@ namespace numpy
       vector_type step_;
       long index_;
       arange_simd_iterator(T start, T step, long n)
-          : curr_{}, step_{static_cast<T>(vector_type::size * step)},
-            index_{static_cast<long>(n / vector_type::size)}
+          : curr_(), step_(static_cast<T>(vector_type::size * step)),
+            index_(static_cast<long>(n / vector_type::size))
       {
         T from[vector_type::size];
         for (size_t i = 0; i < vector_type::size; ++i)

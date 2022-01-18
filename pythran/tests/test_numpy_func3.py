@@ -722,12 +722,12 @@ def np_trim_zeros2(x):
                       numpy.arange(1000.) / .7,
                       interp3=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
 
-    #def test_interp_4(self):
-    #    self.run_test('def interp4(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,period=2)',
-    #                  numpy.arange(100.) * .5,
-    #                  numpy.arange(1000.) * .2,
-    #                  numpy.arange(1000.) * .1,
-    #                  interp4=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
+    def test_interp_4(self):
+        self.run_test('def interp4(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,period=2.1)',
+                      numpy.arange(-10.,3000),
+                      numpy.arange(2000.),
+                      numpy.cos(numpy.arange(2000.)*2*numpy.pi/2.1),
+                      interp4=[NDArray[float,:],NDArray[float,:],NDArray[float,:]])
 
     def test_interp_5(self):
         self.run_test('def interp5(x,factor): N = len(x); import numpy as np; return np.interp(np.arange(0, N - 1, factor), np.arange(N), x, None, None, None)',
@@ -783,12 +783,12 @@ def np_trim_zeros2(x):
                       numpy.arange(1000.) / .7 + numpy.arange(1000.) * .6j,
                       interp3c=[NDArray[float,:],NDArray[float,:],NDArray[complex,:]])
 
-    #def test_interp_4c(self):
-    #    self.run_test('def interp4c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,period=1.1)',
-    #                  numpy.arange(100.) / .5,
-    #                  numpy.arange(1000.) / .3,
-    #                  numpy.arange(1000.) / .7 + numpy.arange(1000.) * .6j,
-    #                  interp4c=[NDArray[float,:],NDArray[float,:],NDArray[complex,:]])
+    def test_interp_4c(self):
+        self.run_test('def interp4c(x,xp,fp): import numpy as np; return np.interp(x,xp,fp,period=1.12)',
+                      numpy.arange(-10.,30,.67),
+                      numpy.arange(20.),
+                      numpy.cos(numpy.arange(20.)*2*numpy.pi/1.12) * (1+.1j),
+                      interp4c=[NDArray[float,:],NDArray[float,:],NDArray[complex,:]])
 
     def test_interp_5c(self):
         self.run_test('def interp5c(x,factor): N = len(x); import numpy as np; return np.interp(np.arange(0, N - 1, factor), np.arange(N), x, None, None, None)',

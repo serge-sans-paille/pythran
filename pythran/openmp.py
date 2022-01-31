@@ -6,14 +6,14 @@ This modules contains OpenMP-related stuff.
 
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
-from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
+from pythran.spec import parse_pytypes
+from pythran.types.conversion import pytype_to_ctype
 from pythran.utils import isstr
 
 from gast import AST
 import gast as ast
 import re
 
-typenames = {t.__name__: t for t in PYTYPE_TO_CTYPE_TABLE}
 
 keywords = {
     'atomic',
@@ -76,6 +76,16 @@ reserved_contex = {
 }
 
 
+def is_declare_typename(s, offset, bounds):
+    start = s.rfind(':', 0, offset - 1)
+    stop = s.rfind(':', offset + 1)
+    if start > 0 and stop > 0:
+        bounds.extend((start + 1, stop))
+        return True
+    else:
+        return False
+
+
 class OMPDirective(AST):
     '''Turn a string into a context-dependent metadata.
     >>> o = OMPDirective("omp for private(a,b) shared(c)")
@@ -97,6 +107,7 @@ class OMPDirective(AST):
         self.private_deps = []
         self.shared_deps = []
 
+
         def tokenize(s):
             '''A simple contextual "parser" for an OpenMP string'''
             # not completely satisfying if there are strings in if expressions
@@ -107,13 +118,18 @@ class OMPDirective(AST):
             in_declare = False
             in_shared = in_private = False
             while curr_index < len(s):
+                bounds = []
+                if in_declare and is_declare_typename(s, curr_index, bounds):
+                    start, stop = bounds
+                    pytypes = parse_pytypes(s[start:stop])
+                    out += ', '.join(map(pytype_to_ctype, pytypes))
+                    curr_index = stop
+                    continue
                 m = re.match(r'^([a-zA-Z_]\w*)', s[curr_index:])
                 if m:
                     word = m.group(0)
                     curr_index += len(word)
-                    if word in typenames:
-                        out += PYTYPE_TO_CTYPE_TABLE[typenames[word]]
-                    elif(in_reserved_context or
+                    if(in_reserved_context or
                          (in_declare and word in declare_keywords) or
                          (par_count == 0 and word in keywords)):
                         out += word
@@ -122,14 +138,19 @@ class OMPDirective(AST):
                         in_private |= word == 'private'
                         in_shared |= word == 'shared'
                     else:
-                        v = '{}'
+                        out += '{}'
                         self.deps.append(ast.Name(word, ast.Load(),
                                                   None, None))
+                        isattr = re.match(r'^\s*(\.\s*[a-zA-Z_]\w*)', s[curr_index:])
+                        if isattr:
+                            attr = isattr.group(0)
+                            curr_index += len(attr)
+                            self.deps[-1] = ast.Attribute(self.deps[-1],
+                                                          attr[1:], ast.Load())
                         if in_private:
                             self.private_deps.append(self.deps[-1])
                         if in_shared:
                             self.shared_deps.append(self.deps[-1])
-                        out += v
                 elif s[curr_index] == '(':
                     par_count += 1
                     curr_index += 1

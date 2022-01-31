@@ -55,6 +55,9 @@ class Locals(ModuleAnalysis):
         self.generic_visit(node)
 
     def visit_FunctionDef(self, node):
+        # top-level OMP statements attached to that function
+
+        md.visit(self, node)
         # special case for nested functions
         if self.nesting:
             self.locals.add(node.name)

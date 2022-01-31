@@ -550,6 +550,12 @@ def spec_parser(text):
     return SpecParser()(text)
 
 
+def parse_pytypes(s):
+    fake_def = '#pythran export fake({})'.format(s)
+    specs = SpecParser()(fake_def)
+    return specs.functions['fake'][0]
+
+
 def load_specfile(filepath):
     with open(filepath) as fd:
         return ExtraSpecParser()(fd.read(), input_file=filepath)

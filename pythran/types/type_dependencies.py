@@ -431,7 +431,7 @@ class TypeDependencies(ModuleAnalysis):
         """
         Return dependencies for given variable.
 
-        It have to be register first.
+        It has to be registered first.
         """
         if node.id in self.naming:
             return self.naming[node.id]

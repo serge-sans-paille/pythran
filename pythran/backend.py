@@ -359,6 +359,7 @@ class CxxFunction(ast.NodeVisitor):
                            return_declaration +
                            operator_declaration)
 
+        topstruct = self.process_omp_attachements(node, topstruct)
         return [topstruct], [operator_definition]
 
     def visit_Return(self, node):

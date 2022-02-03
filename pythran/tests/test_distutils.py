@@ -7,7 +7,13 @@ import sysconfig
 import unittest
 
 cwd = os.path.dirname(__file__)
-python_version = "python{}.{}".format(sys.version_info.major,
+
+def _get_implementation():
+    if sys.implementation.name == 'pypy':
+        return 'pypy'
+    return 'python'
+
+python_version = "{}{}.{}".format(_get_implementation(), sys.version_info.major,
                                       sys.version_info.minor)
 
 def find_so(name, path):

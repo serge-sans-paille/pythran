@@ -11,6 +11,7 @@ from pythran.utils import isintegral, isnum
 import gast as ast
 from copy import deepcopy
 import logging
+import sys
 
 logger = logging.getLogger('pythran')
 
@@ -38,6 +39,9 @@ class ConstantFolding(Transformation):
         self.env = {
             'builtins': __import__('builtins'),
         }
+
+        if sys.implementation.name == 'pypy':
+            self.env['__builtins__'] = self.env['builtins']
 
         for module_name in MODULES:
             # __dispatch__ is the only fake top-level module

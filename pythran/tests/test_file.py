@@ -26,152 +26,318 @@ class TestFile(TestEnv):
 
     def test_filename_only_constructor(self):
         filename=mkstemp()[1]
-        self.run_test("def filename_only_constructor(filename):\n open(filename)", filename, filename_only_constructor=[str])
-
-    def test_open(self):
-        filename=mkstemp()[1]
-        self.run_test("def _open(filename):\n open(filename)", filename, _open=[str])
+        self.run_test("""
+            def filename_only_constructor(filename):
+                open(filename).close()""",
+            filename, filename_only_constructor=[str])
 
     def test_open_write(self):
         filename=mkstemp()[1]
-        self.run_test("""def _open_write(filename):\n f=open(filename,"w+")\n f.write("azert")""", filename, _open_write=[str])
-        self.assertEqual(open(filename).read(), "azert")
+        self.run_test("""
+            def _open_write(filename):
+                f = open(filename,"w+")
+                f.write("azert")
+                f.close()""",
+            filename, _open_write=[str])
+        with open(filename) as fd:
+            self.assertEqual(fd.read(), "azert")
 
     def test_open_append(self):
         filename=mkstemp()[1]
-        self.run_test("""def _open_append(filename):\n f=open(filename,"a")\n f.write("azert")""", filename, _open_append=[str])
-        self.assertEqual(open(filename).read(), "azert"*2)
+        self.run_test("""
+            def _open_append(filename):
+                f = open(filename,"a")
+                f.write("azert")
+                f.close()""",
+            filename,
+            _open_append=[str])
+        with open(filename) as fd:
+            # * 2 because it's opened by python then pythran
+            self.assertEqual(fd.read(), "azert"*2)
 
     def test_writing_mode_constructor(self):
         # Expecting file to be erased.
         # But python execution of test will erase it before pythran can :s
         self.tempfile()
-        self.run_test("""def writing_mode_constructor(filename):\n f=open(filename, "w")\n f.close()""", self.filename,prelude=self.reinit_file, writing_mode_constructor=[str])
-        self.assertEqual(open(self.filename).read(), "")
+        self.run_test("""
+            def writing_mode_constructor(filename):
+                f = open(filename, "w")
+                f.close()""",
+            self.filename,prelude=self.reinit_file, writing_mode_constructor=[str])
 
-    #TODO : tester le differents modes du constructeur
+        with open(self.filename) as fd:
+            self.assertEqual(fd.read(), "")
 
     def test_write(self):
         self.filename=mkstemp()[1]
         content="""q2\naze23\n"""
         self.run_test("""def _write(filename):\n f=open(filename,'a+')\n n = f.write("""+str('str("""q2\naze23\n""")')+""")\n f.close()\n return n""", self.filename, _write=[str])
-        self.assertEqual(open(self.filename).read(), content*2)
+
+        with open(self.filename) as fd:
+            self.assertEqual(fd.read(), content * 2)
 
     def test_writelines(self):
         self.filename=mkstemp()[1]
-        content=["""azerty""", "qsdfgh", "12345524"]
-        self.run_test("""def _writelines(filename,_content):\n f=open(filename,'a+')\n f.writelines(_content)\n f.close()""", self.filename, content, _writelines=[str, List[str]])
-        self.assertEqual(open(self.filename).read(), str().join(content)*2)
+        content=["azerty", "qsdfgh", "12345524"]
+        self.run_test("""
+            def _writelines(filename,_content):
+                f = open(filename,'a+')
+                f.writelines(_content)
+                f.close()""",
+            self.filename, content, _writelines=[str, List[str]])
+
+        with open(self.filename) as fd:
+            self.assertEqual(fd.read(), str().join(content)*2)
 
     def test_close(self):
         filename=mkstemp()[1]
         self.run_test("""
-def file_close(filename):
-	f=open(filename,'w')
-	f.close()
-	try:
-		f.write("q")
-	except:pass""", filename, file_close=[str])
+            def file_close(filename):
+                f = open(filename,'w')
+                f.close()
+                try:
+                    f.write("q")
+                except:
+                    pass""",
+            filename, file_close=[str])
 
     def test_truncate(self):
         self.tempfile()
-        self.run_test("def _truncate(filename):\n f=open(filename)\n f.truncate(3); return f.read()", self.filename, _truncate=[str])
+        self.run_test("""
+            def _truncate(filename):
+                f = open(filename)
+                f.truncate(3)
+                c = f.read()
+                f.close()
+                return c""",
+            self.filename, _truncate=[str])
 
     def test_read(self):
         self.tempfile()
-        self.run_test("def _read(filename):\n f=open(filename)\n return f.read()", self.filename, _read=[str])
+        self.run_test("""
+            def _read(filename):
+                f = open(filename)
+                c = f.read()
+                f.close()
+                return c""", self.filename, _read=[str])
 
     def test_read_size(self):
         self.tempfile()
-        self.run_test("def _read_size(filename, size):\n f=open(filename)\n return f.read(size)", self.filename, 10, _read_size=[str, int])
+        self.run_test("""
+            def _read_size(filename, size):
+                f = open(filename)
+                c = f.read(size)
+                f.close()
+                return c""", self.filename, 10, _read_size=[str, int])
 
     def test_read_oversize(self):
         self.tempfile()
-        self.run_test("def _read_oversize(filename, size):\n f=open(filename)\n return f.read(size)", self.filename, len(self.file_content)+5, _read_oversize=[str, int])
+        self.run_test("""
+            def _read_oversize(filename, size):
+                f = open(filename)
+                c =  f.read(size)
+                f.close()
+                return c""", self.filename, len(self.file_content)+5, _read_oversize=[str, int])
 
     def test_readline(self):
         self.tempfile()
-        self.run_test("def _readline(filename):\n f=open(filename)\n return [f.readline(),f.readline(), f.readline(),f.readline(),f.readline()]", self.filename, _readline=[str])
+        self.run_test("""
+            def _readline(filename):
+                f = open(filename)
+                c = [f.readline(),f.readline(), f.readline(),f.readline(),f.readline()]
+                f.close()
+                return c""", self.filename, _readline=[str])
 
     def test_readline_size(self):
         self.tempfile()
-        self.run_test("def _readline_size(filename):\n f=open(filename)\n return [f.readline(7),f.readline(3),f.readline(4),f.readline(),f.readline(10)]", self.filename, _readline_size=[str])
+        self.run_test("""
+            def _readline_size(filename):
+                f = open(filename)
+                c = [f.readline(7),f.readline(3),f.readline(4),f.readline(),f.readline(10)]
+                f.close()
+                return c""", self.filename, _readline_size=[str])
 
     def test_readline_size_bis(self):
         self.tempfile()
-        self.run_test("def _readline_size_bis(filename):\n f=open(filename)\n return [f.readline(4),f.readline(3),f.readline(10),f.readline(),f.readline(5)]", self.filename, _readline_size_bis=[str])
+        self.run_test("""
+            def _readline_size_bis(filename):
+                f = open(filename)
+                c = [f.readline(4),f.readline(3),f.readline(10),f.readline(),f.readline(5)]
+                f.close()
+                return c""", self.filename, _readline_size_bis=[str])
 
     def test_readlines(self):
         self.tempfile()
-        self.run_test("def _readlines(filename):\n f=open(filename)\n return f.readlines()", self.filename, _readlines=[str])
+        self.run_test("""
+            def _readlines(filename):
+                f = open(filename)
+                c = f.readlines()
+                f.close()
+                return c""", self.filename, _readlines=[str])
 
     def test_offset_read(self):
         self.tempfile()
-        self.run_test("""def _offset_read(filename):\n f=open(filename)\n f.seek(5)\n return f.read()""", self.filename, _offset_read=[str])
+        self.run_test("""
+            def _offset_read(filename):
+                f = open(filename)
+                f.seek(5)
+                c = f.read()
+                f.close()
+                return c""", self.filename, _offset_read=[str])
 
     def test_offset_write(self):
         self.tempfile()
-        self.run_test("""def _offset_write(filename):\n f=open(filename, "a")\n f.seek(5)\n f.write("aze")\n f.close()\n return open(filename,"r").read()""", self.filename, prelude = self.reinit_file, _offset_write=[str])
+        self.run_test("""
+            def _offset_write(filename):
+                f = open(filename, "a")
+                f.seek(5)
+                f.write("aze")
+                f.close()
+                f = open(filename,"r")
+                c = f.read()
+                f.close()
+                return c""", self.filename, prelude = self.reinit_file, _offset_write=[str])
 
     def test_next(self):
         self.tempfile()
-        self.run_test("""def _next(filename):\n f=open(filename)\n return [next(f), next(f)]""", self.filename, _next=[str])
+        self.run_test("""
+            def _next(filename):
+                f = open(filename)
+                c = [next(f), next(f)]
+                f.close()
+                return c
+                """, self.filename, _next=[str])
 
     def test_iter(self):
         self.tempfile()
-        self.run_test("""def _iter(filename):\n f=open(filename)\n return [l for l in f]""", self.filename, _iter=[str])
+        self.run_test("""
+            def _iter(filename):
+                f = open(filename)
+                c = [l for l in f]
+                f.close()
+                return c""", self.filename, _iter=[str])
 
     def test_fileno(self):
         self.tempfile()
         # Useless to check if same fileno, just checking if fct can be called
-        self.run_test("""def _fileno(filename):\n f=open(filename)\n a=f.fileno()\n return a!= 0""", self.filename, _fileno=[str])
+        self.run_test("""
+            def _fileno(filename):
+                f = open(filename)
+                a = f.fileno()
+                c = a!= 0
+                f.close()
+                return c""", self.filename, _fileno=[str])
 
     def test_isatty(self):
         self.tempfile()
-        self.run_test("""def _isatty(filename):\n f=open(filename)\n return f.isatty()""", self.filename, _isatty=[str])
+        self.run_test("""
+            def _isatty(filename):
+                f = open(filename)
+                c = f.isatty()
+                f.close()
+                return c""", self.filename, _isatty=[str])
 
     def test_truncate(self):
         self.tempfile()
-        self.run_test("""def _truncate(filename):\n f=open(filename, 'a')\n f.seek(3)\n f.truncate()\n f.close()\n return open(filename).read()""", self.filename, _truncate=[str])
+        self.run_test("""
+            def _truncate(filename):
+                f = open(filename, 'a')
+                f.seek(3)
+                f.truncate()
+                f.close()
+                f = open(filename)
+                c = f.read()
+                f.close()
+                return c""", self.filename, _truncate=[str])
 
     def test_truncate_size(self):
         self.tempfile()
-        self.run_test("""def _truncate_size(filename):\n f=open(filename, 'a')\n f.truncate(4)\n f.close()\n return open(filename).read()""", self.filename, _truncate_size=[str])
+        self.run_test("""
+            def _truncate_size(filename):
+                f = open(filename, 'a')
+                f.truncate(4)
+                f.close()
+                f = open(filename)
+                c = f.read()
+                f.close()
+                return c""", self.filename, _truncate_size=[str])
 
     def test_flush(self):
         self.tempfile()
         # Don't know how to check properly, just checking fct call.
-        self.run_test("""def _flush(filename):\n f=open(filename, 'a')\n f.flush()""", self.filename, _flush=[str])
+        self.run_test("""
+            def _flush(filename):
+                f = open(filename, 'a')
+                f.flush()
+                f.close()""", self.filename, _flush=[str])
 
     def test_tell(self):
         self.tempfile()
-        self.run_test("""def _tell(filename):\n f=open(filename)\n f.read(3)\n return f.tell()""", self.filename, _tell=[str])
+        self.run_test("""
+            def _tell(filename):
+                f = open(filename)
+                f.read(3)
+                c = f.tell()
+                f.close()
+                return c""", self.filename, _tell=[str])
 
     def test_seek(self):
         self.tempfile()
-        self.run_test("""def _seek(filename):\n f=open(filename, 'a')\n f.seek(3)\n return f.tell()""", self.filename, _seek=[str])
+        self.run_test("""
+            def _seek(filename):
+                f = open(filename, 'a')
+                f.seek(3)
+                c = f.tell()
+                f.close()
+                return c""", self.filename, _seek=[str])
 
     def test_attribute_closed(self):
         self.tempfile()
-        self.run_test("""def _attribute_closed(filename):\n f=open(filename, 'a')\n return f.closed""", self.filename, _attribute_closed=[str])
+        self.run_test("""
+            def _attribute_closed(filename):
+                f = open(filename, 'a')
+                c = f.closed
+                f.close()
+                return c""", self.filename, _attribute_closed=[str])
 
     def test_attribute_name(self):
         self.tempfile()
-        self.run_test("""def _attribute_name(filename):\n return open(filename, 'a').name""", self.filename, _attribute_name=[str])
+        self.run_test("""
+            def _attribute_name(filename):
+                f = open(filename, 'a')
+                c = f.name
+                f.close()
+                return c""", self.filename, _attribute_name=[str])
 
     def test_attribute_mode(self):
         self.tempfile()
-        self.run_test("""def _attribute_mode(filename):\n return open(filename, 'a').mode""", self.filename, _attribute_mode=[str])
+        self.run_test("""
+            def _attribute_mode(filename):
+                f = open(filename, 'a')
+                c = f.mode
+                f.close()
+                return c""", self.filename, _attribute_mode=[str])
 
     def test_attribute_newlines(self):
         self.tempfile()
-        self.run_test("""def _attribute_newlines(filename):\n return open(filename, 'a').newlines""", self.filename, _attribute_newlines=[str])
+        self.run_test("""
+            def _attribute_newlines(filename):
+                f = open(filename, 'a')
+                c = f.newlines
+                f.close()
+                return c""", self.filename, _attribute_newlines=[str])
 
     def test_map_iter(self):
         self.tempfile()
-        self.run_test("""def _map_iter(filename):\n f=open(filename)\n return list(map(lambda s: len(s), f))""", self.filename, _map_iter=[str])
+        self.run_test("""
+            def _map_iter(filename):
+                f = open(filename)
+                c = list(map(lambda s: len(s), f))
+                f.close()
+                return c""", self.filename, _map_iter=[str])
 
     # The following tests insures the PROXY compatibility with rvalues
+    # Note that it doesn't close the file which is not a good idea...
     def test_rvalue_write(self):
         self.filename=mkstemp()[1]
         self.run_test("""def _rvalue_write(filename):\n open(filename,'a+').write("aze")""", self.filename, _rvalue_write=[str])

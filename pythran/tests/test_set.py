@@ -47,7 +47,7 @@ def are_equal(s1):
         self.run_test("def _clear(a):\n a.clear()\n return a", {1.,5.}, _clear=[Set[float]])
 
     def test_pop(self):
-        self.run_test("def _pop(a):\n a.pop()\n return a", {1.,5.}, _pop=[Set[float]])
+        self.run_test("def _pop(a):\n v = a.pop()\n return v, a", {5.}, _pop=[Set[float]])
 
     def test_remove(self):
         self.run_test("def _remove(a,b):\n a.remove(b)\n return a", {1,3}, 1., _remove=[Set[int], float])

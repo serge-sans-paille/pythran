@@ -94,5 +94,8 @@ for module in (pythran, transformations, analyses, optimizations, types):
     for submodule in dir(module):
         add_module_doctest(module, submodule)
 
+if sys.implementation.name == 'pypy':
+    del TestDoctest
+
 if __name__ == '__main__':
     unittest.main()

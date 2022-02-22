@@ -89,13 +89,64 @@ Using ``dnf``::
 Windows
 =======
 
-Windows support is on going and only targets Python 3.5+ with either Visual Studio 2017 or, better, clang-cl::
+Windows support is on going and only targets Python 3.5+ with clang-cl::
 
     $> pip install pythran
 
-Note that using ``clang-cl.exe`` is the default setting. It can be changed
-through the ``CXX`` and ``CC`` environment variables.
+Note that using ``clang-cl.exe`` is the default setting. It can be changed through the ``CXX`` and ``CC`` environment variables, but should be left as-is.  
+Visual Studio 2019 Build Tools has an option to install the latest stable Clang through the ``C++ Clang tools for Windows`` option, which makes binaries 
+with ``clang-cl.exe`` that are compatible with ``cl.exe``, but can handle Pythran code far better than the MSVC compiler.  These directions assume you are using
+the Visual Studio 2019 Build Tools, since they are compatible with CPython 3.5+ and have the latest Clang libraries, free and easy to use.  The current link,
+which may change, is here: https://my.visualstudio.com/Downloads?q=Build%20Tools%202019
 
+On Windows, the Pythran configuration file is in: 
+``[python]/Lib/site-packages/pythran/pythran-win32.cfg``
+
+How you set this up will depend on if you are using an ``Intel MKL`` linked NumPy/SciPy (such as in the Anaconda3 distribution), or if you're using pip installed NumPy/SciPy (which is linked to ``OpenBLAS``).  There are some interesting differences in the setup files for each distribution - note the purpose here is to use the right OpenMP library:
+
+Basic setup, ``Intel MKL`` (Anaconda3 users primarily)::
+
+    include_dirs='C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\Llvm\x64\lib', 'C:\Users\[user_name]\Anaconda3\Library\include'
+    cflags=/std:c++14 /w -Xclang -fopenmp
+    ldflags=\libomp.lib
+    blas=mkl
+    CC=clang-cl.exe
+    CXX=clang-cl.exe
+
+In some cases, using ``Intel MKL`` will require a substitute ``cblas.h`` which isn't present with MKL.  This is not an elegant solution -
+one can install the full library + headers from Intel OneAPI and create a dummy include file ``cblas.h`` which states: ``#include "mkl_cblas.h"``
+When compiling, the way to include it is a: ``pythran -I"path_to_MKL_includes" scipt_to_compile.py``
+The current download link for Intel OneAPI (where you can choose to only install MKL) is here: https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html
+
+The current version of Intel MKL installs by default here: ``"C:\Program Files (x86)\Intel\oneAPI\mkl\2022.0.2\include"``
+which is where the dummy ``cblas.h`` should be created, and ``-I`` command line flag must reference.
+
+
+Basic setup, ``OpenBLAS`` (pip installed NumPy/SciPy)::
+
+    library_dirs='C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\Llvm\x64\lib'
+    cflags=/std:c++14 /w -Xclang -fopenmp
+    ldflags=\libiomp5md.lib
+    blas=pythran-openblas
+    CC=clang-cl.exe
+    CXX=clang-cl.exe
+
+Note with the ``OpenBLAS`` package, you need to: ``pip install pythran-openblas`` so the library can be linked properly.
+
+
+Using the LLVM linker (optional):
+=================================
+Another thing you can choose to do is to use a different linker on Windows - i.e. instead of `link.exe` you can use the LLVM `lld-link.exe` - again,
+this is not an elegant solution.  The way Pythran finds the linker is through the [python]\Lib\site-packages\setuptools\_distutils\_msvccompiler.py
+To change which linker Python uses for everything, you modify the _msvccompiler.py file so it becomes the default linker.
+In this file, replace ``link.exe`` with ``lld-link.exe`` and be sure to comment out ``'/LTCG'`` under ``ldflags`` as the LLVM linker
+cannot understand this option, and will throw an error.  It is sufficient to just modify the file like this::
+
+    self.linker = _find_exe("lld-link.exe", paths)
+    ...
+    ldflags = ['/nologo', '/INCREMENTAL:NO'#, '/LTCG' # note this LTCG flag is just commented out
+
+This will force Pythran (and Cython) to use the LLVM linker, instead of the MSVC one.  Note if you manually compile any packages, they will also use this linker setup!
 
 Other Platform
 ==============

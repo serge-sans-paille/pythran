@@ -1,5 +1,8 @@
-""" Immediates gathers immediates. For now, only integers within shape are
-considered as immediates """
+"""
+Immediates gathers immediates. For now, only integers within shape are
+and argument of functions flagged as immediate_arguments are
+considered as immediates
+"""
 
 import gast as ast
 from pythran.tables import MODULES

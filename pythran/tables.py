@@ -4258,6 +4258,7 @@ MODULES = {
                 Fun[[Iterable[T0]], Generator[List[T0]]],
                 Fun[[Iterable[T0], int], Generator[List[T0]]],
             ],
+            immediate_arguments=[1],
         ),
         "repeat": ConstFunctionIntr(
             signature=Union[

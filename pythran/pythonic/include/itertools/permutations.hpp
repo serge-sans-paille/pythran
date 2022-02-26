@@ -27,13 +27,10 @@ namespace itertools
    *  [(0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0)]
    *
    */
-  template <class T>
-  struct permutations_iterator
-      : std::iterator<std::forward_iterator_tag,
-                      types::dynamic_tuple<typename T::value_type>, ptrdiff_t,
-                      types::dynamic_tuple<typename T::value_type> *,
-                      types::dynamic_tuple<typename T::value_type> /* no ref*/
-                      > {
+  template <class T, class H>
+  struct permutations_iterator : std::iterator<std::forward_iterator_tag, H,
+                                               ptrdiff_t, H *, H /* no ref*/
+                                               > {
     // Vector of inputs, contains elements to permute
     std::vector<typename T::value_type> pool;
 
@@ -51,7 +48,7 @@ namespace itertools
                           size_t num_elts, bool end);
 
     /** Build the permutation visible from the "outside" */
-    types::dynamic_tuple<typename T::value_type> operator*() const;
+    H operator*() const;
 
     /*  Generate next permutation
      *
@@ -64,10 +61,10 @@ namespace itertools
     bool operator<(permutations_iterator const &other) const;
   };
 
-  template <class T>
+  template <class T, class H>
   // FIXME document why this inheritance???
-  struct _permutations : permutations_iterator<T> {
-    using iterator = permutations_iterator<T>;
+  struct _permutations : permutations_iterator<T, H> {
+    using iterator = permutations_iterator<T, H>;
     using value_type = typename iterator::value_type;
 
     _permutations();
@@ -79,10 +76,16 @@ namespace itertools
   };
 
   template <typename T0>
-  _permutations<T0> permutations(T0 iter, long num_elts);
+  _permutations<T0, types::dynamic_tuple<typename T0::value_type>>
+  permutations(T0 iter, long num_elts);
 
   template <typename T0>
-  _permutations<T0> permutations(T0 iter);
+  _permutations<T0, types::dynamic_tuple<typename T0::value_type>>
+  permutations(T0 iter);
+
+  template <typename T0, long N0>
+  _permutations<T0, types::array<typename T0::value_type, (size_t)N0>>
+  permutations(T0 iter, std::integral_constant<long, N0>);
 
   DEFINE_FUNCTOR(pythonic::itertools, permutations);
 }
@@ -91,11 +94,12 @@ PYTHONIC_NS_END
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"
 
-template <class E, class T>
-struct __combined<E, pythonic::itertools::_permutations<T>> {
-  using type = typename __combined<
-      E, container<
-             typename pythonic::itertools::_permutations<T>::value_type>>::type;
+template <class E, class T, class H>
+struct __combined<E, pythonic::itertools::_permutations<T, H>> {
+  using type =
+      typename __combined<E,
+                          container<typename pythonic::itertools::_permutations<
+                              T, H>::value_type>>::type;
 };
 
 /* } */

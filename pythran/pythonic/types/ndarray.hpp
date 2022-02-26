@@ -1195,7 +1195,7 @@ namespace builtins
   }
 
   template <class E>
-  long getattr(types::attr::NDIM, E const &a)
+  constexpr long getattr(types::attr::NDIM, E const &a)
   {
     return E::value;
   }
@@ -1218,7 +1218,7 @@ namespace builtins
   }
 
   template <class E>
-  long getattr(types::attr::ITEMSIZE, E const &a)
+  constexpr long getattr(types::attr::ITEMSIZE, E const &a)
   {
     return sizeof(typename E::dtype);
   }

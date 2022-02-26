@@ -14,7 +14,8 @@ from pythran.intrinsic import Class
 from pythran.intrinsic import ClassWithConstConstructor, ExceptionClass
 from pythran.intrinsic import ClassWithReadOnceConstructor
 from pythran.intrinsic import ConstFunctionIntr, FunctionIntr, UpdateEffect
-from pythran.intrinsic import ConstMethodIntr, MethodIntr, AttributeIntr
+from pythran.intrinsic import ConstMethodIntr, MethodIntr
+from pythran.intrinsic import AttributeIntr, StaticAttributeIntr
 from pythran.intrinsic import ReadEffect, ConstantIntr, UFunc
 from pythran.intrinsic import ReadOnceMethodIntr
 from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
@@ -719,13 +720,13 @@ CLASSES = {
                     complex],
             ]
         ),
-        "itemsize": AttributeIntr(signature=Fun[[NDArray[T0, :]], int],
+        "itemsize": StaticAttributeIntr(signature=Fun[[NDArray[T0, :]], int],
                                   return_range=interval.positive_values),
         "nbytes": AttributeIntr(
             signature=Fun[[NDArray[T0, :]], int],
             return_range=interval.positive_values
         ),
-        "ndim": AttributeIntr(signature=Fun[[NDArray[T0, :]], int],
+        "ndim": StaticAttributeIntr(signature=Fun[[NDArray[T0, :]], int],
                               return_range=interval.positive_values),
         "reshape": ConstMethodIntr(
             signature=Union[

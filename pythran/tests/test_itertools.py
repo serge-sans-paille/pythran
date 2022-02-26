@@ -143,6 +143,16 @@ def ifilter_with_nested_lambdas(N):
         self.run_test("def permutations_g(l0,a): from itertools import permutations; return sum(map(lambda t : t[0]*t[1], permutations((y for x in l0 for y in range(x)),a)))", [0,1,2], 2, permutations_g=[List[int],int])
 
     def test_next_permutations(self):
+        self.run_test("def next_permutations(n, p):"
+                      "  from itertools import permutations ;"
+                      "  x = permutations(n,p) ;"
+                      "  next(x) ;"
+                      "  return list(map(str, x))",
+                      list(range(5)),
+                      2,
+                      next_permutations=[List[int], int])
+
+    def test_next_permutations_static(self):
         self.run_test("def next_permutations(n):"
                       "  from itertools import permutations ;"
                       "  x = permutations(n,2) ;"

@@ -17,7 +17,7 @@ from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import operator_to_lambda, update_operator_to_lambda
-from pythran.tables import pythran_ward
+from pythran.tables import pythran_ward, attributes as attributes_table
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
 from pythran.utils import attr_to_path, pushpop, cxxid, isstr, isnum
@@ -948,10 +948,15 @@ class CxxFunction(ast.NodeVisitor):
         func = self.visit(node.func)
         # special hook for getattr, as we cannot represent it in C++
         if func == 'pythonic::builtins::functor::getattr{}':
-            result = ('pythonic::builtins::getattr({}{{}}, {})'
-                    .format('pythonic::types::attr::'
-                            + node.args[1].value.upper(),
-                            args[0]))
+            attrname = node.args[1].value
+            fmt = 'pythonic::builtins::getattr({}{{}}, {})'
+            attr = 'pythonic::types::attr::' + attrname.upper()
+            if attributes_table[attrname][1].isstatic() and node in self.immediates:
+                # ugly hack to ensure constexprness of the call
+                scall = fmt.format(attr, '*(decltype(&{}))nullptr'.format(args[0]))
+                result = 'std::integral_constant<long, {0}>()'.format(scall)
+            else:
+                result = fmt.format(attr, args[0])
         else:
             result = "{}({})".format(func, ", ".join(args))
 

@@ -1,8 +1,9 @@
 from pythran.tests import TestEnv
 
 import unittest
+import numpy as np
 
-from pythran.typing import List
+from pythran.typing import List, NDArray
 
 
 @TestEnv.module
@@ -153,13 +154,22 @@ def ifilter_with_nested_lambdas(N):
                       next_permutations=[List[int], int])
 
     def test_next_permutations_static(self):
-        self.run_test("def next_permutations(n):"
+        self.run_test("def next_permutations_static(n):"
                       "  from itertools import permutations ;"
                       "  x = permutations(n,2) ;"
                       "  next(x) ;"
                       "  return list(map(str, x))",
                       list(range(5)),
-                      next_permutations=[List[int]])
+                      next_permutations_static=[List[int]])
+
+    def test_next_permutations_static_2(self):
+        self.run_test("def next_permutations_static2(x):"
+                      "  from itertools import permutations ;"
+                      "  p = permutations(range(x.shape[0]), x.ndim,) ;"
+                      "  t = next(p) ;"
+                      "  return x[t]",
+                      np.arange(10.).reshape(2, 5),
+                      next_permutations_static2=[NDArray[float, :, :]])
 
     def test_permutations(self):
         '''Test permutation without second arg'''

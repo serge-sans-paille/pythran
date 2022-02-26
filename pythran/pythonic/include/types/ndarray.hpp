@@ -843,7 +843,7 @@ namespace builtins
   types::array<long, E::value> getattr(types::attr::SHAPE, E const &a);
 
   template <class E>
-  long getattr(types::attr::NDIM, E const &a);
+  constexpr long getattr(types::attr::NDIM, E const &a);
 
   template <class E>
   types::array<long, E::value> getattr(types::attr::STRIDES, E const &a);
@@ -852,7 +852,7 @@ namespace builtins
   long getattr(types::attr::SIZE, E const &a);
 
   template <class E>
-  long getattr(types::attr::ITEMSIZE, E const &a);
+  constexpr long getattr(types::attr::ITEMSIZE, E const &a);
 
   template <class E>
   long getattr(types::attr::NBYTES, E const &a);

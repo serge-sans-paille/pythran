@@ -71,6 +71,10 @@ class Intrinsic(object):
     def isliteral(self):
         return False
 
+    def isstatic(self):
+        'static <=> value is known at compile time'
+        return False;
+
     def isfunction(self):
         return False
 
@@ -211,6 +215,16 @@ class AttributeIntr(Intrinsic):
         """ Mark this intrinsic as an attribute. """
         return True
 
+
+class StaticAttributeIntr(AttributeIntr):
+
+    """
+    Internal representation for any attributes whose value is known at
+    compile-time, and is an int
+    """
+
+    def isstatic(self):
+        return True
 
 class ConstantIntr(Intrinsic):
 

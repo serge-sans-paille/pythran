@@ -125,7 +125,7 @@ which is where the dummy ``cblas.h`` should be created, and ``-I`` command line 
 Note that at times, the linked OpenMP library (even though `libiomp` and `libiomp5md` are actually the same files) will cause a compiler crash - as you can't load both 
 `libomp.dll` and `libiomp5md.dll` into the same session.  There is a workaround for those that are compiling Pythran projects for Intel MKL that have installed the 
 Intel OneAPI MKL referenced above.  Simply change these lines in your `pythran-win32.cfg`:
-
+    
     library_dirs='C:\Program Files (x86)\Intel\oneAPI\compiler\latest\windows\compiler\lib\intel64_win'
     ldflags=\libiomp5md.lib
 
@@ -144,7 +144,7 @@ Basic setup, ``OpenBLAS`` (pip installed NumPy/SciPy)::
 Note with the ``OpenBLAS`` package, you need to: ``pip install pythran-openblas`` so the library can be linked properly.
 
 For the same reason stated prior under the "both OpenMP libraries in one session crash," you can also link to the `libomp.lib` by changing a few settings:
-
+    
     library_dirs='C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\lib\x64'
     ldflags=\libomp.lib
 

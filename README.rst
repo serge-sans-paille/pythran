@@ -102,7 +102,8 @@ which may change, is here: https://my.visualstudio.com/Downloads?q=Build%20Tools
 On Windows, the Pythran configuration file is in: 
 ``[python]/Lib/site-packages/pythran/pythran-win32.cfg``
 
-How you set this up will depend on if you are using an ``Intel MKL`` linked NumPy/SciPy (such as in the Anaconda3 distribution), or if you're using pip installed NumPy/SciPy (which is linked to ``OpenBLAS``).  There are some interesting differences in the setup files for each distribution - note the purpose here is to use the right OpenMP library:
+How you set this up depends on if you are using an ``Intel MKL`` linked NumPy/SciPy (such as in the Anaconda3 distribution), or if you're using pip installed NumPy/SciPy
+(which is linked to ``OpenBLAS``).  There are some interesting differences in the setup files for each distribution - note the purpose here is to use the right OpenMP library:
 
 Basic setup, ``Intel MKL`` (Anaconda3 users primarily)::
 
@@ -121,6 +122,15 @@ The current download link for Intel OneAPI (where you can choose to only install
 The current version of Intel MKL installs by default here: ``"C:\Program Files (x86)\Intel\oneAPI\mkl\2022.0.2\include"``
 which is where the dummy ``cblas.h`` should be created, and ``-I`` command line flag must reference.
 
+Note that at times, the linked OpenMP library (even though `libiomp` and `libiomp5md` are actually the same files) will cause a compiler crash - as you can't load both 
+`libomp.dll` and `libiomp5md.dll` into the same session.  There is a workaround for those that are compiling Pythran projects for Intel MKL that have installed the 
+Intel OneAPI MKL referenced above.  Simply change these lines in your `pythran-win32.cfg`:
+
+    library_dirs='C:\Program Files (x86)\Intel\oneAPI\compiler\latest\windows\compiler\lib\intel64_win'
+    ldflags=\libiomp5md.lib
+
+That should resolve any crashes related to having both OpenMP libraries loaded in one session.
+
 
 Basic setup, ``OpenBLAS`` (pip installed NumPy/SciPy)::
 
@@ -133,6 +143,12 @@ Basic setup, ``OpenBLAS`` (pip installed NumPy/SciPy)::
 
 Note with the ``OpenBLAS`` package, you need to: ``pip install pythran-openblas`` so the library can be linked properly.
 
+For the same reason stated prior under the "both OpenMP libraries in one session crash," you can also link to the `libomp.lib` by changing a few settings:
+
+    library_dirs='C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.29.30133\lib\x64'
+    ldflags=\libomp.lib
+
+Why it needs the MSVC version I'm not sure.  The point here is to offer alternative configs that will build and run with Pythran when one OpenMP library doesn't work.
 
 Using the LLVM linker (optional):
 =================================

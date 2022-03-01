@@ -2165,12 +2165,7 @@ def partialsum(seq):
 
 
 _operator_add_signature = Union[
-    _numpy_binary_op_signature.__args__ +
-    (Fun[[str, str], str],
-     Fun[[List[T0], List[T0]], List[T0]],) +
-    tuple(Fun[[Tuple[t0], Tuple[t1]], Tuple[t0 + t1]]
-          for t0 in partialsum([T0, T1, T2, T3])
-          for t1 in partialsum([T4, T5, T6, T7]))
+    _numpy_binary_op_signature.__args__
 ]
 
 _operator_eq_signature = Union[
@@ -4364,8 +4359,8 @@ MODULES = {
         "is_not": ConstFunctionIntr(),
         "abs": ConstFunctionIntr(),
         "__abs__": ConstFunctionIntr(),
-        "add": ConstFunctionIntr(signature=_operator_add_signature),
-        "__add__": ConstFunctionIntr(signature=_operator_add_signature),
+        "add": ConstFunctionIntr(signature=_numpy_binary_op_signature),
+        "__add__": ConstFunctionIntr(signature=_numpy_binary_op_signature),
         "and_": ConstFunctionIntr(),
         "__and__": ConstFunctionIntr(),
         "floordiv": ConstFunctionIntr(signature=_numpy_binary_op_signature),

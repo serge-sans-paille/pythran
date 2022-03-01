@@ -458,6 +458,26 @@ def foo(a):
         self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding",
                                    "pythran.optimizations.PatternTransform"])
 
+    def test_lambda_patterns0(self):
+        init = """
+def foo(a):
+    return lambda x, y: x + y"""
+        ref = """import operator as __pythran_import_operator
+def foo(a):
+    return __pythran_import_operator.add"""
+        self.check_ast(init, ref, ["pythran.transformations.RemoveLambdas"])
+
+    def test_lambda_patterns1(self):
+        init = """
+def foo(a):
+    return (lambda x, y: x + 1), (lambda z, w: z + 1)"""
+        ref = """def foo(a):
+    return (foo_lambda0, foo_lambda0)
+def foo_lambda0(x, y):
+    return (x + 1)"""
+        self.check_ast(init, ref, ["pythran.transformations.RemoveLambdas"])
+
+
     def test_inline_builtins_broadcasting0(self):
         init = """
 import numpy as np

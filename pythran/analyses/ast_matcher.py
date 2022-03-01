@@ -17,7 +17,7 @@ class Placeholder(AST):
     """ Class to save information from ast while check for pattern. """
 
     def __init__(self, identifier, type=None):
-        """ Placehorder are identified using an identifier. """
+        """ Placeholder are identified using an identifier. """
         self.id = identifier
         self.type = type
         super(Placeholder, self).__init__()

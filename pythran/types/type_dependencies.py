@@ -405,8 +405,8 @@ class TypeDependencies(ModuleAnalysis):
         Return type depend on [foo, bar] or [foo, foobar]
         """
         args = [self.visit(arg) for arg in node.args]
-        func = self.visit(node.func)
-        params = args + [func or []]
+        func = self.visit(node.func) or []
+        params = args + [func]
         return list({frozenset.union(*p) for p in itertools.product(*params)})
 
     @staticmethod

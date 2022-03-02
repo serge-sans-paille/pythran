@@ -1,6 +1,7 @@
 """ ArgumentEffects computes write effect on arguments. """
 
 from pythran.analyses.aliases import Aliases
+from pythran.analyses.intrinsics import Intrinsics
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
@@ -43,7 +44,6 @@ def save_function_effect(module):
             if isinstance(intr, intrinsic.Class):
                 save_function_effect(intr.fields)
 
-
 for module in MODULES.values():
     save_function_effect(module)
 
@@ -54,10 +54,9 @@ class ArgumentEffects(ModuleAnalysis):
 
     def __init__(self):
         self.result = DiGraph()
-        self.node_to_functioneffect = IntrinsicArgumentEffects.copy()
-        for fe in IntrinsicArgumentEffects.values():
-            self.result.add_node(fe)
-        super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations)
+        self.node_to_functioneffect = {}
+        super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations,
+                                              Intrinsics)
 
     def prepare(self, node):
         """
@@ -67,6 +66,11 @@ class ArgumentEffects(ModuleAnalysis):
         user defined functions.
         """
         super(ArgumentEffects, self).prepare(node)
+        for i in self.intrinsics:
+            fe = IntrinsicArgumentEffects[i]
+            self.node_to_functioneffect[i] = fe
+            self.result.add_node(fe)
+
         for n in self.global_declarations.values():
             fe = FunctionEffects(n)
             self.node_to_functioneffect[n] = fe
@@ -92,7 +96,6 @@ class ArgumentEffects(ModuleAnalysis):
                            not pred.update_effects[ith_effectiv]):
                             pred.update_effects[ith_effectiv] = True
                             candidates.add(pred)
-
         self.result = {f.func: f.update_effects for f in result}
         return self.result
 
@@ -166,6 +169,7 @@ class ArgumentEffects(ModuleAnalysis):
                         func_alias = self.global_declarations[bound_name]
                     if func_alias is intrinsic.UnboundValue:
                         continue
+
                     if func_alias not in self.node_to_functioneffect:
                         continue
 
@@ -179,6 +183,7 @@ class ArgumentEffects(ModuleAnalysis):
                                 fe)
                     else:
                         fe = self.node_to_functioneffect[func_alias]
+
                     predecessors = self.result.predecessors(fe)
                     if self.current_function not in predecessors:
                         self.result.add_edge(

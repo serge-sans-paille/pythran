@@ -7,13 +7,13 @@ from pythran.utils import path_to_attr
 
 import gast as ast
 
-patterns = (MODULES['numpy']['full'],
+patterns = {MODULES['numpy']['full'],
             MODULES['numpy']['ones'],
             MODULES['numpy']['zeros'],
             MODULES['numpy']['empty'],
             MODULES['numpy']['concatenate'],
             MODULES['builtins']['tuple'],
-            )
+           }
 
 
 def islist(node):
@@ -51,9 +51,9 @@ class ListToTuple(Transformation):
         return self.generic_visit(node)
 
     def visit_Call(self, node):
-        func_aliases = self.aliases.get(node.func, set())
-        if func_aliases.issubset(patterns):
-            if islist(node.args[0]):
+        if node.args and islist(node.args[0]):
+            func_aliases = self.aliases.get(node.func, set())
+            if func_aliases.issubset(patterns):
                 self.update = True
                 node.args[0] = totuple(node.args[0])
         return self.generic_visit(node)

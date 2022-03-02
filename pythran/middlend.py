@@ -61,7 +61,7 @@ def refine(pm, node, optimizations, report_times=False):
         apply_optimisation = False
         for optimization in optimizations:
             apply_optimisation |= pm.apply(optimization, node, run_times)[0]
-            
+
     if report_times and len(run_times):
         print("Optimization run times:")
         for key,val in run_times.items():

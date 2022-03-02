@@ -1,5 +1,5 @@
 """
-Whether a list usage makes it a candidate for fized-size-list
+Whether a list usage makes it a candidate for fixed-size-list
 
 This could be a type information, but it seems easier to implement it that way
 """
@@ -66,9 +66,8 @@ class FixedSizeList(FunctionAnalysis):
                 break
             if not isinstance(target, ast.Name):
                 continue
-            if len([d
-                    for d in self.def_use_chains.locals[self.ctx.function]
-                    if d.name() == target.id]) > 1:
+            if sum(1 for d in self.def_use_chains.locals[self.ctx.function]
+                   if d.name() == target.id) > 1:
                 break
         else:
             self.result.add(node.value)

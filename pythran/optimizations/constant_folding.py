@@ -72,6 +72,15 @@ class ConstantFolding(Transformation):
     visit_List = visit_Set = Transformation.generic_visit
     visit_Dict = visit_Tuple = Transformation.generic_visit
 
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Attribute):
+            return self.generic_visit(node)
+        else:
+            node.func = self.visit(node.func)
+            for i, arg in enumerate(node.args):
+                node.args[i] = self.visit(arg)
+            return node
+
     def generic_visit(self, node):
         if isinstance(node, ast.expr) and node in self.constant_expressions:
             fake_node = ast.Expression(node)

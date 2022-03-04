@@ -81,7 +81,7 @@ class ConstantFolding(Transformation):
                 value = eval(code, self.env)
                 new_node = to_ast(value)
                 try:
-                    if not ASTMatcher(node).search(new_node):
+                    if not ASTMatcher(node).match(new_node):
                         self.update = True
                         return new_node
                 except DamnTooLongPattern as e:

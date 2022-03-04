@@ -210,13 +210,17 @@ class ASTMatcher(NodeVisitor):
         """
         Visitor looking for matching between current node and pattern.
 
-        If it match, save it but whatever happen, keep going.
+        If it match, save it else look for a match at lower level keep going.
         """
         if Check(node, dict()).visit(self.pattern):
             self.result.add(node)
-        self.generic_visit(node)
+        else:
+            self.generic_visit(node)
 
     def search(self, node):
         """ Facility to get values of the matcher for a given node. """
         self.visit(node)
         return self.result
+
+    def match(self, node):
+        return Check(node, dict()).visit(self.pattern)

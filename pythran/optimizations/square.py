@@ -71,7 +71,7 @@ class Square(Transformation):
 
     def visit_BinOp(self, node):
         self.generic_visit(node)
-        if ASTMatcher(Square.POW_PATTERN).search(node):
+        if ASTMatcher(Square.POW_PATTERN).match(node):
             return self.replace(node.left)
         elif isinstance(node.op, ast.Pow) and isnum(node.right):
             n = node.right.value
@@ -84,7 +84,7 @@ class Square(Transformation):
 
     def visit_Call(self, node):
         self.generic_visit(node)
-        if ASTMatcher(Square.POWER_PATTERN).search(node):
+        if ASTMatcher(Square.POWER_PATTERN).match(node):
             return self.replace(node.args[0])
         else:
             return node

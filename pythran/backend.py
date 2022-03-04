@@ -678,8 +678,10 @@ class CxxFunction(ast.NodeVisitor):
         for stmt in node.body:
             is_assigned.update({n.id for n in self.gather(IsAssigned, stmt)})
 
-        nodes = ASTMatcher(pattern_range).search(node.iter)
-        if node.iter not in nodes or node.target.id in is_assigned:
+        match = ASTMatcher(pattern_range).match(node.iter)
+        if not match:
+            return False
+        if node.target.id in is_assigned:
             return False
 
         args = node.iter.args

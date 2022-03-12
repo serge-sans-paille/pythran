@@ -303,8 +303,24 @@ namespace types
     using shape_t = types::array<long, value>;
     using iterator = nditerator<numpy_texpr<broadcasted<E>>>;
     using const_iterator = const_nditerator<numpy_texpr<broadcasted<E>>>;
+    // FIXME: I've got the feeling that this could be improved
     static constexpr bool is_vectorizable = false;
     static constexpr bool is_strided = true;
+
+#ifdef USE_XSIMD
+    using simd_iterator = const_simd_nditerator<numpy_texpr<broadcasted<E>>>;
+    using simd_iterator_nobroadcast = simd_iterator;
+    template <class vectorizer>
+    simd_iterator vbegin(vectorizer) const
+    {
+      return {*this}; // not vectorized anyway
+    }
+    template <class vectorizer>
+    simd_iterator vend(vectorizer) const
+    {
+      return {*this}; // not vectorized anyway
+    }
+#endif
 
     broadcasted<E> arg;
     numpy_texpr() = default;

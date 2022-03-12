@@ -91,7 +91,7 @@ namespace types
   typename numpy_texpr_2<E>::simd_iterator
       numpy_texpr_2<E>::vend(vectorizer) const
   {
-    return {*this}; // ! vectorizable anyway
+    return {*this}; // not vectorizable anyway
   }
 #endif
 

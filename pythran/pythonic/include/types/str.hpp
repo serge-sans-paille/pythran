@@ -231,6 +231,7 @@ namespace types
   struct string_iterator : std::iterator<std::random_access_iterator_tag, str,
                                          std::ptrdiff_t, str *, str> {
     std::string::const_iterator curr;
+    string_iterator() = default;
     string_iterator(std::string::const_iterator iter) : curr(iter)
     {
     }

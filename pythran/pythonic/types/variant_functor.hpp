@@ -112,7 +112,7 @@ namespace types
     }
 
     template <class Type>
-    variant_functor_impl<Type>::~variant_functor_impl<Type>()
+    variant_functor_impl<Type>::~variant_functor_impl()
     {
       if (fun != nullptr)
         fun->~Type();

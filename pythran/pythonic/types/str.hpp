@@ -655,6 +655,38 @@ namespace types
   {
     return os << s.c_str();
   }
+
+  str operator*(str const &s, long n)
+  {
+    if (n <= 0)
+      return str();
+    str other;
+    other.resize(s.size() * n);
+    auto where = other.chars().begin();
+    for (long i = 0; i < n; i++, where += s.size())
+      std::copy(s.chars().begin(), s.chars().end(), where);
+    return other;
+  }
+
+  str operator*(long t, str const &s)
+  {
+    return s * t;
+  }
+
+  str operator*(chr const &s, long n)
+  {
+    if (n <= 0)
+      return str();
+    str other;
+    other.resize(n);
+    std::fill(other.chars().begin(), other.chars().end(), s.c);
+    return other;
+  }
+
+  str operator*(long t, chr const &c)
+  {
+    return c * t;
+  }
 }
 
 namespace operator_
@@ -685,38 +717,6 @@ namespace operator_
   }
 }
 PYTHONIC_NS_END
-
-pythonic::types::str operator*(pythonic::types::str const &s, long n)
-{
-  if (n <= 0)
-    return pythonic::types::str();
-  pythonic::types::str other;
-  other.resize(s.size() * n);
-  auto where = other.chars().begin();
-  for (long i = 0; i < n; i++, where += s.size())
-    std::copy(s.chars().begin(), s.chars().end(), where);
-  return other;
-}
-
-pythonic::types::str operator*(long t, pythonic::types::str const &s)
-{
-  return s * t;
-}
-
-pythonic::types::str operator*(pythonic::types::chr const &s, long n)
-{
-  if (n <= 0)
-    return pythonic::types::str();
-  pythonic::types::str other;
-  other.resize(n);
-  std::fill(other.chars().begin(), other.chars().end(), s.c);
-  return other;
-}
-
-pythonic::types::str operator*(long t, pythonic::types::chr const &c)
-{
-  return c * t;
-}
 
 namespace std
 {

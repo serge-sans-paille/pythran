@@ -134,6 +134,18 @@ def cxxid(name):
     return name + '_' * (name in cxx_keywords)
 
 
+def quote_cxxstring(s):
+    subs = (('\\', '\\\\'),
+            ('\n', '\\n'),
+            ('\r', '\\r'),
+            ('"', '\\"'),
+           )
+    quoted = s
+    for f, t in subs:
+        quoted = quoted.replace(f, t)
+    return quoted
+
+
 @contextmanager
 def pushpop(l, v):
     l.append(v)

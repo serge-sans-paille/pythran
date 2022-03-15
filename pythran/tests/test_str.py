@@ -54,6 +54,10 @@ class TestStr(TestEnv):
     def test_str_digits(self):
         self.run_test("def str_digits(): import string; return string.digits", str_digits=[])
 
+    def test_str_with_backslash(self):
+        self.run_test("def str_with_backslash(): return '''\h'''",
+                      str_with_backslash=[])
+
     def test_str_hexdigits(self):
         self.run_test("def str_hexdigits(): import string; return string.hexdigits", str_hexdigits=[])
 

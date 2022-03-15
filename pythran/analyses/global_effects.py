@@ -1,6 +1,7 @@
 """ GlobalEffects computes function effect on global state. """
 
 from pythran.analyses.aliases import Aliases
+from pythran.analyses.intrinsics import Intrinsics
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
@@ -10,34 +11,50 @@ import pythran.intrinsic as intrinsic
 import gast as ast
 from functools import reduce
 
+class FunctionEffect(object):
+    def __init__(self, node):
+        self.func = node
+        if isinstance(node, ast.FunctionDef):
+            self.global_effect = False
+        elif isinstance(node, intrinsic.Intrinsic):
+            self.global_effect = node.global_effects
+        elif isinstance(node, ast.alias):
+            self.global_effect = False
+        elif isinstance(node, str):
+            self.global_effect = False
+        elif isinstance(node, intrinsic.Class):
+            self.global_effect = False
+        elif isinstance(node, intrinsic.UnboundValueType):
+            self.global_effect = True  # conservative choice
+        else:
+            raise NotImplementedError
+
+# Compute the intrinsic effects only once
+IntrinsicGlobalEffects = {}
+
+def save_global_effects(module):
+    """ Recursively save globals effect for all functions. """
+    for intr in module.values():
+        if isinstance(intr, dict):  # Submodule case
+            save_global_effects(intr)
+        else:
+            fe = FunctionEffect(intr)
+            IntrinsicGlobalEffects[intr] = fe
+            if isinstance(intr, intrinsic.Class):
+                save_global_effects(intr.fields)
+
+for module in MODULES.values():
+    save_global_effects(module)
 
 class GlobalEffects(ModuleAnalysis):
 
     """Add a flag on each function that updates a global variable."""
 
-    class FunctionEffect(object):
-        def __init__(self, node):
-            self.func = node
-            if isinstance(node, ast.FunctionDef):
-                self.global_effect = False
-            elif isinstance(node, intrinsic.Intrinsic):
-                self.global_effect = node.global_effects
-            elif isinstance(node, ast.alias):
-                self.global_effect = False
-            elif isinstance(node, str):
-                self.global_effect = False
-            elif isinstance(node, intrinsic.Class):
-                self.global_effect = False
-            elif isinstance(node, intrinsic.UnboundValueType):
-                self.global_effect = True  # conservative choice
-            else:
-                print(type(node), node)
-                raise NotImplementedError
-
     def __init__(self):
         self.result = DiGraph()
         self.node_to_functioneffect = dict()
-        super(GlobalEffects, self).__init__(Aliases, GlobalDeclarations)
+        super(GlobalEffects, self).__init__(Aliases, GlobalDeclarations,
+                                            Intrinsics)
 
     def prepare(self, node):
         """
@@ -48,23 +65,18 @@ class GlobalEffects(ModuleAnalysis):
         """
         super(GlobalEffects, self).prepare(node)
 
-        def register_node(module):
-            """ Recursively save globals effect for all functions. """
-            for v in module.values():
-                if isinstance(v, dict):  # Submodule case
-                    register_node(v)
-                else:
-                    fe = GlobalEffects.FunctionEffect(v)
-                    self.node_to_functioneffect[v] = fe
-                    self.result.add_node(fe)
-                    if isinstance(v, intrinsic.Class):
-                        register_node(v.fields)
+        for i in self.intrinsics:
+            fe = IntrinsicGlobalEffects[i]
+            self.node_to_functioneffect[i] = fe
+            self.result.add_node(fe)
 
-        register_node(self.global_declarations)
-        for module in MODULES.values():
-            register_node(module)
+        for n in self.global_declarations.values():
+            fe = FunctionEffect(n)
+            self.node_to_functioneffect[n] = fe
+            self.result.add_node(fe)
+
         self.node_to_functioneffect[intrinsic.UnboundValue] = \
-            GlobalEffects.FunctionEffect(intrinsic.UnboundValue)
+            FunctionEffect(intrinsic.UnboundValue)
 
     def run(self, node):
         result = super(GlobalEffects, self).run(node)

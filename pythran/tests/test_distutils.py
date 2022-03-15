@@ -34,8 +34,10 @@ class TestDistutils(unittest.TestCase):
         libdir = os.path.join(base, 'lib')
         if not os.path.isdir(libdir):
             libdir = os.path.join(base, 'lib64')
-        check_call(['python', '-c', 'import demo'],
-                   cwd=os.path.join(libdir, python_version, 'site-packages'))
+        check_call(['python', '-c',
+                    'import sys; sys.path.append("{}"); import demo'.format(
+                        os.path.join(libdir, python_version,'site-packages')
+                    )])
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'demo_install'))
@@ -84,8 +86,9 @@ class TestDistutils(unittest.TestCase):
         libdir = os.path.join(base, 'lib')
         if not os.path.isdir(libdir):
             libdir = os.path.join(base, 'lib64')
-        check_call(['python', '-c', 'import demo2.a'],
-                   cwd=os.path.join(libdir, python_version, 'site-packages'))
+        check_call(['python', '-c',
+                    'import sys; sys.path.append("{}"); import demo2.a'.format(
+                        os.path.join(libdir, python_version, 'site-packages'))])
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils_packaged'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils_packaged', 'demo_install2'))
@@ -121,9 +124,12 @@ class TestDistutils(unittest.TestCase):
         libdir = os.path.join(base, 'lib')
         if not os.path.isdir(libdir):
             libdir = os.path.join(base, 'lib64')
-        check_call(['python', '-c', 'import a'],
-                   cwd=os.path.join(libdir, python_version, 'site-packages',
-                                    'demo3'))
+        check_call(['python', '-c',
+                    'import sys; sys.path.append("{}"); import a'.format(
+                        os.path.join(libdir, python_version, 'site-packages',
+                                     'demo3')
+                    )
+                   ])
         check_call(['python', 'setup.py', 'clean'],
                    cwd=os.path.join(cwd, 'test_distutils_numpy'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils_numpy', 'demo_install3'))

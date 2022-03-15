@@ -47,7 +47,8 @@ def attr_to_path(node):
             module, path = get_intrinsic_path(modules, attr.value)
             return module[attr.attr], path + (attr.attr,)
     obj, path = get_intrinsic_path(MODULES, node)
-    if not obj.isliteral():
+    # hasattr check because `obj` can be a dict (for modules)
+    if hasattr(obj, 'isliteral') and not obj.isliteral():
         path = path[:-1] + ('functor', path[-1])
     return obj, ('pythonic', ) + path
 

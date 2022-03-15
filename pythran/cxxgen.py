@@ -30,6 +30,7 @@ Generator for C/C++.
 from textwrap import dedent
 from pythran.tables import pythran_ward
 from pythran.spec import signatures_to_string
+from pythran.utils import quote_cxxstring
 
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
@@ -465,9 +466,7 @@ class PythonModule(object):
         self.metadata['moduledoc'] = moduledoc
 
     def docstring(self, doc):
-        return self.splitstring(dedent(doc).replace('"', '\\"')
-                                           .replace('\n', '\\n')
-                                           .replace('\r', '\\r'))
+        return self.splitstring(quote_cxxstring(dedent(doc)))
 
     def splitstring(self, doc):
         return '"{}"'.format('\\n""'.join(doc.split('\\n')))

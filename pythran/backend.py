@@ -21,7 +21,7 @@ from pythran.tables import pythran_ward, attributes as attributes_table
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE, TYPE_TO_SUFFIX
 from pythran.types.types import Types
 from pythran.utils import attr_to_path, pushpop, cxxid, isstr, isnum
-from pythran.utils import isextslice, ispowi
+from pythran.utils import isextslice, ispowi, quote_cxxstring
 from pythran import metadata, unparse
 
 from math import isnan, isinf
@@ -975,7 +975,7 @@ class CxxFunction(ast.NodeVisitor):
         elif isinstance(node.value, bool):
             ret = str(node.value).lower()
         elif isinstance(node.value, str):
-            quoted = node.value.replace('"', r'\"').replace('\n', r'\n')
+            quoted = quote_cxxstring(node.value)
             if len(node.value) == 1:
                 quoted = quoted.replace("'", r"\'")
                 ret = 'pythonic::types::chr(\'' + quoted + '\')'

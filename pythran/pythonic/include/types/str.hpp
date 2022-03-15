@@ -324,7 +324,6 @@ namespace types
   str operator*(long t, str const &s);
   str operator*(chr const &s, long n);
   str operator*(long t, chr const &s);
-
 }
 
 namespace operator_

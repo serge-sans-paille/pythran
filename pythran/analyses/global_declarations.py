@@ -1,14 +1,7 @@
 """ GlobalDeclarations gathers top-level declarations. """
 
+import gast as ast
 from pythran.passmanager import ModuleAnalysis
-from beniget import DefUseChains
-
-
-class SilentDefUseChains(DefUseChains):
-
-    def unbound_identifier(self, name, node):
-        pass
-
 
 class GlobalDeclarations(ModuleAnalysis):
 
@@ -35,9 +28,18 @@ class GlobalDeclarations(ModuleAnalysis):
         self.result = dict()
         super(GlobalDeclarations, self).__init__()
 
-    def visit_Module(self, node):
+    def visit_FunctionDef(self, node):
         """ Import module define a new variable name. """
-        duc = SilentDefUseChains()
-        duc.visit(node)
-        self.result = {d.name(): d.node
-                       for d in duc.locals[node]}
+        self.result[node.name] = node
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            self.result[alias.asname or alias.name] = alias
+
+    def visit_ImportFrom(self, node):
+        for alias in node.names:
+            self.result[alias.asname or alias.name] = alias
+
+    def visit_Name(self, node):
+        if isinstance(node.ctx, ast.Store):
+            self.result[node.id] = node

@@ -3,8 +3,6 @@ Ancestors computes the ancestors of each node
 """
 
 from pythran.passmanager import ModuleAnalysis
-from pythran.utils import pushpop
-
 
 class Ancestors(ModuleAnalysis):
     '''
@@ -17,13 +15,14 @@ class Ancestors(ModuleAnalysis):
 
     def __init__(self):
         self.result = dict()
-        self.current = list()
+        self.current = tuple()
         super(Ancestors, self).__init__()
 
     def generic_visit(self, node):
-        self.result[node] = list(self.current)
-        with pushpop(self.current, node):
-            super(Ancestors, self).generic_visit(node)
+        self.result[node] = current = self.current
+        self.current += node,
+        super(Ancestors, self).generic_visit(node)
+        self.current = current
 
 
 class AncestorsWithBody(Ancestors):
@@ -34,42 +33,47 @@ class AncestorsWithBody(Ancestors):
 
     def visit_body(self, body):
         body_as_tuple = tuple(body)
-        self.result[body_as_tuple] = list(self.current)
-        with pushpop(self.current, body_as_tuple):
-            for stmt in body:
-                self.generic_visit(stmt)
+        self.result[body_as_tuple] = current = self.current
+        self.current += body_as_tuple,
+        for stmt in body:
+            self.generic_visit(stmt)
+        self.current = current
 
     def visit_If(self, node):
-        self.result[node] = list(self.current)
-        with pushpop(self.current, node):
-            self.generic_visit(node.test)
-            self.visit_metadata(node)
-            self.visit_body(node.body)
-            self.visit_body(node.orelse)
+        self.result[node] = current = self.current
+        self.current += node,
+        self.generic_visit(node.test)
+        self.visit_metadata(node)
+        self.visit_body(node.body)
+        self.visit_body(node.orelse)
+        self.current = current
 
     def visit_While(self, node):
-        self.result[node] = list(self.current)
-        with pushpop(self.current, node):
-            self.generic_visit(node.test)
-            self.visit_metadata(node)
-            self.visit_body(node.body)
-            self.visit_body(node.orelse)
+        self.result[node] = current = self.current
+        self.current += node,
+        self.generic_visit(node.test)
+        self.visit_metadata(node)
+        self.visit_body(node.body)
+        self.visit_body(node.orelse)
+        self.current = current
 
     def visit_For(self, node):
-        self.result[node] = list(self.current)
-        with pushpop(self.current, node):
-            self.generic_visit(node.target)
-            self.generic_visit(node.iter)
-            self.visit_metadata(node)
-            self.visit_body(node.body)
-            self.visit_body(node.orelse)
+        self.result[node] = current = self.current
+        self.current += node,
+        self.generic_visit(node.target)
+        self.generic_visit(node.iter)
+        self.visit_metadata(node)
+        self.visit_body(node.body)
+        self.visit_body(node.orelse)
+        self.current = current
 
     def visit_Try(self, node):
-        self.result[node] = list(self.current)
-        with pushpop(self.current, node):
-            self.visit_metadata(node)
-            self.visit_body(node.body)
-            for handler in node.handlers:
-                self.generic_visit(handler)
-            self.visit_body(node.orelse)
-            self.visit_body(node.finalbody)
+        self.result[node] = current = self.current
+        self.current += node,
+        self.visit_metadata(node)
+        self.visit_body(node.body)
+        for handler in node.handlers:
+            self.generic_visit(handler)
+        self.visit_body(node.orelse)
+        self.visit_body(node.finalbody)
+        self.current = current

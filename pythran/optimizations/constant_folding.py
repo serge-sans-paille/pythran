@@ -58,6 +58,7 @@ class ConstantFolding(Transformation):
         dummy_module = ast.Module([s for s in node.body
                                    if not isinstance(s, ast.Import)],
                                   [])
+        ast.fix_missing_locations(dummy_module)
         eval(compile(ast.gast_to_ast(dummy_module),
                      '<constant_folding>', 'exec'),
              self.env)
@@ -84,6 +85,7 @@ class ConstantFolding(Transformation):
     def generic_visit(self, node):
         if isinstance(node, ast.expr) and node in self.constant_expressions:
             fake_node = ast.Expression(node)
+            ast.fix_missing_locations(fake_node)
             code = compile(ast.gast_to_ast(fake_node),
                            '<constant folding>', 'eval')
             try:

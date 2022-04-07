@@ -192,7 +192,6 @@ class Transformation(ContextManager, ast.NodeTransformer):
         # some analyses as `unmodified' by the transformation, as done in LLVM
         # (and PIPS ;-)
         if self.update:
-            ast.fix_missing_locations(n)
             self.passmanager._cache.clear()
         return n
 

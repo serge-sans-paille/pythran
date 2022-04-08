@@ -283,7 +283,7 @@ class StrJoinPattern(Pattern):
             keywords=[])
 
 
-know_pattern = [x for x in globals().values() if hasattr(x, "pattern")]
+know_patterns = [x for x in globals().values() if hasattr(x, "pattern")]
 
 
 class PlaceholderReplace(Transformation):
@@ -321,13 +321,27 @@ class PatternTransform(Transformation):
         node.body = self.extra_imports + node.body
         return node
 
-    def visit(self, node):
-        """ Try to replace if node match the given pattern or keep going. """
-        for pattern in know_pattern:
+    def apply_patterns(self, node, patterns):
+        for pattern in patterns:
             matcher = pattern()
             if matcher.match(node):
                 self.extra_imports.extend(matcher.imports())
                 node = matcher.replace()
                 self.update = True
+        return self.generic_visit(node)
 
-        return super(PatternTransform, self).visit(node)
+    CallPatterns = ()
+    def visit_Call(self, node):
+        return self.apply_patterns(node, PatternTransform.CallPatterns)
+
+    BinOpPatterns = ()
+    def visit_BinOp(self, node):
+        return self.apply_patterns(node, PatternTransform.BinOpPatterns)
+
+
+for known_pattern in know_patterns:
+    pattern_selector = type(known_pattern.pattern).__name__
+    attr_name = "{}Patterns".format(pattern_selector)
+    setattr(PatternTransform, attr_name,
+            getattr(PatternTransform, attr_name) + (known_pattern,))
+

@@ -53,6 +53,8 @@ class ArgumentEffects(ModuleAnalysis):
     """Gathers inter-procedural effects on function arguments."""
 
     def __init__(self):
+        # There's an edge between src and dest if a parameter of dest is
+        # modified by src
         self.result = DiGraph()
         self.node_to_functioneffect = {}
         super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations,
@@ -85,8 +87,8 @@ class ArgumentEffects(ModuleAnalysis):
                 update_effect_idx, update_effect = ue
                 if not update_effect:
                     continue
-                for pred in result.predecessors(function):
-                    edge = result.edges[pred, function]
+                for pred in result.successors(function):
+                    edge = result.edges[function, pred]
                     for fp in enumerate(edge["formal_parameters"]):
                         i, formal_parameter_idx = fp
                         # propagate the impurity backward if needed.
@@ -184,14 +186,13 @@ class ArgumentEffects(ModuleAnalysis):
                     else:
                         fe = self.node_to_functioneffect[func_alias]
 
-                    predecessors = self.result.predecessors(fe)
-                    if self.current_function not in predecessors:
+                    if not self.result.has_edge(fe, self.current_function):
                         self.result.add_edge(
-                            self.current_function,
                             fe,
+                            self.current_function,
                             effective_parameters=[],
                             formal_parameters=[])
-                    edge = self.result.edges[self.current_function, fe]
+                    edge = self.result.edges[fe, self.current_function]
                     edge["effective_parameters"].append(n)
                     edge["formal_parameters"].append(i)
         self.generic_visit(node)

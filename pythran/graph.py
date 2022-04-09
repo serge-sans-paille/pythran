@@ -29,6 +29,9 @@ class DiGraph(object):
     def edges(self):
         return self._edges
 
+    def has_edge(self, src, dest):
+        return dest in self._adjacency[src]
+
     def remove_edge(self, src, dest):
         self._adjacency[src].remove(dest)
         del self._edges[(src, dest)]

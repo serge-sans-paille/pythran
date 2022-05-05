@@ -16,6 +16,8 @@ import sys
 import os
 import re
 
+sys.path.insert(0, os.path.abspath('..'))
+
 from pythran import __version__
 
 with open("../README.rst") as readme:

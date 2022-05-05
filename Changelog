@@ -8,7 +8,7 @@
 
 	* Support more complex transpose expression
 
-	* Honor quotes in config files for *FLAGS
+	* Honor quotes in config files for cflags, ldflags etc
 
 	* Add pythran option -ftime-report to print out the time spent on optimizations
 	* Support isinstance when second argument is a tuple

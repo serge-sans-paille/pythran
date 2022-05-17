@@ -423,7 +423,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
             logger.warning("Compilation error, "
                            "trying hard to find its origin...")
             error_checker()
-            logger.warning("Nop, I'm going to flood you with C++ errors!")
+            logger.warning("Nope, I'm going to flood you with C++ errors!")
             raise
 
     return output_file

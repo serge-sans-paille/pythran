@@ -7,7 +7,7 @@ PYTHONIC_NS_BEGIN
 
 namespace string
 {
-  types::str constexpr digits("0123456789");
+  static types::str const digits("0123456789");
 }
 PYTHONIC_NS_END
 

@@ -13,7 +13,7 @@ namespace numpy
   template <class Iterable, class dtype>
   types::ndarray<typename std::remove_cv<typename std::remove_reference<
                      Iterable>::type>::type::value_type,
-                 1>
+                 types::pshape<long>>
   fromiter(Iterable &&iterable, dtype d, long count)
   {
     using T = typename std::remove_cv<

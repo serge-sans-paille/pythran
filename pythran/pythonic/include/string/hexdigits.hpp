@@ -7,7 +7,7 @@ PYTHONIC_NS_BEGIN
 
 namespace string
 {
-  types::str constexpr hexdigits("0123456789abcdefABCDEF");
+  static types::str const hexdigits("0123456789abcdefABCDEF");
 }
 PYTHONIC_NS_END
 

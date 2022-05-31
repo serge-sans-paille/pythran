@@ -7,7 +7,7 @@ PYTHONIC_NS_BEGIN
 
 namespace string
 {
-  types::str constexpr ascii_lowercase("abcdefghijklmnopqrstuvwxyz");
+  static types::str const ascii_lowercase("abcdefghijklmnopqrstuvwxyz");
 }
 PYTHONIC_NS_END
 

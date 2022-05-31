@@ -16,13 +16,15 @@ from pythran.types.reorder import Reorder
 from pythran.utils import attr_to_path, cxxid, isnum, isextslice, ispowi
 
 from collections import defaultdict
-from functools import partial
+from functools import partial, reduce
 import gast as ast
 import operator
-from functools import reduce
+from itertools import islice
 from copy import deepcopy
 import types
 
+
+MAX_ELTS = 8
 
 class UnboundableRValue(Exception):
     pass
@@ -571,7 +573,7 @@ class Types(ModuleAnalysis):
         """ Define list type from all elements type (or empty_list type). """
         self.generic_visit(node)
         if node.elts:
-            for elt in node.elts:
+            for elt in node.elts[:MAX_ELTS]:
                 self.combine(node, elt, unary_op=self.builder.ListType)
         else:
             self.result[node] = self.builder.NamedType(
@@ -581,7 +583,7 @@ class Types(ModuleAnalysis):
         """ Define set type from all elements type (or empty_set type). """
         self.generic_visit(node)
         if node.elts:
-            for elt in node.elts:
+            for elt in node.elts[:MAX_ELTS]:
                 self.combine(node, elt, unary_op=self.builder.SetType)
         else:
             self.result[node] = self.builder.NamedType(
@@ -591,7 +593,7 @@ class Types(ModuleAnalysis):
         """ Define set type from all elements type (or empty_dict type). """
         self.generic_visit(node)
         if node.keys:
-            for key, value in zip(node.keys, node.values):
+            for key, value in islice(zip(node.keys, node.values), MAX_ELTS):
                 value_type = self.result[value]
                 self.combine(node, key,
                              unary_op=partial(self.builder.DictType,

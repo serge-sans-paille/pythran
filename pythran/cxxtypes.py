@@ -256,7 +256,7 @@ std::declval<bool>()))
                 # In that case try hard to recover by cutting the tree
                 import sys
                 current_recursion_limit = sys.getrecursionlimit()
-                stypes = []
+                stypes = ordered_set()
                 for t in self.types:
                     try:
                         stypes.append(ctx(t))

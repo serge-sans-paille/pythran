@@ -45,7 +45,7 @@ def reconstruction_loop(ranks, prev, next, strides, current_idx, image_stride):
     while current_idx != -1:
         if current_idx < image_stride:
             current_rank = ranks[current_idx]
-            if current_rank == 0:
+            if not current_rank:
                 break
             for i in range(nstrides):
                 neighbor_idx = current_idx + strides[i]

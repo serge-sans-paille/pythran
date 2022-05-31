@@ -57,7 +57,7 @@ class Types(ModuleAnalysis):
         self.curr_locals_declaration = None
 
     def combined(self, *types):
-        if len(types) == 1:
+        if len(set(types)) == 1:
             return next(iter(types))
         return self.builder.CombinedTypes(*types)
 
@@ -148,15 +148,13 @@ class Types(ModuleAnalysis):
                 self.result[node] = self.builder.UnknownType
             return
 
+        kwargs = {'op': op or operator.add,
+                  'unary_op': unary_op or (lambda x: x),
+                  'register': register}
+        self.combine_(node, othernode, **kwargs)
         if aliasing_type:
-            self.combine_(node, othernode, op or operator.add,
-                          unary_op or (lambda x: x), register)
             for a in self.strict_aliases[node]:
-                self.combine_(a, othernode, op or operator.add,
-                              unary_op or (lambda x: x), register)
-        else:
-            self.combine_(node, othernode, op or operator.add,
-                          unary_op or (lambda x: x), register)
+                self.combine_(a, othernode, **kwargs)
 
     def combine_(self, node, othernode, op, unary_op, register):
         try:

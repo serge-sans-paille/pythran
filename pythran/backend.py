@@ -116,11 +116,9 @@ class CachedTypeVisitor:
 
     def __init__(self, other=None):
         if other is None:
-            self.cache = dict()
             self.rcache = dict()
             self.mapping = dict()
         else:
-            self.cache = other.cache.copy()
             self.rcache = other.rcache.copy()
             self.mapping = other.mapping.copy()
 
@@ -130,22 +128,17 @@ class CachedTypeVisitor:
             if node not in self.mapping:
                 if t in self.rcache:
                     self.mapping[node] = self.mapping[self.rcache[t]]
-                    self.cache[node] = self.cache[self.rcache[t]]
                 else:
                     self.rcache[t] = node
                     self.mapping[node] = len(self.mapping)
-                    self.cache[node] = t
         return "__type{0}".format(self.mapping[node])
 
     def typedefs(self):
-        kv = sorted(self.mapping.items(), key=lambda x: x[1])
+        kv = sorted(self.rcache.items(), key=lambda x: self.mapping[x[1]])
         L = list()
-        visited = set()  # the same value must not be typedefed twice
         for k, v in kv:
-            if v not in visited:
-                typename = "__type" + str(v)
-                L.append(Typedef(Value(self.cache[k], typename)))
-                visited.add(v)
+            typename = "__type" + str(self.mapping[v])
+            L.append(Typedef(Value(k, typename)))
         return L
 
 

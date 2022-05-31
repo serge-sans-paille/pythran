@@ -955,10 +955,10 @@ class CxxFunction(ast.NodeVisitor):
             attr = 'pythonic::types::attr::' + attrname.upper()
             if attributes_table[attrname][1].isstatic() and node in self.immediates:
                 # ugly hack to ensure constexprness of the call
-                scall = fmt.format(attr, '*(decltype(&{}))nullptr'.format(args[0]))
-                result = 'std::integral_constant<long, {0}>()'.format(scall)
+                arg = '(decltype(&{}))nullptr'.format(args[0])
             else:
-                result = fmt.format(attr, args[0])
+                arg = args[0]
+            result = fmt.format(attr, arg)
         else:
             result = "{}({})".format(func, ", ".join(args))
 

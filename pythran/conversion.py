@@ -75,11 +75,24 @@ def size_container_folding(value):
             return ast.Dict(keys, values)
         elif isinstance(value, np.ndarray):
             if len(value) == 0:
+                shp = to_ast(value.shape)
+                shp = ast.Call(
+                    ast.Attribute(
+                        ast.Attribute(
+                            ast.Name(mangle('builtins'), ast.Load(),
+                                     None, None),
+                            'pythran',
+                            ast.Load()),
+                        'make_shape',
+                        ast.Load()
+                    ),
+                    args=getattr(shp, 'elts', [shp]),
+                    keywords=[])
                 return ast.Call(func=ast.Attribute(
                     ast.Name(mangle('numpy'), ast.Load(), None, None),
                     'empty',
                     ast.Load()),
-                    args=[to_ast(value.shape),
+                    args=[shp,
                           dtype_to_ast(value.dtype.name)],
                     keywords=[])
             else:
@@ -101,7 +114,10 @@ def builtin_folding(value):
     if isinstance(value, (type(None), bool)):
         name = str(value)
     else:
-        name = value.__name__
+        try:
+            name = value.__name__
+        except AttributeError:
+            raise ToNotEval()
     return ast.Attribute(ast.Name('builtins', ast.Load(), None, None),
                          name, ast.Load())
 
@@ -119,14 +135,14 @@ def to_ast(value):
     """
 
     if any(value is t for t in (bool, int, float)):
-        iinfo = np.iinfo(int)
-        if isinstance(value, int) and not (iinfo.min <= value <= iinfo.max):
-            from pythran.syntax import PythranSyntaxError
-            raise PythranSyntaxError("constant folding results in big int")
         return builtin_folding(value)
     elif isinstance(value, np.generic):
         return to_ast(value.item())
     elif isinstance(value, (numbers.Number, str, bool, type(None))):
+        iinfo = np.iinfo(int)
+        if isinstance(value, int) and not (iinfo.min <= value <= iinfo.max):
+            from pythran.syntax import PythranSyntaxError
+            raise PythranSyntaxError("constant folding results in big int")
         return ast.Constant(value, None)
     elif isinstance(value, (list, tuple, set, dict, np.ndarray)):
         return size_container_folding(value)

@@ -846,6 +846,10 @@ namespace builtins
   constexpr long getattr(types::attr::NDIM, E const &a);
 
   template <class E>
+  std::integral_constant<long, E::value> getattr(types::attr::NDIM,
+                                                 E *const &a);
+
+  template <class E>
   types::array<long, E::value> getattr(types::attr::STRIDES, E const &a);
 
   template <class E>
@@ -853,6 +857,10 @@ namespace builtins
 
   template <class E>
   constexpr long getattr(types::attr::ITEMSIZE, E const &a);
+
+  template <class E>
+  std::integral_constant<long, sizeof(typename E::dtype)>
+  getattr(types::attr::ITEMSIZE, E *const &a);
 
   template <class E>
   long getattr(types::attr::NBYTES, E const &a);

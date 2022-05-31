@@ -7,9 +7,8 @@ PYTHONIC_NS_BEGIN
 
 namespace string
 {
-
-  types::str constexpr ascii_letters(
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  static types::str const
+      ascii_letters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 }
 PYTHONIC_NS_END
 

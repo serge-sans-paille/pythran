@@ -2,6 +2,7 @@
 
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
+from pythran.conversion import mangle
 
 import pythran.metadata as metadata
 
@@ -30,6 +31,14 @@ class RemoveComprehension(Transformation):
     def __init__(self):
         self.count = 0
         Transformation.__init__(self)
+
+    def visit_Module(self, node):
+        self.has_dist_comp = False
+        self.generic_visit(node)
+        if self.has_dist_comp:
+            node.body.insert(0, ast.Import([ast.alias('__dispatch__',
+                                                      mangle('__dispatch__'))]))
+        return node
 
     @staticmethod
     def nest_reducer(x, g):
@@ -136,7 +145,9 @@ class RemoveComprehension(Transformation):
             [ast.Tuple([node.key, node.value], ast.Load())],
             ast.Load()
             )
-        return self.visit_AnyComp(node, "dict", "__dispatch__", "update")
+        self.has_dist_comp = True
+        return self.visit_AnyComp(node,
+                                  "dict", mangle("__dispatch__"), "update")
 
     def visit_GeneratorExp(self, node):
         self.update = True

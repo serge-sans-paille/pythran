@@ -5,6 +5,7 @@ from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import MODULES
 
+import builtins
 import gast as ast
 
 
@@ -28,13 +29,14 @@ class ExpandBuiltins(Transformation):
 
     def visit_NameConstant(self, node):
         self.update = True
-        return ast.Attribute(
-            ast.Name('builtins', ast.Load(), None, None),
-            str(node.value),
-            ast.Load())
+        return ast.Constant(node.value, None)
 
     def visit_Name(self, node):
         s = node.id
+        if s in ('None', 'True', 'False'):
+            self.update = True
+            return ast.Constant(getattr(builtins, s), None)
+
         if(isinstance(node.ctx, ast.Load) and
            s not in self.locals[node] and
            s not in self.globals and

@@ -22,12 +22,8 @@ struct __combined<T> {
 };
 
 template <class T0, class T1, class T2, class... Types>
-struct __combined<T0, T1, T2, Types...> {
-  // This is less efficient that doing a binary split, but it's not equivalent
-  // as the lhs dominates the rhs (a.k.a __combined is neither commutative nor
-  // associative)
-  using type = typename __combined<typename __combined<T0, T1>::type, T2,
-                                   Types...>::type;
+struct __combined<T0, T1, T2, Types...>
+    : __combined<typename __combined<T0, T1>::type, T2, Types...> {
 };
 
 template <class T0, class T1>

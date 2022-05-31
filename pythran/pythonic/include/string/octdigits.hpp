@@ -7,7 +7,7 @@ PYTHONIC_NS_BEGIN
 
 namespace string
 {
-  types::str constexpr octdigits("01234567");
+  static types::str const octdigits("01234567");
 }
 PYTHONIC_NS_END
 

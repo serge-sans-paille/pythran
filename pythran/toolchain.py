@@ -451,7 +451,7 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
     Specify the output file:
 
     >>> import sysconfig
-    >>> ext = sysconfig.get_config_vars()["SO"]
+    >>> ext = sysconfig.get_config_vars()["EXT_SUFFIX"]
     >>> so_path = compile_pythranfile('pythran_test.py', output_file='foo'+ext)
     """
     if not output_file:

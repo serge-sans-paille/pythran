@@ -1,5 +1,7 @@
 """ Check the random module behavior. """
 from pythran.tests import TestEnv
+from unittest import skipIf
+import sys
 
 
 @TestEnv.module
@@ -109,6 +111,7 @@ class TestRandom(TestEnv):
             return r != list(range(n)) and sorted(r) == list(range(n))""",
                       10, shuffle1=[int])
 
+    @skipIf(sys.version_info >= (3, 11), "no shuffler option since 3.11")
     def test_shuffle2(self):
         """ Check shuffling with custom function. """
         self.run_test("""
@@ -119,6 +122,7 @@ class TestRandom(TestEnv):
             return r != list(range(n)) and sorted(r) == list(range(n))""",
                       10 ** 4, shuffle2=[int])
 
+    @skipIf(sys.version_info >= (3, 11), "no shuffler option since 3.11")
     def test_shuffle3(self):
         """ Check shuffling with random function. """
         self.run_test("""

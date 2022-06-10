@@ -848,10 +848,10 @@ class RangeValues(RangeValuesBase):
 
     def function_visitor(self, node):
         parent_result = self.result
-        self.result = defaultdict(lambda: UNKNOWN_RANGE)
-        for k, v in parent_result.items():
-            if isinstance(k, ast.FunctionDef):
-                self.result[k] = v
+        self.result = defaultdict(
+            lambda: UNKNOWN_RANGE,
+            [(k, v) for k, v in parent_result.items()
+             if isinstance(k, ast.FunctionDef)])
 
         # try to visit the cfg, it's greedy but more accurate
         try:

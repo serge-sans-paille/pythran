@@ -22,6 +22,24 @@ class UnboundIdentifierError(RuntimeError):
     pass
 
 
+class DictLayer(object):
+    def __init__(self, base, layer=None):
+        self.base = base
+        self.layer = dict() if layer is None else layer
+
+    def __getitem__(self, key):
+        return (self.layer if key in self.layer else self.base)[key]
+
+    def __contains__(self, key):
+        return (key in self.layer) or (key in self.base)
+
+    def __setitem__(self, key, value):
+        self.layer[key] = value
+
+    def get(self, key, default=None):
+        return self.layer.get(key, self.base.get(key, default))
+
+
 class ContainerOf(object):
     '''
     Represents a container of something
@@ -710,44 +728,55 @@ class Aliases(ModuleAnalysis):
 
         # first try the true branch
         try:
-            tmp = self.aliases.copy()
+            self.aliases = DictLayer(self.aliases)
             for stmt in node.body:
                 self.visit(stmt)
             true_aliases = self.aliases
-            self.aliases = tmp
         except UnboundIdentifierError:
             pass
+        finally:
+            self.aliases = self.aliases.base
 
         # then try the false branch
         try:
+            self.aliases = DictLayer(self.aliases)
             for stmt in node.orelse:
                 self.visit(stmt)
             false_aliases = self.aliases
         except UnboundIdentifierError:
             pass
+        finally:
+            self.aliases = self.aliases.base
 
         if true_aliases and not false_aliases:
-            self.aliases = true_aliases
+            self.aliases = DictLayer(true_aliases)
             for stmt in node.orelse:
                 self.visit(stmt)
             false_aliases = self.aliases
+            self.aliases = self.aliases.base
 
         if false_aliases and not true_aliases:
-            self.aliases = false_aliases
+            self.aliases = DictLayer(false_aliases)
             for stmt in node.body:
                 self.visit(stmt)
             true_aliases = self.aliases
+            self.aliases = self.aliases.base
 
         # merge the results from true and false branches
-        if false_aliases and true_aliases:
-            for k, v in true_aliases.items():
-                if k in self.aliases:
-                    self.aliases[k] = self.aliases[k].union(v)
-                else:
-                    assert isinstance(v, (frozenset, set))
-                    self.aliases[k] = v
-        elif true_aliases:
-            self.aliases = true_aliases
+        for k, v in true_aliases.layer.items():
+            if k in false_aliases.layer:
+                self.aliases[k] = v.union(false_aliases[k])
+            elif k in self.aliases:
+                self.aliases[k] = v.union(self.aliases[k])
+            else:
+                self.aliases[k] = v
+        for k, v in false_aliases.layer.items():
+            if k in true_aliases.layer:
+                pass  # already done
+            elif k in self.aliases:
+                self.aliases[k] = v.union(self.aliases[k])
+            else:
+                self.aliases[k] = v
 
     def visit_ExceptHandler(self, node):
         if node.name:

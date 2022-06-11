@@ -45,26 +45,15 @@ class ContainerOf(object):
     Represents a container of something
 
     We just know that if indexed by the integer value `index',
-    we get `containee'
+    we get `containees'
     '''
     UnknownIndex = float('nan')
 
-    __slots__ = 'index', 'containee'
+    __slots__ = 'index', 'containees'
 
-    cache = {}
-
-    def __new__(cls, *args, **kwargs):
-        # cache the creation of new objects, so that same keys give same id
-        # thus great hashing
-        key = tuple(args), tuple(kwargs.items())
-        if key not in ContainerOf.cache:
-            new_obj = super(ContainerOf, cls).__new__(cls)
-            ContainerOf.cache[key] = new_obj
-        return ContainerOf.cache[key]
-
-    def __init__(self, containee, index=UnknownIndex):
+    def __init__(self, containees, index=UnknownIndex):
         self.index = index
-        self.containee = containee
+        self.containees = containees
 
 
 def save_intrinsic_alias(module):
@@ -95,14 +84,19 @@ class Aliases(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.aliases = None
-        ContainerOf.cache.clear()
         super(Aliases, self).__init__(GlobalDeclarations)
 
     @staticmethod
     def dump(result, filter=None):
         def pp(n):
             output = io.StringIO()
-            Unparser(n, output)
+            if isinstance(n, ContainerOf):
+                if n.index == n.index:  # always valid except for UnknownIndex
+                    output.write('[{}]='.format(n.index))
+                containees = sorted(map(pp, n.containees))
+                output.write(', '.join(map("|{}|".format, containees)))
+            else:
+                Unparser(n, output)
             return output.getvalue().strip()
 
         if isinstance(result, dict):
@@ -204,7 +198,7 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse('def foo(a, b): return {0: a, 1: b}')
         >>> result = pm.gather(Aliases, module)
         >>> Aliases.dump(result, filter=ast.Dict)
-        {0: a, 1: b} => ['|a|', '|b|']
+        {0: a, 1: b} => ['|a|, |b|']
 
         where the |id| notation means something that may contain ``id``.
         '''
@@ -213,10 +207,11 @@ class Aliases(ModuleAnalysis):
             for key, val in zip(node.keys, node.values):
                 self.visit(key)  # res ignored, just to fill self.aliases
                 elt_aliases = self.visit(val)
-                elts_aliases.update(map(ContainerOf, elt_aliases))
+                elts_aliases.update(elt_aliases)
+            aliases = {ContainerOf(elts_aliases)}
         else:
-            elts_aliases = None
-        return self.add(node, elts_aliases)
+            aliases = None
+        return self.add(node, aliases)
 
     def visit_Set(self, node):
         '''
@@ -227,14 +222,14 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse('def foo(a, b): return {a, b}')
         >>> result = pm.gather(Aliases, module)
         >>> Aliases.dump(result, filter=ast.Set)
-        {a, b} => ['|a|', '|b|']
+        {a, b} => ['|a|, |b|']
 
         where the |id| notation means something that may contain ``id``.
         '''
         if node.elts:
-            elts_aliases = {ContainerOf(alias)
+            elts_aliases = {ContainerOf({alias
                             for elt in node.elts
-                            for alias in self.visit(elt)}
+                            for alias in self.visit(elt)})}
         else:
             elts_aliases = None
         return self.add(node, elts_aliases)
@@ -289,15 +284,13 @@ class Aliases(ModuleAnalysis):
             arg_aliases = [self.result[arg] or {arg} for arg in args]
             return_aliases = set()
             for args_combination in product(*arg_aliases):
-                return_aliases.update(
-                    func.return_alias(args_combination))
-            return {expand_subscript(ra) for ra in return_aliases}
-
-        def expand_subscript(node):
-            if isinstance(node, ast.Subscript):
-                if isinstance(node.value, ContainerOf):
-                    return node.value.containee
-            return node
+                for ra in func.return_alias(args_combination):
+                    if isinstance(ra, ast.Subscript):
+                        if isinstance(ra.value, ContainerOf):
+                            return_aliases.update(ra.value.containees)
+                            continue
+                    return_aliases.add(ra)
+            return return_aliases
 
         def full_args(func, call):
             args = call.args
@@ -332,7 +325,9 @@ class Aliases(ModuleAnalysis):
                     aliases.update(interprocedural_aliases(func_alias, args))
                 else:
                     pass  # better thing to do ?
-        [self.add(a) for a in aliases if a not in self.result]
+        for a in aliases:
+            if a not in self.result:
+                self.add(a)
         return aliases or self.get_unbound_value_set()
 
     def visit_Call(self, node):
@@ -461,7 +456,7 @@ class Aliases(ModuleAnalysis):
                         if node.slice.value != alias.index:
                             continue
                     # FIXME: what if the index is a slice variable...
-                    aliases.add(alias.containee)
+                    aliases.update(alias.containees)
                 elif isinstance(getattr(alias, 'ctx', None), (ast.Param,
                                                               ast.Store)):
                     aliases.add(ast.Subscript(alias, node.slice, node.ctx))
@@ -490,20 +485,19 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse('def foo(a, b): return a, b')
         >>> result = pm.gather(Aliases, module)
         >>> Aliases.dump(result, filter=ast.Tuple)
-        (a, b) => ['|[0]=a|', '|[1]=b|']
+        (a, b) => ['[0]=|a|', '[1]=|b|']
 
         where the |[i]=id| notation means something that
         may contain ``id`` at index ``i``.
         '''
         if node.elts:
-            elts_aliases = set()
+            aliases = set()
             for i, elt in enumerate(node.elts):
                 elt_aliases = self.visit(elt)
-                elts_aliases.update(ContainerOf(alias, i)
-                                    for alias in elt_aliases)
+                aliases.add(ContainerOf(elt_aliases, i))
         else:
-            elts_aliases = None
-        return self.add(node, elts_aliases)
+            aliases = None
+        return self.add(node, aliases)
 
     visit_List = visit_Set
 
@@ -575,11 +569,10 @@ class Aliases(ModuleAnalysis):
                 if isinstance(exp, (ast.Constant, Intrinsic, ast.FunctionDef)):
                     return lambda _: {exp}
                 elif isinstance(exp, ContainerOf):
-                    pcontainee = parametrize(exp.containee)
                     index = exp.index
                     return lambda args: {
-                        ContainerOf(pc, index)
-                        for pc in pcontainee(args)
+                        ContainerOf({pc for containee in exp.containees for pc
+                                     in parametrize(containee)(args)}, index)
                     }
                 elif isinstance(exp, ast.Name):
                     try:
@@ -668,13 +661,14 @@ class Aliases(ModuleAnalysis):
         ...         {i}""")
         >>> result = pm.gather(Aliases, module)
         >>> Aliases.dump(result, filter=ast.Set)
-        {i} => ['|a|', '|b|']
+        {i} => ['|a|, |b|']
         '''
 
         iter_aliases = self.visit(node.iter)
         if all(isinstance(x, ContainerOf) for x in iter_aliases):
-            target_aliases = {iter_alias.containee for iter_alias in
-                              iter_aliases}
+            target_aliases = set().union(*[iter_alias.containees
+                                           for iter_alias in
+                              iter_aliases])
         else:
             target_aliases = {node.target}
 
@@ -719,7 +713,7 @@ class Aliases(ModuleAnalysis):
         >>> module = ast.parse(fun)
         >>> result = pm.gather(Aliases, module)
         >>> Aliases.dump(result, filter=ast.Set)
-        {c} => ['|a|', '|b|']
+        {c} => ['|a|, |b|']
         '''
 
         md.visit(self, node)

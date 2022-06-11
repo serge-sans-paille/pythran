@@ -111,16 +111,6 @@ class Unparser:
             self.fill("__init__()")
 
     # pythran specific
-    def _ContainerOf(self, co):
-        if co.index == co.index:  # always valid except for UnknownIndex
-            self.write('|[{}]='.format(co.index))
-            self.dispatch(co.containee)
-            self.write('|')
-        else:
-            self.write('|')
-            self.dispatch(co.containee)
-            self.write('|')
-
     def _UnboundValueType(self, ui):
         self.write('<unbound-value>')
 

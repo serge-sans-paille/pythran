@@ -36,7 +36,7 @@ class InlineBuiltins(Transformation):
     """
 
     def __init__(self):
-        Transformation.__init__(self, Aliases, PureExpressions)
+        Transformation.__init__(self, Aliases)
 
     def inlineBuiltinsXMap(self, node):
         self.update = True

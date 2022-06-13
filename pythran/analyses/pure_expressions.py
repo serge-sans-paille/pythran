@@ -1,10 +1,11 @@
 """
-PureExpressions detects functions without side-effects.
+PureExpressions detects expressions without side-effects.
 """
 
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.argument_effects import ArgumentEffects
 from pythran.analyses.global_effects import GlobalEffects
+from pythran.analyses.pure_functions import PureFunctions
 from pythran.passmanager import ModuleAnalysis
 from pythran.intrinsic import Intrinsic
 
@@ -17,14 +18,15 @@ class PureExpressions(ModuleAnalysis):
     def __init__(self):
         self.result = set()
         super(PureExpressions, self).__init__(ArgumentEffects, GlobalEffects,
-                                              Aliases)
+                                              Aliases, PureFunctions)
 
     def visit_FunctionDef(self, node):
+        if node in self.pure_functions:
+            self.result.add(node)
+
         # do not visit arguments
         for stmt in node.body:
             self.visit(stmt)
-        # Pure functions are already compute, we don't need to add them again
-        return False
 
     def generic_visit(self, node):
         is_pure = all([self.visit(x) for x in ast.iter_child_nodes(node)])
@@ -44,7 +46,7 @@ class PureExpressions(ModuleAnalysis):
                 if isinstance(func_alias, Intrinsic):
                     is_pure &= not func_alias.global_effects
                 else:
-                    is_pure &= func_alias in self.result
+                    is_pure &= func_alias in self.pure_functions
 
                 # does the function have an argument effect ?
                 # trivial arguments can be ignored
@@ -66,8 +68,3 @@ class PureExpressions(ModuleAnalysis):
         if is_pure:
             self.result.add(node)
         return is_pure
-
-    def prepare(self, node):
-        super(PureExpressions, self).prepare(node)
-        self.result = {func for func, ae in self.argument_effects.items()
-                       if func not in self.global_effects and not any(ae)}

@@ -38,6 +38,7 @@ from .ordered_global_declarations import OrderedGlobalDeclarations
 from .parallel_maps import ParallelMaps
 from .potential_iterator import PotentialIterator
 from .pure_expressions import PureExpressions
+from .pure_functions import PureFunctions
 from .range_values import RangeValues
 from .scope import Scope
 from .static_expressions import StaticExpressions, HasStaticExpression

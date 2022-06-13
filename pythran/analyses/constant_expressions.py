@@ -3,11 +3,12 @@
 from pythran.analyses.aliases import Aliases
 from pythran.analyses.globals_analysis import Globals
 from pythran.analyses.locals_analysis import Locals
-from pythran.analyses.pure_expressions import PureExpressions
+from pythran.analyses.pure_functions import PureFunctions
 from pythran.intrinsic import FunctionIntr
 from pythran.passmanager import NodeAnalysis
 
 import gast as ast
+
 
 
 class ConstantExpressions(NodeAnalysis):
@@ -16,8 +17,8 @@ class ConstantExpressions(NodeAnalysis):
 
     def __init__(self):
         self.result = set()
-        super(ConstantExpressions, self).__init__(Globals, Locals,
-                                                  PureExpressions, Aliases)
+        super(ConstantExpressions, self).__init__(Globals, Locals, Aliases,
+                                                  PureFunctions)
 
     def add(self, node):
         self.result.add(node)
@@ -73,8 +74,7 @@ class ConstantExpressions(NodeAnalysis):
                                       ast.FunctionDef,
                                       ast.alias))
 
-            pure_fun = all(alias in self.pure_expressions and
-                           is_function(alias)
+            pure_fun = all(alias in self.pure_functions
                            for alias in self.aliases[node])
             return pure_fun
         else:

@@ -101,7 +101,7 @@ class DeadCodeElimination(Transformation):
             return ast.Expr(value=node.value)
 
     def visit_Expr(self, node):
-        if (node in self.pure_expressions and
+        if (node.value in self.pure_expressions and
                 not isinstance(node.value, ast.Yield)):
             self.update = True
             return ast.Pass()

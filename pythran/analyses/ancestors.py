@@ -24,8 +24,12 @@ class Ancestors(ModuleAnalysis):
         super(Ancestors, self).generic_visit(node)
         self.current = current
 
+    visit = generic_visit
+
 
 class AncestorsWithBody(Ancestors):
+
+    visit = ModuleAnalysis.visit
 
     def visit_metadata(self, node):
         if hasattr(node, 'metadata'):

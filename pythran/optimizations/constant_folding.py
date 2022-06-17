@@ -7,6 +7,7 @@ from pythran.conversion import to_ast, ConversionError, ToNotEval, mangle
 from pythran.analyses.ast_matcher import DamnTooLongPattern
 from pythran.syntax import PythranSyntaxError
 from pythran.utils import isintegral, isnum
+from pythran.config import cfg
 
 import builtins
 import gast as ast
@@ -76,10 +77,11 @@ class ConstEval(ast.NodeVisitor):
         self.locals = {}
         self.globals = globals
         self.counter = 0
+        self.counter_max = cfg.getint('pythran', 'fold_max_steps')
 
     def visit(self, node):
         self.counter += 1
-        if self.counter == 1000:
+        if self.counter == self.counter_max:
             raise ToNotEval()
         return getattr(self, 'visit_' + type(node).__name__)(node)
 
@@ -472,8 +474,11 @@ class ConstantFolding(Transformation):
                 raise
             except ToNotEval:
                 pass
-            except ZeroDivisionError as e:
-                raise PythranSyntaxError(e, node)
+            except Exception as e:
+                if not cfg.getboolean('pythran', 'ignore_fold_error'):
+                    msg = 'when folding expression, pythran met the following'\
+                          'runtime exception:\n>>> {}'
+                    raise PythranSyntaxError(msg.format(e), node)
 
         return Transformation.generic_visit(self, node)
 

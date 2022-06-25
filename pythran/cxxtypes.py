@@ -148,6 +148,8 @@ std::declval<bool>()))
             def __add__(self, other):
                 if self is other:
                     return self
+                if other is builder.UnknownType:
+                    return self
                 return CombinedTypes(self, other)
 
             def __repr__(self):
@@ -229,6 +231,7 @@ std::declval<bool>()))
             """
 
             def __init__(self, *types):
+                assert all(ty is not builder.UnknownType for ty in types)
                 super(CombinedTypes, self).__init__(types=types)
 
             def iscombined(self):
@@ -531,8 +534,16 @@ std::declval<bool>()))
                           for expr in self.exprs]
                 return 'decltype({0})'.format(self.op(*gexprs))
 
-        builder.UnknownType = Type()
+        class UnknownType(Type):
+
+            def __add__(self, other):
+                return other
+
+            def generate(self, _):
+                raise ValueError("Internal Compiler Error, unknown type met.")
 
         for objname, obj in locals().items():
             if isclass(obj):
                 setattr(builder, objname, obj)
+
+        builder.UnknownType = UnknownType()

@@ -307,8 +307,9 @@ namespace types
     auto index = patch_index(
         indices[M - L],
         typename std::tuple_element<M - L, typename S::shape_t>::type());
-    return noffset<L - 1>{}(strides, indices) +
-           strides.template strides<M - L>() * index;
+    auto offset = noffset<L - 1>{}(strides, indices);
+    auto stride = strides.template strides<M - L>();
+    return  offset + stride * index;
   }
 
   template <size_t L>
@@ -322,9 +323,9 @@ namespace types
     if (index < 0)
       index += std::get<M - L>(shape);
     assert(0 <= index and index < std::get<M - L>(shape));
-    return noffset<L - 1>{}(strides, indices, shape) +
-           strides.template strides<M - L>() *
-               ((index < 0) ? index + std::get<M - L>(shape) : index);
+    auto offset = noffset<L - 1>{}(strides, indices, shape);
+    auto stride = strides.template strides<M - L>();
+    return offset + stride * index;
   }
 
   template <>
@@ -349,8 +350,8 @@ namespace types
     if (index < 0)
       index += std::get<M - 1>(shape);
     assert(0 <= index && index < std::get<M - 1>(shape));
-    return strides.template strides<M - 1>() *
-           ((index < 0) ? index + std::get<M - 1>(shape) : index);
+    auto stride = strides.template strides<M - 1>();
+    return stride * index;
   }
 
   /* constructors */

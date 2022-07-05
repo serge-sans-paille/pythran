@@ -344,7 +344,7 @@ namespace types
       auto run(S const &s, std::tuple<S0, T0...> const &t0,
                std::tuple<long, T1...> const &t1)
           -> decltype(tuple_push_head(
-              std::get<0>(t1) * std::get<0>(t0).step + std::get<0>(t0).lower,
+              std::get<0>(t1),
               merge_gexpr<std::tuple<T0...>, std::tuple<T1...>>{}
                   .template run<I + 1>(s, tuple_tail(t0), tuple_tail(t1))))
       {

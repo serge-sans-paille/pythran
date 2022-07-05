@@ -1,0 +1,50 @@
+name: core
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version: [3.10-dev]
+        cpp-version: [icpc]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install ipython nbval pytest-xdist cython wheel
+        if test ${{ matrix.python-version }} != '3.10-dev' ; then pip install scipy ; fi
+        wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+        sudo apt update
+        apt search icc
+        sudo apt install intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic
+        sudo apt install libopenblas-dev
+    - name: Setup
+      run: |
+        python setup.py install
+        printf '[commpiler]\nblas=openblas\n' > ~/.pythranrc
+    - name: Testing minimal CLI
+      run: |
+        pythran --version
+        pythran --help
+        pythran-config -vvv
+    - name: Testing sequential
+      run: |
+        export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/icx/'`
+        export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/icx/'`
+        LATEST_VERSION=$(ls -1 /opt/intel/oneapi/compiler/ | grep -v latest | sort | tail -1)
+        source /opt/intel/oneapi/compiler/"$LATEST_VERSION"/env/vars.sh
+        pytest pythran/tests/test_base.py pythran/tests/test_scipy.py -v -x --numprocesses=auto $PYTEST_ARGS

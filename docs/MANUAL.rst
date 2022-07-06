@@ -627,6 +627,15 @@ Another internal setting stuff. This controls the accuracy of the typing phase. 
     # This algorithms generates code difficult to compile for g++, but not clang++
     enable_two_steps_typing = False
 
+``[backend]``
+*************
+
+This controls some behavior of the C++ backend, so the default should be safe::
+
+    # set to true if you want intermediate C++ code to be annotated with a reference
+    # to the original python code
+    annotate = false
+
 
 F.A.Q.
 ------

@@ -205,9 +205,10 @@ class PassManager(object):
     '''
     Front end to the pythran pass system.
     '''
-    def __init__(self, module_name, module_dir=None):
+    def __init__(self, module_name, module_dir=None, code=None):
         self.module_name = module_name
         self.module_dir = module_dir or os.getcwd()
+        self.code = code
         self._cache = {}
 
     def gather(self, analysis, node, run_times = None):

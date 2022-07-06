@@ -53,10 +53,10 @@ One first need to instantiate a pass manager with a module name::
   >>> from pythran import passmanager
   >>> pm = passmanager.PassManager("tutorial_module")
 
-The pass manager has 3 methods and two attributes::
+The pass manager has three methods and three attributes::
 
   >>> [x for x in dir(pm) if not x.startswith('_')]
-  ['apply', 'dump', 'gather', 'module_dir', 'module_name']
+  ['apply', 'code', 'dump', 'gather', 'module_dir', 'module_name']
 
 ``apply``
     applies a code transformation

@@ -314,6 +314,15 @@ class Label(object):
     def generate(self):
         yield self.label + ':;'
 
+class LineInfo(object):
+    def __init__(self, filepath, lineno):
+        self.filepath = filepath
+        self.lineno = lineno
+
+    def generate(self):
+        if self.filename and self.lineno:
+            yield '#line {} {}'.format(self.lineno, self.filepath)
+
 
 class Statement(object):
     def __init__(self, text):
@@ -332,6 +341,16 @@ class AnnotatedStatement(object):
         for directive in self.annotations:
             pragma = "#pragma " + directive.s
             yield pragma.format(*directive.deps)
+        for s in self.stmt.generate():
+            yield s
+
+class StatementWithComments(object):
+    def __init__(self, stmt, comment):
+        self.stmt = stmt
+        self.comment = comment
+
+    def generate(self):
+        yield '// {}'.format(self.comment)
         for s in self.stmt.generate():
             yield s
 

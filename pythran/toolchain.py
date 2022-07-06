@@ -90,7 +90,7 @@ def front_middle_end(module_name, code, optimizations=None, module_dir=None,
                      entry_points=None, report_times = False):
     """Front-end and middle-end compilation steps"""
 
-    pm = PassManager(module_name, module_dir)
+    pm = PassManager(module_name, module_dir, code)
 
     # front end
     ir, docstrings = frontend.parse(pm, code)

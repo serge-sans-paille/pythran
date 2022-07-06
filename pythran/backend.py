@@ -8,11 +8,13 @@ from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions, Dependencies
 from pythran.analyses import Immediates, Ancestors
+from pythran.config import cfg
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
 from pythran.cxxgen import Value, FunctionDeclaration, EmptyStatement, Nop
 from pythran.cxxgen import FunctionBody, Line, ReturnStatement, Struct, Assign
 from pythran.cxxgen import For, While, TryExcept, ExceptHandler, If, AutoFor
+from pythran.cxxgen import StatementWithComments
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Backend
 from pythran.syntax import PythranSyntaxError
@@ -29,6 +31,7 @@ import gast as ast
 import os
 from functools import reduce
 import io
+import shlex
 
 
 class Python(Backend):
@@ -192,6 +195,11 @@ class CxxFunction(ast.NodeVisitor):
         self.used_break = set()
         self.ldecls = None
         self.openmp_deps = set()
+        if not (cfg.getboolean('backend', 'annotate') and
+                self.passmanager.code):
+            self.add_line_info = self.skip_line_info
+        else:
+            self.lines = self.passmanager.code.split('\n')
 
     def __getattr__(self, attr):
         return getattr(self.parent, attr)
@@ -220,9 +228,22 @@ class CxxFunction(ast.NodeVisitor):
         self.openmp_deps.update(d.id for d in node.private_deps)
         self.openmp_deps.update(d.id for d in node.shared_deps)
 
+    def add_line_info(self, node, cxx_node):
+        if not isinstance(node, ast.stmt):
+            return cxx_node
+        line = self.lines[node.lineno - 1].rstrip()
+        if isinstance(node, ast.FunctionDef):
+            head, tail = cxx_node
+            return head, [StatementWithComments(t, line) for t in tail]
+        return StatementWithComments(cxx_node, line)
+
+    def skip_line_info(self, node, cxx_node):
+        return cxx_node
+
     def visit(self, node):
         metadata.visit(self, node)
-        return super(CxxFunction, self).visit(node)
+        result = super(CxxFunction, self).visit(node)
+        return self.add_line_info(node, result)
 
     def process_omp_attachements(self, node, stmt, index=None):
         """
@@ -1322,6 +1343,8 @@ class Cxx(Backend):
     # mod
     def visit_Module(self, node):
         """ Build a compilation unit. """
+        if cfg.getboolean('backend', 'annotate'):
+            node = ast.fix_missing_locations(node)
         # build all types
         header_deps = sorted(self.dependencies)
         headers = [Include('/'.join(["pythonic", "include"] +

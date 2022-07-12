@@ -167,8 +167,7 @@ def update_effects(self, node):
     It turn type of first parameter in combination of all others
     parameters types.
     """
-    return [self.combine(node.args[0], node_args_k, register=True,
-                         aliasing_type=True)
+    return [self.combine(node.args[0], None, node_args_k)
             for node_args_k in node.args[1:]]
 
 
@@ -2749,7 +2748,8 @@ MODULES = {
                 Fun[[int, float, int], float],
                 Fun[[float, float], float],
                 Fun[[float, float, int], float],
-            ]
+            ],
+            immediate_arguments=[1]
         ),
         "range": ConstFunctionIntr(
             signature=Union[

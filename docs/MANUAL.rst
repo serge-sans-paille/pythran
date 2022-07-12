@@ -623,10 +623,6 @@ Another internal setting stuff. This controls the accuracy of the typing phase. 
     # but slows down compilation time, to the point of making g++ crash
     max_combiner = 2
 
-    # set this to true to enable a costly yet more accurate type inference algorithm
-    # This algorithms generates code difficult to compile for g++, but not clang++
-    enable_two_steps_typing = False
-
 ``[backend]``
 *************
 

@@ -309,7 +309,7 @@ namespace types
         typename std::tuple_element<M - L, typename S::shape_t>::type());
     auto offset = noffset<L - 1>{}(strides, indices);
     auto stride = strides.template strides<M - L>();
-    return  offset + stride * index;
+    return offset + stride * index;
   }
 
   template <size_t L>

@@ -31,9 +31,10 @@ def isextslice(node):
 def ispowi(node):
     if not isinstance(node.op, ast.Pow):
         return False
-    if not isintegral(node.right):
+    attr = 'right' if isinstance(node, ast.BinOp) else 'value'
+    if not isintegral(getattr(node, attr)):
         return False
-    return node.right.value >= 0
+    return getattr(node, attr).value >= 0
 
 
 def attr_to_path(node):

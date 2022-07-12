@@ -130,17 +130,17 @@ class CachedTypeVisitor:
             t = node.generate(self)
             if node not in self.mapping:
                 if t in self.rcache:
-                    self.mapping[node] = self.mapping[self.rcache[t]]
+                    self.mapping[node] = self.rcache[t]
                 else:
-                    self.rcache[t] = node
+                    self.rcache[t] = len(self.mapping)
                     self.mapping[node] = len(self.mapping)
         return "__type{0}".format(self.mapping[node])
 
     def typedefs(self):
-        kv = sorted(self.rcache.items(), key=lambda x: self.mapping[x[1]])
+        kv = sorted(self.rcache.items(), key=lambda x: x[1])
         L = list()
         for k, v in kv:
-            typename = "__type" + str(self.mapping[v])
+            typename = "__type" + str(v)
             L.append(Typedef(Value(k, typename)))
         return L
 

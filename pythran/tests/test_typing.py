@@ -626,6 +626,14 @@ def recursive_interprocedural_typing2(c):
               return foo({x:x})'''
         return self.run_test(code, 3, rvalue_type_update_dict=[int])
 
+    @unittest.skip("bad typing: need fine grain subscript propagation")
+    def test_rvalue_type_update_dict_dyn(self):
+        code = '''
+          def rvalue_type_update_dict_dyn(x, y):
+              def foo(x): x[y] = 1.5; return x
+              return foo({x:x})'''
+        return self.run_test(code, 3, 4.5, rvalue_type_update_dict_dyn=[int, float])
+
     def test_numpy_array_combiner0(self):
         code = '''
             import numpy as np

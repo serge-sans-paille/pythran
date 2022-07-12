@@ -11,13 +11,16 @@ class ordered_set(object):
         self.values = list()
         self.unique_values = set()
         if elements is not None:
-            for elt in elements:
-                self.append(elt)
+            self.extend(elements)
 
     def append(self, value):
         if value not in self.unique_values:
             self.values.append(value)
             self.unique_values.add(value)
+
+    def extend(self, values):
+        for value in values:
+            self.append(value)
 
     def __iter__(self):
         return iter(self.values)
@@ -75,10 +78,10 @@ typename std::remove_reference<str>::type::iterator>::value_type>::type
     decltype(pythonic::builtins::getattr(\
 pythonic::types::attr::REAL{}, std::declval<complex>()))
 
-    >>> builder.ReturnType(builder.NamedType('math::cos'), [f_ty])
+    >>> builder.ReturnType(builder.NamedType('math::cos'), f_ty)
     decltype(std::declval<math::cos>()(std::declval<float>()))
 
-    >>> t = builder.TupleType([i_ty, builder.NamedType('str')])
+    >>> t = builder.TupleType(i_ty, builder.NamedType('str'))
     >>> builder.ElementType(1, t)
     typename std::tuple_element<1,typename std::remove_reference<\
 decltype(pythonic::types::make_tuple(std::declval<int>(), \
@@ -91,7 +94,7 @@ std::declval<str>()))>::type>::type
     >>> builder.SetType(builder.NamedType('int'))
     pythonic::types::set<int>
 
-    >>> builder.TupleType([i_ty, builder.NamedType('bool')])
+    >>> builder.TupleType(i_ty, builder.NamedType('bool'))
     decltype(pythonic::types::make_tuple(std::declval<int>(), \
 std::declval<bool>()))
 
@@ -105,7 +108,7 @@ std::declval<bool>()))
     indexable<int>
 
     >>> op = lambda x,y: x + '+' + y
-    >>> builder.ExpressionType(op, [l_ty, i_ty])
+    >>> builder.ExpressionType(op, l_ty, i_ty)
     decltype(std::declval<long>()+std::declval<int>())
     '''
 
@@ -148,6 +151,10 @@ std::declval<bool>()))
             def __add__(self, other):
                 if self is other:
                     return self
+                if other is builder.UnknownType:
+                    return self
+                if self is builder.UnknownType:
+                    return other
                 return CombinedTypes(self, other)
 
             def __repr__(self):
@@ -235,6 +242,8 @@ std::declval<bool>()))
                 return True
 
             def __add__(self, other):
+                if other is builder.UnknownType:
+                    return self
                 worklist = list(self.types)
                 visited = set()
                 while worklist:
@@ -399,7 +408,7 @@ std::declval<bool>()))
             '''
             Return type of a call with arguments
             '''
-            def __init__(self, ftype, args):
+            def __init__(self, ftype, *args):
                 super(ReturnType, self).__init__(ftype=ftype, args=args)
 
             def generate(self, ctx):
@@ -450,7 +459,7 @@ std::declval<bool>()))
             '''
             Type holding a tuple of stuffs of various types
             '''
-            def __init__(self, ofs):
+            def __init__(self, *ofs):
                 super(TupleType, self).__init__(ofs=ofs)
 
             def iscombined(self):
@@ -520,7 +529,7 @@ std::declval<bool>()))
             Result type of an operator call.
             """
 
-            def __init__(self, op, exprs):
+            def __init__(self, op, *exprs):
                 super(ExpressionType, self).__init__(op=op, exprs=exprs)
 
             def iscombined(self):

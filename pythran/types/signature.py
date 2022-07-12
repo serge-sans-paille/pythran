@@ -87,10 +87,8 @@ def build_combiner(signature, deps):
 
                 self.combine(
                     node.args[0],
-                    node.args[main_index],
-                    unary_op=unary_op,
-                    register=True,
-                    aliasing_type=True)
+                    unary_op,
+                    node.args[main_index])
             except InfeasibleCombiner:
                 pass
 

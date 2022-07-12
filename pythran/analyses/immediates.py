@@ -8,7 +8,7 @@ import gast as ast
 from pythran.tables import MODULES
 from pythran.analyses import Aliases
 from pythran.passmanager import NodeAnalysis
-from pythran.utils import pythran_builtin, isnum
+from pythran.utils import pythran_builtin, isnum, ispowi
 
 _make_shape = pythran_builtin('make_shape')
 
@@ -17,6 +17,16 @@ class Immediates(NodeAnalysis):
     def __init__(self):
         self.result = set()
         super(Immediates, self).__init__(Aliases)
+
+    def visit_BinOp(self, node):
+        self.generic_visit(node)
+        if ispowi(node):
+            self.result.add(node.right)
+
+    def visit_AugAssign(self, node):
+        self.generic_visit(node)
+        if ispowi(node):
+            self.result.add(node.value)
 
     def visit_Call(self, node):
         func_aliases = self.aliases[node.func]

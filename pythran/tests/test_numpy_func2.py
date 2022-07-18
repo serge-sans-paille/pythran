@@ -1,8 +1,12 @@
 import unittest
 from pythran.tests import TestEnv
 import numpy
+from packaging import version
 
 from pythran.typing import NDArray, List, Tuple
+
+
+np_version = version.parse(numpy.version.version)
 
 
 @TestEnv.module
@@ -463,9 +467,11 @@ def test_copy0(x):
     def test_atleast_3d3(self):
         self.run_test("def np_atleast_3d3(a): from numpy import atleast_3d ; r = atleast_3d(a) ; return r", numpy.arange(8), np_atleast_3d3=[NDArray[int,:]])
 
+    @unittest.skipIf(np_version >= (1, 16), reason="np.asscalar is deprecated")
     def test_asscalar0(self):
         self.run_test("def np_asscalar0(a): from numpy import asscalar; return asscalar(a)", numpy.array([1], numpy.int32), np_asscalar0=[NDArray[numpy.int32,:]])
 
+    @unittest.skipIf(np_version >= (1, 16), reason="np.asscalar is deprecated")
     def test_asscalar1(self):
         self.run_test("def np_asscalar1(a): from numpy import asscalar; return asscalar(a)", numpy.array([[1]], numpy.int64), np_asscalar1=[NDArray[numpy.int64,:,:]])
 

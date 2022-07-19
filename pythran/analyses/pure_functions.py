@@ -2,13 +2,9 @@
 PureFunctions lists functions without side-effects.
 """
 
-from pythran.analyses.aliases import Aliases
 from pythran.analyses.argument_effects import ArgumentEffects
 from pythran.analyses.global_effects import GlobalEffects
 from pythran.passmanager import ModuleAnalysis
-from pythran.intrinsic import Intrinsic
-
-import gast as ast
 
 
 class PureFunctions(ModuleAnalysis):

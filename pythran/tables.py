@@ -20,7 +20,6 @@ from pythran.intrinsic import ReadEffect, ConstantIntr, UFunc
 from pythran.intrinsic import ReadOnceMethodIntr
 from pythran.intrinsic import ReadOnceFunctionIntr, ConstExceptionIntr
 from pythran import interval
-from functools import reduce
 
 
 logger = logging.getLogger("pythran")

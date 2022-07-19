@@ -28,11 +28,8 @@ from pythran import metadata, unparse
 
 from math import isnan, isinf
 import gast as ast
-import os
 from functools import reduce
 import io
-import shlex
-
 
 class Python(Backend):
     '''

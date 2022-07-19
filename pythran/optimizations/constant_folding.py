@@ -14,7 +14,6 @@ import gast as ast
 from copy import deepcopy
 import logging
 import sys
-from functools import reduce
 
 logger = logging.getLogger('pythran')
 

@@ -55,15 +55,19 @@ class Types(ModuleAnalysis):
         self.curr_locals_declaration = None
 
     def combined(self, *types):
-        if len(set(types)) == 1:
-            return next(iter(types))
         all_types = ordered_set()
         for ty in types:
             if isinstance(ty, self.builder.CombinedTypes):
                 all_types.extend(ty.types)
-            else:
+            elif ty is not self.builder.UnknownType:
                 all_types.append(ty)
-        return self.builder.CombinedTypes(*all_types)
+
+        if len(all_types) == 0:
+            return self.builder.UnknownType
+        elif len(all_types) == 1:
+            return next(iter(all_types))
+        else:
+            return self.builder.CombinedTypes(*all_types)
 
 
 
@@ -255,7 +259,7 @@ class Types(ModuleAnalysis):
         if isinstance(curr_ty, tuple):
             return
 
-        self.result[node] = curr_ty + ty
+        self.result[node] = self.combined(curr_ty, ty)
 
     def visit_FunctionDef(self, node):
         self.delayed_types = set()

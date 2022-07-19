@@ -43,9 +43,7 @@ class TypeBuilder(object):
     >>> i_ty = builder.NamedType('int')
     >>> f_ty = builder.NamedType('float')
 
-    >>> l_ty + builder.NamedType('long')
-    long
-    >>> builder.NamedType('long') + builder.NamedType('char')
+    >>> builder.CombinedTypes(builder.NamedType('long'), builder.NamedType('char'))
     typename __combined<long,char>::type
 
     >>> builder.ArgumentType(4)
@@ -148,17 +146,14 @@ std::declval<bool>()))
             def iscombined(self):
                 return False
 
-            def __add__(self, other):
-                if self is other:
-                    return self
-                if other is builder.UnknownType:
-                    return self
-                if self is builder.UnknownType:
-                    return other
-                return CombinedTypes(self, other)
+            def sgenerate(self):
+                return self.generate(lambda obj: obj.sgenerate())
 
             def __repr__(self):
-                return self.generate(str)
+                return self.sgenerate()  # for testing only
+
+            def __str__(self):
+                raise NotImplementedError("Call self.sgenerate() instead")
 
         class NamedType(Type):
             """
@@ -240,25 +235,6 @@ std::declval<bool>()))
 
             def iscombined(self):
                 return True
-
-            def __add__(self, other):
-                if other is builder.UnknownType:
-                    return self
-                worklist = list(self.types)
-                visited = set()
-                while worklist:
-                    item = worklist.pop()
-                    if item is other:
-                        return self
-                    if item in visited:
-                        continue
-                    visited.add(item)
-                    if isinstance(item, CombinedTypes):
-                        worklist.extend(item.types)
-                return Type.__add__(self, other)
-
-            def __radd__(self, other):
-                return self.__add__(other)
 
             def generate(self, ctx):
                 # Degenerated trees may lead to very deep call stacks.

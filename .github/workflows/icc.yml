@@ -47,4 +47,4 @@ jobs:
         export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/icx/'`
         LATEST_VERSION=$(ls -1 /opt/intel/oneapi/compiler/ | grep -v latest | sort | tail -1)
         source /opt/intel/oneapi/compiler/"$LATEST_VERSION"/env/vars.sh
-        pytest pythran/tests/test_base.py pythran/tests/test_scipy.py -v -x --numprocesses=auto $PYTEST_ARGS
+        pytest pythran/tests/test_base.py pythran/tests/test_scipy.py pythran/tests/test_icc.py -v -x --numprocesses=auto $PYTEST_ARGS

@@ -211,11 +211,11 @@ class TestNumpyFunc1(TestEnv):
     def test_transpose3_(self):
         self.run_test("def np_transpose3_(a): return a.transpose(2,1,0)", numpy.arange(24).reshape(2,3,4), np_transpose3_=[NDArray[int,:,:,:]])
 
-    @unittest.skipIf(np_version >= (1, 18), reason="np.alen is deprecated")
+    @unittest.skipIf(np_version >= version.Version("1.18"), reason="np.alen is deprecated")
     def test_alen0(self):
         self.run_test("def np_alen0(a): from numpy import alen ; return alen(a)", numpy.ones((5,6)), np_alen0=[NDArray[float,:,:]])
 
-    @unittest.skipIf(np_version >= (1, 18), reason="np.alen is deprecated")
+    @unittest.skipIf(np_version >= version.Version("1.18"), reason="np.alen is deprecated")
     def test_alen1(self):
         self.run_test("def np_alen1(a): from numpy import alen ; return alen(-a)", numpy.ones((5,6)), np_alen1=[NDArray[float,:,:]])
 

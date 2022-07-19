@@ -13,15 +13,13 @@ from pythran.passmanager import ModuleAnalysis
 from pythran.tables import operator_to_lambda, MODULES
 from pythran.types.conversion import pytype_to_ctype
 from pythran.types.reorder import Reorder
-from pythran.utils import attr_to_path, cxxid, isnum, isextslice, ispowi
+from pythran.utils import attr_to_path, cxxid, isnum, isextslice
 
 from collections import defaultdict
-from functools import partial, reduce
+from functools import reduce
 import gast as ast
-import operator
 from itertools import islice
 from copy import deepcopy
-import types
 
 
 MAX_ELTS = 8

@@ -2,7 +2,6 @@
 
 from pythran.analyses import ImportedIds
 from pythran.passmanager import Transformation
-from pythran.utils import path_to_attr
 
 import pythran.metadata as metadata
 

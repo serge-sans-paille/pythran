@@ -3,7 +3,6 @@
 
 import gast as ast
 from collections import defaultdict
-from contextlib import contextmanager
 from functools import reduce
 
 from pythran.analyses import Aliases, CFG

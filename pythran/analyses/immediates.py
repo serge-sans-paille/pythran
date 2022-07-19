@@ -4,8 +4,6 @@ and argument of functions flagged as immediate_arguments are
 considered as immediates
 """
 
-import gast as ast
-from pythran.tables import MODULES
 from pythran.analyses import Aliases
 from pythran.passmanager import NodeAnalysis
 from pythran.utils import pythran_builtin, isnum, ispowi

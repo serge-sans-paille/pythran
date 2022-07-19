@@ -264,8 +264,10 @@ class CxxFunction(ast.NodeVisitor):
     def typeof(self, node):
         if isinstance(node, str):
             return self.typeof(self.local_names[node])
-        else:
+        elif isinstance(node, ast.AST):
             return self.lctx(self.types[node])
+        else:
+            return self.lctx(node)
 
     def prepare_functiondef_context(self, node):
         # prepare context and visit function body
@@ -291,7 +293,7 @@ class CxxFunction(ast.NodeVisitor):
             [self.visit(n) for n in node.args.defaults])
         dflt_argt = (
             [None] * (len(node.args.args) - len(node.args.defaults)) +
-            [self.types[n] for n in node.args.defaults])
+            [self.types[n].sgenerate() for n in node.args.defaults])
 
         # compute type dump
         result_type = self.types[node][0]
@@ -431,7 +433,7 @@ class CxxFunction(ast.NodeVisitor):
                 alltargets = '{} {}'.format(
                     self.types.builder.AssignableNoEscape(
                         self.types.builder.NamedType(
-                            'decltype({})'.format(value))),
+                            'decltype({})'.format(value))).sgenerate(),
                     alltargets)
             else:
                 assert isinstance(self.types[node.targets[0]],
@@ -439,7 +441,7 @@ class CxxFunction(ast.NodeVisitor):
                 alltargets = '{} {}'.format(
                     self.types.builder.Lazy(
                         self.types.builder.NamedType(
-                            'decltype({})'.format(value))),
+                            'decltype({})'.format(value))).sgenerate(),
                     alltargets)
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
@@ -497,7 +499,8 @@ class CxxFunction(ast.NodeVisitor):
         """
         # Choose target variable for iterator (which is iterator type)
         local_target = "__target{0}".format(id(node))
-        local_target_decl = self.types.builder.IteratorOfType(local_iter_decl)
+        local_target_decl = self.typeof(
+            self.types.builder.IteratorOfType(local_iter_decl))
 
         islocal = (node.target.id not in self.openmp_deps and
                    node.target.id in self.scope[node] and
@@ -764,7 +767,8 @@ class CxxFunction(ast.NodeVisitor):
                 # Assign iterable
                 # For C loop, it avoids issues
                 # if the upper bound is assigned in the loop
-                asgnt = self.make_assign(local_iter_decl, local_iter, iterable)
+                asgnt = self.make_assign(self.typeof(local_iter_decl),
+                                         local_iter, iterable)
                 header = [Statement(asgnt)]
                 loop = self.gen_for(node, target, local_iter, local_iter_decl,
                                     loop_body)
@@ -895,7 +899,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_List(self, node):
         if not node.elts:  # empty list
-            return '{}(pythonic::types::empty_list())'.format(self.types[node])
+            return '{}(pythonic::types::empty_list())'.format(self.typeof(node))
         else:
 
             elts = [self.visit(n) for n in node.elts]
@@ -904,16 +908,16 @@ class CxxFunction(ast.NodeVisitor):
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
                 return "{0}({1}, pythonic::types::single_value())".format(
-                    self.lctx(self.types.builder.Assignable(node_type)),
+                    self.typeof(self.types.builder.Assignable(node_type)),
                     elts[0])
             else:
                 return "{0}({{{1}}})".format(
-                    self.lctx(self.types.builder.Assignable(node_type)),
+                    self.typeof(self.types.builder.Assignable(node_type)),
                     ", ".join(elts))
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
-            return '{}(pythonic::types::empty_set())'.format(self.types[node])
+            return '{}(pythonic::types::empty_set())'.format(self.typeof(node))
         else:
             elts = [self.visit(n) for n in node.elts]
             node_type = self.types.builder.Assignable(self.types[node])
@@ -921,22 +925,22 @@ class CxxFunction(ast.NodeVisitor):
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
                 return "{0}({1}, pythonic::types::single_value())".format(
-                    self.lctx(self.types.builder.Assignable(node_type)),
+                    self.typeof(node_type),
                     elts[0])
             else:
                 return "{0}{{{{{1}}}}}".format(
-                    node_type,
-                    ", ".join("static_cast<{}::value_type>({})"
-                              .format(node_type, elt) for elt in elts))
+                    self.typeof(node_type),
+                    ", ".join("static_cast<typename {}::value_type>({})"
+                              .format(self.typeof(node_type), elt) for elt in elts))
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
-            return '{}(pythonic::types::empty_dict())'.format(self.types[node])
+            return '{}(pythonic::types::empty_dict())'.format(self.typeof(node))
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
             return "{0}{{{{{1}}}}}".format(
-                self.types.builder.Assignable(self.types[node]),
+                self.typeof(self.types.builder.Assignable(self.types[node])),
                 ", ".join("{{ {0}, {1} }}".format(k, v)
                           for k, v in zip(keys, values)))
 
@@ -945,7 +949,7 @@ class CxxFunction(ast.NodeVisitor):
         tuple_type = self.types[node]
         result = "pythonic::types::make_tuple({0})".format(", ".join(elts))
         if isinstance(tuple_type, self.types.builder.CombinedTypes):
-            return '({}){}'.format(self.lctx(tuple_type), result)
+            return '({}){}'.format(self.typeof(tuple_type), result)
         else:
             return result
 
@@ -975,8 +979,7 @@ class CxxFunction(ast.NodeVisitor):
 
         # When we have extra type information to inject as a cast
         if isinstance(self.types.get(node), self.types.builder.CombinedTypes):
-            return '({}){}'.format(self.lctx(self.types[node]),
-                                   result)
+            return '({}){}'.format(self.typeof(node), result)
         else:
             return result
 

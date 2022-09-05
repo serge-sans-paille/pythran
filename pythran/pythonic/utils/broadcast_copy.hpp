@@ -48,10 +48,16 @@ namespace utils
     void helper(E &&self, F const &other, SelfIndices &&self_indices,
                 OtherIndices &&other_indices, utils::index_sequence<Is...>)
     {
-      std::forward<E>(self)
-          .store((typename std::decay<E>::type::dtype)other.load(
-                     (long)std::get<Is>(other_indices)...),
-                 (long)std::get<Is>(self_indices)...);
+      std::forward<E>(self).store(
+          (typename std::decay<E>::type::dtype)other.load(
+              (long)std::get<Is>(other_indices)...),
+          (long)std::get<Is>(self_indices)...);
+    }
+    template <class E, class F>
+    void operator()(E &&self, F const &other)
+    {
+      return (*this)(std::forward<E>(self), other, std::tuple<>(),
+                     std::tuple<>());
     }
 
     template <class E, class F, class SelfIndices, class OtherIndices>
@@ -65,6 +71,12 @@ namespace utils
   };
   template <size_t N>
   struct _broadcast_copy<fast_novectorize, N, 0> {
+    template <class E, class F>
+    void operator()(E &&self, F const &other)
+    {
+      return (*this)(std::forward<E>(self), other, std::tuple<>(),
+                     std::tuple<>());
+    }
     template <class E, class F, class SelfIndices, class OtherIndices>
     void operator()(E &&self, F const &other, SelfIndices &&self_indices,
                     OtherIndices &&other_indices)
@@ -90,6 +102,12 @@ namespace utils
 
   template <size_t N, size_t D>
   struct _broadcast_copy<fast_novectorize, N, D> {
+    template <class E, class F>
+    void operator()(E &&self, F const &other)
+    {
+      return (*this)(std::forward<E>(self), other, std::tuple<>(),
+                     std::tuple<>());
+    }
     template <class E, class F, class SelfIndices, class OtherIndices>
     void operator()(E &&self, F const &other, SelfIndices &&self_indices,
                     OtherIndices &&other_indices)
@@ -207,8 +225,7 @@ namespace utils
     void operator()(E &self, F const &other)
     {
       if (utils::no_broadcast_ex(other))
-        _broadcast_copy<fast_novectorize, N, D>{}(
-            self, other, std::make_tuple(), std::make_tuple());
+        _broadcast_copy<fast_novectorize, N, D>{}(self, other);
       else
         _broadcast_copy<types::novectorize, N, D>{}(self, other);
     }
@@ -295,6 +312,12 @@ namespace utils
       self.template update<Op>(other.load((long)std::get<Is>(other_indices)...),
                                (long)std::get<Is>(self_indices)...);
     }
+    template <class E, class F>
+    void operator()(E &&self, F const &other)
+    {
+      return (*this)(std::forward<E>(self), other, std::tuple<>(),
+                     std::tuple<>());
+    }
 
     template <class E, class F, class SelfIndices, class OtherIndices>
     void operator()(E &&self, F const &other, SelfIndices &&self_indices,
@@ -305,8 +328,15 @@ namespace utils
                  typename std::decay<SelfIndices>::type>::value>());
     }
   };
+
   template <class Op, size_t N>
   struct _broadcast_update<Op, fast_novectorize, N, 0> {
+    template <class E, class F>
+    void operator()(E &&self, F const &other)
+    {
+      return (*this)(std::forward<E>(self), other, std::tuple<>(),
+                     std::tuple<>());
+    }
     template <class E, class F, class SelfIndices, class OtherIndices>
     void operator()(E &&self, F const &other, SelfIndices &&self_indices,
                     OtherIndices &&other_indices)
@@ -331,6 +361,12 @@ namespace utils
   };
   template <class Op, size_t N, size_t D>
   struct _broadcast_update<Op, fast_novectorize, N, D> {
+    template <class E, class F>
+    void operator()(E &&self, F const &other)
+    {
+      return (*this)(std::forward<E>(self), other, std::tuple<>(),
+                     std::tuple<>());
+    }
     template <class E, class F, class SelfIndices, class OtherIndices>
     void operator()(E &&self, F const &other, SelfIndices &&self_indices,
                     OtherIndices &&other_indices)
@@ -393,7 +429,7 @@ namespace utils
   template <class Op>
   struct _broadcast_update<Op, types::vectorizer, 1, 0> {
     template <class... Args>
-    void operator()(Args &&... args)
+    void operator()(Args &&...args)
     {
       vbroadcast_update<Op, types::vectorizer>(std::forward<Args>(args)...);
     }
@@ -401,7 +437,7 @@ namespace utils
   template <class Op>
   struct _broadcast_update<Op, types::vectorizer_nobroadcast, 1, 0> {
     template <class... Args>
-    void operator()(Args &&... args)
+    void operator()(Args &&...args)
     {
       vbroadcast_update<Op, types::vectorizer_nobroadcast>(
           std::forward<Args>(args)...);
@@ -417,8 +453,7 @@ namespace utils
     void operator()(E &self, F const &other)
     {
       if (utils::no_broadcast_ex(other))
-        _broadcast_update<Op, fast_novectorize, N, D>{}(
-            self, other, std::make_tuple(), std::make_tuple());
+        _broadcast_update<Op, fast_novectorize, N, D>{}(self, other);
       else
         _broadcast_update<Op, types::novectorize, N, D>{}(self, other);
     }
@@ -442,7 +477,7 @@ namespace utils
       broadcast_update_dispatcher<Op, vector_form, E, F, N, D>{}(self, other);
     return self;
   }
-}
+} // namespace utils
 PYTHONIC_NS_END
 
 #endif

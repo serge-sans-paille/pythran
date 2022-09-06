@@ -245,7 +245,11 @@ namespace utils
   E &broadcast_copy(E &self, F const &other)
   {
     if (self.size())
+#ifdef USE_XSIMD
       broadcast_copy_dispatcher<E, F, N, D, vector_form>{}(self, other);
+#else
+      broadcast_copy_dispatcher<E, F, N, D, false>{}(self, other);
+#endif
     return self;
   }
 
@@ -474,7 +478,11 @@ namespace utils
   E &broadcast_update(E &self, F const &other)
   {
     if (self.size())
+#ifdef USE_XSIMD
       broadcast_update_dispatcher<Op, vector_form, E, F, N, D>{}(self, other);
+#else
+      broadcast_update_dispatcher<Op, false, E, F, N, D>{}(self, other);
+#endif
     return self;
   }
 } // namespace utils

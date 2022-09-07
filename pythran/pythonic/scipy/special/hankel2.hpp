@@ -8,7 +8,7 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 
-#define BOOST_MATH_THREAD_LOCAL thread_local
+#include "pythonic/utils/boost_local_config.hpp"
 #include <boost/math/special_functions/hankel.hpp>
 
 PYTHONIC_NS_BEGIN

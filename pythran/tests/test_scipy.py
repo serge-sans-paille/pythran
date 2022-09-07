@@ -142,6 +142,14 @@ try:
                               5, 4,
                               binom_scalar=[int, int])
 
+            def test_binom_error(self):
+                self.run_test("""
+                from scipy.special import binom
+                def binom_error(v, x):
+                    return binom(v, x)""",
+                              1201, 800,
+                              binom_error=[int, int])
+
             def test_binom_arg1d(self):
                 self.run_test("""
                 from scipy.special import binom

@@ -48,10 +48,10 @@ namespace utils
     void helper(E &&self, F const &other, SelfIndices &&self_indices,
                 OtherIndices &&other_indices, utils::index_sequence<Is...>)
     {
-      std::forward<E>(self).store(
-          (typename std::decay<E>::type::dtype)other.load(
-              (long)std::get<Is>(other_indices)...),
-          (long)std::get<Is>(self_indices)...);
+      std::forward<E>(self)
+          .store((typename std::decay<E>::type::dtype)other.load(
+                     (long)std::get<Is>(other_indices)...),
+                 (long)std::get<Is>(self_indices)...);
     }
     template <class E, class F>
     void operator()(E &&self, F const &other)
@@ -128,8 +128,7 @@ namespace utils
     template <class E, class F, class... Indices>
     void operator()(E &&self, F const &other, Indices... indices)
     {
-      long self_size = std::distance(self.begin(), self.end()),
-           other_size = std::distance(other.begin(), other.end());
+      long self_size = self.size(), other_size = other.size();
       std::copy(other.begin(), other.end(), self.begin());
 
       // eventually repeat the pattern
@@ -176,26 +175,26 @@ namespace utils
 
     static const std::size_t vN = vT::size;
 
-    long self_size = std::distance(self.begin(), self.end()),
-         other_size = std::distance(other.begin(), other.end());
     auto oiter = vectorizer::vbegin(other);
-    const long bound =
-        std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
-
     for (auto iter = vectorizer::vbegin(self), end = vectorizer::vend(self);
          iter != end; ++iter, ++oiter) {
       iter.store(*oiter);
     }
+
     // tail
-    {
-      auto siter = self.begin();
-      auto oiter = other.begin();
-      for (long i = bound * vN; i < other_size; ++i)
-        *(siter + i) = *(oiter + i);
+    const long other_size = other.size();
+    const long bound = other_size / vN * vN;
+    if (other_size != bound) {
+      auto siter = self.begin() + bound;
+      auto oiter = other.begin() + bound;
+      for (auto oend = other.end(); oiter < oend; ++siter, ++oiter) {
+        *siter = *oiter;
+      }
     }
 
-    for (long i = other_size; i < self_size; i += other_size)
-      std::copy_n(self.begin(), other_size, self.begin() + i);
+    if (other_size != self.size())
+      for (auto siter = self.begin(), send = self.end(); siter != send;)
+        siter = std::copy_n(self.begin(), other_size, siter);
   }
 
   template <>
@@ -274,7 +273,7 @@ namespace utils
     template <class E, class F>
     void operator()(E &&self, F const &other)
     {
-      long other_size = std::distance(other.begin(), other.end());
+      long other_size = other.size();
       auto siter = self.begin();
       auto oiter = other.begin();
       if (other_size == 1) {
@@ -394,13 +393,12 @@ namespace utils
   {
     using T = typename F::dtype;
     using vT = typename xsimd::batch<T>;
-    long other_size = std::distance(other.begin(), other.end());
+    long other_size = other.size();
 
     static const std::size_t vN = vT::size;
     auto oiter = vectorizer::vbegin(other);
     auto iter = vectorizer::vbegin(self);
-    const long bound =
-        std::distance(vectorizer::vbegin(other), vectorizer::vend(other));
+    const long bound = other.size() / vN * vN;
 
     for (auto end = vectorizer::vend(self); iter != end; ++iter, ++oiter) {
       iter.store(Op{}(*iter, *oiter));
@@ -409,7 +407,7 @@ namespace utils
     {
       auto siter = self.begin();
       auto oiter = other.begin();
-      for (long i = bound * vN; i < other_size; ++i)
+      for (long i = bound; i < other_size; ++i)
         Op{}(*(siter + i), *(oiter + i));
     }
   }
@@ -433,7 +431,7 @@ namespace utils
   template <class Op>
   struct _broadcast_update<Op, types::vectorizer, 1, 0> {
     template <class... Args>
-    void operator()(Args &&...args)
+    void operator()(Args &&... args)
     {
       vbroadcast_update<Op, types::vectorizer>(std::forward<Args>(args)...);
     }
@@ -441,7 +439,7 @@ namespace utils
   template <class Op>
   struct _broadcast_update<Op, types::vectorizer_nobroadcast, 1, 0> {
     template <class... Args>
-    void operator()(Args &&...args)
+    void operator()(Args &&... args)
     {
       vbroadcast_update<Op, types::vectorizer_nobroadcast>(
           std::forward<Args>(args)...);

@@ -123,7 +123,7 @@ class TestNumpyFunc2(TestEnv):
         self.run_test("def np_cumprod3_(a):\n from numpy import cumprod\n return a.cumprod(1)", numpy.arange(10).reshape(2,5), np_cumprod3_=[NDArray[int,:,:]])
 
     def test_cumprod4_(self):
-        self.run_test("def np_cumprod4_(a):\n from numpy import cumprod\n return a.cumprod(0)", numpy.arange(10).reshape(2,5), np_cumprod4_=[NDArray[int,:,:]])
+        self.run_test("def np_cumprod4_(a):\n from numpy import cumprod\n return a.cumprod(0)", numpy.arange(12).reshape(2,6), np_cumprod4_=[NDArray[int,:,:]])
 
     def test_cumprod5_(self):
         self.run_test("def np_cumprod5_(a):\n from numpy import cumprod\n return a.cumprod(0)", numpy.arange(10), np_cumprod5_=[NDArray[int,:]])

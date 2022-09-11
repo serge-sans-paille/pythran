@@ -25,7 +25,7 @@ namespace numpy
         T from[vector_type::size];
         for (size_t i = 0; i < vector_type::size; ++i)
           from[i] = start + i * step;
-        curr_ = xsimd::load_unaligned(from);
+        curr_ = vector_type::load_unaligned(from);
       }
       vector_type operator*() const
       {

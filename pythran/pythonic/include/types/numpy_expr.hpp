@@ -271,12 +271,8 @@ namespace types
     auto _dereference(utils::index_sequence<I...>) const
         -> decltype(Op{}(*std::get<I>(iters_)...))
     {
-      return Op{}((
-          (std::get<I>(steps_))
-              ? (*std::get<I>(iters_))
-              : (xsimd::batch<
-                    typename std::decay<decltype(*std::get<I>(siters_))>::type>(
-                    *std::get<I>(siters_))))...);
+      return Op{}(((std::get<I>(steps_)) ? (*std::get<I>(iters_))
+                                         : (std::get<I>(siters_)))...);
     }
 
     auto operator*() const -> decltype(
@@ -732,8 +728,8 @@ namespace types
         numpy_expr, Op,
         pshape<step_type_t<
             shape_t, typename std::remove_reference<Args>::type::shape_t>...>,
-        std::tuple<
-            typename std::remove_reference<Args>::type::const_iterator...>,
+        std::tuple<xsimd::batch<
+            typename std::remove_reference<Args>::type::value_type>...>,
         typename std::remove_reference<Args>::type::simd_iterator...>;
     using simd_iterator_nobroadcast = numpy_expr_simd_iterator_nobroadcast<
         numpy_expr, Op, typename std::remove_reference<

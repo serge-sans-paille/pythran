@@ -227,8 +227,9 @@ namespace types
                                        utils::index_sequence<I...>) const
   {
     return {{make_step(size(), std::get<I>(args).template shape<0>())...},
-            std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
-                                std::get<I>(args)).begin()...),
+            std::make_tuple(xsimd::batch<
+                typename std::remove_reference<Args>::type::value_type>(
+                *std::get<I>(args).begin())...),
             std::get<I>(args).vbegin(vectorize{})...};
   }
 
@@ -246,8 +247,7 @@ namespace types
                                      utils::index_sequence<I...>) const
   {
     return {{make_step(size(), std::get<I>(args).template shape<0>())...},
-            std::make_tuple(const_cast<typename std::decay<Args>::type const &>(
-                                std::get<I>(args)).end()...),
+            {},
             std::get<I>(args).vend(vectorize{})...};
   }
 

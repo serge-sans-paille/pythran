@@ -176,14 +176,16 @@ namespace utils
     static const std::size_t vN = vT::size;
 
     auto oiter = vectorizer::vbegin(other);
-    for (auto iter = vectorizer::vbegin(self), end = vectorizer::vend(self);
-         iter != end; ++iter, ++oiter) {
+    const long other_size = other.size();
+    const long vbound = other_size / vN;
+
+    for (auto iter = vectorizer::vbegin(self), end = iter + vbound; iter != end;
+         ++iter, ++oiter) {
       iter.store(*oiter);
     }
 
     // tail
-    const long other_size = other.size();
-    const long bound = other_size / vN * vN;
+    const long bound = vbound * vN;
     if (other_size != bound) {
       auto siter = self.begin() + bound;
       auto oiter = other.begin() + bound;

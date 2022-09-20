@@ -1,3 +1,21 @@
+2022-09-20 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Improve numpy expression computation speed
+
+	* Decent ICC support (fixing an issue from 2018!)
+
+	* Much faster C++ code generation
+
+	* Complete rework of constant folder
+
+	* Support C++-time evaluation of numpy.ndarray.ndim
+
+	* Improved omp declare reduction support
+
+	* Allow indexing of ndarray by integers of mixed types
+
+	* A lot of small pesty bug fixes in the C++ headers
+
 2021-12-08 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Upgrade xsimd version to 8.0.5

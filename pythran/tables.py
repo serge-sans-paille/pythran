@@ -3377,7 +3377,6 @@ MODULES = {
             REDUCED_BINARY_UFUNC,
             signature=_numpy_int_binary_op_signature
         ),
-        "bool": ConstFunctionIntr(signature=_bool_signature),
         "broadcast_to": ConstFunctionIntr(),
         "byte": ConstFunctionIntr(signature=_int_signature),
         "cbrt": ConstFunctionIntr(
@@ -3555,7 +3554,6 @@ MODULES = {
                     NDArray[complex, :, :]],
             ]
         ),
-        "complex": ConstFunctionIntr(signature=_complex_signature),
         "complex64": ConstFunctionIntr(signature=_complex_signature),
         "complex128": ConstFunctionIntr(signature=_complex_signature),
         "complex256": ConstFunctionIntr(signature=_complex_signature),
@@ -3720,7 +3718,6 @@ MODULES = {
         "float32": ConstFunctionIntr(signature=_float_signature),
         "float64": ConstFunctionIntr(signature=_float_signature),
         "float128": ConstFunctionIntr(signature=_float_signature),
-        "float": ConstFunctionIntr(signature=_float_signature),
         "floor": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "floor_divide": UFunc(BINARY_UFUNC),
         "fmax": UFunc(REDUCED_BINARY_UFUNC),

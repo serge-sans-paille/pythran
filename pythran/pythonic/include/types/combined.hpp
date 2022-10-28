@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_COMBINED_HPP
 #define PYTHONIC_INCLUDE_TYPES_COMBINED_HPP
 
+#include <cstdint>
+
 #include "pythonic/include/types/traits.hpp"
 PYTHONIC_NS_BEGIN
 namespace types

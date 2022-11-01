@@ -71,7 +71,8 @@ class TestEnv(unittest.TestCase):
 
     module = pytest.mark.module
     # default options used for the c++ compiler
-    PYTHRAN_CXX_FLAGS = ['-O0', '-Wall', '-Werror', '-UNDEBUG',
+    PYTHRAN_CXX_FLAGS = ['-O0', '-Wall', '-Werror',
+                         '-UNDEBUG', '-U_FORTIFY_SOURCE',
                          '-Wno-unused-function',
                          '-Wno-int-in-bool-context',
                          '-Wno-unknown-warning-option',

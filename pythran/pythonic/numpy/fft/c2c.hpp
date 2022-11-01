@@ -71,19 +71,18 @@ namespace numpy
 
     enum class Inorm : int {
       forward,
+      explicit_forward,
       ortho,
       backward,
     };
 
     Inorm _get_inorm(types::str const &norm, bool forward)
     {
-      if (norm == "ortho") {
+      if (norm == "ortho")
         return Inorm::ortho;
-      } else if (!forward) {
-        return Inorm::backward;
-      } else {
-        return Inorm::forward;
-      }
+      if (norm == "forward")
+        return Inorm::explicit_forward;
+      return forward ? Inorm::forward : Inorm::backward;
     }
 
     template <typename T>
@@ -94,8 +93,8 @@ namespace numpy
         return T(1 / sqrt(ldbl_t(N)));
       case Inorm::backward:
         return T(1 / ldbl_t(N));
-      case Inorm::forward:
-        return T(1);
+      case Inorm::explicit_forward:
+        return T(1./N);
       default:
         assert(false && "unreachable");
         return T(0);
@@ -106,8 +105,10 @@ namespace numpy
     T norm_fct(Inorm inorm, const shape_t &shape, const shape_t &axes,
                size_t fct = 1, int delta = 0)
     {
+      // Fast path
       if (inorm == Inorm::forward)
-        return T(1);
+        return 1;
+
       size_t N(1);
       for (auto a : axes)
         N *= fct * size_t(int64_t(shape[a]) + delta);

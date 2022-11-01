@@ -3870,7 +3870,11 @@ MODULES = {
         ),
         "fft": {
             "fft": FunctionIntr(args=("a", "n", "axis", "norm"),
-                                defaults=(None, -1, None), global_effects=True),
+                                defaults=(None, -1, None),
+                                global_effects=True),
+            "fftn": FunctionIntr(args=("a", "s", "axes", "norm"),
+                                 defaults=(None, None, None),
+                                 global_effects=True),
             "ifft": FunctionIntr(args=("a", "n", "axis", "norm"),
                                  defaults=( None, -1, None), global_effects=True),
             "rfft": FunctionIntr(args=('a','n','axis','norm'), defaults=(None,-1,-1,None),global_effects=True),

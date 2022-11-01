@@ -72,6 +72,106 @@ def test_rfft_12(x):
 
 
 @TestEnv.module
+class TestNumpyFFTN(TestEnv):
+
+    # Basic test
+    def test_fftn_0(self):
+        self.run_test("def test_fftn_0(x): from numpy.fft import fftn ; return fftn(x)",
+                      numpy.arange(0,8), test_fftn_0=[NDArray[int,:]])
+    def test_fftn_1(self):
+        self.run_test("def test_fftn_1(x): from numpy.fft import fftn ; return fftn(x)",
+                      numpy.arange(0,8.), test_fftn_1=[NDArray[float,:]])
+    def test_fftn_2(self):
+        self.run_test("def test_fftn_2(x): from numpy.fft import fftn ; return fftn(x)",
+                      numpy.arange(0, 8.) + 1.j, test_fftn_2=[NDArray[complex,:]])
+
+    # Single dimension
+    def test_fftn_3(self):
+        self.run_test("def test_fftn_3(x): from numpy.fft import fftn ; return fftn(x, (6,))",
+                      numpy.arange(0,8), test_fftn_3=[NDArray[int,:]])
+    def test_fftn_4(self):
+        self.run_test("def test_fftn_4(x): from numpy.fft import fftn ; return fftn(x, (8,))",
+                      numpy.arange(0,8.), test_fftn_4=[NDArray[float,:]])
+    def test_fftn_5(self):
+        self.run_test("def test_fftn_5(x): from numpy.fft import fftn ; return fftn(x, (10,))",
+                      numpy.arange(0, 8.) + 1.j, test_fftn_5=[NDArray[complex,:]])
+
+    # Two dimensions
+    def test_fftn_6(self):
+        self.run_test("def test_fftn_6(x): from numpy.fft import fftn ; return fftn(x, (6,))",
+                      numpy.arange(0,24).reshape(8,3), test_fftn_6=[NDArray[int,:,:]])
+    def test_fftn_7(self):
+        self.run_test("def test_fftn_7(x): from numpy.fft import fftn ; return fftn(x, (8,))",
+                      numpy.arange(0,24.).reshape(8,3), test_fftn_7=[NDArray[float,:,:]])
+    def test_fftn_8(self):
+        self.run_test("def test_fftn_8(x): from numpy.fft import fftn ; return fftn(x, (10,))",
+                      numpy.arange(0, 24.).reshape(8,3) + 1.j, test_fftn_8=[NDArray[complex,:,:]])
+
+    # Two dimensions and `s`
+    def test_fftn_9(self):
+        self.run_test("def test_fftn_9(x): from numpy.fft import fftn ; return fftn(x, (6,))",
+                      numpy.arange(0,24).reshape(8,3), test_fftn_9=[NDArray[int,:,:]])
+    def test_fftn_10(self):
+        self.run_test("def test_fftn_10(x): from numpy.fft import fftn ; return fftn(x, (8,))",
+                      numpy.arange(0,24.).reshape(8,3), test_fftn_10=[NDArray[float,:,:]])
+    def test_fftn_11(self):
+        self.run_test("def test_fftn_11(x): from numpy.fft import fftn ; return fftn(x, (10,))",
+                      numpy.arange(0, 24.).reshape(8,3) + 1.j, test_fftn_11=[NDArray[complex,:,:]])
+
+    # Two dimensions and two `s`
+    def test_fftn_9b(self):
+        self.run_test("def test_fftn_9b(x): from numpy.fft import fftn ; return fftn(x, (6, 6))",
+                      numpy.arange(0,24).reshape(8,3), test_fftn_9b=[NDArray[int,:,:]])
+    def test_fftn_10b(self):
+        self.run_test("def test_fftn_10b(x): from numpy.fft import fftn ; return fftn(x, (8, 2))",
+                      numpy.arange(0,24.).reshape(8,3), test_fftn_10b=[NDArray[float,:,:]])
+    def test_fftn_11b(self):
+        self.run_test("def test_fftn_11b(x): from numpy.fft import fftn ; return fftn(x, (10, 3))",
+                      numpy.arange(0, 24.).reshape(8,3) + 1.j, test_fftn_11b=[NDArray[complex,:,:]])
+
+    # Various norms
+    def test_fftn_12(self):
+        self.run_test("def test_fftn_12(x): from numpy.fft import fftn ; return fftn(x, (6,), norm='backward')",
+                      numpy.arange(0,8), test_fftn_12=[NDArray[int,:]])
+    def test_fftn_13(self):
+        self.run_test("def test_fftn_13(x): from numpy.fft import fftn ; return fftn(x, (8,), norm='ortho')",
+                      numpy.arange(0,8.), test_fftn_13=[NDArray[float,:]])
+    def test_fftn_14(self):
+        self.run_test("def test_fftn_14(x): from numpy.fft import fftn ; return fftn(x, (10,), norm='forward')",
+                      numpy.arange(0, 8.) + 1.j, test_fftn_14=[NDArray[complex,:]])
+
+    # Two dimensions and axes
+    def test_fftn_15(self):
+        self.run_test("def test_fftn_15(x): from numpy.fft import fftn ; return fftn(x, (6, 6), axes=(1, 0))",
+                      numpy.arange(0,24).reshape(8,3), test_fftn_15=[NDArray[int,:,:]])
+    def test_fftn_15b(self):
+        self.run_test("def test_fftn_15b(x): from numpy.fft import fftn ; return fftn(x, (8, 2), axes=(1, 0))",
+                      numpy.arange(0,24.).reshape(8,3), test_fftn_15b=[NDArray[float,:,:]])
+    def test_fftn_16(self):
+        self.run_test("def test_fftn_16(x): from numpy.fft import fftn ; return fftn(x, (8, 8), axes=(1, 1))",
+                      numpy.arange(0,24.).reshape(8,3), test_fftn_16=[NDArray[float,:,:]])
+    def test_fftn_17(self):
+        self.run_test("def test_fftn_17(x): from numpy.fft import fftn ; return fftn(x, (10,), axes=(1,))",
+                      numpy.arange(0, 24.).reshape(8,3) + 1.j, test_fftn_17=[NDArray[complex,:,:]])
+    def test_fftn_18(self):
+        self.run_test("def test_fftn_18(x): from numpy.fft import fftn ; return fftn(x, (10,), axes=(0,))",
+                      numpy.arange(0, 24.).reshape(8,3) + 1.j, test_fftn_18=[NDArray[complex,:,:]])
+
+    # Three dimensions and axes
+    def test_fftn_19(self):
+        self.run_test("def test_fftn_19(x): from numpy.fft import fftn ; return fftn(x, (2, 2, 2), axes=(1, 0, 2))",
+                      numpy.arange(0,24).reshape(2, 4 ,3), test_fftn_19=[NDArray[int,:,:,:]])
+    def test_fftn_20(self):
+        self.run_test("def test_fftn_20(x): from numpy.fft import fftn ; return fftn(x, (8, 2, 5), axes=(0, 1, 2))",
+                      numpy.arange(0,24.).reshape(2, 4, 3), test_fftn_20=[NDArray[float,:,:,:]])
+    def test_fftn_21(self):
+        self.run_test("def test_fftn_21(x): from numpy.fft import fftn ; return fftn(x, (10, 10), axes=(1, 1))",
+                      numpy.arange(0, 24.).reshape(2, 4, 3) + 1.j, test_fftn_21=[NDArray[complex,:,:,:]])
+    def test_fftn_22(self):
+        self.run_test("def test_fftn_22(x): from numpy.fft import fftn ; return fftn(x, (10,), axes=(2,))",
+                      numpy.arange(0, 24.).reshape(2, 4, 3) + 1.j, test_fftn_22=[NDArray[complex,:,:, :]])
+
+@TestEnv.module
 class TestNumpyIRFFT(TestEnv):
     ############# IRFFT
     # Basic test

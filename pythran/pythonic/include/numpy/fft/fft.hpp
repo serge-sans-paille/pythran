@@ -25,89 +25,26 @@ namespace numpy
   namespace fft
   {
 
-    template <class T, class pS>
+    template <class T, class pS, class N = types::none_type, class Norm = types::none_type>
     types::ndarray<
         typename std::enable_if<types::is_complex<T>::value, T>::type,
         types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, long n = -1, long axis = -1,
-        types::str const &norm = {});
+    fft(types::ndarray<T, pS> const &a, N const & n = {}, long axis = -1,
+        Norm const &norm = {});
 
-    template <class T, class pS>
-    types::ndarray<
-        typename std::enable_if<types::is_complex<T>::value, T>::type,
-        types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, types::none_type n, long axis,
-        types::str const &norm);
-
-    template <class T, class pS>
-    types::ndarray<
-        typename std::enable_if<types::is_complex<T>::value, T>::type,
-        types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, long n, long axis,
-        types::none_type norm);
-
-    template <class T, class pS>
-    types::ndarray<
-        typename std::enable_if<types::is_complex<T>::value, T>::type,
-        types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, types::none_type n, long axis = -1,
-        types::none_type norm = types::none_type{});
-
-    template <class T, class pS>
+    template <class T, class pS, class N = types::none_type, class Norm = types::none_type>
     types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
                                            std::complex<T>>::type,
                    types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, long n = -1, long axis = -1,
-        types::str const &norm = {});
+    fft(types::ndarray<T, pS> const &a, N const & n = {}, long axis = -1,
+        Norm const &norm = {});
 
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
-                                           std::complex<T>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, types::none_type n, long axis,
-        types::str const &norm);
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
-                                           std::complex<T>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, long n, long axis,
-        types::none_type norm);
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
-                                           std::complex<T>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, types::none_type n, long axis = -1,
-        types::none_type norm = types::none_type{});
-
-    template <class T, class pS>
+    template <class T, class pS, class N = types::none_type, class Norm = types::none_type>
     types::ndarray<typename std::enable_if<std::is_integral<T>::value,
                                            std::complex<double>>::type,
                    types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, long n = -1, long axis = -1,
-        types::str const &norm = {});
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
-                                           std::complex<double>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, types::none_type n, long axis,
-        types::str const &norm);
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
-                                           std::complex<double>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, long n, long axis,
-        types::none_type norm);
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
-                                           std::complex<double>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &a, types::none_type n, long axis = -1,
-        types::none_type norm = types::none_type{});
+    fft(types::ndarray<T, pS> const &a, N const & n = {}, long axis = -1,
+        Norm const &norm = {});
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(fft);
     DEFINE_FUNCTOR(pythonic::numpy::fft, fft);

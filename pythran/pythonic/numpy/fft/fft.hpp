@@ -14,129 +14,59 @@ namespace numpy
 {
   namespace fft
   {
+    namespace details
+    {
+      inline types::str normalize_norm(types::none_type const &)
+      {
+        return "backward";
+      }
 
-    template <class T, class pS>
+      template <class T>
+      inline types::str normalize_norm(T const &norm)
+      {
+        return norm;
+      }
+
+      inline long normalize_n(types::none_type const &)
+      {
+        return -1;
+      }
+
+      inline long normalize_n(long const &n)
+      {
+        return n;
+      }
+    }
+
+    template <class T, class pS, class N, class Norm>
     types::ndarray<
         typename std::enable_if<types::is_complex<T>::value, T>::type,
         types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-        types::str const &norm)
+    fft(types::ndarray<T, pS> const &in_array, N const& n, long axis,
+        Norm const &norm)
     {
-      return c2c(in_array, -1, axis, norm, true);
+      return c2c(in_array, details::normalize_n(n), axis, details::normalize_norm(norm), true);
     }
 
-    template <class T, class pS>
-    types::ndarray<
-        typename std::enable_if<types::is_complex<T>::value, T>::type,
-        types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-        types::none_type norm)
-    {
-      return c2c(in_array, -1, axis, "", true);
-    }
-
-    template <class T, class pS>
-    types::ndarray<
-        typename std::enable_if<types::is_complex<T>::value, T>::type,
-        types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, long n, long axis,
-        types::none_type norm)
-    {
-      return c2c(in_array, n, axis, "", true);
-    }
-
-    template <class T, class pS>
-    types::ndarray<
-        typename std::enable_if<types::is_complex<T>::value, T>::type,
-        types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, long n, long axis,
-        types::str const &norm)
-    {
-      return c2c(in_array, n, axis, norm, true);
-    }
-
-    template <class T, class pS>
+    template <class T, class pS, class N, class Norm>
     types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
                                            std::complex<T>>::type,
                    types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-        types::str const &norm)
+    fft(types::ndarray<T, pS> const &in_array, N const & n, long axis,
+        Norm const &norm)
     {
-      return r2c(in_array, -1, axis, norm, true, true);
+      return r2c(in_array, details::normalize_n(n), axis, details::normalize_norm(norm), true, true);
     }
 
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
-                                           std::complex<T>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-        types::none_type norm)
-    {
-      return r2c(in_array, -1, axis, "", true, true);
-    }
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
-                                           std::complex<T>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, long n, long axis,
-        types::none_type norm)
-    {
-      return r2c(in_array, n, axis, "", true, true);
-    }
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
-                                           std::complex<T>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, long n, long axis,
-        types::str const &norm)
-    {
-      return r2c(in_array, n, axis, norm, true, true);
-    }
-
-    template <class T, class pS>
+    template <class T, class pS, class N, class Norm>
     types::ndarray<typename std::enable_if<std::is_integral<T>::value,
                                            std::complex<double>>::type,
                    types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-        types::str const &norm)
+    fft(types::ndarray<T, pS> const &in_array, N const& n, long axis,
+        Norm const &norm)
     {
       auto tmp_array = _copy_to_double(in_array);
-      return r2c(tmp_array, -1, axis, norm, true, true);
-    }
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
-                                           std::complex<double>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
-        types::none_type norm)
-    {
-      auto tmp_array = _copy_to_double(in_array);
-      return r2c(tmp_array, -1, axis, "", true, true);
-    }
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
-                                           std::complex<double>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, long n, long axis,
-        types::none_type norm)
-    {
-      auto tmp_array = _copy_to_double(in_array);
-      return r2c(tmp_array, n, axis, "", true, true);
-    }
-
-    template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
-                                           std::complex<double>>::type,
-                   types::array<long, std::tuple_size<pS>::value>>
-    fft(types::ndarray<T, pS> const &in_array, long n, long axis,
-        types::str const &norm)
-    {
-      auto tmp_array = _copy_to_double(in_array);
-      return r2c(tmp_array, n, axis, norm, true, true);
+      return fft(tmp_array, n, axis, norm);
     }
 
     NUMPY_EXPR_TO_NDARRAY0_IMPL(fft);

@@ -16,12 +16,12 @@ namespace numpy
   {
     namespace details
     {
-      types::str normalize_norm(types::none_type const &)
+      inline types::str normalize_norm(types::none_type const &)
       {
         return "backward";
       }
       template <class T>
-      types::str normalize_norm(T const &norm)
+      inline types::str normalize_norm(T const &norm)
       {
         return norm;
       }

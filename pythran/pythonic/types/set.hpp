@@ -264,7 +264,7 @@ namespace types
     // Return a new set with elements common to the set && all others.
     typename __combined<set<T>, U, Types...>::type tmp =
         intersection(others...);
-    for (auto it = tmp.begin(); it != tmp.end(); ++it) {
+    for (auto it = begin(); it != end(); ++it) {
       if (!in(other, *it))
         tmp.discard(
             *it); // faster than remove() but ! direct interaction with data

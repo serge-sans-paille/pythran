@@ -63,6 +63,9 @@ def are_equal(s1):
 
     def test_copy(self):
         self.run_test("def _copy(a):\n b=a.copy()\n return (a <= {3}) and (a >= {3}) and (not (a is b))", {1,3}, _copy=[Set[int]])
+        
+    def test_intersection(self):
+        self.run_test("def _intersection(a, b):\n return a.intersection(b)", {1, 2, 3, 4}, {3, 4, 5}, _intersection=[Set[int], Set[int]])
 
     def test_fct_union(self):
         self.run_test("def _fct_union(b, c):\n a={1.}\n return a.union(b, c)", {1,3}, {1.,3.,4.,5.,6.} , _fct_union=[Set[int],Set[float]])

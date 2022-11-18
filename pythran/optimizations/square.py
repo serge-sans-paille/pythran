@@ -76,7 +76,7 @@ class Square(Transformation):
         elif isinstance(node.op, ast.Pow) and isnum(node.right):
             n = node.right.value
             if int(n) == n and n > 0:
-                return self.expand_pow(node.left, n)
+                return self.expand_pow(node.left, int(n))
             else:
                 return node
         else:

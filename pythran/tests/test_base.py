@@ -471,6 +471,12 @@ def nested_def(a):
     def test_pow(self):
         self.run_test("def pow_(a): return pow(a,5)", 18, pow_=[int])
 
+    def test_powf_op0(self):
+        self.run_test("def powf_op0_(a): return a ** 4.", 8., powf_op0_=[float])
+
+    def test_powf_op1(self):
+        self.run_test("def powf_op1_(a): return a ** 4.3", 8., powf_op1_=[float])
+
     def test_pow_op0(self):
         self.run_test("def pow_op0(a): return a ** 0, a ** 1, a **2, a ** 3, a ** 4, a ** 5, a ** 6, a** 7",
                       18, pow_op0=[int])

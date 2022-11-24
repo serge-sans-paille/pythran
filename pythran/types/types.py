@@ -22,8 +22,6 @@ from itertools import islice
 from copy import deepcopy
 
 
-MAX_ELTS = 8
-
 class UnboundableRValue(Exception):
     pass
 
@@ -33,6 +31,9 @@ class Types(ModuleAnalysis):
     """ Infer symbolic type for all AST node. """
 
     def __init__(self):
+
+        self.max_seq_size = cfg.getint('typing',
+                                       'max_heterogeneous_sequence_size')
 
         class TypeResult(dict):
             def __init__(self):
@@ -550,7 +551,7 @@ class Types(ModuleAnalysis):
         """ Define list type from all elements type (or empty_list type). """
         self.generic_visit(node)
         if node.elts:
-            for elt in node.elts[:MAX_ELTS]:
+            for elt in node.elts[:self.max_seq_size]:
                 self.update_type(node, self.builder.ListType, self.result[elt])
         else:
             self.update_type(node,
@@ -561,7 +562,7 @@ class Types(ModuleAnalysis):
         """ Define set type from all elements type (or empty_set type). """
         self.generic_visit(node)
         if node.elts:
-            for elt in node.elts[:MAX_ELTS]:
+            for elt in node.elts[:self.max_seq_size]:
                 self.update_type(node, self.builder.SetType, self.result[elt])
         else:
             self.update_type(node, self.builder.NamedType,
@@ -571,7 +572,8 @@ class Types(ModuleAnalysis):
         """ Define set type from all elements type (or empty_dict type). """
         self.generic_visit(node)
         if node.keys:
-            for key, value in islice(zip(node.keys, node.values), MAX_ELTS):
+            for key, value in islice(zip(node.keys, node.values),
+                                     self.max_seq_size):
                 self.update_type(node,
                                  self.builder.DictType,
                                  self.result[key],

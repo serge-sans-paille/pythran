@@ -1,6 +1,7 @@
 """ This modules provides the translation tables from python to c++. """
 
 import gast as ast
+from importlib import import_module
 import inspect
 import logging
 import numpy
@@ -3786,8 +3787,7 @@ MODULES = {
         ),
         "lexsort": ConstFunctionIntr(),
         "linalg": {
-            "norm": FunctionIntr(args=('x', 'ord', 'axis'),
-                                 defaults=(None, None)),
+            "norm": FunctionIntr(),
             "matrix_power": ConstFunctionIntr(),
         },
         "linspace": ConstFunctionIntr(),
@@ -3869,18 +3869,13 @@ MODULES = {
             signature=_numpy_float_unary_op_float_signature
         ),
         "fft": {
-            "fft": FunctionIntr(args=("a", "n", "axis", "norm"),
-                                defaults=(None, -1, None),
-                                global_effects=True),
-            "fftn": FunctionIntr(args=("a", "s", "axes", "norm"),
-                                 defaults=(None, None, None),
-                                 global_effects=True),
-            "ifft": FunctionIntr(args=("a", "n", "axis", "norm"),
-                                 defaults=( None, -1, None), global_effects=True),
-            "rfft": FunctionIntr(args=('a','n','axis','norm'), defaults=(None,-1,-1,None),global_effects=True),
-            "irfft": FunctionIntr(args=('a','n','axis','norm'), defaults=(None,-1,-1,None),global_effects=True),
-            "hfft": FunctionIntr(args=('a','n','axis','norm'), defaults=(None,-1,-1,None),global_effects=True),
-            "ihfft": FunctionIntr(args=('a','n','axis','norm'), defaults=(None,-1,-1,None),global_effects=True),
+            "fft": FunctionIntr(global_effects=True),
+            "fftn": FunctionIntr( global_effects=True),
+            "ifft": FunctionIntr(global_effects=True),
+            "rfft": FunctionIntr(global_effects=True),
+            "irfft": FunctionIntr(global_effects=True),
+            "hfft": FunctionIntr(global_effects=True),
+            "ihfft": FunctionIntr(global_effects=True),
         },
         "random": {
             "binomial": FunctionIntr(args=('n', 'p', 'size'),
@@ -4514,7 +4509,7 @@ if 'WindowsError' in sys.modules['builtins'].__dict__:
 # detect and prune unsupported modules
 for module_name in ["omp", "scipy", "scipy.special"]:
     try:
-        __import__(module_name)
+        import_module(module_name)
     except:
         logger.info(
             "Pythran support for package '{}' will be reduced: "
@@ -4555,7 +4550,7 @@ def save_arguments(module_name, elements):
         else:
             # use introspection to get the Python obj
             try:
-                themodule = __import__(".".join(module_name))
+                themodule = import_module(".".join(module_name))
                 obj = getattr(themodule, elem)
                 while hasattr(obj, '__wrapped__'):
                     obj = obj.__wrapped__
@@ -4599,7 +4594,7 @@ def fill_constants_types(module_name, elements):
             fill_constants_types(module_name + (elem,), intrinsic)
         elif isinstance(intrinsic, ConstantIntr):
             # use introspection to get the Python constants types
-            cst = getattr(__import__(".".join(module_name)), elem)
+            cst = getattr(import_module(".".join(module_name)), elem)
             intrinsic.signature = type(cst)
 
 

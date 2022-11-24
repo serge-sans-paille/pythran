@@ -613,15 +613,20 @@ Another internal setting stuff. This controls the accuracy of the typing phase. 
 
     [typing]
 
-    # maximum number of container access taken into account during type inference
-    # increasing this value inreases typing accuracy
-    # but slows down compilation time, to the point of making g++ crash
-    max_container_type = 2
-
     # maximum number of combiner per user function
     # increasing this value inreases typing accuracy
     # but slows down compilation time, to the point of making g++ crash
     max_combiner = 2
+
+    # above this number of overloads, pythran specifications are considered invalid
+    # as it generates ultra-large binaries
+    max_export_overloads = 128
+
+    # to the notable exceptions of tuple, pythran sequences are homogeneous. It is
+    # however possible to store functions objects in a sequence and a variant
+    # functor is created. This value bounds the number of different types within
+    # a sequence
+    max_heterogeneous_sequence_size = 16
 
 ``[backend]``
 *************

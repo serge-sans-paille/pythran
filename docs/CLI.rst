@@ -64,11 +64,12 @@ That's some heavily templated code ;-) Pythran can then compile it for you to a 
 
 Pythran can also generate raw C++ code, using the ``-e`` switch::
 
-  $> printf 'msg = \"hello world\"\ndef foo(): print(msg)' > cli_foo.py
-  $> pythran -e cli_foo.py -o cli_foo.hpp
-  $> printf '#include \"cli_foo.hpp\"\nusing namespace __pythran_cli_foo ; int main() { foo()(); return 0 ; }' > cli_foo.cpp
-  $> `pythran-config --compiler --cflags` -std=c++11 cli_foo.cpp -o cli_foo
-  $> ./cli_foo
+  $> printf 'msg = \"hello world\"\ndef bar(): print(msg)' > cli_bar.py
+  $> pythran -e cli_bar.py -o cli_bar.hpp
+  No pythran specification, nothing will be exported
+  $> printf '#include \"cli_bar.hpp\"\nusing namespace __pythran_cli_bar ; int main() { bar()(); return 0 ; }' > cli_bar.cpp
+  $> `pythran-config --compiler --cflags` -std=c++11 cli_bar.cpp -o cli_bar
+  $> ./cli_bar
   hello world
 
 To know more options about Pythran, you can check::

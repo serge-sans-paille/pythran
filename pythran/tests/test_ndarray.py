@@ -1288,6 +1288,13 @@ def complex_conversion0(x):
             self.run_test(code, numpy.arange(12.)[::2],
                           input_strided_array=[NDArray[float,:]])
 
+    def test_input_strided_array_with_offset(self):
+        code = 'def input_strided_array_with_offset(x): return x'
+        with self.assertRaises(TypeError):
+            self.run_test(code, numpy.arange(12.)[1::2],
+                          input_strided_array_with_offset=[NDArray[float,:]])
+
+
     def test_input_unit_strided_array(self):
         code = 'def input_unit_strided_array(x): return x'
         self.run_test(code, numpy.arange(12.)[::1],

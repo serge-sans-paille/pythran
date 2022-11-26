@@ -1551,9 +1551,9 @@ namespace impl
                   S const *dims, utils::int_<N>)
   {
     set_slice(std::get<std::tuple_size<Slice>::value - N>(slice),
-              *offsets / sizeof(T),
-              *offsets / sizeof(T) + *dims * *strides / sizeof(T),
-              *strides / sizeof(T));
+              *offsets,
+              *offsets + *dims * *strides,
+              *strides);
     fill_slice<T>(slice, strides + 1, offsets + 1, dims + 1,
                   utils::int_<N - 1>());
   }
@@ -1663,23 +1663,23 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(
    * - PyArray_Dims give the dimension array (the shape)
    * - PyArray_STRIDES gives the stride information, but relative to the
    * base
-   * pointer && ! relative to the lower dimension
+   * pointer and not relative to the lower dimension
    */
   long offsets[std::tuple_size<pS>::value];
   long strides[std::tuple_size<pS>::value];
   auto const *base_dims = PyArray_DIMS(base_arr);
 
-  auto full_offset = PyArray_BYTES(arr) - PyArray_BYTES(base_arr);
+  auto full_offset = (PyArray_BYTES(arr) - PyArray_BYTES(base_arr)) / sizeof(T);
   auto const *arr_strides = PyArray_STRIDES(arr);
   long accumulated_dim = 1;
   offsets[std::tuple_size<pS>::value - 1] =
       full_offset % base_dims[std::tuple_size<pS>::value - 1];
   strides[std::tuple_size<pS>::value - 1] =
-      arr_strides[std::tuple_size<pS>::value - 1];
+      arr_strides[std::tuple_size<pS>::value - 1] / sizeof(T);
   for (ssize_t i = std::tuple_size<pS>::value - 2; i >= 0; --i) {
     accumulated_dim *= base_dims[i + 1];
     offsets[i] = full_offset / accumulated_dim;
-    strides[i] = arr_strides[i] / accumulated_dim;
+    strides[i] = arr_strides[i] / sizeof(T) / accumulated_dim;
   }
   types::ndarray<T, pS> base_array((T *)PyArray_BYTES(base_arr),
                                    PyArray_DIMS(base_arr),

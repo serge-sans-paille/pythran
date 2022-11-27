@@ -25,7 +25,11 @@ import pythran.frontend as frontend
 from datetime import datetime
 from distutils.errors import CompileError
 from distutils import sysconfig
-from numpy.distutils.core import setup
+try:
+    # `numpy.distutils is deprecated, may not be present, or broken
+    from numpy.distutils.core import setup
+except Exception:
+    from distutils.core import setup
 
 from tempfile import mkdtemp, NamedTemporaryFile
 import gast as ast

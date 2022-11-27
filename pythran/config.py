@@ -5,8 +5,6 @@ except ImportError:
     from ConfigParser import SafeConfigParser as ConfigParser
 import io
 import logging
-import numpy.distutils.system_info as numpy_sys
-import numpy
 import os
 from shlex import split as shsplit
 import sys
@@ -223,6 +221,7 @@ def make_extension(python, **extra):
 
     # numpy specific
     if python:
+        import numpy
         extension['include_dirs'].append(numpy.get_include())
 
     # blas dependency
@@ -246,18 +245,24 @@ def make_extension(python, **extra):
         extension['define_macros'].append('PYTHRAN_BLAS_NONE')
 
     if user_blas not in reserved_blas_entries:
-        # Numpy can pollute stdout with checks
-        with silent():
-            numpy_blas = numpy_sys.get_info(user_blas)
-            # required to cope with atlas missing extern "C"
-            extension['define_macros'].append('PYTHRAN_BLAS_{}'
-                                              .format(user_blas.upper()))
-            extension['libraries'].extend(numpy_blas.get('libraries', []))
-            extension['library_dirs'].extend(
-                numpy_blas.get('library_dirs', []))
-            extension['include_dirs'].extend(
-                numpy_blas.get('include_dirs', []))
-
+        if sys.version_info < (3, 12):
+            # `numpy.distutils` not present for Python >= 3.12
+            try:
+                import numpy.distutils.system_info as numpy_sys
+                 # Numpy can pollute stdout with checks
+                with silent():
+                    numpy_blas = numpy_sys.get_info(user_blas)
+                    # required to cope with atlas missing extern "C"
+                    extension['define_macros'].append('PYTHRAN_BLAS_{}'
+                                                      .format(user_blas.upper()))
+                    extension['libraries'].extend(numpy_blas.get('libraries', []))
+                    extension['library_dirs'].extend(
+                        numpy_blas.get('library_dirs', []))
+                    extension['include_dirs'].extend(
+                        numpy_blas.get('include_dirs', []))
+            except Exception:
+                # This may fail, because of setuptools backwards compat issues
+                pass
 
     # final macro normalization
     extension["define_macros"] = [

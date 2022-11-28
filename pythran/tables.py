@@ -2827,6 +2827,10 @@ MODULES = {
             "binom": ConstFunctionIntr(
                 signature=_numpy_binary_op_float_signature
             ),
+            "gammaincinv": UFunc(
+                BINARY_UFUNC,
+                signature=_numpy_binary_op_float_signature
+            ),
             "gammaln": ConstFunctionIntr(
                 signature=_numpy_unary_op_float_signature
             ),

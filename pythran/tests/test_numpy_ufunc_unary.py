@@ -34,7 +34,7 @@ unary_func_by_module = {
         'tan', 'tanh', 'trunc',
         'uint8', 'uint16', 'uint32', 'uint64'
     ),
-    'scipy.special': ('gammaln', 'gamma', 'i0', 'i0e', 'ndtri')
+    'scipy.special': ('gammaln', 'gamma', 'i0', 'i0e', 'ndtr', 'ndtri')
 }
 
 if scipy is None:
@@ -70,7 +70,7 @@ for module, functions in unary_func_by_module.items():
                 else:
                     continue  # no need to test that, it does not work on numpy
 
-            if input_type == 'complex' and 'gamma' in f:
+            if input_type == 'complex' and (('gamma' in f) or ('ndtr' == f)):
                 continue  # skip
 
 

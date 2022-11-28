@@ -2874,6 +2874,9 @@ MODULES = {
                 BINARY_UFUNC,
                 signature=_numpy_binary_op_float_signature
             ),
+            "ndtri": ConstFunctionIntr(
+                signature=_numpy_unary_op_float_signature
+            ),
             "yv": UFunc(
                 BINARY_UFUNC,
                 signature=_numpy_binary_op_float_signature

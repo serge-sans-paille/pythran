@@ -34,7 +34,7 @@ unary_func_by_module = {
         'tan', 'tanh', 'trunc',
         'uint8', 'uint16', 'uint32', 'uint64'
     ),
-    'scipy.special': ('gammaln', 'gamma', 'i0', 'i0e')
+    'scipy.special': ('gammaln', 'gamma', 'i0', 'i0e', 'ndtri')
 }
 
 if scipy is None:

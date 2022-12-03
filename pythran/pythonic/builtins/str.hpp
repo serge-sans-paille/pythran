@@ -24,6 +24,11 @@ namespace builtins
       return oss.str();
     }
 
+    inline types::str str()
+    {
+      return "";
+    }
+
     inline types::str str(bool b)
     {
       static char const repr[2][6] = {"False", "True\0"};

@@ -14,6 +14,7 @@ namespace builtins
     template <class T>
     types::str str(T const &t);
 
+    inline types::str str();
     inline types::str str(bool b);
     inline types::str str(long value);
     inline types::str str(double l);

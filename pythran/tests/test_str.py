@@ -5,6 +5,10 @@ import unittest
 
 
 class TestStr(TestEnv):
+
+    def test_str_(self):
+        self.run_test("def str_(n): return (str if n else lambda: '1')()", 1, str_=[int])
+
     def test_str_startswith0(self):
         self.run_test("def str_startswith0(s0, s1): return s0.startswith(s1)", "barbapapa", "barba", str_startswith0=[str, str])
         self.run_test("def str_startswith0a(s0, s1): return s0[0].startswith(s1)", "barbapapa", "barba", str_startswith0a=[str, str])

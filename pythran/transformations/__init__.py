@@ -26,6 +26,7 @@ from .normalize_method_calls import NormalizeMethodCalls
 from .normalize_return import NormalizeReturn
 from .normalize_static_if import NormalizeStaticIf, SplitStaticExpression
 from .normalize_tuples import NormalizeTuples
+from .normalize_typeis import NormalizeTypeIs
 from .remove_comprehension import RemoveComprehension
 from .remove_lambdas import RemoveLambdas
 from .remove_nested_functions import RemoveNestedFunctions

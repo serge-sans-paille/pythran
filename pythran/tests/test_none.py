@@ -588,6 +588,45 @@ def is_none_return_None_bis(signal=None):
         self.run_test(code, {'a': '10'}, none_escaping1=[Dict[str,str]])
 
 
+class TestTypeIs(TestEnv):
+
+    def test_typeis_0(self):
+        self.run_test(
+            'def typeis0(x): return x if type(x) is str else str(x)',
+            1,
+            typeis0=[int])
+
+    def test_typeis_1(self):
+        self.run_test(
+            'def typeis1(x): return x if type(x) == str else str(x)',
+            1,
+            typeis1=[int])
+
+    def test_typeis_2(self):
+        self.run_test(
+            'def typeis2(x): return x if str == type(x) else str(x)',
+            1,
+            typeis2=[int])
+
+    def test_typeis_3(self):
+        self.run_test(
+            'def typeis3(x): return x if type(x) == str else str(x)',
+            1,
+            typeis3=[int])
+
+    def test_typeis_4(self):
+        self.run_test(
+            'def typeis4(x): return x if type(x) == str == type(x) else str(x)',
+            1,
+            typeis4=[int])
+
+    def test_typeis_5(self):
+        self.run_test(
+            'def typeis5(x): return x if str == type(x) is str else str(x)',
+            1,
+            typeis5=[int])
+
+
 class TestIsInstance(TestEnv):
 
     def test_isinstance_int0(self):

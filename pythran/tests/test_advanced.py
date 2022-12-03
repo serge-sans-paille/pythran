@@ -16,6 +16,14 @@ class TestAdvanced(TestEnv):
                 return [i for i in enumerate(dummy_generator(range(begin,end)))]'''
         self.run_test(code, 2, 10, generator_enumeration=[int, int])
 
+    def test_value_fill_max(self):
+        code = '''
+def value_fill_max(x, dic):
+    key_type = type(next(iter(dic)))
+    x = key_type(x)
+    return x if x in dic else max(dic.keys())'''
+        self.run_test(code, "2", {1:13}, value_fill_max=[str, Dict[int,int]])
+
     def test_augassign_floordiv(self):
         self.run_test("def augassign_floordiv(i,j): k=i ; k//=j; return k",
                 2, 5, augassign_floordiv=[int, int])

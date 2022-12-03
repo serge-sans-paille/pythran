@@ -24,7 +24,7 @@ namespace numpy
     template <class V>
     long int_(V v)
     {
-      return v;
+      return static_cast<long>(v);
     }
   }
 

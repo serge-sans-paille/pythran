@@ -304,6 +304,12 @@ def test_copy0(x):
     def test_clip1(self):
         self.run_test("def np_clip1(a): from numpy import  clip ; return clip(a,3,6)", numpy.arange(10), np_clip1=[NDArray[int,:]])
 
+    def test_clip2(self):
+        self.run_test("def np_clip2(a): from numpy import  clip ; return clip(a,3,None)", numpy.arange(10), np_clip2=[NDArray[int,:]])
+
+    def test_clip3(self):
+        self.run_test("def np_clip3(a): from numpy import  clip ; return clip(a,None, 6)", numpy.arange(10), np_clip3=[NDArray[int,:]])
+
     def test_concatenate0(self):
         self.run_test("def np_concatenate0(a): from numpy import array, concatenate ; b = array([[5, 6]]) ; return concatenate((a,b))", numpy.array([[1, 2], [3, 4]]), np_concatenate0=[NDArray[int,:,:]])
 

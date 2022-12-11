@@ -28,6 +28,11 @@
 #define INCLUDE_FILE(U, M) STR_(U/M.hpp)
 // clang-format on
 
+#ifdef ENABLE_PYTHON_MODULE
+// Define python's visibility macros
+#include "pyconfig.h"
+#endif
+
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/combined.hpp"
 

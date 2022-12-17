@@ -31,6 +31,9 @@
 #ifdef ENABLE_PYTHON_MODULE
 // Define python's visibility macros
 #include "pyconfig.h"
+#ifdef copysign
+#undef copysign
+#endif
 #endif
 
 #include "pythonic/types/assignable.hpp"

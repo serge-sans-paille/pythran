@@ -28,6 +28,16 @@
 #define INCLUDE_FILE(U, M) STR_(U/M.hpp)
 // clang-format on
 
+#ifdef ENABLE_PYTHON_MODULE
+// Define python's visibility macros
+#include "pyconfig.h"
+
+// Some version of python define that macro on Windows, and it breaks compilation of some C++ headers.
+#ifdef copysign
+#undef copysign
+#endif
+#endif
+
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/combined.hpp"
 

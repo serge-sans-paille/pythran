@@ -9,6 +9,8 @@ import os
 from shlex import split as shsplit
 import sys
 
+import numpy
+
 logger = logging.getLogger('pythran')
 
 
@@ -221,7 +223,6 @@ def make_extension(python, **extra):
 
     # numpy specific
     if python:
-        import numpy
         extension['include_dirs'].append(numpy.get_include())
 
     # blas dependency
@@ -260,9 +261,11 @@ def make_extension(python, **extra):
                         numpy_blas.get('library_dirs', []))
                     extension['include_dirs'].extend(
                         numpy_blas.get('include_dirs', []))
-            except Exception:
-                # This may fail, because of setuptools backwards compat issues
-                pass
+            except Exception as exc:
+                raise RuntimeError(
+                    "The likely cause of this failure is an incompatibility "
+                    "between `setuptools` and `numpy.distutils. "
+                ) from exc
 
     # final macro normalization
     extension["define_macros"] = [

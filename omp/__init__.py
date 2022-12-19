@@ -16,6 +16,8 @@ except ImportError:
 cxx = compiler()
 
 
+# This function and the `msvc_runtime_*` ones below are taken over from
+# numpy.distutils
 def get_shared_lib_extension(is_python_ext=False):
     """Return the correct file extension for shared libraries.
 

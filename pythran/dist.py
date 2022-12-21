@@ -15,7 +15,13 @@ import os
 
 from distutils.command.build_ext import build_ext as LegacyBuildExt
 
-from numpy.distutils.extension import Extension
+try:
+    # `numpy.distutils` is deprecated, and won't be present on Python >=3.12
+    # If it is installed, we need to use it though, so try-import it:
+    from numpy.distutils.extension import Extension
+except ImportError:
+    from distutils.extension import Extension
+
 
 
 class PythranBuildExtMixIn(object):

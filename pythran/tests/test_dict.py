@@ -30,6 +30,25 @@ class TestDict(TestEnv):
     def test_dict_get_item(self):
         self.run_test("def dict_get_item(a): return a['e']", {'e':1, 'f':2}, dict_get_item=[Dict[str, int]])
 
+    def test_dict_get_missingitem(self):
+        self.run_test("""
+        def dict_get_missingitem(a):
+            try:
+                return a['g']
+            except:
+                return 12""",
+                      {'e':1, 'f':2}, dict_get_missingitem=[Dict[str, int]])
+
+    def test_dict_update_missingitem(self):
+        self.run_test("""
+        def dict_update_missingitem(a):
+            try:
+                a['g'] += 1
+                return 1
+            except KeyError:
+                return 2""",
+                     {'e':1, 'f':2}, dict_update_missingitem=[Dict[str, int]])
+
     def test_dict_len(self):
         self.run_test("def dict_len(d): return len(d)", {1:'e', 2:'f'}, dict_len=[Dict[int, str]])
     def test_dict_set_item(self):

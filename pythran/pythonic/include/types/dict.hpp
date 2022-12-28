@@ -2,21 +2,21 @@
 #define PYTHONIC_INCLUDE_TYPES_DICT_HPP
 
 #include "pythonic/include/types/assignable.hpp"
-#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/types/empty_iterator.hpp"
+#include "pythonic/include/types/tuple.hpp"
 
-#include "pythonic/include/utils/shared_ref.hpp"
 #include "pythonic/include/utils/iterator.hpp"
 #include "pythonic/include/utils/reserve.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
 
 #include "pythonic/include/builtins/None.hpp"
 
-#include <memory>
-#include <utility>
-#include <limits>
 #include <algorithm>
 #include <iterator>
+#include <limits>
+#include <memory>
 #include <unordered_map>
+#include <utility>
 
 PYTHONIC_NS_BEGIN
 
@@ -167,21 +167,23 @@ namespace types
 
     // dict interface
     operator bool();
-    V &operator[](K const &key);
+    V &operator[](K const &key) &;
+
     template <class OtherKey>
-    V &operator[](OtherKey const &key)
+    V &operator[](OtherKey const &key) &
     {
       return (*this)[K(key)];
     }
-    V const &operator[](K const &key) const;
+    V &operator[](K const &key) const &;
+
     template <class OtherKey>
-    V const &operator[](OtherKey const &key) const
+    V &operator[](OtherKey const &key) const &
     {
       return (*this)[K(key)];
     }
 
-    V &fast(K const &key);
-    V const &fast(K const &key) const;
+    V &fast(K const &key) &;
+    V &fast(K const &key) const &;
 
     item_const_iterator find(K const &key) const;
 
@@ -230,6 +232,12 @@ namespace types
     bool contains(T const &key) const;
   };
 
+  template <class K, class V>
+  constexpr dict<K, V> const &as_const(dict<K, V> &t) noexcept
+  {
+    return t;
+  }
+
   struct empty_dict {
 
     using value_type = void;
@@ -249,7 +257,7 @@ namespace types
 
   template <class K, class V>
   dict<K, V> operator+(dict<K, V> const &d, empty_dict);
-}
+} // namespace types
 
 template <class K, class V>
 struct assignable<types::dict<K, V>> {
@@ -279,7 +287,7 @@ namespace std
   struct tuple_element<I, pythonic::types::dict<K, V>> {
     using type = V;
   };
-}
+} // namespace std
 
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"

@@ -178,7 +178,7 @@ class TestNumpyFunc2(TestEnv):
                   np_correlate_8=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
     def test_correlate_9(self):
-        dtype = numpy.float
+        dtype = float
         self.run_test("def np_correlate_9(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
                   numpy.arange(7).astype(dtype)  + 1j*numpy.arange(7).astype(dtype),
                   numpy.arange(12).astype(dtype) + 1j*numpy.arange(12).astype(dtype),
@@ -246,7 +246,7 @@ class TestNumpyFunc2(TestEnv):
                   np_convolve_8=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
     def test_convolve_9(self):
-        dtype = numpy.float
+        dtype = float
         self.run_test("def np_convolve_9(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
                   numpy.arange(7).astype(dtype) + 1j*  numpy.arange(7).astype(dtype),
                   numpy.arange(12).astype(dtype) + 1j* numpy.arange(12).astype(dtype),

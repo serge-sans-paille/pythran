@@ -2,7 +2,7 @@ import unittest
 from pythran.tests import TestEnv
 import numpy
 from pythran.typing import NDArray
-import unittest
+from distutils.version import LooseVersion
 
 
 @TestEnv.module
@@ -130,12 +130,16 @@ class TestNumpyFFTN(TestEnv):
                       numpy.arange(0, 24.).reshape(8,3) + 1.j, test_fftn_11b=[NDArray[complex,:,:]])
 
     # Various norms
+
+    @unittest.skipIf(LooseVersion(numpy.__version__) <'1.20', "introduced in 1.20")
     def test_fftn_12(self):
         self.run_test("def test_fftn_12(x): from numpy.fft import fftn ; return fftn(x, (6,), norm='backward')",
                       numpy.arange(0,8), test_fftn_12=[NDArray[int,:]])
     def test_fftn_13(self):
         self.run_test("def test_fftn_13(x): from numpy.fft import fftn ; return fftn(x, (8,), norm='ortho')",
                       numpy.arange(0,8.), test_fftn_13=[NDArray[float,:]])
+
+    @unittest.skipIf(LooseVersion(numpy.__version__) <'1.20', "introduced in 1.20")
     def test_fftn_14(self):
         self.run_test("def test_fftn_14(x): from numpy.fft import fftn ; return fftn(x, (10,), norm='forward')",
                       numpy.arange(0, 8.) + 1.j, test_fftn_14=[NDArray[complex,:]])

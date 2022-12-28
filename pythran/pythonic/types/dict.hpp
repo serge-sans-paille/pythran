@@ -3,18 +3,19 @@
 
 #include "pythonic/include/types/dict.hpp"
 
-#include "pythonic/types/tuple.hpp"
+#include "pythonic/builtins/KeyError.hpp"
+#include "pythonic/builtins/None.hpp"
 #include "pythonic/types/empty_iterator.hpp"
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/iterator.hpp"
 #include "pythonic/utils/reserve.hpp"
-#include "pythonic/builtins/None.hpp"
 #include "pythonic/utils/shared_ref.hpp"
 
-#include <memory>
-#include <utility>
-#include <limits>
 #include <algorithm>
 #include <iterator>
+#include <limits>
+#include <memory>
+#include <utility>
 
 PYTHONIC_NS_BEGIN
 
@@ -23,14 +24,13 @@ namespace types
   /// item implementation
 
   template <class I>
-  item_iterator_adaptator<I>::item_iterator_adaptator(I const &i)
-      : I(i)
+  item_iterator_adaptator<I>::item_iterator_adaptator(I const &i) : I(i)
   {
   }
 
   template <class I>
-  typename item_iterator_adaptator<I>::value_type item_iterator_adaptator<I>::
-  operator*() const
+  typename item_iterator_adaptator<I>::value_type
+  item_iterator_adaptator<I>::operator*() const
   {
     auto &&tmp = I::operator*();
     return make_tuple(tmp.first, tmp.second);
@@ -38,40 +38,36 @@ namespace types
 
   /// key_iterator_adaptator implementation
   template <class I>
-  key_iterator_adaptator<I>::key_iterator_adaptator()
-      : I()
+  key_iterator_adaptator<I>::key_iterator_adaptator() : I()
   {
   }
 
   template <class I>
-  key_iterator_adaptator<I>::key_iterator_adaptator(I const &i)
-      : I(i)
+  key_iterator_adaptator<I>::key_iterator_adaptator(I const &i) : I(i)
   {
   }
 
   template <class I>
-  typename key_iterator_adaptator<I>::value_type key_iterator_adaptator<I>::
-  operator*() const
+  typename key_iterator_adaptator<I>::value_type
+  key_iterator_adaptator<I>::operator*() const
   {
     return (*this)->first;
   }
 
   /// value_iterator_adaptator implementation
   template <class I>
-  value_iterator_adaptator<I>::value_iterator_adaptator()
-      : I()
+  value_iterator_adaptator<I>::value_iterator_adaptator() : I()
   {
   }
 
   template <class I>
-  value_iterator_adaptator<I>::value_iterator_adaptator(I const &i)
-      : I(i)
+  value_iterator_adaptator<I>::value_iterator_adaptator(I const &i) : I(i)
   {
   }
 
   template <class I>
-  typename value_iterator_adaptator<I>::value_type value_iterator_adaptator<I>::
-  operator*() const
+  typename value_iterator_adaptator<I>::value_type
+  value_iterator_adaptator<I>::operator*() const
   {
     return (*this)->second;
   }
@@ -82,8 +78,7 @@ namespace types
   }
 
   template <class D>
-  dict_items<D>::dict_items(D const &d)
-      : data(d)
+  dict_items<D>::dict_items(D const &d) : data(d)
   {
   }
 
@@ -111,8 +106,7 @@ namespace types
   }
 
   template <class D>
-  dict_keys<D>::dict_keys(D const &d)
-      : data(d)
+  dict_keys<D>::dict_keys(D const &d) : data(d)
   {
   }
 
@@ -140,8 +134,7 @@ namespace types
   }
 
   template <class D>
-  dict_values<D>::dict_values(D const &d)
-      : data(d)
+  dict_values<D>::dict_values(D const &d) : data(d)
   {
   }
 
@@ -164,14 +157,12 @@ namespace types
   }
 
   template <class K, class V>
-  dict<K, V>::dict()
-      : data(utils::no_memory())
+  dict<K, V>::dict() : data(utils::no_memory())
   {
   }
 
   template <class K, class V>
-  dict<K, V>::dict(empty_dict const &)
-      : data(DEFAULT_DICT_CAPACITY)
+  dict<K, V>::dict(empty_dict const &) : data(DEFAULT_DICT_CAPACITY)
   {
   }
 
@@ -182,8 +173,7 @@ namespace types
   }
 
   template <class K, class V>
-  dict<K, V>::dict(dict<K, V> const &other)
-      : data(other.data)
+  dict<K, V>::dict(dict<K, V> const &other) : data(other.data)
   {
   }
 
@@ -196,8 +186,7 @@ namespace types
 
   template <class K, class V>
   template <class B, class E>
-  dict<K, V>::dict(B begin, E end)
-      : data(begin, end)
+  dict<K, V>::dict(B begin, E end) : data(begin, end)
   {
   }
 
@@ -320,26 +309,29 @@ namespace types
   }
 
   template <class K, class V>
-  V &dict<K, V>::operator[](K const &key)
+  V &dict<K, V>::operator[](K const &key) &
   {
     return fast(key);
   }
 
   template <class K, class V>
-  V const &dict<K, V>::operator[](K const &key) const
+  V &dict<K, V>::operator[](K const &key) const &
   {
     return fast(key);
   }
 
   template <class K, class V>
-  V &dict<K, V>::fast(K const &key)
+  V &dict<K, V>::fast(K const &key) &
   {
     return (*data)[key];
   }
 
   template <class K, class V>
-  V const &dict<K, V>::fast(K const &key) const
+  V &dict<K, V>::fast(K const &key) const &
   {
+    auto Where = data->find(key);
+    if (Where == data->end())
+      throw types::KeyError(key);
     return (*data)[key];
   }
 
@@ -442,7 +434,7 @@ namespace types
       data->erase(ivalue);
       return tmp;
     } else
-      throw std::range_error("KeyError");
+      throw types::KeyError(key);
   }
 
   template <class K, class V>
@@ -450,7 +442,7 @@ namespace types
   {
     auto b = data->begin();
     if (b == data->end())
-      throw std::range_error("KeyError");
+      throw types::KeyError("dictionnary is empty");
     else {
       auto r = *b;
       data->erase(b);
@@ -533,7 +525,7 @@ namespace types
   {
     return d;
   }
-}
+} // namespace types
 
 std::ostream &operator<<(std::ostream &os, types::empty_dict const &)
 {
@@ -579,7 +571,7 @@ namespace std
   {
     return d[I];
   }
-}
+} // namespace std
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "pythonic/python/core.hpp"
@@ -627,7 +619,7 @@ types::dict<K, V> from_python<types::dict<K, V>>::convert(PyObject *obj)
   PyObject *key, *value;
   Py_ssize_t pos = 0;
   while (PyDict_Next(obj, &pos, &key, &value))
-    v[ ::from_python<K>(key)] = ::from_python<V>(value);
+    v[::from_python<K>(key)] = ::from_python<V>(value);
   return v;
 }
 PYTHONIC_NS_END

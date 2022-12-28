@@ -5,6 +5,17 @@
 
 PYTHONIC_NS_BEGIN
 
+namespace types
+{
+
+  template <class T>
+  constexpr T as_const(T &&t) noexcept
+  {
+    return t;
+  }
+
+} // namespace types
+
 struct dummy {
 };
 

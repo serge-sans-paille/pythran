@@ -343,6 +343,16 @@ std::declval<bool>()))
                         'typename std::remove_reference<'
                         'decltype({0})>::type>::type'.format(self.srepr))
 
+
+        class AddConst(DependentType):
+            '''
+            Type of an Iterator of a container
+            '''
+            def generate(self, ctx):
+                of_type = ctx(self.of)
+                return ('decltype(pythonic::types::as_const(std::declval<'
+                        + of_type + '>()))')
+
         class IteratorOfType(DependentType):
             '''
             Type of an Iterator of a container

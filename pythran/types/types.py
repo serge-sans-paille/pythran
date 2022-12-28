@@ -6,6 +6,7 @@ This module performs the return type inference, according to symbolic types,
 
 from pythran.analyses import LazynessAnalysis, StrictAliases, YieldPoints
 from pythran.analyses import LocalNodeDeclarations, Immediates, RangeValues
+from pythran.analyses import Ancestors
 from pythran.config import cfg
 from pythran.cxxtypes import TypeBuilder, ordered_set
 from pythran.intrinsic import UserFunction, Class
@@ -52,7 +53,7 @@ class Types(ModuleAnalysis):
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
         ModuleAnalysis.__init__(self, Reorder, StrictAliases, LazynessAnalysis,
-                                Immediates, RangeValues)
+                                Immediates, RangeValues, Ancestors)
         self.curr_locals_declaration = None
 
     def combined(self, *types):
@@ -493,8 +494,24 @@ class Types(ModuleAnalysis):
             self.result[node] = self.builder.NamedType(
                 'pythonic::types::slice')
 
+    def stores_to(self, node):
+        ancestors = self.ancestors[node] + (node,)
+        stmt_indices = [i for i, n in enumerate(ancestors)
+                        if isinstance(n, (ast.Assign, ast.For))]
+        if not stmt_indices:
+            return True
+
+        stmt_index = stmt_indices[-1]
+
+        if isinstance(ancestors[stmt_index], ast.Assign):
+            return ancestors[stmt_index + 1] is ancestors[stmt_index].value
+        else:
+            return ancestors[stmt_index + 1] is not ancestors[stmt_index].target
+
     def visit_Subscript(self, node):
         self.visit(node.value)
+        if self.stores_to(node):
+            self.result[node.value] = self.builder.AddConst(self.result[node.value])
         # type of a[1:2, 3, 4:1] is the type of: declval(a)(slice, long, slice)
         if isextslice(node.slice):
             self.visit(node.slice)

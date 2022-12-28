@@ -1025,8 +1025,25 @@ class CxxFunction(ast.NodeVisitor):
                        for elt in node.elts)
         return self.range_values[node].low >= 0
 
+    def stores_to(self, node):
+        ancestors = self.ancestors[node] + (node,)
+        stmt_indices = [i for i, n in enumerate(ancestors)
+                        if isinstance(n, (ast.Assign, ast.For))]
+        if not stmt_indices:
+            return True
+
+        stmt_index = stmt_indices[-1]
+
+        if isinstance(ancestors[stmt_index], ast.Assign):
+            return ancestors[stmt_index + 1] is ancestors[stmt_index].value
+        else:
+            return ancestors[stmt_index + 1] is not ancestors[stmt_index].target
+
     def visit_Subscript(self, node):
         value = self.visit(node.value)
+        if self.stores_to(node):
+            value = 'pythonic::types::as_const({})'.format(value)
+
         # we cannot overload the [] operator in that case
         if isstr(node.value):
             value = 'pythonic::types::str({})'.format(value)

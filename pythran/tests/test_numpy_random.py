@@ -1169,12 +1169,12 @@ class TestNumpyRandom(TestEnv):
         def numpy_negative_binomial0a(size):
             from numpy.random import negative_binomial
             from numpy import var, mean
-            n = 1
-            p = 1
+            n = 1000
+            p = .1
             rmean = (n*(1-p))/p
             rvar = (n*(1-p))/p**2
             a = [negative_binomial(n,p) for x in range(size)]
-            return (abs(mean(a)- rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)- rmean) < .1 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_negative_binomial0a=[int])
 
@@ -1183,13 +1183,13 @@ class TestNumpyRandom(TestEnv):
         code = """
         def numpy_negative_binomial0b(size):
             from numpy.random import negative_binomial
-            from numpy import var, mean, sqrt
-            n = 1
-            p = 1
+            from numpy import var, mean
+            n = 1000
+            p = .1
             rmean = (n*(1-p))/p
             rvar = (n*(1-p))/p**2
             a = negative_binomial(n, p, size)
-            return (abs(mean(a)- rmean) < 0.05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)- rmean) < 0.1 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_negative_binomial0b=[int])
 
@@ -1199,12 +1199,13 @@ class TestNumpyRandom(TestEnv):
         def numpy_negative_binomial2(size):
             from numpy.random import negative_binomial
             from numpy import mean, var
-            n = 1
-            p = 1
+            n = 1000
+            p = .1
             rmean = (n*(1-p))/p
             rvar = (n*(1-p))/p**2
             a = negative_binomial(n, p , size=(size, size))
-            return (abs(mean(a)- rmean) < .05 and abs(var(a) - rvar) < .05)
+            print(mean(a), rmean)
+            return (abs(mean(a)- rmean) < .1 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_negative_binomial2=[int])
 

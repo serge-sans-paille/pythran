@@ -31,7 +31,7 @@ class NormalizeTypeIs(Transformation):
     >>> _, node = pm.apply(NormalizeTypeIs, node)
     >>> print(pm.dump(backend.Python, node))
     def foo(y):
-        return builtins.type(y) is builtins.int
+        return builtins.isinstance(y, builtins.int)
     '''
 
     def visit_Compare(self, node):

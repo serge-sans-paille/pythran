@@ -3,10 +3,10 @@
 
 #include "pythonic/include/numpy/concatenate.hpp"
 
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/builtins/sum.hpp"
 #include "pythonic/builtins/ValueError.hpp"
+#include "pythonic/builtins/sum.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -27,16 +27,17 @@ namespace numpy
           for (auto &&ifrom : from)
             out_iter = std::copy(ifrom.begin(), ifrom.end(), out_iter);
         } else {
-          std::vector<typename std::decay<decltype(from[0].begin())>::type>
-              ifroms;
-          for (auto &&ifrom : from)
+          using iterator_on_from_value = typename A::value_type::const_iterator;
+          std::vector<iterator_on_from_value> ifroms;
+          for (auto &ifrom : from)
             ifroms.emplace_back(ifrom.begin());
-          std::vector<typename std::decay<decltype(*from[0].begin())>::type>
-              difroms;
 
+          std::vector<
+              typename std::iterator_traits<iterator_on_from_value>::value_type>
+              difroms;
           for (auto &&iout : out) {
             difroms.clear();
-            for (auto &&ifrom : ifroms)
+            for (auto &ifrom : ifroms)
               difroms.emplace_back(*ifrom);
             concatenate_helper<N - 1>()(iout, difroms, axis - 1);
             for (auto &ifrom : ifroms)
@@ -63,7 +64,8 @@ namespace numpy
             types::array<
                 typename std::iterator_traits<
                     typename A::value_type::const_iterator>::value_type,
-                sizeof...(I)> difroms = {*std::get<I>(ifroms)...};
+                sizeof...(I)>
+                difroms = {*std::get<I>(ifroms)...};
             concatenate_helper<N - 1>()(iout, difroms, axis - 1,
                                         utils::index_sequence<I...>{});
             (void)std::initializer_list<int>{(++std::get<I>(ifroms), 0)...};
@@ -123,14 +125,14 @@ namespace numpy
       return std::accumulate(std::begin(sizes), std::end(sizes), 0L,
                              std::plus<long>());
     }
-  }
+  } // namespace details
 
   template <class... Types>
-  auto concatenate(std::tuple<Types...> const &args, long axis)
-      -> types::ndarray<
-          typename __combined<typename std::decay<Types>::type::dtype...>::type,
-          types::array<
-              long, std::tuple_element<0, std::tuple<Types...>>::type::value>>
+  auto
+  concatenate(std::tuple<Types...> const &args, long axis) -> types::ndarray<
+      typename __combined<typename std::decay<Types>::type::dtype...>::type,
+      types::array<long,
+                   std::tuple_element<0, std::tuple<Types...>>::type::value>>
   {
     using T =
         typename __combined<typename std::decay<Types>::type::dtype...>::type;
@@ -141,9 +143,9 @@ namespace numpy
 
     types::ndarray<
         typename __combined<typename std::decay<Types>::type::dtype...>::type,
-        types::array<
-            long, std::decay<decltype(std::get<0>(args))>::type::value>> result{
-        shape, types::none_type{}};
+        types::array<long,
+                     std::decay<decltype(std::get<0>(args))>::type::value>>
+        result{shape, types::none_type{}};
     details::concatenate_helper<N>()(
         result, args, axis, utils::make_index_sequence<sizeof...(Types)>{});
     return result;
@@ -184,7 +186,7 @@ namespace numpy
     return out;
     ;
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

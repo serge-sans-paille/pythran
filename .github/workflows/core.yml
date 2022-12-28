@@ -40,4 +40,4 @@ jobs:
       run: |
         export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/gcc/'`
         export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/clang++/'`
-        pytest pythran/tests/test_scipy.py -v -x --numprocesses=auto $PYTEST_ARGS
+        pytest pythran/tests/test_*.py -v -x --numprocesses=auto $PYTEST_ARGS

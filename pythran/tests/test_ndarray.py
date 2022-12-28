@@ -1073,7 +1073,7 @@ def complex_conversion0(x):
         self.run_test(code,
                       numpy.arange(4., dtype=numpy.float32).reshape(2,2),
                       numpy.array([[False,True],[True, False]]),
-                      vexpr_of_texpr=[NDArray[numpy.float32,:,:], NDArray[numpy.bool,:,:]])
+                      vexpr_of_texpr=[NDArray[numpy.float32,:,:], NDArray[bool,:,:]])
 
     def test_indexing_through_various_int0(self):
         code = '''

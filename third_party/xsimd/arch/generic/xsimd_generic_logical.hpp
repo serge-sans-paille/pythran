@@ -22,6 +22,18 @@ namespace xsimd
 
         using namespace types;
 
+        // from  mask
+        template <class A, class T>
+        inline batch_bool<T, A> from_mask(batch_bool<T, A> const&, uint64_t mask, requires_arch<generic>) noexcept
+        {
+            alignas(A::alignment()) bool buffer[batch_bool<T, A>::size];
+            // This is inefficient but should never be called. It's just a
+            // temporary implementation until arm support is added.
+            for (size_t i = 0; i < batch_bool<T, A>::size; ++i)
+                buffer[i] = mask & (1ull << i);
+            return batch_bool<T, A>::load_aligned(buffer);
+        }
+
         // ge
         template <class A, class T>
         inline batch_bool<T, A> ge(batch<T, A> const& self, batch<T, A> const& other, requires_arch<generic>) noexcept
@@ -84,12 +96,12 @@ namespace xsimd
         template <class A>
         inline batch_bool<float, A> isfinite(batch<float, A> const& self, requires_arch<generic>) noexcept
         {
-            return (self - self) == 0;
+            return (self - self) == 0.f;
         }
         template <class A>
         inline batch_bool<double, A> isfinite(batch<double, A> const& self, requires_arch<generic>) noexcept
         {
-            return (self - self) == 0;
+            return (self - self) == 0.;
         }
 
         // isnan
@@ -129,6 +141,21 @@ namespace xsimd
             return detail::apply([](T x, T y) noexcept
                                  { return x || y; },
                                  self, other);
+        }
+
+        // mask
+        template <class A, class T>
+        inline uint64_t mask(batch_bool<T, A> const& self, requires_arch<generic>) noexcept
+        {
+            alignas(A::alignment()) bool buffer[batch_bool<T, A>::size];
+            self.store_aligned(buffer);
+            // This is inefficient but should never be called. It's just a
+            // temporary implementation until arm support is added.
+            uint64_t res = 0;
+            for (size_t i = 0; i < batch_bool<T, A>::size; ++i)
+                if (buffer[i])
+                    res |= 1ul << i;
+            return res;
         }
     }
 }

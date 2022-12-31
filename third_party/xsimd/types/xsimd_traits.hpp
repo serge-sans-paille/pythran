@@ -54,23 +54,52 @@ namespace xsimd
 
         template <class T>
         constexpr size_t simd_traits_impl<T, true>::size;
+
+        template <class T, class A>
+        struct static_check_supported_config_emitter
+        {
+
+            static_assert(A::supported(),
+                          "usage of batch type with unsupported architecture");
+            static_assert(!A::supported() || xsimd::has_simd_register<T, A>::value,
+                          "usage of batch type with unsupported type");
+        };
+
+        template <class T, class A>
+        struct static_check_supported_config_emitter<std::complex<T>, A> : static_check_supported_config_emitter<T, A>
+        {
+        };
+
+#ifdef XSIMD_ENABLE_XTL_COMPLEX
+        template <class T, class A, bool i3ec>
+        struct static_check_supported_config_emitter<xtl::xcomplex<T, T, i3ec>, A> : static_check_supported_config_emitter<T, A>
+        {
+        };
+#endif
+
+        // consistency checker
+        template <class T, class A>
+        void static_check_supported_config()
+        {
+            (void)static_check_supported_config_emitter<T, A>();
+        }
     }
 
     template <class T>
-    struct simd_traits : detail::simd_traits_impl<T, has_simd_register<T>::value>
+    struct simd_traits : detail::simd_traits_impl<T, xsimd::has_simd_register<T>::value>
     {
     };
 
     template <class T>
     struct simd_traits<std::complex<T>>
-        : detail::simd_traits_impl<std::complex<T>, has_simd_register<T>::value>
+        : detail::simd_traits_impl<std::complex<T>, xsimd::has_simd_register<T>::value>
     {
     };
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     template <class T, bool i3ec>
     struct simd_traits<xtl::xcomplex<T, T, i3ec>>
-        : detail::simd_traits_impl<std::complex<T>, has_simd_register<T>::value>
+        : detail::simd_traits_impl<std::complex<T>, xsimd::has_simd_register<T>::value>
     {
     };
 #endif
@@ -121,13 +150,6 @@ namespace xsimd
             : std::enable_if<simd_condition<T1, T2>::value, batch<T2, A>>
         {
         };
-        template <class A>
-        struct simd_return_type_impl<char, char, A>
-            : std::conditional<std::is_signed<char>::value,
-                               simd_return_type_impl<int8_t, int8_t, A>,
-                               simd_return_type_impl<uint8_t, uint8_t, A>>::type
-        {
-        };
 
         template <class T2, class A>
         struct simd_return_type_impl<bool, T2, A>
@@ -153,7 +175,7 @@ namespace xsimd
         {
         };
 
-#if XSIMD_ENABLE_XTL_COMPLEX
+#ifdef XSIMD_ENABLE_XTL_COMPLEX
         template <class T1, class T2, bool I3EC, class A>
         struct simd_return_type_impl<xtl::xcomplex<T1, T1, I3EC>, T2, A>
             : std::enable_if<simd_condition<T1, T2>::value, batch<std::complex<T2>, A>>
@@ -161,7 +183,19 @@ namespace xsimd
         };
 
         template <class T1, class T2, bool I3EC, class A>
+        struct simd_return_type_impl<xtl::xcomplex<T1, T1, I3EC>, std::complex<T2>, A>
+            : std::enable_if<simd_condition<T1, T2>::value, batch<std::complex<T2>, A>>
+        {
+        };
+
+        template <class T1, class T2, bool I3EC, class A>
         struct simd_return_type_impl<xtl::xcomplex<T1, T1, I3EC>, xtl::xcomplex<T2, T2, I3EC>, A>
+            : std::enable_if<simd_condition<T1, T2>::value, batch<std::complex<T2>, A>>
+        {
+        };
+
+        template <class T1, class T2, bool I3EC, class A>
+        struct simd_return_type_impl<std::complex<T1>, xtl::xcomplex<T2, T2, I3EC>, A>
             : std::enable_if<simd_condition<T1, T2>::value, batch<std::complex<T2>, A>>
         {
         };

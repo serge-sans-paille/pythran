@@ -40,15 +40,54 @@ namespace xsimd
             return _mm_ceil_pd(self);
         }
 
+        // fast_cast
+        namespace detail
+        {
+            template <class A>
+            inline batch<double, A> fast_cast(batch<int64_t, A> const& x, batch<double, A> const&, requires_arch<sse4_1>) noexcept
+            {
+                // from https://stackoverflow.com/questions/41144668/how-to-efficiently-perform-double-int64-conversions-with-sse-avx
+                __m128i xH = _mm_srai_epi32(x, 16);
+                xH = _mm_blend_epi16(xH, _mm_setzero_si128(), 0x33);
+                xH = _mm_add_epi64(xH, _mm_castpd_si128(_mm_set1_pd(442721857769029238784.))); //  3*2^67
+                __m128i xL = _mm_blend_epi16(x, _mm_castpd_si128(_mm_set1_pd(0x0010000000000000)), 0x88); //  2^52
+                __m128d f = _mm_sub_pd(_mm_castsi128_pd(xH), _mm_set1_pd(442726361368656609280.)); //  3*2^67 + 2^52
+                return _mm_add_pd(f, _mm_castsi128_pd(xL));
+            }
+
+            template <class A>
+            inline batch<double, A> fast_cast(batch<uint64_t, A> const& x, batch<double, A> const&, requires_arch<sse4_1>) noexcept
+            {
+                // from https://stackoverflow.com/questions/41144668/how-to-efficiently-perform-double-int64-conversions-with-sse-avx
+                __m128i xH = _mm_srli_epi64(x, 32);
+                xH = _mm_or_si128(xH, _mm_castpd_si128(_mm_set1_pd(19342813113834066795298816.))); //  2^84
+                __m128i xL = _mm_blend_epi16(x, _mm_castpd_si128(_mm_set1_pd(0x0010000000000000)), 0xcc); //  2^52
+                __m128d f = _mm_sub_pd(_mm_castsi128_pd(xH), _mm_set1_pd(19342813118337666422669312.)); //  2^84 + 2^52
+                return _mm_add_pd(f, _mm_castsi128_pd(xL));
+            }
+
+            template <class A>
+            inline batch<uint32_t, A> fast_cast(batch<float, A> const& self, batch<uint32_t, A> const&, requires_arch<sse4_1>) noexcept
+            {
+                return _mm_castps_si128(
+                    _mm_blendv_ps(_mm_castsi128_ps(_mm_cvttps_epi32(self)),
+                                  _mm_castsi128_ps(_mm_xor_si128(
+                                      _mm_cvttps_epi32(_mm_sub_ps(self, _mm_set1_ps(1u << 31))),
+                                      _mm_set1_epi32(1u << 31))),
+                                  _mm_cmpge_ps(self, _mm_set1_ps(1u << 31))));
+            }
+        }
+
         // eq
         template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
         inline batch_bool<T, A> eq(batch<T, A> const& self, batch<T, A> const& other, requires_arch<sse4_1>) noexcept
         {
-            switch (sizeof(T))
+            XSIMD_IF_CONSTEXPR(sizeof(T) == 8)
             {
-            case 8:
                 return _mm_cmpeq_epi64(self, other);
-            default:
+            }
+            else
+            {
                 return eq(self, other, ssse3 {});
             }
         }
@@ -65,35 +104,74 @@ namespace xsimd
             return _mm_floor_pd(self);
         }
 
+        // insert
+        template <class A, class T, size_t I, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
+        inline batch<T, A> insert(batch<T, A> const& self, T val, index<I> pos, requires_arch<sse4_1>) noexcept
+        {
+            XSIMD_IF_CONSTEXPR(sizeof(T) == 1)
+            {
+                return _mm_insert_epi8(self, val, I);
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
+            {
+                return _mm_insert_epi32(self, val, I);
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 8)
+            {
+#if (!defined(_MSC_VER) && __x86_64__) || (_MSC_VER > 1900 && defined(_M_X64))
+                return _mm_insert_epi64(self, val, I);
+#else
+                uint32_t lo, hi;
+                memcpy(&lo, (reinterpret_cast<uint32_t*>(&val)), sizeof(lo));
+                memcpy(&hi, (reinterpret_cast<uint32_t*>(&val)) + 1, sizeof(hi));
+                return _mm_insert_epi32(_mm_insert_epi32(self, lo, 2 * I), hi, 2 * I + 1);
+#endif
+            }
+            else
+            {
+                return insert(self, val, pos, ssse3 {});
+            }
+        }
+
         // max
         template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
         inline batch<T, A> max(batch<T, A> const& self, batch<T, A> const& other, requires_arch<sse4_1>) noexcept
         {
             if (std::is_signed<T>::value)
             {
-                switch (sizeof(T))
+                XSIMD_IF_CONSTEXPR(sizeof(T) == 1)
                 {
-                case 1:
                     return _mm_max_epi8(self, other);
-                case 2:
+                }
+                else XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
+                {
                     return _mm_max_epi16(self, other);
-                case 4:
+                }
+                else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
+                {
                     return _mm_max_epi32(self, other);
-                default:
+                }
+                else
+                {
                     return max(self, other, ssse3 {});
                 }
             }
             else
             {
-                switch (sizeof(T))
+                XSIMD_IF_CONSTEXPR(sizeof(T) == 1)
                 {
-                case 1:
                     return _mm_max_epu8(self, other);
-                case 2:
+                }
+                else XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
+                {
                     return _mm_max_epu16(self, other);
-                case 4:
+                }
+                else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
+                {
                     return _mm_max_epu32(self, other);
-                default:
+                }
+                else
+                {
                     return max(self, other, ssse3 {});
                 }
             }
@@ -105,29 +183,39 @@ namespace xsimd
         {
             if (std::is_signed<T>::value)
             {
-                switch (sizeof(T))
+                XSIMD_IF_CONSTEXPR(sizeof(T) == 1)
                 {
-                case 1:
                     return _mm_min_epi8(self, other);
-                case 2:
+                }
+                else XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
+                {
                     return _mm_min_epi16(self, other);
-                case 4:
+                }
+                else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
+                {
                     return _mm_min_epi32(self, other);
-                default:
+                }
+                else
+                {
                     return min(self, other, ssse3 {});
                 }
             }
             else
             {
-                switch (sizeof(T))
+                XSIMD_IF_CONSTEXPR(sizeof(T) == 1)
                 {
-                case 1:
                     return _mm_min_epu8(self, other);
-                case 2:
+                }
+                else XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
+                {
                     return _mm_min_epu16(self, other);
-                case 4:
+                }
+                else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
+                {
                     return _mm_min_epu32(self, other);
-                default:
+                }
+                else
+                {
                     return min(self, other, ssse3 {});
                 }
             }
@@ -137,17 +225,22 @@ namespace xsimd
         template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
         inline batch<T, A> mul(batch<T, A> const& self, batch<T, A> const& other, requires_arch<sse4_1>) noexcept
         {
-            switch (sizeof(T))
+            XSIMD_IF_CONSTEXPR(sizeof(T) == 1)
             {
-            case 1:
                 return _mm_or_si128(
                     _mm_and_si128(_mm_mullo_epi16(self, other), _mm_srli_epi16(_mm_cmpeq_epi8(self, self), 8)),
                     _mm_slli_epi16(_mm_mullo_epi16(_mm_srli_epi16(self, 8), _mm_srli_epi16(other, 8)), 8));
-            case 2:
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
+            {
                 return _mm_mullo_epi16(self, other);
-            case 4:
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
+            {
                 return _mm_mullo_epi32(self, other);
-            case 8:
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 8)
+            {
                 return _mm_add_epi64(
                     _mm_mul_epu32(self, other),
                     _mm_slli_epi64(
@@ -155,7 +248,9 @@ namespace xsimd
                             _mm_mul_epu32(other, _mm_shuffle_epi32(self, _MM_SHUFFLE(2, 3, 0, 1))),
                             _mm_mul_epu32(self, _mm_shuffle_epi32(other, _MM_SHUFFLE(2, 3, 0, 1)))),
                         32));
-            default:
+            }
+            else
+            {
                 assert(false && "unsupported arch/op combination");
                 return {};
             }
@@ -203,22 +298,23 @@ namespace xsimd
         inline batch<T, A> select(batch_bool_constant<batch<T, A>, Values...> const&, batch<T, A> const& true_br, batch<T, A> const& false_br, requires_arch<sse4_1>) noexcept
         {
             constexpr int mask = batch_bool_constant<batch<T, A>, Values...>::mask();
-            switch (sizeof(T))
+            XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
             {
-            case 2:
                 return _mm_blend_epi16(false_br, true_br, mask);
-            case 4:
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
             {
                 constexpr int imask = detail::interleave(mask);
                 return _mm_blend_epi16(false_br, true_br, imask);
             }
-            case 8:
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 8)
             {
                 constexpr int imask = detail::interleave(mask);
                 constexpr int imask2 = detail::interleave(imask);
                 return _mm_blend_epi16(false_br, true_br, imask2);
             }
-            default:
+            else
+            {
                 return select(batch_bool_constant<batch<T, A>, Values...>(), true_br, false_br, ssse3 {});
             }
         }

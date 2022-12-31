@@ -4,6 +4,8 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
+#include <xsimd/xsimd.hpp>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy
@@ -11,13 +13,8 @@ namespace numpy
 
   // special private handler for clip(v, None, m) {
 
-  namespace wrapper
-  {
-    template <class T, class Mi>
-    typename __combined<T, Mi>::type clip_max(T const &v, Mi a_max);
-  }
 #define NUMPY_NARY_FUNC_NAME _clip_max
-#define NUMPY_NARY_FUNC_SYM wrapper::clip_max
+#define NUMPY_NARY_FUNC_SYM xsimd::min
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 
   // }

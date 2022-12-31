@@ -32,6 +32,13 @@ namespace xsimd
     class batch_bool;
 
     /**************
+     * index      *
+     **************/
+
+    template <size_t I>
+    using index = std::integral_constant<size_t, I>;
+
+    /**************
      * as_integer *
      **************/
 
@@ -189,6 +196,47 @@ namespace xsimd
         return res;
     }
 
+    namespace kernel
+    {
+        namespace detail
+        {
+            /**************************************
+             * enabling / disabling metafunctions *
+             **************************************/
+
+            template <class T>
+            using enable_integral_t = typename std::enable_if<std::is_integral<T>::value, int>::type;
+
+            template <class T, size_t S>
+            using enable_sized_signed_t = typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value && sizeof(T) == S, int>::type;
+
+            template <class T, size_t S>
+            using enable_sized_unsigned_t = typename std::enable_if<std::is_integral<T>::value && !std::is_signed<T>::value && sizeof(T) == S, int>::type;
+
+            template <class T, size_t S>
+            using enable_sized_integral_t = typename std::enable_if<std::is_integral<T>::value && sizeof(T) == S, int>::type;
+
+            template <class T, size_t S>
+            using enable_sized_t = typename std::enable_if<sizeof(T) == S, int>::type;
+
+            template <class T, size_t S>
+            using enable_max_sized_integral_t = typename std::enable_if<std::is_integral<T>::value && sizeof(T) <= S, int>::type;
+
+            /********************************
+             * Matching & mismatching sizes *
+             ********************************/
+
+            template <class T, class U, class B = int>
+            using sizes_match_t = typename std::enable_if<sizeof(T) == sizeof(U), B>::type;
+
+            template <class T, class U, class B = int>
+            using sizes_mismatch_t = typename std::enable_if<sizeof(T) != sizeof(U), B>::type;
+
+            template <class T, class U, class B = int>
+            using stride_match_t = typename std::enable_if<!std::is_same<T, U>::value && sizeof(T) == sizeof(U), B>::type;
+        } // namespace detail
+    } // namespace kernel
+
     /*****************************************
      * Backport of index_sequence from c++14 *
      *****************************************/
@@ -268,8 +316,20 @@ namespace xsimd
         using make_int_sequence = make_integer_sequence<int, N>;
 
         template <typename... Ts>
-        using int_sequence_for = make_int_sequence<sizeof...(Ts)>;
+        using int_sequence_for = make_int_sequence<(int)sizeof...(Ts)>;
 
+        // Type-casted index sequence.
+        template <class P, size_t... Is>
+        inline P indexes_from(index_sequence<Is...>) noexcept
+        {
+            return { static_cast<typename P::value_type>(Is)... };
+        }
+
+        template <class P>
+        inline P make_sequence_as_batch() noexcept
+        {
+            return indexes_from<P>(make_index_sequence<P::size>());
+        }
     }
 
     /***********************************

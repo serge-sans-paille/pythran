@@ -29,17 +29,24 @@ namespace xsimd
         template <class A, class T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, void>::type>
         inline batch<T, A> abs(batch<T, A> const& self, requires_arch<ssse3>) noexcept
         {
-            switch (sizeof(T))
+            XSIMD_IF_CONSTEXPR(sizeof(T) == 1)
             {
-            case 1:
                 return _mm_abs_epi8(self);
-            case 2:
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
+            {
                 return _mm_abs_epi16(self);
-            case 4:
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
+            {
                 return _mm_abs_epi32(self);
-            case 8:
+            }
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 8)
+            {
                 return _mm_abs_epi64(self);
-            default:
+            }
+            else
+            {
                 assert(false && "unsupported arch/op combination");
                 return {};
             }
@@ -75,29 +82,59 @@ namespace xsimd
             return detail::extract_pair(self, other, i, ::xsimd::detail::make_index_sequence<size>());
         }
 
-        // hadd
+        // reduce_add
         template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
-        inline T hadd(batch<T, A> const& self, requires_arch<ssse3>) noexcept
+        inline T reduce_add(batch<T, A> const& self, requires_arch<ssse3>) noexcept
         {
-            switch (sizeof(T))
-            {
-            case 2:
+            XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
             {
                 __m128i tmp1 = _mm_hadd_epi16(self, self);
                 __m128i tmp2 = _mm_hadd_epi16(tmp1, tmp1);
                 __m128i tmp3 = _mm_hadd_epi16(tmp2, tmp2);
                 return _mm_cvtsi128_si32(tmp3) & 0xFFFF;
             }
-            case 4:
+            else XSIMD_IF_CONSTEXPR(sizeof(T) == 4)
             {
                 __m128i tmp1 = _mm_hadd_epi32(self, self);
                 __m128i tmp2 = _mm_hadd_epi32(tmp1, tmp1);
                 return _mm_cvtsi128_si32(tmp2);
             }
-            default:
-                return hadd(self, sse3 {});
+            else
+            {
+                return reduce_add(self, sse3 {});
             }
         }
+
+        // swizzle
+        template <class A, uint16_t V0, uint16_t V1, uint16_t V2, uint16_t V3, uint16_t V4, uint16_t V5, uint16_t V6, uint16_t V7>
+        inline batch<uint16_t, A> swizzle(batch<uint16_t, A> const& self, batch_constant<batch<uint16_t, A>, V0, V1, V2, V3, V4, V5, V6, V7>, requires_arch<ssse3>) noexcept
+        {
+            constexpr batch_constant<batch<uint8_t, A>, 2 * V0, 2 * V0 + 1, 2 * V1, 2 * V1 + 1, 2 * V2, 2 * V2 + 1, 2 * V3, 2 * V3 + 1,
+                                     2 * V4, 2 * V4 + 1, 2 * V5, 2 * V5 + 1, 2 * V6, 2 * V6 + 1, 2 * V7, 2 * V7 + 1>
+                mask8;
+            return _mm_shuffle_epi8(self, (batch<uint8_t, A>)mask8);
+        }
+
+        template <class A, uint16_t V0, uint16_t V1, uint16_t V2, uint16_t V3, uint16_t V4, uint16_t V5, uint16_t V6, uint16_t V7>
+        inline batch<int16_t, A> swizzle(batch<int16_t, A> const& self, batch_constant<batch<uint16_t, A>, V0, V1, V2, V3, V4, V5, V6, V7> mask, requires_arch<ssse3>) noexcept
+        {
+            return bitwise_cast<batch<int16_t, A>>(swizzle(bitwise_cast<batch<uint16_t, A>>(self), mask, ssse3 {}));
+        }
+
+        template <class A, uint8_t V0, uint8_t V1, uint8_t V2, uint8_t V3, uint8_t V4, uint8_t V5, uint8_t V6, uint8_t V7,
+                  uint8_t V8, uint8_t V9, uint8_t V10, uint8_t V11, uint8_t V12, uint8_t V13, uint8_t V14, uint8_t V15>
+        inline batch<uint8_t, A> swizzle(batch<uint8_t, A> const& self, batch_constant<batch<uint8_t, A>, V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14, V15> mask, requires_arch<ssse3>) noexcept
+        {
+            return _mm_shuffle_epi8(self, (batch<uint8_t, A>)mask);
+        }
+
+        template <class A, uint8_t V0, uint8_t V1, uint8_t V2, uint8_t V3, uint8_t V4, uint8_t V5, uint8_t V6, uint8_t V7,
+                  uint8_t V8, uint8_t V9, uint8_t V10, uint8_t V11, uint8_t V12, uint8_t V13, uint8_t V14, uint8_t V15>
+        inline batch<int8_t, A> swizzle(batch<int8_t, A> const& self, batch_constant<batch<uint8_t, A>, V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14, V15> mask, requires_arch<ssse3>) noexcept
+        {
+            return bitwise_cast<batch<int8_t, A>>(swizzle(bitwise_cast<batch<uint8_t, A>>(self), mask, ssse3 {}));
+        }
+
     }
 
 }

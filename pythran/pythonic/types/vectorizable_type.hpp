@@ -77,9 +77,13 @@ namespace scipy
   {
     namespace functor
     {
+      struct binom;
+      struct gammaincinv;
       struct hankel1;
       struct hankel2;
       struct jv;
+      struct i0;
+      struct i0e;
       struct iv;
       struct kv;
       struct yv;
@@ -87,6 +91,8 @@ namespace scipy
       struct ivp;
       struct kvp;
       struct yvp;
+      struct ndtr;
+      struct ndtri;
       struct spherical_jn;
       struct spherical_yn;
     }
@@ -158,15 +164,21 @@ namespace types
            std::is_same<O, numpy::functor::fmod>::value)) &&
         // special functions not in the scope of xsimd
         !std::is_same<O, numpy::functor::heaviside>::value &&
+        !std::is_same<O, scipy::special::functor::binom>::value &&
+        !std::is_same<O, scipy::special::functor::gammaincinv>::value &&
         !std::is_same<O, scipy::special::functor::hankel1>::value &&
         !std::is_same<O, scipy::special::functor::hankel2>::value &&
         !std::is_same<O, scipy::special::functor::jv>::value &&
+        !std::is_same<O, scipy::special::functor::i0>::value &&
+        !std::is_same<O, scipy::special::functor::i0e>::value &&
         !std::is_same<O, scipy::special::functor::iv>::value &&
         !std::is_same<O, scipy::special::functor::kv>::value &&
         !std::is_same<O, scipy::special::functor::yv>::value &&
         !std::is_same<O, scipy::special::functor::jvp>::value &&
         !std::is_same<O, scipy::special::functor::ivp>::value &&
         !std::is_same<O, scipy::special::functor::kvp>::value &&
+        !std::is_same<O, scipy::special::functor::ndtr>::value &&
+        !std::is_same<O, scipy::special::functor::ndtri>::value &&
         !std::is_same<O, scipy::special::functor::yvp>::value &&
         !std::is_same<O, scipy::special::functor::spherical_jn>::value &&
         !std::is_same<O, scipy::special::functor::spherical_yn>::value &&

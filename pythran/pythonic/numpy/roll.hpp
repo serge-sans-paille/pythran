@@ -14,7 +14,9 @@ namespace numpy
   template <class T, class pS>
   types::ndarray<T, pS> roll(types::ndarray<T, pS> const &expr, long shift)
   {
-    while (shift < 0)
+    if (expr.flat_size() == 0)
+      return expr.copy();
+    if (shift < 0)
       shift += expr.flat_size();
     shift %= expr.flat_size();
     types::ndarray<T, pS> out(expr._shape, builtins::None);
@@ -61,7 +63,9 @@ namespace numpy
                              long axis)
   {
     auto expr_shape = sutils::array(expr._shape);
-    while (shift < 0)
+    if (expr_shape[axis] == 0)
+      return expr.copy();
+    if (shift < 0)
       shift += expr_shape[axis];
     types::ndarray<T, pS> out(expr._shape, builtins::None);
     _roll(out.fbegin(), expr.fbegin(), shift, axis, expr_shape,

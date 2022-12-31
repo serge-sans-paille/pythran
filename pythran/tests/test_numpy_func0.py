@@ -641,6 +641,10 @@ def np_ravel3(v):
     def test_resize0(self):
         self.run_test("def np_resize0(x): from numpy import resize; return resize(x, 12)", numpy.arange(24), np_resize0=[NDArray[int,:]])
 
+    def test_rollaxis4(self):
+        self.run_test("def np_rollaxis4(x): from numpy import rollaxis; return rollaxis(x, -1)",
+        numpy.array([], dtype=int), np_rollaxis4=[NDArray[int, :]])
+
     def test_rollaxis3(self):
         self.run_test("def np_rollaxis3(x): from numpy import rollaxis; return rollaxis(x, 0, 3)", numpy.arange(24).reshape((2,3,4)), np_rollaxis3=[NDArray[int, :, :, :]])
 
@@ -652,6 +656,10 @@ def np_ravel3(v):
 
     def test_rollaxis0(self):
         self.run_test("def np_rollaxis0(x): from numpy import rollaxis; return rollaxis(x, 1)", numpy.arange(24).reshape(2,3,4), np_rollaxis0=[NDArray[int, :, :, :]])
+
+    def test_roll7(self):
+        self.run_test("def np_roll7(x): from numpy import roll; return roll(x, -1)",
+        numpy.array([], dtype=int), np_roll7=[NDArray[int, :]])
 
     def test_roll6(self):
         self.run_test("def np_roll6(x): from numpy import roll; return roll(x[:,:,:-1], -1, 2)", numpy.arange(24).reshape(2,3,4), np_roll6=[NDArray[int, :, :, :]])

@@ -3699,6 +3699,7 @@ MODULES = {
         "empty": ConstFunctionIntr(args=('shape', 'dtype'),
                                    defaults=("numpy.float64",),
                                    signature=_numpy_ones_signature,
+                                   global_effects=True, # to avoid folding
                                    ),
         "empty_like": ConstFunctionIntr(
             args=('a', 'dtype'),

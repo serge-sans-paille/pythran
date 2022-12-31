@@ -1,6 +1,7 @@
 from pythran.tests import TestEnv
-from pythran.typing import List
+from pythran.typing import List, NDArray
 import unittest
+import numpy
 
 import pythran
 
@@ -726,6 +727,40 @@ def range_simplify_subscript(n):
     ML[0] = n
     return ML'''
         self.run_test(code, 1, range_simplify_subscript=[int])
+
+    def test_range_simplify_call_same_identifiers(self):
+        code = '''
+import math
+import numpy
+def test_range_simplify_call_same_identifiers(b, c, y, t, m):
+    ta = ftc (b, c, y, t, m)
+    gis = 0.
+    tno = numpy.empty(shape = (2))
+    for cnum in ([0,1] if m else [0]):
+        tno[cnum] = 123.
+    for cnum in ([0,1] if m else [0]):
+        gis += cnum
+    ret = gis - ta
+    return ret
+
+def ftc (b, c, y, t, m):
+    cin = [7,8]
+    ed = []
+    for cnum in [0,1]:
+        if b < 5:
+            ed.append (456.)
+        else:
+            ed.append (0.)
+    ret = 0.
+    if (c + y) < 65 and t[y] and m and cin[1] is not None:
+        ret += 543.21
+    return ret
+'''
+        self.run_test(code,
+                      True, 60, 60, numpy.asarray([False] * 80), True,
+                      test_range_simplify_call_same_identifiers=[bool, int, int,
+                                                                 NDArray[bool,:],
+                                                                 bool])
 
     def test_insert_none0(self):
         code = '''

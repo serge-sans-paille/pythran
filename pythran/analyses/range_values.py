@@ -95,7 +95,7 @@ def negate(node):
 
 def bound_range(mapping, aliases, node, modified=None):
     """
-    Bound the idenifier in `mapping' with the expression in `node'.
+    Bound the identifier in `mapping' with the expression in `node'.
     `aliases' is the result of aliasing analysis and `modified' is
     updated with the set of identifiers possibly `bounded' as the result
     of the call.
@@ -411,8 +411,11 @@ class RangeValuesBase(ModuleAnalysis):
                 if alias not in self.result:
                     state = self.save_state()
                     self.parent.visit(alias)
+                    return_range = self.result[alias]
                     self.restore_state(state)
-                self.add(node, self.result[alias])
+                else:
+                    return_range = self.result[alias]
+                self.add(node, return_range)
             else:
                 self.result.pop(node, None)
                 return self.generic_visit(node)
@@ -839,11 +842,11 @@ class RangeValues(RangeValuesBase):
 
     def save_state(self):
         return (self.cfg, self.aliases, self.use_omp, self.no_backward,
-                self.no_if_split)
+                self.no_if_split, self.result.copy())
 
     def restore_state(self, state):
         (self.cfg, self.aliases, self.use_omp, self.no_backward,
-         self.no_if_split) = state
+         self.no_if_split, self.result) = state
 
     def function_visitor(self, node):
         parent_result = self.result

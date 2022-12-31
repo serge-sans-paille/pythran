@@ -10,20 +10,9 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  namespace wrapper
-  {
-    template <class T, class Ma>
-    typename __combined<T, Ma>::type clip_max(T const &v, Ma a_max)
-    {
-      if (v > a_max)
-        return a_max;
-      else
-        return v;
-    }
-  }
 
 #define NUMPY_NARY_FUNC_NAME _clip_max
-#define NUMPY_NARY_FUNC_SYM wrapper::clip_max
+#define NUMPY_NARY_FUNC_SYM xsimd::min
 #include "pythonic/types/numpy_nary_expr.hpp"
 
   namespace wrapper

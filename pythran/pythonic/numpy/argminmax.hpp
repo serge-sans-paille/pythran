@@ -73,25 +73,6 @@ namespace numpy
   }
 
 #ifdef USE_XSIMD
-  template <bool IsInt>
-  struct bool_caster;
-  template <>
-  struct bool_caster<true> {
-    template <class T>
-    auto operator()(T const &value) -> decltype(xsimd::bool_cast(value))
-    {
-      return xsimd::bool_cast(value);
-    }
-  };
-  template <>
-  struct bool_caster<false> {
-    template <class T>
-    T operator()(T const &value)
-    {
-      return value;
-    }
-  };
-
   template <class Op, class E, class T>
   typename std::enable_if<
       E::is_vectorizable && types::is_vector_op<typename Op::op, T, T>::value &&
@@ -127,8 +108,7 @@ namespace numpy
         vacc = typename Op::op{}(vacc, c);
         auto mask = c == vacc;
         indices =
-            xsimd::select(bool_caster<std::is_floating_point<T>::value>{}(mask),
-                          curr, indices);
+            xsimd::select(xsimd::batch_bool_cast<iT>(mask), curr, indices);
       }
 
       alignas(sizeof(vT)) T stored[vN];

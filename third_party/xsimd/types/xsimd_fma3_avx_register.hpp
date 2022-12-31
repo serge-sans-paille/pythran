@@ -9,40 +9,38 @@
  * The full license is in the file LICENSE, distributed with this software. *
  ****************************************************************************/
 
-#ifndef XSIMD_AVX512CD_REGISTER_HPP
-#define XSIMD_AVX512CD_REGISTER_HPP
+#ifndef XSIMD_FMA3_AVX_REGISTER_HPP
+#define XSIMD_FMA3_AVX_REGISTER_HPP
 
-#include "./xsimd_avx512f_register.hpp"
+#include "./xsimd_avx_register.hpp"
 
 namespace xsimd
 {
+    template <typename arch>
+    struct fma3;
 
     /**
      * @ingroup arch
      *
-     * AVX512CD instrutions
+     * AVX + FMA instructions
      */
-    struct avx512cd : avx512f
+    template <>
+    struct fma3<avx> : avx
     {
-        static constexpr bool supported() noexcept { return XSIMD_WITH_AVX512CD; }
+        static constexpr bool supported() noexcept { return XSIMD_WITH_FMA3_AVX; }
         static constexpr bool available() noexcept { return true; }
-        static constexpr unsigned version() noexcept { return generic::version(3, 2, 0); }
-        static constexpr char const* name() noexcept { return "avx512cd"; }
+        static constexpr unsigned version() noexcept { return generic::version(2, 1, 1); }
+        static constexpr char const* name() noexcept { return "fma3+avx"; }
     };
 
-#if XSIMD_WITH_AVX512CD
-
+#if XSIMD_WITH_FMA3_AVX
     namespace types
     {
-        template <class T>
-        struct get_bool_simd_register<T, avx512cd>
-        {
-            using type = simd_avx512_bool_register<T>;
-        };
 
-        XSIMD_DECLARE_SIMD_REGISTER_ALIAS(avx512cd, avx512f);
+        XSIMD_DECLARE_SIMD_REGISTER_ALIAS(fma3<avx>, avx);
 
     }
 #endif
+
 }
 #endif

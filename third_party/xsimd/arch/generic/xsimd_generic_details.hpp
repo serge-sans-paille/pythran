@@ -30,18 +30,12 @@ namespace xsimd
     inline bool any(batch_bool<T, A> const& self) noexcept;
     template <class T, class A>
     inline batch<T, A> atan2(batch<T, A> const& self, batch<T, A> const& other) noexcept;
+    template <class A, class T_out, class T_in>
+    inline batch<T_out, A> batch_cast(batch<T_in, A> const&, batch<T_out, A> const& out) noexcept;
     template <class T, class A>
     inline batch<T, A> bitofsign(batch<T, A> const& self) noexcept;
     template <class B, class T, class A>
     inline B bitwise_cast(batch<T, A> const& self) noexcept;
-    template <class A>
-    inline batch_bool<float, A> bool_cast(batch_bool<int32_t, A> const& self) noexcept;
-    template <class A>
-    inline batch_bool<int32_t, A> bool_cast(batch_bool<float, A> const& self) noexcept;
-    template <class A>
-    inline batch_bool<double, A> bool_cast(batch_bool<int64_t, A> const& self) noexcept;
-    template <class A>
-    inline batch_bool<int64_t, A> bool_cast(batch_bool<double, A> const& self) noexcept;
     template <class T, class A>
     inline batch<T, A> cos(batch<T, A> const& self) noexcept;
     template <class T, class A>
@@ -54,8 +48,6 @@ namespace xsimd
     inline batch<T, A> fms(batch<T, A> const& x, batch<T, A> const& y, batch<T, A> const& z) noexcept;
     template <class T, class A>
     inline batch<T, A> frexp(const batch<T, A>& x, const batch<as_integer_t<T>, A>& e) noexcept;
-    template <class T, class A>
-    inline T hadd(batch<T, A> const&) noexcept;
     template <class T, class A, uint64_t... Coefs>
     inline batch<T, A> horner(const batch<T, A>& self) noexcept;
     template <class T, class A>
@@ -76,6 +68,10 @@ namespace xsimd
     inline batch<T, A> log(batch<T, A> const& self) noexcept;
     template <class T, class A>
     inline batch<T, A> nearbyint(batch<T, A> const& self) noexcept;
+    template <class T, class A>
+    inline batch<as_integer_t<T>, A> nearbyint_as_int(const batch<T, A>& x) noexcept;
+    template <class T, class A>
+    inline T reduce_add(batch<T, A> const&) noexcept;
     template <class T, class A>
     inline batch<T, A> select(batch_bool<T, A> const&, batch<T, A> const&, batch<T, A> const&) noexcept;
     template <class T, class A>
@@ -119,6 +115,23 @@ namespace xsimd
                     self_buffer[i] = func(self_buffer[i], other_buffer[i]);
                 }
                 return batch<T, A>::load_aligned(self_buffer);
+            }
+
+            template <class U, class F, class A, class T>
+            inline batch<U, A> apply_transform(F&& func, batch<T, A> const& self) noexcept
+            {
+                static_assert(batch<T, A>::size == batch<U, A>::size,
+                              "Source and destination sizes must match");
+                constexpr std::size_t src_size = batch<T, A>::size;
+                constexpr std::size_t dest_size = batch<U, A>::size;
+                alignas(A::alignment()) T self_buffer[src_size];
+                alignas(A::alignment()) U other_buffer[dest_size];
+                self.store_aligned(&self_buffer[0]);
+                for (std::size_t i = 0; i < src_size; ++i)
+                {
+                    other_buffer[i] = func(self_buffer[i]);
+                }
+                return batch<U, A>::load_aligned(other_buffer);
             }
         }
 

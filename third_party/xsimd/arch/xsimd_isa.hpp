@@ -36,20 +36,28 @@
 #include "./xsimd_sse4_2.hpp"
 #endif
 
-#if XSIMD_WITH_FMA3
-#include "./xsimd_fma3.hpp"
+#if XSIMD_WITH_FMA3_SSE
+#include "./xsimd_fma3_sse.hpp"
+#endif
+
+#if XSIMD_WITH_FMA4
+#include "./xsimd_fma4.hpp"
 #endif
 
 #if XSIMD_WITH_AVX
 #include "./xsimd_avx.hpp"
 #endif
 
+#if XSIMD_WITH_FMA3_AVX
+#include "./xsimd_fma3_avx.hpp"
+#endif
+
 #if XSIMD_WITH_AVX2
 #include "./xsimd_avx2.hpp"
 #endif
 
-#if XSIMD_WITH_FMA5
-#include "./xsimd_fma5.hpp"
+#if XSIMD_WITH_FMA3_AVX2
+#include "./xsimd_fma3_avx2.hpp"
 #endif
 
 #if XSIMD_WITH_AVX512F
@@ -66,6 +74,10 @@
 
 #if XSIMD_WITH_NEON64
 #include "./xsimd_neon64.hpp"
+#endif
+
+#if XSIMD_WITH_SVE
+#include "./xsimd_sve.hpp"
 #endif
 
 // Must come last to have access to all conversion specializations.

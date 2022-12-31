@@ -18,16 +18,17 @@ namespace xsimd
 {
     namespace types
     {
+        template <class T, class A>
+        struct has_simd_register : std::false_type
+        {
+        };
 
         template <class T, class Arch>
         struct simd_register
         {
-            static_assert(Arch::supported(), "usage of simd_register with unsupported architecture");
-        };
-
-        template <class T, class A>
-        struct has_simd_register : std::false_type
-        {
+            struct register_type
+            {
+            };
         };
 
 #define XSIMD_DECLARE_SIMD_REGISTER(SCALAR_TYPE, ISA, VECTOR_TYPE) \
@@ -36,11 +37,20 @@ namespace xsimd
     {                                                              \
         using register_type = VECTOR_TYPE;                         \
         register_type data;                                        \
-        operator register_type() const noexcept { return data; }   \
+        operator register_type() const noexcept                    \
+        {                                                          \
+            return data;                                           \
+        }                                                          \
     };                                                             \
     template <>                                                    \
     struct has_simd_register<SCALAR_TYPE, ISA> : std::true_type    \
     {                                                              \
+    }
+
+#define XSIMD_DECLARE_INVALID_SIMD_REGISTER(SCALAR_TYPE, ISA)    \
+    template <>                                                  \
+    struct has_simd_register<SCALAR_TYPE, ISA> : std::false_type \
+    {                                                            \
     }
 
 #define XSIMD_DECLARE_SIMD_REGISTER_ALIAS(ISA, ISA_BASE)                          \
@@ -71,10 +81,9 @@ namespace xsimd
 
     namespace kernel
     {
-        // TODO: rename this, as it might conflict with C++20 keyword.
-        // We should use add_const and add_reference to build A const&
         template <class A>
-        using requires_arch = A const&;
+        // makes requires_arch equal to A const&, using type_traits functions
+        using requires_arch = typename std::add_lvalue_reference<typename std::add_const<A>::type>::type;
         template <class T>
         struct convert
         {

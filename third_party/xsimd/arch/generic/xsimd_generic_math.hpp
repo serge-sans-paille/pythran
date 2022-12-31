@@ -103,6 +103,13 @@ namespace xsimd
             return self & constants::minuszero<batch<double, A>>();
         }
 
+        // bitwise_cast
+        template <class A, class T>
+        inline batch<T, A> bitwise_cast(batch<T, A> const& self, batch<T, A> const&, requires_arch<generic>) noexcept
+        {
+            return self;
+        }
+
         // cbrt
         /* origin: boost/simd/arch/common/simd/function/cbrt.hpp */
         /*
@@ -142,10 +149,10 @@ namespace xsimd
             e1 /= i_type(3);
             rem -= e1 * i_type(3);
             e = e1 * sign(e);
-            const batch_type cbrt2 = select(bool_cast(flag), CBRT2, CBRT2I);
-            const batch_type cbrt4 = select(bool_cast(flag), CBRT4, CBRT4I);
-            batch_type fact = select(bool_cast(rem == i_type(1)), cbrt2, batch_type(1.));
-            fact = select(bool_cast(rem == i_type(2)), cbrt4, fact);
+            const batch_type cbrt2 = select(batch_bool_cast<float>(flag), CBRT2, CBRT2I);
+            const batch_type cbrt4 = select(batch_bool_cast<float>(flag), CBRT4, CBRT4I);
+            batch_type fact = select(batch_bool_cast<float>(rem == i_type(1)), cbrt2, batch_type(1.));
+            fact = select(batch_bool_cast<float>(rem == i_type(2)), cbrt4, fact);
             x = ldexp(x * fact, e);
             x -= (x - z / (x * x)) * batch_type(1.f / 3.f);
 #ifndef XSIMD_NO_DENORMALS
@@ -189,10 +196,10 @@ namespace xsimd
             e1 /= i_type(3);
             rem -= e1 * i_type(3);
             e = e1 * sign(e);
-            const batch_type cbrt2 = select(bool_cast(flag), CBRT2, CBRT2I);
-            const batch_type cbrt4 = select(bool_cast(flag), CBRT4, CBRT4I);
-            batch_type fact = select(bool_cast(rem == i_type(1)), cbrt2, batch_type(1.));
-            fact = select(bool_cast(rem == i_type(2)), cbrt4, fact);
+            const batch_type cbrt2 = select(batch_bool_cast<double>(flag), CBRT2, CBRT2I);
+            const batch_type cbrt4 = select(batch_bool_cast<double>(flag), CBRT4, CBRT4I);
+            batch_type fact = select(batch_bool_cast<double>(rem == i_type(1)), cbrt2, batch_type(1.));
+            fact = select(batch_bool_cast<double>(rem == i_type(2)), cbrt4, fact);
             x = ldexp(x * fact, e);
             x -= (x - z / (x * x)) * batch_type(1. / 3.);
             x -= (x - z / (x * x)) * batch_type(1. / 3.);
@@ -216,7 +223,7 @@ namespace xsimd
         }
 
         // copysign
-        template <class A, class T>
+        template <class A, class T, class _ = typename std::enable_if<std::is_floating_point<T>::value, void>::type>
         inline batch<T, A> copysign(batch<T, A> const& self, batch<T, A> const& other, requires_arch<generic>) noexcept
         {
             return abs(self) | bitofsign(other);
@@ -463,17 +470,16 @@ namespace xsimd
             batch_type x = abs(self);
             auto test0 = self < batch_type(0.);
             batch_type r1(0.);
-            auto test1 = x < batch_type(2.f / 3.f);
             batch_type z = x / (batch_type(1.) + x);
-            if (any(test1))
+            if (any(3.f * x < 2.f))
             {
                 r1 = detail::erf_kernel<batch_type>::erfc3(z);
-                if (all(test1))
-                    return select(test0, batch_type(2.) - r1, r1);
             }
-            z -= batch_type(0.4f);
-            batch_type r2 = exp(-x * x) * detail::erf_kernel<batch_type>::erfc2(z);
-            r1 = select(test1, r1, r2);
+            else
+            {
+                z -= batch_type(0.4f);
+                r1 = exp(-x * x) * detail::erf_kernel<batch_type>::erfc2(z);
+            }
 #ifndef XSIMD_NO_INFINITIES
             r1 = select(x == constants::infinity<batch_type>(), batch_type(0.), r1);
 #endif
@@ -962,6 +968,14 @@ namespace xsimd
             return { rem1 - 2. * re * si * si, re * isin };
         }
 
+        // polar
+        template <class A, class T>
+        inline batch<std::complex<T>, A> polar(const batch<T, A>& r, const batch<T, A>& theta, requires_arch<generic>) noexcept
+        {
+            auto sincosTheta = sincos(theta);
+            return { r * sincosTheta.second, r * sincosTheta.first };
+        }
+
         // fdim
         template <class A, class T>
         inline batch<T, A> fdim(batch<T, A> const& self, batch<T, A> const& other, requires_arch<generic>) noexcept
@@ -995,7 +1009,7 @@ namespace xsimd
             i_type r1 = m1f & ::xsimd::bitwise_cast<i_type>(self);
             batch_type x = self & ::xsimd::bitwise_cast<batch_type>(~m1f);
             exp = (r1 >> constants::nmb<batch_type>()) - constants::maxexponentm1<batch_type>();
-            exp = select(bool_cast(self != batch_type(0.)), exp, i_type(typename i_type::value_type(0)));
+            exp = select(batch_bool_cast<typename i_type::value_type>(self != batch_type(0.)), exp, i_type(typename i_type::value_type(0)));
             return select((self != batch_type(0.)), x | ::xsimd::bitwise_cast<batch_type>(constants::mask2frexp<batch_type>()), batch_type(0.));
         }
 
@@ -1004,13 +1018,6 @@ namespace xsimd
         inline batch<T, A> from_bool(batch_bool<T, A> const& self, requires_arch<generic>) noexcept
         {
             return batch<T, A>(self.data) & batch<T, A>(1);
-        }
-
-        // hadd
-        template <class A, class T>
-        inline std::complex<T> hadd(batch<std::complex<T>, A> const& self, requires_arch<generic>) noexcept
-        {
-            return { hadd(self.real()), hadd(self.imag()) };
         }
 
         // horner
@@ -1384,7 +1391,7 @@ namespace xsimd
             auto test = (self < constants::smallestposval<batch_type>()) && isnez;
             if (any(test))
             {
-                k = select(bool_cast(test), k - i_type(23), k);
+                k = select(batch_bool_cast<typename i_type::value_type>(test), k - i_type(23), k);
                 x = select(test, x * batch_type(8388608ul), x);
             }
 #endif
@@ -1425,7 +1432,7 @@ namespace xsimd
             auto test = (self < constants::smallestposval<batch_type>()) && isnez;
             if (any(test))
             {
-                k = select(bool_cast(test), k - i_type(54), k);
+                k = select(batch_bool_cast<typename i_type::value_type>(test), k - i_type(54), k);
                 x = select(test, x * batch_type(18014398509481984ull), x);
             }
 #endif
@@ -1472,7 +1479,7 @@ namespace xsimd
             auto test = (self < constants::smallestposval<batch_type>()) && isnez;
             if (any(test))
             {
-                k = select(bool_cast(test), k - i_type(25), k);
+                k = select(batch_bool_cast<typename i_type::value_type>(test), k - i_type(25), k);
                 x = select(test, x * batch_type(33554432ul), x);
             }
 #endif
@@ -1512,7 +1519,7 @@ namespace xsimd
             auto test = (self < constants::smallestposval<batch_type>()) && isnez;
             if (any(test))
             {
-                k = select(bool_cast(test), k - i_type(54), k);
+                k = select(batch_bool_cast<typename i_type::value_type>(test), k - i_type(54), k);
                 x = select(test, x * batch_type(18014398509481984ull), x);
             }
 #endif
@@ -1592,7 +1599,7 @@ namespace xsimd
             auto test = (self < constants::smallestposval<batch_type>()) && isnez;
             if (any(test))
             {
-                k = select(bool_cast(test), k - i_type(25), k);
+                k = select(batch_bool_cast<typename i_type::value_type>(test), k - i_type(25), k);
                 x = select(test, x * batch_type(33554432ul), x);
             }
 #endif
@@ -1643,7 +1650,7 @@ namespace xsimd
             auto test = (self < constants::smallestposval<batch_type>()) && isnez;
             if (any(test))
             {
-                k = select(bool_cast(test), k - i_type(54), k);
+                k = select(batch_bool_cast<typename i_type::value_type>(test), k - i_type(54), k);
                 x = select(test, x * batch_type(18014398509481984ull), x);
             }
 #endif
@@ -1715,7 +1722,7 @@ namespace xsimd
             batch_type hfsq = batch_type(0.5) * f * f;
             batch_type dk = to_float(k);
             /* correction term ~ log(1+x)-log(u), avoid underflow in c/u */
-            batch_type c = select(bool_cast(k >= i_type(2)), batch_type(1.) - (uf - self), self - (uf - batch_type(1.))) / uf;
+            batch_type c = select(batch_bool_cast<float>(k >= i_type(2)), batch_type(1.) - (uf - self), self - (uf - batch_type(1.))) / uf;
             batch_type r = fma(dk, constants::log_2hi<batch_type>(), fma(s, (hfsq + R), dk * constants::log_2lo<batch_type>() + c) - hfsq + f);
 #ifndef XSIMD_NO_INFINITIES
             batch_type zz = select(isnez, select(self == constants::infinity<batch_type>(), constants::infinity<batch_type>(), r), constants::minusinfinity<batch_type>());
@@ -1736,7 +1743,7 @@ namespace xsimd
             hu += 0x3ff00000 - 0x3fe6a09e;
             i_type k = (hu >> 20) - 0x3ff;
             /* correction term ~ log(1+x)-log(u), avoid underflow in c/u */
-            batch_type c = select(bool_cast(k >= i_type(2)), batch_type(1.) - (uf - self), self - (uf - batch_type(1.))) / uf;
+            batch_type c = select(batch_bool_cast<double>(k >= i_type(2)), batch_type(1.) - (uf - self), self - (uf - batch_type(1.))) / uf;
             hu = (hu & i_type(0x000fffff)) + 0x3fe6a09e;
             batch_type f = ::xsimd::bitwise_cast<batch_type>((hu << 32) | (i_type(0xffffffff) & ::xsimd::bitwise_cast<i_type>(uf)));
             f = --f;
@@ -1819,6 +1826,34 @@ namespace xsimd
             return detail::nearbyintf(self);
         }
 
+        // nearbyint_as_int
+        template <class T, class A, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
+        inline batch<T, A> nearbyint_as_int(batch<T, A> const& self, requires_arch<generic>) noexcept
+        {
+            return self;
+        }
+
+        // nearbyint_as_int
+        template <class A>
+        inline batch<as_integer_t<float>, A>
+        nearbyint_as_int(batch<float, A> const& self, requires_arch<generic>) noexcept
+        {
+            using U = as_integer_t<float>;
+            return kernel::detail::apply_transform<U>([](float x) noexcept -> U
+                                                      { return std::lroundf(x); },
+                                                      self);
+        }
+
+        template <class A>
+        inline batch<as_integer_t<double>, A>
+        nearbyint_as_int(batch<double, A> const& self, requires_arch<generic>) noexcept
+        {
+            using U = as_integer_t<double>;
+            return kernel::detail::apply_transform<U>([](double x) noexcept -> U
+                                                      { return std::llround(x); },
+                                                      self);
+        }
+
         // nextafter
         namespace detail
         {
@@ -1895,8 +1930,13 @@ namespace xsimd
         inline batch<T, A> pow(batch<T, A> const& self, batch<T, A> const& other, requires_arch<generic>) noexcept
         {
             using batch_type = batch<T, A>;
-            auto negx = self < batch_type(0.);
-            batch_type z = exp(other * log(abs(self)));
+            const auto zero = batch_type(0.);
+            auto negx = self < zero;
+            auto iszero = self == zero;
+            constexpr T e = static_cast<T>(2.718281828459045);
+            auto adj_self = select(iszero, batch_type(e), abs(self));
+            batch_type z = exp(other * log(adj_self));
+            z = select(iszero, zero, z);
             z = select(is_odd(other) && negx, -z, z);
             auto invalid = negx && !(is_flint(other) || isinf(other));
             return select(invalid, constants::nan<batch_type>(), z);
@@ -1918,6 +1958,66 @@ namespace xsimd
             r = select(cond, r, r * exp(-y * arga));
             theta = select(cond, theta, theta + y * log(absa));
             return select(absa == ze, cplx_batch(ze), cplx_batch(r * cos(theta), r * sin(theta)));
+        }
+
+        // reciprocal
+        template <class T, class A, class = typename std::enable_if<std::is_floating_point<T>::value, void>::type>
+        inline batch<T, A> reciprocal(batch<T, A> const& self,
+                                      requires_arch<generic>) noexcept
+        {
+            using batch_type = batch<T, A>;
+            return div(batch_type(1), self);
+        }
+
+        // reduce_add
+        template <class A, class T>
+        inline std::complex<T> reduce_add(batch<std::complex<T>, A> const& self, requires_arch<generic>) noexcept
+        {
+            return { reduce_add(self.real()), reduce_add(self.imag()) };
+        }
+
+        namespace detail
+        {
+            template <class T, T N>
+            struct split_high
+            {
+                static constexpr T get(T i, T)
+                {
+                    return i >= N ? (i % 2) : i + N;
+                }
+            };
+
+            template <class Op, class A, class T>
+            inline T reduce(Op, batch<T, A> const& self, std::integral_constant<unsigned, 1>) noexcept
+            {
+                return self.get(0);
+            }
+
+            template <class Op, class A, class T, unsigned Lvl>
+            inline T reduce(Op op, batch<T, A> const& self, std::integral_constant<unsigned, Lvl>) noexcept
+            {
+                using index_type = as_unsigned_integer_t<T>;
+                batch<T, A> split = swizzle(self, make_batch_constant<batch<index_type, A>, split_high<index_type, Lvl / 2>>());
+                return reduce(op, op(split, self), std::integral_constant<unsigned, Lvl / 2>());
+            }
+        }
+
+        // reduce_max
+        template <class A, class T>
+        inline T reduce_max(batch<T, A> const& self, requires_arch<generic>) noexcept
+        {
+            return detail::reduce([](batch<T, A> const& x, batch<T, A> const& y)
+                                  { return max(x, y); },
+                                  self, std::integral_constant<unsigned, batch<T, A>::size>());
+        }
+
+        // reduce_min
+        template <class A, class T>
+        inline T reduce_min(batch<T, A> const& self, requires_arch<generic>) noexcept
+        {
+            return detail::reduce([](batch<T, A> const& x, batch<T, A> const& y)
+                                  { return min(x, y); },
+                                  self, std::integral_constant<unsigned, batch<T, A>::size>());
         }
 
         // remainder

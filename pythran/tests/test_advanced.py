@@ -455,6 +455,13 @@ def global_effects_partial0(l):
             return x'''
         self.run_test(code, numpy.ones(1), annotations=[NDArray[float, :]])
 
+    def test_flat_size_empty_container(self):
+        code = '''
+def flat_size_empty_container(x):
+    y = [[1] * x]
+    return np.flatnonzero(y)'''
+        self.run_test(code, 0, flat_size_empty_container=[int])
+
     def test_tuple_indexable_container(self):
         code = """
 import numpy as np

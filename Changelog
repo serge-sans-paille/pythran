@@ -1,3 +1,23 @@
+2023-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Bump xsimd depdency to 10.0.0
+
+	* Correctly raise KeyError when getting an unset dict item
+
+	* Fix negative binomial implementation
+
+	* Correctly convert strided array with offset
+
+	* Support np.clip(v, None, x) and np.clip(v, x, None)
+
+	* Support scipy.special.ndtr, scipy.special.ndtri, scipy.special.gammaincinv
+
+	* Fix set intersection
+
+	* Support numpy.fft.fftn
+
+	* Support axis parameter in numpy.argsort
+
 2022-09-20 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Improve numpy expression computation speed

@@ -458,6 +458,7 @@ def global_effects_partial0(l):
     def test_flat_size_empty_container(self):
         code = '''
 def flat_size_empty_container(x):
+    import numpy as np
     y = [[1] * x]
     return np.flatnonzero(y)'''
         self.run_test(code, 0, flat_size_empty_container=[int])

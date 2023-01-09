@@ -71,15 +71,7 @@ class TestEnv(unittest.TestCase):
 
     module = pytest.mark.module
     # default options used for the c++ compiler
-    PYTHRAN_CXX_FLAGS = ['-O0', '-Wall', '-Werror',
-                         '-UNDEBUG', '-U_FORTIFY_SOURCE',
-                         '-Wno-unused-function',
-                         '-Wno-int-in-bool-context',
-                         '-Wno-unknown-warning-option',
-                         '-Wno-unused-local-typedefs',
-                         '-Wno-absolute-value',
-                         '-Wno-missing-braces',
-                         '-Wno-unknown-pragmas',
+    PYTHRAN_CXX_FLAGS = ['-O0', '-UNDEBUG', '-U_FORTIFY_SOURCE',
                         ] if sys.platform != "win32" else []
 
     TEST_RETURNVAL = "TEST_RETURNVAL"

@@ -1196,7 +1196,7 @@ namespace builtins
   }
 
   template <class E>
-  constexpr long getattr(types::attr::NDIM, E const &a)
+  constexpr decltype(long(E::value)) getattr(types::attr::NDIM, E const &a)
   {
     return E::value;
   }

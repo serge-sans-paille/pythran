@@ -441,7 +441,8 @@ namespace xsimd
         return !(x0 == x1);
     }
 
-#if defined(_GNU_SOURCE) && !defined(__APPLE__) && !defined(__MINGW32__) && !defined(__ANDROID__)
+    // FIXME: there must be a better way :-/
+#if defined(_GNU_SOURCE) && !defined(__APPLE__) && !defined(__MINGW32__) && !defined(__ANDROID__) && !defined(__FreeBSD__) && !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(__DragonFly__)
     inline float exp10(const float& x) noexcept
     {
         return ::exp10f(x);

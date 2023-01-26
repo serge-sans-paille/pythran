@@ -12,9 +12,9 @@ namespace numpy
 {
 
   template <class E>
-  auto ndim(E const &e) -> decltype(builtins::getattr(types::attr::NDIM{}, e))
+  long ndim(E const &e)
   {
-    return builtins::getattr(types::attr::NDIM{}, e);
+    return std::tuple_size<decltype(shape(e))>::value;
   }
 }
 PYTHONIC_NS_END

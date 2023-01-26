@@ -1173,6 +1173,8 @@ namespace sutils
     return getshape(e, utils::make_index_sequence<E::value>());
   }
 
+  inline std::tuple<> getshape(...) { return {};}
+
   template <class pS0, class pS1>
   struct concat;
 

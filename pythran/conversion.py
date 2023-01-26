@@ -74,7 +74,7 @@ def size_container_folding(value):
             values = [to_ast(elt) for elt in value.values()]
             return ast.Dict(keys, values)
         elif isinstance(value, np.ndarray):
-            if len(value) == 0:
+            if np.ndim(value) == 0 or len(value) == 0:
                 shp = to_ast(value.shape)
                 shp = ast.Call(
                     ast.Attribute(

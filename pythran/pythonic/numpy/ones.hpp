@@ -11,6 +11,13 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
+  template <class dtype>
+  typename dtype::type
+  ones(std::tuple<> const &shape, dtype d)
+  {
+    return static_cast<typename dtype::type>(1);
+  }
+
   template <class pS, class dtype>
   types::ndarray<typename dtype::type, sutils::shape_t<pS>>
   ones(pS const &shape, dtype d)

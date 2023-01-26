@@ -842,15 +842,21 @@ namespace builtins
   template <class E>
   types::array<long, E::value> getattr(types::attr::SHAPE, E const &a);
 
+  types::pshape<> getattr(types::attr::SHAPE, ...) { return {}; }
+
   template <class E>
-  constexpr long getattr(types::attr::NDIM, E const &a);
+  constexpr decltype(long(E::value)) getattr(types::attr::NDIM, E const &a);
 
   template <class E>
   std::integral_constant<long, E::value> getattr(types::attr::NDIM,
                                                  E *const &a);
 
+  long getattr(types::attr::NDIM, ...) { return 0; }
+
   template <class E>
   types::array<long, E::value> getattr(types::attr::STRIDES, E const &a);
+
+  std::tuple<> getattr(types::attr::STRIDES, ...) { return {}; }
 
   template <class E>
   long getattr(types::attr::SIZE, E const &a);

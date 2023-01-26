@@ -9,8 +9,11 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
 
+
   template <class E>
   auto size(E const &e) -> decltype(e.flat_size());
+
+  long size(...) { return 1; }
 
   DEFINE_FUNCTOR(pythonic::numpy, size)
 }

@@ -9,6 +9,10 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+  template <class dtype = functor::float64>
+  typename dtype::type
+  zeros(std::tuple<> const &shape, dtype d = dtype());
+
   template <class pS, class dtype = functor::float64>
   types::ndarray<typename dtype::type, sutils::shape_t<pS>>
   zeros(pS const &shape, dtype d = dtype());

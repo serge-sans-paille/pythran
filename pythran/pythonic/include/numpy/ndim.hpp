@@ -3,6 +3,7 @@
 
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/numpy/shape.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -10,7 +11,7 @@ namespace numpy
 {
 
   template <class E>
-  auto ndim(E const &e) -> decltype(builtins::getattr(types::attr::NDIM{}, e));
+  long ndim(E const &e);
 
   DEFINE_FUNCTOR(pythonic::numpy, ndim)
 }

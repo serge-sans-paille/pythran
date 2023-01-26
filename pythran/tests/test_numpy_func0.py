@@ -64,15 +64,30 @@ class TestNumpyFunc0(TestEnv):
                        numpy.ones(3, numpy.int16),
                        numpy_shape_as_function=[NDArray[numpy.int16,:]])
 
+    def test_numpy_shape_scalar(self):
+         self.run_test("def numpy_shape_scalar(a): import numpy ; return numpy.shape(a)",
+                       1.,
+                       numpy_shape_scalar=[float])
+
     def test_numpy_size_as_function(self):
          self.run_test("def numpy_size_as_function(a): import numpy ; return numpy.size(a)",
                        numpy.ones(3, numpy.int16),
                        numpy_size_as_function=[NDArray[numpy.int16,:]])
 
+    def test_numpy_size_scalar(self):
+         self.run_test("def numpy_size_scalar(a): import numpy ; return numpy.size(a)",
+                       1.,
+                       numpy_size_scalar=[float])
+
     def test_numpy_ndim_as_function(self):
          self.run_test("def numpy_ndim_as_function(a): import numpy ; return numpy.ndim(a)",
                        numpy.ones(3, numpy.int16),
                        numpy_ndim_as_function=[NDArray[numpy.int16,:]])
+
+    def test_numpy_ndim_scalar(self):
+         self.run_test("def numpy_ndim_scalar(a): import numpy ; return numpy.ndim(a)",
+                       1.,
+                       numpy_ndim_scalar=[float])
 
     def test_frexp0(self):
         self.run_test("def np_frexp0(a): import numpy as np ; return np.frexp(a)", 1.5, np_frexp0=[float])

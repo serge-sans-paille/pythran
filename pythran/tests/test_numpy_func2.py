@@ -767,17 +767,26 @@ def test_copy0(x):
     def test_empty_integral_shape(self):
         self.run_test("def np_empty_integral_shape(n):\n from numpy import empty, uint8\n a = empty(5)\n return a.strides, len(a), n", 3, np_empty_integral_shape=[int])
 
+    def test_empty_empty_shape(self):
+        self.run_test("def np_empty_empty_shape(n):\n from numpy import empty, uint8, shape, ndim\n a = empty(())\n return a.strides, n, shape(a), ndim(a)", 3, np_empty_empty_shape=[int])
+
     def test_ones_uint_shape(self):
         self.run_test("def np_ones_uint_shape(a):\n from numpy import ones, uint32\n a = ones((uint32(a), uint32(a)))\n return a.strides, len(a)", 3, np_ones_uint_shape=[int])
 
     def test_ones_integral_shape(self):
         self.run_test("def np_ones_integral_shape(n):\n from numpy import ones, uint8\n a = ones(5)\n return a.strides, len(a), n", 3, np_ones_integral_shape=[int])
 
+    def test_ones_empty_shape(self):
+        self.run_test("def np_ones_empty_shape(n):\n from numpy import ones, uint8, shape, ndim\n a = ones(())\n return a.strides, n, shape(a), ndim(a)", 3, np_ones_empty_shape=[int])
+
     def test_zeros_uint_shape(self):
         self.run_test("def np_zeros_uint_shape(a):\n from numpy import zeros, int32\n a = zeros((int32(a), int32(a)))\n return a.strides, len(a)", 3, np_zeros_uint_shape=[int])
 
     def test_zeros_integral_shape(self):
         self.run_test("def np_zeros_integral_shape(n):\n from numpy import zeros, uint8\n a = zeros(5)\n return a.strides, len(a), n", 3, np_zeros_integral_shape=[int])
+
+    def test_zeros_empty_shape(self):
+        self.run_test("def np_zeros_empty_shape(n):\n from numpy import zeros, uint8, shape, ndim\n a = zeros(())\n return a.strides, n, shape(a), ndim(a), a.shape, a.ndim", 3, np_zeros_empty_shape=[int])
 
     def test_empty_kwargs(self):
         self.run_test("def np_empty_kwargs(a):\n from numpy import empty\n a = empty(a, dtype=int)\n return a.strides, len(a)", (3, 2), np_empty_kwargs=[Tuple[int, int]])

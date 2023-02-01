@@ -600,9 +600,14 @@ class CxxFunction(ast.NodeVisitor):
         else:
             # For yield function, upper_bound is globals.
             iter_type = ""
-            # Back one step to keep Python behavior (except for break)
-            loop = [If("{} == {}".format(local_iter, upper_bound),
-                    Statement("{} -= {}".format(local_iter, step)))]
+
+            # Back one step to keep Python behavior (unless the loop index does
+            # not escape)
+            if node.target.id in self.scope[node]:
+                loop = []
+            else:
+                loop = [If("{} == {}".format(local_iter, upper_bound),
+                        Statement("{} -= {}".format(local_iter, step)))]
 
         comparison = self.handle_real_loop_comparison(args, local_iter,
                                                       upper_bound)

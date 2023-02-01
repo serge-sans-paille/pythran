@@ -42,4 +42,5 @@ jobs:
         export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/clang++/'`
         export CXXFLAGS="-fopenmp"
         export LDFLAGS="-fopenmp"
+        printf '[compiler]\nldflags=-fopenmp\ncflags=-fopenmp\n' > ~/.pythranrc
         pytest pythran/tests/test_cases.py -v --numprocesses=1

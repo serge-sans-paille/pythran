@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_PYTHRAN_IS_NONE_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_PYTHRAN_IS_NONE_HPP
 
-#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/NoneType.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -60,35 +60,35 @@ namespace types
     }
   };
 
-  false_type true_type::operator!() const
+  inline false_type true_type::operator!() const
   {
     return {};
   }
-  true_type true_type::operator&(true_type) const
+  inline true_type true_type::operator&(true_type) const
   {
     return {};
   }
-  false_type true_type::operator&(false_type) const
+  inline false_type true_type::operator&(false_type) const
   {
     return {};
   }
-  true_type true_type::operator|(true_type) const
+  inline true_type true_type::operator|(true_type) const
   {
     return {};
   }
-  true_type true_type::operator|(false_type) const
+  inline true_type true_type::operator|(false_type) const
   {
     return {};
   }
-  true_type true_type::operator==(true_type) const
+  inline true_type true_type::operator==(true_type) const
   {
     return {};
   }
-  false_type true_type::operator==(false_type) const
+  inline false_type true_type::operator==(false_type) const
   {
     return {};
   }
-}
+} // namespace types
 
 namespace builtins
 {
@@ -107,14 +107,14 @@ namespace builtins
       return n.is_none;
     };
 
-    types::true_type is_none(types::none_type const &)
+    inline types::true_type is_none(types::none_type const &)
     {
       return {};
     };
 
     DEFINE_FUNCTOR(pythonic::builtins::pythran, is_none);
-  }
-}
+  } // namespace pythran
+} // namespace builtins
 
 #ifdef ENABLE_PYTHON_MODULE
 

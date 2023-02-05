@@ -3,9 +3,9 @@
 
 #include "pythonic/include/numpy/uint64.hpp"
 
+#include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include "pythonic/types/numpy_op_helper.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -15,7 +15,7 @@ namespace numpy
   namespace details
   {
 
-    uint64_t uint64()
+    inline uint64_t uint64()
     {
       return uint64_t();
     }
@@ -25,12 +25,12 @@ namespace numpy
     {
       return v;
     }
-  }
+  } // namespace details
 
 #define NUMPY_NARY_FUNC_NAME uint64
 #define NUMPY_NARY_FUNC_SYM details::uint64
 #include "pythonic/types/numpy_nary_expr.hpp"
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

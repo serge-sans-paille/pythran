@@ -20,12 +20,12 @@ namespace numpy
       return random(types::array<long, sizeof...(T)>{{shape...}});
     }
 
-    double rand()
+    inline double rand()
     {
       return random();
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

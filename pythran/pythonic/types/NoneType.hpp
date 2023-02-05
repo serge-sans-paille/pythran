@@ -3,10 +3,10 @@
 
 #include "pythonic/include/types/NoneType.hpp"
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/builtins/id.hpp"
 #include "pythonic/builtins/bool_.hpp"
+#include "pythonic/builtins/id.hpp"
 #include "pythonic/operator_/mod.hpp"
+#include "pythonic/types/assignable.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -18,7 +18,7 @@ namespace types
   {
   }
 
-  intptr_t none_type::id() const
+  inline intptr_t none_type::id() const
   {
     return NONE_ID;
   }
@@ -29,8 +29,7 @@ namespace types
    * see http://en.wikipedia.org/wiki/Option_type
    */
   template <class T>
-  none<T, false>::none(none_type const &)
-      : T(), is_none(true)
+  none<T, false>::none(none_type const &) : T(), is_none(true)
   {
   }
 
@@ -83,20 +82,17 @@ namespace types
 
   /* specialization of none for integral types we cannot derive from */
   template <class T>
-  none<T, true>::none()
-      : data(), is_none(false)
+  none<T, true>::none() : data(), is_none(false)
   {
   }
 
   template <class T>
-  none<T, true>::none(none_type const &)
-      : data(), is_none(true)
+  none<T, true>::none(none_type const &) : data(), is_none(true)
   {
   }
 
   template <class T>
-  none<T, true>::none(T const &data)
-      : data(data), is_none(false)
+  none<T, true>::none(T const &data) : data(data), is_none(false)
   {
   }
 
@@ -375,24 +371,24 @@ namespace types
     else
       return os << v.data;
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
 PYTHONIC_NS_BEGIN
 
-bool from_python<types::none_type>::is_convertible(PyObject *obj)
+inline bool from_python<types::none_type>::is_convertible(PyObject *obj)
 {
   return obj == Py_None;
 }
 
-types::none_type from_python<types::none_type>::convert(PyObject *obj)
+inline types::none_type from_python<types::none_type>::convert(PyObject *obj)
 {
   return {};
 }
 
-PyObject *to_python<types::none_type>::convert(types::none_type)
+inline PyObject *to_python<types::none_type>::convert(types::none_type)
 {
   Py_RETURN_NONE;
 }

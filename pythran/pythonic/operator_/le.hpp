@@ -15,11 +15,11 @@ namespace operator_
   {
     return std::forward<A>(a) <= std::forward<B>(b);
   }
-  bool le(char const *self, char const *other)
+  inline bool le(char const *self, char const *other)
   {
     return strcmp(self, other) <= 0;
   }
-}
+} // namespace operator_
 PYTHONIC_NS_END
 
 #endif

@@ -25,17 +25,17 @@ namespace os
       }
 
       template <class T, class... Types>
-      size_t sizeof_string(T const &s, Types &&... tail)
+      size_t sizeof_string(T const &s, Types &&...tail)
       {
         return s.size() + sizeof_string(std::forward<Types>(tail)...);
       }
 
-      void _join(types::str &buffer)
+      inline void _join(types::str &buffer)
       {
       }
 
       template <class T, class... Types>
-      void _join(types::str &buffer, T &&head, Types &&... tail)
+      void _join(types::str &buffer, T &&head, Types &&...tail)
       {
         if (((types::str)head)[0] == "/")
           buffer = std::forward<T>(head);
@@ -48,7 +48,7 @@ namespace os
         }
         _join(buffer, std::forward<Types>(tail)...);
       }
-    }
+    } // namespace
 
     template <class T>
     T join(T &&head)
@@ -57,15 +57,15 @@ namespace os
     }
 
     template <class T, class... Types>
-    types::str join(T &&head, Types &&... tail)
+    types::str join(T &&head, Types &&...tail)
     {
       types::str p = head;
       p.reserve(sizeof_string(tail...));
       _join(p, std::forward<Types>(tail)...);
       return p;
     }
-  }
-}
+  } // namespace path
+} // namespace os
 PYTHONIC_NS_END
 
 #endif

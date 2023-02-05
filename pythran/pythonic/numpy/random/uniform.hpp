@@ -29,13 +29,13 @@ namespace numpy
       return result;
     }
 
-    auto uniform(double low, double high, long size)
+    inline auto uniform(double low, double high, long size)
         -> decltype(uniform(low, high, types::array<long, 1>{{size}}))
     {
       return uniform(low, high, types::array<long, 1>{{size}});
     }
 
-    double uniform(double low, double high, types::none_type d)
+    inline double uniform(double low, double high, types::none_type d)
     {
       return std::uniform_real_distribution<double>{low,
                                                     high}(details::generator);

@@ -16,7 +16,7 @@ namespace numpy
   namespace random
   {
 
-    types::str bytes(long length)
+    inline types::str bytes(long length)
     {
       // dummy init + rewrite is faster than reserve && push_back
       types::str result(std::string(length, 0));
@@ -26,8 +26,8 @@ namespace numpy
       });
       return result;
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

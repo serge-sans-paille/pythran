@@ -3,8 +3,8 @@
 
 #include "pythonic/include/operator_/div.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/operator_/overloads.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -21,12 +21,12 @@ namespace operator_
     return std::forward<A>(a) / std::forward<B>(b);
   }
 
-  double div(double a, double b)
+  inline double div(double a, double b)
   {
     assert(b != 0 && "divide by zero");
     return a / b;
   }
-}
+} // namespace operator_
 PYTHONIC_NS_END
 
 #endif

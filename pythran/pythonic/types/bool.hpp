@@ -6,7 +6,7 @@
 #ifdef ENABLE_PYTHON_MODULE
 
 PYTHONIC_NS_BEGIN
-PyObject *to_python<bool>::convert(bool b)
+inline PyObject *to_python<bool>::convert(bool b)
 {
   if (b)
     Py_RETURN_TRUE;
@@ -14,11 +14,11 @@ PyObject *to_python<bool>::convert(bool b)
     Py_RETURN_FALSE;
 }
 
-bool from_python<bool>::is_convertible(PyObject *obj)
+inline bool from_python<bool>::is_convertible(PyObject *obj)
 {
   return obj == Py_True || obj == Py_False;
 }
-bool from_python<bool>::convert(PyObject *obj)
+inline bool from_python<bool>::convert(PyObject *obj)
 {
   return obj == Py_True;
 }

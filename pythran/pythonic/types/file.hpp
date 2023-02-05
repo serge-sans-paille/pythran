@@ -3,23 +3,23 @@
 
 #include "pythonic/include/types/file.hpp"
 
-#include "pythonic/types/assignable.hpp"
-#include "pythonic/utils/shared_ref.hpp"
-#include "pythonic/types/str.hpp"
-#include "pythonic/types/list.hpp"
-#include "pythonic/types/NoneType.hpp"
-#include "pythonic/types/attr.hpp"
 #include "pythonic/builtins/IOError.hpp"
-#include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/builtins/RuntimeError.hpp"
 #include "pythonic/builtins/StopIteration.hpp"
+#include "pythonic/builtins/ValueError.hpp"
+#include "pythonic/types/NoneType.hpp"
+#include "pythonic/types/assignable.hpp"
+#include "pythonic/types/attr.hpp"
+#include "pythonic/types/list.hpp"
+#include "pythonic/types/str.hpp"
+#include "pythonic/utils/shared_ref.hpp"
 
+#include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <iterator>
-#include <cstring>
-#include <string>
-#include <cstdio>
 #include <memory>
+#include <string>
 
 #ifdef _WIN32
 #include <io.h>
@@ -34,22 +34,22 @@ namespace types
 
   /// _file implementation
 
-  _file::_file() : f(nullptr)
+  inline _file::_file() : f(nullptr)
   {
   }
 
   // TODO : no check on file existance?
-  _file::_file(types::str const &filename, types::str const &strmode)
+  inline _file::_file(types::str const &filename, types::str const &strmode)
       : f(fopen(filename.c_str(), strmode.c_str()))
   {
   }
 
-  FILE *_file::operator*() const
+  inline FILE *_file::operator*() const
   {
     return f;
   }
 
-  _file::~_file()
+  inline _file::~_file()
   {
     if (f)
       fclose(f);
@@ -58,11 +58,11 @@ namespace types
   /// file implementation
 
   // Constructors
-  file::file() : file_iterator(), data(utils::no_memory())
+  inline file::file() : file_iterator(), data(utils::no_memory())
   {
   }
 
-  file::file(types::str const &filename, types::str const &strmode)
+  inline file::file(types::str const &filename, types::str const &strmode)
       : file_iterator(), data(utils::no_memory()), mode(strmode),
         name(filename), newlines('\n')
   {
@@ -72,18 +72,18 @@ namespace types
   }
 
   // Iterators
-  file::iterator file::begin()
+  inline file::iterator file::begin()
   {
     return *this;
   }
 
-  file::iterator file::end()
+  inline file::iterator file::end()
   {
     return {};
   }
 
   // Modifiers
-  void file::open(types::str const &filename, types::str const &strmode)
+  inline void file::open(types::str const &filename, types::str const &strmode)
   {
     const char *smode = strmode.c_str();
     // Python enforces that the mode, after stripping 'U', begins with 'r',
@@ -98,61 +98,61 @@ namespace types
     is_open = true;
   }
 
-  void file::close()
+  inline void file::close()
   {
     fclose(**data);
     data->f = nullptr;
     is_open = false;
   }
 
-  bool file::closed() const
+  inline bool file::closed() const
   {
     return !is_open;
   }
 
-  types::str const &file::getmode() const
+  inline types::str const &file::getmode() const
   {
     return mode;
   }
 
-  types::str const &file::getname() const
+  inline types::str const &file::getname() const
   {
     return name;
   }
 
-  types::str const &file::getnewlines() const
+  inline types::str const &file::getnewlines() const
   {
     // Python seems to always return none... Doing the same here
     return newlines;
   }
 
-  bool file::eof()
+  inline bool file::eof()
   {
     return ::feof(**data);
   }
 
-  void file::flush()
+  inline void file::flush()
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     fflush(**data);
   }
 
-  long file::fileno() const
+  inline long file::fileno() const
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     return ::fileno(**data);
   }
 
-  bool file::isatty() const
+  inline bool file::isatty() const
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     return ::isatty(this->fileno());
   }
 
-  types::str file::read(long size)
+  inline types::str file::read(long size)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -172,7 +172,7 @@ namespace types
     return res;
   }
 
-  types::str file::readline(long size)
+  inline types::str file::readline(long size)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -192,7 +192,7 @@ namespace types
     return res;
   }
 
-  types::list<types::str> file::readlines(long sizehint)
+  inline types::list<types::str> file::readlines(long sizehint)
   {
     // Official python doc specifies that sizehint is used as a max of chars
     // But it has not been implemented in the standard python interpreter...
@@ -203,7 +203,7 @@ namespace types
     return lst;
   }
 
-  void file::seek(long offset, long whence)
+  inline void file::seek(long offset, long whence)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -212,14 +212,14 @@ namespace types
     fseek(**data, offset, whence);
   }
 
-  long file::tell() const
+  inline long file::tell() const
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
     return ftell(**data);
   }
 
-  void file::truncate(long size)
+  inline void file::truncate(long size)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -236,7 +236,7 @@ namespace types
       throw RuntimeError(strerror(errno));
   }
 
-  long file::write(types::str const &str)
+  inline long file::write(types::str const &str)
   {
     if (!is_open)
       throw ValueError("I/O operation on closed file");
@@ -258,33 +258,33 @@ namespace types
   // Like in :
   // for line in open("myfile"):
   //     print line
-  file_iterator::file_iterator(file &ref)
+  inline file_iterator::file_iterator(file &ref)
       : f(&ref), set(false), curr(), position(ref.tell())
   {
   }
 
-  file_iterator::file_iterator()
+  inline file_iterator::file_iterator()
       : f(nullptr), set(false), curr(),
         position(std::numeric_limits<long>::max()){};
 
-  bool file_iterator::operator==(file_iterator const &f2) const
+  inline bool file_iterator::operator==(file_iterator const &f2) const
   {
     return position == f2.position;
   }
 
-  bool file_iterator::operator!=(file_iterator const &f2) const
+  inline bool file_iterator::operator!=(file_iterator const &f2) const
   {
     return position != f2.position;
   }
 
-  bool file_iterator::operator<(file_iterator const &f2) const
+  inline bool file_iterator::operator<(file_iterator const &f2) const
   {
     // Not really elegant...
     // Equivalent to 'return *this != f2;'
     return position < f2.position;
   }
 
-  file_iterator &file_iterator::operator++()
+  inline file_iterator &file_iterator::operator++()
   {
     if (f->eof())
       return *this;
@@ -295,7 +295,7 @@ namespace types
     return *this;
   }
 
-  types::str file_iterator::operator*() const
+  inline types::str file_iterator::operator*() const
   {
     if (!set) {
       curr = f->readline();
@@ -303,7 +303,7 @@ namespace types
     }
     return curr.chars(); // to make a copy
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 /* pythran attribute system { */
@@ -311,27 +311,27 @@ PYTHONIC_NS_BEGIN
 
 namespace builtins
 {
-  bool getattr(types::attr::CLOSED, types::file const &f)
+  inline bool getattr(types::attr::CLOSED, types::file const &f)
   {
     return f.closed();
   }
 
-  types::str const &getattr(types::attr::MODE, types::file const &f)
+  inline types::str const &getattr(types::attr::MODE, types::file const &f)
   {
     return f.getmode();
   }
 
-  types::str const &getattr(types::attr::NAME, types::file const &f)
+  inline types::str const &getattr(types::attr::NAME, types::file const &f)
   {
     return f.getname();
   }
 
   // Python seems to always return none... Doing the same.
-  types::none_type getattr(types::attr::NEWLINES, types::file const &f)
+  inline types::none_type getattr(types::attr::NEWLINES, types::file const &f)
   {
     return builtins::None;
   }
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 /* } */

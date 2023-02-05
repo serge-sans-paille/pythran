@@ -6,71 +6,72 @@
 #include "pythonic/types/tuple.hpp"
 
 #include "pythonic/types/assignable.hpp"
-#include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/int_.hpp"
+#include "pythonic/utils/shared_ref.hpp"
 
 #include <cassert>
-#include <string>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 PYTHONIC_NS_BEGIN
 
 namespace types
 {
 
-  chr::operator str() const
+  inline chr::operator str() const
   {
     return str(c);
   }
 
   /// const_sliced_str_iterator implementation
-  const_sliced_str_iterator::const_sliced_str_iterator(char const *data,
-                                                       long step)
+  inline const_sliced_str_iterator::const_sliced_str_iterator(char const *data,
+                                                              long step)
       : data(data), step(step)
   {
   }
 
-  const_sliced_str_iterator const_sliced_str_iterator::operator++()
+  inline const_sliced_str_iterator const_sliced_str_iterator::operator++()
   {
     data += step;
     return *this;
   }
 
-  bool const_sliced_str_iterator::
-  operator<(const_sliced_str_iterator const &other) const
+  inline bool const_sliced_str_iterator::operator<(
+      const_sliced_str_iterator const &other) const
   {
     return (step > 0) ? (data < other.data) : (data > other.data);
   }
 
-  bool const_sliced_str_iterator::
-  operator==(const_sliced_str_iterator const &other) const
+  inline bool const_sliced_str_iterator::operator==(
+      const_sliced_str_iterator const &other) const
   {
     return data == other.data;
   }
 
-  bool const_sliced_str_iterator::
-  operator!=(const_sliced_str_iterator const &other) const
+  inline bool const_sliced_str_iterator::operator!=(
+      const_sliced_str_iterator const &other) const
   {
     return data != other.data;
   }
 
-  chr const_sliced_str_iterator::operator*() const
+  inline chr const_sliced_str_iterator::operator*() const
   {
     return (*data);
   }
 
-  const_sliced_str_iterator const_sliced_str_iterator::operator-(long n) const
+  inline const_sliced_str_iterator
+  const_sliced_str_iterator::operator-(long n) const
   {
     const_sliced_str_iterator other(*this);
     other.data -= step * n;
     return other;
   }
 
-  long const_sliced_str_iterator::
-  operator-(const_sliced_str_iterator const &other) const
+  inline long const_sliced_str_iterator::operator-(
+      const_sliced_str_iterator const &other) const
   {
     return (data - other.data) / step;
   }
@@ -78,8 +79,7 @@ namespace types
   /// sliced_str implementation
   // constructor
   template <class S>
-  sliced_str<S>::sliced_str()
-      : data(utils::no_memory())
+  sliced_str<S>::sliced_str() : data(utils::no_memory())
   {
   }
 
@@ -157,8 +157,7 @@ namespace types
   template <class S>
   template <class Sp>
   typename std::enable_if<is_slice<Sp>::value, sliced_str<Sp>>::type
-      sliced_str<S>::
-      operator[](Sp const &s) const
+  sliced_str<S>::operator[](Sp const &s) const
   {
     return {*this, s.normalize(size())};
   }
@@ -217,7 +216,7 @@ namespace types
   }
 
   // io
-  std::ostream &operator<<(std::ostream &os, types::chr const &v)
+  inline std::ostream &operator<<(std::ostream &os, types::chr const &v)
   {
     return os << v.c;
   }
@@ -263,39 +262,37 @@ namespace types
   }
 
   /// str implementation
-  str::str() : data()
+  inline str::str() : data()
   {
   }
 
-  str::str(std::string const &s) : data(s)
+  inline str::str(std::string const &s) : data(s)
   {
   }
 
-  str::str(std::string &&s) : data(std::move(s))
+  inline str::str(std::string &&s) : data(std::move(s))
   {
   }
 
-  str::str(const char *s) : data(s)
+  inline str::str(const char *s) : data(s)
   {
   }
 
   template <size_t N>
-  str::str(const char(&s)[N])
-      : data(s)
+  str::str(const char (&s)[N]) : data(s)
   {
   }
 
-  str::str(const char *s, size_t n) : data(s, n)
+  inline str::str(const char *s, size_t n) : data(s, n)
   {
   }
 
-  str::str(char c) : data(1, c)
+  inline str::str(char c) : data(1, c)
   {
   }
 
   template <class S>
-  str::str(sliced_str<S> const &other)
-      : data(other.size(), 0)
+  str::str(sliced_str<S> const &other) : data(other.size(), 0)
   {
     auto iter = chars().begin();
     for (auto &&s : other)
@@ -303,8 +300,7 @@ namespace types
   }
 
   template <class T>
-  str::str(T const &begin, T const &end)
-      : data(begin, end)
+  str::str(T const &begin, T const &end) : data(begin, end)
   {
   }
 
@@ -316,13 +312,13 @@ namespace types
     *data = oss.str();
   }
 
-  str::operator char() const
+  inline str::operator char() const
   {
     assert(size() == 1);
     return (*data)[0];
   }
 
-  str::operator long int() const
+  inline str::operator long int() const
   { // Allows implicit conversion without loosing bool conversion
     char *endptr;
     auto dat = data->data();
@@ -335,7 +331,7 @@ namespace types
     return res;
   }
 
-  str::operator float() const
+  inline str::operator float() const
   {
     char *endptr;
     auto dat = data->data();
@@ -348,7 +344,7 @@ namespace types
     return res;
   }
 
-  str::operator double() const
+  inline str::operator double() const
   {
     char *endptr;
     auto dat = data->data();
@@ -381,106 +377,106 @@ namespace types
     return *this;
   }
 
-  str &str::operator+=(str const &s)
+  inline str &str::operator+=(str const &s)
   {
     *data += *s.data;
     return *this;
   }
-  str &str::operator+=(chr const &s)
+  inline str &str::operator+=(chr const &s)
   {
     *data += s.c;
     return *this;
   }
 
-  long str::size() const
+  inline long str::size() const
   {
     return data->size();
   }
 
-  typename str::iterator str::begin() const
+  inline typename str::iterator str::begin() const
   {
     return {data->begin()};
   }
 
-  typename str::reverse_iterator str::rbegin() const
+  inline typename str::reverse_iterator str::rbegin() const
   {
     string_iterator iter(data->end());
     return typename str::reverse_iterator(iter);
   }
 
-  typename str::iterator str::end() const
+  inline typename str::iterator str::end() const
   {
     return {data->end()};
   }
 
-  typename str::reverse_iterator str::rend() const
+  inline typename str::reverse_iterator str::rend() const
   {
     string_iterator iter(data->begin());
     return typename str::reverse_iterator(iter);
   }
 
-  auto str::c_str() const -> decltype(data->c_str())
+  inline auto str::c_str() const -> decltype(data->c_str())
   {
     return data->c_str();
   }
 
-  auto str::resize(long n) -> decltype(data->resize(n))
+  inline auto str::resize(long n) -> decltype(data->resize(n))
   {
     return data->resize(n);
   }
 
-  long str::find(str const &s, size_t pos) const
+  inline long str::find(str const &s, size_t pos) const
   {
     const char *res = strstr(c_str() + pos, s.c_str());
     return res ? res - c_str() : -1;
   }
 
-  bool str::contains(str const &v) const
+  inline bool str::contains(str const &v) const
   {
     return find(v) != -1;
   }
 
-  long str::find_first_of(str const &s, size_t pos) const
+  inline long str::find_first_of(str const &s, size_t pos) const
   {
     return data->find_first_of(*s.data, pos);
   }
 
-  long str::find_first_of(const char *s, size_t pos) const
+  inline long str::find_first_of(const char *s, size_t pos) const
   {
     return data->find_first_of(s, pos);
   }
 
-  long str::find_first_not_of(str const &s, size_t pos) const
+  inline long str::find_first_not_of(str const &s, size_t pos) const
   {
     return data->find_first_not_of(*s.data, pos);
   }
 
-  long str::find_last_not_of(str const &s, size_t pos) const
+  inline long str::find_last_not_of(str const &s, size_t pos) const
   {
     return data->find_last_not_of(*s.data, pos);
   }
 
-  str str::substr(size_t pos, size_t len) const
+  inline str str::substr(size_t pos, size_t len) const
   {
     return data->substr(pos, len);
   }
 
-  bool str::empty() const
+  inline bool str::empty() const
   {
     return data->empty();
   }
 
-  int str::compare(size_t pos, size_t len, str const &str) const
+  inline int str::compare(size_t pos, size_t len, str const &str) const
   {
     return data->compare(pos, len, *str.data);
   }
 
-  void str::reserve(size_t n)
+  inline void str::reserve(size_t n)
   {
     data->reserve(n);
   }
 
-  str &str::replace(size_t pos, size_t len, str const &str)
+  inline str &str::replace(size_t pos, size_t len, str const &str)
   {
     data->replace(pos, len, *str.data);
     return *this;
@@ -494,38 +490,38 @@ namespace types
     return *this;
   }
 
-  bool str::operator==(str const &other) const
+  inline bool str::operator==(str const &other) const
   {
     return *data == *other.data;
   }
 
-  bool str::operator!=(str const &other) const
+  inline bool str::operator!=(str const &other) const
   {
     return *data != *other.data;
   }
 
-  bool str::operator<=(str const &other) const
+  inline bool str::operator<=(str const &other) const
   {
     return *data <= *other.data;
   }
 
-  bool str::operator<(str const &other) const
+  inline bool str::operator<(str const &other) const
   {
     return *data < *other.data;
   }
 
-  bool str::operator>=(str const &other) const
+  inline bool str::operator>=(str const &other) const
   {
     return *data >= *other.data;
   }
 
-  bool str::operator>(str const &other) const
+  inline bool str::operator>(str const &other) const
   {
     return *data > *other.data;
   }
 
   template <class S>
-  bool str::operator==(sliced_str<S> const &other) const
+  inline bool str::operator==(sliced_str<S> const &other) const
   {
     if (size() != other.size())
       return false;
@@ -535,43 +531,43 @@ namespace types
         return false;
     return true;
   }
-  bool str::operator==(chr other) const
+  inline bool str::operator==(chr other) const
   {
     return size() == 1 && (*data)[0] == other.c;
   }
 
   template <class S>
-  typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type str::
-  operator()(S const &s) const
+  typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type
+  str::operator()(S const &s) const
   {
     return operator[](s);
   }
 
-  chr str::operator[](long i) const
+  inline chr str::operator[](long i) const
   {
     if (i < 0)
       i += size();
     return fast(i);
   }
 
-  chr str::fast(long i) const
+  inline chr str::fast(long i) const
   {
     return (*data)[i];
   }
 
   template <class S>
-  typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type str::
-  operator[](S const &s) const
+  typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type
+  str::operator[](S const &s) const
   {
     return {*this, s.normalize(size())};
   }
 
-  str::operator bool() const
+  inline str::operator bool() const
   {
     return !data->empty();
   }
 
-  long str::count(types::str const &sub) const
+  inline long str::count(types::str const &sub) const
   {
     long counter = 0;
     for (long z = find(sub);            // begin by looking for sub
@@ -583,26 +579,26 @@ namespace types
     return counter;
   }
 
-  str operator+(str const &self, str const &other)
+  inline str operator+(str const &self, str const &other)
   {
     return str(self.chars() + other.chars());
   }
-  str operator+(chr const &self, chr const &other)
+  inline str operator+(chr const &self, chr const &other)
   {
     char tmp[2] = {self.c, other.c};
     return str(&tmp[0], 2);
   }
-  str operator+(chr const &self, str const &other)
+  inline str operator+(chr const &self, str const &other)
   {
     return str(self.c + other.chars());
   }
-  str operator+(str const &self, chr const &other)
+  inline str operator+(str const &self, chr const &other)
   {
     return str(self.chars() + other.c);
   }
 
   template <size_t N>
-  str operator+(str const &self, char const(&other)[N])
+  str operator+(str const &self, char const (&other)[N])
   {
     std::string s;
     s.reserve(self.size() + N);
@@ -611,7 +607,7 @@ namespace types
     return {std::move(s)};
   }
   template <size_t N>
-  str operator+(chr const &self, char const(&other)[N])
+  str operator+(chr const &self, char const (&other)[N])
   {
     std::string s;
     s.reserve(1 + N);
@@ -621,7 +617,7 @@ namespace types
   }
 
   template <size_t N>
-  str operator+(char const(&self)[N], str const &other)
+  str operator+(char const (&self)[N], str const &other)
   {
     std::string s;
     s.reserve(other.size() + N);
@@ -631,7 +627,7 @@ namespace types
   }
 
   template <size_t N>
-  str operator+(char const(&self)[N], chr const &other)
+  str operator+(char const (&self)[N], chr const &other)
   {
     std::string s;
     s.reserve(1 + N);
@@ -641,22 +637,22 @@ namespace types
   }
 
   template <size_t N>
-  bool operator==(char const(&self)[N], str const &other)
+  bool operator==(char const (&self)[N], str const &other)
   {
     return other == self;
   }
 
-  bool operator==(chr self, str const &other)
+  inline bool operator==(chr self, str const &other)
   {
     return other == self;
   }
 
-  std::ostream &operator<<(std::ostream &os, str const &s)
+  inline std::ostream &operator<<(std::ostream &os, str const &s)
   {
     return os << s.c_str();
   }
 
-  str operator*(str const &s, long n)
+  inline str operator*(str const &s, long n)
   {
     if (n <= 0)
       return str();
@@ -668,12 +664,12 @@ namespace types
     return other;
   }
 
-  str operator*(long t, str const &s)
+  inline str operator*(long t, str const &s)
   {
     return s * t;
   }
 
-  str operator*(chr const &s, long n)
+  inline str operator*(chr const &s, long n)
   {
     if (n <= 0)
       return str();
@@ -683,52 +679,52 @@ namespace types
     return other;
   }
 
-  str operator*(long t, chr const &c)
+  inline str operator*(long t, chr const &c)
   {
     return c * t;
   }
-}
+} // namespace types
 
 namespace operator_
 {
 
   template <size_t N, class Arg>
-  auto mod(const char(&fmt)[N], Arg &&arg)
+  auto mod(const char (&fmt)[N], Arg &&arg)
       -> decltype(types::str(fmt) % std::forward<Arg>(arg))
   {
     return types::str(fmt) % std::forward<Arg>(arg);
   }
 
-  pythonic::types::str add(char const *self, char const *other)
+  inline pythonic::types::str add(char const *self, char const *other)
   {
     pythonic::types::str res{self};
     res += other;
     return res;
   }
 
-  pythonic::types::str mul(long self, char const *other)
+  inline pythonic::types::str mul(long self, char const *other)
   {
     return pythonic::types::str{other} * self;
   }
 
-  pythonic::types::str mul(char const *self, long other)
+  inline pythonic::types::str mul(char const *self, long other)
   {
     return pythonic::types::str{self} * other;
   }
-}
+} // namespace operator_
 PYTHONIC_NS_END
 
 namespace std
 {
 
-  size_t hash<pythonic::types::str>::
-  operator()(const pythonic::types::str &x) const
+  inline size_t
+  hash<pythonic::types::str>::operator()(const pythonic::types::str &x) const
   {
     return hash<std::string>()(x.chars());
   }
 
-  size_t hash<pythonic::types::chr>::
-  operator()(const pythonic::types::chr &x) const
+  inline size_t
+  hash<pythonic::types::chr>::operator()(const pythonic::types::chr &x) const
   {
     return x.c;
   }
@@ -738,7 +734,7 @@ namespace std
   {
     return pythonic::types::str(t[I]);
   }
-}
+} // namespace std
 #ifdef ENABLE_PYTHON_MODULE
 
 #ifndef PyString_FromStringAndSize
@@ -748,7 +744,7 @@ namespace std
 #define PyString_Check(x) PyUnicode_Check(x) && PyUnicode_IS_COMPACT_ASCII(x)
 #endif
 #ifndef PyString_AS_STRING
-#define PyString_AS_STRING (char *) _PyUnicode_COMPACT_DATA
+#define PyString_AS_STRING (char *)_PyUnicode_COMPACT_DATA
 #endif
 #ifndef PyString_GET_SIZE
 #define PyString_GET_SIZE PyUnicode_GET_LENGTH
@@ -757,12 +753,12 @@ namespace std
 
 PYTHONIC_NS_BEGIN
 
-PyObject *to_python<types::str>::convert(types::str const &v)
+inline PyObject *to_python<types::str>::convert(types::str const &v)
 {
   return PyString_FromStringAndSize(v.c_str(), v.size());
 }
 
-PyObject *to_python<types::chr>::convert(types::chr const &v)
+inline PyObject *to_python<types::chr>::convert(types::chr const &v)
 {
   return PyString_FromStringAndSize(&v.c, 1);
 }
@@ -774,11 +770,11 @@ to_python<types::sliced_str<S>>::convert(types::sliced_str<S> const &v)
   return ::to_python(types::str(v));
 }
 
-bool from_python<types::str>::is_convertible(PyObject *obj)
+inline bool from_python<types::str>::is_convertible(PyObject *obj)
 {
   return PyString_Check(obj);
 }
-types::str from_python<types::str>::convert(PyObject *obj)
+inline types::str from_python<types::str>::convert(PyObject *obj)
 {
   return {PyString_AS_STRING(obj), (size_t)PyString_GET_SIZE(obj)};
 }

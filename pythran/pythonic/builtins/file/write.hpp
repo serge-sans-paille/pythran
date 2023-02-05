@@ -15,16 +15,16 @@ namespace builtins
   namespace file
   {
 
-    long write(types::file &f, types::str const &str)
+    inline long write(types::file &f, types::str const &str)
     {
       return f.write(str);
     }
 
-    long write(types::file &&f, types::str const &str)
+    inline long write(types::file &&f, types::str const &str)
     {
       return f.write(str);
     }
-  }
-}
+  } // namespace file
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

@@ -15,7 +15,7 @@ namespace numpy
   namespace details
   {
 
-    char *int2bin(long a, char *buffer, int buf_size)
+    inline char *int2bin(long a, char *buffer, int buf_size)
     {
       buffer += (buf_size - 1);
       buffer[1] = 0;
@@ -25,14 +25,14 @@ namespace numpy
       }
       return buffer;
     }
-  }
+  } // namespace details
 
-  types::str binary_repr(long number, types::none_type width)
+  inline types::str binary_repr(long number, types::none_type width)
   {
     return base_repr(number, 2);
   }
 
-  types::str binary_repr(long number, long width)
+  inline types::str binary_repr(long number, long width)
   {
     types::str out = binary_repr(std::abs(number));
     if (number >= 0)
@@ -44,7 +44,7 @@ namespace numpy
       return res;
     }
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

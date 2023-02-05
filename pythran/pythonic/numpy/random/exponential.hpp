@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_NUMPY_RANDOM_EXPONENTIAL_HPP
 #define PYTHONIC_NUMPY_RANDOM_EXPONENTIAL_HPP
 
-#include "pythonic/include/numpy/random/generator.hpp"
 #include "pythonic/include/numpy/random/exponential.hpp"
+#include "pythonic/include/numpy/random/generator.hpp"
 
 #include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -28,20 +28,20 @@ namespace numpy
       return result;
     }
 
-    auto exponential(double scale, long size)
+    inline auto exponential(double scale, long size)
         -> decltype(exponential(scale, types::array<long, 1>{{size}}))
     {
 
       return exponential(scale, types::array<long, 1>{{size}});
     }
 
-    double exponential(double scale, types::none_type d)
+    inline double exponential(double scale, types::none_type d)
     {
       return std::exponential_distribution<double>{1 /
                                                    scale}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

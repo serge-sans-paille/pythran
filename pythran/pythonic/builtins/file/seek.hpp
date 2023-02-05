@@ -14,26 +14,26 @@ namespace builtins
   namespace file
   {
 
-    void seek(types::file &f, long offset)
+    inline void seek(types::file &f, long offset)
     {
       f.seek(offset);
     }
 
-    void seek(types::file &&f, long offset)
+    inline void seek(types::file &&f, long offset)
     {
       // Nothing have to be done as it is a lvalue
     }
 
-    void seek(types::file &f, long offset, long whence)
+    inline void seek(types::file &f, long offset, long whence)
     {
       f.seek(offset, whence);
     }
 
-    void seek(types::file &&f, long offset, long whence)
+    inline void seek(types::file &&f, long offset, long whence)
     {
       // Nothing have to be done as it is a lvalue
     }
-  }
-}
+  } // namespace file
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

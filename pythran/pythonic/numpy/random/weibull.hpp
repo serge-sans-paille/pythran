@@ -28,19 +28,19 @@ namespace numpy
       return result;
     }
 
-    auto weibull(double a, long size)
+    inline auto weibull(double a, long size)
         -> decltype(weibull(a, types::array<long, 1>{{size}}))
     {
 
       return weibull(a, types::array<long, 1>{{size}});
     }
 
-    double weibull(double a, types::none_type d)
+    inline double weibull(double a, types::none_type d)
     {
       return std::weibull_distribution<double>{a}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

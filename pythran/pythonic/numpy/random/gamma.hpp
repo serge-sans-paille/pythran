@@ -4,13 +4,13 @@
 #include "pythonic/include/numpy/random/gamma.hpp"
 #include "pythonic/include/numpy/random/generator.hpp"
 
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/NoneType.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <random>
 #include <algorithm>
+#include <random>
 
 PYTHONIC_NS_BEGIN
 namespace numpy
@@ -29,18 +29,18 @@ namespace numpy
       return result;
     }
 
-    auto gamma(double shape, double scale, long size)
+    inline auto gamma(double shape, double scale, long size)
         -> decltype(gamma(shape, scale, types::array<long, 1>{{size}}))
     {
       return gamma(shape, scale, types::array<long, 1>{{size}});
     }
 
-    double gamma(double shape, double scale, types::none_type d)
+    inline double gamma(double shape, double scale, types::none_type d)
     {
       return std::gamma_distribution<double>{shape, scale}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

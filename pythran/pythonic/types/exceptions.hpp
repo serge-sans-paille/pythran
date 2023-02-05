@@ -3,11 +3,11 @@
 
 #include "pythonic/include/types/exceptions.hpp"
 
-#include "pythonic/types/str.hpp"
-#include "pythonic/types/dynamic_tuple.hpp"
-#include "pythonic/types/attr.hpp"
 #include "pythonic/builtins/None.hpp"
 #include "pythonic/builtins/str.hpp"
+#include "pythonic/types/attr.hpp"
+#include "pythonic/types/dynamic_tuple.hpp"
+#include "pythonic/types/str.hpp"
 
 #include <stdexcept>
 
@@ -17,7 +17,7 @@ namespace types
 {
 
   template <typename... Types>
-  BaseException::BaseException(Types const &... types)
+  BaseException::BaseException(Types const &...types)
       : args({builtins::functor::str{}(types)...})
   {
   }
@@ -72,13 +72,13 @@ namespace types
   CLASS_EXCEPTION_IMPL(IndentationError, SyntaxError);
   CLASS_EXCEPTION_IMPL(TabError, IndentationError);
   CLASS_EXCEPTION_IMPL(UnicodeError, ValueError);
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #include "pythonic/utils/functor.hpp"
 #define PYTHONIC_EXCEPTION_IMPL(name)                                          \
   template <typename... Types>                                                 \
-  types::name name(Types const &... args)                                      \
+  types::name name(Types const &...args)                                       \
   {                                                                            \
     return types::name(args...);                                               \
   }
@@ -88,7 +88,7 @@ PYTHONIC_NS_END
   PYTHONIC_NS_BEGIN                                                            \
   namespace builtins                                                           \
   {                                                                            \
-    types::none<types::dynamic_tuple<types::str>>                              \
+    inline types::none<types::dynamic_tuple<types::str>>                       \
     getattr(types::attr::ARGS, types::name const &f)                           \
     {                                                                          \
       return f.args;                                                           \
@@ -100,7 +100,7 @@ PYTHONIC_NS_END
   PYTHONIC_NS_BEGIN                                                            \
   namespace builtins                                                           \
   {                                                                            \
-    types::none<types::dynamic_tuple<types::str>>                              \
+    inline types::none<types::dynamic_tuple<types::str>>                       \
     getattr(types::attr::ARGS, types::name const &e)                           \
     {                                                                          \
       if (e.args.size() > 3 || e.args.size() < 2)                              \
@@ -109,23 +109,24 @@ PYTHONIC_NS_END
         return types::dynamic_tuple<types::str>(e.args.begin(),                \
                                                 e.args.begin() + 2);           \
     }                                                                          \
-    types::none<types::str> getattr(types::attr::ERRNO, types::name const &e)  \
+    inline types::none<types::str> getattr(types::attr::ERRNO,                 \
+                                           types::name const &e)               \
     {                                                                          \
       if (e.args.size() > 3 || e.args.size() < 2)                              \
         return builtins::None;                                                 \
       else                                                                     \
         return e.args[0];                                                      \
     }                                                                          \
-    types::none<types::str> getattr(types::attr::STRERROR,                     \
-                                    types::name const &e)                      \
+    inline types::none<types::str> getattr(types::attr::STRERROR,              \
+                                           types::name const &e)               \
     {                                                                          \
       if (e.args.size() > 3 || e.args.size() < 2)                              \
         return builtins::None;                                                 \
       else                                                                     \
         return e.args[1];                                                      \
     }                                                                          \
-    types::none<types::str> getattr(types::attr::FILENAME,                     \
-                                    types::name const &e)                      \
+    inline types::none<types::str> getattr(types::attr::FILENAME,              \
+                                           types::name const &e)               \
     {                                                                          \
       if (e.args.size() != 3)                                                  \
         return builtins::None;                                                 \
@@ -187,7 +188,7 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  std::ostream &operator<<(std::ostream &o, BaseException const &e)
+  inline std::ostream &operator<<(std::ostream &o, BaseException const &e)
   {
     return o << e.args;
   }
@@ -203,7 +204,7 @@ namespace types
    * - four || more args, the "tuple" used to construct the exception
    *
    */
-  std::ostream &operator<<(std::ostream &o, EnvironmentError const &e)
+  inline std::ostream &operator<<(std::ostream &o, EnvironmentError const &e)
   {
     if (e.args.size() == 1)
       return o << e.args[0];
@@ -224,7 +225,7 @@ namespace types
       return o;
     }
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 /* } */

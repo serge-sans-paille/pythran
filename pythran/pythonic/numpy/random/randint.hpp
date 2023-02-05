@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_NUMPY_RANDOM_RANDINT_HPP
 #define PYTHONIC_NUMPY_RANDOM_RANDINT_HPP
 
-#include "pythonic/include/numpy/random/randint.hpp"
 #include "pythonic/include/numpy/random/generator.hpp"
+#include "pythonic/include/numpy/random/randint.hpp"
 
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
@@ -43,25 +43,25 @@ namespace numpy
       return randint(0, max, shape);
     }
 
-    auto randint(long min, long max, long size)
+    inline auto randint(long min, long max, long size)
         -> decltype(randint(min, max, types::array<long, 1>{{size}}))
     {
       return randint(min, max, types::array<long, 1>{{size}});
     }
 
-    long randint(long max, types::none_type)
+    inline long randint(long max, types::none_type)
     {
       return std::uniform_int_distribution<long>{0,
                                                  max - 1}(details::generator);
     }
 
-    long randint(long min, long max)
+    inline long randint(long min, long max)
     {
       return std::uniform_int_distribution<long>{min,
                                                  max - 1}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

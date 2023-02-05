@@ -3,8 +3,8 @@
 
 #include "pythonic/include/operator_/itemgetter.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/int_.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
 
-  itemgetter_return::itemgetter_return(long const &item) : i(item)
+  inline itemgetter_return::itemgetter_return(long const &item) : i(item)
   {
   }
 
@@ -22,7 +22,7 @@ namespace operator_
     return a[i];
   }
 
-  itemgetter_return itemgetter(long item)
+  inline itemgetter_return itemgetter(long item)
   {
     return itemgetter_return(item);
   }
@@ -61,9 +61,10 @@ namespace operator_
       -> std::tuple<typename std::remove_cv<typename std::remove_reference<
           decltype(a[std::declval<Types>()])>::type>::type...>
   {
-    std::tuple<typename std::remove_cv<typename std::remove_reference<decltype(
-        a[std::declval<Types>()])>::type>::type...> t;
-    helper(t, a, utils::int_<sizeof...(Types)-1>());
+    std::tuple<typename std::remove_cv<typename std::remove_reference<
+        decltype(a[std::declval<Types>()])>::type>::type...>
+        t;
+    helper(t, a, utils::int_<sizeof...(Types) - 1>());
     return t;
   }
 
@@ -73,7 +74,7 @@ namespace operator_
   {
     return {item1, item2, items...};
   }
-}
+} // namespace operator_
 PYTHONIC_NS_END
 
 #endif

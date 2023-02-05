@@ -1,16 +1,16 @@
 #ifndef PYTHONIC_NUMPY_RANDOM_LAPLACE_HPP
 #define PYTHONIC_NUMPY_RANDOM_LAPLACE_HPP
 
-#include "pythonic/include/numpy/random/laplace.hpp"
 #include "pythonic/include/numpy/random/generator.hpp"
+#include "pythonic/include/numpy/random/laplace.hpp"
 
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/NoneType.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <random>
 #include <algorithm>
+#include <random>
 
 PYTHONIC_NS_BEGIN
 namespace numpy
@@ -28,13 +28,13 @@ namespace numpy
       return result;
     }
 
-    auto laplace(double loc, double scale, long size)
+    inline auto laplace(double loc, double scale, long size)
         -> decltype(laplace(loc, scale, types::array<long, 1>{{size}}))
     {
       return laplace(loc, scale, types::array<long, 1>{{size}});
     }
 
-    double laplace(double loc, double scale, types::none_type d)
+    inline double laplace(double loc, double scale, types::none_type d)
     {
       double U =
           std::uniform_real_distribution<double>{0., 1.}(details::generator);
@@ -47,8 +47,8 @@ namespace numpy
       }
       return U;
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

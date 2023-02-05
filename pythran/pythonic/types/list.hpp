@@ -5,14 +5,14 @@
 #include "pythonic/types/nditerator.hpp"
 
 #include "pythonic/builtins/len.hpp"
+#include "pythonic/types/bool.hpp"
 #include "pythonic/types/slice.hpp"
 #include "pythonic/types/tuple.hpp"
-#include "pythonic/types/bool.hpp"
-#include "pythonic/utils/shared_ref.hpp"
 #include "pythonic/utils/reserve.hpp"
+#include "pythonic/utils/shared_ref.hpp"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 PYTHONIC_NS_BEGIN
 
@@ -23,8 +23,7 @@ namespace types
 
   // Constructors
   template <class T, class S>
-  sliced_list<T, S>::sliced_list()
-      : data(utils::no_memory())
+  sliced_list<T, S>::sliced_list() : data(utils::no_memory())
   {
   }
   template <class T, class S>
@@ -90,8 +89,8 @@ namespace types
     return (*data)[index];
   }
   template <class T, class S>
-  typename sliced_list<T, S>::const_reference sliced_list<T, S>::
-  operator[](long i) const
+  typename sliced_list<T, S>::const_reference
+  sliced_list<T, S>::operator[](long i) const
   {
     assert(i < size());
     auto const index = slicing.get(i);
@@ -112,8 +111,7 @@ namespace types
   typename std::enable_if<
       is_slice<Sp>::value,
       sliced_list<T, decltype(std::declval<S>() * std::declval<Sp>())>>::type
-      sliced_list<T, S>::
-      operator[](Sp s) const
+  sliced_list<T, S>::operator[](Sp s) const
   {
     return {data, slicing * s.normalize(this->size())};
   }
@@ -149,8 +147,8 @@ namespace types
     return size() == 0;
   }
   template <class T, class S>
-  inline sliced_list<T, S> &sliced_list<T, S>::
-  operator=(sliced_list<T, S> const &s)
+  inline sliced_list<T, S> &
+  sliced_list<T, S>::operator=(sliced_list<T, S> const &s)
   {
     if (slicing.step == 1) {
       // inserting before erasing in case of self-copy
@@ -192,8 +190,8 @@ namespace types
   }
   template <class T, class S>
   template <class Tp, class Sp>
-  list<typename __combined<T, Tp>::type> sliced_list<T, S>::
-  operator+(sliced_list<Tp, Sp> const &s) const
+  list<typename __combined<T, Tp>::type>
+  sliced_list<T, S>::operator+(sliced_list<Tp, Sp> const &s) const
   {
     list<typename __combined<T, Tp>::type> out(size() + s.size());
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), out.begin()));
@@ -208,7 +206,7 @@ namespace types
   template <class T, class S>
   template <class vectorizer>
   typename sliced_list<T, S>::simd_iterator
-      sliced_list<T, S>::vbegin(vectorizer) const
+  sliced_list<T, S>::vbegin(vectorizer) const
   {
     return {data->data() + slicing.lower};
   }
@@ -216,7 +214,7 @@ namespace types
   template <class T, class S>
   template <class vectorizer>
   typename sliced_list<T, S>::simd_iterator
-      sliced_list<T, S>::vend(vectorizer) const
+  sliced_list<T, S>::vend(vectorizer) const
   {
     using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
@@ -250,14 +248,12 @@ namespace types
 
   // constructors
   template <class T>
-  list<T>::list()
-      : data(utils::no_memory())
+  list<T>::list() : data(utils::no_memory())
   {
   }
   template <class T>
   template <class InputIterator>
-  list<T>::list(InputIterator start, InputIterator stop)
-      : data()
+  list<T>::list(InputIterator start, InputIterator stop) : data()
   {
     if (std::is_same<
             typename std::iterator_traits<InputIterator>::iterator_category,
@@ -268,39 +264,32 @@ namespace types
     std::copy(start, stop, std::back_inserter(*data));
   }
   template <class T>
-  list<T>::list(empty_list const &)
-      : data(0)
+  list<T>::list(empty_list const &) : data(0)
   {
   }
   template <class T>
-  list<T>::list(size_type sz)
-      : data(sz)
+  list<T>::list(size_type sz) : data(sz)
   {
   }
   template <class T>
-  list<T>::list(T const &value, single_value, size_type sz)
-      : data(sz, value)
+  list<T>::list(T const &value, single_value, size_type sz) : data(sz, value)
   {
   }
   template <class T>
-  list<T>::list(std::initializer_list<T> l)
-      : data(std::move(l))
+  list<T>::list(std::initializer_list<T> l) : data(std::move(l))
   {
   }
   template <class T>
-  list<T>::list(list<T> &&other)
-      : data(std::move(other.data))
+  list<T>::list(list<T> &&other) : data(std::move(other.data))
   {
   }
   template <class T>
-  list<T>::list(list<T> const &other)
-      : data(other.data)
+  list<T>::list(list<T> const &other) : data(other.data)
   {
   }
   template <class T>
   template <class F>
-  list<T>::list(list<F> const &other)
-      : data(other.size())
+  list<T>::list(list<F> const &other) : data(other.size())
   {
     std::copy(other.begin(), other.end(), begin());
   }
@@ -542,8 +531,7 @@ namespace types
   template <class T>
   template <class Sp>
   typename std::enable_if<is_slice<Sp>::value, sliced_list<T, Sp>>::type
-      list<T>::
-      operator[](Sp const &s) const
+  list<T>::operator[](Sp const &s) const
   {
     return {*this, s};
   }
@@ -615,8 +603,8 @@ namespace types
 
   template <class T>
   template <class F>
-  list<typename __combined<T, F>::type> list<T>::
-  operator+(list<F> const &s) const
+  list<typename __combined<T, F>::type>
+  list<T>::operator+(list<F> const &s) const
   {
     list<typename __combined<T, F>::type> clone(size() + s.size());
     std::copy(s.begin(), s.end(), std::copy(begin(), end(), clone.begin()));
@@ -627,7 +615,7 @@ namespace types
   template <class F, class S>
   list<decltype(std::declval<T>() +
                 std::declval<typename sliced_list<F, S>::value_type>())>
-      list<T>::operator+(sliced_list<F, S> const &s) const
+  list<T>::operator+(sliced_list<F, S> const &s) const
   {
     list<decltype(std::declval<T>() +
                   std::declval<typename sliced_list<F, S>::value_type>())>
@@ -739,18 +727,18 @@ namespace types
   {
     return s.template to_array<list_version>();
   }
-  empty_list empty_list::operator+(empty_list const &) const
+  inline empty_list empty_list::operator+(empty_list const &) const
   {
     return empty_list();
   }
   template <class F>
   typename std::enable_if<!is_numexpr_arg<F>::value,
-                          list<typename F::value_type>>::type empty_list::
-  operator+(F s) const
+                          list<typename F::value_type>>::type
+  empty_list::operator+(F s) const
   {
     return {s.begin(), s.end()};
   }
-  empty_list::operator bool() const
+  inline empty_list::operator bool() const
   {
     return false;
   }
@@ -761,16 +749,16 @@ namespace types
     return list<T>(0);
   }
 
-  constexpr long empty_list::size()
+  inline constexpr long empty_list::size()
   {
     return 0;
   }
 
-  std::ostream &operator<<(std::ostream &os, empty_list const &)
+  inline std::ostream &operator<<(std::ostream &os, empty_list const &)
   {
     return os << "[]";
   }
-}
+} // namespace types
 
 namespace utils
 {
@@ -781,7 +769,7 @@ namespace utils
   {
     l.reserve(builtins::len(f));
   }
-}
+} // namespace utils
 PYTHONIC_NS_END
 
 /* overload std::get */
@@ -827,19 +815,19 @@ namespace std
   {
     return std::move(t)[I];
   }
-}
+} // namespace std
 
 #ifdef ENABLE_PYTHON_MODULE
 
 PYTHONIC_NS_BEGIN
 
-PyObject *to_python<typename std::vector<bool>::reference>::convert(
+inline PyObject *to_python<typename std::vector<bool>::reference>::convert(
     typename std::vector<bool>::reference const &v)
 {
   return ::to_python((bool)v);
 }
 
-PyObject *to_python<typename std::conditional<
+inline PyObject *to_python<typename std::conditional<
     std::is_same<bool, typename std::vector<bool>::const_reference>::value,
     phantom_type, typename std::vector<bool>::const_reference>::type>::
     convert(typename std::vector<bool>::const_reference const &v)
@@ -867,7 +855,8 @@ to_python<types::sliced_list<T, S>>::convert(types::sliced_list<T, S> const &v)
   return ret;
 }
 
-PyObject *to_python<types::empty_list>::convert(types::empty_list const &)
+inline PyObject *
+to_python<types::empty_list>::convert(types::empty_list const &)
 {
   return PyList_New(0);
 }

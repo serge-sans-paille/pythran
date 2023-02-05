@@ -16,41 +16,41 @@ namespace types
   {
   }
 
-  bool empty_iterator::operator==(empty_iterator const &) const
+  inline bool empty_iterator::operator==(empty_iterator const &) const
   {
     return true;
   }
 
-  bool empty_iterator::operator!=(empty_iterator const &) const
+  inline bool empty_iterator::operator!=(empty_iterator const &) const
   {
     return false;
   }
 
-  bool empty_iterator::operator<(empty_iterator const &) const
+  inline bool empty_iterator::operator<(empty_iterator const &) const
   {
     return false;
   }
 
-  empty_iterator &empty_iterator::operator++()
+  inline empty_iterator &empty_iterator::operator++()
   {
     return *this;
   }
 
-  empty_iterator &empty_iterator::operator++(int)
+  inline empty_iterator &empty_iterator::operator++(int)
   {
     return *this;
   }
 
-  double empty_iterator::operator*() const
+  inline double empty_iterator::operator*() const
   {
     return {};
   }
 
-  void empty_iterator::operator->() const
+  inline void empty_iterator::operator->() const
   {
     return;
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #endif

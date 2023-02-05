@@ -16,7 +16,7 @@ namespace builtins
 
   namespace anonymous
   {
-    types::empty_dict dict()
+    inline types::empty_dict dict()
     {
       return types::empty_dict();
     }
@@ -40,8 +40,8 @@ namespace builtins
         out[std::get<0>(i)] = std::get<1>(i);
       return out;
     }
-  }
-}
+  } // namespace anonymous
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

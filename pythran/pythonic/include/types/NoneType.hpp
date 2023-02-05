@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NONE_HPP
 #define PYTHONIC_INCLUDE_TYPES_NONE_HPP
 
-#include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/operator_/mod.hpp"
+#include "pythonic/include/types/assignable.hpp"
 #include <ostream>
 
 PYTHONIC_NS_BEGIN
@@ -17,7 +17,7 @@ namespace types
     intptr_t id() const;
   };
 
-  std::ostream &operator<<(std::ostream &os, none_type const &)
+  inline std::ostream &operator<<(std::ostream &os, none_type const &)
   {
     return os << "None";
   }
@@ -44,8 +44,7 @@ namespace types
     {
     }
     template <class OT>
-    none(OT const &arg)
-        : none(T(arg))
+    none(OT const &arg) : none(T(arg))
     {
     }
 
@@ -68,7 +67,7 @@ namespace types
   };
 
   /* specialization of none for integral types we cannot derive from
-  */
+   */
   template <class P, class T>
   struct none_data {
     explicit operator bool() const
@@ -251,7 +250,7 @@ namespace types
   struct is_none<none<T>> {
     static const bool value = true;
   };
-}
+} // namespace types
 
 template <class T>
 struct assignable<types::none<T>> {
@@ -270,7 +269,7 @@ namespace std
   struct tuple_element<I, pythonic::types::none<T0>> {
     using type = typename std::tuple_element<I, T0>::type;
   };
-}
+} // namespace std
 
 /* type inference stuff { */
 #include "pythonic/include/types/combined.hpp"

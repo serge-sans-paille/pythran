@@ -15,7 +15,7 @@ namespace builtins
   namespace
   {
 
-    long _init_last(long _begin, long _end, long _step)
+    inline long _init_last(long _begin, long _end, long _step)
     {
       if (_step > 0)
         return _begin +
@@ -24,114 +24,114 @@ namespace builtins
         return _begin +
                std::min(0L, _step * ((_end - _begin + _step + 1) / _step));
     }
-  }
+  } // namespace
 
-  range_iterator::range_iterator(long v, long s) : value_(v), step_(s)
+  inline range_iterator::range_iterator(long v, long s) : value_(v), step_(s)
   {
   }
 
-  long range_iterator::operator*() const
+  inline long range_iterator::operator*() const
   {
     return value_;
   }
 
-  range_iterator &range_iterator::operator++()
+  inline range_iterator &range_iterator::operator++()
   {
     value_ += step_;
     return *this;
   }
 
-  range_iterator range_iterator::operator++(int)
+  inline range_iterator range_iterator::operator++(int)
   {
     range_iterator self(*this);
     value_ += step_;
     return self;
   }
 
-  range_iterator &range_iterator::operator+=(long n)
+  inline range_iterator &range_iterator::operator+=(long n)
   {
     value_ += step_ * n;
     return *this;
   }
 
-  range_iterator &range_iterator::operator--()
+  inline range_iterator &range_iterator::operator--()
   {
     value_ -= step_;
     return *this;
   }
 
-  range_iterator range_iterator::operator--(int)
+  inline range_iterator range_iterator::operator--(int)
   {
     range_iterator self(*this);
     value_ -= step_;
     return self;
   }
 
-  range_iterator &range_iterator::operator-=(long n)
+  inline range_iterator &range_iterator::operator-=(long n)
   {
     value_ -= step_ * n;
     return *this;
   }
 
-  bool range_iterator::operator!=(range_iterator const &other) const
+  inline bool range_iterator::operator!=(range_iterator const &other) const
   {
     return value_ != other.value_;
   }
 
-  bool range_iterator::operator==(range_iterator const &other) const
+  inline bool range_iterator::operator==(range_iterator const &other) const
   {
     return value_ == other.value_;
   }
 
-  bool range_iterator::operator<(range_iterator const &other) const
+  inline bool range_iterator::operator<(range_iterator const &other) const
   {
     const long sign = +1 | (step_ >> (sizeof(long) * CHAR_BIT - 1));
     return sign * value_ < sign * other.value_;
   }
 
-  long range_iterator::operator-(range_iterator const &other) const
+  inline long range_iterator::operator-(range_iterator const &other) const
   {
     return (value_ - other.value_) / step_;
   }
 
-  range::range(long b, long e, long s)
+  inline range::range(long b, long e, long s)
       : begin_(b), end_(_init_last(b, e, s)), step_(s)
   {
   }
 
-  range::range(long e) : begin_(0), end_(e), step_(1)
+  inline range::range(long e) : begin_(0), end_(e), step_(1)
   {
   }
 
-  range_iterator range::begin() const
+  inline range_iterator range::begin() const
   {
     return range_iterator(begin_, step_);
   }
 
-  range_iterator range::end() const
+  inline range_iterator range::end() const
   {
     return range_iterator(end_, step_);
   }
 
-  typename range::reverse_iterator range::rbegin() const
+  inline typename range::reverse_iterator range::rbegin() const
   {
     return {end_ - step_, -step_};
   }
 
-  typename range::reverse_iterator range::rend() const
+  inline typename range::reverse_iterator range::rend() const
   {
     return {begin_ - step_, -step_};
   }
 
-  long range::size() const
+  inline long range::size() const
   {
     return (end_ - begin_) / step_;
   }
-  long range::operator[](long i) const
+  inline long range::operator[](long i) const
   {
     return begin_ + i * step_;
   }
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 /* overload std::get */
@@ -142,6 +142,6 @@ namespace std
   {
     return t[I];
   }
-}
+} // namespace std
 
 #endif

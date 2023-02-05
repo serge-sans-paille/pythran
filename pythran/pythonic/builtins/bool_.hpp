@@ -3,8 +3,8 @@
 
 #include "pythonic/include/builtins/bool_.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -31,12 +31,12 @@ namespace builtins
       return N;
     }
 
-    bool bool_::operator()() const
+    inline bool bool_::operator()() const
     {
       return false;
     }
-  }
-}
+  } // namespace functor
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

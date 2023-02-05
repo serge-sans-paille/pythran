@@ -14,16 +14,16 @@ namespace builtins
   namespace file
   {
 
-    void close(types::file &f)
+    inline void close(types::file &f)
     {
       f.close();
     }
 
-    void close(types::file &&f)
+    inline void close(types::file &&f)
     {
       f.close();
     }
-  }
-}
+  } // namespace file
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

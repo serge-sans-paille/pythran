@@ -14,26 +14,26 @@ namespace builtins
   namespace file
   {
 
-    void truncate(types::file &f)
+    inline void truncate(types::file &f)
     {
       f.truncate();
     }
 
-    void truncate(types::file &&f)
+    inline void truncate(types::file &&f)
     {
       f.truncate();
     }
 
-    void truncate(types::file &f, long size)
+    inline void truncate(types::file &f, long size)
     {
       f.truncate(size);
     }
 
-    void truncate(types::file &&f, long size)
+    inline void truncate(types::file &&f, long size)
     {
       f.truncate(size);
     }
-  }
-}
+  } // namespace file
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

@@ -18,9 +18,16 @@ namespace operator_
     return std::forward<A>(a) << std::forward<B>(b);
   }
 
-  DEFINE_ALL_OPERATOR_OVERLOADS_IMPL(
+  // Just here for the sake of completeness, and has a specific definition to
+  // avoid some warnings.
+  inline bool lshift(bool a, bool b)
+  {
+    return b ? false : a;
+  }
+
+  DEFINE_ALL_OPERATOR_OVERLOADS_NO_BOOL_IMPL(
       lshift, <<, (a <= (std::numeric_limits<decltype(b)>::max() >> b)))
-}
+} // namespace operator_
 PYTHONIC_NS_END
 
 #endif

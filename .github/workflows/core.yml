@@ -30,7 +30,8 @@ jobs:
     - name: Setup
       run: |
         python setup.py install
-        printf '[commpiler]\nblas=openblas\n' > ~/.pythranrc
+        printf '[compiler]\nblas=openblas\n' > ~/.config/.pythranrc
+        printf 'cflags=-std=c++11 -Wall -Werror -Wno-unknown-pragmas -Wno-unused-local-typedefs -Wno-cpp -Wno-deprecated-declarations -Wno-absolute-value\n' >> ~/.config/.pythranrc
     - name: Testing minimal CLI
       run: |
         pythran --version

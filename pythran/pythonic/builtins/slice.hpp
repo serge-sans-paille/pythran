@@ -11,22 +11,22 @@ namespace builtins
 
   namespace anonymous
   {
-    types::contiguous_slice slice(types::none<long> stop)
+    inline types::contiguous_slice slice(types::none<long> stop)
     {
       return {types::none<long>(), stop};
     }
-    types::contiguous_slice slice(types::none<long> start,
-                                  types::none<long> stop)
+    inline types::contiguous_slice slice(types::none<long> start,
+                                         types::none<long> stop)
     {
       return {start, stop};
     }
-    types::slice slice(types::none<long> start, types::none<long> stop,
-                       types::none<long> step)
+    inline types::slice slice(types::none<long> start, types::none<long> stop,
+                              types::none<long> step)
     {
       return {start, stop, step};
     }
-  }
-}
+  } // namespace anonymous
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

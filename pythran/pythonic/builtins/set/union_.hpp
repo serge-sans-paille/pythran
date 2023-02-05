@@ -16,14 +16,14 @@ namespace builtins
 
     template <typename T, typename... Types>
     typename __combined<types::set<T>, Types...>::type
-    union_(types::set<T> const &set, Types const &... others)
+    union_(types::set<T> const &set, Types const &...others)
     {
       return set.union_(others...);
     }
 
     template <typename... Types>
     typename __combined<types::empty_set, Types...>::type
-    union_(types::empty_set const &init, Types const &... others)
+    union_(types::empty_set const &init, Types const &...others)
     {
       return union_(others...);
     }
@@ -40,11 +40,11 @@ namespace builtins
       return {set};
     }
 
-    types::empty_set union_(types::empty_set const &init)
+    inline types::empty_set union_(types::empty_set const &init)
     {
       return types::empty_set();
     }
-  }
-}
+  } // namespace set
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

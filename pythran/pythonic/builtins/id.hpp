@@ -23,21 +23,21 @@ namespace builtins
     return t.id();
   }
 
-  long id(long const &t)
+  inline long id(long const &t)
   {
     return reinterpret_cast<uintptr_t>(&t);
   }
 
-  long id(double const &t)
+  inline long id(double const &t)
   {
     return reinterpret_cast<uintptr_t>(&t);
   }
 
-  long id(bool const &t)
+  inline long id(bool const &t)
   {
     return reinterpret_cast<uintptr_t>(&t);
   }
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

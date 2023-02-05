@@ -15,16 +15,16 @@ namespace builtins
   namespace file
   {
 
-    types::str readline(types::file &f, long size)
+    inline types::str readline(types::file &f, long size)
     {
       return size < 0 ? f.readline() : f.readline(size);
     }
 
-    types::str readline(types::file &&f, long size)
+    inline types::str readline(types::file &&f, long size)
     {
       return size < 0 ? f.readline() : f.readline(size);
     }
-  }
-}
+  } // namespace file
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

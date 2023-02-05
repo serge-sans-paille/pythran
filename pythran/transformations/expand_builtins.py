@@ -27,10 +27,6 @@ class ExpandBuiltins(Transformation):
     def __init__(self):
         Transformation.__init__(self, Locals, Globals)
 
-    def visit_NameConstant(self, node):
-        self.update = True
-        return ast.Constant(node.value, None)
-
     def visit_Name(self, node):
         s = node.id
         if s in ('None', 'True', 'False'):

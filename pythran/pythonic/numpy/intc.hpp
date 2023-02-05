@@ -3,10 +3,10 @@
 
 #include "pythonic/include/numpy/intc.hpp"
 
+#include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include "pythonic/types/numpy_op_helper.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -16,7 +16,7 @@ namespace numpy
   namespace details
   {
 
-    int intc()
+    inline int intc()
     {
       return {};
     }
@@ -26,12 +26,12 @@ namespace numpy
     {
       return v;
     }
-  }
+  } // namespace details
 
 #define NUMPY_NARY_FUNC_NAME intc
 #define NUMPY_NARY_FUNC_SYM details::intc
 #include "pythonic/types/numpy_nary_expr.hpp"
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

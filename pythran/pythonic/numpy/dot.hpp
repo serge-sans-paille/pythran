@@ -3,9 +3,9 @@
 
 #include "pythonic/include/numpy/dot.hpp"
 
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/sum.hpp"
 #include "pythonic/numpy/multiply.hpp"
+#include "pythonic/numpy/sum.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/traits.hpp"
 
 #ifdef PYTHRAN_BLAS_NONE
@@ -126,10 +126,10 @@ namespace numpy
     return out;
   }
 
-/// Matrice / Vector multiplication
+  /// Matrice / Vector multiplication
 
 #define MV_DEF(T, L)                                                           \
-  void mv(int m, int n, T *A, T *B, T *C)                                      \
+  inline void mv(int m, int n, T *A, T *B, T *C)                               \
   {                                                                            \
     cblas_##L##gemv(CblasRowMajor, CblasNoTrans, n, m, 1, A, m, B, 1, 0, C,    \
                     1);                                                        \
@@ -141,7 +141,7 @@ namespace numpy
 #undef MV_DEF
 
 #define TV_DEF(T, L)                                                           \
-  void tv(int m, int n, T *A, T *B, T *C)                                      \
+  inline void tv(int m, int n, T *A, T *B, T *C)                               \
   {                                                                            \
     cblas_##L##gemv(CblasRowMajor, CblasTrans, m, n, 1, A, n, B, 1, 0, C, 1);  \
   }
@@ -152,7 +152,7 @@ namespace numpy
 #undef TV_DEF
 
 #define MV_DEF(T, K, L)                                                        \
-  void mv(int m, int n, T *A, T *B, T *C)                                      \
+  inline void mv(int m, int n, T *A, T *B, T *C)                               \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
     cblas_##L##gemv(CblasRowMajor, CblasNoTrans, n, m, (K *)&alpha, (K *)A, m, \
@@ -193,7 +193,7 @@ namespace numpy
 
 // The trick is to not transpose the matrix so that MV become VM
 #define VM_DEF(T, L)                                                           \
-  void vm(int m, int n, T *A, T *B, T *C)                                      \
+  inline void vm(int m, int n, T *A, T *B, T *C)                               \
   {                                                                            \
     cblas_##L##gemv(CblasRowMajor, CblasTrans, n, m, 1, A, m, B, 1, 0, C, 1);  \
   }
@@ -203,7 +203,7 @@ namespace numpy
 
 #undef VM_DEF
 #define VT_DEF(T, L)                                                           \
-  void vt(int m, int n, T *A, T *B, T *C)                                      \
+  inline void vt(int m, int n, T *A, T *B, T *C)                               \
   {                                                                            \
     cblas_##L##gemv(CblasRowMajor, CblasNoTrans, m, n, 1, A, n, B, 1, 0, C,    \
                     1);                                                        \
@@ -214,7 +214,7 @@ namespace numpy
 
 #undef VM_DEF
 #define VM_DEF(T, K, L)                                                        \
-  void vm(int m, int n, T *A, T *B, T *C)                                      \
+  inline void vm(int m, int n, T *A, T *B, T *C)                               \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
     cblas_##L##gemv(CblasRowMajor, CblasTrans, n, m, (K *)&alpha, (K *)A, m,   \
@@ -264,8 +264,7 @@ namespace numpy
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          &&
-          E::value == 2 && F::value == 1, // And it is matrix / vect
+          && E::value == 2 && F::value == 1,     // And it is matrix / vect
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           types::pshape<long>>>::type
@@ -273,10 +272,12 @@ namespace numpy
   {
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
-        typename E::shape_t> e_ = e;
+        typename E::shape_t>
+        e_ = e;
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
-        typename F::shape_t> f_ = f;
+        typename F::shape_t>
+        f_ = f;
     return dot(e_, f_);
   }
 
@@ -291,8 +292,7 @@ namespace numpy
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          &&
-          E::value == 1 && F::value == 2, // And it is vect / matrix
+          && E::value == 1 && F::value == 2,     // And it is vect / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           types::pshape<long>>>::type
@@ -300,10 +300,12 @@ namespace numpy
   {
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
-        typename E::shape_t> e_ = e;
+        typename E::shape_t>
+        e_ = e;
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
-        typename F::shape_t> f_ = f;
+        typename F::shape_t>
+        f_ = f;
     return dot(e_, f_);
   }
 
@@ -322,7 +324,7 @@ namespace numpy
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
         types::pshape<long>>
-    out(types::pshape<long>{f.template shape<1>()}, 0);
+        out(types::pshape<long>{f.template shape<1>()}, 0);
     for (long i = 0; i < out.template shape<0>(); i++)
       for (long j = 0; j < f.template shape<0>(); j++)
         out[i] += e[j] * f[types::array<long, 2>{{j, i}}];
@@ -344,17 +346,17 @@ namespace numpy
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
         types::pshape<long>>
-    out(types::pshape<long>{e.template shape<0>()}, 0);
+        out(types::pshape<long>{e.template shape<0>()}, 0);
     for (long i = 0; i < out.template shape<0>(); i++)
       for (long j = 0; j < f.template shape<0>(); j++)
         out[i] += e[types::array<long, 2>{{i, j}}] * f[j];
     return out;
   }
 
-/// Matrix / Matrix multiplication
+  /// Matrix / Matrix multiplication
 
 #define MM_DEF(T, L)                                                           \
-  void mm(int m, int n, int k, T *A, T *B, T *C)                               \
+  inline void mm(int m, int n, int k, T *A, T *B, T *C)                        \
   {                                                                            \
     cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1, A,  \
                     k, B, n, 0, C, n);                                         \
@@ -363,7 +365,7 @@ namespace numpy
   MM_DEF(float, s)
 #undef MM_DEF
 #define MM_DEF(T, K, L)                                                        \
-  void mm(int m, int n, int k, T *A, T *B, T *C)                               \
+  inline void mm(int m, int n, int k, T *A, T *B, T *C)                        \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
     cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k,        \
@@ -405,7 +407,7 @@ namespace numpy
   }
 
 #define TM_DEF(T, L)                                                           \
-  void tm(int m, int n, int k, T *A, T *B, T *C)                               \
+  inline void tm(int m, int n, int k, T *A, T *B, T *C)                        \
   {                                                                            \
     cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasNoTrans, m, n, k, 1, A, m, \
                     B, n, 0, C, n);                                            \
@@ -414,7 +416,7 @@ namespace numpy
   TM_DEF(float, s)
 #undef TM_DEF
 #define TM_DEF(T, K, L)                                                        \
-  void tm(int m, int n, int k, T *A, T *B, T *C)                               \
+  inline void tm(int m, int n, int k, T *A, T *B, T *C)                        \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
     cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasNoTrans, m, n, k,          \
@@ -442,7 +444,7 @@ namespace numpy
   }
 
 #define MT_DEF(T, L)                                                           \
-  void mt(int m, int n, int k, T *A, T *B, T *C)                               \
+  inline void mt(int m, int n, int k, T *A, T *B, T *C)                        \
   {                                                                            \
     cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasTrans, m, n, k, 1, A, k, \
                     B, k, 0, C, n);                                            \
@@ -451,7 +453,7 @@ namespace numpy
   MT_DEF(float, s)
 #undef MT_DEF
 #define MT_DEF(T, K, L)                                                        \
-  void mt(int m, int n, int k, T *A, T *B, T *C)                               \
+  inline void mt(int m, int n, int k, T *A, T *B, T *C)                        \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
     cblas_##L##gemm(CblasRowMajor, CblasNoTrans, CblasTrans, m, n, k,          \
@@ -479,7 +481,7 @@ namespace numpy
   }
 
 #define TT_DEF(T, L)                                                           \
-  void tt(int m, int n, int k, T *A, T *B, T *C)                               \
+  inline void tt(int m, int n, int k, T *A, T *B, T *C)                        \
   {                                                                            \
     cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasTrans, m, n, k, 1, A, m,   \
                     B, k, 0, C, n);                                            \
@@ -488,7 +490,7 @@ namespace numpy
   TT_DEF(float, s)
 #undef TT_DEF
 #define TT_DEF(T, K, L)                                                        \
-  void tt(int m, int n, int k, T *A, T *B, T *C)                               \
+  inline void tt(int m, int n, int k, T *A, T *B, T *C)                        \
   {                                                                            \
     T alpha = 1, beta = 0;                                                     \
     cblas_##L##gemm(CblasRowMajor, CblasTrans, CblasTrans, m, n, k,            \
@@ -526,8 +528,7 @@ namespace numpy
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          &&
-          E::value == 2 && F::value == 2, // And both are matrix
+          && E::value == 2 && F::value == 2,     // And both are matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           types::array<long, 2>>>::type
@@ -535,10 +536,12 @@ namespace numpy
   {
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
-        typename E::shape_t> e_ = e;
+        typename E::shape_t>
+        e_ = e;
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
-        typename F::shape_t> f_ = f;
+        typename F::shape_t>
+        f_ = f;
     return dot(e_, f_);
   }
 
@@ -557,8 +560,9 @@ namespace numpy
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
         types::array<long, 2>>
-    out(types::array<long, 2>{{e.template shape<0>(), f.template shape<1>()}},
-        0);
+        out(types::array<long, 2>{{e.template shape<0>(),
+                                   f.template shape<1>()}},
+            0);
     for (long i = 0; i < out.template shape<0>(); i++)
       for (long j = 0; j < out.template shape<1>(); j++)
         for (long k = 0; k < e.template shape<1>(); k++)
@@ -594,7 +598,7 @@ namespace numpy
   {
     static_assert(E::value == 0, "not implemented yet");
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

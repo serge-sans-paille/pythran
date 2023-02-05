@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_NUMPY_RANDOM_CHISQUARE_HPP
 #define PYTHONIC_NUMPY_RANDOM_CHISQUARE_HPP
 
-#include "pythonic/include/numpy/random/generator.hpp"
 #include "pythonic/include/numpy/random/chisquare.hpp"
+#include "pythonic/include/numpy/random/generator.hpp"
 
 #include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -28,19 +28,19 @@ namespace numpy
       return result;
     }
 
-    auto chisquare(double df, long size)
+    inline auto chisquare(double df, long size)
         -> decltype(chisquare(df, types::array<long, 1>{{size}}))
     {
 
       return chisquare(df, types::array<long, 1>{{size}});
     }
 
-    double chisquare(double df, types::none_type d)
+    inline double chisquare(double df, types::none_type d)
     {
       return std::chi_squared_distribution<double>{df}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

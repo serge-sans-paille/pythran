@@ -6,10 +6,10 @@
 
 #include "pythonic/builtins/None.hpp"
 
-#include <cassert>
-#include <stdexcept>
-#include <ostream>
 #include <algorithm>
+#include <cassert>
+#include <ostream>
+#include <stdexcept>
 
 PYTHONIC_NS_BEGIN
 
@@ -21,66 +21,66 @@ namespace types
   namespace details
   {
 
-    long roundup_divide(long a, long b)
+    inline long roundup_divide(long a, long b)
     {
       if (b > 0)
         return (a + b - 1) / b;
       else
         return (a + b + 1) / b;
     }
-  }
+  } // namespace details
 
-  normalized_slice::normalized_slice()
+  inline normalized_slice::normalized_slice()
   {
   }
-  normalized_slice::normalized_slice(long lower, long upper, long step)
+  inline normalized_slice::normalized_slice(long lower, long upper, long step)
       : lower(lower), upper(upper), step(step)
   {
   }
 
-  normalized_slice normalized_slice::
-  operator*(normalized_slice const &other) const
+  inline normalized_slice
+  normalized_slice::operator*(normalized_slice const &other) const
   {
     return {lower + step * other.lower, lower + step * other.upper,
             step * other.step};
   }
-  normalized_slice normalized_slice::
-  operator*(contiguous_normalized_slice const &other) const
+  inline normalized_slice
+  normalized_slice::operator*(contiguous_normalized_slice const &other) const
   {
     return {lower + step * other.lower, lower + step * other.upper,
             step * other.step};
   }
-  normalized_slice normalized_slice::operator*(slice const &other) const
+  inline normalized_slice normalized_slice::operator*(slice const &other) const
   {
     return (*this) * other.normalize(size());
   }
-  normalized_slice normalized_slice::
-  operator*(contiguous_slice const &other) const
+  inline normalized_slice
+  normalized_slice::operator*(contiguous_slice const &other) const
   {
     return (*this) * other.normalize(size());
   }
 
-  long normalized_slice::size() const
+  inline long normalized_slice::size() const
   {
     return std::max(0L, details::roundup_divide(upper - lower, step));
   }
 
-  long normalized_slice::get(long i) const
+  inline long normalized_slice::get(long i) const
   {
     return lower + i * step;
   }
 
-  slice::slice(none<long> lower, none<long> upper, none<long> step)
+  inline slice::slice(none<long> lower, none<long> upper, none<long> step)
       : lower(lower), upper(upper), step(step)
   {
   }
 
-  slice::slice()
+  inline slice::slice()
       : lower(builtins::None), upper(builtins::None), step(builtins::None)
   {
   }
 
-  slice slice::operator*(slice const &other) const
+  inline slice slice::operator*(slice const &other) const
   {
     // We do not implement these because it requires to know the "end"
     // value of the slice which is ! possible if it is ! "step == 1" slice
@@ -154,7 +154,7 @@ namespace types
      It also check for value bigger than len(a) to fit the size of the
      container
      */
-  normalized_slice slice::normalize(long max_size) const
+  inline normalized_slice slice::normalize(long max_size) const
   {
     long sstep = step.is_none() ? 1 : (long)step;
     long normalized_upper;
@@ -191,7 +191,7 @@ namespace types
    * An assert is raised when we can't compute the size without more
    * informations.
    */
-  long slice::size() const
+  inline long slice::size() const
   {
     long sstep = step.is_none() ? 1 : (long)step;
     assert(!(upper.is_none() && lower.is_none()));
@@ -209,55 +209,55 @@ namespace types
     return std::max(0L, details::roundup_divide(len, sstep));
   }
 
-  long slice::get(long i) const
+  inline long slice::get(long i) const
   {
     long sstep = step.is_none() ? 1 : (long)step;
     assert(!upper.is_none() && !lower.is_none());
     return (long)lower + i * sstep;
   }
 
-  contiguous_normalized_slice::contiguous_normalized_slice()
+  inline contiguous_normalized_slice::contiguous_normalized_slice()
   {
   }
 
-  contiguous_normalized_slice::contiguous_normalized_slice(long lower,
-                                                           long upper)
+  inline contiguous_normalized_slice::contiguous_normalized_slice(long lower,
+                                                                  long upper)
       : lower(lower), upper(upper)
   {
   }
 
-  contiguous_normalized_slice contiguous_normalized_slice::
-  operator*(contiguous_normalized_slice const &other) const
+  inline contiguous_normalized_slice contiguous_normalized_slice::operator*(
+      contiguous_normalized_slice const &other) const
   {
     return contiguous_normalized_slice(lower + other.lower,
                                        lower + other.upper);
   }
-  contiguous_normalized_slice contiguous_normalized_slice::
-  operator*(contiguous_slice const &other) const
+  inline contiguous_normalized_slice
+  contiguous_normalized_slice::operator*(contiguous_slice const &other) const
   {
     return (*this) * other.normalize(size());
   }
 
-  contiguous_normalized_slice contiguous_normalized_slice::
-  operator*(fast_contiguous_slice const &other) const
+  inline contiguous_normalized_slice contiguous_normalized_slice::operator*(
+      fast_contiguous_slice const &other) const
   {
     return (*this) * other.normalize(size());
   }
 
-  normalized_slice contiguous_normalized_slice::
-  operator*(normalized_slice const &other) const
+  inline normalized_slice
+  contiguous_normalized_slice::operator*(normalized_slice const &other) const
   {
     return normalized_slice(lower + step * other.lower,
                             lower + step * other.upper, step * other.step);
   }
 
-  normalized_slice contiguous_normalized_slice::
-  operator*(slice const &other) const
+  inline normalized_slice
+  contiguous_normalized_slice::operator*(slice const &other) const
   {
     return (*this) * other.normalize(size());
   }
 
-  long contiguous_normalized_slice::size() const
+  inline long contiguous_normalized_slice::size() const
   {
     return std::max(0L, upper - lower);
   }
@@ -267,13 +267,13 @@ namespace types
     return lower + i;
   }
 
-  contiguous_slice::contiguous_slice(none<long> lower, none<long> upper)
+  inline contiguous_slice::contiguous_slice(none<long> lower, none<long> upper)
       : lower(lower.is_none ? 0 : (long)lower), upper(upper)
   {
   }
 
-  contiguous_slice contiguous_slice::
-  operator*(contiguous_slice const &other) const
+  inline contiguous_slice
+  contiguous_slice::operator*(contiguous_slice const &other) const
   {
     long new_lower;
     if (other.lower < 0)
@@ -295,7 +295,7 @@ namespace types
     return {new_lower, new_upper};
   }
 
-  slice contiguous_slice::operator*(slice const &other) const
+  inline slice contiguous_slice::operator*(slice const &other) const
   {
     none<long> new_lower;
     if (other.lower.is_none() || (long)other.lower == 0) {
@@ -341,7 +341,8 @@ namespace types
      It also check for value bigger than len(a) to fit the size of the
      container
      */
-  contiguous_normalized_slice contiguous_slice::normalize(long max_size) const
+  inline contiguous_normalized_slice
+  contiguous_slice::normalize(long max_size) const
   {
     long normalized_upper;
     if (upper.is_none())
@@ -364,7 +365,7 @@ namespace types
     return contiguous_normalized_slice(normalized_lower, normalized_upper);
   }
 
-  long contiguous_slice::size() const
+  inline long contiguous_slice::size() const
   {
     long len;
     if (upper.is_none()) {
@@ -375,19 +376,19 @@ namespace types
     return std::max(0L, len);
   }
 
-  long contiguous_slice::get(long i) const
+  inline long contiguous_slice::get(long i) const
   {
     return int(lower) + i;
   }
 
-  fast_contiguous_slice::fast_contiguous_slice(none<long> lower,
-                                               none<long> upper)
+  inline fast_contiguous_slice::fast_contiguous_slice(none<long> lower,
+                                                      none<long> upper)
       : lower(lower.is_none ? 0 : (long)lower), upper(upper)
   {
   }
 
-  fast_contiguous_slice fast_contiguous_slice::
-  operator*(fast_contiguous_slice const &other) const
+  inline fast_contiguous_slice
+  fast_contiguous_slice::operator*(fast_contiguous_slice const &other) const
   {
     long new_lower = lower + other.lower * step;
 
@@ -399,8 +400,8 @@ namespace types
 
     return {new_lower, new_upper};
   }
-  contiguous_slice fast_contiguous_slice::
-  operator*(contiguous_slice const &other) const
+  inline contiguous_slice
+  fast_contiguous_slice::operator*(contiguous_slice const &other) const
   {
     long new_lower;
     if (other.lower < 0)
@@ -422,7 +423,7 @@ namespace types
     return {new_lower, new_upper};
   }
 
-  slice fast_contiguous_slice::operator*(slice const &other) const
+  inline slice fast_contiguous_slice::operator*(slice const &other) const
   {
     none<long> new_lower;
     if (other.lower.is_none() || (long)other.lower == 0) {
@@ -468,7 +469,7 @@ namespace types
      It also check for value bigger than len(a) to fit the size of the
      container
      */
-  contiguous_normalized_slice
+  inline contiguous_normalized_slice
   fast_contiguous_slice::normalize(long max_size) const
   {
     long normalized_upper;
@@ -488,13 +489,13 @@ namespace types
     return {normalized_lower, normalized_upper};
   }
 
-  long fast_contiguous_slice::size() const
+  inline long fast_contiguous_slice::size() const
   {
     assert(!upper.is_none());
     return std::max(0L, upper - lower);
   }
 
-  slice slice::operator*(contiguous_slice const &other) const
+  inline slice slice::operator*(contiguous_slice const &other) const
   {
     // We do ! implement these because it requires to know the "end"
     // value of the slice which is ! possible if it is ! "step == 1" slice
@@ -547,7 +548,7 @@ namespace types
     return os << "slice(" << s.lower << ", " << s.upper << ", " << s.step
               << ")";
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
@@ -562,21 +563,21 @@ PyObject *to_python<types::bound<T>>::convert(types::bound<T> const &b)
     return ::to_python((T)b);
 }
 
-PyObject *to_python<types::contiguous_normalized_slice>::convert(
+inline PyObject *to_python<types::contiguous_normalized_slice>::convert(
     types::contiguous_normalized_slice const &v)
 {
   return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
                      ::to_python(types::none_type{}));
 }
 
-PyObject *
+inline PyObject *
 to_python<types::contiguous_slice>::convert(types::contiguous_slice const &v)
 {
   return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
                      ::to_python(types::none_type{}));
 }
 
-PyObject *
+inline PyObject *
 to_python<types::normalized_slice>::convert(types::normalized_slice const &v)
 {
   if (v.step > 0) {
@@ -590,7 +591,7 @@ to_python<types::normalized_slice>::convert(types::normalized_slice const &v)
   }
 }
 
-PyObject *to_python<types::slice>::convert(types::slice const &v)
+inline PyObject *to_python<types::slice>::convert(types::slice const &v)
 {
   if (v.step > 0) {
     return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
@@ -603,12 +604,12 @@ PyObject *to_python<types::slice>::convert(types::slice const &v)
   }
 }
 
-bool from_python<types::slice>::is_convertible(PyObject *obj)
+inline bool from_python<types::slice>::is_convertible(PyObject *obj)
 {
   return PySlice_Check(obj);
 }
 
-types::slice from_python<types::slice>::convert(PyObject *obj)
+inline types::slice from_python<types::slice>::convert(PyObject *obj)
 {
   Py_ssize_t start, stop, step;
 #if PY_MAJOR_VERSION > 3 || (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION > 6) || \

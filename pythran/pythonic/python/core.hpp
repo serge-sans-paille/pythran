@@ -7,9 +7,9 @@
 // Python defines this for windows, and it's not needed in C++
 #undef copysign
 
+#include <sstream>
 #include <type_traits>
 #include <utility>
-#include <sstream>
 
 // Cython still uses the deprecated API, so we can't set this macro in this
 // case!
@@ -27,9 +27,10 @@ struct from_python;
 PYTHONIC_NS_END
 
 template <class T>
-auto to_python(T &&value) -> decltype(pythonic::to_python<
-    typename std::remove_cv<typename std::remove_reference<T>::type>::type>::
-                                          convert(std::forward<T>(value)))
+auto to_python(T &&value)
+    -> decltype(pythonic::to_python<typename std::remove_cv<
+                    typename std::remove_reference<T>::type>::type>::
+                    convert(std::forward<T>(value)))
 {
   return pythonic::to_python<
       typename std::remove_cv<typename std::remove_reference<T>::type>::type>::
@@ -52,10 +53,10 @@ namespace python
 {
 
 #ifndef PyString_AS_STRING
-#define PyString_AS_STRING (char *) _PyUnicode_COMPACT_DATA
+#define PyString_AS_STRING (char *)_PyUnicode_COMPACT_DATA
 #endif
 
-  void PyObject_TypePrettyPrinter(std::ostream &oss, PyObject *obj)
+  inline void PyObject_TypePrettyPrinter(std::ostream &oss, PyObject *obj)
   {
     if (PyTuple_Check(obj)) {
       oss << '(';
@@ -135,9 +136,9 @@ namespace python
     }
   }
 
-  std::nullptr_t raise_invalid_argument(char const name[],
-                                        char const alternatives[],
-                                        PyObject *args, PyObject *kwargs)
+  inline std::nullptr_t raise_invalid_argument(char const name[],
+                                               char const alternatives[],
+                                               PyObject *args, PyObject *kwargs)
   {
     std::ostringstream oss;
     oss << "Invalid call to pythranized function `" << name << '(';
@@ -166,7 +167,7 @@ namespace python
     PyErr_SetString(PyExc_TypeError, oss.str().c_str());
     return nullptr;
   }
-}
+} // namespace python
 
 PYTHONIC_NS_END
 

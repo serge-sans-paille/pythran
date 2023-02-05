@@ -9,11 +9,11 @@ PYTHONIC_NS_BEGIN
 
 namespace operator_
 {
-  bool truth(bool const &a)
+  inline bool truth(bool const &a)
   {
     return a;
   }
-}
+} // namespace operator_
 PYTHONIC_NS_END
 
 #endif

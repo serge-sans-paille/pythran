@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_PYTHRAN_STATIC_LIST_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_PYTHRAN_STATIC_LIST_HPP
 
-#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/builtins/list.hpp"
 #include "pythonic/include/types/tuple.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -12,7 +12,7 @@ namespace builtins
 
   namespace pythran
   {
-    types::empty_list static_list(std::tuple<> const &other)
+    inline types::empty_list static_list(std::tuple<> const &other)
     {
       return {};
     }
@@ -37,8 +37,8 @@ namespace builtins
     }
 
     DEFINE_FUNCTOR(pythonic::builtins::pythran, static_list);
-  }
-}
+  } // namespace pythran
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

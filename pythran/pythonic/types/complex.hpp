@@ -2,9 +2,9 @@
 #define PYTHONIC_TYPES_COMPLEX_HPP
 
 #include "pythonic/include/types/complex.hpp"
-#include "pythonic/numpy/complex64.hpp"
 #include "pythonic/numpy/complex128.hpp"
 #include "pythonic/numpy/complex256.hpp"
+#include "pythonic/numpy/complex64.hpp"
 
 #include "pythonic/types/attr.hpp"
 
@@ -139,7 +139,7 @@ namespace std
   {
     return std::hash<T>{}(x.real()) ^ std::hash<T>{}(x.imag());
   };
-}
+} // namespace std
 
 PYTHONIC_NS_BEGIN
 
@@ -156,33 +156,33 @@ namespace builtins
   {
     return std::imag(self);
   }
-  numpy::functor::complex64 getattr(types::attr::DTYPE,
-                                    std::complex<float> const &self)
+  inline numpy::functor::complex64 getattr(types::attr::DTYPE,
+                                           std::complex<float> const &self)
   {
     return {};
   }
-  numpy::functor::complex128 getattr(types::attr::DTYPE,
-                                     std::complex<double> const &self)
+  inline numpy::functor::complex128 getattr(types::attr::DTYPE,
+                                            std::complex<double> const &self)
   {
     return {};
   }
-  numpy::functor::complex256 getattr(types::attr::DTYPE,
-                                     std::complex<long double> const &self)
+  inline numpy::functor::complex256
+  getattr(types::attr::DTYPE, std::complex<long double> const &self)
   {
     return {};
   }
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/core.hpp"
 #include "numpy/arrayscalars.h"
+#include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN
 
 template <>
-PyObject *to_python<std::complex<long double>>::convert(
+inline PyObject *to_python<std::complex<long double>>::convert(
     std::complex<long double> const &c)
 {
   return PyArray_Scalar(const_cast<std::complex<long double> *>(&c),
@@ -190,39 +190,41 @@ PyObject *to_python<std::complex<long double>>::convert(
 }
 
 template <>
-PyObject *
+inline PyObject *
 to_python<std::complex<double>>::convert(std::complex<double> const &c)
 {
   return PyComplex_FromDoubles(c.real(), c.imag());
 }
 
 template <>
-PyObject *to_python<std::complex<float>>::convert(std::complex<float> const &c)
+inline PyObject *
+to_python<std::complex<float>>::convert(std::complex<float> const &c)
 {
   return PyArray_Scalar(const_cast<std::complex<float> *>(&c),
                         PyArray_DescrFromType(NPY_CFLOAT), nullptr);
 }
 
 template <>
-bool from_python<std::complex<long double>>::is_convertible(PyObject *obj)
+inline bool
+from_python<std::complex<long double>>::is_convertible(PyObject *obj)
 {
   return PyArray_IsScalar(obj, CLongDouble);
 }
 
 template <>
-bool from_python<std::complex<double>>::is_convertible(PyObject *obj)
+inline bool from_python<std::complex<double>>::is_convertible(PyObject *obj)
 {
   return PyComplex_Check(obj);
 }
 
 template <>
-bool from_python<std::complex<float>>::is_convertible(PyObject *obj)
+inline bool from_python<std::complex<float>>::is_convertible(PyObject *obj)
 {
   return PyArray_IsScalar(obj, CFloat);
 }
 
 template <>
-std::complex<long double>
+inline std::complex<long double>
 from_python<std::complex<long double>>::convert(PyObject *obj)
 {
   auto val = PyArrayScalar_VAL(obj, CLongDouble);
@@ -230,13 +232,15 @@ from_python<std::complex<long double>>::convert(PyObject *obj)
 }
 
 template <>
-std::complex<double> from_python<std::complex<double>>::convert(PyObject *obj)
+inline std::complex<double>
+from_python<std::complex<double>>::convert(PyObject *obj)
 {
   return {PyComplex_RealAsDouble(obj), PyComplex_ImagAsDouble(obj)};
 }
 
 template <>
-std::complex<float> from_python<std::complex<float>>::convert(PyObject *obj)
+inline std::complex<float>
+from_python<std::complex<float>>::convert(PyObject *obj)
 {
   auto val = PyArrayScalar_VAL(obj, CFloat);
   return {val.real, val.imag};

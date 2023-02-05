@@ -14,15 +14,15 @@ namespace builtins
 
   namespace functor
   {
-    int_::type int_::operator()(char const t[], long base) const
+    inline int_::type int_::operator()(char const t[], long base) const
     {
       return std::strtol(t, nullptr, base);
     }
-    int_::type int_::operator()(types::str const &t, long base) const
+    inline int_::type int_::operator()(types::str const &t, long base) const
     {
       return (*this)(t.c_str(), base);
     }
-    int_::type int_::operator()(types::chr const &t, long base) const
+    inline int_::type int_::operator()(types::chr const &t, long base) const
     {
       char tmp[2] = {t.c, 0};
       return (*this)(&tmp[0], base);
@@ -34,12 +34,12 @@ namespace builtins
       return static_cast<int_::type>(t);
     }
 
-    int_::type int_::operator()() const
+    inline int_::type int_::operator()() const
     {
       return 0L;
     }
-  }
-}
+  } // namespace functor
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

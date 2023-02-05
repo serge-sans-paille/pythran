@@ -63,8 +63,7 @@ namespace itertools
     }
 
     template <class T>
-    count<T>::count(T value, T step)
-        : count_iterator<T>(value, step)
+    count<T>::count(T value, T step) : count_iterator<T>(value, step)
     {
     }
 
@@ -85,7 +84,7 @@ namespace itertools
     {
       return {std::numeric_limits<T>::max(), count_iterator<T>::step};
     }
-  }
+  } // namespace details
 
   template <typename T0, typename T1>
   details::count<typename __combined<T0, T1>::type> count(T0 start, T1 step)
@@ -94,11 +93,11 @@ namespace itertools
     return {static_cast<return_t>(start), static_cast<return_t>(step)};
   }
 
-  details::count<long> count()
+  inline details::count<long> count()
   {
     return {0, 1};
   }
-}
+} // namespace itertools
 PYTHONIC_NS_END
 
 #endif

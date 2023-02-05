@@ -20,12 +20,12 @@ namespace numpy
       return standard_normal(types::array<long, sizeof...(T)>{{shape...}});
     }
 
-    double randn()
+    inline double randn()
     {
       return standard_normal();
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

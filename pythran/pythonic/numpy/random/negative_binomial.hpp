@@ -29,13 +29,13 @@ namespace numpy
       return result;
     }
 
-    auto negative_binomial(long n, double p, long size)
+    inline auto negative_binomial(long n, double p, long size)
         -> decltype(negative_binomial(n, p, types::array<long, 1>{{size}}))
     {
       return negative_binomial(n, p, types::array<long, 1>{{size}});
     }
 
-    long negative_binomial(long n, double p, types::none_type d)
+    inline long negative_binomial(long n, double p, types::none_type d)
     {
       std::negative_binomial_distribution<long> distribution{n, p};
       return distribution(details::generator);

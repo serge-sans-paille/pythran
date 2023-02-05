@@ -8,7 +8,7 @@
 
 PYTHONIC_NS_BEGIN
 
-void pythran_assert(bool cond)
+inline void pythran_assert(bool cond)
 {
 #ifndef NDEBUG
   if (!cond)
@@ -16,7 +16,7 @@ void pythran_assert(bool cond)
 #endif
 }
 
-void pythran_assert(bool cond, types::str const &what)
+inline void pythran_assert(bool cond, types::str const &what)
 {
 #ifndef NDEBUG
   if (!cond)

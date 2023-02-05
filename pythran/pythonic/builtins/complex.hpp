@@ -13,12 +13,12 @@ namespace builtins
 
   namespace functor
   {
-    complex::type complex::operator()(double v0, double v1) const
+    inline complex::type complex::operator()(double v0, double v1) const
     {
       return {v0, v1};
     }
-  }
-}
+  } // namespace functor
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

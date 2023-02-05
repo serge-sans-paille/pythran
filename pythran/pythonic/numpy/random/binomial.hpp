@@ -24,7 +24,7 @@ namespace numpy
         else if (p > 1)
           throw pythonic::types::ValueError("p > 1");
       }
-    }
+    } // namespace details
 
     template <class pS>
     types::ndarray<long, pS> binomial(double n, double p, pS const &shape)
@@ -37,19 +37,19 @@ namespace numpy
       return result;
     }
 
-    auto binomial(double n, double p, long size)
+    inline auto binomial(double n, double p, long size)
         -> decltype(binomial(n, p, types::array<long, 1>{{size}}))
     {
       return binomial(n, p, types::array<long, 1>{{size}});
     }
 
-    long binomial(double n, double p, types::none_type d)
+    inline long binomial(double n, double p, types::none_type d)
     {
       details::parameters_check(n, p);
       return std::binomial_distribution<long>{(long)n, p}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

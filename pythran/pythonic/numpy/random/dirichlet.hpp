@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_NUMPY_RANDOM_DIRICHLET_HPP
 #define PYTHONIC_NUMPY_RANDOM_DIRICHLET_HPP
 
-#include "pythonic/include/numpy/random/generator.hpp"
 #include "pythonic/include/numpy/random/dirichlet.hpp"
+#include "pythonic/include/numpy/random/generator.hpp"
 
 #include "pythonic/types/NoneType.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -28,19 +28,19 @@ namespace numpy
       return result;
     }
 
-    auto dirichlet(double alpha, long size)
+    inline auto dirichlet(double alpha, long size)
         -> decltype(dirichlet(alpha, types::array<long, 1>{{size}}))
     {
 
       return dirichlet(alpha, types::array<long, 1>{{size}});
     }
 
-    double dirichlet(double alpha, types::none_type d)
+    inline double dirichlet(double alpha, types::none_type d)
     {
       return std::dirichlet_distribution<double>{alpha}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

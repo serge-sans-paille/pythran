@@ -9,20 +9,20 @@ namespace types
 {
   struct kwonly {
   };
-}
+} // namespace types
 
 namespace builtins
 {
   namespace pythran
   {
-    types::kwonly kwonly()
+    inline types::kwonly kwonly()
     {
       return {};
     };
 
     DEFINE_FUNCTOR(pythonic::builtins::pythran, kwonly);
-  }
-}
+  } // namespace pythran
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

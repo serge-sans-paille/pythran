@@ -18,12 +18,12 @@ namespace builtins
       return static_cast<float_::type>(t);
     }
 
-    float_::type float_::operator()() const
+    inline float_::type float_::operator()() const
     {
       return 0.;
     }
-  }
-}
+  } // namespace functor
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

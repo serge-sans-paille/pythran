@@ -10,7 +10,7 @@ PYTHONIC_NS_BEGIN
 
 namespace builtins
 {
-  double pow(long x, long y)
+  inline double pow(long x, long y)
   {
     return std::pow((double)x, (double)y);
   }
@@ -30,12 +30,12 @@ namespace builtins
   }
 
   template <class... Types>
-  auto pow(Types &&... args)
+  auto pow(Types &&...args)
       -> decltype(numpy::functor::power{}(std::forward<Types>(args)...))
   {
     return numpy::functor::power{}(std::forward<Types>(args)...);
   }
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

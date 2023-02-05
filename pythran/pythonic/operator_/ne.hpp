@@ -16,11 +16,11 @@ namespace operator_
     return std::forward<A>(a) != std::forward<B>(b);
   }
 
-  bool ne(char const *a, char const *b)
+  inline bool ne(char const *a, char const *b)
   {
     return strcmp(a, b) != 0;
   }
-}
+} // namespace operator_
 PYTHONIC_NS_END
 
 #endif

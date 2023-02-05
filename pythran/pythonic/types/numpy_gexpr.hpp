@@ -5,11 +5,14 @@
 
 #include "pythonic/builtins/ValueError.hpp"
 
-#include "pythonic/utils/meta.hpp"
 #include "pythonic/operator_/iadd.hpp"
-#include "pythonic/operator_/isub.hpp"
-#include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/idiv.hpp"
+#include "pythonic/operator_/imul.hpp"
+#include "pythonic/operator_/ior.hpp"
+#include "pythonic/operator_/isub.hpp"
+#include "pythonic/operator_/ixor.hpp"
+#include "pythonic/types/numpy_iexpr.hpp"
+#include "pythonic/utils/meta.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -62,7 +65,7 @@ namespace types
                    numpy_expr<E...> const &expr)
   {
     return may_overlap_helper(gexpr, expr.args,
-                              utils::make_index_sequence<sizeof...(E)-1>{});
+                              utils::make_index_sequence<sizeof...(E) - 1>{});
   }
   template <class T, class pS, class Tp, class pSp, class E0, class E1>
   bool may_gexpr_overlap(E0 const &gexpr, E1 const &expr)
@@ -112,7 +115,7 @@ namespace types
     return value;
   }
 
-  fast_contiguous_slice to_slice<none_type>::operator()(none_type)
+  inline fast_contiguous_slice to_slice<none_type>::operator()(none_type)
   {
     return {0, 1};
   }
@@ -122,8 +125,8 @@ namespace types
     return value;
   }
 
-  contiguous_normalized_slice to_normalized_slice<none_type>::
-  operator()(none_type)
+  inline contiguous_normalized_slice
+  to_normalized_slice<none_type>::operator()(none_type)
   {
     return {0, 1};
   }
@@ -226,23 +229,24 @@ namespace types
 
     template <class Arg, class... S>
     template <size_t... Is>
-    numpy_gexpr<Arg, normalize_t<S>...> make_gexpr<Arg, S...>::
-    operator()(Arg arg, std::tuple<S...> s, utils::index_sequence<Is...>)
+    numpy_gexpr<Arg, normalize_t<S>...>
+    make_gexpr<Arg, S...>::operator()(Arg arg, std::tuple<S...> s,
+                                      utils::index_sequence<Is...>)
     {
       return {arg, normalize(std::get<Is>(s), arg.template shape<Is>())...};
     }
 
     template <class Arg, class... S>
-    numpy_gexpr<Arg, normalize_t<S>...> make_gexpr<Arg, S...>::
-    operator()(Arg arg, S const &... s)
+    numpy_gexpr<Arg, normalize_t<S>...>
+    make_gexpr<Arg, S...>::operator()(Arg arg, S const &...s)
     {
       return operator()(arg, std::tuple<S...>(s...),
                         utils::make_index_sequence<sizeof...(S)>());
     }
-  }
+  } // namespace details
 
   template <class Arg, class... S>
-  auto make_gexpr(Arg &&arg, S const &... s)
+  auto make_gexpr(Arg &&arg, S const &...s)
       -> decltype(details::make_gexpr<Arg, S...>{}(std::forward<Arg>(arg),
                                                    s...))
   {
@@ -250,8 +254,7 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...>::numpy_gexpr()
-      : buffer(nullptr)
+  numpy_gexpr<Arg, S...>::numpy_gexpr() : buffer(nullptr)
   {
   }
 
@@ -278,11 +281,11 @@ namespace types
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<1>,
                                      utils::int_<J>)
   {
-    buffer += s.lower * arg.template strides<sizeof...(S)-1>();
+    buffer += s.lower * arg.template strides<sizeof...(S) - 1>();
     sutils::assign(std::get<J>(_strides),
-                   s.step * arg.template strides<sizeof...(S)-1>());
+                   s.step * arg.template strides<sizeof...(S) - 1>());
     sutils::assign(std::get<J>(_shape),
-                   std::get<sizeof...(S)-1>(slices).size());
+                   std::get<sizeof...(S) - 1>(slices).size());
   }
 
   template <class Arg, class... S>
@@ -295,11 +298,11 @@ namespace types
                                      utils::int_<J>)
   {
     sutils::assign(std::get<J>(_shape),
-                   std::get<sizeof...(S)-I>(slices).size());
-    buffer += s.lower * arg.template strides<sizeof...(S)-I>();
+                   std::get<sizeof...(S) - I>(slices).size());
+    buffer += s.lower * arg.template strides<sizeof...(S) - I>();
     sutils::assign(std::get<J>(_strides),
-                   s.step * arg.template strides<sizeof...(S)-I>());
-    init_shape(std::get<sizeof...(S)-I + 1>(slices), utils::int_<I - 1>(),
+                   s.step * arg.template strides<sizeof...(S) - I>());
+    init_shape(std::get<sizeof...(S) - I + 1>(slices), utils::int_<I - 1>(),
                utils::int_<J + 1>());
   }
 
@@ -309,7 +312,7 @@ namespace types
                                           utils::int_<J>)
   {
     assert(cs >= 0 && "normalized");
-    buffer += cs * arg.template strides<sizeof...(S)-1>();
+    buffer += cs * arg.template strides<sizeof...(S) - 1>();
   }
 
   template <class Arg, class... S>
@@ -318,8 +321,8 @@ namespace types
                                           utils::int_<J>)
   {
     assert(cs >= 0 && "normalized");
-    buffer += cs * arg.template strides<sizeof...(S)-I>();
-    init_shape(std::get<sizeof...(S)-I + 1>(slices), utils::int_<I - 1>(),
+    buffer += cs * arg.template strides<sizeof...(S) - I>();
+    init_shape(std::get<sizeof...(S) - I + 1>(slices), utils::int_<I - 1>(),
                utils::int_<J>());
   }
 
@@ -332,21 +335,21 @@ namespace types
     init_shape(std::get<0>(slices), utils::int_<sizeof...(S)>(),
                utils::int_<0>());
 
-    sutils::copy_shape<sizeof...(S)-count_long<S...>::value,
+    sutils::copy_shape<sizeof...(S) - count_long<S...>::value,
                        count_long<S...>::value>(
         _shape, arg,
         utils::make_index_sequence<value -
-                                   (sizeof...(S)-count_long<S...>::value)>());
+                                   (sizeof...(S) - count_long<S...>::value)>());
 
-    sutils::copy_strides<sizeof...(S)-count_long<S...>::value,
+    sutils::copy_strides<sizeof...(S) - count_long<S...>::value,
                          count_long<S...>::value>(
         _strides, arg,
         utils::make_index_sequence<value -
-                                   (sizeof...(S)-count_long<S...>::value)>());
+                                   (sizeof...(S) - count_long<S...>::value)>());
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...>::numpy_gexpr(Arg const &arg, S const &... s)
+  numpy_gexpr<Arg, S...>::numpy_gexpr(Arg const &arg, S const &...s)
       : numpy_gexpr(arg, std::tuple<S const &...>(s...))
   {
   }
@@ -431,8 +434,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator=(numpy_gexpr<Arg, S...> const &expr)
   {
     if (buffer == nullptr) {
       // arg = expr.arg;
@@ -452,8 +455,8 @@ namespace types
 
   template <class Arg, class... S>
   template <class Argp>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator=(numpy_gexpr<Argp, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator=(numpy_gexpr<Argp, S...> const &expr)
   {
     if (buffer == nullptr) {
       // arg = expr.arg;
@@ -530,8 +533,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator+=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator+=(numpy_gexpr<Arg, S...> const &expr)
   {
     return update_<pythonic::operator_::functor::iadd>(expr);
   }
@@ -544,8 +547,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator-=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator-=(numpy_gexpr<Arg, S...> const &expr)
   {
     return update_<pythonic::operator_::functor::isub>(expr);
   }
@@ -558,8 +561,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator*=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator*=(numpy_gexpr<Arg, S...> const &expr)
   {
     return update_<pythonic::operator_::functor::imul>(expr);
   }
@@ -572,8 +575,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator/=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator/=(numpy_gexpr<Arg, S...> const &expr)
   {
     return update_<pythonic::operator_::functor::idiv>(expr);
   }
@@ -586,8 +589,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator|=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator|=(numpy_gexpr<Arg, S...> const &expr)
   {
     return update_<pythonic::operator_::functor::ior>(expr);
   }
@@ -600,8 +603,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator&=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator&=(numpy_gexpr<Arg, S...> const &expr)
   {
     return update_<pythonic::operator_::functor::iand>(expr);
   }
@@ -614,8 +617,8 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::
-  operator^=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &
+  numpy_gexpr<Arg, S...>::operator^=(numpy_gexpr<Arg, S...> const &expr)
   {
     return update_<pythonic::operator_::functor::ixor>(expr);
   }
@@ -650,7 +653,7 @@ namespace types
   template <class Arg, class... S>
   template <class vectorizer>
   typename numpy_gexpr<Arg, S...>::simd_iterator
-      numpy_gexpr<Arg, S...>::vbegin(vectorizer) const
+  numpy_gexpr<Arg, S...>::vbegin(vectorizer) const
   {
     return {buffer};
   }
@@ -658,7 +661,7 @@ namespace types
   template <class Arg, class... S>
   template <class vectorizer>
   typename numpy_gexpr<Arg, S...>::simd_iterator
-      numpy_gexpr<Arg, S...>::vend(vectorizer) const
+  numpy_gexpr<Arg, S...>::vend(vectorizer) const
   {
     using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
@@ -686,7 +689,7 @@ namespace types
 
   template <class Arg, class... S>
   template <class... Sp>
-  auto numpy_gexpr<Arg, S...>::operator()(Sp const &... s) const
+  auto numpy_gexpr<Arg, S...>::operator()(Sp const &...s) const
       -> decltype(make_gexpr(*this, s...))
   {
     return make_gexpr(*this, s...);
@@ -703,32 +706,32 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t M>
-  auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices) const
-      & -> decltype(nget<M - 1>().fast(*this, indices))
+  auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices)
+      const & -> decltype(nget<M - 1>().fast(*this, indices))
   {
     return nget<M - 1>().fast(*this, indices);
   }
 
   template <class Arg, class... S>
-      template <size_t M>
-      auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices) &&
-      -> decltype(nget<M - 1>().fast(std::move(*this), indices))
+  template <size_t M>
+  auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices)
+      && -> decltype(nget<M - 1>().fast(std::move(*this), indices))
   {
     return nget<M - 1>().fast(std::move(*this), indices);
   }
 
   template <class Arg, class... S>
   template <size_t M>
-  auto numpy_gexpr<Arg, S...>::operator[](array<long, M> const &indices) const
-      & -> decltype(nget<M - 1>()(*this, indices))
+  auto numpy_gexpr<Arg, S...>::operator[](array<long, M> const &indices)
+      const & -> decltype(nget<M - 1>()(*this, indices))
   {
     return nget<M - 1>()(*this, indices);
   }
 
   template <class Arg, class... S>
-      template <size_t M>
-      auto numpy_gexpr<Arg, S...>::operator[](array<long, M> const &indices) &&
-      -> decltype(nget<M - 1>()(std::move(*this), indices))
+  template <size_t M>
+  auto numpy_gexpr<Arg, S...>::operator[](array<long, M> const &indices)
+      && -> decltype(nget<M - 1>()(std::move(*this), indices))
   {
     return nget<M - 1>()(std::move(*this), indices);
   }
@@ -757,8 +760,7 @@ namespace types
   typename std::enable_if<
       is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
       numpy_vexpr<numpy_gexpr<Arg, S...>, ndarray<long, pshape<long>>>>::type
-      numpy_gexpr<Arg, S...>::
-      operator[](F const &filter) const
+  numpy_gexpr<Arg, S...>::operator[](F const &filter) const
   {
     return fast(filter);
   }
@@ -783,7 +785,7 @@ namespace types
   {
     return std::get<0>(_shape);
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #endif

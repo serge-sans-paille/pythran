@@ -3,18 +3,18 @@
 
 #include "pythonic/include/random/uniform.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
 namespace random
 {
-  double uniform(double a, double b)
+  inline double uniform(double a, double b)
   {
     return a + (b - a) * random();
   }
-}
+} // namespace random
 PYTHONIC_NS_END
 
 #endif

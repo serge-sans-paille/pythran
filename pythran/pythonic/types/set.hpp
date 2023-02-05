@@ -13,12 +13,12 @@
 
 #include "pythonic/builtins/in.hpp"
 
-#include <set>
-#include <memory>
-#include <utility>
-#include <limits>
 #include <algorithm>
 #include <iterator>
+#include <limits>
+#include <memory>
+#include <set>
+#include <utility>
 
 PYTHONIC_NS_BEGIN
 
@@ -28,48 +28,41 @@ namespace types
   /// set implementation
   // constructors
   template <class T>
-  set<T>::set()
-      : data(utils::no_memory())
+  set<T>::set() : data(utils::no_memory())
   {
   }
 
   template <class T>
   template <class InputIterator>
-  set<T>::set(InputIterator start, InputIterator stop)
-      : data()
+  set<T>::set(InputIterator start, InputIterator stop) : data()
   {
     std::copy(start, stop, std::back_inserter(*this));
   }
 
   template <class T>
-  set<T>::set(empty_set const &)
-      : data()
+  set<T>::set(empty_set const &) : data()
   {
   }
 
   template <class T>
-  set<T>::set(T const &value, single_value)
-      : data()
+  set<T>::set(T const &value, single_value) : data()
   {
     data->insert(value);
   }
 
   template <class T>
-  set<T>::set(std::initializer_list<value_type> l)
-      : data(std::move(l))
+  set<T>::set(std::initializer_list<value_type> l) : data(std::move(l))
   {
   }
 
   template <class T>
-  set<T>::set(set<T> const &other)
-      : data(other.data)
+  set<T>::set(set<T> const &other) : data(other.data)
   {
   }
 
   template <class T>
   template <class F>
-  set<T>::set(set<F> const &other)
-      : data()
+  set<T>::set(set<F> const &other) : data()
   {
     std::copy(other.begin(), other.end(), std::inserter(*data, data->begin()));
   }
@@ -234,7 +227,7 @@ namespace types
   template <class T>
   template <typename U, typename... Types>
   typename __combined<set<T>, U, Types...>::type
-  set<T>::union_(U &&other, Types &&... others) const
+  set<T>::union_(U &&other, Types &&...others) const
   {
     typename __combined<set<T>, U, Types...>::type tmp =
         union_(std::forward<Types...>(others)...);
@@ -244,7 +237,7 @@ namespace types
 
   template <class T>
   template <typename... Types>
-  none_type set<T>::update(Types &&... others)
+  none_type set<T>::update(Types &&...others)
   {
     *this = union_(std::forward<Types>(others)...);
     return {};
@@ -259,7 +252,7 @@ namespace types
   template <class T>
   template <typename U, typename... Types>
   typename __combined<set<T>, U, Types...>::type
-  set<T>::intersection(U const &other, Types const &... others) const
+  set<T>::intersection(U const &other, Types const &...others) const
   {
     // Return a new set with elements common to the set && all others.
     typename __combined<set<T>, U, Types...>::type tmp =
@@ -274,7 +267,7 @@ namespace types
 
   template <class T>
   template <typename... Types>
-  void set<T>::intersection_update(Types const &... others)
+  void set<T>::intersection_update(Types const &...others)
   {
     *this = intersection(others...);
   }
@@ -287,7 +280,7 @@ namespace types
 
   template <class T>
   template <typename U, typename... Types>
-  set<T> set<T>::difference(U const &other, Types const &... others) const
+  set<T> set<T>::difference(U const &other, Types const &...others) const
   {
     // Return a new set with elements in the set that are ! in the others.
     set<T> tmp = difference(others...);
@@ -314,7 +307,7 @@ namespace types
 
   template <class T>
   template <typename... Types>
-  void set<T>::difference_update(Types const &... others)
+  void set<T>::difference_update(Types const &...others)
   {
     *this = difference(others...);
   }
@@ -395,8 +388,8 @@ namespace types
 
   template <class T>
   template <class U>
-  set<typename __combined<T, U>::type> set<T>::
-  operator|(set<U> const &other) const
+  set<typename __combined<T, U>::type>
+  set<T>::operator|(set<U> const &other) const
   {
     return union_(other);
   }
@@ -410,8 +403,8 @@ namespace types
 
   template <class T>
   template <class U>
-  set<typename __combined<U, T>::type> set<T>::
-  operator&(set<U> const &other) const
+  set<typename __combined<U, T>::type>
+  set<T>::operator&(set<U> const &other) const
   {
     return intersection(other);
   }
@@ -439,8 +432,8 @@ namespace types
 
   template <class T>
   template <class U>
-  set<typename __combined<U, T>::type> set<T>::
-  operator^(set<U> const &other) const
+  set<typename __combined<U, T>::type>
+  set<T>::operator^(set<U> const &other) const
   {
     return symmetric_difference(other);
   }
@@ -475,7 +468,7 @@ namespace types
 
   /// empty_set implementation
 
-  empty_set empty_set::operator|(empty_set const &)
+  inline empty_set empty_set::operator|(empty_set const &)
   {
     return empty_set();
   }
@@ -498,10 +491,16 @@ namespace types
     return {};
   }
 
-  empty_set empty_set::operator^(empty_set const &) { return empty_set(); }
+  inline empty_set empty_set::operator^(empty_set const &)
+  {
+    return empty_set();
+  }
 
   template <class T>
-  set<T> empty_set::operator^(set<T> const &s) { return s; }
+  set<T> empty_set::operator^(set<T> const &s)
+  {
+    return s;
+  }
 
   template <class... Types>
   none_type empty_set::update(Types &&...)
@@ -509,17 +508,17 @@ namespace types
     return {};
   }
 
-  empty_set::operator bool()
+  inline empty_set::operator bool()
   {
     return false;
   }
 
-  empty_set::iterator empty_set::begin() const
+  inline empty_set::iterator empty_set::begin() const
   {
     return empty_iterator();
   }
 
-  empty_set::iterator empty_set::end() const
+  inline empty_set::iterator empty_set::end() const
   {
     return empty_iterator();
   }
@@ -529,7 +528,7 @@ namespace types
   {
     return false;
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 
@@ -544,7 +543,7 @@ PyObject *to_python<types::set<T>>::convert(types::set<T> const &v)
   return obj;
 }
 
-PyObject *to_python<types::empty_set>::convert(types::empty_set)
+inline PyObject *to_python<types::empty_set>::convert(types::empty_set)
 {
   return PySet_New(nullptr);
 }

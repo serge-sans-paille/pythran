@@ -12,11 +12,11 @@ namespace math
 {
   using std::log;
 
-  double log(double x, double base)
+  inline double log(double x, double base)
   {
     return log(x) / log(base);
   }
-}
+} // namespace math
 PYTHONIC_NS_END
 
 #endif

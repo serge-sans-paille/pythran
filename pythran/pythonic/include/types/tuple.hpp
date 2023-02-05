@@ -2,14 +2,14 @@
 #define PYTHONIC_INCLUDE_TYPES_TUPLE_HPP
 
 #include "pythonic/include/types/assignable.hpp"
-#include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/utils/int_.hpp"
-#include "pythonic/include/utils/seq.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
+#include "pythonic/include/utils/seq.hpp"
 
-#include <tuple>
 #include <algorithm>
+#include <tuple>
 
 #if !defined(HAVE_SSIZE_T) || !HAVE_SSIZE_T
 #if defined(_MSC_VER)
@@ -26,7 +26,7 @@ namespace std
 
   template <class F0, class S0, class F1, class S1>
   bool operator==(pair<const F0, S0> const &self, tuple<F1, S1> const &other);
-}
+} // namespace std
 
 // Tuple concatenation with operator+
 template <class... Types0, class... Types1>
@@ -112,12 +112,13 @@ namespace types
   template <class S, class... Stail>
   auto tuple_pop(std::tuple<S, Stail...> const &t)
       -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(
-          t, utils::make_index_sequence<
-                 sizeof...(Stail)-count_trailing_long<Stail...>::value>{}))
+          t,
+          utils::make_index_sequence<sizeof...(Stail) -
+                                     count_trailing_long<Stail...>::value>{}))
   {
     return make_tuple_tail<count_trailing_long<Stail...>::value>(
-        t, utils::make_index_sequence<sizeof...(
-               Stail)-count_trailing_long<Stail...>::value>{});
+        t, utils::make_index_sequence<sizeof...(Stail) -
+                                      count_trailing_long<Stail...>::value>{});
   }
 
   template <class A, size_t... I, class... Types>
@@ -140,7 +141,7 @@ namespace types
   {
     return N;
   }
-  long check_type(long, long value)
+  inline long check_type(long, long value)
   {
     return value;
   }
@@ -304,7 +305,7 @@ namespace types
     {
       return extract_shape(e[0], utils::int_<L - 1>{});
     }
-  }
+  } // namespace details
 
   /* inspired by std::array implementation */
   template <typename T, size_t N, typename Version>
@@ -546,9 +547,10 @@ namespace types
           alike<T, typename std::remove_cv<typename std::remove_reference<
                        Types>::type>::type...>::value;
       using type = typename std::conditional<
-          value, typename alike<
-                     T, typename std::remove_cv<typename std::remove_reference<
-                            Types>::type>::type...>::type,
+          value,
+          typename alike<T,
+                         typename std::remove_cv<typename std::remove_reference<
+                             Types>::type>::type...>::type,
           void>::type;
     };
 
@@ -563,7 +565,7 @@ namespace types
                                 alike<T, typename alike<Types...>::type>::value;
       using type = typename alike<T, typename alike<Types...>::type>::type;
     };
-  }
+  } // namespace details
 
   template <class... Types>
   struct alike : details::alike<typename std::remove_cv<
@@ -574,7 +576,7 @@ namespace types
   // (static array for sames types || real tuple otherwise)
   template <bool Same, class... Types>
   struct _make_tuple {
-    auto operator()(Types &&... types)
+    auto operator()(Types &&...types)
         -> decltype(std::make_tuple(std::forward<Types>(types)...))
     {
       return std::make_tuple(std::forward<Types>(types)...);
@@ -584,14 +586,14 @@ namespace types
   template <class... Types>
   struct _make_tuple<true, Types...> {
     types::array<typename alike<Types...>::type, sizeof...(Types)>
-    operator()(Types &&... types)
+    operator()(Types &&...types)
     {
       return {{std::forward<Types>(types)...}};
     }
   };
 
   template <class... Types>
-  auto make_tuple(Types &&... types)
+  auto make_tuple(Types &&...types)
 #if !_MSC_VER || __clang__
       -> decltype(_make_tuple<alike<Types...>::value, Types...>()(
           std::forward<Types>(types)...))
@@ -627,7 +629,7 @@ namespace types
   auto operator+(types::array_base<T, N, V> const &lt,
                  std::tuple<Types...> const &t)
       -> decltype(std::tuple_cat(lt.to_tuple(), t));
-}
+} // namespace types
 
 template <class... Types>
 struct assignable<std::tuple<Types...>> {
@@ -677,7 +679,7 @@ namespace std
   struct tuple_size<pythonic::types::array_base<T, N, V>> {
     static const size_t value = N;
   };
-}
+} // namespace std
 
 /* hashable tuples, as proposed in
  * http://stackoverflow.com/questions/7110301/generic-hash-for-tuples-in-unordered-map-unordered-set
@@ -695,7 +697,7 @@ namespace
   struct hash_impl<0, types...> {
     size_t operator()(size_t a, const std::tuple<types...> &t) const;
   };
-}
+} // namespace
 
 /* specialize std::hash */
 namespace std
@@ -709,7 +711,7 @@ namespace std
   struct hash<pythonic::types::array_base<T, N, V>> {
     size_t operator()(pythonic::types::array_base<T, N, V> const &l) const;
   };
-}
+} // namespace std
 
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"
@@ -818,7 +820,7 @@ namespace details
   struct pick_combined<T, P, false> {
     using type = P;
   };
-}
+} // namespace details
 PYTHONIC_NS_END
 
 template <long I, class t, class... t0>
@@ -829,8 +831,8 @@ struct __combined<std::tuple<t0...>,
   static std::tuple<typename pythonic::details::pick_combined<
       t, typename std::tuple_element<Is, holder>::type, I == Is>::type...>
       make_type(pythonic::utils::index_sequence<Is...>);
-  static auto make_type() -> decltype(
-      make_type(pythonic::utils::make_index_sequence<sizeof...(t0)>()));
+  static auto make_type() -> decltype(make_type(
+      pythonic::utils::make_index_sequence<sizeof...(t0)>()));
   using type = decltype(make_type());
 };
 
@@ -892,7 +894,7 @@ namespace types
   struct len_of<std::tuple<Types...>> {
     static constexpr long value = sizeof...(Types);
   };
-}
+} // namespace types
 PYTHONIC_NS_END
 
 namespace std
@@ -927,10 +929,10 @@ namespace std
 
   template <size_t I, class... Tys>
   struct tuple_element<I, pythonic::types::pshape<Tys...>> {
-    using type = typename std::tuple_element < I < sizeof...(Tys) ? I : 0,
-          std::tuple<Tys...>> ::type;
+    using type = typename std::tuple_element <
+                 I<sizeof...(Tys) ? I : 0, std::tuple<Tys...>>::type;
   };
-}
+} // namespace std
 PYTHONIC_NS_BEGIN
 namespace sutils
 {
@@ -1017,8 +1019,9 @@ namespace sutils
   struct shape_commonifier<std::integral_constant<long, N0>,
                            std::integral_constant<long, N1>, Ss...> {
     using type = typename std::conditional<
-        N0 == N1, typename shape_commonifier<std::integral_constant<long, N0>,
-                                             Ss...>::type,
+        N0 == N1,
+        typename shape_commonifier<std::integral_constant<long, N0>,
+                                   Ss...>::type,
         long>::type;
   };
 
@@ -1173,7 +1176,10 @@ namespace sutils
     return getshape(e, utils::make_index_sequence<E::value>());
   }
 
-  inline std::tuple<> getshape(...) { return {};}
+  inline std::tuple<> getshape(...)
+  {
+    return {};
+  }
 
   template <class pS0, class pS1>
   struct concat;
@@ -1225,8 +1231,9 @@ namespace sutils
   }
 
   template <class S>
-  long find(S &s, long v, long start = S::value,
-            bool comp(long, long) = [](long a, long b) { return (a == b); })
+  long find(
+      S &s, long v, long start = S::value,
+      bool comp(long, long) = [](long a, long b) { return (a == b); })
   {
     return find(s, v, std::integral_constant<size_t, S::value - 1>(), start,
                 comp);
@@ -1248,8 +1255,9 @@ namespace sutils
   }
 
   template <class S>
-  long sfind(S &s, long v, long start = std::tuple_size<S>::value,
-             bool comp(long, long) = [](long a, long b) { return (a == b); })
+  long sfind(
+      S &s, long v, long start = std::tuple_size<S>::value,
+      bool comp(long, long) = [](long a, long b) { return (a == b); })
   {
     return sfind(
         s, v, std::integral_constant<size_t, std::tuple_size<S>::value - 1>(),
@@ -1480,8 +1488,8 @@ namespace sutils
             decltype(copy_new_axis_helper<I - 1>{}.doit(
                 sutils::push_front_t<S0, typename std::tuple_element<
                                              J, typename S1::shape_t>::type>(),
-                shape, new_axis, std::integral_constant < size_t,
-                J == 0 ? J : J - 1 > ()))>::type
+                shape, new_axis,
+                std::integral_constant<size_t, J == 0 ? J : J - 1>()))>::type
     {
       return copy_new_axis_helper<I - 1>{}.doit(
           sutils::push_front_t<
@@ -1500,8 +1508,8 @@ namespace sutils
             decltype(copy_new_axis_helper<I - 1>{}.doit(
                 sutils::push_front_t<S0, typename std::tuple_element<
                                              J, typename S1::shape_t>::type>(),
-                shape, new_axis, std::integral_constant < size_t,
-                J == 0 ? J : J - 1 > ()))>::type
+                shape, new_axis,
+                std::integral_constant<size_t, J == 0 ? J : J - 1>()))>::type
     {
       return copy_new_axis_helper<I - 1>{}.doit(
           sutils::push_front_t<
@@ -1523,7 +1531,7 @@ namespace sutils
         types::pshape<>(), shape, new_axis,
         std::integral_constant<size_t, S1::value - 1>());
   }
-}
+} // namespace sutils
 
 namespace types
 {
@@ -1540,7 +1548,7 @@ namespace types
       sutils::assign(std::get<std::tuple_size<S>::value - L>(res), e.size());
       init_shape(res, e[0], utils::int_<L - 1>{});
     }
-  }
+  } // namespace details
   template <class T, class... Tys>
   bool operator==(T const &self, pshape<Tys...> const &other)
   {
@@ -1571,14 +1579,14 @@ namespace types
   {
     return !sutils::equals(self, other);
   }
-}
+} // namespace types
 
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/include/utils/seq.hpp"
 #include "pythonic/include/utils/fwd.hpp"
+#include "pythonic/include/utils/seq.hpp"
 #include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN

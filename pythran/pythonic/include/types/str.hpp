@@ -5,15 +5,15 @@
 #include "pythonic/include/types/tuple.hpp"
 
 #include "pythonic/include/types/assignable.hpp"
-#include "pythonic/include/utils/shared_ref.hpp"
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/int_.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
 
 #include <cassert>
-#include <string>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 PYTHONIC_NS_BEGIN
 
@@ -149,7 +149,7 @@ namespace types
     explicit str(char c);
     str(const char *s);
     template <size_t N>
-    str(const char(&s)[N]);
+    str(const char (&s)[N]);
     str(const char *s, size_t n);
     template <class S>
     str(sliced_str<S> const &other);
@@ -295,25 +295,23 @@ namespace types
     long operator-(const_sliced_str_iterator const &other) const;
   };
 
-  size_t hash_value(str const &x);
-
   str operator+(str const &self, str const &other);
   str operator+(chr const &self, chr const &other);
   str operator+(chr const &self, str const &other);
   str operator+(chr const &self, str const &other);
 
   template <size_t N>
-  str operator+(str const &self, char const(&other)[N]);
+  str operator+(str const &self, char const (&other)[N]);
   template <size_t N>
-  str operator+(chr const &self, char const(&other)[N]);
+  str operator+(chr const &self, char const (&other)[N]);
 
   template <size_t N>
-  str operator+(char const(&self)[N], str const &other);
+  str operator+(char const (&self)[N], str const &other);
   template <size_t N>
-  str operator+(char const(&self)[N], chr const &other);
+  str operator+(char const (&self)[N], chr const &other);
 
   template <size_t N>
-  bool operator==(char const(&self)[N], str const &other);
+  bool operator==(char const (&self)[N], str const &other);
 
   bool operator==(chr self, str const &other);
 
@@ -324,20 +322,20 @@ namespace types
   str operator*(long t, str const &s);
   str operator*(chr const &s, long n);
   str operator*(long t, chr const &s);
-}
+} // namespace types
 
 namespace operator_
 {
 
   template <size_t N, class Arg>
-  auto mod(const char(&fmt)[N], Arg &&arg)
+  auto mod(const char (&fmt)[N], Arg &&arg)
       -> decltype(pythonic::types::str(fmt) % std::forward<Arg>(arg));
 
   pythonic::types::str add(char const *self, char const *other);
 
   pythonic::types::str mul(char const *self, long other);
   pythonic::types::str mul(long self, char const *other);
-}
+} // namespace operator_
 
 template <>
 struct assignable<types::chr> {
@@ -357,9 +355,7 @@ struct assignable<char[N]> {
   using type = types::str;
 };
 template <size_t N>
-struct assignable<char const[N]> {
-  using type = types::str;
-};
+struct assignable<char const [N]> { using type = types::str; };
 PYTHONIC_NS_END
 
 namespace std
@@ -387,7 +383,7 @@ namespace std
   struct tuple_element<I, pythonic::types::sliced_str<S>> {
     using type = pythonic::types::str;
   };
-}
+} // namespace std
 
 /* type inference stuff  {*/
 #include "pythonic/include/types/combined.hpp"

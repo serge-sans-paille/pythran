@@ -4,13 +4,13 @@
 #include "pythonic/include/numpy/random/f.hpp"
 #include "pythonic/include/numpy/random/generator.hpp"
 
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/NoneType.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <random>
 #include <algorithm>
+#include <random>
 
 PYTHONIC_NS_BEGIN
 namespace numpy
@@ -31,21 +31,21 @@ namespace numpy
       return result;
     }
 
-    auto f(double dfnum, double dfden, long size)
+    inline auto f(double dfnum, double dfden, long size)
         -> decltype(f(dfnum, dfden, types::array<long, 1>{{size}}))
     {
       return f(dfnum, dfden, types::array<long, 1>{{size}});
     }
 
-    double f(double dfnum, double dfden, types::none_type d)
+    inline double f(double dfnum, double dfden, types::none_type d)
     {
-      return (std::chi_squared_distribution<double>{dfnum}(details::generator) *
-              dfden) /
-             (std::chi_squared_distribution<double>{dfden}(details::generator) *
-              dfnum);
+      return (std::chi_squared_distribution<double>{dfnum}(
+                 details::generator)*dfden) /
+             (std::chi_squared_distribution<double>{dfden}(
+                 details::generator)*dfnum);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

@@ -19,19 +19,19 @@ namespace builtins
       return os << t;
     }
 
-    std::ostream &print(std::ostream &os, bool const &t)
+    inline std::ostream &print(std::ostream &os, bool const &t)
     {
       static char const repr[2][6] = {"False", "True\0"};
       return os << repr[t];
     }
-  }
+  } // namespace details
 
-  void print_nonl()
+  inline void print_nonl()
   {
   }
 
   template <typename T, typename... Types>
-  void print_nonl(T const &value, Types const &... values)
+  void print_nonl(T const &value, Types const &...values)
   {
     details::print(std::cout, value);
     if (sizeof...(Types) > 0)
@@ -39,20 +39,20 @@ namespace builtins
     print_nonl(values...);
   }
 
-  void print()
+  inline void print()
   {
     std::cout << std::endl;
   }
 
   template <typename T, typename... Types>
-  void print(T const &value, Types const &... values)
+  void print(T const &value, Types const &...values)
   {
     details::print(std::cout, value);
     if (sizeof...(values) > 0)
       std::cout << ' ';
     print(values...);
   }
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

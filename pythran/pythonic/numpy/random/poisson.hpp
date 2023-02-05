@@ -28,18 +28,18 @@ namespace numpy
       return result;
     }
 
-    auto poisson(double lam, long size)
+    inline auto poisson(double lam, long size)
         -> decltype(poisson(lam, types::array<long, 1>{{size}}))
     {
       return poisson(lam, types::array<long, 1>{{size}});
     }
 
-    double poisson(double lam, types::none_type d)
+    inline double poisson(double lam, types::none_type d)
     {
       return std::poisson_distribution<long>{lam}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

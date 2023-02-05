@@ -20,13 +20,13 @@ namespace builtins
   {
     return T(0);
   }
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/core.hpp"
 #include "numpy/arrayobject.h"
+#include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -132,7 +132,7 @@ struct c_type_to_numpy_type<bool> : std::integral_constant<int, NPY_BOOL> {
 #endif
 
 #define PYTHONIC_INT_TO_PYTHON(TYPE)                                           \
-  PyObject *to_python<TYPE>::convert(TYPE l)                                   \
+  inline PyObject *to_python<TYPE>::convert(TYPE l)                            \
   {                                                                            \
     return PyArray_Scalar(                                                     \
         &l, PyArray_DescrFromType(c_type_to_numpy_type<TYPE>::value),          \
@@ -157,12 +157,12 @@ PYTHONIC_INT_TO_PYTHON(signed long long)
 #undef PYTHONIC_INT_TO_PYTHON
 
 #define PYTHONIC_INT_FROM_PYTHON(TYPE, NTYPE)                                  \
-  bool from_python<TYPE>::is_convertible(PyObject *obj)                        \
+  inline bool from_python<TYPE>::is_convertible(PyObject *obj)                 \
   {                                                                            \
     return PyInt_CheckExact(obj) ||                                            \
            PyObject_TypeCheck(obj, &Py##NTYPE##ArrType_Type);                  \
   }                                                                            \
-  TYPE from_python<TYPE>::convert(PyObject *obj)                               \
+  inline TYPE from_python<TYPE>::convert(PyObject *obj)                        \
   {                                                                            \
     return PyInt_AsLong(obj);                                                  \
   }

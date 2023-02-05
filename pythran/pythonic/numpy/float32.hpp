@@ -3,10 +3,10 @@
 
 #include "pythonic/include/numpy/float32.hpp"
 
+#include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/meta.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include "pythonic/types/numpy_op_helper.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -16,7 +16,7 @@ namespace numpy
   namespace details
   {
 
-    float float32()
+    inline float float32()
     {
       return float();
     }
@@ -26,12 +26,12 @@ namespace numpy
     {
       return static_cast<float>(v);
     }
-  }
+  } // namespace details
 
 #define NUMPY_NARY_FUNC_NAME float32
 #define NUMPY_NARY_FUNC_SYM details::float32
 #include "pythonic/types/numpy_nary_expr.hpp"
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

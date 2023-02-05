@@ -494,22 +494,22 @@ namespace types
     return s;
   }
 
-  empty_dict empty_dict::operator+(empty_dict const &)
+  inline empty_dict empty_dict::operator+(empty_dict const &)
   {
     return empty_dict();
   }
 
-  empty_dict::operator bool() const
+  inline empty_dict::operator bool() const
   {
     return false;
   }
 
-  typename empty_dict::iterator empty_dict::begin() const
+  inline typename empty_dict::iterator empty_dict::begin() const
   {
     return empty_iterator();
   }
 
-  typename empty_dict::iterator empty_dict::end() const
+  inline typename empty_dict::iterator empty_dict::end() const
   {
     return empty_iterator();
   }
@@ -527,7 +527,7 @@ namespace types
   }
 } // namespace types
 
-std::ostream &operator<<(std::ostream &os, types::empty_dict const &)
+inline std::ostream &operator<<(std::ostream &os, types::empty_dict const &)
 {
   return os << "{}";
 }
@@ -591,7 +591,7 @@ PyObject *to_python<types::dict<K, V>>::convert(types::dict<K, V> const &v)
   return ret;
 }
 
-PyObject *to_python<types::empty_dict>::convert(types::empty_dict)
+inline PyObject *to_python<types::empty_dict>::convert(types::empty_dict)
 {
   return PyDict_New();
 }

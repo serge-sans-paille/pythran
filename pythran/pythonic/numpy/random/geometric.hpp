@@ -28,18 +28,18 @@ namespace numpy
       return result;
     }
 
-    auto geometric(double p, long size)
+    inline auto geometric(double p, long size)
         -> decltype(geometric(p, types::array<long, 1>{{size}}))
     {
       return geometric(p, types::array<long, 1>{{size}});
     }
 
-    double geometric(double p, types::none_type d)
+    inline double geometric(double p, types::none_type d)
     {
       return std::geometric_distribution<int>{p}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

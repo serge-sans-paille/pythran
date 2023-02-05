@@ -4,8 +4,8 @@
 #include "pythonic/include/builtins/str/split.hpp"
 
 #include "pythonic/builtins/str/strip.hpp"
-#include "pythonic/types/list.hpp"
 #include "pythonic/types/NoneType.hpp"
+#include "pythonic/types/list.hpp"
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
@@ -17,8 +17,8 @@ namespace builtins
   namespace str
   {
 
-    types::list<types::str> split(types::str const &in, types::str const &sep,
-                                  long maxsplit)
+    inline types::list<types::str> split(types::str const &in,
+                                         types::str const &sep, long maxsplit)
     {
       types::str s = strip(in);
       types::list<types::str> res(0);
@@ -41,8 +41,8 @@ namespace builtins
       return res;
     }
 
-    types::list<types::str> split(types::str const &in,
-                                  types::none_type const &, long maxsplit)
+    inline types::list<types::str>
+    split(types::str const &in, types::none_type const &, long maxsplit)
     {
       types::str s = strip(in);
       types::list<types::str> res(0);
@@ -66,7 +66,7 @@ namespace builtins
       }
       return res;
     }
-  }
-}
+  } // namespace str
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

@@ -14,8 +14,8 @@ namespace builtins
   namespace str
   {
 
-    long find(types::str const &s, types::str const &value, long start,
-              long end)
+    inline long find(types::str const &s, types::str const &value, long start,
+                     long end)
     {
       if (end < 0)
         end += s.size();
@@ -23,16 +23,16 @@ namespace builtins
       return (a > end) ? -1 : a;
     }
 
-    long find(types::str const &s, types::str const &value, long start)
+    inline long find(types::str const &s, types::str const &value, long start)
     {
       return find(s, value, start, s.size());
     }
 
-    long find(types::str const &s, types::str const &value)
+    inline long find(types::str const &s, types::str const &value)
     {
       return find(s, value, 0, s.size());
     }
-  }
-}
+  } // namespace str
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

@@ -18,17 +18,17 @@ namespace numpy
       return randint(min, max + 1, std::forward<T>(size));
     }
 
-    long random_integers(long max)
+    inline long random_integers(long max)
     {
       return randint(1, max + 1);
     }
 
-    long random_integers(long min, long max)
+    inline long random_integers(long min, long max)
     {
       return randint(min, max + 1);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

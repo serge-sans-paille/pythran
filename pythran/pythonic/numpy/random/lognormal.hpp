@@ -1,16 +1,16 @@
 #ifndef PYTHONIC_NUMPY_RANDOM_LOGNORMAL_HPP
 #define PYTHONIC_NUMPY_RANDOM_LOGNORMAL_HPP
 
-#include "pythonic/include/numpy/random/lognormal.hpp"
 #include "pythonic/include/numpy/random/generator.hpp"
+#include "pythonic/include/numpy/random/lognormal.hpp"
 
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/NoneType.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <random>
 #include <algorithm>
+#include <random>
 
 PYTHONIC_NS_BEGIN
 namespace numpy
@@ -29,19 +29,19 @@ namespace numpy
       return result;
     }
 
-    auto lognormal(double mean, double sigma, long size)
+    inline auto lognormal(double mean, double sigma, long size)
         -> decltype(lognormal(mean, sigma, types::array<long, 1>{{size}}))
     {
       return lognormal(mean, sigma, types::array<long, 1>{{size}});
     }
 
-    double lognormal(double mean, double sigma, types::none_type d)
+    inline double lognormal(double mean, double sigma, types::none_type d)
     {
       return std::lognormal_distribution<double>{mean,
                                                  sigma}(details::generator);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

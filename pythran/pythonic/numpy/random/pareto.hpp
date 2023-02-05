@@ -29,20 +29,20 @@ namespace numpy
       return result;
     }
 
-    auto pareto(double a, long size)
+    inline auto pareto(double a, long size)
         -> decltype(pareto(a, types::array<long, 1>{{size}}))
     {
 
       return pareto(a, types::array<long, 1>{{size}});
     }
 
-    double pareto(double a, types::none_type d)
+    inline double pareto(double a, types::none_type d)
     {
       return expm1(std::exponential_distribution<double>{}(details::generator) /
                    a);
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

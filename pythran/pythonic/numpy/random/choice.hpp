@@ -10,8 +10,8 @@
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <random>
 #include <algorithm>
+#include <random>
 
 PYTHONIC_NS_BEGIN
 namespace numpy
@@ -52,7 +52,7 @@ namespace numpy
       return randint(0, max, std::forward<T>(size));
     }
 
-    long choice(long max)
+    inline long choice(long max)
     {
       return randint(max);
     }
@@ -116,8 +116,8 @@ namespace numpy
       return choice(std::forward<T>(a), types::pshape<long>{size}, replace,
                     std::forward<P>(p));
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

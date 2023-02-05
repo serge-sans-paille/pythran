@@ -1,17 +1,17 @@
 #ifndef PYTHONIC_NUMPY_RANDOM_LOGSERIES_HPP
 #define PYTHONIC_NUMPY_RANDOM_LOGSERIES_HPP
 
-#include "pythonic/include/numpy/random/logseries.hpp"
 #include "pythonic/include/numpy/random/generator.hpp"
+#include "pythonic/include/numpy/random/logseries.hpp"
 
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/NoneType.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 #include <math.h>
 
-#include <random>
 #include <algorithm>
+#include <random>
 
 PYTHONIC_NS_BEGIN
 namespace numpy
@@ -28,13 +28,13 @@ namespace numpy
       return result;
     }
 
-    auto logseries(double p, long size)
+    inline auto logseries(double p, long size)
         -> decltype(logseries(p, types::array<long, 1>{{size}}))
     {
       return logseries(p, types::array<long, 1>{{size}});
     }
 
-    double logseries(double p, types::none_type d)
+    inline double logseries(double p, types::none_type d)
     {
       double q, r, U, V;
       double result;
@@ -62,8 +62,8 @@ namespace numpy
         return 2;
       }
     }
-  }
-}
+  } // namespace random
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

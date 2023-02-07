@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_NUMPY_ARGMINMAX_HPP
 #define PYTHONIC_NUMPY_ARGMINMAX_HPP
 
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/numpy/asarray.hpp"
 #include "pythonic/builtins/ValueError.hpp"
+#include "pythonic/numpy/asarray.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -23,7 +23,7 @@ namespace numpy
     {
       return iota<P>(utils::make_index_sequence<P::size>());
     }
-  }
+  } // namespace details
   template <class Op, class E, class T>
   long _argminmax_seq(E const &elts, T &minmax_elts)
   {
@@ -95,20 +95,22 @@ namespace numpy
     long minmax_index = -1;
     if (bound > 0) {
       auto vacc = *viter;
-      iT iota[vN] = {0};
+      alignas(sizeof(vT)) iT iota[vN] = {0};
       for (long i = 0; i < (long)vN; ++i)
         iota[i] = i;
-      xsimd::batch<iT> curr = xsimd::load_unaligned(iota);
+      xsimd::batch<iT> curr = xsimd::load_aligned(iota);
       xsimd::batch<iT> indices = curr;
       xsimd::batch<iT> step(vN);
 
-      for (++viter; viter != vend; ++viter) {
-        curr += step;
+      for (++viter, curr += step; viter != vend; ++viter, curr += step) {
         auto c = *viter;
+        // In order to keep the first element that matches the condition,
+        // we compare to the previous vacc and select indices based on that
+        // mask.
+        auto prev_vacc = vacc;
         vacc = typename Op::op{}(vacc, c);
-        auto mask = c == vacc;
-        indices =
-            xsimd::select(xsimd::batch_bool_cast<iT>(mask), curr, indices);
+        auto mask = xsimd::batch_bool_cast<iT>(prev_vacc != vacc);
+        indices = xsimd::select(mask, curr, indices);
       }
 
       alignas(sizeof(vT)) T stored[vN];
@@ -273,7 +275,7 @@ namespace numpy
                                        utils::make_index_sequence<E::value>());
     return out;
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

@@ -3,10 +3,10 @@
 
 #include "pythonic/include/types/numpy_broadcast.hpp"
 
-#include "pythonic/types/vectorizable_type.hpp"
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/slice.hpp"
 #include "pythonic/types/tuple.hpp"
+#include "pythonic/types/vectorizable_type.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -29,7 +29,7 @@ namespace types
   template <class T>
   template <class vectorizer>
   typename broadcasted<T>::simd_iterator
-      broadcasted<T>::vbegin(vectorizer) const
+  broadcasted<T>::vbegin(vectorizer) const
   {
     return {*this};
   }
@@ -45,7 +45,7 @@ namespace types
 
   template <class T>
   template <class Arg1, class... Args>
-  auto broadcasted<T>::operator()(long arg0, Arg1 &&arg1, Args &&... args) const
+  auto broadcasted<T>::operator()(long arg0, Arg1 &&arg1, Args &&...args) const
       -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...))
   {
     return ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...);
@@ -53,9 +53,9 @@ namespace types
 
   template <class T>
   template <class S, class Arg1, class... Args>
-  auto broadcasted<T>::operator()(S arg0, Arg1 &&arg1, Args &&... args) const
-      -> decltype(ref((arg0.step, std::forward<Arg1>(arg1)),
-                      std::forward<Args>(args)...))
+  auto broadcasted<T>::operator()(S arg0, Arg1 &&arg1, Args &&...args) const
+      -> broadcast_or_broadcasted_t<typename std::decay<decltype(ref(
+          std::forward<Arg1>(arg1), std::forward<Args>(args)...))>::type>
   {
     return {ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...)};
   }
@@ -68,8 +68,7 @@ namespace types
 
   template <class dtype, bool is_vectorizable>
   template <class V>
-  broadcast_base<dtype, is_vectorizable>::broadcast_base(V v)
-      : _value(v)
+  broadcast_base<dtype, is_vectorizable>::broadcast_base(V v) : _value(v)
   {
   }
 
@@ -85,8 +84,7 @@ namespace types
 
   template <class T, class B>
   template <class V>
-  broadcast<T, B>::broadcast(V v)
-      : _base(v)
+  broadcast<T, B>::broadcast(V v) : _base(v)
   {
   }
 
@@ -98,8 +96,8 @@ namespace types
 
   template <class T, class B>
   template <size_t N>
-  typename broadcast<T, B>::dtype broadcast<T, B>::
-  operator[](array<long, N>) const
+  typename broadcast<T, B>::dtype
+  broadcast<T, B>::operator[](array<long, N>) const
   {
     return _base._value;
   }
@@ -112,8 +110,8 @@ namespace types
 
   template <class T, class B>
   template <class... Args>
-  typename broadcast<T, B>::dtype broadcast<T, B>::
-  operator()(Args &&... args) const
+  typename broadcast<T, B>::dtype
+  broadcast<T, B>::operator()(Args &&...args) const
   {
     return _base._value;
   }
@@ -130,7 +128,7 @@ namespace types
   {
     return 0;
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #endif

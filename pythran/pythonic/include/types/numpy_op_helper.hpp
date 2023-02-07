@@ -123,7 +123,7 @@ namespace types
                              typename common_type<Types...>::type>::type;
   };
 
-  /* An adapted type creates a type that has the same shape as C && the same
+  /* An adapted type creates a type that has the same shape as C and the same
    * dtype as T
    * to the exception of broadcasted constants that may take the dtype of C
    * instead
@@ -219,7 +219,7 @@ namespace types
   template <size_t N>
   struct is_array_index<array<long, N>> : std::true_type {
   };
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #endif

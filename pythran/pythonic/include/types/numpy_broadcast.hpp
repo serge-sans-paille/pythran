@@ -5,10 +5,10 @@
 #include <xsimd/xsimd.hpp>
 #endif
 
-#include "pythonic/include/types/vectorizable_type.hpp"
 #include "pythonic/include/types/nditerator.hpp"
 #include "pythonic/include/types/slice.hpp"
 #include "pythonic/include/types/tuple.hpp"
+#include "pythonic/include/types/vectorizable_type.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -65,6 +65,18 @@ namespace types
    */
   template <class T>
   struct broadcasted {
+
+    template <class Tp, bool is_dtype>
+    struct broadcast_or_broadcasted {
+      using type = broadcasted<Tp>;
+    };
+    template <class Tp>
+    struct broadcast_or_broadcasted<Tp, true> {
+      using type = broadcast<Tp, Tp>;
+    };
+    template <class Tp>
+    using broadcast_or_broadcasted_t =
+        typename broadcast_or_broadcasted<Tp, is_dtype<Tp>::value>::type;
     static const bool is_vectorizable = true;
     static const bool is_strided = false;
     using dtype = typename std::remove_reference<T>::type::dtype;
@@ -86,8 +98,7 @@ namespace types
     broadcasted() = default;
 
     template <class E>
-    broadcasted(E &&other)
-        : ref(std::forward<E>(other))
+    broadcasted(E &&other) : ref(std::forward<E>(other))
     {
     }
 
@@ -137,13 +148,13 @@ namespace types
     }
 
     template <class Arg1, class... Args>
-    auto operator()(long arg0, Arg1 &&arg1, Args &&... args) const
+    auto operator()(long arg0, Arg1 &&arg1, Args &&...args) const
         -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
 
     template <class S, class Arg1, class... Args>
-    auto operator()(S arg0, Arg1 &&arg1, Args &&... args) const
-        -> decltype(ref((arg0.step, std::forward<Arg1>(arg1)),
-                        std::forward<Args>(args)...));
+    auto operator()(S arg0, Arg1 &&arg1, Args &&...args) const
+        -> broadcast_or_broadcasted_t<typename std::decay<decltype(ref(
+            std::forward<Arg1>(arg1), std::forward<Args>(args)...))>::type>;
 
     long flat_size() const;
   };
@@ -264,7 +275,7 @@ namespace types
 
   template <class T, class B>
   struct broadcast {
-    // Perform the type conversion here if it seems valid (although it is !
+    // Perform the type conversion here if it seems valid (although it is not
     // always)
     using dtype = typename broadcast_dtype<T, B>::type;
     static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
@@ -333,7 +344,7 @@ namespace types
     }
 #endif
   };
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #endif

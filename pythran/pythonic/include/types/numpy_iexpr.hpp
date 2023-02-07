@@ -37,8 +37,9 @@ namespace types
     static const bool is_vectorizable =
         std::remove_reference<Arg>::type::is_vectorizable;
     using dtype = typename std::remove_reference<Arg>::type::dtype;
-    using value_type = typename std::remove_reference<decltype(
-        numpy_iexpr_helper<value>::get(std::declval<numpy_iexpr>(), 0L))>::type;
+    using value_type =
+        typename std::remove_reference<decltype(numpy_iexpr_helper<value>::get(
+            std::declval<numpy_iexpr>(), 0L))>::type;
 
     static constexpr bool is_strided =
         std::remove_reference<Arg>::type::is_strided;
@@ -155,8 +156,8 @@ namespace types
      *reference is bound to
      *   the buffer of ``a`` that is ! temp.
      */
-    auto fast(long i) const
-        & -> decltype(numpy_iexpr_helper<value>::get(*this, i))
+    auto fast(long i) const & -> decltype(numpy_iexpr_helper<value>::get(*this,
+                                                                         i))
     {
       return numpy_iexpr_helper<value>::get(*this, i);
     }
@@ -166,8 +167,9 @@ namespace types
       return numpy_iexpr_helper<value>::get(*this, i);
     }
 
-    auto fast(long i) &&
-        -> decltype(numpy_iexpr_helper<value>::get(std::move(*this), i))
+    auto
+    fast(long i) && -> decltype(numpy_iexpr_helper<value>::get(std::move(*this),
+                                                               i))
     {
       return numpy_iexpr_helper<value>::get(std::move(*this), i);
     }
@@ -227,13 +229,18 @@ namespace types
     typename std::enable_if<
         is_slice<Sp>::value,
         numpy_gexpr<numpy_iexpr, normalize_t<Sp>, normalize_t<S>...>>::type
-    operator()(Sp const &s0, S const &... s) const;
+    operator()(Sp const &s0, S const &...s) const;
 
     template <class... S>
-    auto operator()(long s0, S const &... s) const
+    auto operator()(long s0, S const &...s) const
         -> decltype(std::declval<numpy_iexpr<numpy_iexpr>>()(s...))
     {
       return (*this)[s0](s...);
+    }
+
+    auto operator()(long i) const -> decltype(this->fast(i))
+    {
+      return fast(i);
     }
 
     template <class F>
@@ -253,8 +260,8 @@ namespace types
     dtype const &operator[](array<long, value> const &indices) const;
     dtype &operator[](array<long, value> const &indices);
     template <size_t M>
-    auto operator[](array<long, M> const &indices) const
-        & -> decltype(nget<M - 1>()(*this, indices))
+    auto operator[](array<long, M> const &indices)
+        const & -> decltype(nget<M - 1>()(*this, indices))
     {
       return nget<M - 1>()(*this, indices);
     }
@@ -273,10 +280,11 @@ namespace types
     }
 
     template <class pS>
-    auto reshape(pS const &new_shape) const -> numpy_iexpr<
-        decltype(std::declval<Arg>().reshape(std::declval<sutils::push_front_t<
-            pS, typename std::tuple_element<
-                    0, typename std::decay<Arg>::type::shape_t>::type>>()))>
+    auto reshape(pS const &new_shape) const
+        -> numpy_iexpr<decltype(std::declval<Arg>().reshape(
+            std::declval<sutils::push_front_t<
+                pS, typename std::tuple_element<
+                        0, typename std::decay<Arg>::type::shape_t>::type>>()))>
     {
       assert(buffer);
       sutils::push_front_t<
@@ -365,7 +373,7 @@ namespace types
     template <class T>
     static typename T::dtype &get(T &e, long i);
   };
-}
+} // namespace types
 
 template <class Arg>
 struct assignable_noescape<types::numpy_iexpr<Arg>> {

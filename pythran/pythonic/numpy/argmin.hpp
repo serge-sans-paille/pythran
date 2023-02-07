@@ -24,7 +24,7 @@ namespace numpy
       return std::min_element(first, last);
     }
     template <class T>
-    static T value(T self, T other)
+    static bool value(T self, T other)
     {
       return self < other;
     }
@@ -42,7 +42,7 @@ namespace numpy
   {
     return argminmax<argmin_op<E>>(expr, axis);
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

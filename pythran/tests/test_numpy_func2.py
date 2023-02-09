@@ -538,6 +538,21 @@ def test_copy0(x):
     def test_array_split3(self):
         self.run_test("def np_array_split3(a): from numpy import array_split, array2string ; return list(map(array2string,array_split(a, [0,1,5])))", numpy.arange(12).reshape(6,2), np_array_split3=[NDArray[int,:,:]])
 
+    def test_array_split4(self):
+        self.run_test("def np_array_split4(a): from numpy import array_split, array2string ; return list(map(array2string,array_split(a + 1, 3)))", numpy.arange(12).reshape(6,2), np_array_split4=[NDArray[int,:,:]])
+
+    def test_array_split5(self):
+        self.run_test("""
+            def np_array_split5(a):
+                from numpy import array_split, array2string
+                split = array_split(a, 3)
+                split[0][:] = 1
+                return list(map(array2string, split)), a""",
+            numpy.arange(12).reshape(6,2), np_array_split5=[NDArray[int,:,:]])
+
+    def test_array_split6(self):
+        self.run_test("def np_array_split6(a): from numpy import array_split, array2string ; return list(map(array2string,array_split(a[1:-1], 3)))", numpy.arange(22).reshape(11,2), np_array_split6=[NDArray[int,:,:]])
+
     def test_array_equiv0(self):
         self.run_test("def np_array_equiv0(a): from numpy import array_equiv ;  b = [1,2] ; return array_equiv(a,b)", [1, 2], np_array_equiv0=[List[int]])
 

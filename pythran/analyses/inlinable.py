@@ -23,10 +23,14 @@ class Inlinable(ModuleAnalysis):
 
     def visit_FunctionDef(self, node):
         """ Determine this function definition can be inlined. """
-        if len(node.body) != 1:
+        non_pass = [i for i, s in enumerate(node.body)
+                    if not isinstance(s, ast.Pass)]
+
+        if len(non_pass) != 1:
             return
 
-        sbody = node.body[0]
+        sindex = non_pass[0]
+        sbody = node.body[sindex]
         if not isinstance(sbody, (ast.Call, ast.Return)):
             return
 
@@ -39,3 +43,4 @@ class Inlinable(ModuleAnalysis):
         # FIXME : It mark "not inlinable" def foo(foo): return foo
         if node.name not in ids:
             self.result[node.name] = copy.deepcopy(node)
+            self.result[node.name].body = [self.result[node.name].body[sindex]]

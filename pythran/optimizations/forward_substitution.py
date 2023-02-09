@@ -132,8 +132,6 @@ class ForwardSubstitution(Transformation):
                     self.to_remove[parent].append(dnode)
                     return value
                 else:
-                    # FIXME: deepcopy here creates an unknown node
-                    # for alias computations
                     return value
             elif len(parent.targets) == 1:
                 ids = self.gather(Identifiers, value)
@@ -154,4 +152,20 @@ class ForwardSubstitution(Transformation):
                     self.to_remove[parent].append(dnode)
                     return value
 
+        return node
+
+class PreInliningForwardSubstitution(ForwardSubstitution):
+
+    """
+    Replace variable that can be computed later, but only if this leads to a
+    one-liner that's going to be a great inlining candidate.
+    """
+
+    def visit_FunctionDef(self, node):
+        # Only handle trivial cases, because this can lead to more inlining
+        # opportunities.
+        if all(isinstance(s, (ast.Return, ast.Assign)) for s in node.body):
+            r = super(PreInliningForwardSubstitution,
+                         self).visit_FunctionDef(node)
+            return r
         return node

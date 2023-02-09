@@ -12,7 +12,7 @@ import optimisations.xxxxx
 
 from .constant_folding import ConstantFolding, PartialConstantFolding
 from .dead_code_elimination import DeadCodeElimination
-from .forward_substitution import ForwardSubstitution
+from .forward_substitution import ForwardSubstitution, PreInliningForwardSubstitution
 from .iter_transformation import IterTransformation
 from .comprehension_patterns import ComprehensionPatterns
 from .list_comp_to_genexp import ListCompToGenexp

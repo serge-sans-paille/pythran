@@ -1,7 +1,7 @@
 """ Optimization for Python costly pattern. """
 
 from pythran.conversion import mangle
-from pythran.analyses import Check, Placeholder
+from pythran.analyses import Check, Placeholder, AST_or
 from pythran.passmanager import Transformation
 
 from copy import deepcopy
@@ -283,6 +283,46 @@ class StrJoinPattern(Pattern):
             keywords=[])
 
 
+class ArgminmaxPattern(Pattern):
+    # numpy.argminmax(X * positive_cst) => numpy.argminmax(X)
+
+    pattern = ast.Call(
+            func=ast.Attribute(
+                value=ast.Name(id=mangle('numpy'),
+                               ctx=ast.Load(),
+                               annotation=None,
+                               type_comment=None),
+                attr=Placeholder(0,
+                                 constraint=lambda s: s in ("argmax", "argmin")),
+                ctx=ast.Load()),
+            args=[AST_or(
+                ast.BinOp(
+                    ast.Constant(
+                        Placeholder(2, constraint=lambda n: n > 0),
+                        None),
+                    ast.Mult(),
+                    Placeholder(1)),
+                ast.BinOp(
+                    Placeholder(1),
+                    ast.Mult(),
+                    ast.Constant(
+                        Placeholder(2, constraint=lambda n: n > 0),
+                        None))
+                    )
+                  ],
+             keywords=[])
+
+    @staticmethod
+    def sub():
+        return ast.Call(
+                func=ast.Attribute(value=ast.Name(id=mangle('numpy'),
+                                                   ctx=ast.Load(),
+                                                   annotation=None,
+                                                   type_comment=None),
+                                    attr=Placeholder(0), ctx=ast.Load()),
+            args=[Placeholder(1)], keywords=[])
+
+
 know_patterns = [x for x in globals().values() if hasattr(x, "pattern")]
 
 
@@ -301,7 +341,6 @@ class PlaceholderReplace(Transformation):
             return self.placeholders[node.id]
         else:
             return super(PlaceholderReplace, self).visit(node)
-
 
 class PatternTransform(Transformation):
 

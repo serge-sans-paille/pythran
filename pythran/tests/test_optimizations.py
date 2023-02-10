@@ -459,6 +459,16 @@ def foo(a):
         self.check_ast(init, ref, ["pythran.optimizations.ConstantFolding",
                                    "pythran.optimizations.PatternTransform"])
 
+    def test_patternmatching6(self):
+        init = """
+import numpy as __pythran_import_numpy
+def foo(a):
+    return __pythran_import_numpy.argmax(a * 3.)"""
+        ref = """import numpy as __pythran_import_numpy
+def foo(a):
+    return __pythran_import_numpy.argmax(a)"""
+        self.check_ast(init, ref, ["pythran.optimizations.PatternTransform"])
+
     def test_lambda_patterns0(self):
         init = """
 def foo(a):

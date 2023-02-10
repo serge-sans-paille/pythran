@@ -16,10 +16,11 @@ class Placeholder(AST):
 
     """ Class to save information from ast while check for pattern. """
 
-    def __init__(self, identifier, type=None):
+    def __init__(self, identifier, type=None, constraint=None):
         """ Placeholder are identified using an identifier. """
         self.id = identifier
         self.type = type
+        self.constraint = constraint
         super(Placeholder, self).__init__()
 
 
@@ -84,6 +85,8 @@ class Check(NodeVisitor):
             return False
         elif pattern.type is not None and not isinstance(self.node,
                                                          pattern.type):
+            return False
+        elif pattern.constraint is not None and not pattern.constraint(self.node):
             return False
         else:
             self.placeholders[pattern.id] = self.node

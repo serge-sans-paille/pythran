@@ -33,6 +33,7 @@ except Exception:
 
 from tempfile import mkdtemp, NamedTemporaryFile
 import gast as ast
+import imp
 import logging
 import os.path
 import shutil
@@ -433,6 +434,20 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     return output_file
 
 
+def import_pythrancode(pythrancode, **kwargs):
+    # It should be safe to delete the library once it's loaded in memory.
+    digest = hashlib.sha256(pythrancode.encode()).hexdigest()
+    module_name = "pythranized_{}".format(digest)
+    tmpfile = None
+    try:
+        tmpfile = compile_pythrancode(module_name, pythrancode, **kwargs)
+        module_description = imp.find_module(module_name, ["."])
+        return imp.load_module(module_name, *module_description)
+    finally:
+        if tmpfile is not None:
+            os.remove(tmpfile)
+
+
 def compile_pythranfile(file_path, output_file=None, module_name=None,
                         cpponly=False, pyonly=False, report_times=False, **kwargs):
     """
@@ -490,6 +505,11 @@ def compile_pythranfile(file_path, output_file=None, module_name=None,
         raise
 
     return output_file
+
+
+def import_pythranfile(pythranpath, **kwargs):
+    with open(pythranpath) as fd:
+        return import_pythrancode(fd.read(), **kwargs)
 
 
 def test_compile():

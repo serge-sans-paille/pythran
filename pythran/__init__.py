@@ -41,6 +41,7 @@ import pythran.log
 from pythran.config import get_include
 from pythran.toolchain import (generate_cxx, compile_cxxfile, compile_cxxcode,
                                compile_pythrancode, compile_pythranfile,
+                               import_pythrancode, import_pythranfile,
                                test_compile)
 from pythran.spec import spec_parser
 from pythran.spec import load_specfile

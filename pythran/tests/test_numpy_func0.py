@@ -282,6 +282,12 @@ def np_rosen_der(x):
     def test_median6(self):
         self.run_test("def np_median6(l): from numpy import median ; return l + median(l)", numpy.array([3, 1]), np_median6=[NDArray[int, :]])
 
+    def test_median7(self):
+        self.run_test("def np_median7(l): from numpy import median ; return median(l)", [3, 1], np_median7=[List[int]])
+
+    def test_median8(self):
+        self.run_test("def np_median8(l): from numpy import median ; return median(l)", [[3, 1],[4,5]], np_median8=[List[List[int]]])
+
     def test_mean0(self):
         self.run_test("def np_mean0(a): from numpy import mean ; return mean(a)", numpy.array([[1, 2], [3, 4]]), np_mean0=[NDArray[int,:,:]])
 

@@ -1331,26 +1331,29 @@ class Cxx(Backend):
     >>> print(str(r).replace(os.sep, '/'))
     #include <pythonic/include/types/str.hpp>
     #include <pythonic/types/str.hpp>
-    namespace __pythran_test
+    namespace 
     {
-      struct foo
+      namespace __pythran_test
       {
-        typedef void callable;
-        typedef void pure;
-        struct type
+        struct foo
         {
-          typedef pythonic::types::str __type0;
-          typedef typename pythonic::returnable<__type0>::type __type1;
-          typedef __type1 result_type;
+          typedef void callable;
+          typedef void pure;
+          struct type
+          {
+            typedef pythonic::types::str __type0;
+            typedef typename pythonic::returnable<__type0>::type __type1;
+            typedef __type1 result_type;
+          }  ;
+          inline
+          typename type::result_type operator()() const;
+          ;
         }  ;
         inline
-        typename type::result_type operator()() const;
-        ;
-      }  ;
-      inline
-      typename foo::type::result_type foo::operator()() const
-      {
-        return pythonic::types::str("hello world");
+        typename foo::type::result_type foo::operator()() const
+        {
+          return pythonic::types::str("hello world");
+        }
       }
     }
     """
@@ -1382,7 +1385,8 @@ class Cxx(Backend):
 
         nsbody = [s for ls in decls + defns for s in ls]
         ns = Namespace(pythran_ward + self.passmanager.module_name, nsbody)
-        self.result = CompilationUnit(headers + [ns])
+        anonymous_ns = Namespace("", [ns])  # force internal linkage
+        self.result = CompilationUnit(headers + [anonymous_ns])
 
     def visit_FunctionDef(self, node):
         yields = self.gather(YieldPoints, node)

@@ -48,12 +48,12 @@ namespace utils
 
 #undef SPECIALIZE_DIM_OF
 
-  template <class E, class F, size_t N, size_t D, bool vector_form>
+  template <class E, class F, size_t N, int D, bool vector_form>
   E &broadcast_copy(E &self, F const &other);
 
-  template <class Op, class E, class F, size_t N, size_t D, bool vector_form>
+  template <class Op, class E, class F, size_t N, int D, bool vector_form>
   E &broadcast_update(E &self, F const &other);
-}
+} // namespace utils
 PYTHONIC_NS_END
 
 #endif

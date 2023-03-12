@@ -419,11 +419,10 @@ namespace types
         is_vectorizable &&
         std::is_same<dtype, typename dtype_of<E>::type>::value &&
         is_vectorizable_array<E>::value;
-    static_assert(value >= utils::dim_of<E>::value, "dimensions match");
     assert(buffer);
     return utils::broadcast_copy<numpy_gexpr &, E, value,
-                                 value - utils::dim_of<E>::value, vectorize>(
-        *this, expr);
+                                 (int)value - (int)utils::dim_of<E>::value,
+                                 vectorize>(*this, expr);
   }
 
   template <class Arg, class... S>

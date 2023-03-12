@@ -48,10 +48,10 @@ namespace utils
     void helper(E &&self, F const &other, SelfIndices &&self_indices,
                 OtherIndices &&other_indices, utils::index_sequence<Is...>)
     {
-      std::forward<E>(self)
-          .store((typename std::decay<E>::type::dtype)other.load(
-                     (long)std::get<Is>(other_indices)...),
-                 (long)std::get<Is>(self_indices)...);
+      std::forward<E>(self).store(
+          (typename std::decay<E>::type::dtype)other.load(
+              (long)std::get<Is>(other_indices)...),
+          (long)std::get<Is>(self_indices)...);
     }
     template <class E, class F>
     void operator()(E &&self, F const &other)
@@ -242,16 +242,34 @@ namespace utils
     }
   };
 
-  template <class E, class F, size_t N, size_t D, bool vector_form>
-  E &broadcast_copy(E &self, F const &other)
+  template <class E, class F, size_t N, int D, bool vector_form>
+  E &broadcast_copy_helper(E &self, F const &other,
+                           std::integral_constant<bool, true>)
   {
+    static_assert(D >= 0, "downcasting already happened");
     if (self.size())
 #ifdef USE_XSIMD
-      broadcast_copy_dispatcher<E, F, N, D, vector_form>{}(self, other);
+      broadcast_copy_dispatcher<E, F, N, (size_t)D, vector_form>{}(self, other);
 #else
-      broadcast_copy_dispatcher<E, F, N, D, false>{}(self, other);
+      broadcast_copy_dispatcher<E, F, N, (size_t)D, false>{}(self, other);
 #endif
     return self;
+  }
+
+  template <class E, class F, size_t N, int D, bool vector_form>
+  E &broadcast_copy_helper(E &self, F const &other,
+                           std::integral_constant<bool, false>)
+  {
+    auto reshaped = other.reshape(sutils::getshape(self));
+    return broadcast_copy_helper<E, decltype(reshaped), N, 0, vector_form>(
+        self, reshaped, std::true_type());
+  }
+
+  template <class E, class F, size_t N, int D, bool vector_form>
+  E &broadcast_copy(E &self, F const &other)
+  {
+    return broadcast_copy_helper<E, F, N, D, vector_form>(
+        self, other, std::integral_constant<bool, (D >= 0)>());
   }
 
   /* update
@@ -433,7 +451,7 @@ namespace utils
   template <class Op>
   struct _broadcast_update<Op, types::vectorizer, 1, 0> {
     template <class... Args>
-    void operator()(Args &&... args)
+    void operator()(Args &&...args)
     {
       vbroadcast_update<Op, types::vectorizer>(std::forward<Args>(args)...);
     }
@@ -441,7 +459,7 @@ namespace utils
   template <class Op>
   struct _broadcast_update<Op, types::vectorizer_nobroadcast, 1, 0> {
     template <class... Args>
-    void operator()(Args &&... args)
+    void operator()(Args &&...args)
     {
       vbroadcast_update<Op, types::vectorizer_nobroadcast>(
           std::forward<Args>(args)...);
@@ -474,7 +492,7 @@ namespace utils
     }
   };
 
-  template <class Op, class E, class F, size_t N, size_t D, bool vector_form>
+  template <class Op, class E, class F, size_t N, int D, bool vector_form>
   E &broadcast_update(E &self, F const &other)
   {
     if (self.size())
@@ -485,6 +503,7 @@ namespace utils
 #endif
     return self;
   }
+
 } // namespace utils
 PYTHONIC_NS_END
 

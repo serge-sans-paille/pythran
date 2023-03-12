@@ -216,3 +216,20 @@ class TestBroadcasting(TestEnv):
             return normalized_triples[:,1:4]'''
         self.run_test(code, 4, broadcasting_expr0=[int])
 
+    def test_downcasting0(self):
+        code = '''
+        import numpy as np
+        def downcasting0(n):
+            data = np.zeros(n)
+            data[:] = np.ones([1, n])
+            return data'''
+        self.run_test(code, 4, downcasting0=[int])
+
+    def test_downcasting1(self):
+        code = '''
+        import numpy as np
+        def downcasting1(n):
+            data = np.zeros(n)
+            data[1:] = np.ones([1, n - 1])
+            return data'''
+        self.run_test(code, 4, downcasting1=[int])

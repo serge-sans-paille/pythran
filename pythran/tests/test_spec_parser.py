@@ -62,6 +62,17 @@ class TestSpecParser(unittest.TestCase):
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumber", code)
 
+    def test_invalid_specs4(self):
+        code = '#pythran export bar()\nbar=1'
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumbest", code)
+
+    def test_invalid_specs5(self):
+        code = '#pythran export bar\ndef bar():pass'
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            pythran.compile_pythrancode("dumber", code)
+
+
     def test_multiline_spec0(self):
         code = '''
 #pythran export foo(

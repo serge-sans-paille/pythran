@@ -8,6 +8,7 @@ from pythran.tables import MODULES
 from pythran.intrinsic import Class
 from pythran.typing import Tuple, List, Set, Dict
 from pythran.utils import isstr
+from pythran import metadata
 
 import beniget
 import gast as ast
@@ -40,7 +41,9 @@ class PythranSyntaxError(SyntaxError):
             self.offset = node.col_offset
 
     def __str__(self):
-        if self.filename and self.lineno and self.offset:
+        loc_info = self.lineno is not None and self.offset is not None
+
+        if self.filename and loc_info:
             with open(self.filename) as f:
                 for i in range(self.lineno - 1):
                     f.readline()  # and drop it
@@ -49,13 +52,19 @@ class PythranSyntaxError(SyntaxError):
         else:
             extra = None
 
-        r = "{}:{}:{} error: {}\n".format(self.filename or "<unknown>",
-                                          self.lineno,
-                                          self.offset,
-                                          self.args[0])
+        if loc_info:
+            format_header = "{}:{}:{}"
+            format_args = self.lineno, self.offset, self.args[0],
+        else:
+            format_header = "{}:"
+            format_args = self.args[0],
+
+        r = (format_header + " error: {}").format(
+                self.filename or "<unknown>",
+                *format_args)
 
         if extra is not None:
-            r += "----\n"
+            r += "\n----\n"
             r += extra
             r += "\n----\n"
 
@@ -285,6 +294,19 @@ def check_exports(pm, mod, specs):
             raise PythranSyntaxError(
                 "Invalid spec: exporting undefined function `{}`"
                 .format(fname))
+
+        is_global =  metadata.get(fnode.body[0], metadata.StaticReturn)
+
+        if is_global and signatures:
+            raise PythranSyntaxError(
+                "Invalid spec: exporting global `{}` as a function"
+                .format(fname))
+
+        if not is_global and not signatures:
+            raise PythranSyntaxError(
+                "Invalid spec: exporting function `{}` as a global"
+                .format(fname))
+
 
         ae = argument_effects[fnode]
 

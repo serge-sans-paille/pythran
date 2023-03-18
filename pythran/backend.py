@@ -156,12 +156,7 @@ def make_function_declaration(self, node, rtype, name, ftypes, fargs,
     arguments = list()
     first_default = len(node.args.args) - len(node.args.defaults)
     for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
-        # because universal reference and default don't get on well
-        if isinstance(self, CxxGenerator) or i >= first_default:
-            rvalue_ref = ""
-        else:
-            rvalue_ref = "&&"
-        argument = Value(t + rvalue_ref, "{0}{1}".format(a, make_default(d)))
+        argument = Value(t, "{0}{1}".format(a, make_default(d)))
         arguments.append(argument)
     return FunctionDeclaration(Value(rtype, name), arguments, *attributes)
 

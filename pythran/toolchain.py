@@ -236,16 +236,12 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                             [Value(t + '&&', a)
                              for t, a in zip(arguments_types, arguments)]),
                         Block([Statement("""
-                            PyThreadState *_save = PyEval_SaveThread();
-                            try {{
-                                auto res = {0}()({1});
-                                PyEval_RestoreThread(_save);
-                                return res;
-                            }}
-                            catch(...) {{
-                                PyEval_RestoreThread(_save);
-                                throw;
-                            }}
+                            struct ThreadRestorer {{
+                              PyThreadState *state;
+                              ThreadRestorer():state(PyEval_SaveThread()) {{}}
+                              ~ThreadRestorer(){{PyEval_RestoreThread(state);}}
+                            }} restorer;
+                            return {0}()({1});
                             """.format(warded(module_name,
                                               internal_func_name),
                                        ', '.join(arguments)))])

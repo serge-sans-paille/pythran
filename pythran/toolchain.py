@@ -244,7 +244,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                             return {0}()({1});
                             """.format(warded(module_name,
                                               internal_func_name),
-                                       ', '.join(arguments)))])
+                                       ', '.join(map('std::move({})'.format,
+                                                     arguments))))])
                     ),
                     function_name,
                     arguments_types,

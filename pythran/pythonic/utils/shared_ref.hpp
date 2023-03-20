@@ -114,6 +114,9 @@ namespace utils
   {
     assert(mem);
     mem->foreign = obj_ptr;
+#ifdef ENABLE_PYTHON_MODULE
+    Py_INCREF(mem->foreign);
+#endif
   }
 
   template <class T>

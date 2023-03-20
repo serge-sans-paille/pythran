@@ -1373,9 +1373,10 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
 {
   types::ndarray<T, pS> &n = const_cast<types::ndarray<T, pS> &>(cn);
   if (PyObject *p = n.mem.get_foreign()) {
+    // Take ownership of the array, as we're going to return it.
+    Py_INCREF(p);
     PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(p);
     auto const *pshape = PyArray_DIMS(arr);
-    Py_INCREF(p);
 
     // handle complex trick :-/
     if ((long)sizeof(T) != PyArray_ITEMSIZE((PyArrayObject *)(arr))) {
@@ -1387,6 +1388,7 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
     if (sutils::equals(n, pshape)) {
       if (transpose && !(PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS)) {
         PyObject *Transposed = PyArray_Transpose(arr, nullptr);
+        // Ownership is transferred to `Transposed'.
         Py_DECREF(arr);
         return Transposed;
       } else
@@ -1396,10 +1398,12 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
         return p;
       else {
         PyObject *Transposed = PyArray_Transpose(arr, nullptr);
+        // Ownership is transferred to `Transposed'.
         Py_DECREF(arr);
         return Transposed;
       }
     } else {
+      // PyArray_DESCR returns a borrowed reference.
       Py_INCREF(PyArray_DESCR(arr));
       auto array = sutils::array(n._shape);
       auto *res = pyarray_new<long, std::tuple_size<pS>::value>{}.from_descr(
@@ -1408,6 +1412,7 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
       if (transpose && (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS)) {
         PyObject *Transposed =
             PyArray_Transpose(reinterpret_cast<PyArrayObject *>(arr), nullptr);
+        // Ownership is transferred to `Transposed'.
         Py_DECREF(arr);
         return Transposed;
       } else
@@ -1429,7 +1434,6 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
       return nullptr;
     }
     n.mark_memory_external(result);
-    Py_INCREF(result); // because it's going to be decrefed when n is destroyed
     if (PyArray_SetBaseObject(reinterpret_cast<PyArrayObject *>(result),
                               capsule) == -1) {
       Py_DECREF(result);
@@ -1439,6 +1443,7 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
     if (transpose) {
       PyObject *Transposed =
           PyArray_Transpose(reinterpret_cast<PyArrayObject *>(result), nullptr);
+      // Ownership is transferred to `Transposed'.
       Py_DECREF(result);
       return Transposed;
     } else
@@ -1457,6 +1462,7 @@ to_python<types::numpy_iexpr<Arg>>::convert(types::numpy_iexpr<Arg> const &v,
   if (transpose) {
     PyObject *Transposed =
         PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
+    // Ownership is transferred to `Transposed'.
     Py_DECREF(res);
     return Transposed;
   } else
@@ -1471,10 +1477,12 @@ PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
                                          : ::to_python(v.slices);
   PyObject *base = ::to_python(v.arg);
   PyObject *res = PyObject_GetItem(base, slices);
+  // Ownership is transferred to `res'.
   Py_DECREF(base);
   if (transpose) {
     PyObject *Transposed =
         PyArray_Transpose(reinterpret_cast<PyArrayObject *>(res), nullptr);
+    // Ownership is transferred to `Transposed'.
     Py_DECREF(res);
     return Transposed;
   } else
@@ -1586,9 +1594,7 @@ template <typename T, class pS>
 types::ndarray<T, pS> from_python<types::ndarray<T, pS>>::convert(PyObject *obj)
 {
   PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
-  types::ndarray<T, pS> r((T *)PyArray_BYTES(arr), PyArray_DIMS(arr), obj);
-  Py_INCREF(obj);
-  return r;
+  return {(T *)PyArray_BYTES(arr), PyArray_DIMS(arr), obj};
 }
 
 template <typename T, class pS, class... S>
@@ -1681,8 +1687,6 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(
   impl::fill_slice<T>(slices, strides, offsets, PyArray_DIMS(arr),
                       utils::int_<sizeof...(S)>());
   types::numpy_gexpr<types::ndarray<T, pS>, S...> r(base_array, slices);
-
-  Py_INCREF(base_arr);
   return r;
 }
 

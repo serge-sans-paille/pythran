@@ -86,10 +86,7 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
                     self.defs.append(ast.Assign(targets=[new_var],
                                                 value=arg_call,
                                                type_comment=None))
-                    arg_to_value[arg_fun.id] = ast.Name(id=v_name,
-                                                        ctx=ast.Load(),
-                                                        annotation=None,
-                                                        type_comment=None)
+                    arg_to_value[arg_fun.id] = v_name
                 self.call_count += 1
                 return Inliner(arg_to_value).visit(to_inline.body[0])
         return node
@@ -106,7 +103,8 @@ class Inliner(ast.NodeTransformer):
 
     def visit_Name(self, node):
         """ Transform name from match values if available. """
-        return self.match.get(node.id, node)
+        return ast.Name(self.match.get(node.id, node.id),
+                        ast.Load(), None, None)
 
     def visit_Return(self, node):
         """ Remove return keyword after inline. """

@@ -27,6 +27,7 @@ from .identifiers import Identifiers
 from .immediates import Immediates
 from .imported_ids import ImportedIds
 from .inlinable import Inlinable
+from .movable import Movable
 from .is_assigned import IsAssigned
 from .lazyness_analysis import LazynessAnalysis
 from .literals import Literals

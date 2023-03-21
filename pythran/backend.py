@@ -7,7 +7,7 @@ This module contains all pythran backends.
 from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions, Dependencies
-from pythran.analyses import Immediates, Ancestors
+from pythran.analyses import Immediates, Ancestors, Movable
 from pythran.config import cfg
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
@@ -975,7 +975,15 @@ class CxxFunction(ast.NodeVisitor):
                 arg = args[0]
             result = fmt.format(attr, arg)
         else:
-            result = "{}({})".format(func, ", ".join(args))
+            # Add std::move when we are allowed to.
+            def decorate(arg_narg):
+                arg, narg = arg_narg
+                if narg in self.movable:
+                    return 'std::move({})'.format(arg)
+                else:
+                    return arg
+            decorated_args = map(decorate, zip(args, node.args))
+            result = "{}({})".format(func, ", ".join(decorated_args))
 
         # When we have extra type information to inject as a cast
         if isinstance(self.types.get(node), self.types.builder.CombinedTypes):
@@ -1358,7 +1366,7 @@ class Cxx(Backend):
         self.result = None
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations, Types,
                                   Scope, RangeValues, PureExpressions,
-                                  Immediates, Ancestors)
+                                  Immediates, Ancestors, Movable)
 
     # mod
     def visit_Module(self, node):

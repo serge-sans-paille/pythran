@@ -178,11 +178,31 @@ def dict_of_complex64_and_complex_128(l):
     def test_broadcasted_uint8(self):
         self.run_test('def broadcasted_uint8(l): return l - 4', np.ones(10,dtype=np.uint8).reshape(5,2), broadcasted_uint8=[NDArray[np.uint8, :, :]])
 
+    def test_broadcasted_uint8_dtype(self):
+        self.run_test('def broadcasted_uint8_dtype(l): return str((l - 4).dtype)',
+                      np.ones(10,dtype=np.uint8).reshape(5,2),
+                      broadcasted_uint8_dtype=[NDArray[np.uint8, :, :]])
+
     def test_broadcasted_int16(self):
         self.run_test('def broadcasted_int16(l): return l * 4', np.ones(10,dtype=np.int16).reshape(5,2), broadcasted_int16=[NDArray[np.int16, :, :]])
 
     def test_broadcasted_uint16(self):
         self.run_test('def broadcasted_uint16(l): return l / 4', np.ones(10,dtype=np.uint16).reshape(5,2), broadcasted_uint16=[NDArray[np.uint16, :, :]])
+
+    def test_broadcasted_uint16_dtype(self):
+        self.run_test('def broadcasted_uint16_dtype(l): return str((l / 4).dtype)',
+                      np.ones(10,dtype=np.uint16).reshape(5,2),
+                      broadcasted_uint16_dtype=[NDArray[np.uint16, :, :]])
+
+    def test_broadcasted_float32(self):
+        self.run_test('def broadcasted_float32(l): return l * 4.',
+                      np.ones(10,dtype=np.float32).reshape(5,2),
+                      broadcasted_float32=[NDArray[np.float32, :, :]])
+
+    def test_broadcasted_float32_dtype(self):
+        self.run_test('def broadcasted_float32_dtype(l): return str((l * 4.).dtype)',
+                      np.ones(10,dtype=np.float32).reshape(5,2),
+                      broadcasted_float32_dtype=[NDArray[np.float32, :, :]])
 
     @unittest.skip("no dynamic type promotion in pythran :-/")
     def test_broadcasted_large_int8(self):

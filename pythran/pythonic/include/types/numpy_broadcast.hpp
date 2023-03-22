@@ -163,13 +163,13 @@ namespace types
    *
    * Have them behave like infinite arrays of that value
    *
-   * B is the original type of the broadcast value, && T is the type of the
+   * B is the original type of the broadcast value, and T is the type of the
    *expression it is combined with
-   * if both B && T are integer types, we choose T instead of B to prevent
-   *automatic conversion into larger types
+   * if both B and T are integer types, we choose T instead of B to prevent
+   * automatic conversion into larger types
    *
    * That way, np.ones(10, dtype=np.uint8) + 1 yields an array of np.uint8,
-   *although 1 is of type long
+   * although 1 is of type long
    */
   template <class dtype, bool is_vectorizable>
   struct broadcast_base {
@@ -258,8 +258,8 @@ namespace types
   template <class T, class B>
   struct broadcast_dtype {
     using type =
-        typename std::conditional<std::is_integral<T>::value &&
-                                      std::is_integral<B>::value,
+        typename std::conditional<(std::is_integral<T>::value && std::is_integral<B>::value)
+                                  ||(std::is_floating_point<T>::value && std::is_floating_point<B>::value),
                                   T, typename __combined<T, B>::type>::type;
   };
 #ifndef USE_XSIMD

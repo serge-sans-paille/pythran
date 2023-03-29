@@ -216,6 +216,7 @@ namespace types
   template <class T, class pS>
   struct ndarray {
     static const bool is_vectorizable = types::is_vectorizable<T>::value;
+    static const bool is_flat = true;
     static const bool is_strided = false;
 
     /* types */

@@ -527,6 +527,11 @@ def np_trim_zeros2(x):
                       numpy.array([[1,2], [7, 8]]), numpy.array([3,4]),
                       np_copyto1=[NDArray[int, :, :], NDArray[int, :]])
 
+    def test_copyto_2(self):
+        self.run_test("def np_copyto2(x, y): from numpy import copyto; return copyto(x.T, y), x",
+                      numpy.array([[1,2], [7, 8]]), numpy.array([3,4]),
+                      np_copyto2=[NDArray[int, :, :], NDArray[int, :]])
+
     def test_numpy_pow0(self):
         self.run_test('def numpy_pow0(a): return a ** 2',
                       numpy.arange(100).reshape((10, 10)),

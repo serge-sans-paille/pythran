@@ -100,6 +100,7 @@ namespace types
     static const bool is_vectorizable =
         types::is_vectorizable_dtype<dtype>::value &&
         !std::is_same<S, slice>::value;
+    static const bool is_flat = std::is_same<slice, S>::value;
     static const bool is_strided = std::is_same<slice, S>::value;
 
     using shape_t = types::array<long, value>;
@@ -220,6 +221,7 @@ namespace types
     typedef typename utils::nested_container_value_type<list>::type dtype;
     static const size_t value = utils::nested_container_depth<list>::value;
     static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
+    static const bool is_flat = true;
     static const bool is_strided = false;
 
     // constructors

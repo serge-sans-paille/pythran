@@ -327,6 +327,7 @@ namespace types
     static const size_t value =
         utils::nested_container_depth<array_base>::value;
     static const bool is_vectorizable = true;
+    static const bool is_flat = true;
     static const bool is_strided = false;
 
     // flat_size implementation

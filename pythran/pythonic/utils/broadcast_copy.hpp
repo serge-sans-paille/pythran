@@ -244,32 +244,62 @@ namespace utils
 
   template <class E, class F, size_t N, int D, bool vector_form>
   E &broadcast_copy_helper(E &self, F const &other,
-                           std::integral_constant<bool, true>)
+                           std::integral_constant<bool, true>,
+                           std::integral_constant<bool, false>)
   {
     static_assert(D >= 0, "downcasting already happened");
-    if (self.size())
+    if (self.size()) {
 #ifdef USE_XSIMD
-      broadcast_copy_dispatcher<E, F, N, (size_t)D, vector_form>{}(self, other);
+      constexpr bool vectorize = vector_form;
 #else
-      broadcast_copy_dispatcher<E, F, N, (size_t)D, false>{}(self, other);
+      constexpr bool vectorize = false;;
 #endif
+      broadcast_copy_dispatcher<E, F, N, (size_t)D, vectorize>{}(self, other);
+    }
     return self;
   }
 
   template <class E, class F, size_t N, int D, bool vector_form>
   E &broadcast_copy_helper(E &self, F const &other,
-                           std::integral_constant<bool, false>)
+                           std::integral_constant<bool, true>,
+                           std::integral_constant<bool, true>)
+  {
+    if(D==0) {
+      std::copy(other.data(), other.data() + other.flat_size(), self.data());
+      return self;
+    }
+    else {
+      return broadcast_copy_helper<E, F, N, D, vector_form>(
+          self, other, std::integral_constant<bool, true>(),
+          std::integral_constant<bool, false>{});
+    }
+  }
+
+  template <class E, class F, size_t N, int D, bool vector_form, bool plain>
+  E &broadcast_copy_helper(E &self, F const &other,
+                           std::integral_constant<bool, false>,
+                           std::integral_constant<bool, plain> is_plain)
   {
     auto reshaped = other.reshape(sutils::getshape(self));
     return broadcast_copy_helper<E, decltype(reshaped), N, 0, vector_form>(
-        self, reshaped, std::true_type());
+        self, reshaped, std::true_type(), is_plain);
   }
+
+  template<class T, bool = types::is_dtype<T>::value>
+  struct is_flat {
+    static const bool value = T::is_flat;
+  };
+  template<class T>
+  struct is_flat<T, true> {
+    static const bool value = false;
+  };
 
   template <class E, class F, size_t N, int D, bool vector_form>
   E &broadcast_copy(E &self, F const &other)
   {
     return broadcast_copy_helper<E, F, N, D, vector_form>(
-        self, other, std::integral_constant<bool, (D >= 0)>());
+        self, other, std::integral_constant<bool, (D >= 0)>(),
+        std::integral_constant<bool, std::decay<E>::type::is_flat && is_flat<typename std::decay<F>::type>::value>{});
   }
 
   /* update

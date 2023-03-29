@@ -216,6 +216,7 @@ namespace types
   template <class T, class pS>
   struct ndarray {
     static const bool is_vectorizable = types::is_vectorizable<T>::value;
+    static const bool is_flat = true;
     static const bool is_strided = false;
 
     /* types */
@@ -646,6 +647,8 @@ namespace types
     flat_iterator fend();
 
     /* member functions */
+    T* data() { return buffer;}
+    T const* data() const { return buffer;}
     long flat_size() const;
     bool may_overlap(ndarray const &) const;
 

@@ -12,6 +12,7 @@ namespace types
 
     static constexpr size_t value = T::value;
     static const bool is_vectorizable = false;
+    static const bool is_flat = false;
     using dtype = typename dtype_of<T>::type;
     using value_type = T;
     static constexpr bool is_strided = T::is_strided;

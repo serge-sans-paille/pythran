@@ -28,6 +28,7 @@ namespace types
   struct numpy_texpr_2 {
     static_assert(E::value == 2, "texpr only implemented for matrices");
     static const bool is_vectorizable = false;
+    static const bool is_flat = false;
     static const bool is_strided = true;
     using Arg = E;
 

@@ -583,6 +583,9 @@ namespace types
          std::is_same<contiguous_normalized_slice,
                       typename std::tuple_element<
                           sizeof...(S) - 1, std::tuple<S...>>::type>::value);
+    static const bool is_flat =
+        std::remove_reference<Arg>::type::is_flat && value == 1 &&
+         utils::all_of<std::is_same<contiguous_normalized_slice, S>::value...>::value;
     static const bool is_strided =
         std::remove_reference<Arg>::type::is_strided ||
         (((sizeof...(S) - count_long<S...>::value) == value) &&
@@ -874,6 +877,9 @@ namespace types
 
     explicit operator bool() const;
 
+
+    dtype* data() { return buffer;}
+    const dtype* data() const { return buffer;}
     long flat_size() const;
     long size() const;
     ndarray<dtype, shape_t> copy() const

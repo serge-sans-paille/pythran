@@ -1055,7 +1055,7 @@ namespace types
   template <class pS>
   list<T> &list<T>::operator=(ndarray<T, pshape<pS>> const &other)
   {
-    data = utils::shared_ref<T>(other.begin(), other.end());
+    _data = utils::shared_ref<T>(other.begin(), other.end());
     return *this;
   }
 } // namespace types

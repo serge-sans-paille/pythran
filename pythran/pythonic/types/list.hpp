@@ -23,24 +23,24 @@ namespace types
 
   // Constructors
   template <class T, class S>
-  sliced_list<T, S>::sliced_list() : data(utils::no_memory())
+  sliced_list<T, S>::sliced_list() : _data(utils::no_memory())
   {
   }
   template <class T, class S>
   sliced_list<T, S>::sliced_list(sliced_list<T, S> const &s)
-      : data(s.data), slicing(s.slicing)
+      : _data(s._data), slicing(s.slicing)
   {
   }
   template <class T, class S>
   sliced_list<T, S>::sliced_list(list<T> const &other, S const &s)
-      : data(other.data), slicing(s.normalize(other.size()))
+      : _data(other._data), slicing(s.normalize(other.size()))
   {
   }
   template <class T, class S>
   template <class Sn>
   sliced_list<T, S>::sliced_list(utils::shared_ref<container_type> const &other,
                                  Sn const &s)
-      : data(other), slicing(s)
+      : _data(other), slicing(s)
   {
   }
 
@@ -85,8 +85,8 @@ namespace types
   {
     assert(0 <= i && i < size());
     auto const index = slicing.get(i);
-    assert(0 <= index && index < (long)data->size());
-    return (*data)[index];
+    assert(0 <= index && index < (long)_data->size());
+    return (*_data)[index];
   }
   template <class T, class S>
   typename sliced_list<T, S>::const_reference
@@ -94,16 +94,16 @@ namespace types
   {
     assert(i < size());
     auto const index = slicing.get(i);
-    assert(0 <= index && index < (long)data->size());
-    return (*data)[index];
+    assert(0 <= index && index < (long)_data->size());
+    return (*_data)[index];
   }
   template <class T, class S>
   typename sliced_list<T, S>::reference sliced_list<T, S>::operator[](long i)
   {
     assert(i < size());
     auto const index = slicing.get(i);
-    assert(0 <= index && index < (long)data->size());
-    return (*data)[index];
+    assert(0 <= index && index < (long)_data->size());
+    return (*_data)[index];
   }
 
   template <class T, class S>
@@ -113,7 +113,7 @@ namespace types
       sliced_list<T, decltype(std::declval<S>() * std::declval<Sp>())>>::type
   sliced_list<T, S>::operator[](Sp s) const
   {
-    return {data, slicing * s.normalize(this->size())};
+    return {_data, slicing * s.normalize(this->size())};
   }
 
   // io
@@ -152,10 +152,10 @@ namespace types
   {
     if (slicing.step == 1) {
       // inserting before erasing in case of self-copy
-      auto insert_pt = data->begin() + slicing.lower;
-      data->insert(insert_pt, s.begin(), s.end());
-      auto erase_pt = data->begin() + s.size();
-      data->erase(erase_pt + slicing.lower, erase_pt + slicing.upper);
+      auto insert_pt = _data->begin() + slicing.lower;
+      _data->insert(insert_pt, s.begin(), s.end());
+      auto erase_pt = _data->begin() + s.size();
+      _data->erase(erase_pt + slicing.lower, erase_pt + slicing.upper);
     } else
       assert(!"not implemented yet");
     return *this;
@@ -165,10 +165,10 @@ namespace types
   {
     if (slicing.step == 1) {
       // inserting before erasing in case of self-copy
-      auto insert_pt = data->begin() + slicing.lower;
-      data->insert(insert_pt, seq.begin(), seq.end());
-      auto erase_pt = data->begin() + seq.size();
-      data->erase(erase_pt + slicing.lower, erase_pt + slicing.upper);
+      auto insert_pt = _data->begin() + slicing.lower;
+      _data->insert(insert_pt, seq.begin(), seq.end());
+      auto erase_pt = _data->begin() + seq.size();
+      _data->erase(erase_pt + slicing.lower, erase_pt + slicing.upper);
     } else
       assert(!"not implemented yet");
     return *this;
@@ -208,7 +208,7 @@ namespace types
   typename sliced_list<T, S>::simd_iterator
   sliced_list<T, S>::vbegin(vectorizer) const
   {
-    return {data->data() + slicing.lower};
+    return {_data->data() + slicing.lower};
   }
 
   template <class T, class S>
@@ -218,7 +218,7 @@ namespace types
   {
     using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
-    return {data->data() + slicing.lower +
+    return {_data->data() + slicing.lower +
             long(size() / vector_size * vector_size)};
   }
 
@@ -229,7 +229,7 @@ namespace types
   template <class V>
   bool sliced_list<T, S>::contains(V const &v) const
   {
-    return std::find(data->begin(), data->end(), v) != data->end();
+    return std::find(_data->begin(), _data->end(), v) != _data->end();
   }
   template <class T, class S>
   intptr_t sliced_list<T, S>::id() const
@@ -248,55 +248,55 @@ namespace types
 
   // constructors
   template <class T>
-  list<T>::list() : data(utils::no_memory())
+  list<T>::list() : _data(utils::no_memory())
   {
   }
   template <class T>
   template <class InputIterator>
-  list<T>::list(InputIterator start, InputIterator stop) : data()
+  list<T>::list(InputIterator start, InputIterator stop) : _data()
   {
     if (std::is_same<
             typename std::iterator_traits<InputIterator>::iterator_category,
             std::random_access_iterator_tag>::value)
-      data->reserve(std::distance(start, stop));
+      _data->reserve(std::distance(start, stop));
     else
-      data->reserve(DEFAULT_LIST_CAPACITY);
-    std::copy(start, stop, std::back_inserter(*data));
+      _data->reserve(DEFAULT_LIST_CAPACITY);
+    std::copy(start, stop, std::back_inserter(*_data));
   }
   template <class T>
-  list<T>::list(empty_list const &) : data(0)
+  list<T>::list(empty_list const &) : _data(0)
   {
   }
   template <class T>
-  list<T>::list(size_type sz) : data(sz)
+  list<T>::list(size_type sz) : _data(sz)
   {
   }
   template <class T>
-  list<T>::list(T const &value, single_value, size_type sz) : data(sz, value)
+  list<T>::list(T const &value, single_value, size_type sz) : _data(sz, value)
   {
   }
   template <class T>
-  list<T>::list(std::initializer_list<T> l) : data(std::move(l))
+  list<T>::list(std::initializer_list<T> l) : _data(std::move(l))
   {
   }
   template <class T>
-  list<T>::list(list<T> &&other) : data(std::move(other.data))
+  list<T>::list(list<T> &&other) : _data(std::move(other._data))
   {
   }
   template <class T>
-  list<T>::list(list<T> const &other) : data(other.data)
+  list<T>::list(list<T> const &other) : _data(other._data)
   {
   }
   template <class T>
   template <class F>
-  list<T>::list(list<F> const &other) : data(other.size())
+  list<T>::list(list<F> const &other) : _data(other.size())
   {
     std::copy(other.begin(), other.end(), begin());
   }
   template <class T>
   template <class Tp, class S>
   list<T>::list(sliced_list<Tp, S> const &other)
-      : data(other.begin(), other.end())
+      : _data(other.begin(), other.end())
   {
   }
 
@@ -304,45 +304,45 @@ namespace types
   template <class T>
   list<T> &list<T>::operator=(list<T> &&other)
   {
-    data = std::move(other.data);
+    _data = std::move(other._data);
     return *this;
   }
   template <class T>
   template <class F>
   list<T> &list<T>::operator=(list<F> const &other)
   {
-    data = utils::shared_ref<container_type>{other.size()};
+    _data = utils::shared_ref<container_type>{other.size()};
     std::copy(other.begin(), other.end(), begin());
     return *this;
   }
   template <class T>
   list<T> &list<T>::operator=(list<T> const &other)
   {
-    data = other.data;
+    _data = other._data;
     return *this;
   }
   template <class T>
   list<T> &list<T>::operator=(empty_list const &)
   {
-    data = utils::shared_ref<container_type>();
+    _data = utils::shared_ref<container_type>();
     return *this;
   }
   template <class T>
   template <class Tp, size_t N, class V>
   list<T> &list<T>::operator=(array_base<Tp, N, V> const &other)
   {
-    data = utils::shared_ref<container_type>(other.begin(), other.end());
+    _data = utils::shared_ref<container_type>(other.begin(), other.end());
     return *this;
   }
   template <class T>
   template <class Tp, class S>
   list<T> &list<T>::operator=(sliced_list<Tp, S> const &other)
   {
-    if (other.data == data) {
-      auto it = std::copy(other.begin(), other.end(), data->begin());
-      data->resize(it - data->begin());
+    if (other._data == _data) {
+      auto it = std::copy(other.begin(), other.end(), _data->begin());
+      _data->resize(it - _data->begin());
     } else
-      data = utils::shared_ref<container_type>(other.begin(), other.end());
+      _data = utils::shared_ref<container_type>(other.begin(), other.end());
     return *this;
   }
 
@@ -350,8 +350,8 @@ namespace types
   template <class S>
   list<T> &list<T>::operator+=(sliced_list<T, S> const &other)
   {
-    data->resize(size() + other.size());
-    std::copy(other.begin(), other.end(), data->begin());
+    _data->resize(size() + other.size());
+    std::copy(other.begin(), other.end(), _data->begin());
     return *this;
   }
 
@@ -419,42 +419,42 @@ namespace types
   template <class T>
   typename list<T>::iterator list<T>::begin()
   {
-    return data->begin();
+    return _data->begin();
   }
   template <class T>
   typename list<T>::const_iterator list<T>::begin() const
   {
-    return data->begin();
+    return _data->begin();
   }
   template <class T>
   typename list<T>::iterator list<T>::end()
   {
-    return data->end();
+    return _data->end();
   }
   template <class T>
   typename list<T>::const_iterator list<T>::end() const
   {
-    return data->end();
+    return _data->end();
   }
   template <class T>
   typename list<T>::reverse_iterator list<T>::rbegin()
   {
-    return data->rbegin();
+    return _data->rbegin();
   }
   template <class T>
   typename list<T>::const_reverse_iterator list<T>::rbegin() const
   {
-    return data->rbegin();
+    return _data->rbegin();
   }
   template <class T>
   typename list<T>::reverse_iterator list<T>::rend()
   {
-    return data->rend();
+    return _data->rend();
   }
   template <class T>
   typename list<T>::const_reverse_iterator list<T>::rend() const
   {
-    return data->rend();
+    return _data->rend();
   }
 
   // comparison
@@ -487,7 +487,7 @@ namespace types
   template <class vectorizer>
   typename list<T>::simd_iterator list<T>::vbegin(vectorizer) const
   {
-    return {data->data()};
+    return {_data->data()};
   }
 
   template <class T>
@@ -496,14 +496,14 @@ namespace types
   {
     using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
-    return {data->data() + long(size() / vector_size * vector_size)};
+    return {_data->data() + long(size() / vector_size * vector_size)};
   }
 
 #endif
   template <class T>
   typename list<T>::reference list<T>::fast(long n)
   {
-    return (*data)[n];
+    return (*_data)[n];
   }
   template <class T>
   typename list<T>::reference list<T>::operator[](long n)
@@ -517,7 +517,7 @@ namespace types
   typename list<T>::const_reference list<T>::fast(long n) const
   {
     assert(n < size());
-    return (*data)[n];
+    return (*_data)[n];
   }
   template <class T>
   typename list<T>::const_reference list<T>::operator[](long n) const
@@ -542,31 +542,31 @@ namespace types
   void list<T>::push_back(Tp &&x)
   {
     // FIXME: clang-3.4 doesn't support emplace_back for vector of bool
-    data->push_back(std::forward<Tp>(x));
+    _data->push_back(std::forward<Tp>(x));
   }
   template <class T>
   template <class Tp>
   void list<T>::insert(long i, Tp &&x)
   {
     if (i == size())
-      data->emplace_back(std::forward<Tp>(x));
+      _data->emplace_back(std::forward<Tp>(x));
     else
-      data->insert(data->begin() + i, std::forward<Tp>(x));
+      _data->insert(_data->begin() + i, std::forward<Tp>(x));
   }
   template <class T>
   void list<T>::reserve(size_t n)
   {
-    data->reserve(n);
+    _data->reserve(n);
   }
   template <class T>
   void list<T>::resize(size_t n)
   {
-    data->resize(n);
+    _data->resize(n);
   }
   template <class T>
   typename list<T>::iterator list<T>::erase(size_t n)
   {
-    return data->erase(data->begin() + n);
+    return _data->erase(_data->begin() + n);
   }
   template <class T>
   T list<T>::pop(long x)
@@ -598,7 +598,7 @@ namespace types
   template <class T>
   list<T>::operator bool() const
   {
-    return !data->empty();
+    return !_data->empty();
   }
 
   template <class T>
@@ -672,7 +672,7 @@ namespace types
   template <class T>
   long list<T>::size() const
   {
-    return data->size();
+    return _data->size();
   }
   template <class T>
   template <class E>
@@ -697,12 +697,12 @@ namespace types
   template <class V>
   bool list<T>::contains(V const &v) const
   {
-    return std::find(data->begin(), data->end(), v) != data->end();
+    return std::find(_data->begin(), _data->end(), v) != _data->end();
   }
   template <class T>
   intptr_t list<T>::id() const
   {
-    return reinterpret_cast<intptr_t>(&(*data));
+    return reinterpret_cast<intptr_t>(&(*_data));
   }
 
   template <class T>

@@ -78,6 +78,7 @@ namespace types
     using broadcast_or_broadcasted_t =
         typename broadcast_or_broadcasted<Tp, is_dtype<Tp>::value>::type;
     static const bool is_vectorizable = true;
+    static const bool is_flat = false;
     static const bool is_strided = false;
     using dtype = typename std::remove_reference<T>::type::dtype;
     using value_type = typename std::remove_reference<T>::type::value_type;
@@ -279,6 +280,7 @@ namespace types
     // always)
     using dtype = typename broadcast_dtype<T, B>::type;
     static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
+    static const bool is_flat = false;
     static const bool is_strided = false;
     using value_type = dtype;
     using const_iterator = const_broadcast_iterator<dtype>;

@@ -36,6 +36,8 @@ namespace types
     static constexpr size_t value = std::remove_reference<Arg>::type::value - 1;
     static const bool is_vectorizable =
         std::remove_reference<Arg>::type::is_vectorizable;
+    static const bool is_flat =
+        std::remove_reference<Arg>::type::is_flat;
     using dtype = typename std::remove_reference<Arg>::type::dtype;
     using value_type =
         typename std::remove_reference<decltype(numpy_iexpr_helper<value>::get(
@@ -333,6 +335,9 @@ namespace types
     {
       return (*this)[std::get<0>(index)];
     }
+
+    dtype* data() { return buffer;}
+    const dtype* data() const { return buffer;}
 
   private:
     /* compute the buffer offset, returning the offset between the

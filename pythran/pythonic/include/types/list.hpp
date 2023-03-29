@@ -68,7 +68,7 @@ namespace types
         typename std::remove_cv<typename std::remove_reference<T>::type>::type
             _type;
     typedef container<_type> container_type;
-    utils::shared_ref<container_type> data;
+    utils::shared_ref<container_type> _data;
 
     template <class U>
     friend class list;
@@ -100,6 +100,7 @@ namespace types
     static const bool is_vectorizable =
         types::is_vectorizable_dtype<dtype>::value &&
         !std::is_same<S, slice>::value;
+    static const bool is_flat = std::is_same<slice, S>::value;
     static const bool is_strided = std::is_same<slice, S>::value;
 
     using shape_t = types::array<long, value>;
@@ -192,7 +193,7 @@ namespace types
         typename std::remove_cv<typename std::remove_reference<T>::type>::type
             _type;
     typedef container<_type> container_type;
-    utils::shared_ref<container_type> data;
+    utils::shared_ref<container_type> _data;
 
     template <class U, class S>
     friend class sliced_list;
@@ -220,6 +221,7 @@ namespace types
     typedef typename utils::nested_container_value_type<list>::type dtype;
     static const size_t value = utils::nested_container_depth<list>::value;
     static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
+    static const bool is_flat = true;
     static const bool is_strided = false;
 
     // constructors
@@ -324,6 +326,9 @@ namespace types
     {
       return fast(index);
     }
+
+    dtype* data() { return _data->data();}
+    const dtype* data() const { return _data->data();}
 
     // modifiers
     template <class Tp>

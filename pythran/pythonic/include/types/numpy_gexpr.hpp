@@ -877,6 +877,9 @@ namespace types
 
     explicit operator bool() const;
 
+
+    dtype* data() { return buffer;}
+    const dtype* data() const { return buffer;}
     long flat_size() const;
     long size() const;
     ndarray<dtype, shape_t> copy() const

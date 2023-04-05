@@ -722,6 +722,11 @@ def newaxis8(n):
                       numpy.arange(16),
                       gexpr_copy1=[NDArray[int, :]])
 
+    def test_gexpr_copy2(self):
+        self.run_test("def gexpr_copy2(a,b): a[:] = b[:]; return a",
+                      numpy.arange(5), [1] * 5,
+                      gexpr_copy2=[NDArray[int, :], List[int]])
+
     def test_ndarray_iter0(self):
         self.run_test("def ndarray_iter0(a): return list(map(str, a))",
                       numpy.arange(16),

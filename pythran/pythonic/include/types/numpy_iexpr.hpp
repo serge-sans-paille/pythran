@@ -336,6 +336,9 @@ namespace types
       return (*this)[std::get<0>(index)];
     }
 
+    dtype* data() { return buffer;}
+    const dtype* data() const { return buffer;}
+
   private:
     /* compute the buffer offset, returning the offset between the
      * first element of the iexpr and the start of the buffer.

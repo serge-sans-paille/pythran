@@ -265,7 +265,7 @@ namespace utils
                            std::integral_constant<bool, true>)
   {
     if(D==0) {
-      std::copy(other.buffer, other.buffer + other.flat_size(), self.buffer);
+      std::copy(other.data(), other.data() + other.flat_size(), self.data());
       return self;
     }
     else {

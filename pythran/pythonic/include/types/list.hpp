@@ -68,7 +68,7 @@ namespace types
         typename std::remove_cv<typename std::remove_reference<T>::type>::type
             _type;
     typedef container<_type> container_type;
-    utils::shared_ref<container_type> data;
+    utils::shared_ref<container_type> _data;
 
     template <class U>
     friend class list;
@@ -193,7 +193,7 @@ namespace types
         typename std::remove_cv<typename std::remove_reference<T>::type>::type
             _type;
     typedef container<_type> container_type;
-    utils::shared_ref<container_type> data;
+    utils::shared_ref<container_type> _data;
 
     template <class U, class S>
     friend class sliced_list;
@@ -326,6 +326,9 @@ namespace types
     {
       return fast(index);
     }
+
+    dtype* data() { return _data->data();}
+    const dtype* data() const { return _data->data();}
 
     // modifiers
     template <class Tp>

@@ -647,6 +647,8 @@ namespace types
     flat_iterator fend();
 
     /* member functions */
+    T* data() { return buffer;}
+    T const* data() const { return buffer;}
     long flat_size() const;
     bool may_overlap(ndarray const &) const;
 

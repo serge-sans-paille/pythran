@@ -1088,12 +1088,19 @@ class CxxFunction(ast.NodeVisitor):
                    else 'pythonic::builtins::None')
             args.append(arg)
 
-        if node.step is None or (isnum(node.step) and node.step.value == 1):
-            if self.all_positive(node.lower) and self.all_positive(node.upper):
-                builder = "pythonic::types::fast_contiguous_slice({},{})"
+        nstep = node.step
+        if nstep is None or (isnum(nstep) and nstep.value > 0):
+            if nstep is None or nstep.value == 1:
+                if self.all_positive(node.lower) and self.all_positive(node.upper):
+                    builder = "pythonic::types::fast_contiguous_slice({0},{1})"
+                else:
+                    builder = "pythonic::types::contiguous_slice({0},{1})"
+                step = 1
             else:
-                builder = "pythonic::types::contiguous_slice({},{})"
-            return builder.format(args[0], args[1])
+                builder = "pythonic::types::cstride_slice<{2}>({0},{1})"
+                step = nstep.value
+
+            return builder.format(args[0], args[1], step)
         else:
             return "pythonic::types::slice({},{},{})".format(*args)
 

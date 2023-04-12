@@ -30,9 +30,6 @@ namespace types
     }
   } // namespace details
 
-  inline normalized_slice::normalized_slice()
-  {
-  }
   inline normalized_slice::normalized_slice(long lower, long upper, long step)
       : lower(lower), upper(upper), step(step)
   {
@@ -50,12 +47,25 @@ namespace types
     return {lower + step * other.lower, lower + step * other.upper,
             step * other.step};
   }
+  template <long stride>
+  inline normalized_slice normalized_slice::operator*(
+      cstride_normalized_slice<stride> const &other) const
+  {
+    return {lower + step * other.lower, lower + step * other.upper,
+            step * other.step};
+  }
   inline normalized_slice normalized_slice::operator*(slice const &other) const
   {
     return (*this) * other.normalize(size());
   }
   inline normalized_slice
   normalized_slice::operator*(contiguous_slice const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
+  template <long stride>
+  inline normalized_slice
+  normalized_slice::operator*(cstride_slice<stride> const &other) const
   {
     return (*this) * other.normalize(size());
   }
@@ -215,7 +225,238 @@ namespace types
     assert(!upper.is_none() && !lower.is_none());
     return (long)lower + i * sstep;
   }
+  //
 
+  template <long stride>
+  inline cstride_normalized_slice<stride>::cstride_normalized_slice(long lower,
+                                                                    long upper,
+                                                                    long)
+      : lower(lower), upper(upper)
+  {
+  }
+
+  template <long stride>
+  inline normalized_slice cstride_normalized_slice<stride>::operator*(
+      normalized_slice const &other) const
+  {
+    return {lower + step * other.lower, lower + step * other.upper,
+            step * other.step};
+  }
+
+  template <long stride>
+  template <long other_stride>
+  inline
+      typename std::conditional<(stride < 256 && other_stride < 256),
+                                cstride_normalized_slice<stride * other_stride>,
+                                normalized_slice>::type
+      cstride_normalized_slice<stride>::operator*(
+          cstride_normalized_slice<other_stride> const &other) const
+  {
+    return {lower + step * other.lower, lower + step * other.upper,
+            step * other.step};
+  }
+
+  template <long stride>
+  inline cstride_normalized_slice<stride>
+  cstride_normalized_slice<stride>::operator*(
+      contiguous_normalized_slice const &other) const
+  {
+    return {lower + step * other.lower, lower + step * other.upper};
+  }
+
+  template <long stride>
+  inline normalized_slice
+  cstride_normalized_slice<stride>::operator*(slice const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
+
+  template <long stride>
+  template <long other_stride>
+  inline
+      typename std::conditional<(stride < 256 && other_stride < 256),
+                                cstride_normalized_slice<stride * other_stride>,
+                                normalized_slice>::type
+      cstride_normalized_slice<stride>::operator*(
+          cstride_slice<other_stride> const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
+
+  template <long stride>
+  inline cstride_normalized_slice<stride>
+  cstride_normalized_slice<stride>::operator*(
+      contiguous_slice const &other) const
+  {
+    return (*this) * other.normalize(size());
+  }
+
+  template <long stride>
+  inline long cstride_normalized_slice<stride>::size() const
+  {
+    return std::max(0L, details::roundup_divide(upper - lower, step));
+  }
+
+  template <long stride>
+  inline long cstride_normalized_slice<stride>::get(long i) const
+  {
+    return lower + i * step;
+  }
+
+  template <long stride>
+  inline cstride_slice<stride>::cstride_slice(none<long> lower,
+                                              none<long> upper)
+      : lower(lower), upper(upper)
+  {
+  }
+
+  template <long stride>
+  inline cstride_slice<stride>::cstride_slice()
+      : lower(builtins::None), upper(builtins::None)
+  {
+  }
+
+  template <long stride>
+  inline slice cstride_slice<stride>::operator*(slice const &other) const
+  {
+    // We do not implement these because it requires to know the "end"
+    // value of the slice which is ! possible if it is ! "step == 1" slice
+    // TODO: We can skip these constraints if we know begin, end && step.
+    long ostep = (other.step.is_none()) ? 1 : (long)other.step;
+    bound<long> new_lower;
+    if (other.lower.is_none() || (long)other.lower == 0) {
+      if (ostep > 0)
+        new_lower = lower;
+      else {
+        if (upper.is_none() || (long)upper == -1)
+          new_lower = none_type{};
+        else
+          new_lower = (long)upper + 1;
+      }
+    } else {
+      none<long> ref = ((long)other.lower > 0) ? lower : upper;
+      if (ref.is_none) {
+        new_lower = (long)other.lower * step;
+      } else
+        new_lower = (long)ref + (long)other.lower * step;
+    }
+
+    long new_step = step * ostep;
+
+    bound<long> new_upper;
+    if (other.upper.is_none()) {
+      if (ostep > 0)
+        new_upper = upper;
+      else {
+        if (lower.is_none() || (long)lower == 0)
+          new_upper = none_type{};
+        else
+          new_upper = (long)lower - 1;
+      }
+    } else {
+      none<long> ref = ((long)other.upper > 0) ? lower : upper;
+      if (ref.is_none) {
+        new_upper = (long)other.upper * step;
+      } else
+        new_upper = (long)ref + (long)other.upper * step;
+    }
+    return {new_lower, new_upper, new_step};
+  }
+
+  template <long stride>
+  template <long other_stride>
+  inline typename std::conditional<(stride < 256 && other_stride < 256),
+                                   cstride_slice<stride * other_stride>,
+                                   slice>::type
+  cstride_slice<stride>::operator*(
+      cstride_slice<other_stride> const &other) const
+  {
+    bound<long> new_lower;
+    if (other.lower.is_none() || (long)other.lower == 0) {
+      new_lower = lower;
+    } else {
+      none<long> ref = ((long)other.lower > 0) ? lower : upper;
+      if (ref.is_none) {
+        new_lower = (long)other.lower * step;
+      } else
+        new_lower = (long)ref + (long)other.lower * step;
+    }
+
+    long new_step = step * other.step;
+
+    bound<long> new_upper;
+    if (other.upper.is_none()) {
+      new_upper = upper;
+    } else {
+      none<long> ref = ((long)other.upper > 0) ? lower : upper;
+      if (ref.is_none) {
+        new_upper = (long)other.upper * step;
+      } else
+        new_upper = (long)ref + (long)other.upper * step;
+    }
+    return {new_lower, new_upper, new_step};
+  }
+
+  /*
+     Normalize change a[:-1] to a[:len(a)-1] to have positif index.
+     It also check for value bigger than len(a) to fit the size of the
+     container
+     */
+  template <long stride>
+  inline cstride_normalized_slice<stride>
+  cstride_slice<stride>::normalize(long max_size) const
+  {
+    long normalized_upper;
+    if (upper.is_none()) {
+      normalized_upper = max_size;
+    } else {
+      if (upper < 0L)
+        normalized_upper = std::max(-1L, max_size + upper);
+      else if (upper > max_size)
+        normalized_upper = max_size;
+      else
+        normalized_upper = (long)upper;
+    }
+
+    long normalized_lower;
+    if (lower.is_none())
+      normalized_lower = 0L;
+    else if (lower < 0L)
+      normalized_lower = std::max(0L, max_size + lower);
+    else if (lower > max_size)
+      normalized_lower = max_size;
+    else
+      normalized_lower = (long)lower;
+
+    return {normalized_lower, normalized_upper};
+  }
+
+  /*
+   * An assert is raised when we can't compute the size without more
+   * informations.
+   */
+  template <long stride>
+  inline long cstride_slice<stride>::size() const
+  {
+    assert(!(upper.is_none() && lower.is_none()));
+    long len;
+    if (upper.is_none()) {
+      len = -(long)lower;
+    } else if (lower.is_none()) {
+      len = upper;
+    } else
+      len = upper - lower;
+    return std::max(0L, details::roundup_divide(len, step));
+  }
+
+  template <long stride>
+  inline long cstride_slice<stride>::get(long i) const
+  {
+    assert(!upper.is_none() && !lower.is_none());
+    return (long)lower + i * step;
+  }
+
+  //
   inline contiguous_normalized_slice::contiguous_normalized_slice()
   {
   }
@@ -244,11 +485,27 @@ namespace types
     return (*this) * other.normalize(size());
   }
 
+  template <long stride>
+  inline cstride_normalized_slice<stride>
+  contiguous_normalized_slice::operator*(
+      cstride_normalized_slice<stride> const &other) const
+  {
+    return {lower + step * other.lower, lower + step * other.upper};
+  }
+
   inline normalized_slice
   contiguous_normalized_slice::operator*(normalized_slice const &other) const
   {
     return normalized_slice(lower + step * other.lower,
                             lower + step * other.upper, step * other.step);
+  }
+
+  template <long stride>
+  inline cstride_normalized_slice<stride>
+  contiguous_normalized_slice::operator*(
+      cstride_slice<stride> const &other) const
+  {
+    return (*this) * other.normalize(size());
   }
 
   inline normalized_slice
@@ -575,6 +832,22 @@ to_python<types::contiguous_slice>::convert(types::contiguous_slice const &v)
 {
   return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
                      ::to_python(types::none_type{}));
+}
+
+template <long stride>
+inline PyObject *to_python<types::cstride_normalized_slice<stride>>::convert(
+    types::cstride_normalized_slice<stride> const &v)
+{
+  return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
+                     ::to_python(v.step));
+}
+
+template <long stride>
+inline PyObject *to_python<types::cstride_slice<stride>>::convert(
+    types::cstride_slice<stride> const &v)
+{
+  return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
+                     ::to_python(v.step));
 }
 
 inline PyObject *

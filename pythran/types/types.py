@@ -483,12 +483,16 @@ class Types(ModuleAnalysis):
         Also visit subnodes as they may contains relevant typing information.
         """
         self.generic_visit(node)
-        if node.step is None or (isnum(node.step) and node.step.value == 1):
-            if all(self.range_values[p].low >= 0
-                   for p in (node.lower, node.upper)):
-                ntype = "pythonic::types::fast_contiguous_slice"
+        nstep = node.step
+        if nstep is None or (isnum(nstep) and nstep.value > 0):
+            if nstep is None or nstep.value == 1:
+                if all(self.range_values[p].low >= 0
+                       for p in (node.lower, node.upper)):
+                    ntype = "pythonic::types::fast_contiguous_slice"
+                else:
+                    ntype = "pythonic::types::contiguous_slice"
             else:
-                ntype = "pythonic::types::contiguous_slice"
+                ntype = "pythonic::types::cstride_slice<{}>".format(nstep.value)
             self.result[node] = self.builder.NamedType(ntype)
         else:
             self.result[node] = self.builder.NamedType(

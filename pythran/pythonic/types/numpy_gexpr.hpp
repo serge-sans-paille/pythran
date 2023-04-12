@@ -274,10 +274,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t J, class Slice>
-  typename std::enable_if<
-      std::is_same<Slice, normalized_slice>::value ||
-          std::is_same<Slice, contiguous_normalized_slice>::value,
-      void>::type
+  typename std::enable_if<is_normalized_slice<Slice>::value, void>::type
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<1>,
                                      utils::int_<J>)
   {
@@ -290,10 +287,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t I, size_t J, class Slice>
-  typename std::enable_if<
-      std::is_same<Slice, normalized_slice>::value ||
-          std::is_same<Slice, contiguous_normalized_slice>::value,
-      void>::type
+  typename std::enable_if<is_normalized_slice<Slice>::value, void>::type
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<I>,
                                      utils::int_<J>)
   {

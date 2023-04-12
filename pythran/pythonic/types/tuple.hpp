@@ -4,16 +4,16 @@
 #include "pythonic/include/types/tuple.hpp"
 
 #include "pythonic/types/assignable.hpp"
-#include "pythonic/types/traits.hpp"
-#include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/dynamic_tuple.hpp"
-#include "pythonic/utils/int_.hpp"
-#include "pythonic/utils/seq.hpp"
-#include "pythonic/utils/nested_container.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/nditerator.hpp"
+#include "pythonic/types/traits.hpp"
+#include "pythonic/utils/int_.hpp"
+#include "pythonic/utils/nested_container.hpp"
+#include "pythonic/utils/seq.hpp"
 
-#include <tuple>
 #include <algorithm>
+#include <tuple>
 
 namespace std
 {
@@ -27,7 +27,7 @@ namespace std
   {
     return self.first == get<0>(other) && self.second == get<1>(other);
   }
-}
+} // namespace std
 
 template <class... Types0, class... Types1>
 std::tuple<Types0..., Types1...> operator+(std::tuple<Types0...> const &t0,
@@ -133,8 +133,8 @@ namespace types
   }
 
   template <typename T, size_t N, class V>
-  typename array_base<T, N, V>::const_iterator array_base<T, N, V>::end() const
-      noexcept
+  typename array_base<T, N, V>::const_iterator
+  array_base<T, N, V>::end() const noexcept
   {
     return {data() + N};
   }
@@ -175,8 +175,8 @@ namespace types
   }
 
   template <typename T, size_t N, class V>
-  typename array_base<T, N, V>::const_iterator array_base<T, N, V>::cend() const
-      noexcept
+  typename array_base<T, N, V>::const_iterator
+  array_base<T, N, V>::cend() const noexcept
   {
     return {&(buffer[N])};
   }
@@ -236,7 +236,7 @@ namespace types
   template <typename T, size_t N, class V>
   template <class vectorizer>
   typename array_base<T, N, V>::simd_iterator
-      array_base<T, N, V>::vbegin(vectorizer) const
+  array_base<T, N, V>::vbegin(vectorizer) const
   {
     return {&buffer[0]};
   }
@@ -244,7 +244,7 @@ namespace types
   template <typename T, size_t N, class V>
   template <class vectorizer>
   typename array_base<T, N, V>::simd_iterator
-      array_base<T, N, V>::vend(vectorizer) const
+  array_base<T, N, V>::vend(vectorizer) const
   {
     using vector_type = typename xsimd::batch<dtype>;
     static const std::size_t vector_size = vector_type::size;
@@ -253,8 +253,8 @@ namespace types
 #endif
 
   template <typename T, size_t N, class V>
-  typename array_base<T, N, V>::reference array_base<T, N, V>::
-  operator[](long __n)
+  typename array_base<T, N, V>::reference
+  array_base<T, N, V>::operator[](long __n)
   {
     auto const index = __n < 0 ? (__n + size()) : __n;
     assert(0 <= index && index < size());
@@ -262,8 +262,8 @@ namespace types
   }
 
   template <typename T, size_t N, class V>
-  typename array_base<T, N, V>::const_reference array_base<T, N, V>::
-  operator[](long __n) const noexcept
+  typename array_base<T, N, V>::const_reference
+  array_base<T, N, V>::operator[](long __n) const noexcept
   {
     auto const index = __n < 0 ? (__n + size()) : __n;
     assert(0 <= index && index < size());
@@ -303,8 +303,8 @@ namespace types
   }
 
   template <typename T, size_t N, class V>
-  typename array_base<T, N, V>::const_pointer array_base<T, N, V>::data() const
-      noexcept
+  typename array_base<T, N, V>::const_pointer
+  array_base<T, N, V>::data() const noexcept
   {
     return &(buffer[0]);
   }
@@ -333,8 +333,8 @@ namespace types
 
   template <typename T, size_t N, class V>
   template <class Tp, size_t M>
-  array_base<typename __combined<T, Tp>::type, N + M, V> array_base<T, N, V>::
-  operator+(array_base<Tp, M, V> const &other) const
+  array_base<typename __combined<T, Tp>::type, N + M, V>
+  array_base<T, N, V>::operator+(array_base<Tp, M, V> const &other) const
   {
     array_base<typename __combined<T, Tp>::type, N + M, V> result;
     auto next = std::copy(begin(), end(), result.begin());
@@ -412,6 +412,18 @@ namespace types
       tmp[j] = b[ns.lower + j * ns.step];
     return {&tmp[0], &tmp[ns.size()]};
   }
+
+  template <class T, size_t N, long stride>
+  dynamic_tuple<T> array_base_slicer::operator()(array<T, N> const &b,
+                                                 cstride_slice<stride> const &s)
+  {
+    cstride_normalized_slice<stride> ns = s.normalize(b.size());
+    array<T, N> tmp;
+    for (long j = 0; j < ns.size(); ++j)
+      tmp[j] = b[ns.lower + j * ns.step];
+    return {&tmp[0], &tmp[ns.size()]};
+  }
+
   template <class T, size_t N>
   dynamic_tuple<T> array_base_slicer::operator()(array<T, N> const &b,
                                                  contiguous_slice const &s)
@@ -426,7 +438,7 @@ namespace types
     contiguous_normalized_slice cns = s.normalize(b.size());
     return {&b[cns.lower], &b[cns.upper]};
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 /* hashable tuples, as proposed in
@@ -441,8 +453,9 @@ namespace
   }
 
   template <size_t index, class... types>
-  size_t hash_impl<index, types...>::
-  operator()(size_t a, const std::tuple<types...> &t) const
+  size_t
+  hash_impl<index, types...>::operator()(size_t a,
+                                         const std::tuple<types...> &t) const
   {
     using nexttype =
         typename std::tuple_element<index, std::tuple<types...>>::type;
@@ -459,22 +472,22 @@ namespace
     size_t b = std::hash<nexttype>()(std::get<0>(t));
     return hash_combiner(a, b);
   }
-}
+} // namespace
 
 /* specialize std::hash */
 namespace std
 {
   template <class... Types>
-  size_t hash<std::tuple<Types...>>::
-  operator()(std::tuple<Types...> const &t) const
+  size_t
+  hash<std::tuple<Types...>>::operator()(std::tuple<Types...> const &t) const
   {
     const size_t begin = std::tuple_size<std::tuple<Types...>>::value - 1;
     return hash_impl<begin, Types...>()(1, t); // 1 should be some largervalue
   }
 
   template <typename T, size_t N, class V>
-  size_t hash<pythonic::types::array_base<T, N, V>>::
-  operator()(pythonic::types::array_base<T, N, V> const &l) const
+  size_t hash<pythonic::types::array_base<T, N, V>>::operator()(
+      pythonic::types::array_base<T, N, V> const &l) const
   {
     size_t seed = 0;
     hash<T> h;
@@ -482,7 +495,7 @@ namespace std
       seed ^= h(iter) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     return seed;
   }
-}
+} // namespace std
 
 PYTHONIC_NS_BEGIN
 
@@ -500,7 +513,7 @@ namespace types
   {
     os << std::get<0>(t);
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 namespace std
@@ -510,14 +523,14 @@ namespace std
   {
     os << '(';
     pythonic::types::print_tuple(os, t,
-                                 pythonic::utils::int_<sizeof...(Args)-1>());
+                                 pythonic::utils::int_<sizeof...(Args) - 1>());
     return os << ')';
   }
-}
+} // namespace std
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/include/utils/seq.hpp"
 #include "pythonic/include/utils/fwd.hpp"
+#include "pythonic/include/utils/seq.hpp"
 #include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN

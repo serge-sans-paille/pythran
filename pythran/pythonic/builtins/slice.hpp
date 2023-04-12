@@ -11,11 +11,11 @@ namespace builtins
 
   namespace anonymous
   {
-    inline types::contiguous_slice slice(types::none<long> stop)
+    inline types::cstride_slice<1> slice(types::none<long> stop)
     {
       return {types::none<long>(), stop};
     }
-    inline types::contiguous_slice slice(types::none<long> start,
+    inline types::cstride_slice<1> slice(types::none<long> start,
                                          types::none<long> stop)
     {
       return {start, stop};

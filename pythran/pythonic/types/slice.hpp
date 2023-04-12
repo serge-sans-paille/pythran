@@ -16,8 +16,6 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  struct contiguous_slice;
-
   namespace details
   {
 
@@ -41,12 +39,7 @@ namespace types
     return {lower + step * other.lower, lower + step * other.upper,
             step * other.step};
   }
-  inline normalized_slice
-  normalized_slice::operator*(contiguous_normalized_slice const &other) const
-  {
-    return {lower + step * other.lower, lower + step * other.upper,
-            step * other.step};
-  }
+
   template <long stride>
   inline normalized_slice normalized_slice::operator*(
       cstride_normalized_slice<stride> const &other) const
@@ -58,11 +51,7 @@ namespace types
   {
     return (*this) * other.normalize(size());
   }
-  inline normalized_slice
-  normalized_slice::operator*(contiguous_slice const &other) const
-  {
-    return (*this) * other.normalize(size());
-  }
+
   template <long stride>
   inline normalized_slice
   normalized_slice::operator*(cstride_slice<stride> const &other) const
@@ -257,16 +246,16 @@ namespace types
   }
 
   template <long stride>
-  inline cstride_normalized_slice<stride>
-  cstride_normalized_slice<stride>::operator*(
-      contiguous_normalized_slice const &other) const
+  inline normalized_slice
+  cstride_normalized_slice<stride>::operator*(slice const &other) const
   {
-    return {lower + step * other.lower, lower + step * other.upper};
+    return (*this) * other.normalize(size());
   }
 
   template <long stride>
-  inline normalized_slice
-  cstride_normalized_slice<stride>::operator*(slice const &other) const
+  inline cstride_normalized_slice<stride>
+  cstride_normalized_slice<stride>::operator*(
+      fast_contiguous_slice const &other) const
   {
     return (*this) * other.normalize(size());
   }
@@ -279,14 +268,6 @@ namespace types
                                 normalized_slice>::type
       cstride_normalized_slice<stride>::operator*(
           cstride_slice<other_stride> const &other) const
-  {
-    return (*this) * other.normalize(size());
-  }
-
-  template <long stride>
-  inline cstride_normalized_slice<stride>
-  cstride_normalized_slice<stride>::operator*(
-      contiguous_slice const &other) const
   {
     return (*this) * other.normalize(size());
   }
@@ -456,113 +437,13 @@ namespace types
     return (long)lower + i * step;
   }
 
-  //
-  inline contiguous_normalized_slice::contiguous_normalized_slice()
-  {
-  }
-
-  inline contiguous_normalized_slice::contiguous_normalized_slice(long lower,
-                                                                  long upper)
-      : lower(lower), upper(upper)
-  {
-  }
-
-  inline contiguous_normalized_slice contiguous_normalized_slice::operator*(
-      contiguous_normalized_slice const &other) const
-  {
-    return contiguous_normalized_slice(lower + other.lower,
-                                       lower + other.upper);
-  }
-  inline contiguous_normalized_slice
-  contiguous_normalized_slice::operator*(contiguous_slice const &other) const
-  {
-    return (*this) * other.normalize(size());
-  }
-
-  inline contiguous_normalized_slice contiguous_normalized_slice::operator*(
-      fast_contiguous_slice const &other) const
-  {
-    return (*this) * other.normalize(size());
-  }
-
   template <long stride>
-  inline cstride_normalized_slice<stride>
-  contiguous_normalized_slice::operator*(
-      cstride_normalized_slice<stride> const &other) const
-  {
-    return {lower + step * other.lower, lower + step * other.upper};
-  }
-
-  inline normalized_slice
-  contiguous_normalized_slice::operator*(normalized_slice const &other) const
-  {
-    return normalized_slice(lower + step * other.lower,
-                            lower + step * other.upper, step * other.step);
-  }
-
-  template <long stride>
-  inline cstride_normalized_slice<stride>
-  contiguous_normalized_slice::operator*(
-      cstride_slice<stride> const &other) const
-  {
-    return (*this) * other.normalize(size());
-  }
-
-  inline normalized_slice
-  contiguous_normalized_slice::operator*(slice const &other) const
-  {
-    return (*this) * other.normalize(size());
-  }
-
-  inline long contiguous_normalized_slice::size() const
-  {
-    return std::max(0L, upper - lower);
-  }
-
-  inline long contiguous_normalized_slice::get(long i) const
-  {
-    return lower + i;
-  }
-
-  inline contiguous_slice::contiguous_slice(none<long> lower, none<long> upper)
-      : lower(lower.is_none ? 0 : (long)lower), upper(upper)
-  {
-  }
-
-  inline contiguous_slice
-  contiguous_slice::operator*(contiguous_slice const &other) const
-  {
-    long new_lower;
-    if (other.lower < 0)
-      new_lower = upper + other.lower * step;
-    else
-      new_lower = lower + other.lower * step;
-
-    bound<long> new_upper;
-    if (other.upper.is_none())
-      new_upper = upper;
-    else if ((long)other.upper < 0) {
-      if (upper.is_none())
-        new_upper = (long)other.upper * step;
-      else
-        new_upper = upper + (long)other.upper * step;
-    } else
-      new_upper = lower + (long)other.upper * step;
-
-    return {new_lower, new_upper};
-  }
-
-  inline slice contiguous_slice::operator*(slice const &other) const
+  inline cstride_slice<stride>
+  fast_contiguous_slice::operator*(cstride_slice<stride> const &other) const
   {
     none<long> new_lower;
     if (other.lower.is_none() || (long)other.lower == 0) {
-      if (other.step > 0)
-        new_lower = lower;
-      else if (upper.is_none() || (long)upper == 0)
-        // 0 means the first value && ! the last value
-        new_lower = none_type{};
-      else
-        new_lower = (long)upper - 1;
+      new_lower = lower;
     } else {
       if ((long)other.lower > 0)
         new_lower = lower + (long)other.lower * step;
@@ -572,16 +453,9 @@ namespace types
         new_lower = (long)upper + (long)other.lower * step;
     }
 
-    long new_step = other.step;
-
     bound<long> new_upper;
     if (other.upper.is_none()) {
-      if (other.step > 0)
-        new_upper = upper;
-      else if ((long)lower == 0)
-        new_upper = none_type{};
-      else
-        new_upper = (long)lower - 1;
+      new_upper = upper;
     } else {
       if ((long)other.upper > 0)
         new_upper = lower + (long)other.upper * step;
@@ -590,52 +464,7 @@ namespace types
       else
         new_upper = (long)upper + (long)other.upper * step;
     }
-    return {new_lower, new_upper, new_step};
-  }
-
-  /*
-     Normalize change a[:-1] to a[:len(a)-1] to have positif index.
-     It also check for value bigger than len(a) to fit the size of the
-     container
-     */
-  inline contiguous_normalized_slice
-  contiguous_slice::normalize(long max_size) const
-  {
-    long normalized_upper;
-    if (upper.is_none())
-      normalized_upper = max_size;
-    else if (upper < 0L)
-      normalized_upper = std::max(-1L, max_size + upper);
-    else if (upper > max_size)
-      normalized_upper = max_size;
-    else
-      normalized_upper = (long)upper;
-
-    long normalized_lower;
-    if (lower < 0L)
-      normalized_lower = std::max(0L, max_size + lower);
-    else if (lower > max_size)
-      normalized_lower = max_size;
-    else
-      normalized_lower = (long)lower;
-
-    return contiguous_normalized_slice(normalized_lower, normalized_upper);
-  }
-
-  inline long contiguous_slice::size() const
-  {
-    long len;
-    if (upper.is_none()) {
-      assert(lower < 0);
-      len = -lower;
-    } else
-      len = upper - lower;
-    return std::max(0L, len);
-  }
-
-  inline long contiguous_slice::get(long i) const
-  {
-    return int(lower) + i;
+    return {new_lower, new_upper};
   }
 
   inline fast_contiguous_slice::fast_contiguous_slice(none<long> lower,
@@ -653,28 +482,6 @@ namespace types
     if (other.upper.is_none())
       new_upper = upper;
     else
-      new_upper = lower + (long)other.upper * step;
-
-    return {new_lower, new_upper};
-  }
-  inline contiguous_slice
-  fast_contiguous_slice::operator*(contiguous_slice const &other) const
-  {
-    long new_lower;
-    if (other.lower < 0)
-      new_lower = upper + other.lower * step;
-    else
-      new_lower = lower + other.lower * step;
-
-    bound<long> new_upper;
-    if (other.upper.is_none())
-      new_upper = upper;
-    else if ((long)other.upper < 0) {
-      if (upper.is_none())
-        new_upper = (long)other.upper * step;
-      else
-        new_upper = upper + (long)other.upper * step;
-    } else
       new_upper = lower + (long)other.upper * step;
 
     return {new_lower, new_upper};
@@ -726,7 +533,7 @@ namespace types
      It also check for value bigger than len(a) to fit the size of the
      container
      */
-  inline contiguous_normalized_slice
+  inline cstride_normalized_slice<1>
   fast_contiguous_slice::normalize(long max_size) const
   {
     long normalized_upper;
@@ -752,47 +559,6 @@ namespace types
     return std::max(0L, upper - lower);
   }
 
-  inline slice slice::operator*(contiguous_slice const &other) const
-  {
-    // We do ! implement these because it requires to know the "end"
-    // value of the slice which is ! possible if it is ! "step == 1" slice
-    // TODO: We can skip these constraints if we know begin, end && step.
-    assert(!((static_cast<long>(other.upper) < 0 ||
-              static_cast<long>(other.lower) < 0) &&
-             step != 1 && step != -1) &&
-           "not implemented");
-
-    bound<long> new_lower;
-    if (other.lower == 0)
-      new_lower = lower;
-    else {
-      bound<long> ref = ((long)other.lower > 0) ? lower : upper;
-      if (ref.is_none()) {
-        if (step > 0)
-          new_lower = (long)other.lower * step;
-        else
-          new_lower = (long)other.lower * step - 1;
-      } else
-        new_lower = (long)ref + (long)other.lower * step;
-    }
-
-    long new_step = step;
-
-    bound<long> new_upper;
-    if (other.upper.is_none())
-      new_upper = upper;
-    else {
-      bound<long> ref = ((long)other.upper > 0) ? lower : upper;
-      if (ref.is_none()) {
-        if (step > 0)
-          new_upper = (long)other.upper * step;
-        else
-          new_upper = (long)other.upper * step - 1;
-      } else
-        new_upper = (long)ref + (long)other.upper * step;
-    }
-    return {new_lower, new_upper, new_step};
-  }
   template <class T>
   std::ostream &operator<<(std::ostream &os, bound<T> const &b)
   {
@@ -818,20 +584,6 @@ PyObject *to_python<types::bound<T>>::convert(types::bound<T> const &b)
     return ::to_python(types::none_type{});
   else
     return ::to_python((T)b);
-}
-
-inline PyObject *to_python<types::contiguous_normalized_slice>::convert(
-    types::contiguous_normalized_slice const &v)
-{
-  return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
-                     ::to_python(types::none_type{}));
-}
-
-inline PyObject *
-to_python<types::contiguous_slice>::convert(types::contiguous_slice const &v)
-{
-  return PySlice_New(::to_python(v.lower), ::to_python(v.upper),
-                     ::to_python(types::none_type{}));
 }
 
 template <long stride>

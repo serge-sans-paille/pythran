@@ -87,7 +87,6 @@ namespace types
   class str;
 
   struct slice;
-  struct contiguous_slice;
   template <long stride>
   struct cstride_slice;
 
@@ -281,10 +280,6 @@ namespace types
     template <class T, size_t N, long stride>
     dynamic_tuple<T> operator()(array<T, N> const &b,
                                 cstride_slice<stride> const &s);
-
-    template <class T, size_t N>
-    dynamic_tuple<T> operator()(array<T, N> const &b,
-                                contiguous_slice const &s);
 
     template <class T, size_t N>
     dynamic_tuple<T> operator()(array<T, N> const &b,

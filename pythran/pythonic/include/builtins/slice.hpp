@@ -11,15 +11,15 @@ namespace builtins
 
   namespace anonymous
   {
-    types::contiguous_slice slice(types::none<long> stop);
-    types::contiguous_slice slice(types::none<long> start,
+    types::cstride_slice<1> slice(types::none<long> stop);
+    types::cstride_slice<1> slice(types::none<long> start,
                                   types::none<long> stop);
     types::slice slice(types::none<long> start, types::none<long> stop,
                        types::none<long> step);
-  }
+  } // namespace anonymous
 
   DEFINE_FUNCTOR(pythonic::builtins::anonymous, slice);
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

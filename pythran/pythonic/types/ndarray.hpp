@@ -1085,10 +1085,10 @@ namespace builtins
     template <size_t N>
     template <class E, class... S>
     auto _build_gexpr<N>::operator()(E const &a, S const &...slices)
-        -> decltype(_build_gexpr<N - 1>{}(a, types::contiguous_slice(),
+        -> decltype(_build_gexpr<N - 1>{}(a, types::cstride_slice<1>(),
                                           slices...))
     {
-      return _build_gexpr<N - 1>{}(a, types::contiguous_slice(0, a.size()),
+      return _build_gexpr<N - 1>{}(a, types::cstride_slice<1>(0, a.size()),
                                    slices...);
     }
 
@@ -1526,7 +1526,8 @@ namespace impl
   {
   }
 
-  inline void set_slice(types::contiguous_normalized_slice &cs, long lower,
+  template <long stride>
+  inline void set_slice(types::cstride_normalized_slice<stride> &cs, long lower,
                         long upper, long step)
   {
     cs.lower = lower;

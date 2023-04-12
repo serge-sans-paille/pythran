@@ -59,8 +59,8 @@ namespace types
 
   template <>
   struct to_normalized_slice<none_type> {
-    using type = contiguous_normalized_slice;
-    contiguous_normalized_slice operator()(none_type);
+    using type = cstride_normalized_slice<1>;
+    type operator()(none_type);
   };
 
   /* helper to build a new shape out of a shape and a slice with new axis
@@ -131,7 +131,7 @@ namespace types
         !is_slice<F>::value,
         numpy_gexpr<ndarray<typename std::decay<E>::type::dtype,
                             array<long, std::decay<E>::type::value>>,
-                    contiguous_normalized_slice, normalize_t<S>...>>::type
+                    cstride_normalized_slice<1>, normalize_t<S>...>>::type
     operator()(E &&expr, F const &s0, S const &...s)
     {
       return numpy_vexpr<ndarray<typename std::decay<E>::type::dtype,
@@ -153,11 +153,6 @@ namespace types
 
   template <>
   struct count_long<normalized_slice> {
-    static constexpr size_t value = 0;
-  };
-
-  template <>
-  struct count_long<contiguous_normalized_slice> {
     static constexpr size_t value = 0;
   };
 
@@ -198,7 +193,7 @@ namespace types
   };
 
   template <class... S>
-  struct is_contiguous<contiguous_normalized_slice, S...> {
+  struct is_contiguous<cstride_normalized_slice<1>, S...> {
     static const bool value = true;
   };
 
@@ -509,13 +504,6 @@ namespace types
       : gexpr_shape<pshape<Tys..., long>, array<long, N - 1>> {
   };
 
-  template <class... Tys, class... oTys, class... S>
-  struct gexpr_shape<pshape<Tys...>,
-                     pshape<std::integral_constant<long, 1>, oTys...>,
-                     contiguous_normalized_slice, S...>
-      : gexpr_shape<pshape<Tys..., std::integral_constant<long, 1>>,
-                    pshape<oTys...>, S...> {
-  };
   template <class... Tys, class... oTys, class... S, long stride>
   struct gexpr_shape<pshape<Tys...>,
                      pshape<std::integral_constant<long, 1>, oTys...>,
@@ -595,15 +583,15 @@ namespace types
     static const bool is_vectorizable =
         std::remove_reference<Arg>::type::is_vectorizable &&
         (sizeof...(S) < std::remove_reference<Arg>::type::value ||
-         std::is_same<contiguous_normalized_slice, last_slice_t>::value);
+         std::is_same<cstride_normalized_slice<1>, last_slice_t>::value);
     static const bool is_flat =
         std::remove_reference<Arg>::type::is_flat && value == 1 &&
         utils::all_of<
-            std::is_same<contiguous_normalized_slice, S>::value...>::value;
+            std::is_same<cstride_normalized_slice<1>, S>::value...>::value;
     static const bool is_strided =
         std::remove_reference<Arg>::type::is_strided ||
         (((sizeof...(S) - count_long<S...>::value) == value) &&
-         !std::is_same<contiguous_normalized_slice, last_slice_t>::value);
+         !std::is_same<cstride_normalized_slice<1>, last_slice_t>::value);
 
     using value_type =
         typename std::decay<decltype(numpy_iexpr_helper<value>::get(
@@ -627,11 +615,11 @@ namespace types
     shape_t _shape;
     dtype *buffer;
 
+    static constexpr types::pshape<std::integral_constant<long, 1>>
+        last_stride(cstride_normalized_slice<1>);
     template <long stride>
     static constexpr types::pshape<std::integral_constant<long, stride>>
         last_stride(cstride_normalized_slice<stride>);
-    static constexpr types::pshape<std::integral_constant<long, 1>>
-        last_stride(contiguous_normalized_slice);
     static constexpr types::array<long, 1> last_stride(...);
 
     sutils::concat_t<types::array<long, value - 1>,

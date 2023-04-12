@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_ARANGE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_ARANGE_HPP
 
-#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/operator_/pos.hpp"
 #include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -128,20 +128,27 @@ namespace numpy
       {
         return operator[](s);
       }
-      types::ndarray<dtype, shape_t> operator[](types::contiguous_slice s) const
+
+      template <long stride>
+      types::ndarray<dtype, shape_t>
+      operator[](types::cstride_slice<stride> s) const
       {
         auto ns = s.normalize(size);
-        arange_index r{start + s.lower * step, step, ns.size()};
+        arange_index r{start + s.lower * step, step * stride, ns.size()};
         return {
             types::numpy_expr<pythonic::operator_::functor::pos, arange_index>{
                 r}};
       }
-      types::ndarray<dtype, shape_t> operator()(types::contiguous_slice s) const
+
+      template <long stride>
+      types::ndarray<dtype, shape_t>
+      operator()(types::cstride_slice<stride> s) const
       {
         return operator[](s);
       }
+
       template <class... S>
-      auto operator()(S const &... s) const -> typename std::enable_if<
+      auto operator()(S const &...s) const -> typename std::enable_if<
           (sizeof...(S) > 1),
           decltype(std::declval<types::ndarray<dtype, shape_t>>()(s...))>::type
       {
@@ -167,7 +174,7 @@ namespace numpy
         return {*this, size};
       }
     };
-  }
+  } // namespace details
 
   template <class T, class U, class S = long,
             class dtype = types::dtype_t<typename __combined<T, U, S>::type>>
@@ -181,7 +188,7 @@ namespace numpy
   arange(T end);
 
   DEFINE_FUNCTOR(pythonic::numpy, arange);
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

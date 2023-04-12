@@ -125,7 +125,7 @@ namespace types
     return value;
   }
 
-  inline contiguous_normalized_slice
+  inline cstride_normalized_slice<1>
   to_normalized_slice<none_type>::operator()(none_type)
   {
     return {0, 1};

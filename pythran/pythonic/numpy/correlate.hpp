@@ -2,9 +2,9 @@
 #define PYTHONIC_NUMPY_CORRELATE_HPP
 
 #include "pythonic/include/numpy/correlate.hpp"
-#include "pythonic/numpy/dot.hpp"
-#include "pythonic/numpy/conjugate.hpp"
 #include "pythonic/numpy/asarray.hpp"
+#include "pythonic/numpy/conjugate.hpp"
+#include "pythonic/numpy/dot.hpp"
 #include "pythonic/types/ndarray.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -59,37 +59,37 @@ namespace numpy
     if (out_inc == 1) {
       // Incomplete overlap left
       for (int i = iLeft; i < 0; i++, out_ptr++) {
-        *out_ptr = numpy::dot(inA_(types::contiguous_slice(0, NB + i)),
-                              inB_(types::contiguous_slice(-i, NB)));
+        *out_ptr = numpy::dot(inA_(types::fast_contiguous_slice(0, NB + i)),
+                              inB_(types::fast_contiguous_slice(-i, NB)));
       }
       // Complete overlap middle
       for (int i = 0; i <= NA - NB; i++, out_ptr++) {
-        *out_ptr = numpy::dot(inA_(types::contiguous_slice(i, i + NB)),
-                              inB_(types::contiguous_slice(0, NB)));
+        *out_ptr = numpy::dot(inA_(types::fast_contiguous_slice(i, i + NB)),
+                              inB_(types::fast_contiguous_slice(0, NB)));
       }
       // Incomplete overlap right.
       for (int i = NA - NB + 1; i < iRight; i++, out_ptr++) {
-        *out_ptr = numpy::dot(inA_(types::contiguous_slice(i, NA)),
-                              inB_(types::contiguous_slice(0, NA - i)));
+        *out_ptr = numpy::dot(inA_(types::fast_contiguous_slice(i, NA)),
+                              inB_(types::fast_contiguous_slice(0, NA - i)));
       }
     } else {
       // Incomplete overlap left
       for (int i = iLeft; i < 0; i++, out_ptr += out_inc) {
         *out_ptr = wrapper::conjugate(
-            numpy::dot(inA_(types::contiguous_slice(0, NB + i)),
-                       inB_(types::contiguous_slice(-i, NB))));
+            numpy::dot(inA_(types::fast_contiguous_slice(0, NB + i)),
+                       inB_(types::fast_contiguous_slice(-i, NB))));
       }
       // Complete overlap middle
       for (int i = 0; i <= NA - NB; i++, out_ptr += out_inc) {
         *out_ptr = wrapper::conjugate(
-            numpy::dot(inA_(types::contiguous_slice(i, i + NB)),
-                       inB_(types::contiguous_slice(0, NB))));
+            numpy::dot(inA_(types::fast_contiguous_slice(i, i + NB)),
+                       inB_(types::fast_contiguous_slice(0, NB))));
       }
       // Incomplete overlap right.
       for (int i = NA - NB + 1; i < iRight; i++, out_ptr += out_inc) {
         *out_ptr = wrapper::conjugate(
-            numpy::dot(inA_(types::contiguous_slice(i, NA)),
-                       inB_(types::contiguous_slice(0, NA - i))));
+            numpy::dot(inA_(types::fast_contiguous_slice(i, NA)),
+                       inB_(types::fast_contiguous_slice(0, NA - i))));
       }
     }
 
@@ -114,7 +114,7 @@ namespace numpy
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(correlate)
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

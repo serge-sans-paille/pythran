@@ -607,7 +607,7 @@ namespace types
         const & -> decltype((*this)(std::get<Is>(indices)...))
     {
       return (*this)((indices.size() > Is ? std::get<Is>(indices)
-                                          : contiguous_slice())...);
+                                          : cstride_slice<1>())...);
     }
 
     template <class Ty0, class Ty1, class... Tys,
@@ -647,8 +647,14 @@ namespace types
     flat_iterator fend();
 
     /* member functions */
-    T* data() { return buffer;}
-    T const* data() const { return buffer;}
+    T *data()
+    {
+      return buffer;
+    }
+    T const *data() const
+    {
+      return buffer;
+    }
     long flat_size() const;
     bool may_overlap(ndarray const &) const;
 
@@ -793,7 +799,7 @@ namespace builtins
     struct _build_gexpr {
       template <class E, class... S>
       auto operator()(E const &a, S const &...slices)
-          -> decltype(_build_gexpr<N - 1>{}(a, types::contiguous_slice(),
+          -> decltype(_build_gexpr<N - 1>{}(a, types::cstride_slice<1>(),
                                             slices...));
     };
 

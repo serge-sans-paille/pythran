@@ -2,13 +2,13 @@
 #define PYTHONIC_INCLUDE_TYPES_DYNAMIC_TUPLE_HPP
 
 #include "pythonic/include/types/assignable.hpp"
-#include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/int_.hpp"
+#include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/utils/seq.hpp"
 #include "pythonic/include/utils/shared_ref.hpp"
-#include "pythonic/include/utils/nested_container.hpp"
 
 #include <vector>
 
@@ -58,8 +58,7 @@ namespace types
     dynamic_tuple &operator=(dynamic_tuple const &other) = default;
 
     template <class Iter>
-    dynamic_tuple(Iter start, Iter end)
-        : data(start, end)
+    dynamic_tuple(Iter start, Iter end) : data(start, end)
     {
     }
 
@@ -148,10 +147,21 @@ namespace types
       return res;
     }
 
-    dynamic_tuple operator[](contiguous_slice const &s) const
+    template <long stride>
+    dynamic_tuple operator[](cstride_slice<stride> const &s) const
     {
       auto ns = s.normalize(size());
-      return {begin() + ns.lower, begin() + ns.upper};
+      if (stride == 1)
+        return {begin() + ns.lower, begin() + ns.upper};
+      else {
+        dynamic_tuple res;
+        res.data->reserve(ns.size());
+        for (auto i = ns.lower, step = ns.step, n = ns.upper; i != n;
+             i += step) {
+          res.data->emplace_back(fast(i));
+        }
+        return res;
+      }
     }
 
     dynamic_tuple operator[](fast_contiguous_slice const &s) const
@@ -191,7 +201,7 @@ namespace types
     }
     return os << ')';
   }
-}
+} // namespace types
 
 PYTHONIC_NS_END
 
@@ -223,7 +233,7 @@ namespace std
   struct tuple_element<I, pythonic::types::dynamic_tuple<T>> {
     using type = typename pythonic::types::dynamic_tuple<T>::value_type;
   };
-}
+} // namespace std
 
 /* specialize std::hash */
 namespace std
@@ -232,12 +242,12 @@ namespace std
   struct hash<pythonic::types::dynamic_tuple<T>> {
     size_t operator()(pythonic::types::dynamic_tuple<T> const &l) const;
   };
-}
+} // namespace std
 
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/include/utils/seq.hpp"
 #include "pythonic/include/utils/fwd.hpp"
+#include "pythonic/include/utils/seq.hpp"
 #include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN

@@ -3,17 +3,17 @@
 
 #include "pythonic/include/types/numpy_texpr.hpp"
 
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/array.hpp"
 #include "pythonic/numpy/transpose.hpp"
+#include "pythonic/types/ndarray.hpp"
 
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/operator_/iand.hpp"
 #include "pythonic/operator_/idiv.hpp"
 #include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/ior.hpp"
-#include "pythonic/operator_/ixor.hpp"
 #include "pythonic/operator_/isub.hpp"
+#include "pythonic/operator_/ixor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -26,8 +26,7 @@ namespace types
   }
 
   template <class E>
-  numpy_texpr_2<E>::numpy_texpr_2(Arg const &arg)
-      : arg(arg)
+  numpy_texpr_2<E>::numpy_texpr_2(Arg const &arg) : arg(arg)
   {
   }
 
@@ -62,7 +61,7 @@ namespace types
                             i))
   {
     return arg(
-        contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+        cstride_slice<1>(pythonic::builtins::None, pythonic::builtins::None),
         i);
   }
 
@@ -73,7 +72,7 @@ namespace types
                             i))
   {
     return arg(
-        contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
+        cstride_slice<1>(pythonic::builtins::None, pythonic::builtins::None),
         i);
   }
 
@@ -81,7 +80,7 @@ namespace types
   template <class E>
   template <class vectorizer>
   typename numpy_texpr_2<E>::simd_iterator
-      numpy_texpr_2<E>::vbegin(vectorizer) const
+  numpy_texpr_2<E>::vbegin(vectorizer) const
   {
     return {*this};
   }
@@ -89,7 +88,7 @@ namespace types
   template <class E>
   template <class vectorizer>
   typename numpy_texpr_2<E>::simd_iterator
-      numpy_texpr_2<E>::vend(vectorizer) const
+  numpy_texpr_2<E>::vend(vectorizer) const
   {
     return {*this}; // not vectorizable anyway
   }
@@ -113,10 +112,10 @@ namespace types
 
   template <class E>
   template <class S>
-  auto numpy_texpr_2<E>::
-  operator[](S const &s0) const -> numpy_texpr<decltype(this->arg(
-      fast_contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
-      (s0.step, s0)))>
+  auto numpy_texpr_2<E>::operator[](S const &s0) const -> numpy_texpr<
+      decltype(this->arg(fast_contiguous_slice(pythonic::builtins::None,
+                                               pythonic::builtins::None),
+                         (s0.step, s0)))>
   {
     return {arg(fast_contiguous_slice(pythonic::builtins::None,
                                       pythonic::builtins::None),
@@ -125,8 +124,8 @@ namespace types
 
   template <class E>
   template <class S>
-  auto numpy_texpr_2<E>::
-  operator[](S const &s0) -> numpy_texpr<decltype(this->arg(
+  auto
+  numpy_texpr_2<E>::operator[](S const &s0) -> numpy_texpr<decltype(this->arg(
       fast_contiguous_slice(pythonic::builtins::None, pythonic::builtins::None),
       (s0.step, s0)))>
   {
@@ -176,8 +175,7 @@ namespace types
           std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
           !is_pod_array<F>::value,
       numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
-      numpy_texpr_2<E>::
-      operator[](F const &filter) const
+  numpy_texpr_2<E>::operator[](F const &filter) const
   {
     return fast(filter);
   }
@@ -189,8 +187,8 @@ namespace types
           std::is_same<bool, typename F::dtype>::value && F::value != 1 &&
           !is_pod_array<F>::value,
       numpy_vexpr<ndarray<typename numpy_texpr_2<E>::dtype, pshape<long>>,
-                  ndarray<long, pshape<long>>>>::type numpy_texpr_2<E>::
-  operator[](F const &filter) const
+                  ndarray<long, pshape<long>>>>::type
+  numpy_texpr_2<E>::operator[](F const &filter) const
   {
     return fast(filter);
   }
@@ -202,8 +200,7 @@ namespace types
           !std::is_same<bool, typename F::dtype>::value &&
           !is_pod_array<F>::value,
       numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
-      numpy_texpr_2<E>::
-      operator[](F const &filter) const
+  numpy_texpr_2<E>::operator[](F const &filter) const
   {
     static_assert(F::value == 1,
                   "advanced indexing only supporint with 1D index");
@@ -227,7 +224,7 @@ namespace types
 
   template <class E>
   template <class S0, class... S>
-  auto numpy_texpr_2<E>::operator()(S0 const &s0, S const &... s) const ->
+  auto numpy_texpr_2<E>::operator()(S0 const &s0, S const &...s) const ->
       typename std::enable_if<
           !is_numexpr_arg<S0>::value,
           decltype(this->_reverse_index(
@@ -240,7 +237,7 @@ namespace types
   }
   template <class E>
   template <class S0, class... S>
-  auto numpy_texpr_2<E>::operator()(S0 const &s0, S const &... s) const ->
+  auto numpy_texpr_2<E>::operator()(S0 const &s0, S const &...s) const ->
       typename std::enable_if<is_numexpr_arg<S0>::value,
                               decltype(this->copy()(s0, s...))>::type
   {
@@ -277,8 +274,8 @@ namespace types
   }
   template <class Arg>
   template <class Expr>
-  numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::
-  operator=(numpy_texpr<Expr> const &expr)
+  numpy_texpr_2<Arg> &
+  numpy_texpr_2<Arg>::operator=(numpy_texpr<Expr> const &expr)
   {
     arg = expr.arg;
     return *this;
@@ -374,7 +371,7 @@ namespace types
       : numpy_texpr_2<numpy_gexpr<E, S...>>{arg}
   {
   }
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #endif

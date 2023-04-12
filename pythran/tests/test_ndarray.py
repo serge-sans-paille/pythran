@@ -711,6 +711,11 @@ def newaxis8(n):
                       numpy.arange(24),
                       gexpr_composition21=[NDArray[int, :]])
 
+    def test_gexpr_composition22(self):
+        self.run_test("def gexpr_composition22(n): import numpy as np; U = np.ones((n+2,n+2), dtype=np.float32); u = U[1:-1,1:-1]; u[:] = 2.0; return u",
+                      30,
+                      gexpr_composition22=[int])
+
 
     def test_gexpr_copy0(self):
         self.run_test("def gexpr_copy0(a,b): a[:,0] = b[:,0]; return a",

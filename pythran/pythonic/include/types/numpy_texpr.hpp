@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NUMPY_TEXPR_HPP
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_TEXPR_HPP
 
-#include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/builtins/None.hpp"
 #include "pythonic/include/numpy/transpose.hpp"
+#include "pythonic/include/types/ndarray.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -36,7 +36,7 @@ namespace types
     using const_iterator = const_nditerator<numpy_texpr_2<Arg>>;
 
     static constexpr size_t value = Arg::value;
-    using value_type = numpy_gexpr<Arg, contiguous_normalized_slice, long>;
+    using value_type = numpy_gexpr<Arg, cstride_normalized_slice<1>, long>;
     using dtype = typename E::dtype;
 
     Arg arg;
@@ -169,16 +169,18 @@ namespace types
       return arg[array<T, 2>{{indices[1], indices[0]}}];
     }
     template <class T0, class T1>
-    auto operator[](std::tuple<T0, T1> const &indices) -> decltype(
-        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
+    auto operator[](std::tuple<T0, T1> const &indices)
+        -> decltype(arg[std::tuple<T1, T0>{std::get<1>(indices),
+                                           std::get<0>(indices)}])
     {
       return arg[std::tuple<T1, T0>{std::get<1>(indices),
                                     std::get<0>(indices)}];
     }
 
     template <class T0, class T1>
-    auto operator[](std::tuple<T0, T1> const &indices) const -> decltype(
-        arg[std::tuple<T1, T0>{std::get<1>(indices), std::get<0>(indices)}])
+    auto operator[](std::tuple<T0, T1> const &indices) const
+        -> decltype(arg[std::tuple<T1, T0>{std::get<1>(indices),
+                                           std::get<0>(indices)}])
     {
 
       return arg[std::tuple<T1, T0>{std::get<1>(indices),
@@ -210,14 +212,14 @@ namespace types
 
     template <class S0, class... S>
     auto
-    operator()(S0 const &s0, S const &... s) const -> typename std::enable_if<
+    operator()(S0 const &s0, S const &...s) const -> typename std::enable_if<
         !is_numexpr_arg<S0>::value,
         decltype(this->_reverse_index(
             std::tuple<S0 const &, S const &...>{s0, s...},
             utils::make_reversed_index_sequence<1 + sizeof...(S)>()))>::type;
 
     template <class S0, class... S>
-    auto operator()(S0 const &s0, S const &... s) const ->
+    auto operator()(S0 const &s0, S const &...s) const ->
         typename std::enable_if<is_numexpr_arg<S0>::value,
                                 decltype(this->copy()(s0, s...))>::type;
 
@@ -366,7 +368,7 @@ namespace types
       return {*this, shape<0>()};
     }
   };
-}
+} // namespace types
 
 template <class Arg>
 struct assignable_noescape<types::numpy_texpr<Arg>> {

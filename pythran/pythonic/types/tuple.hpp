@@ -417,25 +417,22 @@ namespace types
   dynamic_tuple<T> array_base_slicer::operator()(array<T, N> const &b,
                                                  cstride_slice<stride> const &s)
   {
-    cstride_normalized_slice<stride> ns = s.normalize(b.size());
-    array<T, N> tmp;
-    for (long j = 0; j < ns.size(); ++j)
-      tmp[j] = b[ns.lower + j * ns.step];
-    return {&tmp[0], &tmp[ns.size()]};
+    auto ns = s.normalize(b.size());
+    if (stride == 1) {
+      return {&b[ns.lower], &b[ns.upper]};
+    } else {
+      array<T, N> tmp;
+      for (long j = 0; j < ns.size(); ++j)
+        tmp[j] = b[ns.lower + j * ns.step];
+      return {&tmp[0], &tmp[ns.size()]};
+    }
   }
 
   template <class T, size_t N>
   dynamic_tuple<T> array_base_slicer::operator()(array<T, N> const &b,
-                                                 contiguous_slice const &s)
-  {
-    contiguous_normalized_slice cns = s.normalize(b.size());
-    return {&b[cns.lower], &b[cns.upper]};
-  }
-  template <class T, size_t N>
-  dynamic_tuple<T> array_base_slicer::operator()(array<T, N> const &b,
                                                  fast_contiguous_slice const &s)
   {
-    contiguous_normalized_slice cns = s.normalize(b.size());
+    auto cns = s.normalize(b.size());
     return {&b[cns.lower], &b[cns.upper]};
   }
 } // namespace types

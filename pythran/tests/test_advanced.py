@@ -365,7 +365,7 @@ def combiner_on_empty_list():
     def test_static_list2(self):
         code = '''
             def static_list2(t0, t1):
-                s = [slice(x, y) for x,y in zip(t0, t1)]
+                s = [slice(x, y, 1) for x,y in zip(t0, t1)]
                 return tuple(s)'''
         self.run_test(code, (2, 2), (3,3), static_list2=[Tuple[int, int], Tuple[int, int]])
 

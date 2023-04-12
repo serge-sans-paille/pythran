@@ -161,6 +161,11 @@ namespace types
     static constexpr size_t value = 0;
   };
 
+  template <long stride>
+  struct count_long<cstride_normalized_slice<stride>> {
+    static constexpr size_t value = 0;
+  };
+
   template <class T, class... Types>
   struct count_long<T, Types...> {
     static constexpr size_t value =
@@ -511,6 +516,13 @@ namespace types
       : gexpr_shape<pshape<Tys..., std::integral_constant<long, 1>>,
                     pshape<oTys...>, S...> {
   };
+  template <class... Tys, class... oTys, class... S, long stride>
+  struct gexpr_shape<pshape<Tys...>,
+                     pshape<std::integral_constant<long, 1>, oTys...>,
+                     cstride_normalized_slice<stride>, S...>
+      : gexpr_shape<pshape<Tys..., std::integral_constant<long, 1>>,
+                    pshape<oTys...>, S...> {
+  };
   template <class... Tys, class... oTys, class... S>
   struct gexpr_shape<pshape<Tys...>,
                      pshape<std::integral_constant<long, 1>, oTys...>,
@@ -546,11 +558,9 @@ namespace types
     static_assert(
         utils::all_of<std::is_same<S, normalize_t<S>>::value...>::value,
         "all slices are normalized");
-    static_assert(
-        utils::all_of<(std::is_same<S, long>::value ||
-                       std::is_same<S, contiguous_normalized_slice>::value ||
-                       std::is_same<S, normalized_slice>::value)...>::value,
-        "all slices are valid");
+    static_assert(utils::all_of<(std::is_same<S, long>::value ||
+                                 is_normalized_slice<S>::value)...>::value,
+                  "all slices are valid");
     static_assert(std::decay<Arg>::type::value >= sizeof...(S),
                   "slicing respects array shape");
 
@@ -572,6 +582,11 @@ namespace types
     static constexpr size_t value =
         std::remove_reference<Arg>::type::value - count_long<S...>::value;
 
+    using last_arg_stride_t =
+        decltype(std::declval<Arg>().template strides<sizeof...(S) - 1>());
+    using last_slice_t =
+        typename std::tuple_element<sizeof...(S) - 1, std::tuple<S...>>::type;
+
     // It is not possible to vectorize everything. We only vectorize if the
     // last dimension is contiguous, which happens if
     // 1. Arg is an ndarray (this is too strict)
@@ -580,18 +595,15 @@ namespace types
     static const bool is_vectorizable =
         std::remove_reference<Arg>::type::is_vectorizable &&
         (sizeof...(S) < std::remove_reference<Arg>::type::value ||
-         std::is_same<contiguous_normalized_slice,
-                      typename std::tuple_element<
-                          sizeof...(S) - 1, std::tuple<S...>>::type>::value);
+         std::is_same<contiguous_normalized_slice, last_slice_t>::value);
     static const bool is_flat =
         std::remove_reference<Arg>::type::is_flat && value == 1 &&
-         utils::all_of<std::is_same<contiguous_normalized_slice, S>::value...>::value;
+        utils::all_of<
+            std::is_same<contiguous_normalized_slice, S>::value...>::value;
     static const bool is_strided =
         std::remove_reference<Arg>::type::is_strided ||
         (((sizeof...(S) - count_long<S...>::value) == value) &&
-         !std::is_same<contiguous_normalized_slice,
-                       typename std::tuple_element<
-                           sizeof...(S) - 1, std::tuple<S...>>::type>::value);
+         !std::is_same<contiguous_normalized_slice, last_slice_t>::value);
 
     using value_type =
         typename std::decay<decltype(numpy_iexpr_helper<value>::get(
@@ -614,7 +626,21 @@ namespace types
 
     shape_t _shape;
     dtype *buffer;
-    array<long, value> _strides;
+
+    template <long stride>
+    static constexpr types::pshape<std::integral_constant<long, stride>>
+        last_stride(cstride_normalized_slice<stride>);
+    static constexpr types::pshape<std::integral_constant<long, 1>>
+        last_stride(contiguous_normalized_slice);
+    static constexpr types::array<long, 1> last_stride(...);
+
+    sutils::concat_t<types::array<long, value - 1>,
+                     typename std::conditional<
+                         sizeof...(S) == std::decay<Arg>::type::value,
+                         decltype(last_stride(std::declval<last_slice_t>())),
+                         types::array<long, 1>>::type>
+        _strides; // strides
+
     template <size_t I>
     auto shape() const -> decltype(std::get<I>(_shape))
     {
@@ -636,17 +662,11 @@ namespace types
     numpy_gexpr(numpy_gexpr<Argp, S...> const &other);
 
     template <size_t J, class Slice>
-    typename std::enable_if<
-        std::is_same<Slice, normalized_slice>::value ||
-            std::is_same<Slice, contiguous_normalized_slice>::value,
-        void>::type
+    typename std::enable_if<is_normalized_slice<Slice>::value, void>::type
     init_shape(Slice const &s, utils::int_<1>, utils::int_<J>);
 
     template <size_t I, size_t J, class Slice>
-    typename std::enable_if<
-        std::is_same<Slice, normalized_slice>::value ||
-            std::is_same<Slice, contiguous_normalized_slice>::value,
-        void>::type
+    typename std::enable_if<is_normalized_slice<Slice>::value, void>::type
     init_shape(Slice const &s, utils::int_<I>, utils::int_<J>);
 
     template <size_t J>
@@ -877,9 +897,14 @@ namespace types
 
     explicit operator bool() const;
 
-
-    dtype* data() { return buffer;}
-    const dtype* data() const { return buffer;}
+    dtype *data()
+    {
+      return buffer;
+    }
+    const dtype *data() const
+    {
+      return buffer;
+    }
     long flat_size() const;
     long size() const;
     ndarray<dtype, shape_t> copy() const

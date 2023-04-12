@@ -88,6 +88,8 @@ namespace types
 
   struct slice;
   struct contiguous_slice;
+  template <long stride>
+  struct cstride_slice;
 
   /* helper to extract the tail of a tuple, && pop the head */
   template <int Offset, class T, size_t... N>
@@ -275,6 +277,10 @@ namespace types
   struct array_base_slicer {
     template <class T, size_t N>
     dynamic_tuple<T> operator()(array<T, N> const &b, slice const &s);
+
+    template <class T, size_t N, long stride>
+    dynamic_tuple<T> operator()(array<T, N> const &b,
+                                cstride_slice<stride> const &s);
 
     template <class T, size_t N>
     dynamic_tuple<T> operator()(array<T, N> const &b,
@@ -1207,6 +1213,11 @@ namespace sutils
   template <size_t N, class... Ty1s>
   struct concat<types::array<long, N>, types::pshape<Ty1s...>>
       : concat<types::array<long, N - 1>, types::pshape<long, Ty1s...>> {
+  };
+
+  template <size_t N, size_t M>
+  struct concat<types::array<long, N>, types::array<long, M>> {
+    using type = types::array<long, N + M>;
   };
 
   template <class... Tys>

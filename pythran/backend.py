@@ -7,7 +7,7 @@ This module contains all pythran backends.
 from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
 from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
 from pythran.analyses import RangeValues, PureExpressions, Dependencies
-from pythran.analyses import Immediates, Ancestors
+from pythran.analyses import Immediates, Ancestors, StrictAliases
 from pythran.config import cfg
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label
@@ -156,12 +156,7 @@ def make_function_declaration(self, node, rtype, name, ftypes, fargs,
     arguments = list()
     first_default = len(node.args.args) - len(node.args.defaults)
     for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
-        # because universal reference and default don't get on well
-        if isinstance(self, CxxGenerator) or i >= first_default:
-            rvalue_ref = ""
-        else:
-            rvalue_ref = "&&"
-        argument = Value(t + rvalue_ref, "{0}{1}".format(a, make_default(d)))
+        argument = Value(t, "{0}{1}".format(a, make_default(d)))
         arguments.append(argument)
     return FunctionDeclaration(Value(rtype, name), arguments, *attributes)
 
@@ -713,6 +708,17 @@ class CxxFunction(ast.NodeVisitor):
     def make_assign(self, local_iter_decl, local_iter, iterable):
         return "{0} {1} = {2}".format(local_iter_decl, local_iter, iterable)
 
+    def is_user_function(self, func):
+        aliases = self.strict_aliases[func]
+        if not aliases:
+            return False
+        for alias in aliases:
+            if not isinstance(alias, ast.FunctionDef):
+                return False
+            if self.gather(YieldPoints, alias):
+                return False
+        return True
+
     @cxx_loop
     def visit_For(self, node):
         """
@@ -979,6 +985,10 @@ class CxxFunction(ast.NodeVisitor):
             else:
                 arg = args[0]
             result = fmt.format(attr, arg)
+        # Avoid passing scalars by ref as it prevents some C++ optimization.
+        # pythonic::types::call (tries to) handle that gracefully.
+        elif args and self.is_user_function(node.func):
+            result = "pythonic::types::call({})".format(", ".join([func] + args))
         else:
             result = "{}({})".format(func, ", ".join(args))
 
@@ -1370,7 +1380,7 @@ class Cxx(Backend):
         self.result = None
         super(Cxx, self).__init__(Dependencies, GlobalDeclarations, Types,
                                   Scope, RangeValues, PureExpressions,
-                                  Immediates, Ancestors)
+                                  Immediates, Ancestors, StrictAliases)
 
     # mod
     def visit_Module(self, node):

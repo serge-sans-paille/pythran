@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_ASSIGNABLE_HPP
 
 #include <type_traits>
+#include <utility>
 
 PYTHONIC_NS_BEGIN
 
@@ -12,6 +13,37 @@ namespace types
   constexpr T as_const(T &&t) noexcept
   {
     return t;
+  }
+
+  // Pass all scalars by value when called through pythonic::types::call
+  template <class T, bool is_integral>
+  struct by_val {
+    using type = T;
+  };
+  template <class T>
+  struct by_val<T &, true> {
+    using type = T;
+  };
+  template <class T>
+  struct by_val<T &&, true> {
+    using type = T;
+  };
+  template <class T>
+  struct by_val<T const &, true> {
+    using type = T;
+  };
+
+  template <class T>
+  using by_val_t = typename by_val<
+      T, std::is_integral<typename std::decay<T>::type>::value>::type;
+
+  template <class F, class... Args>
+  static inline auto call(F &&f, Args &&...args)
+      -> decltype(std::forward<F>(f).template operator()<by_val_t<Args>...>(
+          std::forward<Args>(args)...))
+  {
+    return std::forward<F>(f).template operator()<by_val_t<Args>...>(
+        std::forward<Args>(args)...);
   }
 
 } // namespace types

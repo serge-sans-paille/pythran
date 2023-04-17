@@ -133,3 +133,11 @@ def dict_copy(a):
                 return s""",
             {1:2,3:4},
             dict_iterate_item=[Dict[int, int]])
+
+    def test_dict_return_complex_item(self):
+        return self.run_test(
+            """def dict_return_complex_item(d):
+                for k, v in d.items():
+                 return v""",
+            {1:2j},
+            dict_return_complex_item=[Dict[int, complex]])

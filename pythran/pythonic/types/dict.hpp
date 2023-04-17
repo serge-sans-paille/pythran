@@ -33,7 +33,7 @@ namespace types
   item_iterator_adaptator<I>::operator*() const
   {
     auto &&tmp = I::operator*();
-    return make_tuple(tmp.first, tmp.second);
+    return pythonic::types::make_tuple(tmp.first, tmp.second);
   }
 
   /// key_iterator_adaptator implementation

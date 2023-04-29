@@ -1,3 +1,29 @@
+2023-04-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Improve performance of functions revieving scalar arguments. This changes
+	  the internal function call API.
+
+	* Improve performance of fix-stride slicing, using a new slice
+	  representation.
+
+	* Improve numpy.copyto performance, and detect copyto pattern usage.
+
+	* Force internal linkage of generated functions, which gives more
+	  optimization room to the C++ compiler.
+
+	* Provide entry points pythran.import_pythrancode and
+	  pythran.import_pythranfile, as a poor man JIT option.
+
+	* Optimize numpy.argmax(cst * val) into numpy.argmax(val) when cst is
+	  positive.
+
+	* Avoid copies upon numpy.array_split
+
+	* Get rid of unused functions C++ warnings
+
+	* Avoid generating a loop footer when the loop index is not used outside of
+	  the loop.
+
 2023-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Bump xsimd depdency to 10.0.0

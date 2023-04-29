@@ -6,6 +6,7 @@ from pythran.passmanager import Transformation
 
 from copy import deepcopy
 import gast as ast
+from inspect import isclass
 
 
 class Pattern(object):
@@ -323,7 +324,8 @@ class ArgminmaxPattern(Pattern):
             args=[Placeholder(1)], keywords=[])
 
 
-know_patterns = [x for x in globals().values() if hasattr(x, "pattern")]
+know_patterns = [x for x in globals().values()
+                 if isclass(x) and issubclass(x, Pattern) and x is not Pattern]
 
 
 class PlaceholderReplace(Transformation):

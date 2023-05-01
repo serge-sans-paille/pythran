@@ -33,7 +33,7 @@ except Exception:
 
 from tempfile import mkdtemp, NamedTemporaryFile
 import gast as ast
-import imp
+import importlib
 import logging
 import os.path
 import shutil
@@ -441,8 +441,11 @@ def import_pythrancode(pythrancode, **kwargs):
     tmpfile = None
     try:
         tmpfile = compile_pythrancode(module_name, pythrancode, **kwargs)
-        module_description = imp.find_module(module_name, ["."])
-        return imp.load_module(module_name, *module_description)
+        spec = importlib.util.spec_from_file_location(module_name, tmpfile)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module
     finally:
         if tmpfile is not None:
             os.remove(tmpfile)

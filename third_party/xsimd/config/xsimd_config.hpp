@@ -12,7 +12,7 @@
 #ifndef XSIMD_CONFIG_HPP
 #define XSIMD_CONFIG_HPP
 
-#define XSIMD_VERSION_MAJOR 10
+#define XSIMD_VERSION_MAJOR 11
 #define XSIMD_VERSION_MINOR 0
 #define XSIMD_VERSION_PATCH 0
 
@@ -106,7 +106,7 @@
  */
 #ifdef __FMA__
 
-#if defined(__SSE__) && !defined(__AVX__)
+#if defined(__SSE__)
 #ifndef XSIMD_WITH_FMA3_SSE // Leave the opportunity to manually disable it, see #643
 #define XSIMD_WITH_FMA3_SSE 1
 #endif
@@ -289,45 +289,54 @@
 #ifdef _MSC_VER
 
 #if XSIMD_WITH_AVX512
+
 #undef XSIMD_WITH_AVX2
 #define XSIMD_WITH_AVX2 1
+
 #endif
 
 #if XSIMD_WITH_AVX2
+
 #undef XSIMD_WITH_AVX
 #define XSIMD_WITH_AVX 1
+
 #undef XSIMD_WITH_FMA3_AVX
 #define XSIMD_WITH_FMA3_AVX 1
+
 #undef XSIMD_WITH_FMA3_AVX2
 #define XSIMD_WITH_FMA3_AVX2 1
+
 #endif
 
 #if XSIMD_WITH_AVX
-#undef XSIMD_WITH_SSE4_2
-#define XSIMD_WITH_SSE4_2 1
-#endif
 
-#if !defined(__clang__) && (defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2))
 #undef XSIMD_WITH_SSE4_2
 #define XSIMD_WITH_SSE4_2 1
+
 #endif
 
 #if XSIMD_WITH_SSE4_2
+
 #undef XSIMD_WITH_SSE4_1
 #define XSIMD_WITH_SSE4_1 1
+
 #endif
 
 #if XSIMD_WITH_SSE4_1
+
 #undef XSIMD_WITH_SSSE3
 #define XSIMD_WITH_SSSE3 1
+
 #endif
 
 #if XSIMD_WITH_SSSE3
+
 #undef XSIMD_WITH_SSE3
 #define XSIMD_WITH_SSE3 1
+
 #endif
 
-#if XSIMD_WITH_SSE3 || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+#if XSIMD_WITH_SSE3 || defined(_M_AMD64) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #undef XSIMD_WITH_SSE2
 #define XSIMD_WITH_SSE2 1
 #endif

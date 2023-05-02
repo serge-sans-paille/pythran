@@ -82,7 +82,7 @@ namespace xsimd
      * @return the sum of \c x and \c y
      */
     template <class T, class A>
-    inline auto add(batch<T> const& x, batch<T, A> const& y) noexcept -> decltype(x + y)
+    inline auto add(batch<T, A> const& x, batch<T, A> const& y) noexcept -> decltype(x + y)
     {
         detail::static_check_supported_config<T, A>();
         return x + y;
@@ -207,7 +207,7 @@ namespace xsimd
      *
      * Perform a static_cast from \c T_in to \c T_out on \c \c x.
      * @param x batch_bool of \c T_in
-     * @return \c x casted to \c T_out
+     * @return \c x cast to \c T_out
      */
     template <class T_out, class T_in, class A>
     inline batch_bool<T_out, A> batch_bool_cast(batch_bool<T_in, A> const& x) noexcept
@@ -223,7 +223,7 @@ namespace xsimd
      *
      * Perform a static_cast from \c T_in to \c T_out on \c \c x.
      * @param x batch of \c T_in
-     * @return \c x casted to \c T_out
+     * @return \c x cast to \c T_out
      */
     template <class T_out, class T_in, class A>
     inline batch<T_out, A> batch_cast(batch<T_in, A> const& x) noexcept
@@ -314,11 +314,12 @@ namespace xsimd
      * @param x batch of \c T_in
      * @return \c x reinterpreted as \c T_out
      */
-    template <class B, class T, class A>
-    inline B bitwise_cast(batch<T, A> const& x) noexcept
+    template <class T_out, class T_in, class A>
+    inline batch<T_out, A> bitwise_cast(batch<T_in, A> const& x) noexcept
     {
-        detail::static_check_supported_config<T, A>();
-        return kernel::bitwise_cast<A>(x, B {}, A {});
+        detail::static_check_supported_config<T_in, A>();
+        detail::static_check_supported_config<T_out, A>();
+        return kernel::bitwise_cast<A>(x, batch<T_out, A> {}, A {});
     }
 
     /**
@@ -543,6 +544,36 @@ namespace xsimd
     {
         detail::static_check_supported_config<T, A>();
         return kernel::cosh<A>(x, A {});
+    }
+
+    /**
+     * @ingroup batch_arithmetic
+     *
+     * Subtract 1 to batch \c x.
+     * @param x batch involved in the decrement.
+     * @return the subtraction of \c x and 1.
+     */
+    template <class T, class A>
+    inline batch<T, A> decr(batch<T, A> const& x) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::decr<A>(x, A {});
+    }
+
+    /**
+     * @ingroup batch_arithmetic
+     *
+     * Subtract 1 to batch \c x for each element where \c mask is true.
+     * @param x batch involved in the increment.
+     * @param mask whether to perform the increment or not. Can be a \c
+     *             batch_bool or a \c batch_bool_constant.
+     * @return the subtraction of \c x and 1 when \c mask is true.
+     */
+    template <class T, class A, class Mask>
+    inline batch<T, A> decr_if(batch<T, A> const& x, Mask const& mask) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::decr_if<A>(x, mask, A {});
     }
 
     /**
@@ -880,48 +911,6 @@ namespace xsimd
     /**
      * @ingroup batch_reducers
      *
-     * Adds all the scalars of the batch \c x.
-     * @param x batch involved in the reduction
-     * @return the result of the reduction.
-     */
-    template <class T, class A>
-    inline T reduce_add(batch<T, A> const& x) noexcept
-    {
-        detail::static_check_supported_config<T, A>();
-        return kernel::reduce_add<A>(x, A {});
-    }
-
-    /**
-     * @ingroup batch_reducers
-     *
-     * Max of all the scalars of the batch \c x.
-     * @param x batch involved in the reduction
-     * @return the result of the reduction.
-     */
-    template <class T, class A>
-    inline T reduce_max(batch<T, A> const& x) noexcept
-    {
-        detail::static_check_supported_config<T, A>();
-        return kernel::reduce_max<A>(x, A {});
-    }
-
-    /**
-     * @ingroup batch_reducers
-     *
-     * Min of all the scalars of the batch \c x.
-     * @param x batch involved in the reduction
-     * @return the result of the reduction.
-     */
-    template <class T, class A>
-    inline T reduce_min(batch<T, A> const& x) noexcept
-    {
-        detail::static_check_supported_config<T, A>();
-        return kernel::reduce_min<A>(x, A {});
-    }
-
-    /**
-     * @ingroup batch_reducers
-     *
      * Parallel horizontal addition: adds the scalars of each batch
      * in the array pointed by \c row and store them in a returned
      * batch.
@@ -963,6 +952,36 @@ namespace xsimd
     {
         detail::static_check_supported_config<T, A>();
         return kernel::imag<A>(x, A {});
+    }
+
+    /**
+     * @ingroup batch_arithmetic
+     *
+     * Add 1 to batch \c x.
+     * @param x batch involved in the increment.
+     * @return the sum of \c x and 1.
+     */
+    template <class T, class A>
+    inline batch<T, A> incr(batch<T, A> const& x) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::incr<A>(x, A {});
+    }
+
+    /**
+     * @ingroup batch_arithmetic
+     *
+     * Add 1 to batch \c x for each element where \c mask is true.
+     * @param x batch involved in the increment.
+     * @param mask whether to perform the increment or not. Can be a \c
+     *             batch_bool or a \c batch_bool_constant.
+     * @return the sum of \c x and 1 when \c mask is true.
+     */
+    template <class T, class A, class Mask>
+    inline batch<T, A> incr_if(batch<T, A> const& x, Mask const& mask) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::incr_if<A>(x, mask, A {});
     }
 
     /**
@@ -1580,6 +1599,20 @@ namespace xsimd
     }
 
     /**
+     * @ingroup batch_complex
+     *
+     * Computes the real part of the batch \c z.
+     * @param z batch of complex or real values.
+     * @return the argument of \c z.
+     */
+    template <class T, class A>
+    inline real_batch_type_t<batch<T, A>> real(batch<T, A> const& z) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::real<A>(z, A {});
+    }
+
+    /**
      * @ingroup batch_arithmetic
      *
      * Computes the approximate reciprocal of the batch \c x.
@@ -1596,17 +1629,60 @@ namespace xsimd
     }
 
     /**
-     * @ingroup batch_complex
+     * @ingroup batch_reducers
      *
-     * Computes the real part of the batch \c z.
-     * @param z batch of complex or real values.
-     * @return the argument of \c z.
+     * Generic reducer using only batch operations
+     * @param f reducing function, accepting `batch ()(batch, batch)`
+     * @param x batch involved in the reduction
+     * @return the result of the reduction, as a scalar.
      */
-    template <class T, class A>
-    inline real_batch_type_t<batch<T, A>> real(batch<T, A> const& z) noexcept
+    template <class T, class A, class F>
+    inline T reduce(F&& f, batch<T, A> const& x) noexcept
     {
         detail::static_check_supported_config<T, A>();
-        return kernel::real<A>(z, A {});
+        return kernel::detail::reduce(std::forward<F>(f), x, std::integral_constant<unsigned, batch<T, A>::size>());
+    }
+
+    /**
+     * @ingroup batch_reducers
+     *
+     * Adds all the scalars of the batch \c x.
+     * @param x batch involved in the reduction
+     * @return the result of the reduction.
+     */
+    template <class T, class A>
+    inline T reduce_add(batch<T, A> const& x) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::reduce_add<A>(x, A {});
+    }
+
+    /**
+     * @ingroup batch_reducers
+     *
+     * Max of all the scalars of the batch \c x.
+     * @param x batch involved in the reduction
+     * @return the result of the reduction.
+     */
+    template <class T, class A>
+    inline T reduce_max(batch<T, A> const& x) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::reduce_max<A>(x, A {});
+    }
+
+    /**
+     * @ingroup batch_reducers
+     *
+     * Min of all the scalars of the batch \c x.
+     * @param x batch involved in the reduction
+     * @return the result of the reduction.
+     */
+    template <class T, class A>
+    inline T reduce_min(batch<T, A> const& x) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::reduce_min<A>(x, A {});
     }
 
     /**
@@ -2174,7 +2250,16 @@ namespace xsimd
         return kernel::zip_lo<A>(x, y, A {});
     }
 
-    // bitwise_cast
+    /**
+     * @ingroup batch_conversion
+     *
+     * Cast a \c batch_bool of \c T into a \c batch of the same type using the
+     * following rule: if an element of \c self is true, it maps to -1 in the
+     * returned integral batch, otherwise it maps to 0.
+     *
+     * @param self batch_bool of \c T
+     * @return \c self cast to a \c batch of \c T
+     */
     template <class T, class A, typename std::enable_if<std::is_integral<T>::value, int>::type = 3>
     inline batch<T, A> bitwise_cast(batch_bool<T, A> const& self) noexcept
     {

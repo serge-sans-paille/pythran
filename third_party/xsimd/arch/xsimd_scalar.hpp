@@ -139,6 +139,33 @@ namespace xsimd
     }
 
     template <class T>
+    inline T incr(T const& x) noexcept
+    {
+        return x + T(1);
+    }
+
+    template <class T>
+    inline T incr_if(T const& x, bool mask) noexcept
+    {
+        return x + T(mask ? 1 : 0);
+    }
+
+    inline bool all(bool mask)
+    {
+        return mask;
+    }
+
+    inline bool any(bool mask)
+    {
+        return mask;
+    }
+
+    inline bool none(bool mask)
+    {
+        return !mask;
+    }
+
+    template <class T>
     inline typename std::enable_if<std::is_integral<T>::value, T>::type
     bitwise_and(T x, T y) noexcept
     {
@@ -459,6 +486,14 @@ namespace xsimd
     {
         return ::exp10(x);
     }
+#elif defined(_WIN32)
+    template <class T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
+    inline T exp10(const T& x) noexcept
+    {
+        // Very inefficient but other implementations give incorrect results
+        // on Windows
+        return std::pow(T(10), x);
+    }
 #else
     inline float exp10(const float& x) noexcept
     {
@@ -728,6 +763,18 @@ namespace xsimd
     inline auto sub(T const& x, Tp const& y) noexcept -> decltype(x - y)
     {
         return x - y;
+    }
+
+    template <class T>
+    inline T decr(T const& x) noexcept
+    {
+        return x - T(1);
+    }
+
+    template <class T>
+    inline T decr_if(T const& x, bool mask) noexcept
+    {
+        return x - T(mask ? 1 : 0);
     }
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX

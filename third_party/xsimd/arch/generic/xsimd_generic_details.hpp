@@ -34,8 +34,8 @@ namespace xsimd
     inline batch<T_out, A> batch_cast(batch<T_in, A> const&, batch<T_out, A> const& out) noexcept;
     template <class T, class A>
     inline batch<T, A> bitofsign(batch<T, A> const& self) noexcept;
-    template <class B, class T, class A>
-    inline B bitwise_cast(batch<T, A> const& self) noexcept;
+    template <class T_out, class T_in, class A>
+    inline batch<T_out, A> bitwise_cast(batch<T_in, A> const& self) noexcept;
     template <class T, class A>
     inline batch<T, A> cos(batch<T, A> const& self) noexcept;
     template <class T, class A>
@@ -132,6 +132,51 @@ namespace xsimd
                     other_buffer[i] = func(self_buffer[i]);
                 }
                 return batch<U, A>::load_aligned(other_buffer);
+            }
+        }
+
+        // some generic fast_cast conversion
+        namespace detail
+        {
+            template <class A>
+            inline batch<uint8_t, A> fast_cast(batch<int8_t, A> const& self, batch<uint8_t, A> const&, requires_arch<generic>) noexcept
+            {
+                return bitwise_cast<uint8_t>(self);
+            }
+            template <class A>
+            inline batch<uint16_t, A> fast_cast(batch<int16_t, A> const& self, batch<uint16_t, A> const&, requires_arch<generic>) noexcept
+            {
+                return bitwise_cast<uint16_t>(self);
+            }
+            template <class A>
+            inline batch<uint32_t, A> fast_cast(batch<int32_t, A> const& self, batch<uint32_t, A> const&, requires_arch<generic>) noexcept
+            {
+                return bitwise_cast<uint32_t>(self);
+            }
+            template <class A>
+            inline batch<uint64_t, A> fast_cast(batch<int64_t, A> const& self, batch<uint64_t, A> const&, requires_arch<generic>) noexcept
+            {
+                return bitwise_cast<uint64_t>(self);
+            }
+            template <class A>
+            inline batch<int8_t, A> fast_cast(batch<uint8_t, A> const& self, batch<int8_t, A> const&, requires_arch<generic>) noexcept
+            {
+                return bitwise_cast<int8_t>(self);
+            }
+            template <class A>
+            inline batch<int16_t, A> fast_cast(batch<uint16_t, A> const& self, batch<int16_t, A> const&, requires_arch<generic>) noexcept
+            {
+                return bitwise_cast<int16_t>(self);
+            }
+            template <class A>
+            inline batch<int32_t, A> fast_cast(batch<uint32_t, A> const& self, batch<int32_t, A> const&, requires_arch<generic>) noexcept
+            {
+                return bitwise_cast<int32_t>(self);
+            }
+            template <class A>
+            inline batch<int64_t, A> fast_cast(batch<uint64_t, A> const& self, batch<int64_t, A> const&, requires_arch<generic>) noexcept
+            {
+                return bitwise_cast<int64_t>(self);
             }
         }
 

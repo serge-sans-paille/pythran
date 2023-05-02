@@ -159,7 +159,7 @@ namespace xsimd
         template <class A, class T_out, class T_in>
         inline batch_bool<T_out, A> batch_bool_cast(batch_bool<T_in, A> const& self, batch_bool<T_out, A> const&, requires_arch<avx>) noexcept
         {
-            return { bitwise_cast<batch<T_out, A>>(batch<T_in, A>(self.data)).data };
+            return { bitwise_cast<T_out>(batch<T_in, A>(self.data)).data };
         }
 
         // bitwise_and
@@ -549,6 +549,13 @@ namespace xsimd
             }
         }
 
+        // decr_if
+        template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
+        inline batch<T, A> decr_if(batch<T, A> const& self, batch_bool<T, A> const& mask, requires_arch<avx>) noexcept
+        {
+            return self + batch<T, A>(mask.data);
+        }
+
         // div
         template <class A>
         inline batch<float, A> div(batch<float, A> const& self, batch<float, A> const& other, requires_arch<avx>) noexcept
@@ -575,16 +582,12 @@ namespace xsimd
         template <class A>
         inline batch_bool<float, A> eq(batch_bool<float, A> const& self, batch_bool<float, A> const& other, requires_arch<avx>) noexcept
         {
-            return _mm256_castsi256_ps(detail::fwd_to_sse([](__m128i s, __m128i o) noexcept
-                                                          { return eq(batch_bool<int32_t, sse4_2>(s), batch_bool<int32_t, sse4_2>(o), sse4_2 {}); },
-                                                          _mm256_castps_si256(self), _mm256_castps_si256(other)));
+            return ~(self != other);
         }
         template <class A>
         inline batch_bool<double, A> eq(batch_bool<double, A> const& self, batch_bool<double, A> const& other, requires_arch<avx>) noexcept
         {
-            return _mm256_castsi256_pd(detail::fwd_to_sse([](__m128i s, __m128i o) noexcept
-                                                          { return eq(batch_bool<int32_t, sse4_2>(s), batch_bool<int32_t, sse4_2>(o), sse4_2 {}); },
-                                                          _mm256_castpd_si256(self), _mm256_castpd_si256(other)));
+            return ~(self != other);
         }
         template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
         inline batch_bool<T, A> eq(batch<T, A> const& self, batch<T, A> const& other, requires_arch<avx>) noexcept
@@ -597,7 +600,7 @@ namespace xsimd
         template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
         inline batch_bool<T, A> eq(batch_bool<T, A> const& self, batch_bool<T, A> const& other, requires_arch<avx>) noexcept
         {
-            return eq(batch<T, A>(self.data), batch<T, A>(other.data));
+            return ~(self != other);
         }
 
         // floor
@@ -751,6 +754,13 @@ namespace xsimd
             // tmp1 = (a2+a3, b2+b3, c2+c3, d2+d3)
             tmp1 = _mm256_permute2f128_pd(tmp0, tmp1, 0x21);
             return _mm256_add_pd(tmp1, tmp2);
+        }
+
+        // incr_if
+        template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
+        inline batch<T, A> incr_if(batch<T, A> const& self, batch_bool<T, A> const& mask, requires_arch<avx>) noexcept
+        {
+            return self - batch<T, A>(mask.data);
         }
 
         // insert
@@ -1046,7 +1056,7 @@ namespace xsimd
         template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
         inline batch_bool<T, A> neq(batch_bool<T, A> const& self, batch_bool<T, A> const& other, requires_arch<avx>) noexcept
         {
-            return ~(self == other);
+            return _mm256_castps_si256(_mm256_xor_ps(_mm256_castsi256_ps(self.data), _mm256_castsi256_ps(other.data)));
         }
 
         // reciprocal
@@ -1497,8 +1507,8 @@ namespace xsimd
                                                   V7> const& mask,
                                    requires_arch<avx>) noexcept
         {
-            return bitwise_cast<batch<T, A>>(
-                swizzle(bitwise_cast<batch<float, A>>(self), mask));
+            return bitwise_cast<T>(
+                swizzle(bitwise_cast<float>(self), mask));
         }
 
         template <class A,
@@ -1513,8 +1523,8 @@ namespace xsimd
                 batch_constant<batch<uint64_t, A>, V0, V1, V2, V3> const& mask,
                 requires_arch<avx>) noexcept
         {
-            return bitwise_cast<batch<T, A>>(
-                swizzle(bitwise_cast<batch<double, A>>(self), mask));
+            return bitwise_cast<T>(
+                swizzle(bitwise_cast<double>(self), mask));
         }
 
         // trunc

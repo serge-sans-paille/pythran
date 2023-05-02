@@ -1,3 +1,7 @@
+2023-05-02 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Bump xsimd dependency to 11.0.0, with a backported patch.
+
 2023-04-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Improve performance of functions revieving scalar arguments. This changes

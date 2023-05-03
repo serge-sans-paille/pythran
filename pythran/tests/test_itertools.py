@@ -39,6 +39,10 @@ class TestItertools(TestEnv):
     def test_ifilter_on_generator(self):
         self.run_test("def ifilterg_(l0): return list(filter(lambda x: (x % 2) == 1, (y for x in l0 for y in range(x))))", [0,1,2,3,4,5], ifilterg_=[List[int]])
 
+    def test_ifilter_on_empty_sequence(self):
+        self.run_test("def ifilter_empty(l0): return list(filter(lambda x: x, l0))",
+                      [], ifilter_empty=[List[int]])
+
     def test_product(self):
         self.run_test("def product_(l0,l1): from itertools import product; return sum(map(lambda t : t[0]*t[1], product(l0,l1)))", [0,1,2,3,4,5], [10,11], product_=[List[int],List[int]])
 

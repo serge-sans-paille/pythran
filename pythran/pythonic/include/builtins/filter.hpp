@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_FILTER_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_FILTER_HPP
 
-#include "pythonic/include/utils/iterator.hpp"
 #include "pythonic/include/itertools/common.hpp"
 #include "pythonic/include/utils/functor.hpp"
+#include "pythonic/include/utils/iterator.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -44,9 +44,9 @@ namespace builtins
     };
 
     // Inherit from iterator_reminder to keep a reference on the iterator
-    // && avoid a dangling reference
+    // and avoid a dangling reference
     // FIXME: It would be better to have a copy only if needed but Pythran
-    // typing is ! good enough for this as arguments have
+    // typing is not good enough for this as arguments have
     // remove_cv/remove_ref
     template <typename Operator, typename List0>
     struct filter : utils::iterator_reminder<false, List0>,
@@ -64,7 +64,7 @@ namespace builtins
       iterator const &begin() const;
       iterator const &end() const;
     };
-  }
+  } // namespace details
 
   template <typename Operator, typename List0>
   details::filter<typename std::remove_cv<
@@ -74,7 +74,18 @@ namespace builtins
   filter(Operator &&_op, List0 &&_seq);
 
   DEFINE_FUNCTOR(pythonic::builtins, filter);
-}
+} // namespace builtins
 PYTHONIC_NS_END
+
+/* type inference stuff  {*/
+#include "pythonic/include/types/combined.hpp"
+
+template <class E, class Op, class T>
+struct __combined<E, pythonic::builtins::details::filter<Op, T>> {
+  using type =
+      typename __combined<E, container<typename pythonic::builtins::details::
+                                           filter<Op, T>::value_type>>::type;
+};
+/* } */
 
 #endif

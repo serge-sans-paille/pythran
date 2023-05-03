@@ -3,9 +3,9 @@
 
 #include "pythonic/include/builtins/filter.hpp"
 
-#include "pythonic/utils/iterator.hpp"
 #include "pythonic/itertools/common.hpp"
 #include "pythonic/utils/functor.hpp"
+#include "pythonic/utils/iterator.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -29,7 +29,8 @@ namespace builtins
     filter_iterator<Operator, List0>::filter_iterator(Operator _op, List0 &_seq)
         : op(_op), iter(_seq.begin()), iter_end(_seq.end())
     {
-      if (!test_filter(std::is_same<types::none_type, Operator>()))
+      if (iter != iter_end &&
+          !test_filter(std::is_same<types::none_type, Operator>()))
         next_value();
     }
 
@@ -41,15 +42,15 @@ namespace builtins
     }
 
     template <typename Operator, typename List0>
-    typename List0::value_type filter_iterator<Operator, List0>::
-    operator*() const
+    typename List0::value_type
+    filter_iterator<Operator, List0>::operator*() const
     {
       return *iter;
     }
 
     template <typename Operator, typename List0>
-    filter_iterator<Operator, List0> &filter_iterator<Operator, List0>::
-    operator++()
+    filter_iterator<Operator, List0> &
+    filter_iterator<Operator, List0>::operator++()
     {
       next_value();
       return *this;
@@ -65,22 +66,22 @@ namespace builtins
     }
 
     template <typename Operator, typename List0>
-    bool filter_iterator<Operator, List0>::
-    operator==(filter_iterator const &other) const
+    bool filter_iterator<Operator, List0>::operator==(
+        filter_iterator const &other) const
     {
       return !(iter != other.iter);
     }
 
     template <typename Operator, typename List0>
-    bool filter_iterator<Operator, List0>::
-    operator!=(filter_iterator const &other) const
+    bool filter_iterator<Operator, List0>::operator!=(
+        filter_iterator const &other) const
     {
       return iter != other.iter;
     }
 
     template <typename Operator, typename List0>
-    bool filter_iterator<Operator, List0>::
-    operator<(filter_iterator const &other) const
+    bool filter_iterator<Operator, List0>::operator<(
+        filter_iterator const &other) const
     {
       return iter != other.iter;
     }
@@ -112,7 +113,7 @@ namespace builtins
     {
       return end_iter;
     }
-  }
+  } // namespace details
 
   template <typename Operator, typename List0>
   details::filter<typename std::remove_cv<
@@ -123,7 +124,7 @@ namespace builtins
   {
     return {std::forward<Operator>(_op), std::forward<List0>(_seq)};
   }
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

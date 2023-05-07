@@ -34,13 +34,18 @@ In a nutshell, Pythran makes it possible to write numerical algorithms in
 Python and to have them run faster. Nuff said.
 
 
-Prerequisite
-------------
+Prerequisites
+-------------
 
 Pythran depends on the following packages:
 
 .. include:: ../requirements.txt
     :literal:
+
+Pythran also depends on `Boost <https://www.boost.org/>`_ and
+`xsimd <https://github.com/QuantStack/xsimd>`_, however Pythran's PyPI packages
+vendor these dependencies for convenience (note though that conda-forge and some
+Linux distros may unvendor one or both of these).
 
 You also need a modern C++11 enabled compiler (e.g. g++>=5, clang>=3.5), that supports
 atomic operations (N3290) and variadic template (N2555).
@@ -340,14 +345,35 @@ You can pass arguments to this magic, as in::
     def foo(): print 'hello'
 
 
-Distutils Integration
----------------------
+Integration into a Python package
+---------------------------------
 
 When distributing a Python application with Pythran modules, you can either:
 
-* declare the module as a regular Python module. After all, they are 100% Python compatible.
+* use the module as a regular Python module (a ``.py`` file). After all, they
+  are 100% Python compatible.
+* use Pythran as a Python to C++ transpiler and then integrate the generated
+  C++ into your package build the same way as you would with other C++ code
+  (see SciPy for an example of doing this with Meson).
+* Use Pythran's ``PythranExtension`` in order to directly build extension modules
+  as part of your build with ``setuptools``.
 
-* declare them as a ``PythranExtension`` and Pythran will compile them::
+For the last two options above, you should declare ``pythran`` as a build dependency
+in the ``pyproject.toml`` file for your package:
+
+.. code:: toml
+
+    [build-system]
+    build-backend = "mesonpy"   # or: "setuptools.build_meta"
+    requires = [
+        "meson-python",   # or: "setuptools"
+        "pythran",
+
+Setuptools Integration
+``````````````````````
+
+Pythran comes with a ``PythranExtension`` class that extends ``setuptools`` and
+can be used like this to compile Pythan modules into extension modules::
 
     from distutils.core import setup
 
@@ -375,6 +401,21 @@ you can change its base class by using ``PythranBuildExt[base_cls]`` instead.
     version, as version 0.y may introduce some changes.
 
     This behavior is likely to change with revisions >= 1.
+
+
+Cross compilation
+`````````````````
+
+Python does not have good support for cross compilation; neither does Pythran's
+CLI interface. Using the Python-to-C++ transpilation and using a build system
+like Meson or CMake with solid support for cross compilation to compile the
+pythran-generated C++ files into extension modules is your best bet.
+
+Note that Pythran itself is a header-only library and hence it mostly does not
+matter whether it is installed in the build or host environment. The exception
+is the ``pythran-config`` tool - only use that if ``pythran`` is installed in
+the host architecture (i.e., the architecture on which the produced binaries
+need to run).
 
 
 Capsule Corp
@@ -540,7 +581,8 @@ This section contains compiler flags configuration. For education purpose, the d
 
     Preprocessor definitions. Pythran is sensible to ``USE_XSIMD`` and
     ``PYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on `xsimd <https://github.com/QuantStack/xsimd>`_
-    vectorization and the latter controls the minimal loop trip count to turn a
+    vectorization (instead of the scalar code in ``xsimd`` that is used by
+    default) and the latter controls the minimal loop trip count to turn a
     sequential loop into a parallel loop.
 
 :``undefs``:

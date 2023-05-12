@@ -579,11 +579,9 @@ This section contains compiler flags configuration. For education purpose, the d
 
 :``defines``:
 
-    Preprocessor definitions. Pythran is sensible to ``USE_XSIMD`` and
-    ``PYTHRAN_OPENMP_MIN_ITERATION_COUNT``. The former turns on `xsimd <https://github.com/QuantStack/xsimd>`_
-    vectorization (instead of the scalar code in ``xsimd`` that is used by
-    default) and the latter controls the minimal loop trip count to turn a
-    sequential loop into a parallel loop.
+    Preprocessor definitions. Pythran is sensible to ``USE_XSIMD``. It turns on
+    `xsimd <https://github.com/QuantStack/xsimd>`_ vectorization (instead of the
+    scalar code in ``xsimd`` that is used by default).
 
 :``undefs``:
 

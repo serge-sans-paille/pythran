@@ -663,6 +663,15 @@ namespace types
     template <class qS>
     ndarray<T, qS> reshape(qS const &shape) &&;
 
+    template <class OT>
+    ndarray<OT, types::array<long, value>> recast()
+    {
+      auto new_shape = sutils::array(_shape);
+      new_shape[value - 1] = new_shape[value - 1] * sizeof(T) / sizeof(OT);
+      auto new_mem = mem.template recast<raw_array<OT>>();
+      return ndarray<OT, types::array<long, value>>(new_mem, new_shape);
+    }
+
     explicit operator bool() const;
 
     ndarray<T, pshape<long>> flat() const;

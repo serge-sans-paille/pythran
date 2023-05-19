@@ -1356,6 +1356,41 @@ def hanning(M):
                       numpy.arange(200.).reshape(10, 20),
                       subscripting_slice_array_transpose=[NDArray[float, :, :]])
 
+    def test_view0(self):
+        code = '''
+            def ndarray_view0(x):
+                import numpy as np
+                return (x.view(),
+                        x.view(np.int8),
+                        x.view(np.uint8),
+                        x.view(np.int16),
+                        x.view(np.uint16))'''
+        self.run_test(code,
+                      numpy.arange(10.),
+                      ndarray_view0=[NDArray[float, :]])
+
+    def test_view1(self):
+        code = '''
+            def ndarray_view1(x):
+                import numpy as np
+                y = x.view(np.uint8)
+                y[:] = 0
+                return x'''
+        self.run_test(code,
+                      numpy.arange(10.),
+                      ndarray_view1=[NDArray[float, :]])
+
+    def test_view2(self):
+        code = '''
+            def ndarray_view2(n):
+                import numpy as np
+                y = np.ones(n).view(np.uint8)
+                y[:] = 0
+                return y'''
+        self.run_test(code,
+                      10,
+                      ndarray_view2=[int])
+
     def test_combiner_0(self):
         code = '''
 import numpy as np

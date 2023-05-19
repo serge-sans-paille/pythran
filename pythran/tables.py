@@ -825,6 +825,7 @@ CLASSES = {
         ),
         "tofile": ConstMethodIntr(signature=Fun[[NDArray[T0, :]], str, str], global_effects=True),
         "tostring": ConstMethodIntr(signature=Fun[[NDArray[T0, :]], str]),
+        "view": MethodIntr(),
     },
 }
 

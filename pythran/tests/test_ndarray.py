@@ -1391,6 +1391,51 @@ def hanning(M):
                       10,
                       ndarray_view2=[int])
 
+    def test_view3(self):
+        code = '''
+            def ndarray_view3(n):
+                import numpy as np
+                y = np.ones(n)[1:3].view(np.uint8)
+                y[:] = 0
+                return y'''
+        self.run_test(code,
+                      10,
+                      ndarray_view3=[int])
+
+    def test_view4(self):
+        code = '''
+            def ndarray_view4(n):
+                import numpy as np
+                y = np.ones(n)[2:].view(np.uint8)
+                y[:] = 0
+                return y'''
+        self.run_test(code,
+                      10,
+                      ndarray_view4=[int])
+
+    def test_view5(self):
+        code = '''
+            def ndarray_view5(n):
+                import numpy as np
+                y = np.ones((n,n))[0,2:].view(np.uint8)
+                y[:] = 0
+                y.view(np.uint16)[1] = 1
+                return y'''
+        self.run_test(code,
+                      10,
+                      ndarray_view5=[int])
+
+    def test_view6(self):
+        code = '''
+            def ndarray_view6(n):
+                import numpy as np
+                y = np.ones((n,n), dtype=np.float32).T.view(np.uint32)
+                y[:] = 0
+                return y'''
+        self.run_test(code,
+                      10,
+                      ndarray_view6=[int])
+
     def test_combiner_0(self):
         code = '''
 import numpy as np

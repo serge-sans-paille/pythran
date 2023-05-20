@@ -10,33 +10,19 @@ namespace numpy
 {
   namespace ndarray
   {
-    template <class T, class pS>
-    types::ndarray<T, pS> &view(types::ndarray<T, pS> &e)
+    template <class E>
+    auto view(E &&e) -> decltype(std::forward<E>(e))
     {
-      return e;
+      return std::forward<E>(e);
     }
 
-    template <class T, class pS>
-    types::ndarray<T, pS> view(types::ndarray<T, pS> &&e)
+    template <class E, class dtype>
+    auto view(E &&e, dtype d)
+        -> decltype(std::forward<E>(e).template recast<typename dtype::type>())
     {
-      return std::move(e);
+      return std::forward<E>(e).template recast<typename dtype::type>();
     }
 
-    template <class T, class pS, class dtype>
-    types::ndarray<typename dtype::type,
-                   types::array<long, types::ndarray<T, pS>::value>>
-    view(types::ndarray<T, pS> &e, dtype d)
-    {
-      return e.template recast<typename dtype::type>();
-    }
-
-    template <class T, class pS, class dtype>
-    types::ndarray<typename dtype::type,
-                   types::array<long, types::ndarray<T, pS>::value>>
-    view(types::ndarray<T, pS> &&e, dtype d)
-    {
-      return e.template recast<typename dtype::type>();
-    }
   } // namespace ndarray
 } // namespace numpy
 PYTHONIC_NS_END

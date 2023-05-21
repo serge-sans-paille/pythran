@@ -497,3 +497,8 @@ def tuple_indexable_container(n):
     TD = C_I(n)
     return C_Test(TD)"""
         self.run_test(code, 44100, tuple_indexable_container=[int])
+
+    def test_filter_enumerate(self):
+        code = 'def filt_enum(l): return [p for _,p in enumerate(l) if p%2]'
+        self.run_test(code, [10, 11, 12, 13],
+                      filt_enum=[List[int]])

@@ -48,9 +48,11 @@ namespace builtins
           public enumerate_iterator<
               typename Iterable::iterator> /* to be compatible with
                                               builtins.next*/
-          {
+    {
       using iterator = enumerate_iterator<typename Iterable::iterator>;
       using iterator::operator*;
+      using value_type = typename iterator::value_type;
+
       iterator end_iter;
 
       enumerate();
@@ -59,7 +61,7 @@ namespace builtins
       iterator const &begin() const;
       iterator end() const;
     };
-  }
+  } // namespace details
 
   template <class Iterable>
   details::enumerate<typename std::remove_cv<
@@ -67,7 +69,7 @@ namespace builtins
   enumerate(Iterable &&seq, long first = 0L);
 
   DEFINE_FUNCTOR(pythonic::builtins, enumerate);
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 #endif

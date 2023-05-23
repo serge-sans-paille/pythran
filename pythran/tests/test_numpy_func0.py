@@ -678,6 +678,26 @@ def np_ravel3(v):
     def test_rollaxis0(self):
         self.run_test("def np_rollaxis0(x): from numpy import rollaxis; return rollaxis(x, 1)", numpy.arange(24).reshape(2,3,4), np_rollaxis0=[NDArray[int, :, :, :]])
 
+    def test_roll12(self):
+        self.run_test("def np_roll12(x): from numpy import roll; return roll(x, (1, 2, -3), (2, 0, 1))",
+        numpy.arange(24).reshape(4, 3, 2), np_roll12=[NDArray[int, :, :, :]])
+
+    def test_roll11(self):
+        self.run_test("def np_roll11(x): from numpy import roll; return roll(x, (2, -3), (0, 0))",
+        numpy.arange(12).reshape(4, 3), np_roll11=[NDArray[int, :, :]])
+
+    def test_roll10(self):
+        self.run_test("def np_roll10(x): from numpy import roll; return roll(x, (-2, 3), (1, 0))",
+        numpy.arange(12).reshape(4, 3), np_roll10=[NDArray[int, :, :]])
+
+    def test_roll9(self):
+        self.run_test("def np_roll9(x): from numpy import roll; return roll(x, (20, 3), (0, 1))",
+        numpy.arange(12).reshape(4, 3), np_roll9=[NDArray[int, :, :]])
+
+    def test_roll8(self):
+        self.run_test("def np_roll8(x): from numpy import roll; return roll(x, 123)",
+        numpy.arange(12), np_roll8=[NDArray[int, :]])
+
     def test_roll7(self):
         self.run_test("def np_roll7(x): from numpy import roll; return roll(x, -1)",
         numpy.array([], dtype=int), np_roll7=[NDArray[int, :]])

@@ -135,8 +135,8 @@ def zoo(i): return
 #      pythran export zoo(str)
 def bar(i): return
             '''
-        self.assertEquals(len(pythran.spec_parser(code).functions), 1)
-        self.assertEquals(len(pythran.spec_parser(code).functions['zoo']), 2)
+        self.assertEqual(len(pythran.spec_parser(code).functions), 1)
+        self.assertEqual(len(pythran.spec_parser(code).functions['zoo']), 2)
 
     def test_var_export0(self):
         code = '''

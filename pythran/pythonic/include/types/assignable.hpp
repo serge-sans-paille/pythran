@@ -12,7 +12,7 @@ namespace types
   template <class T>
   constexpr T as_const(T &&t) noexcept
   {
-    return t;
+    return std::forward<T>(t);
   }
 
   // Pass all scalars by value when called through pythonic::types::call

@@ -4566,33 +4566,43 @@ def save_arguments(module_name, elements):
                 obj = getattr(themodule, elem)
                 while hasattr(obj, '__wrapped__'):
                     obj = obj.__wrapped__
+            except (AttributeError, ImportError, TypeError):
+                continue
 
-                # first try to gather info through getfullargspec
+            # first try to gather info through getfullargspec
+            try:
                 spec = inspect.getfullargspec(obj)
+            except:
+                continue
 
-                args = [ast.Name(arg, ast.Param(), None, None)
-                        for arg in spec.args]
-                defaults = list(spec.defaults or [])
-                args += [ast.Name(arg, ast.Param(), None, None)
-                         for arg in spec.kwonlyargs]
-                defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
+            args = [ast.Name(arg, ast.Param(), None, None)
+                    for arg in spec.args]
+            defaults = list(spec.defaults or [])
+            args += [ast.Name(arg, ast.Param(), None, None)
+                     for arg in spec.kwonlyargs]
+            defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
 
-                # Sanity check
-                if signature.args.args:
-                    logger.warning(
-                        "Overriding pythran description with argspec "
-                        "information for: {}".format(
+            # Sanity check
+            if signature.args.args:
+                logger.warning(
+                    "Overriding pythran description with argspec "
+                    "information for: {}".format(
 
-                            ".".join(module_name + (elem,))))
-                # Avoid use of comprehension to fill "as much args/defauls" as
-                # possible
-                signature.args.args = args[:-len(defaults) or None]
-                signature.args.defaults = []
+                        ".".join(module_name + (elem,))))
+            # Avoid use of comprehension to fill "as much args/defaults" as
+            # possible
+            signature_args = args[:-len(defaults) or None]
+            signature_defaults = []
+            try:
                 for arg, value in zip(args[-len(defaults):], defaults):
-                    signature.args.defaults.append(to_ast(value))
-                    signature.args.args.append(arg)
-            except (AttributeError, ImportError, TypeError, ToNotEval):
-                pass
+                    signature_args.append(arg)
+                    signature_defaults.append(to_ast(value))
+            except ToNotEval:
+                continue
+
+            # Only validate once we have a valid signature
+            signature.args.args = signature_args
+            signature.args.defaults = signature_defaults
 
 
 save_arguments((), MODULES)

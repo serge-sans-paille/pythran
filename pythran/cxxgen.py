@@ -680,7 +680,6 @@ class PythonModule(object):
                     PYTHRAN_RETURN;
                 PyObject * theDoc = Py_BuildValue("(sss)",
                                                   "{version}",
-                                                  "{date}",
                                                   "{hash}");
                 if(! theDoc)
                     PYTHRAN_RETURN;

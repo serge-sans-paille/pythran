@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6, 3.8, 3.9, 3.10-dev, pypy-3.9]
-        cpp-version: [g++-8, clang-6.0]
+        cpp-version: [g++-8, clang-7]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Python ${{ matrix.python-version }}

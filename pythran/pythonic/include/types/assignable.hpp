@@ -40,10 +40,10 @@ namespace types
   template <class F, class... Args>
   static inline auto call(F &&f, Args &&...args)
       -> decltype(std::forward<F>(f).template operator()<by_val_t<Args>...>(
-          std::forward<Args>(args)...))
+          static_cast<by_val_t<Args>>(args)...))
   {
     return std::forward<F>(f).template operator()<by_val_t<Args>...>(
-        std::forward<Args>(args)...);
+        static_cast<by_val_t<Args>>(args)...);
   }
 
 } // namespace types

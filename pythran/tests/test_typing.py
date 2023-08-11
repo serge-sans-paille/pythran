@@ -271,6 +271,24 @@ def functional_variant_container2(i):
     return l[i](1.)'''
         self.run_test(code, 4, functional_variant_container2=[int])
 
+    def test_variant_call_with_reference(self):
+        code = '''
+def variant_call_with_reference(modes, method):
+    if method == "mcma":
+        errorfct = cma_error
+    elif method == "cma":
+        errorfct = mcma_error
+    mode = modes[0]
+    err = errorfct(mode)
+    return err
+
+def cma_error(i):
+    return i
+
+def mcma_error(i):
+    return i'''
+        self.run_test(code, np.array([1,2]), "cma", variant_call_with_reference=[NDArray[int, :], str])
+
     @unittest.skip("bad typing: need backward propagation")
     def test_type_set_in_loop(self):
         code = '''

@@ -21,7 +21,9 @@ def train_eq(E, TrSyms, os, mu, wx,  errfctprs, adapt):
         wx += mu*np.conj(err[i])*X
         if adapt and i>0:
             if err[i].real*err[i-1].real > 0 and err[i].imag*err[i-1].imag > 0:
-                mu = mu
+                # commented out because this raises a warning caught by -Werror
+                # mu = mu
+                pass
             else:
                 mu = np.float32(mu/(1+mu*(err[i].real*err[i].real + err[i].imag*err[i].imag)))
     return err, wx, mu
@@ -38,7 +40,9 @@ def train_eq2(E, TrSyms, os, mu, wx,  errfctprs, adapt):
         wx += mu*np.conj(err[i])*X
         if adapt and i>0:
             if err[i].real*err[i-1].real > 0 and err[i].imag*err[i-1].imag > 0:
-                mu = mu
+                # commented out because this raises a warning caught by -Werror
+                # mu = mu
+                pass
             else:
                 mu = np.float32(mu/(1+mu*(err[i].real*err[i].real + err[i].imag*err[i].imag)))
     return err, wx, mu

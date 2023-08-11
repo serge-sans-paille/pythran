@@ -17,7 +17,7 @@ namespace builtins
   auto next(T &&y) -> decltype(*y)
   {
     if ((decltype(y.begin()) &)y != y.end()) {
-      auto &&tmp = *y;
+      auto tmp = *y;
       ++y;
       return tmp;
     } else

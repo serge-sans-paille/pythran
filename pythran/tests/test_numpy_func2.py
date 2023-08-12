@@ -728,6 +728,9 @@ def test_copy0(x):
     def test_array2D_(self):
         self.run_test("def np_array2D_(a):\n from numpy import array\n return array(a)", [[1,2],[3,4]], np_array2D_=[List[List[int]]])
 
+    def test_array_iter(self):
+        self.run_test("def np_array_iter():\n from numpy import array\n return array(list(reversed(range(0, 300)))) + 3", np_array_iter=[])
+
     def test_array_typed(self):
         self.run_test("def np_array_typed(a):\n from numpy import array, int64\n return array(a, int64)", [1.,2.,3.], np_array_typed=[List[float]])
 

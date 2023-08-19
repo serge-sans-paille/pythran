@@ -741,6 +741,12 @@ namespace std
     using type =
         decltype(std::declval<pythonic::types::numpy_gexpr<E, S...>>()[0]);
   };
+
+  template <size_t I, class T, class F>
+  struct tuple_element<I, pythonic::types::numpy_vexpr<T, F>> {
+    using type = decltype(std::declval<pythonic::types::numpy_vexpr<T, F>>()[0]);
+  };
+
 } // namespace std
 
 /* pythran attribute system { */

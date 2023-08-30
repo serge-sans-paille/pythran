@@ -5,6 +5,8 @@ import pythran
 from textwrap import dedent
 
 from pythran.typing import List, Dict, NDArray, Tuple
+import pythran.types.tog
+
 
 class TestTyping(TestEnv):
 

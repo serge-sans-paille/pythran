@@ -1,3 +1,26 @@
+2023-08-31 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Numpy compatibility - update signatures, complex number handling, long
+	  double support
+
+	* Lazyly import top-level modules and submodules
+
+	* Improve array indexing by an array
+
+	* Require at least clang 7 or gcc 8
+
+	* Make pythran compilation reproducible
+
+	* Support np.roll with multiple axis
+
+	* Support numpy.ndarray.view
+
+	* Improve documentation about using Pythran in a Python package
+
+	* Improve list resizing speed
+
+	* Fix bug when filtering an empty sequence
+
 2023-05-02 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Bump xsimd dependency to 11.0.0, with a backported patch.

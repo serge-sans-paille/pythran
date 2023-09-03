@@ -4596,7 +4596,7 @@ def save_arguments(module_name, elements):
                      for arg in spec.kwonlyargs]
             defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
 
-            # Sanity check
+            # Check if we already have a pythran description for that object
             if signature.args.args:
                 if module_name != ('numpy', 'random'):
                     # Skip this warning for `numpy.random`, because the
@@ -4607,6 +4607,9 @@ def save_arguments(module_name, elements):
                         "information for: {}".format(
 
                         ".".join(module_name + (elem,))))
+                else:
+                    continue
+
             # Avoid use of comprehension to fill "as much args/defaults" as
             # possible
             signature_args = args[:-len(defaults) or None]

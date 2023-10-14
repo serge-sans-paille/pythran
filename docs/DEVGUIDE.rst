@@ -68,8 +68,12 @@ Validation
 ----------
 
 ``pythran`` uses the ``unittest`` module and the `pytest
-<http://pytest.org/latest/>`_ package to manage test cases. The whole
-validation suite is run through the command::
+<http://pytest.org/latest/>`_ package to manage test cases.
+
+All requirements are listed in ``pythran/tests/requirements.txt``.
+
+
+The whole validation suite is run through the command::
 
     $> python -m pytest pythran/tests
 

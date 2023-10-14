@@ -1,5 +1,10 @@
-from numpy.distutils.core import setup
-from numpy.distutils.command.build_ext import build_ext as npy_build_ext
+try:
+    from numpy.distutils.core import setup
+    from numpy.distutils.command.build_ext import build_ext as npy_build_ext
+except ImportError:
+    from distutils.core import setup
+    from distutils.command.build_ext import build_ext as npy_build_ext
+
 from pythran.dist import PythranExtension, PythranBuildExt
 
 module1 = PythranExtension('demo3.a', sources = ['demo3/a.py'])

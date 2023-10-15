@@ -4,7 +4,6 @@ import numpy
 from pythran.typing import NDArray
 
 
-@TestEnv.module
 class TestNumpyLinalg(TestEnv):
 
     def test_linalg_norm0(self):

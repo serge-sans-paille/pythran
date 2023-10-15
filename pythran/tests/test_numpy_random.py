@@ -3,7 +3,6 @@ import warnings
 warnings.filterwarnings("ignore",category=DeprecationWarning)
 
 
-@TestEnv.module
 class TestNumpyRandom(TestEnv):
 
     ###########################################################################

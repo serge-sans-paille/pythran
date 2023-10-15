@@ -4,7 +4,6 @@ import unittest
 from pythran.typing import List
 
 
-@TestEnv.module
 class TestOperator(TestEnv):
 
     def test_lt(self):

@@ -3,7 +3,6 @@ from pythran.tests import TestEnv
 from pythran.typing import List
 
 
-@TestEnv.module
 class TestBisect(TestEnv):
     def test_bisect_left0(self):
         self.run_test("def bisect_left0(l,a): from bisect import bisect_left ; return bisect_left(l,a)", [0,1,2,3],2, bisect_left0=[List[int],int])

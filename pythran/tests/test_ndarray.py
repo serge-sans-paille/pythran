@@ -25,7 +25,6 @@ def raisesMemoryError():
         return False
 
 
-@TestEnv.module
 class TestNdarray(TestEnv):
 
     @unittest.skipIf(not raisesMemoryError(), "memory error not triggered on that arch")

@@ -20,7 +20,6 @@ from pythran.intrinsic import UFunc
 from pythran.typing import NDArray
 
 
-@TestEnv.module
 class TestNumpyUFuncBinary(TestEnv):
     pass
 

@@ -24,8 +24,6 @@ from functools import reduce
 from operator import add
 import logging
 
-import pytest
-
 from pythran import compile_pythrancode, spec_parser, load_specfile, frontend
 from pythran.backend import Python
 from pythran.middlend import refine
@@ -69,7 +67,6 @@ class TestEnv(unittest.TestCase):
 
     """ Test environment to validate a pythran execution against python. """
 
-    module = pytest.mark.module
     # default options used for the c++ compiler
     PYTHRAN_CXX_FLAGS = ['-O0', '-UNDEBUG', '-U_FORTIFY_SOURCE',
                         ] if sys.platform != "win32" else []

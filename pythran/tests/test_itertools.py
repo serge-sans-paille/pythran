@@ -6,7 +6,6 @@ import numpy as np
 from pythran.typing import List, NDArray
 
 
-@TestEnv.module
 class TestItertools(TestEnv):
 
     def test_imap(self):

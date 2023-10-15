@@ -7,7 +7,6 @@ import os
 from pythran.typing import NDArray, List, Tuple
 
 
-@TestEnv.module
 class TestNumpyFunc0(TestEnv):
 
     def test_extended_sum0(self):

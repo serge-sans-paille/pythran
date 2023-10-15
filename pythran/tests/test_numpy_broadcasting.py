@@ -5,7 +5,6 @@ import numpy as np
 from pythran.typing import NDArray, List, Tuple
 
 
-@TestEnv.module
 class TestBroadcasting(TestEnv):
 
     def test_broadcast_scalar0(self):

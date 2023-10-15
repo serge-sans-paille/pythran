@@ -93,7 +93,6 @@ try:
 
     if not platform.machine().startswith('ppc64'):
 
-        @TestEnv.module
         class TestScipySpecial(TestEnv):
             def test_jv_scalar(self):
                 self.run_test("""

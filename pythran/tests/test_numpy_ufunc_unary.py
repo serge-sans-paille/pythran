@@ -9,7 +9,6 @@ except ImportError:
     scipy = None
 
 
-@TestEnv.module
 class TestNumpyUFuncUnary(TestEnv):
     pass
 

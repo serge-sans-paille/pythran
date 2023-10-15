@@ -1,7 +1,6 @@
 from pythran.tests import TestEnv
 
 
-@TestEnv.module
 class TestOs(TestEnv):
 
     def test_os_path(self):

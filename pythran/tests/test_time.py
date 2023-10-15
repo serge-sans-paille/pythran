@@ -6,7 +6,6 @@ import sys
 from pythran.tests import TestEnv
 
 
-@TestEnv.module
 class TestTime(TestEnv):
 
     """ Tests for the time module. """

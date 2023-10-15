@@ -4,7 +4,6 @@ from unittest import skipIf
 import sys
 
 
-@TestEnv.module
 class TestRandom(TestEnv):
 
     """

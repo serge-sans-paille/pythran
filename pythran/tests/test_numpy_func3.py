@@ -8,7 +8,6 @@ from pythran.typing import List, NDArray, Tuple
 from pythran.tests import TestEnv
 
 
-@TestEnv.module
 class TestNumpyFunc3(TestEnv):
 
     """

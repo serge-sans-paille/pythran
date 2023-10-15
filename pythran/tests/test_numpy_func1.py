@@ -10,7 +10,6 @@ from pythran.typing import NDArray, List
 np_version = version.parse(numpy.version.version)
 
 
-@TestEnv.module
 class TestNumpyFunc1(TestEnv):
 
     def test_sum_bool2(self):

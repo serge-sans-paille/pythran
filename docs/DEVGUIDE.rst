@@ -85,10 +85,6 @@ test suite::
 
 runs all the tests found in ``pythran/tests/test_list.py``.
 
-Only compiler tests can be check using test filtering::
-
-   $> pytest -n 8 pythran/tests -m "not module"
-
 There are two kinds of tests in ``pythran``:
 
 1. unit tests that test a specific feature of the implementation. Such tests

@@ -5,7 +5,6 @@ from pythran.typing import NDArray
 from distutils.version import LooseVersion
 
 
-@TestEnv.module
 class TestNumpyRFFT(TestEnv):
 
     # Basic test
@@ -71,7 +70,6 @@ def test_rfft_12(x):
         self.run_test("def test_rfft_byte(x): from numpy.fft import rfft ; return rfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_rfft_byte=[NDArray[numpy.byte,:]])
 
 
-@TestEnv.module
 class TestNumpyFFTN(TestEnv):
 
     # Basic test
@@ -175,7 +173,6 @@ class TestNumpyFFTN(TestEnv):
         self.run_test("def test_fftn_22(x): from numpy.fft import fftn ; return fftn(x, (10,), axes=(2,))",
                       numpy.arange(0, 24.).reshape(2, 4, 3) + 1.j, test_fftn_22=[NDArray[complex,:,:, :]])
 
-@TestEnv.module
 class TestNumpyIRFFT(TestEnv):
     ############# IRFFT
     # Basic test
@@ -245,7 +242,6 @@ def test_irfft_12(x):
     def test_irfft_byte(self):
         self.run_test("def test_irfft_byte(x): from numpy.fft import irfft ; return irfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_irfft_byte=[NDArray[numpy.byte,:]])
 
-@TestEnv.module
 class TestNumpyIHFFT(TestEnv):
 
     # Basic test
@@ -311,7 +307,6 @@ def test_ihfft_12(x):
         self.run_test("def test_ihfft_byte(x): from numpy.fft import ihfft ; return ihfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_ihfft_byte=[NDArray[numpy.byte,:]])
 
 
-@TestEnv.module
 class TestNumpyHFFT(TestEnv):
     ############# hfft
     # Basic test
@@ -383,7 +378,6 @@ def test_hfft_12(x):
     def test_hfft_byte(self):
         self.run_test("def test_hfft_byte(x): from numpy.fft import hfft ; return hfft(x)", (100*numpy.random.random(128)).astype(numpy.byte), test_hfft_byte=[NDArray[numpy.byte,:]])
 
-@TestEnv.module
 class TestNumpyFFT(TestEnv):
     # complex inputs
     def test_fft_1d_1(self):
@@ -575,7 +569,6 @@ class TestNumpyFFT(TestEnv):
             return np.concatenate(out)
         """, (numpy.random.randn(512)).reshape((4,128)).astype(numpy.int64), test_fft_int64_parallel=[NDArray[numpy.int64, :, :]])
 
-@TestEnv.module
 class TestNumpyIFFT(TestEnv):
     # complex inputs
     def test_ifft_1d_1(self):

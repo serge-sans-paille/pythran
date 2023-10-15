@@ -9,7 +9,6 @@ from pythran.typing import NDArray, List, Tuple
 np_version = version.parse(numpy.version.version)
 
 
-@TestEnv.module
 class TestNumpyFunc2(TestEnv):
 
     def test_nonzero0(self):

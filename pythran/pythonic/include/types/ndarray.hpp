@@ -677,6 +677,10 @@ namespace types
     ndarray<T, pshape<long>> flat() const;
     ndarray<T, pS> copy() const;
     intptr_t id() const;
+    intptr_t baseid() const
+    {
+      return id();
+    }
     template <size_t I>
     auto shape() const -> decltype(std::get<I>(_shape))
     {

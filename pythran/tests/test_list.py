@@ -25,6 +25,9 @@ class TestList(TestEnv):
     def test_index_tuple(self):
         self.run_test("def index_tuple(a):\n b=[1,2,3,8,7,4]\n return tuple(b).index(a)", 1, index_tuple=[int])
 
+    def test_clear_(self):
+        self.run_test("def clear_():\n b=[1,3,4,5,6,7]\n b.clear()\n return b", clear_=[])
+        
     def test_pop_(self):
         self.run_test("def pop_(a):\n b=[1,3,4,5,6,7]\n return b.pop(a)", 2, pop_=[int])
 

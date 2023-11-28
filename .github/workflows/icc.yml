@@ -36,7 +36,7 @@ jobs:
     - name: Setup
       run: |
         python setup.py install
-        printf '[commpiler]\nblas=openblas\n' > ~/.pythranrc
+        printf '[compiler]\nblas=openblas\n' > ~/.pythranrc
     - name: Testing minimal CLI
       run: |
         pythran --version
@@ -46,6 +46,5 @@ jobs:
       run: |
         export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/icx/'`
         export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/icx/'`
-        LATEST_VERSION=$(ls -1 /opt/intel/oneapi/compiler/ | grep -v latest | sort | tail -1)
-        source /opt/intel/oneapi/compiler/"$LATEST_VERSION"/env/vars.sh
+        source /opt/intel/oneapi/setvars.sh
         pytest pythran/tests/test_base.py pythran/tests/test_scipy.py pythran/tests/test_icc.py -v -x --numprocesses=auto $PYTEST_ARGS

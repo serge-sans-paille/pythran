@@ -1,3 +1,4 @@
+import pythran
 from pythran.tests import TestEnv
 
 import numpy
@@ -123,6 +124,16 @@ class TestNormalizeMethods(TestEnv):
         self.run_test("def dispatch_update(s, d): set.update(s, s); dict.update(d,d); s.update(s); d.update(d); return s, d",
                       {1}, {1:1},
                       dispatch_update=[Set[int], Dict[int,int]])
+
+    def test_invalid_method_call(self):
+        code = '''
+def np_asarray7(sRate=44100):
+    import numpy as np
+    x = np.expand_dims(np.ones(sRate),-1)
+    x = np.maximum(np.minimum(x,.5),-.5).asarray()  # asarray is not a method
+    return x'''
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+                self.run_test(code, 30, np_asarray7=[int])
 
     def test_capture_bound_method(self):
         code = '''

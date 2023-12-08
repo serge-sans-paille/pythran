@@ -715,6 +715,25 @@ def newaxis8(n):
                       30,
                       gexpr_composition22=[int])
 
+    def test_gexpr_vexpr0(self):
+        self.run_test("def gexpr_vexpr0(x, y): x[1:3] = x[y]",
+                      numpy.arange(10), numpy.array([0, 1]),
+                      gexpr_vexpr0=[NDArray[int,:], NDArray[int, :]])
+
+    def test_gexpr_vexpr1(self):
+        self.run_test("def gexpr_vexpr1(x, y): x[1:3] = y[y]",
+                      numpy.arange(10), numpy.array([0, 1]),
+                      gexpr_vexpr1=[NDArray[int,:], NDArray[int, :]])
+
+    def test_gexpr_baseid0(self):
+        self.run_test("def gexpr_baseid0(x, y): x[1:3] = y[0]",
+                      numpy.arange(10), numpy.array([[0, 1]]),
+                      gexpr_baseid0=[NDArray[int,:], NDArray[int, :, :]])
+
+    def test_gexpr_baseid1(self):
+        self.run_test("def gexpr_baseid1(x, y): x[:] = y.T",
+                      numpy.arange(4).reshape(2,2), numpy.array([[0, 1], [2, 3]]),
+                      gexpr_baseid1=[NDArray[int,:,:], NDArray[int, :, :]])
 
     def test_gexpr_copy0(self):
         self.run_test("def gexpr_copy0(a,b): a[:,0] = b[:,0]; return a",

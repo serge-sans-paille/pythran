@@ -89,6 +89,12 @@ namespace types
     return false;
   }
 
+  template <class E0, class E1, class E2>
+  bool may_overlap(E0 const &e0, types::numpy_vexpr<E1, E2> const &e1)
+  {
+    return may_overlap(e0, e1.data_);
+  }
+
   template <class E0, class Op, class... Args, size_t... Is>
   bool may_overlap(E0 const &e0, types::numpy_expr<Op, Args...> const &e1,
                    utils::index_sequence<Is...>)

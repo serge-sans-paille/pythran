@@ -2,6 +2,8 @@ include AUTHORS
 include Changelog
 include LICENSE
 include README.rst
-include requirements.txt
 include docs/*
-recursive-include third_party *
+include pythran/*.cfg
+recursive-include pythran/pythonic *
+recursive-include pythran/boost *
+recursive-include pythran/xsimd *

@@ -23,13 +23,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r pythran/tests/requirements.txt scipy
+        pip install scipy
         pip install pytest-xdist
         sudo apt install libopenblas-dev ${{ matrix.cpp-version }}
     - name: Setup
       run: |
-        python setup.py install
+        python -m pip install .
+        python -m pip install . 'pythran[test]'
         printf '[commpiler]\nblas=openblas\n' > ~/.pythranrc
     - name: Testing documentation
       run: |

@@ -1,0 +1,48 @@
+[project]
+name = "pythran"
+authors = [{name="Serge Guelton", email="serge.guelton@telecom-bretagne.eu"}]
+license = {file = "LICENSE"}
+description = "Ahead of Time compiler for numeric kernels"
+requires-python = ">=3.7"
+classifiers=[
+  'Development Status :: 4 - Beta',
+  'Environment :: Console',
+  'Intended Audience :: Developers',
+  'License :: OSI Approved :: BSD License',
+  'Natural Language :: English',
+  'Operating System :: POSIX :: Linux',
+  'Operating System :: MacOS',
+  'Programming Language :: Python :: 3',
+  'Programming Language :: Python :: Implementation :: CPython',
+  'Programming Language :: C++',
+  'Topic :: Software Development :: Compilers',
+  'Topic :: Software Development :: Code Generators'
+]
+dynamic = ["version", "readme", "dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/serge-sans-paille/pythran"
+Documentation = "https://pythran.readthedocs.io"
+Changelog = "https://pythran.readthedocs.io/en/latest/Changelog.html"
+
+[project.optional-dependencies]
+doc = ["numpy", "nbsphinx", "scipy", "guzzle_sphinx_theme"]
+test = ["ipython", "nbval", "cython", "wheel"]
+
+[project.scripts]
+pythran = "pythran.run:run"
+pythran-config = "pythran.config:run"
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools"]
+
+[tool.setuptools]
+packages = ['pythran', 'pythran.analyses', 'pythran.transformations',
+            'pythran.optimizations', 'omp', 'pythran.types']
+
+[tool.setuptools.dynamic]
+version = {attr = "pythran.version.__version__"}
+description = {file = "pythran.version.__descr__"}
+readme = {file = ["README.rst"]}
+dependencies = {file = ["requirements.txt"]}

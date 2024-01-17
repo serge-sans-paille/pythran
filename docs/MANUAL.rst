@@ -552,6 +552,9 @@ environment variable ``PYTHRANRC``::
 
     PYTHRANRC=/opt/company/pythran/config.pythranrc pythran arc_distance.py
 
+When ``PYTHRANRC`` is set to the empty string, no user-site configuration is
+loaded. This can be helpful for reproducible builds.
+
 All the options in the ``.pythranrc`` file can be specified when running pythran by using the command line argument --config= .
 For example::
 

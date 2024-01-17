@@ -56,17 +56,22 @@ def get_paths_cfg(
                                             "pythran-default.cfg")
 
     user_config_path = os.environ.get('PYTHRANRC', None)
-    if not user_config_path:
+    if user_config_path is None:
         user_config_dir = os.environ.get('XDG_CONFIG_HOME', None)
         if not user_config_dir:
             user_config_dir = os.environ.get('HOME', None)
         if not user_config_dir:
             user_config_dir = '~'
-        user_config_path = os.path.expanduser(
-            os.path.join(user_config_dir, user_file))
-    return {"sys": sys_config_path,
-            "platform": platform_config_path,
-            "user": user_config_path}
+        user_config_path = os.path.expanduser(os.path.join(user_config_dir,
+                                                           user_file))
+
+    paths = {"sys": sys_config_path,
+             "platform": platform_config_path}
+
+    if user_config_path:
+        paths["user"] = user_config_path
+
+    return paths
 
 
 def init_cfg(sys_file, platform_file, user_file, config_args=None):
@@ -74,12 +79,14 @@ def init_cfg(sys_file, platform_file, user_file, config_args=None):
 
     sys_config_path = paths["sys"]
     platform_config_path = paths["platform"]
-    user_config_path = paths["user"]
+    user_config_path = paths.get("user")
 
     cfgp = ConfigParser()
     for required in (sys_config_path, platform_config_path):
         cfgp.read([required])
-    cfgp.read([user_config_path])
+
+    if user_config_path:
+        cfgp.read([user_config_path])
 
     if config_args is not None:
         update_cfg(cfgp, config_args)

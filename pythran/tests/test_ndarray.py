@@ -54,6 +54,11 @@ class TestNdarray(TestEnv):
                       numpy.uintp(5),
                       ndarray_uintp=[numpy.uintp])
 
+    def test_ndarray_bool(self):
+        self.run_test('def ndarray_bool(b): import numpy as np; return np.bool_(b), np.array([b], dtype=np.bool_)',
+                      numpy.bool_(5),
+                      ndarray_bool=[bool])
+
     def test_ndarray_real_attr_read(self):
         self.run_test('def ndarray_real_attr_read(a): return a.real + 1',
                       numpy.arange(100, dtype=numpy.complex128).reshape((10, 10)),

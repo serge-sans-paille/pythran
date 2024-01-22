@@ -3401,6 +3401,7 @@ MODULES = {
             REDUCED_BINARY_UFUNC,
             signature=_numpy_int_binary_op_signature
         ),
+        "bool_": ConstFunctionIntr(signature=_int_signature),
         "broadcast_to": ConstFunctionIntr(),
         "byte": ConstFunctionIntr(signature=_int_signature),
         "cbrt": ConstFunctionIntr(

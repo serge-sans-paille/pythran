@@ -3,13 +3,14 @@
 
 #include "pythonic/include/numpy/setdiff1d.hpp"
 
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/ndarray.hpp"
 #include "pythonic/numpy/asarray.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/allocate.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/pdqsort.hpp"
 
-#include <set>
 #include <algorithm>
+#include <set>
 
 PYTHONIC_NS_BEGIN
 
@@ -64,29 +65,24 @@ namespace numpy
                                       typename types::dtype_of<U>::type>::type;
     auto far1 = numpy::functor::array{}(ar1);
     auto far2 = numpy::functor::array{}(ar2);
+
+    pdqsort(far1.fbegin(), far1.fend());
+    pdqsort(far2.fbegin(), far2.fend());
+    dtype *out = utils::allocate<dtype>(far1.flat_size() * far2.flat_size());
+
+    dtype *out_last;
     if (assume_unique) {
-      pdqsort(far1.fbegin(), far1.fend());
-      pdqsort(far2.fbegin(), far2.fend());
-      dtype *out =
-          (dtype *)malloc(far1.flat_size() * far2.flat_size() * sizeof(dtype));
-      dtype *out_last = std::set_difference(far1.fbegin(), far1.fend(),
-                                            far2.fbegin(), far2.fend(), out);
-      auto size = out_last - out;
-      out = (dtype *)realloc(out, size * sizeof(dtype));
-      return {out, types::pshape<long>(size), types::ownership::owned};
+      out_last = std::set_difference(far1.fbegin(), far1.fend(), far2.fbegin(),
+                                     far2.fend(), out);
     } else {
-      pdqsort(far1.fbegin(), far1.fend());
-      pdqsort(far2.fbegin(), far2.fend());
-      dtype *out =
-          (dtype *)malloc(far1.flat_size() * far2.flat_size() * sizeof(dtype));
-      dtype *out_last = impl::set_difference_unique(
-          far1.fbegin(), far1.fend(), far2.fbegin(), far2.fend(), out);
-      auto size = out_last - out;
-      out = (dtype *)realloc(out, size * sizeof(dtype));
-      return {out, types::pshape<long>(size), types::ownership::owned};
+      out_last = impl::set_difference_unique(far1.fbegin(), far1.fend(),
+                                             far2.fbegin(), far2.fend(), out);
     }
+    auto size = out_last - out;
+    out = utils::reallocate(out, size);
+    return {out, types::pshape<long>(size), types::ownership::owned};
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

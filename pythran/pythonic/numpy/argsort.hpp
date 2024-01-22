@@ -3,9 +3,10 @@
 
 #include "pythonic/include/numpy/argsort.hpp"
 
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/pdqsort.hpp"
-#include "pythonic/types/ndarray.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -50,13 +51,13 @@ namespace numpy
       const long stepper = step / out_shape[axis];
       const long n = flat_size / out_shape[axis];
       long ith = 0, nth = 0;
-      std::unique_ptr<long[]> buffer{new long[buffer_size]};
-      long *buffer_start = buffer.get(),
-           *buffer_end = buffer.get() + buffer_size;
+
+      long *buffer = utils::allocate<long>(buffer_size);
+      long *buffer_start = buffer, *buffer_end = buffer + buffer_size;
       std::iota(buffer_start, buffer_end, 0L);
       for (long i = 0; i < n; i++) {
         auto a_base = a.fbegin() + ith;
-        pdqsort(buffer.get(), buffer.get() + buffer_size,
+        pdqsort(buffer, buffer + buffer_size,
                 [a_base, stepper](long i1, long i2) {
                   return a_base[i1 * stepper] < a_base[i2 * stepper];
                 });
@@ -69,12 +70,13 @@ namespace numpy
           ith = ++nth;
         }
       }
+      utils::deallocate(buffer);
     }
     return indices;
   }
 
   NUMPY_EXPR_TO_NDARRAY0_IMPL(argsort);
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

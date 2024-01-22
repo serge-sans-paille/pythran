@@ -1,8 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_ITERTOOLS_PERMUTATIONS_HPP
 #define PYTHONIC_INCLUDE_ITERTOOLS_PERMUTATIONS_HPP
 
-#include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/types/dynamic_tuple.hpp"
+#include "pythonic/include/utils/functor.hpp"
+
+#include "pythonic/utils/allocate.hpp"
 
 #include <iterator>
 #include <vector>
@@ -31,21 +33,23 @@ namespace itertools
   struct permutations_iterator : std::iterator<std::forward_iterator_tag, H,
                                                ptrdiff_t, H *, H /* no ref*/
                                                > {
+
     // Vector of inputs, contains elements to permute
-    std::vector<typename T::value_type> pool;
+    using pool_type = std::vector<typename T::value_type,
+                                  utils::allocator<typename T::value_type>>;
+    pool_type pool;
 
     // The current permutation as a dynamic_tuple of index in the pool
     // Internally it always has the same size as the pool, even if the
     // external view is limited
-    std::vector<long> curr_permut;
+    std::vector<long, utils::allocator<long>> curr_permut;
 
     // Size of the "visible" permutation
     size_t _size;
     bool end; // sentinel marker
 
     permutations_iterator();
-    permutations_iterator(std::vector<typename T::value_type> const &iter,
-                          size_t num_elts, bool end);
+    permutations_iterator(pool_type const &iter, size_t num_elts, bool end);
 
     /** Build the permutation visible from the "outside" */
     H operator*() const;
@@ -88,7 +92,7 @@ namespace itertools
   permutations(T0 iter, std::integral_constant<long, N0>);
 
   DEFINE_FUNCTOR(pythonic::itertools, permutations);
-}
+} // namespace itertools
 PYTHONIC_NS_END
 
 /* type inference stuff  {*/

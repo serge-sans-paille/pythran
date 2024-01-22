@@ -21,6 +21,7 @@
  * @return index
  */
 #include "pythonic/numpy/isnan.hpp"
+#include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/functor.hpp"
 
 #define LIKELY_IN_CACHE_SIZE 8
@@ -104,7 +105,7 @@ static npy_intp binary_search_with_guess(const npy_double key, const T &arr,
   return imin - 1;
 }
 //
-//#undef LIKELY_IN_CACHE_SIZE
+// #undef LIKELY_IN_CACHE_SIZE
 //
 // NPY_NO_EXPORT PyObject *
 // arr_interp(PyObject *NPY_UNUSED(self), PyObject *args, PyObject *kwdict)
@@ -196,7 +197,7 @@ void do_interp(const T1 &dz, const T2 &dx, const T3 &dy, T4 &dres,
 {
   npy_intp i;
   out_type<T3> *slopes = NULL;
-  std::vector<out_type<T3>> slope_vect;
+  std::vector<out_type<T3>, utils::allocator<out_type<T3>>> slope_vect;
   /* binary_search_with_guess needs at least a 3 item long array */
   if (lenxp == 1) {
     const double xp_val = dx[0];

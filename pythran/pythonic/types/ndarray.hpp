@@ -9,6 +9,7 @@
 
 #include "pythonic/builtins/ValueError.hpp"
 
+#include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/broadcast_copy.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/nested_container.hpp"
@@ -734,26 +735,27 @@ namespace types
   /* extended slice indexing */
   template <class T, class pS>
   template <class S0, class... S>
-  auto
-  ndarray<T, pS>::operator()(S0 const &s0, S const &...s) const & -> decltype(
-      extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...))
+  auto ndarray<T, pS>::operator()(S0 const &s0, S const &...s) const
+      & -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}((*this),
+                                                                      s0, s...))
   {
     return extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...);
   }
 
   template <class T, class pS>
   template <class S0, class... S>
-  auto ndarray<T, pS>::operator()(S0 const &s0, S const &...s) & -> decltype(
-      extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...))
+  auto ndarray<T, pS>::operator()(S0 const &s0, S const &...s)
+      & -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}((*this),
+                                                                      s0, s...))
   {
     return extended_slice<count_new_axis<S0, S...>::value>{}((*this), s0, s...);
   }
 
   template <class T, class pS>
   template <class S0, class... S>
-  auto ndarray<T, pS>::operator()(S0 const &s0, S const &...s) && -> decltype(
-      extended_slice<count_new_axis<S0, S...>::value>{}(std::move(*this), s0,
-                                                        s...))
+  auto ndarray<T, pS>::operator()(S0 const &s0, S const &...s)
+      && -> decltype(extended_slice<count_new_axis<S0, S...>::value>{}(
+          std::move(*this), s0, s...))
   {
     return extended_slice<count_new_axis<S0, S...>::value>{}(std::move(*this),
                                                              s0, s...);
@@ -770,12 +772,12 @@ namespace types
   ndarray<T, pS>::fast(F const &filter) const
   {
     long sz = filter.template shape<0>();
-    long *raw = (long *)malloc(sz * sizeof(long));
+    long *raw = utils::allocate<long>(sz);
     long n = 0;
     for (long i = 0; i < sz; ++i)
       if (filter.fast(i))
         raw[n++] = i;
-    // realloc(raw, n * sizeof(long));
+    // reallocate(raw, n);
     return this->fast(ndarray<long, pshape<long>>(raw, pshape<long>(n),
                                                   types::ownership::owned));
   }
@@ -1142,9 +1144,8 @@ namespace builtins
     _make_imag(E const &a, utils::int_<0>)
     {
       // cannot use numpy.zero: forward declaration issue
-      return {
-          (typename E::dtype *)calloc(a.flat_size(), sizeof(typename E::dtype)),
-          sutils::getshape(a), types::ownership::owned};
+      return {utils::callocate<typename E::dtype>(a.flat_size()),
+              sutils::getshape(a), types::ownership::owned};
     }
 
     template <class Op, class... Args>
@@ -1261,8 +1262,9 @@ namespace builtins
   }
 
   template <class E>
-  auto getattr(types::attr::REAL, types::numpy_texpr<E> const &a) -> decltype(
-      types::numpy_texpr<decltype(getattr(types::attr::REAL{}, a.arg))>{
+  auto getattr(types::attr::REAL, types::numpy_texpr<E> const &a)
+      -> decltype(types::numpy_texpr<decltype(getattr(types::attr::REAL{},
+                                                      a.arg))>{
           getattr(types::attr::REAL{}, a.arg)})
   {
     auto ta = getattr(types::attr::REAL{}, a.arg);
@@ -1289,8 +1291,9 @@ namespace builtins
   }
 
   template <class E>
-  auto getattr(types::attr::IMAG, types::numpy_texpr<E> const &a) -> decltype(
-      types::numpy_texpr<decltype(getattr(types::attr::IMAG{}, a.arg))>{
+  auto getattr(types::attr::IMAG, types::numpy_texpr<E> const &a)
+      -> decltype(types::numpy_texpr<decltype(getattr(types::attr::IMAG{},
+                                                      a.arg))>{
           getattr(types::attr::IMAG{}, a.arg)})
   {
     auto ta = getattr(types::attr::IMAG{}, a.arg);

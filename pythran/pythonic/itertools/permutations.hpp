@@ -1,10 +1,10 @@
 #ifndef PYTHONIC_ITERTOOLS_PERMUTATIONS_HPP
 #define PYTHONIC_ITERTOOLS_PERMUTATIONS_HPP
 
-#include "pythonic/include/itertools/permutations.hpp"
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/dynamic_tuple.hpp"
 #include "pythonic/builtins/range.hpp"
+#include "pythonic/include/itertools/permutations.hpp"
+#include "pythonic/types/dynamic_tuple.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include <algorithm>
 
@@ -19,9 +19,8 @@ namespace itertools
   }
 
   template <class T, class H>
-  permutations_iterator<T, H>::permutations_iterator(
-      std::vector<typename T::value_type> const &iter, size_t num_elts,
-      bool end)
+  permutations_iterator<T, H>::permutations_iterator(pool_type const &iter,
+                                                     size_t num_elts, bool end)
       : pool(iter), curr_permut(pool.size()), _size(num_elts), end(end)
   {
     std::iota(curr_permut.begin(), curr_permut.end(), 0);
@@ -93,15 +92,15 @@ namespace itertools
   }
 
   template <class T, class H>
-  bool permutations_iterator<T, H>::
-  operator!=(permutations_iterator<T, H> const &other) const
+  bool permutations_iterator<T, H>::operator!=(
+      permutations_iterator<T, H> const &other) const
   {
     return !(*this == other);
   }
 
   template <class T, class H>
-  bool permutations_iterator<T, H>::
-  operator==(permutations_iterator<T, H> const &other) const
+  bool permutations_iterator<T, H>::operator==(
+      permutations_iterator<T, H> const &other) const
   {
     if (other.end != end)
       return false;
@@ -110,8 +109,8 @@ namespace itertools
   }
 
   template <class T, class H>
-  bool permutations_iterator<T, H>::
-  operator<(permutations_iterator<T, H> const &other) const
+  bool permutations_iterator<T, H>::operator<(
+      permutations_iterator<T, H> const &other) const
   {
     if (end != other.end)
       return end > other.end;
@@ -130,8 +129,7 @@ namespace itertools
 
   template <class T, class H>
   _permutations<T, H>::_permutations(T iter, long elts)
-      : iterator(std::vector<typename T::value_type>(iter.begin(), iter.end()),
-                 elts, true)
+      : iterator({iter.begin(), iter.end()}, elts, true)
   {
   }
 
@@ -174,7 +172,7 @@ namespace itertools
   {
     return {iter, N};
   }
-}
+} // namespace itertools
 PYTHONIC_NS_END
 
 #endif

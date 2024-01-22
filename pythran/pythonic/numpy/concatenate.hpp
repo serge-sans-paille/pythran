@@ -6,6 +6,7 @@
 #include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/builtins/sum.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -28,13 +29,18 @@ namespace numpy
             out_iter = std::copy(ifrom.begin(), ifrom.end(), out_iter);
         } else {
           using iterator_on_from_value = typename A::value_type::const_iterator;
-          std::vector<iterator_on_from_value> ifroms;
+          std::vector<iterator_on_from_value,
+                      utils::allocator<iterator_on_from_value>>
+              ifroms;
           for (auto &ifrom : from)
             ifroms.emplace_back(ifrom.begin());
 
-          std::vector<
-              typename std::iterator_traits<iterator_on_from_value>::value_type>
+          using iterator_value_type =
+              typename std::iterator_traits<iterator_on_from_value>::value_type;
+          std::vector<iterator_value_type,
+                      utils::allocator<iterator_value_type>>
               difroms;
+
           for (auto &&iout : out) {
             difroms.clear();
             for (auto &ifrom : ifroms)

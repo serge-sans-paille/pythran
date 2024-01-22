@@ -3,12 +3,13 @@
 
 #include "pythonic/include/numpy/unique.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/allocate.hpp"
+#include "pythonic/utils/functor.hpp"
 
-#include <set>
 #include <map>
+#include <set>
 
 PYTHONIC_NS_BEGIN
 
@@ -154,12 +155,13 @@ namespace numpy
         _unique8((*begin).begin(), (*begin).end(), out3, i,
                  utils::int_<N - 1>());
     }
-  }
+  } // namespace
 
   template <class E>
   types::ndarray<typename E::dtype, types::pshape<long>> unique(E const &expr)
   {
-    std::set<typename E::dtype> res;
+    using dtype = typename E::dtype;
+    std::set<dtype, std::less<dtype>, utils::allocator<dtype>> res;
     _unique1(expr.begin(), expr.end(), res, utils::int_<E::value>());
     return {res};
   }
@@ -169,13 +171,14 @@ namespace numpy
              types::ndarray<long, types::pshape<long>>>
   unique(E const &expr, types::true_immediate return_index)
   {
-    std::set<typename E::dtype> res;
-    std::vector<long> return_index_res;
+    using dtype = typename E::dtype;
+    std::set<dtype, std::less<dtype>, utils::allocator<dtype>> res;
+    std::vector<long, utils::allocator<long>> return_index_res;
     long i = 0;
     _unique2(expr.begin(), expr.end(), res, return_index_res, i,
              utils::int_<E::value>());
     return std::make_tuple(
-        types::ndarray<typename E::dtype, types::pshape<long>>(res),
+        types::ndarray<dtype, types::pshape<long>>(res),
         types::ndarray<long, types::pshape<long>>(return_index_res));
   }
 
@@ -183,7 +186,8 @@ namespace numpy
   types::ndarray<typename E::dtype, types::pshape<long>>
   unique(E const &expr, types::false_immediate return_index)
   {
-    std::set<typename E::dtype> res;
+    using dtype = typename E::dtype;
+    std::set<dtype, std::less<dtype>, utils::allocator<dtype>> res;
     _unique1(expr.begin(), expr.end(), res, utils::int_<E::value>());
     return {res};
   }
@@ -194,15 +198,15 @@ namespace numpy
   unique(E const &expr, types::false_immediate return_index,
          types::true_immediate return_inverse)
   {
-    std::set<typename E::dtype> res;
+    using dtype = typename E::dtype;
+    std::set<dtype, std::less<dtype>, utils::allocator<dtype>> res;
     types::ndarray<long, types::pshape<long>> return_inverse_res(
         types::pshape<long>{expr.flat_size()}, builtins::None);
     long i = 0;
     _unique5(expr.begin(), expr.end(), res, return_inverse_res, i,
              utils::int_<E::value>());
-    return std::make_tuple(
-        types::ndarray<typename E::dtype, types::pshape<long>>(res),
-        return_inverse_res);
+    return std::make_tuple(types::ndarray<dtype, types::pshape<long>>(res),
+                           return_inverse_res);
   }
 
   template <class E>
@@ -210,7 +214,8 @@ namespace numpy
   unique(E const &expr, types::false_immediate return_index,
          types::false_immediate return_inverse)
   {
-    std::set<typename E::dtype> res;
+    using dtype = typename E::dtype;
+    std::set<dtype, std::less<dtype>, utils::allocator<dtype>> res;
     _unique1(expr.begin(), expr.end(), res, utils::int_<E::value>());
     return {res};
   }
@@ -233,15 +238,16 @@ namespace numpy
   {
     assert(return_inverse && "invalid signature otherwise");
 
-    std::set<typename E::dtype> res;
-    std::vector<long> return_index_res;
+    using dtype = typename E::dtype;
+    std::set<dtype, std::less<dtype>, utils::allocator<dtype>> res;
+    std::vector<long, utils::allocator<long>> return_index_res;
     types::ndarray<long, types::pshape<long>> return_inverse_res(
         types::pshape<long>{expr.flat_size()}, builtins::None);
     long i = 0;
     _unique3(expr.begin(), expr.end(), res, return_index_res,
              return_inverse_res, i, utils::int_<E::value>());
     return std::make_tuple(
-        types::ndarray<typename E::dtype, types::pshape<long>>(res),
+        types::ndarray<dtype, types::pshape<long>>(res),
         types::ndarray<long, types::pshape<long>>(return_index_res),
         return_inverse_res);
   }
@@ -257,7 +263,7 @@ namespace numpy
   {
     assert(return_counts && "invalid signature otherwise");
 
-    std::vector<long> return_index_res;
+    std::vector<long, utils::allocator<long>> return_index_res;
     types::ndarray<long, types::pshape<long>> return_inverse_res(
         types::pshape<long>{expr.flat_size()}, builtins::None);
 
@@ -318,7 +324,7 @@ namespace numpy
          types::false_immediate return_inverse,
          types::true_immediate return_counts)
   {
-    std::vector<long> return_index_res;
+    std::vector<long, utils::allocator<long>> return_index_res;
 
     std::map<typename E::dtype, long> return_counts_map;
     {
@@ -435,7 +441,7 @@ namespace numpy
 
     return std::make_tuple(unique_array, return_counts_array);
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

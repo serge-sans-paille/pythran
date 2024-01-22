@@ -4,8 +4,7 @@
 #include "pythonic/include/numpy/binary_repr.hpp"
 
 #include "pythonic/numpy/base_repr.hpp"
-
-#include <memory>
+#include "pythonic/utils/allocate.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -18,7 +17,6 @@ namespace numpy
     inline char *int2bin(long a, char *buffer, int buf_size)
     {
       buffer += (buf_size - 1);
-      buffer[1] = 0;
       for (int i = 0; i < buf_size; ++i) {
         *buffer-- = (a & 1) + '0';
         a >>= 1;
@@ -38,9 +36,9 @@ namespace numpy
     if (number >= 0)
       return base_repr(number, 2, width - out.size());
     else {
-      std::unique_ptr<char[]> mem{new char[width + 1]};
-      details::int2bin(number, mem.get(), width);
-      auto res = types::str(mem.get());
+      char *mem = utils::allocate<char>(width);
+      details::int2bin(number, mem, width);
+      auto res = types::str(mem, width);
       return res;
     }
   }

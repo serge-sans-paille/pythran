@@ -3,9 +3,9 @@
 
 #include "pythonic/include/random/choice.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
 #include "pythonic/types/traits.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -32,18 +32,18 @@ namespace random
                             typename Seq::value_type>::type
     choice(Seq const &seq)
     {
-      std::vector<typename std::decay<typename Seq::value_type>::type> tmp(
-          seq.begin(), seq.end());
+      using dtype = typename std::decay<typename Seq::value_type>::type;
+      std::vector<dtype, utils::allocator<dtype>> tmp(seq.begin(), seq.end());
       return tmp[long(random() * tmp.size())];
     }
-  }
+  } // namespace details
 
   template <class Seq>
   typename Seq::value_type choice(Seq const &seq)
   {
     return details::choice(seq);
   }
-}
+} // namespace random
 PYTHONIC_NS_END
 
 #endif

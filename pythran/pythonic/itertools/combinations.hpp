@@ -23,20 +23,18 @@ namespace itertools
       assert(r >= 0 && "r must be non-negative");
       if (!stopped) {
         std::iota(indices.begin(), indices.end(), 0);
-        result = std::vector<typename T::value_type>(this->pool.begin(),
-                                                     this->pool.begin() + r);
+        result.insert(result.end(), this->pool.begin(), this->pool.begin() + r);
       }
     }
 
     template <class T>
-    combination_iterator<T>::combination_iterator(bool)
-        : stopped(true)
+    combination_iterator<T>::combination_iterator(bool) : stopped(true)
     {
     }
 
     template <class T>
-    types::dynamic_tuple<typename T::value_type> combination_iterator<T>::
-    operator*() const
+    types::dynamic_tuple<typename T::value_type>
+    combination_iterator<T>::operator*() const
     {
       assert(!stopped && "! stopped");
       return {result.begin(), result.end()};
@@ -74,24 +72,24 @@ namespace itertools
     }
 
     template <class T>
-    bool combination_iterator<T>::
-    operator!=(combination_iterator const &other) const
+    bool
+    combination_iterator<T>::operator!=(combination_iterator const &other) const
     {
       assert(stopped || other.stopped);
       return !(*this == other);
     }
 
     template <class T>
-    bool combination_iterator<T>::
-    operator==(combination_iterator const &other) const
+    bool
+    combination_iterator<T>::operator==(combination_iterator const &other) const
     {
       assert(stopped || other.stopped);
       return other.stopped == stopped;
     }
 
     template <class T>
-    bool combination_iterator<T>::
-    operator<(combination_iterator const &other) const
+    bool
+    combination_iterator<T>::operator<(combination_iterator const &other) const
     {
       return stopped != other.stopped;
     }
@@ -120,7 +118,7 @@ namespace itertools
     {
       return {true};
     }
-  }
+  } // namespace details
 
   template <typename T0>
   details::combination<
@@ -129,7 +127,7 @@ namespace itertools
   {
     return {std::forward<T0>(iter), num_elts};
   }
-}
+} // namespace itertools
 PYTHONIC_NS_END
 
 #endif

@@ -3,10 +3,10 @@
 
 #include "pythonic/include/numpy/intersect1d.hpp"
 
-#include "pythonic/utils/functor.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/combined.hpp"
 #include "pythonic/numpy/asarray.hpp"
+#include "pythonic/types/combined.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/pdqsort.hpp"
 
 #include <algorithm>
@@ -25,8 +25,8 @@ namespace numpy
     using T = typename __combined<typename E::dtype, typename F::dtype>::type;
     auto ae = asarray(e);
     auto af = asarray(f);
-    std::set<T> sae(ae.fbegin(), ae.fend());
-    std::set<T> found;
+    std::set<T, std::less<T>, utils::allocator<T>> sae(ae.fbegin(), ae.fend());
+    std::set<T, std::less<T>, utils::allocator<T>> found;
     types::list<T> lout(0);
     lout.reserve(sae.size());
     for (auto iter = af.fbegin(), end = af.fend(); iter != end; ++iter) {
@@ -39,7 +39,7 @@ namespace numpy
     pdqsort(lout.begin(), lout.end());
     return {lout};
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

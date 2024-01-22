@@ -4,9 +4,8 @@
 #include "pythonic/include/builtins/str/replace.hpp"
 
 #include "pythonic/types/str.hpp"
+#include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/functor.hpp"
-
-#include <memory>
 
 PYTHONIC_NS_BEGIN
 
@@ -31,23 +30,24 @@ namespace builtins
         size_t n =
             1 + std::max(self.size(), self.size() * (1 + new_pattern.size()) /
                                           (1 + old_pattern.size()));
-        std::unique_ptr<char[]> buffer{new char[n]};
-        char *iter = buffer.get();
+
+        char *buffer = utils::allocate<char>(n);
+        char *iter = buffer;
         do {
           iter = std::copy(haystack, haystack_next, iter);
           iter = std::copy(new_needle, new_needle_end, iter);
           --count;
           haystack = haystack_next + old_pattern.size();
-          assert(size_t(iter - buffer.get()) < n);
+          assert(size_t(iter - buffer) < n);
         } while (count && (haystack_next = strstr(haystack, needle)));
 
-        std::copy(haystack, self.c_str() + self.size() + 1, iter);
-
-        types::str replaced(buffer.get());
+        iter = std::copy(haystack, self.c_str() + self.size(), iter);
+        types::str replaced(buffer, iter - buffer);
+        utils::deallocate(buffer);
         return replaced;
       }
     }
-  }
-}
+  } // namespace str
+} // namespace builtins
 PYTHONIC_NS_END
 #endif

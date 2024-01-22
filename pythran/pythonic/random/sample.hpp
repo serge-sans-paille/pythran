@@ -3,8 +3,9 @@
 
 #include "pythonic/include/random/sample.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/random/random.hpp"
+#include "pythonic/utils/allocate.hpp"
+#include "pythonic/utils/functor.hpp"
 
 #include "pythonic/types/list.hpp"
 
@@ -22,7 +23,7 @@ namespace random
         typename std::remove_reference<Iterable>::type>::type::iterator>::
         value_type;
     types::list<value_type> tmp(s.begin(), s.end());
-    std::vector<size_t> indices(tmp.size());
+    std::vector<size_t, utils::allocator<size_t>> indices(tmp.size());
     std::iota(indices.begin(), indices.end(), 0);
     std::random_shuffle(indices.begin(), indices.end());
     types::list<value_type> out(k);
@@ -30,7 +31,7 @@ namespace random
       out[i] = tmp[indices[i]];
     return out;
   }
-}
+} // namespace random
 PYTHONIC_NS_END
 
 #endif

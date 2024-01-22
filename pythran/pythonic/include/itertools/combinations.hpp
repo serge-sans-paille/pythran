@@ -2,10 +2,11 @@
 #define PYTHONIC_INCLUDE_ITERTOOLS_COMBINATIONS_HPP
 
 #include "pythonic/include/types/dynamic_tuple.hpp"
+#include "pythonic/include/utils/allocate.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <vector>
 #include <iterator>
+#include <vector>
 
 PYTHONIC_NS_BEGIN
 
@@ -20,11 +21,15 @@ namespace itertools
                         types::dynamic_tuple<typename T::value_type> *,
                         types::dynamic_tuple<typename T::value_type> /*no ref*/
                         > {
-      std::vector<typename T::value_type> pool;
-      std::vector<long> indices;
+      std::vector<typename T::value_type,
+                  utils::allocator<typename T::value_type>>
+          pool;
+      std::vector<long, utils::allocator<long>> indices;
       long r;
       bool stopped;
-      std::vector<typename T::value_type> result;
+      std::vector<typename T::value_type,
+                  utils::allocator<typename T::value_type>>
+          result;
 
       combination_iterator() = default;
       combination_iterator(bool);
@@ -54,7 +59,7 @@ namespace itertools
       iterator begin();
       iterator end() const;
     };
-  }
+  } // namespace details
 
   template <typename T0>
   details::combination<
@@ -62,7 +67,7 @@ namespace itertools
   combinations(T0 &&iter, long num_elts);
 
   DEFINE_FUNCTOR(pythonic::itertools, combinations);
-}
+} // namespace itertools
 PYTHONIC_NS_END
 
 /* type inference stuff  {*/

@@ -3,8 +3,9 @@
 
 #include "pythonic/include/numpy/zeros.hpp"
 
-#include "pythonic/utils/functor.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/allocate.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -12,8 +13,7 @@ namespace numpy
 {
 
   template <class dtype>
-  typename dtype::type
-  zeros(std::tuple<> const &shape, dtype d)
+  typename dtype::type zeros(std::tuple<> const &shape, dtype d)
   {
     return static_cast<typename dtype::type>(0);
   }
@@ -25,7 +25,7 @@ namespace numpy
     using T = typename dtype::type;
     // use calloc even if we have a non integer type. This looks ok on modern
     // architecture, although not really standard
-    auto *buffer = (T *)calloc(sutils::sprod(shape), sizeof(T));
+    auto *buffer = utils::callocate<T>(sutils::sprod(shape));
     return {buffer, (sutils::shape_t<pS>)shape, types::ownership::owned};
   }
 
@@ -43,7 +43,7 @@ namespace numpy
   {
     return zeros(types::pshape<std::integral_constant<long, N>>({}), d);
   }
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

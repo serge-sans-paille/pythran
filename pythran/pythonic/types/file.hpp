@@ -12,13 +12,13 @@
 #include "pythonic/types/attr.hpp"
 #include "pythonic/types/list.hpp"
 #include "pythonic/types/str.hpp"
+#include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/shared_ref.hpp"
 
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iterator>
-#include <memory>
 #include <string>
 
 #ifdef _WIN32
@@ -164,11 +164,12 @@ namespace types
     seek(0, SEEK_END);
     size = size < 0 ? tell() - curr_pos : size;
     seek(curr_pos);
-    std::unique_ptr<char[]> content{new char[size + 1]};
+    char *content = utils::allocate<char>(size);
+
     // This part needs a new implementation of types::str(char*) to avoid
     // unnecessary copy.
-    types::str res(content.get(),
-                   fread(content.get(), sizeof(char), size, **data));
+    types::str res(content, fread(content, sizeof(char), size, **data));
+    utils::deallocate(content);
     return res;
   }
 

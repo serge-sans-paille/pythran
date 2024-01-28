@@ -459,10 +459,6 @@ One can use ``-o <filename>`` or ``--output=<filename>`` to control the name of
 the generated file. If ``<filename>`` contains the ``%{ext}`` pattern, it is
 replaced by the extension that matches your current platform.
 
-A failing compilation? A lust for c++ tangled code? Give a try to the ``-E``
-switch that stops the compilation process right after c++ code generation, so
-that you can inspect it.
-
 Want more performance? Big fan of ``-Ofast -march=native``? Pythran
 _automagically_ forwards these switches to the underlying compiler!
 
@@ -530,8 +526,8 @@ code you can call from a C++ program. In that case there is **no** need for a
 particular Pythran specification.
 
 
-Read the optimized Python code
-------------------------------
+Understanding the optimized Python code
+--------------------------------------
 
 Curious Python developers might want to study how Pythran transforms their
 codes.  With the ``-P`` switch, Pythran optimizes the Python code, prints the
@@ -539,6 +535,21 @@ result and stops there.  Pythran does not care about PEP 8, so a Python
 formatter is often useful::
 
     $> pythran -P arc_distance.py | yapf
+
+The ``-E`` switch stops the compilation process right after c++ code generation, so
+that you can inspect it::
+
+    $> pythran -E arc_distance.py
+
+In the example above, an ``arc_distance.cpp`` file is generated and it provides
+some pleasant code reading to the educated eyes. Setting the
+``backend.annotate`` option to ``true``, for instance through ``--config
+backend.annotate=true``, generates extra comments with hints on the origin of
+each statement.
+
+One can also trace every allocation within the generated kernel by passing
+``--trace-allocations`` to the compiler. When run, the resulting code dumps on
+the stanard error stream information about stack allocation and their origin.
 
 
 Customizing Your ``.pythranrc``

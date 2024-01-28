@@ -127,10 +127,20 @@ def run():
                         action='store_true',
                         help='report time spent in each optimization/transformation')
 
+    parser.add_argument('--trace-allocations', dest='trace_allocations',
+                        action='store_true',
+                        help='instrument execution to trace memory allocations')
+
     parser.convert_arg_line_to_args = convert_arg_line_to_args
 
     args, extra = parser.parse_known_args(sys.argv[1:])
     args.extra_flags = extra
+
+    if args.trace_allocations:
+        args.defines.append('PYTHRAN_TRACE_ALLOCATION')
+        args.config.append("backend.annotate=1")
+        args.config.append("backend.annotation_kind=lineno")
+
 
     if args.raw_translate_only:
         args.translate_only = True

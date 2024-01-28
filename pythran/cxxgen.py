@@ -355,6 +355,17 @@ class StatementWithComments(object):
             yield s
 
 
+class InstrumentedStatement(object):
+    def __init__(self, stmt,instrumentation):
+        self.stmt = stmt
+        self.instrumentation = instrumentation
+
+    def generate(self):
+        yield self.instrumentation
+        for s in self.stmt.generate():
+            yield s
+
+
 class ReturnStatement(Statement):
     def generate(self):
         yield "return " + self.text + ";"

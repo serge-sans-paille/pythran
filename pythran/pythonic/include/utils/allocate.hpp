@@ -2,26 +2,46 @@
 #define PYTHONIC_INCLUDE_UTILS_ALLOCATE_HPP
 
 #include <cstdlib>
+#ifdef PYTHRAN_TRACE_ALLOCATION
+#include <cstdio>
+#endif
 
 PYTHONIC_NS_BEGIN
 
 namespace utils
 {
+
+#ifdef PYTHRAN_TRACE_ALLOCATION
+  extern size_t pythran_allocation_site;
+#define pythran_trace_lineno(n) pythonic::utils::pythran_allocation_site = n;
+#define pythran_trace_allocation(n)                                            \
+  do {                                                                         \
+    fprintf(stderr, ":%d: Allocating %d bytes\n",                              \
+            pythonic::utils::pythran_allocation_site, n);                      \
+  } while (0)
+#else
+#define pythran_trace_lineno(s)
+#define pythran_trace_allocation(n)
+#endif
+
   template <class T>
   inline T *allocate(size_t nmemb)
   {
+    pythran_trace_allocation(sizeof(T) * nmemb);
     return (T *)malloc(sizeof(T) * nmemb);
   }
 
   template <class T>
   inline T *callocate(size_t nmemb)
   {
+    pythran_trace_allocation(sizeof(T) * nmemb);
     return (T *)calloc(nmemb, sizeof(T));
   }
 
   template <class T>
   inline T *reallocate(T *prev, size_t nmemb)
   {
+    pythran_trace_allocation(sizeof(T) * nmemb);
     return (T *)realloc(prev, sizeof(T) * nmemb);
   }
 
@@ -61,9 +81,9 @@ namespace utils
     template <class U>
     constexpr bool operator!=(const allocator<U> &) const
     {
-        return false;
-  }
-}; // namespace utils
+      return false;
+    }
+  }; // namespace utils
 
 } // namespace utils
 PYTHONIC_NS_END

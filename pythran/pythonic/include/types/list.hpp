@@ -178,6 +178,11 @@ namespace types
     bool contains(V const &v) const;
     intptr_t id() const;
 
+    intptr_t baseid() const
+    {
+      return reinterpret_cast<intptr_t>(&(*_data));
+    }
+
     long count(T const &x) const;
     template <class Tp, class Sp>
     friend std::ostream &operator<<(std::ostream &os,

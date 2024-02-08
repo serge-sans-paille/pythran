@@ -740,6 +740,21 @@ def newaxis8(n):
                       numpy.arange(4).reshape(2,2), numpy.array([[0, 1], [2, 3]]),
                       gexpr_baseid1=[NDArray[int,:,:], NDArray[int, :, :]])
 
+    def test_gexpr_baseid2(self):
+        code = """
+import numpy as np
+def gexpr_baseid2(N):
+    B = np.zeros((N,N), dtype=int)
+    A = [[0] for ii in range(N)]
+    for ii in range(len(A)):
+        a = len(A[ii])
+        B[ii, 0:a] = A[ii][0:a]
+    return B
+        """
+        self.run_test(code,
+                      100,
+                      gexpr_baseid2=[int])
+
     def test_gexpr_copy0(self):
         self.run_test("def gexpr_copy0(a,b): a[:,0] = b[:,0]; return a",
                       numpy.arange(16).reshape(8,2), numpy.arange(16).reshape(8,2),

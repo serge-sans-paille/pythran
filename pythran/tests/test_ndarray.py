@@ -109,6 +109,16 @@ class TestNdarray(TestEnv):
                       1j * numpy.arange(10, dtype=numpy.complex128),
                       ndarray_imag_vexpr_read=[NDArray[complex, :]])
 
+    def test_ndarray_real_iexpr_read(self):
+        self.run_test('def ndarray_real_iexpr_read(a): return a[1].real',
+                      numpy.arange(10, dtype=numpy.complex128),
+                      ndarray_real_iexpr_read=[NDArray[complex, :]])
+
+    def test_ndarray_imag_iexpr_read(self):
+        self.run_test('def ndarray_imag_iexpr_read(a): return a[1].imag',
+                      1j * numpy.arange(10, dtype=numpy.complex128),
+                      ndarray_imag_iexpr_read=[NDArray[complex, :]])
+
     def test_numpy_augassign0(self):
         self.run_test('def numpy_augassign0(a): a+=1; return a',
                       numpy.arange(100).reshape((10, 10)),

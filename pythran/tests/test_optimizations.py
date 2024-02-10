@@ -12,6 +12,17 @@ class TestOptimization(TestEnv):
         code = "def constant_fold_nan(a): from numpy import nan; a[0] = nan; return a"
         self.run_test(code, [1., 2.], constant_fold_nan=[List[float]])
 
+    def test_constant_fold_subscript(self):
+        code = '''
+def aux(n):
+    arr = [0] * n
+    for i in range(10):
+        arr[i] += 1
+    return arr
+def constant_fold_subscript(): return aux(10)
+        '''
+        self.run_test(code, constant_fold_subscript=[])
+
     def test_constant_fold_empty_array(self):
         code = "def constant_fold_empty_array(): from numpy import ones; return ones((0,0,0)).shape"
         self.run_test(code, constant_fold_empty_array=[])

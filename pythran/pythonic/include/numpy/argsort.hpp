@@ -10,11 +10,16 @@ namespace numpy
 {
   template <class E>
   types::ndarray<long, types::array<long, 1>> argsort(E const &expr,
-                                                      types::none_type);
+                                                      types::none_type,
+                                                      types::none_type={});
 
   template <class T, class pS>
   types::ndarray<long, pS> argsort(types::ndarray<T, pS> const &a,
-                                   long axis = -1);
+                                   long axis = -1,  types::none_type kind={});
+
+  template <class T, class pS>
+  types::ndarray<long, pS> argsort(types::ndarray<T, pS> const &a,
+                                   long axis,  types::str const& kind);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(argsort);
 

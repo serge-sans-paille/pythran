@@ -37,7 +37,6 @@ namespace xsimd
             static constexpr bool available() noexcept { return true; }
             static constexpr bool requires_alignment() noexcept { return true; }
             static constexpr std::size_t alignment() noexcept { return 16; }
-            static constexpr unsigned version() noexcept { return generic::version(1, 0, 0, /*multiplier=*/1000); }
             static constexpr char const* name() noexcept { return "riscv+rvv"; }
         };
     }
@@ -411,6 +410,8 @@ namespace xsimd
             using type = detail::rvv_bool_simd_register<T>;
         };
     } // namespace types
+#else
+    using rvv = detail::rvv<0xFFFFFFFF>;
 #endif
 } // namespace xsimd
 

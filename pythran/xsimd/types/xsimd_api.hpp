@@ -203,6 +203,36 @@ namespace xsimd
     }
 
     /**
+     * @ingroup batch_math
+     *
+     * Computes the average of batches \c x and \c y
+     * @param x batch of T
+     * @param y batch of T
+     * @return the average of elements between \c x and \c y.
+     */
+    template <class T, class A>
+    inline batch<T, A> avg(batch<T, A> const& x, batch<T, A> const& y) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::avg<A>(x, y, A {});
+    }
+
+    /**
+     * @ingroup batch_math
+     *
+     * Computes the rounded average of batches \c x and \c y
+     * @param x batch of T
+     * @param y batch of T
+     * @return the rounded average of elements between \c x and \c y.
+     */
+    template <class T, class A>
+    inline batch<T, A> avgr(batch<T, A> const& x, batch<T, A> const& y) noexcept
+    {
+        detail::static_check_supported_config<T, A>();
+        return kernel::avgr<A>(x, y, A {});
+    }
+
+    /**
      * @ingroup batch_conversion
      *
      * Perform a static_cast from \c T_in to \c T_out on \c \c x.
@@ -2180,19 +2210,22 @@ namespace xsimd
     template <class To, class A = default_arch, class From>
     inline void store_as(To* dst, batch<From, A> const& src, aligned_mode) noexcept
     {
-        kernel::store_aligned(dst, src, A {});
+        detail::static_check_supported_config<From, A>();
+        kernel::store_aligned<A>(dst, src, A {});
     }
 
     template <class A = default_arch, class From>
     inline void store_as(bool* dst, batch_bool<From, A> const& src, aligned_mode) noexcept
     {
-        kernel::store(src, dst, A {});
+        detail::static_check_supported_config<From, A>();
+        kernel::store<A>(src, dst, A {});
     }
 
     template <class To, class A = default_arch, class From>
     inline void store_as(std::complex<To>* dst, batch<std::complex<From>, A> const& src, aligned_mode) noexcept
     {
-        kernel::store_complex_aligned(dst, src, A {});
+        detail::static_check_supported_config<std::complex<From>, A>();
+        kernel::store_complex_aligned<A>(dst, src, A {});
     }
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
@@ -2214,25 +2247,29 @@ namespace xsimd
     template <class To, class A = default_arch, class From>
     inline void store_as(To* dst, batch<From, A> const& src, unaligned_mode) noexcept
     {
-        kernel::store_unaligned(dst, src, A {});
+        detail::static_check_supported_config<From, A>();
+        kernel::store_unaligned<A>(dst, src, A {});
     }
 
     template <class A = default_arch, class From>
     inline void store_as(bool* dst, batch_bool<From, A> const& src, unaligned_mode) noexcept
     {
-        kernel::store(src, dst, A {});
+        detail::static_check_supported_config<From, A>();
+        kernel::store<A>(src, dst, A {});
     }
 
     template <class To, class A = default_arch, class From>
     inline void store_as(std::complex<To>* dst, batch<std::complex<From>, A> const& src, unaligned_mode) noexcept
     {
-        kernel::store_complex_unaligned(dst, src, A {});
+        detail::static_check_supported_config<std::complex<From>, A>();
+        kernel::store_complex_unaligned<A>(dst, src, A {});
     }
 
 #ifdef XSIMD_ENABLE_XTL_COMPLEX
     template <class To, class A = default_arch, class From, bool i3ec>
     inline void store_as(xtl::xcomplex<To, To, i3ec>* dst, batch<std::complex<From>, A> const& src, unaligned_mode) noexcept
     {
+        detail::static_check_supported_config<std::complex<From>, A>();
         store_as(reinterpret_cast<std::complex<To>*>(dst), src, unaligned_mode());
     }
 #endif

@@ -86,6 +86,39 @@ namespace xsimd
     using std::tgamma;
     using std::trunc;
 
+    inline signed char abs(signed char v)
+    {
+        return v < 0 ? -v : v;
+    }
+    inline char abs(char v)
+    {
+        return v < 0 ? -v : v;
+    }
+    inline short abs(short v)
+    {
+        return v < 0 ? -v : v;
+    }
+    inline unsigned char abs(unsigned char v)
+    {
+        return v;
+    }
+    inline unsigned short abs(unsigned short v)
+    {
+        return v;
+    }
+    inline unsigned int abs(unsigned int v)
+    {
+        return v;
+    }
+    inline unsigned long abs(unsigned long v)
+    {
+        return v;
+    }
+    inline unsigned long long abs(unsigned long long v)
+    {
+        return v;
+    }
+
 #ifndef _WIN32
     using std::isfinite;
     using std::isinf;
@@ -137,9 +170,42 @@ namespace xsimd
 #endif
 
     template <class T, class Tp>
-    inline auto add(T const& x, Tp const& y) noexcept -> decltype(x + y)
+    inline typename std::common_type<T, Tp>::type add(T const& x, Tp const& y) noexcept
     {
         return x + y;
+    }
+
+    template <class T, class Tp>
+    inline typename std::common_type<T, Tp>::type avg(T const& x, Tp const& y) noexcept
+    {
+        using common_type = typename std::common_type<T, Tp>::type;
+        if (std::is_floating_point<common_type>::value)
+            return (x + y) / 2;
+        else if (std::is_unsigned<common_type>::value)
+        {
+            return (x & y) + ((x ^ y) >> 1);
+        }
+        else
+        {
+            // Inspired by
+            // https://stackoverflow.com/questions/5697500/take-the-average-of-two-signed-numbers-in-c
+            auto t = (x & y) + ((x ^ y) >> 1);
+            auto t_u = static_cast<typename std::make_unsigned<common_type>::type>(t);
+            auto avg = t + (static_cast<T>(t_u >> (8 * sizeof(T) - 1)) & (x ^ y));
+            return avg;
+        }
+    }
+
+    template <class T, class Tp>
+    inline typename std::common_type<T, Tp>::type avgr(T const& x, Tp const& y) noexcept
+    {
+        using common_type = typename std::common_type<T, Tp>::type;
+        if (std::is_floating_point<common_type>::value)
+            return avg(x, y);
+        else
+        {
+            return avg(x, y) + ((x ^ y) & 1);
+        }
     }
 
     template <class T>
@@ -176,6 +242,15 @@ namespace xsimd
         return x & y;
     }
 
+    template <class T_out, class T_in>
+    inline T_out bitwise_cast(T_in x) noexcept
+    {
+        static_assert(sizeof(T_in) == sizeof(T_out), "bitwise_cast between types of the same size");
+        T_out r;
+        std::memcpy((void*)&r, (void*)&x, sizeof(T_in));
+        return r;
+    }
+
     inline float bitwise_and(float x, float y) noexcept
     {
         uint32_t ix, iy;
@@ -193,35 +268,6 @@ namespace xsimd
         std::memcpy((void*)&ix, (void*)&x, sizeof(double));
         std::memcpy((void*)&iy, (void*)&y, sizeof(double));
         uint64_t ir = bitwise_and(ix, iy);
-        double r;
-        std::memcpy((void*)&r, (void*)&ir, sizeof(double));
-        return r;
-    }
-
-    template <class T>
-    inline typename std::enable_if<std::is_integral<T>::value, T>::type
-    bitwise_andnot(T x, T y) noexcept
-    {
-        return x & ~y;
-    }
-
-    inline float bitwise_andnot(float x, float y) noexcept
-    {
-        uint32_t ix, iy;
-        std::memcpy((void*)&ix, (void*)&x, sizeof(float));
-        std::memcpy((void*)&iy, (void*)&y, sizeof(float));
-        uint32_t ir = bitwise_andnot(ix, iy);
-        float r;
-        std::memcpy((void*)&r, (void*)&ir, sizeof(float));
-        return r;
-    }
-
-    inline double bitwise_andnot(double x, double y) noexcept
-    {
-        uint64_t ix, iy;
-        std::memcpy((void*)&ix, (void*)&x, sizeof(double));
-        std::memcpy((void*)&iy, (void*)&y, sizeof(double));
-        uint64_t ir = bitwise_andnot(ix, iy);
         double r;
         std::memcpy((void*)&r, (void*)&ir, sizeof(double));
         return r;
@@ -248,6 +294,11 @@ namespace xsimd
         return ~x;
     }
 
+    inline bool bitwise_not(bool x) noexcept
+    {
+        return !x;
+    }
+
     inline float bitwise_not(float x) noexcept
     {
         uint32_t ix;
@@ -266,6 +317,12 @@ namespace xsimd
         double r;
         std::memcpy((void*)&r, (void*)&ir, sizeof(double));
         return r;
+    }
+
+    template <class T>
+    inline typename std::enable_if<std::is_scalar<T>::value, T>::type bitwise_andnot(T x, T y) noexcept
+    {
+        return bitwise_and(x, bitwise_not(y));
     }
 
     template <class T>
@@ -327,7 +384,7 @@ namespace xsimd
     }
 
     template <class T, class Tp>
-    inline auto div(T const& x, Tp const& y) noexcept -> decltype(x / y)
+    inline typename std::common_type<T, Tp>::type div(T const& x, Tp const& y) noexcept
     {
         return x / y;
     }
@@ -339,13 +396,13 @@ namespace xsimd
     }
 
     template <class T, class Tp>
-    inline auto mul(T const& x, Tp const& y) noexcept -> decltype(x * y)
+    inline typename std::common_type<T, Tp>::type mul(T const& x, Tp const& y) noexcept
     {
         return x * y;
     }
 
     template <class T>
-    inline auto neg(T const& x) noexcept -> decltype(-x)
+    inline T neg(T const& x) noexcept
     {
         return -x;
     }
@@ -809,7 +866,7 @@ namespace xsimd
     }
 
     template <class T, class Tp>
-    inline auto sub(T const& x, Tp const& y) noexcept -> decltype(x - y)
+    inline typename std::common_type<T, Tp>::type sub(T const& x, Tp const& y) noexcept
     {
         return x - y;
     }

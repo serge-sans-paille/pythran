@@ -323,6 +323,56 @@ class TestNumpyFunc1(TestEnv):
                       numpy.array([2., -2., 2., -2.]),
                       np_remainder0=[NDArray[float,:], NDArray[float,:]])
 
+    def test_vectorize0(self):
+        self.run_test("""
+            def np_vectorize0(x):
+                from numpy import vectorize;
+                return vectorize(lambda x: x + 1)(x)""",
+                      numpy.array([1, 2, 3, 4]),
+                      np_vectorize0=[NDArray[int , :]])
+
+    def test_vectorize1(self):
+        self.run_test("""
+            def np_vectorize1(x):
+                from numpy import vectorize;
+                return vectorize(lambda x: x + 1)(x)""",
+                      5,
+                      np_vectorize1=[int])
+
+    def test_vectorize2(self):
+        self.run_test("""
+            def np_vectorize2(x):
+                from numpy import vectorize;
+                return vectorize(lambda x: x + 1)(x)""",
+                      5j,
+                      np_vectorize2=[complex])
+
+    def test_vectorize3(self):
+        self.run_test("""
+            def np_vectorize3(x):
+                from numpy import vectorize;
+                return vectorize(lambda x: x + 1j)(x)""",
+                      numpy.array([1., 2., 3., 4.]),
+                      np_vectorize3=[NDArray[float , :]])
+
+    def test_vectorize4(self):
+        self.run_test("""
+            def np_vectorize4(x):
+                from numpy import vectorize;
+                from operator import add
+                return vectorize(add)(x, 9.)""",
+                      numpy.array([1, 2, 3, 4]),
+                      np_vectorize4=[NDArray[int , :]])
+
+    def test_vectorize5(self):
+        self.run_test("""
+            def np_vectorize5(x):
+                from numpy import vectorize;
+                v = vectorize(lambda x, y: x + 3 * y)
+                return v(x, x), v(x, 1)""",
+                      numpy.array([1, 2, 3, 4]),
+                      np_vectorize5=[NDArray[int , :]])
+
     def test_numpy_ones_list(self):
         self.run_test(
             "def np_ones_list(u): from numpy import ones; return ones([u,u])",

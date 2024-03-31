@@ -4060,6 +4060,7 @@ MODULES = {
         "unravel_index": ConstFunctionIntr(),
         "ushort": ConstFunctionIntr(signature=_int_signature),
         "var": ConstMethodIntr(),
+        "vectorize": ConstFunctionIntr(),
         "vdot": ConstMethodIntr(),
         "vstack": ConstFunctionIntr(),
         "where": ConstFunctionIntr(),

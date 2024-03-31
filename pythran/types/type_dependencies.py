@@ -37,9 +37,9 @@ def pytype_to_deps_hpp(t):
     elif isinstance(t, Fun):
         return {'cfun.hpp'}.union(*[pytype_to_deps_hpp(a) for a in t.__args__])
     elif t in PYTYPE_TO_CTYPE_TABLE:
-        return {'{}.hpp'.format(t.__name__)}
+        return {f'{t.__name__}.hpp'}
     else:
-        raise NotImplementedError("{0}:{1}".format(type(t), t))
+        raise NotImplementedError(f"{type(t)}:{t}")
 
 
 def pytype_to_deps(t):
@@ -239,7 +239,7 @@ class TypeDependencies(ModuleAnalysis):
 
         No edges are added as there are no type builtin type dependencies.
         """
-        super(TypeDependencies, self).prepare(node)
+        super().prepare(node)
         for v in self.global_declarations.values():
             self.result.add_node(v)
         self.result.add_node(TypeDependencies.NoDeps)

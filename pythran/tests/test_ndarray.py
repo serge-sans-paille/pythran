@@ -1537,4 +1537,4 @@ def test1(X,A):
     if A:
         X = np.concatenate((np.zeros((N)),X))
     return X'''
-        self.run_test(code, numpy.ones((10)), test_combiner_2=[NDArray[float,:]])
+        self.run_test(code, numpy.ones(10), test_combiner_2=[NDArray[float,:]])

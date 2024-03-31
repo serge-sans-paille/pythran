@@ -12,7 +12,7 @@ class ParallelMaps(ModuleAnalysis):
 
     def __init__(self):
         self.result = set()
-        super(ParallelMaps, self).__init__(PureExpressions, Aliases)
+        super().__init__(PureExpressions, Aliases)
 
     def visit_Call(self, node):
         if all(alias == MODULES['builtins']['map']
@@ -23,7 +23,7 @@ class ParallelMaps(ModuleAnalysis):
 
     def display(self, data):
         for node in data:
-            print("I:", "{0} {1}".format(
+            print("I:", "{} {}".format(
                 "call to the `map' intrinsic could be parallel",
-                "(line {0})".format(node.lineno)
+                f"(line {node.lineno})"
                 ))

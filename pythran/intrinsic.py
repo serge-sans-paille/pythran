@@ -8,7 +8,7 @@ from pythran.typing import Any, Union, Fun, Generator
 import gast as ast
 
 
-class UnboundValueType(object):
+class UnboundValueType:
     '''
     Represents a new location, bound to no identifier
     '''
@@ -20,11 +20,11 @@ UnboundValue = UnboundValueType()
 DefaultArgNum = 20
 
 
-class UpdateEffect(object):
+class UpdateEffect:
     pass
 
 
-class ReadEffect(object):
+class ReadEffect:
     pass
 
 
@@ -32,7 +32,7 @@ class ReadOnceEffect(ReadEffect):
     pass
 
 
-class Intrinsic(object):
+class Intrinsic:
 
     """
     Model any Method/Function.
@@ -102,7 +102,7 @@ class Intrinsic(object):
 class FunctionIntr(Intrinsic):
     def __init__(self, **kwargs):
         kwargs.setdefault('combiners', ())
-        super(FunctionIntr, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.combiners = kwargs['combiners']
         if 'signature' in kwargs:
             self.signature = kwargs['signature']
@@ -144,26 +144,26 @@ class FunctionIntr(Intrinsic):
 class UserFunction(FunctionIntr):
     def __init__(self, *combiners, **kwargs):
         kwargs['combiners'] = combiners
-        super(UserFunction, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 class ConstFunctionIntr(FunctionIntr):
     def __init__(self, **kwargs):
         kwargs.setdefault('argument_effects',
                           (ReadEffect(),) * DefaultArgNum)
-        super(ConstFunctionIntr, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 class ConstExceptionIntr(ConstFunctionIntr):
     def __init__(self, **kwargs):
         kwargs.setdefault('argument_effects',
                           (ReadEffect(),) * DefaultArgNum)
-        super(ConstExceptionIntr, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 class ReadOnceFunctionIntr(ConstFunctionIntr):
     def __init__(self, **kwargs):
-        super(ReadOnceFunctionIntr, self).__init__(
+        super().__init__(
             argument_effects=(ReadOnceEffect(),) * DefaultArgNum, **kwargs)
 
 
@@ -172,7 +172,7 @@ class MethodIntr(FunctionIntr):
         kwargs.setdefault('argument_effects',
                           (UpdateEffect(),) + (ReadEffect(),) * DefaultArgNum)
         kwargs['combiners'] = combiners
-        super(MethodIntr, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def ismethod(self):
         return True
@@ -184,12 +184,12 @@ class MethodIntr(FunctionIntr):
 class ConstMethodIntr(MethodIntr):
     def __init__(self, *combiners, **kwargs):
         kwargs.setdefault('argument_effects', (ReadEffect(),) * DefaultArgNum)
-        super(ConstMethodIntr, self).__init__(*combiners, **kwargs)
+        super().__init__(*combiners, **kwargs)
 
 
 class ReadOnceMethodIntr(ConstMethodIntr):
     def __init__(self, **kwargs):
-        super(ReadOnceMethodIntr, self).__init__(
+        super().__init__(
             argument_effects=(ReadOnceEffect(),) * DefaultArgNum, **kwargs)
 
 
@@ -205,7 +205,7 @@ class AttributeIntr(Intrinsic):
 
     def __init__(self, **kwargs):
         """ Forward arguments. """
-        super(AttributeIntr, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if 'signature' in kwargs:
             self.signature = kwargs['signature']
         else:
@@ -239,7 +239,7 @@ class ConstantIntr(Intrinsic):
     def __init__(self, **kwargs):
         """ Forward arguments and remove arguments effects. """
         kwargs["argument_effects"] = ()
-        super(ConstantIntr, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def isliteral(self):
         """ Mark this intrinsic as a literal. """
@@ -248,7 +248,7 @@ class ConstantIntr(Intrinsic):
 
 class Class(Intrinsic):
     def __init__(self, d, *args, **kwargs):
-        super(Class, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields = d
 
     def __getitem__(self, key):
@@ -264,17 +264,17 @@ class Class(Intrinsic):
 
 class ClassWithReadOnceConstructor(Class, ReadOnceFunctionIntr):
     def __init__(self, d, *args, **kwargs):
-        super(ClassWithReadOnceConstructor, self).__init__(d, *args, **kwargs)
+        super().__init__(d, *args, **kwargs)
 
 
 class ClassWithConstConstructor(Class, ConstFunctionIntr):
     def __init__(self, d, *args, **kwargs):
-        super(ClassWithConstConstructor, self).__init__(d, *args, **kwargs)
+        super().__init__(d, *args, **kwargs)
 
 
 class ExceptionClass(Class, ConstExceptionIntr):
     def __init__(self, d, *args, **kwargs):
-        super(ExceptionClass, self).__init__(d, *args, **kwargs)
+        super().__init__(d, *args, **kwargs)
 
 
 class UFunc(Class, ConstFunctionIntr):

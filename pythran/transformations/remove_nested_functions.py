@@ -105,7 +105,7 @@ class RemoveNestedFunctions(Transformation):
         return (x + y)
     """
     def __init__(self):
-        super(RemoveNestedFunctions, self).__init__(GlobalDeclarations)
+        super().__init__(GlobalDeclarations)
 
     def visit_Module(self, node):
         # keep original node as it's updated by _NestedFunctionRemover

@@ -250,7 +250,7 @@ def dict_of_complex64_and_complex_128(l):
                "numpy.intp",
                "numpy.uintp",)
         for i, t in enumerate(npt):
-            kwargs = {"builtin_type9p{}".format(i): [int]}
-            self.run_test("def builtin_type9p{}(x): import numpy; x = {}(x); return type(x)(x)".format(i, t),
+            kwargs = {f"builtin_type9p{i}": [int]}
+            self.run_test(f"def builtin_type9p{i}(x): import numpy; x = {t}(x); return type(x)(x)",
                           1,
                           **kwargs)

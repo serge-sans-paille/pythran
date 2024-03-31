@@ -52,8 +52,8 @@ def get_random_ranks(permsize, samplesize):
     perms = fact(permsize)
     ranks = set()
     while len(ranks) < samplesize:
-        ranks |= set( randrange(perms)
-                      for r in range(samplesize - len(ranks)) )
+        ranks |= { randrange(perms)
+                      for r in range(samplesize - len(ranks)) }
     return ranks
 
 def test1(comment, unranker, ranker):
@@ -66,8 +66,8 @@ def test1(comment, unranker, ranker):
         perms.append((r, perm))
     for r, pi in perms:
         pi1 = init_pi1(n, pi)
-        print('  From rank %s to %s back to %s' % (r, pi, ranker(n, pi[:], pi1)))
-    print('\n  %s random individual samples of %s items:' % (samplesize, n2))
+        print('  From rank {} to {} back to {}'.format(r, pi, ranker(n, pi[:], pi1)))
+    print('\n  {} random individual samples of {} items:'.format(samplesize, n2))
     for r in get_random_ranks(n2, samplesize):
         pi = identity_perm(n2)
         print('    ' + ' '.join('%s' % i for i in unranker(n2, r, pi)))
@@ -76,7 +76,7 @@ def test1(comment, unranker, ranker):
 def test2(comment, unranker):
     samplesize, n2 = 4, 10
     print(comment)
-    print('  %s random individual samples of %s items:' % (samplesize, n2))
+    print('  {} random individual samples of {} items:'.format(samplesize, n2))
     txt = ''
     for r in get_random_ranks(n2, samplesize):
         pi = identity_perm(n2)

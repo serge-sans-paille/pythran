@@ -57,7 +57,7 @@ class DeadCodeElimination(Transformation):
         return 1
     """
     def __init__(self):
-        super(DeadCodeElimination, self).__init__(PureExpressions,
+        super().__init__(PureExpressions,
                                                   DefUseChains,
                                                   Ancestors)
         self.blacklist = set()
@@ -145,7 +145,7 @@ class DeadCodeElimination(Transformation):
     def visit(self, node):
         """ Add OMPDirective from the old node to the new one. """
         old_omp = metadata.get(node, OMPDirective)
-        node = super(DeadCodeElimination, self).visit(node)
+        node = super().visit(node)
         if not metadata.get(node, OMPDirective):
             for omp_directive in old_omp:
                 metadata.add(node, omp_directive)

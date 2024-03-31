@@ -11,7 +11,7 @@ class HasReturn(NodeAnalysis):
 
     def __init__(self):
         self.result = False
-        super(HasReturn, self).__init__()
+        super().__init__()
 
     def visit_Return(self, _):
         self.result = True
@@ -24,7 +24,7 @@ class HasBreak(NodeAnalysis):
 
     def __init__(self):
         self.result = False
-        super(HasBreak, self).__init__()
+        super().__init__()
 
     def visit_For(self, _):
         return
@@ -39,7 +39,7 @@ class HasContinue(NodeAnalysis):
 
     def __init__(self):
         self.result = False
-        super(HasContinue, self).__init__()
+        super().__init__()
 
     def visit_For(self, _):
         return

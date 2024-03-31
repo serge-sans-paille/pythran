@@ -154,7 +154,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
     # instantiate the meta program
     if specs is None:
 
-        class Generable(object):
+        class Generable:
             def __init__(self, content):
                 self.content = content
 
@@ -205,7 +205,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
         )
 
         def warded(module_name, internal_name):
-            return pythran_ward + '{0}::{1}'.format(module_name, internal_name)
+            return pythran_ward + f'{module_name}::{internal_name}'
 
         for function_name, signatures in specs.functions.items():
             internal_func_name = cxxid(function_name)
@@ -216,7 +216,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                                                           internal_func_name)))
 
             for sigid, signature in enumerate(signatures):
-                numbered_function_name = "{0}{1}".format(internal_func_name,
+                numbered_function_name = "{}{}".format(internal_func_name,
                                                          sigid)
                 arguments_types = [pytype_to_ctype(t) for t in signature]
                 arguments_names = has_argument(ir, function_name)
@@ -226,7 +226,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                 args_list = ", ".join(arguments_types)
                 specialized_fname = name_fmt.format(module_name,
                                                     internal_func_name,
-                                                    "<{0}>".format(args_list)
+                                                    f"<{args_list}>"
                                                     if arguments_names else "")
                 result_type = "typename %s::result_type" % specialized_fname
                 mod.add_pyfunction(
@@ -268,7 +268,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
             args_list = ", ".join(arguments_types)
             specialized_fname = name_fmt.format(module_name,
                                                 internal_func_name,
-                                                "<{0}>".format(args_list)
+                                                f"<{args_list}>"
                                                 if arguments_names else "")
             result_type = "typename %s::result_type" % specialized_fname
             docstring = spec_to_string(function_name, signature)
@@ -278,7 +278,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                         Value(result_type, function_name),
                         [Value(t, a)
                          for t, a in zip(arguments_types, arguments)]),
-                    Block([ReturnStatement("{0}()({1})".format(
+                    Block([ReturnStatement("{}()({})".format(
                         warded(module_name, internal_func_name),
                         ', '.join(arguments)))])
                 ),
@@ -439,7 +439,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
 def import_pythrancode(pythrancode, **kwargs):
     # It should be safe to delete the library once it's loaded in memory.
     digest = hashlib.sha256(pythrancode.encode()).hexdigest()
-    module_name = "pythranized_{}".format(digest)
+    module_name = f"pythranized_{digest}"
     tmpfile = None
     try:
         tmpfile = compile_pythrancode(module_name, pythrancode, **kwargs)

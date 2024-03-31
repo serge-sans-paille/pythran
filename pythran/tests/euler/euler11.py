@@ -38,8 +38,7 @@ def solve(adj):
     def list_seqs(nums):
         for row in range(0, len(nums)):
             for col in range(0, len(nums[row])):
-                for seq in seqs(nums, row, col):
-                    yield seq
+                yield from seqs(nums, row, col)
 
     return max(product(seq) for seq in list_seqs(nums))
 

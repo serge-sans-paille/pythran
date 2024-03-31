@@ -25,7 +25,7 @@ class Scope(FunctionAnalysis):
         self.decl_holders = (ast.FunctionDef, ast.For,
                              ast.excepthandler,
                              ast.While, ast.If, tuple)
-        super(Scope, self).__init__(AncestorsWithBody, DefUseChains)
+        super().__init__(AncestorsWithBody, DefUseChains)
 
     def visit_OMPDirective(self, node):
         for dep in node.deps:

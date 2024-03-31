@@ -1,4 +1,3 @@
-#encoding: utf8
 from pythran.tests import TestEnv
 
 from unittest import skip, skipIf
@@ -70,7 +69,7 @@ def value_fill_max(x, dic):
                       enumerate_iterate=[List[int]])
 
     def test_max_interface_arity(self):
-        self.run_test('def max_interface_arity({0}):pass'.format(', '.join('_'+str(i) for i in range(42))), *list(range(42)), max_interface_arity=[int]*42)
+        self.run_test('def max_interface_arity({}):pass'.format(', '.join('_'+str(i) for i in range(42))), *list(range(42)), max_interface_arity=[int]*42)
 
     def test_max_kwonly_key(self):
         self.run_test('def max_kwonly_key(x): return max(x, key=lambda x:-x)',

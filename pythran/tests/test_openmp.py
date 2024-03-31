@@ -18,7 +18,7 @@ class TestOpenMP4(TestFromDir):
 
     @staticmethod
     def extract_runas(name, filepath):
-        return ['#runas {}()'.format(name)]
+        return [f'#runas {name}()']
 
 
 class TestOpenMPLegacy(TestFromDir):
@@ -34,7 +34,7 @@ class TestOpenMPLegacy(TestFromDir):
 
     @staticmethod
     def extract_runas(name, filepath):
-        return ['#runas {}()'.format(name)]
+        return [f'#runas {name}()']
 
 # only activate OpenMP tests if the underlying compiler supports OpenMP
 try:

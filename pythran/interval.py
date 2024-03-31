@@ -6,7 +6,7 @@ import itertools
 import numpy
 
 
-class Interval(object):
+class Interval:
 
     """ Representation for a range of values. """
 
@@ -379,7 +379,7 @@ class Interval(object):
     __bool__ = __nonzero__
 
 
-class IntervalTuple(object):
+class IntervalTuple:
 
     def __init__(self, values):
         self.values = tuple(values)

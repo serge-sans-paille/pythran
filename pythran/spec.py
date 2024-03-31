@@ -72,7 +72,7 @@ def istransposable(t):
     return all(s.step == 1 for s in t.__args__[1:])
 
 
-class Spec(object):
+class Spec:
     '''
     Result of spec parsing.
 
@@ -105,7 +105,7 @@ class Spec(object):
     def to_docstrings(self, docstrings):
         for func_name, signatures in self.functions.items():
             sigdocs = signatures_to_string(func_name, signatures)
-            docstring_prototypes = 'Supported prototypes:\n{}'.format(sigdocs)
+            docstring_prototypes = f'Supported prototypes:\n{sigdocs}'
             docstring_py = docstrings.get(func_name, '')
             if not docstring_py:
                 docstring = docstring_prototypes
@@ -117,7 +117,7 @@ class Spec(object):
             docstrings[func_name] = docstring
 
 
-class SpecParser(object):
+class SpecParser:
 
     """
     A parser that scans a file lurking for lines such as the one below.
@@ -363,7 +363,7 @@ class SpecParser(object):
         elif len(p) == 4 and p[3] == ']':
             p[0] = p[2]
         else:
-            msg = "Invalid Pythran spec. Unknown text '{0}'".format(p.value)
+            msg = f"Invalid Pythran spec. Unknown text '{p.value}'"
             self.p_error(p, msg)
 
     p_type.__doc__ = '''type : term
@@ -381,7 +381,7 @@ class SpecParser(object):
     def p_opt_order(self, p):
         if len(p) > 1:
             if p[3] not in 'CF':
-                msg = "Invalid Pythran spec. Unknown order '{}'".format(p[3])
+                msg = f"Invalid Pythran spec. Unknown order '{p[3]}'"
                 self.p_error(p, msg)
             p[0] = p[3]
         else:
@@ -446,11 +446,11 @@ class SpecParser(object):
     def p_error(self, p):
         if p.type == 'IDENTIFIER':
             raise self.PythranSpecError(
-                "Unexpected identifier `{}` at that point".format(p.value),
+                f"Unexpected identifier `{p.value}` at that point",
                 p.lexpos)
         else:
             raise self.PythranSpecError(
-                "Unexpected token `{}` at that point".format(p.value),
+                f"Unexpected token `{p.value}` at that point",
                 p.lexpos)
 
     def __init__(self):
@@ -489,7 +489,7 @@ class SpecParser(object):
 
         for key, overloads in self.native_exports.items():
             if len(overloads) > 1:
-                msg = "Overloads not supported for capsule '{}'".format(key)
+                msg = f"Overloads not supported for capsule '{key}'"
                 loc = self.export_info[key][-1]
                 raise self.PythranSpecError(msg, loc)
             self.native_exports[key] = overloads[0]
@@ -507,7 +507,7 @@ class SpecParser(object):
                 for ty_j in overloads[i+1:]:
                     sty_j = spec_to_string(key, ty_j)
                     if sty_i == sty_j:
-                        msg = "Duplicate export entry {}.".format(sty_i)
+                        msg = f"Duplicate export entry {sty_i}."
                         loc = self.export_info[key][-1]
                         raise self.PythranSpecError(msg, loc)
                     if ambiguous_types(ty_i, ty_j):
@@ -528,7 +528,7 @@ class ExtraSpecParser(SpecParser):
         # make the code looks like a regular pythran file
         text = re.sub(r'^\s*export', '#pythran export', text,
                       flags=re.MULTILINE)
-        return super(ExtraSpecParser, self).__call__(text, input_file)
+        return super().__call__(text, input_file)
 
 
 def spec_to_string(function_name, spec):
@@ -551,7 +551,7 @@ def spec_parser(text):
 
 
 def parse_pytypes(s):
-    fake_def = '#pythran export fake({})'.format(s)
+    fake_def = f'#pythran export fake({s})'
     specs = SpecParser()(fake_def)
     return specs.functions['fake'][0]
 

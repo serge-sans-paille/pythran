@@ -17,7 +17,7 @@ import sys
 
 logger = logging.getLogger('pythran')
 
-class FunctionDefWrapper(object):
+class FunctionDefWrapper:
 
     def __init__(self, evaluator, func):
         self.evaluator = evaluator
@@ -41,12 +41,12 @@ class FunctionDefWrapper(object):
         finally:
             self.evaluator.locals = curr_locals
 
-class DispatchProxy(object):
+class DispatchProxy:
 
     def __getattribute__(self, attr):
         return lambda obj, *args: getattr(obj, attr)(*args)
 
-class PythranBuiltins(object):
+class PythranBuiltins:
 
     @staticmethod
     def static_list(*args):
@@ -425,12 +425,12 @@ class ConstantFolding(Transformation):
             if isinstance(stmt, ast.FunctionDef):
                 self.env[stmt.name] = FunctionDefWrapper(self.consteval, stmt)
 
-        super(ConstantFolding, self).prepare(node)
+        super().prepare(node)
 
     def run(self, node):
         builtins.pythran = PythranBuiltins()
         try:
-            return super(ConstantFolding, self).run(node)
+            return super().run(node)
         finally:
             # do not pollute builtin namespace outside of this pass
             del builtins.pythran

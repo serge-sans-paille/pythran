@@ -23,7 +23,7 @@ class NormalizeReturn(Transformation):
     '''
 
     def __init__(self):
-        super(NormalizeReturn, self).__init__(CFG)
+        super().__init__(CFG)
 
     def visit_FunctionDef(self, node):
         self.yield_points = self.gather(YieldPoints, node)

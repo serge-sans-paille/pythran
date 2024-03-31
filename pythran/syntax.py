@@ -21,7 +21,7 @@ logger = logging.getLogger('pythran')
 class ExtendedDefUseChains(beniget.DefUseChains):
 
     def __init__(self, ancestors):
-        super(ExtendedDefUseChains, self).__init__()
+        super().__init__()
         self.unbounds = dict()
         self.ancestors = ancestors
 
@@ -113,7 +113,7 @@ class SyntaxChecker(ast.NodeVisitor):
         duc = ExtendedDefUseChains(ancestors)
         duc.visit(node)
         for k, v in duc.unbounds.items():
-            raise PythranSyntaxError("Unbound identifier {}".format(k), v[0])
+            raise PythranSyntaxError(f"Unbound identifier {k}", v[0])
         self.generic_visit(node)
 
     def visit_Interactive(self, node):
@@ -182,7 +182,7 @@ class SyntaxChecker(ast.NodeVisitor):
         self.generic_visit(node)
         if node.attr not in self.attributes:
             raise PythranSyntaxError(
-                "Attribute '{0}' unknown".format(node.attr),
+                f"Attribute '{node.attr}' unknown",
                 node)
 
     def visit_NamedExpr(self, node):
@@ -198,7 +198,7 @@ class SyntaxChecker(ast.NodeVisitor):
             for path in alias.name.split('.'):
                 if path not in current_module:
                     raise PythranSyntaxError(
-                        "Module '{0}' unknown.".format(alias.name),
+                        f"Module '{alias.name}' unknown.",
                         node)
                 else:
                     current_module = current_module[path]
@@ -223,7 +223,7 @@ class SyntaxChecker(ast.NodeVisitor):
         for path in module.split('.'):
             if path not in current_module:
                 raise PythranSyntaxError(
-                    "Module '{0}' unknown.".format(module),
+                    f"Module '{module}' unknown.",
                     node)
             else:
                 current_module = current_module[path]
@@ -234,7 +234,7 @@ class SyntaxChecker(ast.NodeVisitor):
                 continue
             elif alias.name not in current_module:
                 raise PythranSyntaxError(
-                    "identifier '{0}' not found in module '{1}'".format(
+                    "identifier '{}' not found in module '{}'".format(
                         alias.name,
                         module),
                     node)

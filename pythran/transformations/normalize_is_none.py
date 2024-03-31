@@ -69,7 +69,7 @@ class NormalizeIsNone(Transformation):
     table = {ast.And: ast.BitAnd, ast.Or: ast.BitOr}
 
     def __init__(self):
-        super(NormalizeIsNone, self).__init__(Ancestors)
+        super().__init__(Ancestors)
 
     @staticmethod
     def match_is_none(node):

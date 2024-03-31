@@ -17,7 +17,7 @@ class IsAssigned(NodeAnalysis):
     def __init__(self):
         """ Basic initialiser. """
         self.result = list()
-        super(IsAssigned, self).__init__()
+        super().__init__()
 
     def visit_Name(self, node):
         """ Stored variable have new value. """

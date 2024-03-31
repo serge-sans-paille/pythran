@@ -16,12 +16,12 @@ class Ancestors(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.current = tuple()
-        super(Ancestors, self).__init__()
+        super().__init__()
 
     def generic_visit(self, node):
         self.result[node] = current = self.current
         self.current += node,
-        super(Ancestors, self).generic_visit(node)
+        super().generic_visit(node)
         self.current = current
 
     visit = generic_visit

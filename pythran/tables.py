@@ -52,17 +52,17 @@ cxx_keywords = {
 
 
 def make_lazy(exp):
-    return '[&] () {{ return {0}; }}'.format(exp)
+    return f'[&] () {{ return {exp}; }}'
 
 
 def make_and(x, y):
     lx, ly = make_lazy(x), make_lazy(y)
-    return 'pythonic::builtins::pythran::and_({0}, {1})'.format(lx, ly)
+    return f'pythonic::builtins::pythran::and_({lx}, {ly})'
 
 
 def make_or(x, y):
     lx, ly = make_lazy(x), make_lazy(y)
-    return 'pythonic::builtins::pythran::or_({0}, {1})'.format(lx, ly)
+    return f'pythonic::builtins::pythran::or_({lx}, {ly})'
 
 
 operator_to_lambda = {
@@ -70,51 +70,51 @@ operator_to_lambda = {
     ast.And: make_and,
     ast.Or: make_or,
     # operator
-    ast.Add: "pythonic::operator_::add({0}, {1})".format,
-    ast.Sub: "pythonic::operator_::sub({0}, {1})".format,
-    ast.Mult: "pythonic::operator_::mul({0}, {1})".format,
-    ast.Div: "pythonic::operator_::div({0}, {1})".format,
-    ast.Mod: "pythonic::operator_::mod({0}, {1})".format,
-    ast.Pow: "pythonic::builtins::pow({0}, {1})".format,
-    ast.LShift: "pythonic::operator_::lshift({0}, {1})".format,
-    ast.RShift: "pythonic::operator_::rshift({0}, {1})".format,
-    ast.BitOr: "pythonic::operator_::or_({0}, {1})".format,
-    ast.BitXor: "pythonic::operator_::xor_({0}, {1})".format,
-    ast.BitAnd: "pythonic::operator_::and_({0}, {1})".format,
-    ast.MatMult: "pythonic::operator_::functor::matmul()({0}, {1})".format,
-    ast.FloorDiv: "pythonic::operator_::functor::floordiv()({0}, {1})".format,
+    ast.Add: "pythonic::operator_::add({}, {})".format,
+    ast.Sub: "pythonic::operator_::sub({}, {})".format,
+    ast.Mult: "pythonic::operator_::mul({}, {})".format,
+    ast.Div: "pythonic::operator_::div({}, {})".format,
+    ast.Mod: "pythonic::operator_::mod({}, {})".format,
+    ast.Pow: "pythonic::builtins::pow({}, {})".format,
+    ast.LShift: "pythonic::operator_::lshift({}, {})".format,
+    ast.RShift: "pythonic::operator_::rshift({}, {})".format,
+    ast.BitOr: "pythonic::operator_::or_({}, {})".format,
+    ast.BitXor: "pythonic::operator_::xor_({}, {})".format,
+    ast.BitAnd: "pythonic::operator_::and_({}, {})".format,
+    ast.MatMult: "pythonic::operator_::functor::matmul()({}, {})".format,
+    ast.FloorDiv: "pythonic::operator_::functor::floordiv()({}, {})".format,
     # unaryop
-    ast.Invert: "pythonic::operator_::invert({0})".format,
-    ast.Not: "pythonic::operator_::not_({0})".format,
-    ast.UAdd: "pythonic::operator_::pos({0})".format,
-    ast.USub: "pythonic::operator_::neg({0})".format,
+    ast.Invert: "pythonic::operator_::invert({})".format,
+    ast.Not: "pythonic::operator_::not_({})".format,
+    ast.UAdd: "pythonic::operator_::pos({})".format,
+    ast.USub: "pythonic::operator_::neg({})".format,
     # cmpop
-    ast.Eq: "pythonic::operator_::eq({0}, {1})".format,
-    ast.NotEq: "pythonic::operator_::ne({0}, {1})".format,
-    ast.Lt: "pythonic::operator_::lt({0}, {1})".format,
-    ast.LtE: "pythonic::operator_::le({0}, {1})".format,
-    ast.Gt: "pythonic::operator_::gt({0}, {1})".format,
-    ast.GtE: "pythonic::operator_::ge({0}, {1})".format,
-    ast.Is: "pythonic::operator_::is_({0}, {1})".format,
-    ast.IsNot: ("pythonic::operator_::is_not({0}, {1})").format,
+    ast.Eq: "pythonic::operator_::eq({}, {})".format,
+    ast.NotEq: "pythonic::operator_::ne({}, {})".format,
+    ast.Lt: "pythonic::operator_::lt({}, {})".format,
+    ast.LtE: "pythonic::operator_::le({}, {})".format,
+    ast.Gt: "pythonic::operator_::gt({}, {})".format,
+    ast.GtE: "pythonic::operator_::ge({}, {})".format,
+    ast.Is: "pythonic::operator_::is_({}, {})".format,
+    ast.IsNot: ("pythonic::operator_::is_not({}, {})").format,
     ast.In: "pythonic::operator_::contains({1}, {0})".format,
     ast.NotIn: "(!pythonic::operator_::contains({1}, {0}))".format,
 }
 
 update_operator_to_lambda = {
     # operator
-    ast.Add: "({0} += {1})".format,
-    ast.Sub: "({0} -= {1})".format,
-    ast.Mult: "({0} *= {1})".format,
-    ast.Div: "(pythonic::operator_::idiv({0}, {1}))".format,
-    ast.Mod: "(pythonic::operator_::imod({0}, {1}))".format,
-    ast.Pow: "(pythonic::operator_::ipow({0}, {1}))".format,
-    ast.LShift: "({0} <<= {1})".format,
-    ast.RShift: "({0} >>= {1})".format,
-    ast.BitOr: "({0} |= {1})".format,
-    ast.BitXor: "({0} ^= {1})".format,
-    ast.BitAnd: "({0} &= {1})".format,
-    ast.MatMult: "(pythonic::operator_::imatmul({0}, {1}))".format,
+    ast.Add: "({} += {})".format,
+    ast.Sub: "({} -= {})".format,
+    ast.Mult: "({} *= {})".format,
+    ast.Div: "(pythonic::operator_::idiv({}, {}))".format,
+    ast.Mod: "(pythonic::operator_::imod({}, {}))".format,
+    ast.Pow: "(pythonic::operator_::ipow({}, {}))".format,
+    ast.LShift: "({} <<= {})".format,
+    ast.RShift: "({} >>= {})".format,
+    ast.BitOr: "({} |= {})".format,
+    ast.BitXor: "({} ^= {})".format,
+    ast.BitAnd: "({} &= {})".format,
+    ast.MatMult: "(pythonic::operator_::imatmul({}, {}))".format,
     ast.FloorDiv:
         "(pythonic::operator_::functor::ifloordiv{{}}({0}, {1}))".format,
 }
@@ -4522,11 +4522,6 @@ MODULES = {
 }
 
 
-if sys.version_info < (3, 5):
-    del MODULES['operator']['matmul']
-    del MODULES['operator']['__matmul__']
-
-# VMSError is only available on VMS
 if 'VMSError' in sys.modules['builtins'].__dict__:
     MODULES['builtins']['VMSError'] = ConstExceptionIntr()
 

@@ -122,19 +122,19 @@ class Pointer(Type, metaclass=PointerMeta):
     pass
 
 
-class TypeVar(object):
+class TypeVar:
 
     def __init__(self, name):
         self.__name__ = name
 
 
-class Sized(object):
+class Sized:
     pass
 
 
-class Any(object):
+class Any:
     pass
 
 
-class File(object):
+class File:
     pass

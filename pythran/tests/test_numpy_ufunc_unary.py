@@ -98,6 +98,6 @@ for module, functions in unary_func_by_module.items():
 
                 setattr(
                     TestNumpyUFuncUnary,
-                    'test_numpy_ufunc_unary_{}'.format(func_name),
+                    f'test_numpy_ufunc_unary_{func_name}',
                     eval(code)
                 )

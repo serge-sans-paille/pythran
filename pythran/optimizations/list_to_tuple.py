@@ -41,7 +41,7 @@ class ListToTuple(Transformation):
     """
     def __init__(self):
         self.update = False
-        super(ListToTuple, self).__init__(Aliases, FixedSizeList)
+        super().__init__(Aliases, FixedSizeList)
 
     def visit_AugAssign(self, node):
         if not islist(node.value):

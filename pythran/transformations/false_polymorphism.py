@@ -23,7 +23,7 @@ class FalsePolymorphism(Transformation):
     """
 
     def __init__(self):
-        super(FalsePolymorphism, self).__init__(DefUseChains, UseDefChains)
+        super().__init__(DefUseChains, UseDefChains)
 
     def visit_FunctionDef(self, node):
 

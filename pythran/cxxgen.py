@@ -35,23 +35,22 @@ from pythran.utils import quote_cxxstring
 __copyright__ = "Copyright (C) 2008 Andreas Kloeckner"
 
 
-class Nop(object):
+class Nop:
 
     def generate(self, with_semicolon=True):
         yield ''
 
 
-class Declarator(object):
+class Declarator:
     def generate(self, with_semicolon=True):
         tp_lines, tp_decl = self.get_decl_pair()
         tp_lines = list(tp_lines)
-        for line in tp_lines[:-1]:
-            yield line
+        yield from tp_lines[:-1]
         sc = ";" if with_semicolon else ""
         if tp_decl is None:
-            yield "%s%s" % (tp_lines[-1], sc)
+            yield "{}{}".format(tp_lines[-1], sc)
         else:
-            yield "%s %s%s" % (tp_lines[-1], tp_decl, sc)
+            yield "{} {}{}".format(tp_lines[-1], tp_decl, sc)
 
     def get_decl_pair(self):
         """Return a tuple ``(type_lines, rhs)``.
@@ -69,7 +68,7 @@ class Declarator(object):
         if tp_decl is None:
             return tp_lines
         else:
-            return "%s %s" % (tp_lines, tp_decl)
+            return "{} {}".format(tp_lines, tp_decl)
 
 
 class Value(Declarator):
@@ -105,12 +104,11 @@ class DeclSpecifier(NestedDeclarator):
         def add_spec(sub_it):
             it = iter(sub_it)
             try:
-                yield "%s%s%s" % (self.spec, self.sep, next(it))
+                yield "{}{}{}".format(self.spec, self.sep, next(it))
             except StopIteration:
                 pass
 
-            for line in it:
-                yield line
+            yield from it
 
         sub_tp, sub_decl = self.subdecl.get_decl_pair()
         return add_spec(sub_tp), sub_decl
@@ -132,7 +130,7 @@ class FunctionDeclaration(NestedDeclarator):
         sub_tp, sub_decl = self.subdecl.get_decl_pair()
         if self.inline:
             sub_tp = ['inline'] + sub_tp
-        return sub_tp, ("%s(%s) %s" % (
+        return sub_tp, ("{}({}) {}".format(
             sub_decl,
             ", ".join(ad.inline() for ad in self.arg_decls),
             " ".join(self.attributes)))
@@ -180,19 +178,18 @@ class Struct(Declarator):
 # template --------------------------------------------------------------------
 class Template(NestedDeclarator):
     def __init__(self, template_spec, subdecl):
-        super(Template, self).__init__(subdecl)
+        super().__init__(subdecl)
         self.template_spec = template_spec
 
     def generate(self, with_semicolon=False):
         yield "template <%s>" % ", ".join(self.template_spec)
-        for i in self.subdecl.generate(with_semicolon):
-            yield i
+        yield from self.subdecl.generate(with_semicolon)
         if not isinstance(self.subdecl, (Template, FunctionDeclaration)):
             yield ";"
 
 
 # control flow/statement stuff ------------------------------------------------
-class ExceptHandler(object):
+class ExceptHandler:
     def __init__(self, name, body, alias=None):
         self.name = name
         self.body = body
@@ -202,13 +199,12 @@ class ExceptHandler(object):
         if self.name is None:
             yield "catch(...)"
         else:
-            yield "catch (pythonic::types::%s const& %s)" % (self.name,
+            yield "catch (pythonic::types::{} const& {})".format(self.name,
                                                              self.alias or '')
-        for line in self.body.generate():
-            yield line
+        yield from self.body.generate()
 
 
-class TryExcept(object):
+class TryExcept:
     def __init__(self, try_, except_):
         self.try_ = try_
         self.except_ = except_
@@ -224,7 +220,7 @@ class TryExcept(object):
                 yield "  " + line
 
 
-class If(object):
+class If:
     def __init__(self, condition, then_, else_=None):
         self.condition = condition
         self.then_ = then_
@@ -233,28 +229,25 @@ class If(object):
     def generate(self):
         yield "if (%s)" % self.condition
 
-        for line in self.then_.generate():
-            yield line
+        yield from self.then_.generate()
 
         if self.else_ is not None:
             yield "else"
-            for line in self.else_.generate():
-                yield line
+            yield from self.else_.generate()
 
 
-class Loop(object):
+class Loop:
     def __init__(self, body):
         self.body = body
 
     def generate(self):
         yield self.intro_line()
-        for line in self.body.generate():
-            yield line
+        yield from self.body.generate()
 
 
 class While(Loop):
     def __init__(self, condition, body):
-        super(While, self).__init__(body)
+        super().__init__(body)
         self.condition = condition
 
     def intro_line(self):
@@ -263,39 +256,39 @@ class While(Loop):
 
 class For(Loop):
     def __init__(self, start, condition, update, body):
-        super(For, self).__init__(body)
+        super().__init__(body)
         self.start = start
         self.condition = condition
         self.update = update
 
     def intro_line(self):
-        return "for (%s; %s; %s)" % (self.start, self.condition, self.update)
+        return "for ({}; {}; {})".format(self.start, self.condition, self.update)
 
 
 class AutoFor(Loop):
     def __init__(self, target, iter_, body):
-        super(AutoFor, self).__init__(body)
+        super().__init__(body)
         self.target = target
         self.iter = iter_
 
     def intro_line(self):
         if self.target == '_':
-            return "for (PYTHRAN_UNUSED auto&& {0}: {1})".format(self.target, self.iter)
+            return f"for (PYTHRAN_UNUSED auto&& {self.target}: {self.iter})"
         else:
-            return "for (auto&& {0}: {1})".format(self.target, self.iter)
+            return f"for (auto&& {self.target}: {self.iter})"
 
 
 # simple statements -----------------------------------------------------------
-class Define(object):
+class Define:
     def __init__(self, symbol, value):
         self.symbol = symbol
         self.value = value
 
     def generate(self):
-        yield "#define %s %s" % (self.symbol, self.value)
+        yield "#define {} {}".format(self.symbol, self.value)
 
 
-class Include(object):
+class Include:
     def __init__(self, filename, system=True):
         self.filename = filename
         self.system = system
@@ -307,24 +300,24 @@ class Include(object):
             yield "#include \"%s\"" % self.filename
 
 
-class Label(object):
+class Label:
     def __init__(self, label):
         self.label = label
 
     def generate(self):
         yield self.label + ':;'
 
-class LineInfo(object):
+class LineInfo:
     def __init__(self, filepath, lineno):
         self.filepath = filepath
         self.lineno = lineno
 
     def generate(self):
         if self.filename and self.lineno:
-            yield '#line {} {}'.format(self.lineno, self.filepath)
+            yield f'#line {self.lineno} {self.filepath}'
 
 
-class Statement(object):
+class Statement:
     def __init__(self, text):
         self.text = text
 
@@ -332,7 +325,7 @@ class Statement(object):
         yield self.text + ";"
 
 
-class AnnotatedStatement(object):
+class AnnotatedStatement:
     def __init__(self, stmt, annotations):
         self.stmt = stmt
         self.annotations = annotations
@@ -341,29 +334,26 @@ class AnnotatedStatement(object):
         for directive in self.annotations:
             pragma = "#pragma " + directive.s
             yield pragma.format(*directive.deps)
-        for s in self.stmt.generate():
-            yield s
+        yield from self.stmt.generate()
 
-class StatementWithComments(object):
+class StatementWithComments:
     def __init__(self, stmt, comment):
         self.stmt = stmt
         self.comment = comment
 
     def generate(self):
-        yield '// {}'.format(self.comment)
-        for s in self.stmt.generate():
-            yield s
+        yield f'// {self.comment}'
+        yield from self.stmt.generate()
 
 
-class InstrumentedStatement(object):
+class InstrumentedStatement:
     def __init__(self, stmt,instrumentation):
         self.stmt = stmt
         self.instrumentation = instrumentation
 
     def generate(self):
         yield self.instrumentation
-        for s in self.stmt.generate():
-            yield s
+        yield from self.stmt.generate()
 
 
 class ReturnStatement(Statement):
@@ -376,16 +366,16 @@ class EmptyStatement(Statement):
         Statement.__init__(self, "")
 
 
-class Assign(object):
+class Assign:
     def __init__(self, lvalue, rvalue):
         self.lvalue = lvalue
         self.rvalue = rvalue
 
     def generate(self):
-        yield "%s = %s;" % (self.lvalue, self.rvalue)
+        yield "{} = {};".format(self.lvalue, self.rvalue)
 
 
-class Line(object):
+class Line:
     def __init__(self, text=""):
         self.text = text
 
@@ -394,7 +384,7 @@ class Line(object):
 
 
 # initializers ----------------------------------------------------------------
-class FunctionBody(object):
+class FunctionBody:
     def __init__(self, fdecl, body):
         """Initialize a function definition. *fdecl* is expected to be
         a :class:`FunctionDeclaration` instance, while *body* is a
@@ -404,14 +394,12 @@ class FunctionBody(object):
         self.body = body
 
     def generate(self):
-        for f_line in self.fdecl.generate(with_semicolon=False):
-            yield f_line
-        for b_line in self.body.generate():
-            yield b_line
+        yield from self.fdecl.generate(with_semicolon=False)
+        yield from self.body.generate()
 
 
 # block -----------------------------------------------------------------------
-class Block(object):
+class Block:
     def __init__(self, contents=None):
         if contents is None:
             contents = []
@@ -428,8 +416,7 @@ class Block(object):
 class Module(Block):
     def generate(self):
         for c in self.contents:
-            for line in c.generate():
-                yield line
+            yield from c.generate()
 
 
 class Namespace(Block):
@@ -472,7 +459,7 @@ class Namespace(Block):
 # SOFTWARE.
 #
 
-class PythonModule(object):
+class PythonModule:
     '''
     Wraps the creation of a Pythran module wrapped a Python native Module
     '''
@@ -534,10 +521,10 @@ class PythonModule(object):
         wrapper_name = pythran_ward + 'wrap_' + func.fdecl.name
 
         for i, t in enumerate(ctypes):
-            args_unboxing.append('from_python<{}>(args_obj[{}])'.format(t, i))
-            args_checks.append('is_convertible<{}>(args_obj[{}])'.format(t, i))
+            args_unboxing.append(f'from_python<{t}>(args_obj[{i}])')
+            args_checks.append(f'is_convertible<{t}>(args_obj[{i}])')
         arg_decls = func.fdecl.arg_decls[:len(ctypes)]
-        keywords = "".join('"{}", '.format(arg.name) for arg in arg_decls)
+        keywords = "".join(f'"{arg.name}", ' for arg in arg_decls)
         wrapper = dedent('''
             static PyObject *
             {wname}(PyObject *self, PyObject *args, PyObject *kw)
@@ -575,7 +562,7 @@ class PythonModule(object):
     def add_global_var(self, name, init):
         self.global_vars.append(name)
         self.python_implems.append(Assign('static PyObject* ' + name,
-                                   'to_python({})'.format(init)))
+                                   f'to_python({init})'))
 
     def __str__(self):
         """Generate (i.e. yield) the source code of the
@@ -716,7 +703,7 @@ class PythonModule(object):
         return "\n".join(Module(body).generate())
 
 
-class CompilationUnit(object):
+class CompilationUnit:
 
     def __init__(self, body):
         self.body = body

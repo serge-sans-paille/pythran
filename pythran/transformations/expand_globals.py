@@ -53,7 +53,7 @@ class ExpandGlobals(Transformation):
         """ Initialize local declaration and constant name to expand. """
         self.local_decl = set()
         self.to_expand = set()
-        super(ExpandGlobals, self).__init__()
+        super().__init__()
 
     def visit_Module(self, node):
         """Turn globals assignment to functionDef and visit function defs. """

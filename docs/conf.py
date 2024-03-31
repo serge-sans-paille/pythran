@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Pythran documentation build configuration file, created by
 # sphinx-quickstart on Wed Feb 19 20:57:04 2014.
@@ -141,8 +140,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Pythran'
-copyright = u'2014, Serge Guelton, Pierrick Brunet et al.'
+project = 'Pythran'
+copyright = '2014, Serge Guelton, Pierrick Brunet et al.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

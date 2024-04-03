@@ -5,7 +5,7 @@ import pythran
 from textwrap import dedent
 
 from pythran.typing import List, Dict, NDArray, Tuple
-import pythran.types.tog
+from pythran.errors import PythranTypeError
 
 
 class TestTyping(TestEnv):
@@ -423,7 +423,7 @@ def recursive_interprocedural_typing2(c):
             slice_assign=[int])
 
     def verify_type_error(self, code):
-        with self.assertRaises(pythran.types.tog.PythranTypeError):
+        with self.assertRaises(PythranTypeError):
             _, eh = pythran.generate_cxx("dumbo", dedent(code))
             eh()
 

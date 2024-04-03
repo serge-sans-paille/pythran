@@ -8,8 +8,8 @@ import os
 import sys
 
 import pythran
-import pythran.types.tog
 
+from pythran.errors import PythranSyntaxError, PythranTypeError
 from distutils.errors import CompileError
 
 logger = logging.getLogger("pythran")
@@ -203,11 +203,11 @@ def run():
         logger.critical("Chair to keyboard interface error\n"
                         "E: " + str(e))
         sys.exit(1)
-    except pythran.types.tog.PythranTypeError as e:
+    except PythranTypeError as e:
         logger.critical("You shall not pass!\n"
                         "E: " + str(e))
         sys.exit(1)
-    except pythran.syntax.PythranSyntaxError as e:
+    except PythranSyntaxError as e:
         logger.critical("I am in trouble. Your input file does not seem "
                         "to match Pythran's constraints...\n" + str(e))
         sys.exit(1)

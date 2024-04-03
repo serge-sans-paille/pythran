@@ -12,7 +12,6 @@ from pythran.dist import PythranExtension, PythranBuildExt
 from pythran.middlend import refine, mark_unexported_functions
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
-from pythran.types import tog
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
 from pythran.spec import load_specfile, Spec
@@ -166,6 +165,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
         mod = Generable(content)
 
         def error_checker():
+            from pythran.types import tog
             tog.typecheck(ir)
 
     else:
@@ -175,6 +175,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
             specs = Spec(specs, {})
 
         def error_checker():
+            from pythran.types import tog
             types = tog.typecheck(ir)
             check_specs(specs, types)
 

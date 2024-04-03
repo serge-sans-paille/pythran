@@ -9,7 +9,7 @@ from numpy import floating, integer, complexfloating
 
 from pythran.tables import MODULES, attributes
 import pythran.typing as typing
-from pythran.syntax import PythranSyntaxError
+from pythran.errors import PythranSyntaxError
 from pythran.utils import isnum
 
 

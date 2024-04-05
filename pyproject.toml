@@ -35,7 +35,7 @@ pythran-config = "pythran.config:run"
 
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools"]
+requires = ["setuptools>=62"]
 
 [tool.setuptools]
 packages = ['pythran', 'pythran.analyses', 'pythran.transformations',

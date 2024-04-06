@@ -4583,7 +4583,7 @@ def save_arguments(module_name, elements):
                 obj = getattr(themodule, elem)
                 while hasattr(obj, '__wrapped__'):
                     obj = obj.__wrapped__
-            except (AttributeError, ImportError, TypeError):
+            except (AttributeError, ImportError, TypeError, ValueError):
                 continue
 
             # first try to gather info through getfullargspec

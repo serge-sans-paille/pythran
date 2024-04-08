@@ -417,6 +417,28 @@ is the ``pythran-config`` tool - only use that if ``pythran`` is installed in
 the host architecture (i.e., the architecture on which the produced binaries
 need to run).
 
+Generating Ufuncs
+-----------------
+
+Pythran can be used to turn a function operating on scalars into a `ufunc
+<https://numpy.org/doc/stable/reference/ufuncs.html>`_ that can operate on
+arrays and scalar, honoring Numpy's broadcasting rules. A special spec
+decoration is used to achieve that goal::
+
+    #pythran export ufunc foo(double, double)
+
+This line commands Pythran to generate a *ufunc* that takes two array-like
+inputs whose *dtype* are double precision floats.
+
+It is possible to support multiple signatures, as in::
+
+    #pythran export ufunc foo(float32, float32)
+    #pythran export ufunc foo(float64, float64)
+    #pythran export ufunc foo(uint64, uint64)
+
+Pythran only supports generation of *ufunc* for functions that produce a single
+scalar, the type of which is automatically inferred.
+
 
 Capsule Corp
 ------------

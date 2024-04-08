@@ -287,6 +287,48 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
                 docstring
             )
 
+        if specs.ufuncs:
+            mod.add_to_includes(
+                Include("pythonic/include/types/numpy_ufunc.hpp"),
+            )
+
+        for function_name, signatures in specs.ufuncs.items():
+            internal_func_name = cxxid(function_name)
+
+            for signature in signatures:
+                arguments_types = [pytype_to_ctype(t) for t in signature]
+                numpy_types = ['pythonic::c_type_to_numpy_type<{}>::value'.format(t) for t in
+                               arguments_types]
+                arguments_names = has_argument(ir, function_name)
+                arguments = [n for n, _ in
+                             zip(arguments_names, arguments_types)]
+                name_fmt = pythran_ward + "{0}::{1}::type{2}"
+                args_list = ", ".join(arguments_types)
+                specialized_fname = name_fmt.format(module_name,
+                                                    internal_func_name,
+                                                    "<{0}>".format(args_list)
+                                                    if arguments_names else "")
+                result_type = "typename %s::result_type" % specialized_fname
+                numpy_result_type = 'pythonic::c_type_to_numpy_type<{}>::value'.format(result_type)
+                numpy_types.append(numpy_result_type)
+
+                mod.add_ufunc(
+                    FunctionBody(
+                        FunctionDeclaration(
+                            Value(result_type, function_name),
+                            [Value(t, a)
+                             for t, a in zip(arguments_types, arguments)]),
+                        Block([ReturnStatement("{0}()({1})".format(
+                            warded(module_name, internal_func_name),
+                            ', '.join(arguments)))])
+                    ),
+                    function_name,
+                    pythran_ward + module_name + "::" + internal_func_name,
+                    arguments_types + [result_type],
+                    numpy_types
+                )
+
+    return mod, error_checker
     return mod, error_checker
 
 

@@ -1531,6 +1531,7 @@ PyObject *to_python<types::numpy_gexpr<Arg, S...>>::convert(
                                          : ::to_python(v.slices);
   PyObject *base = ::to_python(v.arg);
   PyObject *res = PyObject_GetItem(base, slices);
+  Py_DECREF(slices);
   Py_DECREF(base);
   if (transpose) {
     PyObject *Transposed =

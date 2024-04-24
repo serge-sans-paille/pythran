@@ -111,7 +111,9 @@ class TestComplex(TestEnv):
                       complex_broadcast_scalar0=[complex])
 
     def test_complex_broadcast_scalar1(self):
-        self.run_test('def complex_broadcast_scalar1(x): return x + 1.5, 1.3 +x, 3.1 - x, x - 3.7, x * 5.4, 7.6 * x',
+        self.run_test('def complex_broadcast_scalar1(x):\n'
+                      ' from numpy import float32 as f32\n'
+                      ' return x + f32(1.5), f32(1.3) + x, f32(3.1) - x, x - f32(3.7), x * f32(5.4), f32(7.6) * x',
                       np.complex64(5.1 + 3j),
                       complex_broadcast_scalar1=[np.complex64])
 

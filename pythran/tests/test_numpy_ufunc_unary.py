@@ -27,7 +27,7 @@ unary_func_by_module = {
         'isnan', 'invert', 'isfinite',
         'log', 'log10', 'log1p', 'log2', 'logical_not',
         'negative',
-        'rad2deg', 'radians', 'reciprocal', 'rint', 'round', 'round_',
+        'rad2deg', 'radians', 'reciprocal', 'rint', 'round',
         'sign', 'signbit',
         'sin', 'sinh', 'spacing', 'sqrt', 'square',
         'tan', 'tanh', 'trunc',
@@ -35,6 +35,9 @@ unary_func_by_module = {
     ),
     'scipy.special': ('gammaln', 'gamma', 'i0', 'i0e', 'ndtr', 'ndtri')
 }
+
+if hasattr(numpy, 'round_'):  # disappeared in numpy 2.x
+    unary_func_by_module['numpy'] += 'round_',
 
 if scipy is None:
     del unary_func_by_module['scipy.special']

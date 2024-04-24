@@ -51,7 +51,7 @@ class TestNumpyFunc1(TestEnv):
     @unittest.skipIf(sys.maxsize == (2**31 - 1), "overflow test")
     def test_sum12_(self):
         self.run_test("def np_sum12_(a): import numpy as np ; return np.sum(a)",
-                      numpy.array([2**32-1, -2**32 +1 , -2**32 + 1], dtype=numpy.uint32), np_sum12_=[NDArray[numpy.uint32,:]])
+                      numpy.array([2**32-1, 2**31 +1 , 2**31 + 1], dtype=numpy.uint32), np_sum12_=[NDArray[numpy.uint32,:]])
 
     def test_sum13_(self):
         self.run_test("def np_sum13_(a): import numpy as np ; return np.sum(a)",
@@ -60,7 +60,7 @@ class TestNumpyFunc1(TestEnv):
     @unittest.skipIf(sys.maxsize == (2**31 - 1), "overflow test")
     def test_sum14_(self):
         self.run_test("def np_sum14_(a): import numpy as np ; return np.sum(a)",
-                      numpy.array([2**31-1, 2**31 +1 , 2**31 + 1], dtype=numpy.int32), np_sum14_=[NDArray[numpy.int32,:]])
+                      numpy.array([2**30-1, 2**30 +1 , 2**30 + 1], dtype=numpy.int32), np_sum14_=[NDArray[numpy.int32,:]])
 
     def test_sum15_(self):
         self.run_test("def np_sum15_(a): import numpy as np ; return np.sum(a, dtype=int)",
@@ -240,11 +240,12 @@ class TestNumpyFunc1(TestEnv):
                       numpy.array([float("inf"), float("inf"), -float('inf')]),
                       np_allclose4=[NDArray[float,:]])
 
-    def test_alltrue0(self):
-        self.run_test("def np_alltrue0(b): from numpy import alltrue ; return alltrue(b)", numpy.array([True, False, True, True]), np_alltrue0=[NDArray[bool,:]])
+    if hasattr(numpy, 'alltrue'):  # disappeared in numpy 2.x
+        def test_alltrue0(self):
+            self.run_test("def np_alltrue0(b): from numpy import alltrue ; return alltrue(b)", numpy.array([True, False, True, True]), np_alltrue0=[NDArray[bool,:]])
 
-    def test_alltrue1(self):
-        self.run_test("def np_alltrue1(a): from numpy import alltrue ; return alltrue(a >= 5)", numpy.array([1, 5, 2, 7]), np_alltrue1=[NDArray[int,:]])
+        def test_alltrue1(self):
+            self.run_test("def np_alltrue1(a): from numpy import alltrue ; return alltrue(a >= 5)", numpy.array([1, 5, 2, 7]), np_alltrue1=[NDArray[int,:]])
 
     def test_count_nonzero0(self):
         self.run_test("def np_count_nonzero0(a): from numpy import count_nonzero; return count_nonzero(a)",

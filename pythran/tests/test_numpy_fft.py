@@ -17,8 +17,11 @@ class TestNumpyRFFT(TestEnv):
         self.run_test("def test_rfft_2(x,n): from numpy.fft import rfft ; return rfft(x,n)", numpy.arange(0,8.),9, test_rfft_2=[NDArray[float,:],int])
     def test_rfft_3(self):
         self.run_test("def test_rfft_3(x,n): from numpy.fft import rfft ; return rfft(x,n)", numpy.arange(0,8.),7, test_rfft_3=[NDArray[float,:],int])
+
+    @unittest.skipIf(LooseVersion(numpy.__version__) >= '2', "see https://github.com/numpy/numpy/issues/26349")
     def test_rfft_4(self):
         self.run_test("def test_rfft_4(x,n): from numpy.fft import rfft ; return rfft(x,n)", numpy.arange(0,8.),6, test_rfft_4=[NDArray[float,:],int])
+
     def test_rfft_5(self):
         self.run_test("def test_rfft_5(x,n): from numpy.fft import rfft ; return rfft(x,n)", numpy.arange(0,8.),10, test_rfft_5=[NDArray[float,:],int])
 
@@ -254,8 +257,11 @@ class TestNumpyIHFFT(TestEnv):
         self.run_test("def test_ihfft_2(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),9, test_ihfft_2=[NDArray[float,:],int])
     def test_ihfft_3(self):
         self.run_test("def test_ihfft_3(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),7, test_ihfft_3=[NDArray[float,:],int])
+
+    @unittest.skipIf(LooseVersion(numpy.__version__) >= '2', "see https://github.com/numpy/numpy/issues/26349")
     def test_ihfft_4(self):
         self.run_test("def test_ihfft_4(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),6, test_ihfft_4=[NDArray[float,:],int])
+
     def test_ihfft_5(self):
         self.run_test("def test_ihfft_5(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),10, test_ihfft_5=[NDArray[float,:],int])
 

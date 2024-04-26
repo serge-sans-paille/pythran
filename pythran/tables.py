@@ -4612,6 +4612,11 @@ def save_arguments(module_name, elements):
 
             args = [ast.Name(arg, ast.Param(), None, None)
                     for arg in spec.args]
+
+            # pop 'self' if we have a bound method
+            if inspect.ismethod(obj):
+                args = args[1:]
+
             defaults = list(spec.defaults or [])
             args += [ast.Name(arg, ast.Param(), None, None)
                      for arg in spec.kwonlyargs]

@@ -510,11 +510,12 @@ def test_copy0(x):
     def test_asarray6(self):
         self.run_test("def np_asarray6(a):\n from numpy import asarray\n return asarray(a, dtype=int)", 1.5, np_asarray6=[float])
 
-    def test_asfarray0(self):
-        self.run_test("def np_asfarray0(a):\n from numpy import asfarray; b = asfarray(a) ; return a is b", numpy.arange(3.), np_asfarray0=[NDArray[float,:]])
+    if hasattr(numpy, 'farray'):
+        def test_asfarray0(self):
+            self.run_test("def np_asfarray0(a):\n from numpy import asfarray; b = asfarray(a) ; return a is b", numpy.arange(3.), np_asfarray0=[NDArray[float,:]])
 
-    def test_asfarray1(self):
-        self.run_test("def np_asfarray1(a):\n from numpy import asfarray; b = asfarray(a) ; return a is not b", numpy.arange(3), np_asfarray1=[NDArray[int,:]])
+        def test_asfarray1(self):
+            self.run_test("def np_asfarray1(a):\n from numpy import asfarray; b = asfarray(a) ; return a is not b", numpy.arange(3), np_asfarray1=[NDArray[int,:]])
 
     def test_astype0(self):
         self.run_test("def np_astype0(a):\n return a.astype(float)", numpy.arange(3), np_astype0=[NDArray[int,:]])

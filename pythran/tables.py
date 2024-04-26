@@ -2547,8 +2547,8 @@ _numpy_array_signature = Union[
 ]
 
 
-def expand_numpy_2_args(args, defaults=None):
-    if numpy.__version__[0] < '2':
+def expand_numpy_2_args(args, defaults=None, force=False):
+    if force or numpy.__version__[0] < '2':
         if defaults is not None:
             return {'args': args, 'defaults': defaults}
         else:
@@ -2941,7 +2941,9 @@ MODULES = {
         ),
         "alltrue": ConstFunctionIntr(
             signature=_numpy_unary_op_bool_axis_signature,
-            return_range=interval.bool_values
+            return_range=interval.bool_values,
+            args=("a", "axis"),
+            defaults=(None,)
         ),
         "amax": ConstFunctionIntr(signature=_numpy_unary_op_axis_signature),
         "amin": ConstFunctionIntr(signature=_numpy_unary_op_axis_signature),
@@ -3687,7 +3689,9 @@ MODULES = {
             signature=_numpy_unary_op_cumsum_axis_signature
         ),
         "cumproduct": ConstFunctionIntr(
-            signature=_numpy_unary_op_cumsum_axis_signature
+            signature=_numpy_unary_op_cumsum_axis_signature,
+            args=("a", "axis", "dtype", "out"),
+            defaults=(None, None, None),
         ),
         "cumsum": ConstMethodIntr(
             signature=_numpy_unary_op_cumsum_axis_signature
@@ -3883,7 +3887,10 @@ MODULES = {
             signature=_numpy_binary_op_signature
         ),
         "prod": ConstMethodIntr(),
-        "product": ConstFunctionIntr(),
+        "product": ConstFunctionIntr(
+            args=("a", "axis", "dtype", "out"),
+            defaults=(None, None, None),
+                ),
         "ptp": ConstMethodIntr(),
         "put": MethodIntr(),
         "putmask": FunctionIntr(),
@@ -3954,7 +3961,7 @@ MODULES = {
             "rand": FunctionIntr(global_effects=True,
                 **expand_numpy_2_args(args=())),
             "ranf": FunctionIntr(global_effects=True,
-                **expand_numpy_2_args(args=('size',))),
+                **expand_numpy_2_args(args=('size',), force=True)),
             "randint": FunctionIntr(global_effects=True,
                 **expand_numpy_2_args(args=("low", "high", "size"),
                                       defaults=(None, None))),
@@ -3970,7 +3977,7 @@ MODULES = {
                 **expand_numpy_2_args(args=('scale', 'size',),
                                       defaults=(1.0, None,))),
             "sample": FunctionIntr(global_effects=True,
-                **expand_numpy_2_args(args=('size',))),
+                **expand_numpy_2_args(args=('size',), force=True)),
             "seed": FunctionIntr(global_effects=True),
             "shuffle": FunctionIntr(global_effects=True),
             "standard_exponential": FunctionIntr(global_effects=True,
@@ -4017,7 +4024,10 @@ MODULES = {
         "sin": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
         "sinh": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
         "size": ConstFunctionIntr(return_range=interval.positive_values),
-        "sometrue": ConstFunctionIntr(),
+        "sometrue": ConstFunctionIntr(
+            args=("a", "axis"),
+            defaults=(None,)
+                ),
         "sort": ConstFunctionIntr(),
         "sort_complex": ConstFunctionIntr(),
         "spacing": ConstFunctionIntr(),
@@ -4569,6 +4579,8 @@ try:
 except ImportError:
     pass
 
+def looks_like_a_forward_function(spec):
+    return not spec.args and spec.varargs == 'args' and spec.varkw == 'kwargs'
 
 # populate argument description through introspection
 def save_arguments(module_name, elements):
@@ -4590,6 +4602,12 @@ def save_arguments(module_name, elements):
             try:
                 spec = inspect.getfullargspec(obj)
             except:
+                continue
+
+            # some function are actually forward function, detect those
+            # and accept to use our description instead.
+            if looks_like_a_forward_function(spec):
+                assert signature.args.args, "{} require an explicit description".format(elem)
                 continue
 
             args = [ast.Name(arg, ast.Param(), None, None)

@@ -10,7 +10,13 @@ except ImportError:
 
 
 class TestNumpyUFuncUnary(TestEnv):
-    pass
+
+    def test_signbit0(self):
+        self.run_test(
+            "def signbit0(x): import numpy as np; return np.signbit(x)",
+            -numpy.nan,
+            signbit0=[float])
+
 
 
 # automatic generation of basic test cases for ufunc

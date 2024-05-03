@@ -22,7 +22,7 @@ from pythran.version import __version__
 from pythran.utils import cxxid
 import pythran.frontend as frontend
 
-from setuptools._distutils import sysconfig
+import sysconfig
 
 try:
     # `numpy.distutils is deprecated, may not be present, or broken

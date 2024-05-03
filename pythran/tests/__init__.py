@@ -227,7 +227,7 @@ class TestEnv(unittest.TestCase):
         Raises:
            AssertionError by 'unittest' if return value differ.
            SyntaxError if code is not python valid.
-           pythran.CompileError if generated code can't be compiled.
+           pythran.errors.PythranCompileError if generated code can't be compiled.
            ...possibly others...
         """
         # Extract special keys from interface.
@@ -284,7 +284,7 @@ class TestEnv(unittest.TestCase):
         Raises:
            AssertionError by 'unittest' if return value differ.
            SyntaxError if code is not python valid.
-           pythran.CompileError if generated code can't be compiled.
+           pythran.errors.PythranCompileError if generated code can't be compiled.
            ...possibly others...
         """
         # Extract special keys from interface.

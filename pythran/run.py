@@ -9,8 +9,7 @@ import sys
 
 import pythran
 
-from pythran.errors import PythranSyntaxError, PythranTypeError
-from distutils.errors import CompileError
+from pythran.errors import PythranSyntaxError, PythranTypeError, PythranCompileError
 
 logger = logging.getLogger("pythran")
 
@@ -211,7 +210,7 @@ def run():
         logger.critical("I am in trouble. Your input file does not seem "
                         "to match Pythran's constraints...\n" + str(e))
         sys.exit(1)
-    except CompileError as e:
+    except PythranCompileError as e:
         logger.critical("Cover me Jack. Jack? Jaaaaack!!!!\n"
                         "E: " + str(e))
         sys.exit(1)

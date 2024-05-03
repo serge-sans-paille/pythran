@@ -6,6 +6,11 @@ class PythranInternalError(Exception):
     """ Exception raise on Incorrect internal behavior in Pythran. """
 
 
+class PythranCompileError(Exception):
+
+    """ Exception raise on when Pythran fails the compile to binary step. """
+
+
 class PythranSyntaxError(SyntaxError):
     def __init__(self, msg, node=None):
         SyntaxError.__init__(self, msg)

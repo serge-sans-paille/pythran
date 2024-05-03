@@ -9,6 +9,7 @@ from pythran.cxxgen import PythonModule, Include, Line, Statement
 from pythran.cxxgen import FunctionBody, FunctionDeclaration, Value, Block
 from pythran.cxxgen import ReturnStatement
 from pythran.dist import PythranExtension, PythranBuildExt
+from pythran.errors import PythranCompileError
 from pythran.middlend import refine, mark_unexported_functions
 from pythran.passmanager import PassManager
 from pythran.tables import pythran_ward
@@ -21,12 +22,8 @@ from pythran.version import __version__
 from pythran.utils import cxxid
 import pythran.frontend as frontend
 
-try:
-    from distutils.errors import CompileError
-    from distutils import sysconfig
-except ImportError:
-    from setuptools.errors import CompileError
-    from setuptools._distutils import sysconfig
+from setuptools._distutils import sysconfig
+
 try:
     # `numpy.distutils is deprecated, may not be present, or broken
     from numpy.distutils.core import setup
@@ -335,7 +332,7 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
 def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     '''c++ file -> native module
     Return the filename of the produced shared library
-    Raises CompileError on failure
+    Raises PythranCompileError on failure
 
     '''
 
@@ -360,7 +357,7 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
                            '--build-temp', buildtmp]
               )
     except SystemExit as e:
-        raise CompileError(str(e))
+        raise PythranCompileError(str(e))
 
     def copy(src_file, dest_file):
         # not using shutil.copy because it fails to copy stat across devices
@@ -469,7 +466,7 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
                                           str(module),
                                           output_binary=output_file,
                                           **kwargs)
-        except CompileError:
+        except PythranCompileError:
             logger.warning("Compilation error, "
                            "trying hard to find its origin...")
             error_checker()
@@ -562,7 +559,7 @@ def import_pythranfile(pythranpath, **kwargs):
 
 def test_compile():
     '''Simple passthrough compile test.
-    May raises CompileError Exception.
+    May raises PythranCompileError Exception.
 
     '''
     code = '''

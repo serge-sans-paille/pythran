@@ -2,7 +2,7 @@
 
 # TODO: check http://code.google.com/p/unladen-swallow/wiki/Benchmarks
 import os
-from distutils.version import LooseVersion
+from packaging.version import Version
 import numpy
 import unittest
 
@@ -18,7 +18,7 @@ class TestCases(TestFromDir):
 
 TestCases.populate(TestCases)
 
-if LooseVersion(numpy.__version__) >= '1.20':
+if Version(numpy.__version__) >= Version('1.20'):
     del TestCases.test_train_equalizer_norun0
     del TestCases.test_train_eq_run0
     del TestCases.test_train_eq_run1

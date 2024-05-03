@@ -1,9 +1,9 @@
 import unittest
-from distutils.errors import CompileError
 from pythran.tests import TestFromDir
 import os
 import pythran
 from pythran.syntax import PythranSyntaxError
+from pythran.errors import PythranCompileError
 from pythran.spec import Spec
 
 class TestOpenMP(TestFromDir):
@@ -48,7 +48,7 @@ try:
         TestOpenMPLegacy.populate(TestOpenMPLegacy)
 except PythranSyntaxError:
     raise
-except (CompileError, ImportError):
+except (PythranCompileError, ImportError):
     pass
 
 

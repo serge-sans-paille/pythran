@@ -267,6 +267,10 @@ def make_extension(python, **extra):
             blas = numpy.show_config('dicts')["Build Dependencies"]["blas"]
             libblas = {'openblas64': 'openblas'}.get(blas['name'], blas['name'])
             extension["libraries"].append(libblas)
+            libdir = blas['lib directory']
+            if libdir and libdir != 'undefined':
+                extension['library_dirs'].append(libdir)
+
 
 
     # final macro normalization

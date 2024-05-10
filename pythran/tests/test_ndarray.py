@@ -778,6 +778,21 @@ def gexpr_baseid2(N):
                       numpy.arange(5), [1] * 5,
                       gexpr_copy2=[NDArray[int, :], List[int]])
 
+    def test_gexpr_copy3(self):
+        self.run_test("def gexpr_copy3(a,b): assert a is not b; a[1:] = b[:-1]; return a",
+                      numpy.arange(5), numpy.array([1] * 5),
+                      gexpr_copy3=[NDArray[int, :], NDArray[int, :]])
+
+    def test_gexpr_copy4(self):
+        self.run_test("def gexpr_copy4(a): b = a; a[1:] = b[:-1]; return a",
+                      numpy.arange(5),
+                      gexpr_copy4=[NDArray[int, :]])
+
+    def test_gexpr_copy5(self):
+        self.run_test("def gexpr_copy5(a): b = a if len(a) else a.copy(); a[1:] = b[:-1]; return a",
+                      numpy.arange(5),
+                      gexpr_copy5=[NDArray[int, :]])
+
     def test_ndarray_iter0(self):
         self.run_test("def ndarray_iter0(a): return list(map(str, a))",
                       numpy.arange(16),

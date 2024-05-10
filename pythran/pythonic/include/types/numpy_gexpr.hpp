@@ -744,6 +744,9 @@ namespace types
     _copy(E const &expr);
 
     template <class E>
+    numpy_gexpr &_copy_restrict(E const &expr);
+
+    template <class E>
     numpy_gexpr &operator=(E const &expr);
 
     numpy_gexpr &operator=(numpy_gexpr const &expr);

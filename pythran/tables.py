@@ -2560,6 +2560,7 @@ MODULES = {
             "kwonly": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
             "make_shape": ConstFunctionIntr(),
+            "restrict_assign": FunctionIntr(),
             "static_if": ConstFunctionIntr(),
             "StaticIfBreak": ConstFunctionIntr(),
             "StaticIfCont": ConstFunctionIntr(),

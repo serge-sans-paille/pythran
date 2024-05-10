@@ -544,6 +544,11 @@ class Aliases(ModuleAnalysis):
 
     # aliasing created by statements
 
+    def init_function_alias(self, node):
+        "each argument is bound to a different identifier"
+        self.aliases.update((arg.id, {arg})
+                            for arg in node.args.args)
+
     def visit_FunctionDef(self, node):
         '''
         Initialise aliasing default value before visiting.
@@ -558,8 +563,7 @@ class Aliases(ModuleAnalysis):
         self.aliases.update((k, {v})
                             for k, v in self.global_declarations.items())
 
-        self.aliases.update((arg.id, {arg})
-                            for arg in node.args.args)
+        self.init_function_alias(node)
 
         self.generic_visit(node)
         if Aliases.RetId in self.aliases:
@@ -611,6 +615,27 @@ class Aliases(ModuleAnalysis):
                         for ra in return_alias(args)}
 
             node.return_alias = merge_return_aliases
+
+    def visit_Assert(self, node):
+        self.generic_visit(node)
+
+        if not isinstance(node.test, ast.Compare):
+            return
+        if len(node.test.ops) != 1:
+            return
+        op = node.test.ops[0]
+        comparator = node.test.comparators[0]
+
+        if not isinstance(node.test.left, ast.Name):
+            return
+        if not isinstance(comparator, ast.Name):
+            return
+
+        if isinstance(op, ast.IsNot):
+            left_aliases = self.aliases[node.test.left.id]
+            right_aliases = self.aliases[comparator.id]
+            self.aliases[node.test.left.id] = self.aliases[node.test.left.id].difference(right_aliases)
+            right_aliases.difference_update(left_aliases)
 
     def visit_Assign(self, node):
         r'''
@@ -786,3 +811,14 @@ class StrictAliases(Aliases):
 
     def get_unbound_value_set(self):
         return set()
+
+
+class InterproceduralAliases(Aliases):
+    """
+    Gather aliases while assuming two different parameters can point to the same
+    value
+    """
+
+    def init_function_alias(self, node):
+        self.aliases.update((arg.id, set(node.args.args))
+                            for arg in node.args.args)

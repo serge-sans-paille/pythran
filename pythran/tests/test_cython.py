@@ -11,7 +11,10 @@ def add_test(name, runner, target):
 
 for intermediate in glob.glob(os.path.join(os.path.dirname(__file__), "cython",
                                            "*.cpp")):
-    os.remove(intermediate)
+    try:
+        os.remove(intermediate)
+    except:
+        pass
 
 try:
     import Cython

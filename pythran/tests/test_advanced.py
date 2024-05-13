@@ -5,6 +5,7 @@ from unittest import skip, skipIf
 import numpy
 
 from pythran.typing import *
+from packaging.version import Version
 
 class TestAdvanced(TestEnv):
 
@@ -287,6 +288,7 @@ def combiner_on_empty_list():
             numpy.array([[0., 2.], [1., 3.]]),
             matmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])
 
+    @skipIf(Version(numpy.__version__) <= Version('1.26'), "Not supported upstream")
     def test_imatmul_operator(self):
         code = 'def imatmul_operator(x, y): x @= y; return x'
         self.run_test(

@@ -2,8 +2,6 @@ from pythran.tests import TestEnv
 from pythran.typing import NDArray, Tuple, List
 
 import numpy
-from distutils.version import LooseVersion
-
 import unittest
 
 try:

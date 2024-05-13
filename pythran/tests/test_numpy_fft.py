@@ -2,7 +2,7 @@ import unittest
 from pythran.tests import TestEnv
 import numpy
 from pythran.typing import NDArray
-from distutils.version import LooseVersion
+from packaging.version import Version
 
 
 class TestNumpyRFFT(TestEnv):
@@ -18,7 +18,7 @@ class TestNumpyRFFT(TestEnv):
     def test_rfft_3(self):
         self.run_test("def test_rfft_3(x,n): from numpy.fft import rfft ; return rfft(x,n)", numpy.arange(0,8.),7, test_rfft_3=[NDArray[float,:],int])
 
-    @unittest.skipIf(LooseVersion(numpy.__version__) >= '2', "see https://github.com/numpy/numpy/issues/26349")
+    @unittest.skipIf(Version(numpy.__version__) >= Version('2'), "see https://github.com/numpy/numpy/issues/26349")
     def test_rfft_4(self):
         self.run_test("def test_rfft_4(x,n): from numpy.fft import rfft ; return rfft(x,n)", numpy.arange(0,8.),6, test_rfft_4=[NDArray[float,:],int])
 
@@ -132,7 +132,7 @@ class TestNumpyFFTN(TestEnv):
 
     # Various norms
 
-    @unittest.skipIf(LooseVersion(numpy.__version__) <'1.20', "introduced in 1.20")
+    @unittest.skipIf(Version(numpy.__version__) < Version('1.20'), "introduced in 1.20")
     def test_fftn_12(self):
         self.run_test("def test_fftn_12(x): from numpy.fft import fftn ; return fftn(x, (6,), norm='backward')",
                       numpy.arange(0,8), test_fftn_12=[NDArray[int,:]])
@@ -140,7 +140,7 @@ class TestNumpyFFTN(TestEnv):
         self.run_test("def test_fftn_13(x): from numpy.fft import fftn ; return fftn(x, (8,), norm='ortho')",
                       numpy.arange(0,8.), test_fftn_13=[NDArray[float,:]])
 
-    @unittest.skipIf(LooseVersion(numpy.__version__) <'1.20', "introduced in 1.20")
+    @unittest.skipIf(Version(numpy.__version__) < Version('1.20'), "introduced in 1.20")
     def test_fftn_14(self):
         self.run_test("def test_fftn_14(x): from numpy.fft import fftn ; return fftn(x, (10,), norm='forward')",
                       numpy.arange(0, 8.) + 1.j, test_fftn_14=[NDArray[complex,:]])
@@ -258,7 +258,7 @@ class TestNumpyIHFFT(TestEnv):
     def test_ihfft_3(self):
         self.run_test("def test_ihfft_3(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),7, test_ihfft_3=[NDArray[float,:],int])
 
-    @unittest.skipIf(LooseVersion(numpy.__version__) >= '2', "see https://github.com/numpy/numpy/issues/26349")
+    @unittest.skipIf(Version(numpy.__version__) >= Version('2'), "see https://github.com/numpy/numpy/issues/26349")
     def test_ihfft_4(self):
         self.run_test("def test_ihfft_4(x,n): from numpy.fft import ihfft ; return ihfft(x,n)", numpy.arange(0,8.),6, test_ihfft_4=[NDArray[float,:],int])
 

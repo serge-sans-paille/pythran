@@ -287,6 +287,14 @@ def combiner_on_empty_list():
             numpy.array([[0., 2.], [1., 3.]]),
             matmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])
 
+    def test_imatmul_operator(self):
+        code = 'def imatmul_operator(x, y): x @= y; return x'
+        self.run_test(
+            code,
+            numpy.array([[1., 1.], [2., 2.]]),
+            numpy.array([[0., 2.], [1., 3.]]),
+            imatmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])
+
     def test_generator_handler_name(self):
         code = '''
             def foo(x):

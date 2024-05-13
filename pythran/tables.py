@@ -3586,8 +3586,8 @@ MODULES = {
         "complex256": ConstFunctionIntr(signature=_complex_signature),
         "conj": ConstMethodIntr(signature=_numpy_unary_op_signature),
         "conjugate": ConstMethodIntr(signature=_numpy_unary_op_signature),
-        "convolve": ConstMethodIntr(),
-        "correlate": ConstMethodIntr(),
+        "convolve": ConstMethodIntr(requires_blas=True),
+        "correlate": ConstMethodIntr(requires_blas=True),
         "copy": ConstMethodIntr(signature=_numpy_array_signature),
         "copyto": FunctionIntr(
             argument_effects=[UpdateEffect(), ReadEffect(),
@@ -3709,7 +3709,7 @@ MODULES = {
         "diff": ConstFunctionIntr(),
         "digitize": ConstFunctionIntr(),
         "divide": UFunc(BINARY_UFUNC),
-        "dot": ConstMethodIntr(),
+        "dot": ConstMethodIntr(requires_blas=True),
         "double": ConstFunctionIntr(signature=_float_signature),
         "dtype": ClassWithConstConstructor(CLASSES["dtype"]),
         "e": ConstantIntr(),
@@ -3779,7 +3779,7 @@ MODULES = {
         "indices": ConstFunctionIntr(),
         "inf": ConstantIntr(),
         "Inf": ConstantIntr(),
-        "inner": ConstFunctionIntr(),
+        "inner": ConstFunctionIntr(requires_blas=True),
         "insert": ConstFunctionIntr(),
         "interp": ConstFunctionIntr(),
         "intersect1d": ConstFunctionIntr(),
@@ -3817,7 +3817,7 @@ MODULES = {
         "lexsort": ConstFunctionIntr(),
         "linalg": {
             "norm": FunctionIntr(),
-            "matrix_power": ConstFunctionIntr(),
+            "matrix_power": ConstFunctionIntr(requires_blas=True),
         },
         "linspace": ConstFunctionIntr(),
         "log": ConstFunctionIntr(),
@@ -4071,7 +4071,7 @@ MODULES = {
         "ushort": ConstFunctionIntr(signature=_int_signature),
         "var": ConstMethodIntr(),
         "vectorize": ConstFunctionIntr(),
-        "vdot": ConstMethodIntr(),
+        "vdot": ConstMethodIntr(requires_blas=True),
         "vstack": ConstFunctionIntr(),
         "where": ConstFunctionIntr(),
         "zeros": ConstFunctionIntr(args=('shape', 'dtype'),
@@ -4408,8 +4408,12 @@ MODULES = {
         "__lshift__": ConstFunctionIntr(
             signature=_numpy_int_binary_op_signature
         ),
-        "matmul": ConstFunctionIntr(signature=_operator_mul_signature),
-        "__matmul__": ConstFunctionIntr(signature=_operator_mul_signature),
+        "matmul": ConstFunctionIntr(signature=_operator_mul_signature,
+                                    requires_blas=True),
+        "__matmul__": ConstFunctionIntr(signature=_operator_mul_signature,
+                                        requires_blas=True),
+        "imatmul": MethodIntr(update_effects, requires_blas=True),
+        "__imatmul__": MethodIntr(update_effects, requires_blas=True),
         "mod": ConstFunctionIntr(signature=_operator_mod_signature),
         "__mod__": ConstFunctionIntr(signature=_operator_mod_signature),
         "mul": ConstFunctionIntr(signature=_operator_mul_signature),
@@ -4737,6 +4741,21 @@ def save_attribute(elements, module_path):
 
 
 save_attribute(MODULES, ())
+
+blas_requires = set()
+
+def save_blas_requires(elements, module_path):
+    """ Recursively save attributes with module name and signature. """
+    for elem, signature in elements.items():
+        if isinstance(signature, dict):  # Submodule case
+            save_blas_requires(signature, module_path + (elem,))
+        elif signature.requires_blas:
+            blas_requires.add(module_path + (elem,))
+        elif isinstance(signature, Class):
+            save_blas_requires(signature.fields, module_path + (elem,))
+
+save_blas_requires(MODULES, ())
+
 
 # patch beniget with pythran-specific builtins
 import beniget

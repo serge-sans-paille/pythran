@@ -160,10 +160,8 @@ def make_extension(python, **extra):
     cfg = init_cfg('pythran.cfg',
                    'pythran-{}.cfg'.format(sys.platform),
                    '.pythranrc',
-                   extra.get('config', None))
+                   extra.pop('config', None))
 
-    if 'config' in extra:
-        extra.pop('config')
 
     def parse_define(define):
         index = define.find('=')

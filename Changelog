@@ -1,3 +1,32 @@
+2024-05-14 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Support numpy.vectorize, numpy.argsort's kind keyword, real/imag on
+	  numpy_iexpr
+
+	* Add missing omp.set_num_thread descriptor
+
+	* Provide --trace-allocations switch
+
+	* Support empty PYTHRANRC for reproducible builds
+
+	* Improve compilation time
+
+	* Support ufunc creation through #pythran export ufunc func_name(arg_types...)
+
+	* Fix memory leak when returing numpy_gexpr to Python
+
+	* Numpy 2.x support
+
+	* Upgrade xsimd to 13.0.0
+
+	* Improve detection of non-overlapping memory area during gexpr assignment
+
+	* Improve python 3.12 support (distutils removal)
+
+	* Support imatmul
+
+	* Only link blas when needed
+
 2023-12-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Use pyproject.toml to store setup and build configuration

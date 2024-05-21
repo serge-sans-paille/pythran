@@ -284,7 +284,7 @@ Easy enough, isn't it?
 
 
 .pythran files
-**************
+--------------
 
 Instead of writing the export lines in the ``.py`` file, it is possible to
 write them, **without the #pythran** prefix, inside a file that has the same
@@ -294,7 +294,7 @@ file ``I_love.py`` can have its export lines in the ``I_love.pythran`` file, usi
     export function_name(argument_type*)
 
 Limitations
-***********
+-----------
 
 Pythran tries hard to produce code that has the same observable behavior as the original Python code.
 Unfortunately it's not always possible:
@@ -370,7 +370,7 @@ in the ``pyproject.toml`` file for your package:
         "pythran",
 
 Setuptools Integration
-``````````````````````
+**********************
 
 Pythran comes with a ``PythranExtension`` class that extends ``setuptools`` and
 can be used like this to compile Pythan modules into extension modules::
@@ -404,7 +404,7 @@ you can change its base class by using ``PythranBuildExt[base_cls]`` instead.
 
 
 Cross compilation
-`````````````````
+*****************
 
 Python does not have good support for cross compilation; neither does Pythran's
 CLI interface. Using the Python-to-C++ transpilation and using a build system
@@ -518,7 +518,7 @@ This variable is a tuple that holds three fields:
 
 
 Adding OpenMP directives
-------------------------
+************************
 
 OpenMP is a standard set of directives for C, C++ and FORTRAN that makes it
 easier to turn a sequential program into a multi-threaded one. Pythran
@@ -540,7 +540,7 @@ which runs a code analyzer that displays extra information concerning parallel `
 
 
 Getting Pure C++
-----------------
+****************
 
 Pythran can be used to generate raw templated C++ code, without any Python
 glue. To do so use the ``-e`` switch. It will turn the Python code into C++
@@ -549,7 +549,7 @@ particular Pythran specification.
 
 
 Understanding the optimized Python code
---------------------------------------
+***************************************
 
 Curious Python developers might want to study how Pythran transforms their
 codes.  With the ``-P`` switch, Pythran optimizes the Python code, prints the
@@ -575,7 +575,7 @@ the stanard error stream information about stack allocation and their origin.
 
 
 Customizing Your ``.pythranrc``
--------------------------------
+*******************************
 
 Pythran checks for a file named ``.pythranrc`` and use it to *replace* the site
 configuration. Here are a few tricks!
@@ -599,7 +599,7 @@ Options specified using command-line arguments override the options found in the
 
 
 ``[compiler]``
-**************
+++++++++++++++
 
 This section contains compiler flags configuration. For education purpose, the default linux configuration is
 
@@ -667,7 +667,7 @@ This section contains compiler flags configuration. For education purpose, the d
 
 
 ``[pythran]``
-*************
++++++++++++++
 
 This one contains internal configuration settings. Play with it at your own risk!
 
@@ -683,7 +683,7 @@ This one contains internal configuration settings. Play with it at your own risk
     multiplications. Not very portable, but generally works on Linux.
 
 ``[typing]``
-************
+++++++++++++
 
 Another internal setting stuff. This controls the accuracy of the typing phase. An extract from the default setting file should convince you not to touch it::
 
@@ -705,7 +705,7 @@ Another internal setting stuff. This controls the accuracy of the typing phase. 
     max_heterogeneous_sequence_size = 16
 
 ``[backend]``
-*************
++++++++++++++
 
 This controls some behavior of the C++ backend, so the default should be safe::
 

@@ -199,6 +199,9 @@ def run():
                         "E: " + str(e))
         sys.exit(1)
     except ValueError as e:
+        from traceback import format_exception
+        msg = "".join(format_exception(type(e), e, e.__traceback__))
+        logger.info(msg)
         logger.critical("Chair to keyboard interface error\n"
                         "E: " + str(e))
         sys.exit(1)

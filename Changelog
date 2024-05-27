@@ -1,3 +1,7 @@
+2024-05-27 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+
+	* Fix massive memory leak in ndarray i troduced in 0.16.0
+
 2024-05-14 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Support numpy.vectorize, numpy.argsort's kind keyword, real/imag on

@@ -144,6 +144,7 @@ namespace utils
         Py_DECREF(mem->foreign);
       }
 #endif
+      mem->~memory();
       utils::deallocate(mem);
       mem = nullptr;
     }

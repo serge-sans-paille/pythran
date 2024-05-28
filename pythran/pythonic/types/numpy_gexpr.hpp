@@ -472,6 +472,13 @@ namespace types
                           numpy_gexpr<Arg, S...> &>::type
   numpy_gexpr<Arg, S...>::_copy(E const &expr)
   {
+    return _copy_restrict(expr);
+  }
+
+  template <class Arg, class... S>
+  template <class E>
+  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::_copy_restrict(E const &expr)
+  {
     constexpr bool vectorize =
         is_vectorizable &&
         std::is_same<dtype, typename dtype_of<E>::type>::value &&

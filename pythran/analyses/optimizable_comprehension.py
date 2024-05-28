@@ -10,7 +10,7 @@ class OptimizableComprehension(NodeAnalysis):
     """Find whether a comprehension can be optimized."""
     def __init__(self):
         self.result = set()
-        super(OptimizableComprehension, self).__init__(Identifiers)
+        super().__init__(Identifiers)
 
     def check_comprehension(self, iters):
         targets = {gen.target.id for gen in iters}

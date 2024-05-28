@@ -37,10 +37,10 @@ class Locals(ModuleAnalysis):
         self.result = dict()
         self.locals = set()
         self.nesting = 0
-        super(Locals, self).__init__()
+        super().__init__()
 
     def generic_visit(self, node):
-        super(Locals, self).generic_visit(node)
+        super().generic_visit(node)
         if node not in self.result:
             self.result[node] = self.result[self.expr_parent]
 

@@ -1,4 +1,3 @@
-
 import numpy as np
 def aaa(a):
     grid = np.empty((a, ))

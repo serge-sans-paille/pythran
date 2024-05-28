@@ -26,7 +26,7 @@ class PythranMagics(Magics):
 
     def __init__(self, shell):
         """ Init the pythran magic stuff. """
-        super(PythranMagics, self).__init__(shell)
+        super().__init__(shell)
         self._reloads = {}
 
     def _import_all(self, module):
@@ -57,7 +57,7 @@ class PythranMagics(Magics):
         for v in "OmWf":
             args_v = getattr(args, v)
             for target in ('extra_compile_args', 'extra_link_args'):
-                kwargs.setdefault(target, []).extend('-{}{}'.format(v, x)
+                kwargs.setdefault(target, []).extend(f'-{v}{x}'
                                                      for x in args_v)
 
         m = hashlib.md5()

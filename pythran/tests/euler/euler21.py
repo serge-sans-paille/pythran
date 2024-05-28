@@ -11,5 +11,5 @@
 
 def divisors(n): return list(i for i in range(1, n//2+1) if n % i == 0)
 def solve(m):
-	pair = dict( ((n, sum(divisors(n))) for n in range(1, m)) )
+	pair = { n: sum(divisors(n)) for n in range(1, m) }
 	return sum(n for n in range(1, m) if pair.get(pair[n], 0) == n and pair[n] != n)

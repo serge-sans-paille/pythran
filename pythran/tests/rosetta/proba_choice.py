@@ -45,7 +45,7 @@ def tester(func=probchoice, items=('good', 'bad' 'ugly'),
         Turns a list of probabilities into a string
         Also rounds FP values
         '''
-        return ",".join('%8.6f' % (p,) for p in probs)
+        return ",".join('{:8.6f}'.format(p) for p in probs)
 
     counter = dict()
     it = func(items, probs)

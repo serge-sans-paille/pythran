@@ -25,7 +25,7 @@ class RemoveDeadFunctions(Transformation):
     """
 
     def __init__(self):
-        super(RemoveDeadFunctions, self).__init__(DefUseChains)
+        super().__init__(DefUseChains)
 
     def visit_FunctionDef(self, node):
         if metadata.get(node, metadata.Local):

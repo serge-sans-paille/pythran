@@ -16,7 +16,7 @@ class Metadata(AST):
         """ Initialize content of these metadata. """
         self.data = list()
         self._fields = ('data',)
-        super(Metadata, self).__init__()
+        super().__init__()
 
     def __iter__(self):
         """ Enable iteration over every metadata informations. """
@@ -34,7 +34,7 @@ class Lazy(AST):
 
 class Comprehension(AST):
     def __init__(self, *args):  # no positional argument to be deep copyable
-        super(Comprehension, self).__init__()
+        super().__init__()
         if args:
             self.target = args[0]
 

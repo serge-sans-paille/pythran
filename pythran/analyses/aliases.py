@@ -22,7 +22,7 @@ class UnboundIdentifierError(RuntimeError):
     pass
 
 
-class DictLayer(object):
+class DictLayer:
     def __init__(self, base, layer=None):
         self.base = base
         self.layer = dict() if layer is None else layer
@@ -40,7 +40,7 @@ class DictLayer(object):
         return self.layer.get(key, self.base.get(key, default))
 
 
-class ContainerOf(object):
+class ContainerOf:
     '''
     Represents a container of something
 
@@ -84,7 +84,7 @@ class Aliases(ModuleAnalysis):
     def __init__(self):
         self.result = dict()
         self.aliases = None
-        super(Aliases, self).__init__(GlobalDeclarations)
+        super().__init__(GlobalDeclarations)
 
     @staticmethod
     def dump(result, filter=None):
@@ -92,7 +92,7 @@ class Aliases(ModuleAnalysis):
             output = io.StringIO()
             if isinstance(n, ContainerOf):
                 if n.index == n.index:  # always valid except for UnknownIndex
-                    output.write('[{}]='.format(n.index))
+                    output.write(f'[{n.index}]=')
                 containees = sorted(map(pp, n.containees))
                 output.write(', '.join(map("|{}|".format, containees)))
             else:
@@ -102,7 +102,7 @@ class Aliases(ModuleAnalysis):
         if isinstance(result, dict):
             for k, v in result.items():
                 if (filter is None) or isinstance(k, filter):
-                    print('{} => {}'.format(pp(k), sorted(map(pp, v))))
+                    print(f'{pp(k)} => {sorted(map(pp, v))}')
         elif isinstance(result, (frozenset, set)):
             print(sorted(map(pp, result)))
 

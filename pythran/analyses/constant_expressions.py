@@ -17,7 +17,7 @@ class ConstantExpressions(NodeAnalysis):
 
     def __init__(self):
         self.result = set()
-        super(ConstantExpressions, self).__init__(Globals, Locals, Aliases,
+        super().__init__(Globals, Locals, Aliases,
                                                   PureFunctions)
 
     def add(self, node):

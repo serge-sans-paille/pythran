@@ -64,8 +64,7 @@ def solve():
             for d in gen_inner(i+1):
                 for prime_power in powers:
                     yield prime_power * d
-        for d in gen_inner(0):
-            yield d
+        yield from gen_inner(0)
 
     MAX = 28124
     _refresh(MAX/2)

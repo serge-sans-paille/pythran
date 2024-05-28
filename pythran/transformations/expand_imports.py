@@ -39,7 +39,7 @@ class ExpandImports(Transformation):
     """
 
     def __init__(self):
-        super(ExpandImports, self).__init__(Ancestors)
+        super().__init__(Ancestors)
         self.imports = set()
         self.symbols = dict()
 

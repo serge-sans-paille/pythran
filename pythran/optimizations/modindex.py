@@ -93,7 +93,7 @@ class ModIndex(Transformation):
         new_id = node.left.id + '_m'
         i = 0
         while new_id in self.identifiers:
-            new_id = '{}_m{}'.format(node.left.id, i)
+            new_id = f'{node.left.id}_m{i}'
             i += 1
 
         rargs = range_.args.args

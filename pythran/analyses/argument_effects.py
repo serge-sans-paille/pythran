@@ -13,7 +13,7 @@ import gast as ast
 from functools import reduce
 
 
-class FunctionEffects(object):
+class FunctionEffects:
     def __init__(self, node):
         self.func = node
         if isinstance(node, ast.FunctionDef):
@@ -57,7 +57,7 @@ class ArgumentEffects(ModuleAnalysis):
         # modified by src
         self.result = DiGraph()
         self.node_to_functioneffect = {}
-        super(ArgumentEffects, self).__init__(Aliases, GlobalDeclarations,
+        super().__init__(Aliases, GlobalDeclarations,
                                               Intrinsics)
 
     def prepare(self, node):
@@ -67,7 +67,7 @@ class ArgumentEffects(ModuleAnalysis):
         Initialisation done for Pythonic functions and default value set for
         user defined functions.
         """
-        super(ArgumentEffects, self).prepare(node)
+        super().prepare(node)
         for i in self.intrinsics:
             fe = IntrinsicArgumentEffects[i]
             self.node_to_functioneffect[i] = fe
@@ -79,7 +79,7 @@ class ArgumentEffects(ModuleAnalysis):
             self.result.add_node(fe)
 
     def run(self, node):
-        result = super(ArgumentEffects, self).run(node)
+        result = super().run(node)
         candidates = set(result)
         while candidates:
             function = candidates.pop()

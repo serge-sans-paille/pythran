@@ -87,7 +87,7 @@ class Types(ModuleAnalysis):
                 if isinstance(function, dict):
                     register(name + "::" + fname, function)
                 else:
-                    tname = 'pythonic::{0}::functor::{1}'.format(name, fname)
+                    tname = f'pythonic::{name}::functor::{fname}'
                     self.result[function] = self.builder.NamedType(tname)
                     self.combiners[function] = function
                     if isinstance(function, Class):
@@ -95,10 +95,10 @@ class Types(ModuleAnalysis):
 
         for mname, module in MODULES.items():
             register(mname, module)
-        super(Types, self).prepare(node)
+        super().prepare(node)
 
     def run(self, node):
-        super(Types, self).run(node)
+        super().run(node)
         for head in self.current_global_declarations.values():
             if head not in self.result:
                 self.result[head] = "pythonic::types::none_type"
@@ -461,7 +461,7 @@ class Types(ModuleAnalysis):
         else:
             sty = pytype_to_ctype(ty)
         if node in self.immediates:
-            sty = "std::integral_constant<%s, %s>" % (sty,
+            sty = "std::integral_constant<{}, {}>".format(sty,
                                                       str(node.value).lower())
         self.result[node] = self.builder.NamedType(sty)
 
@@ -492,7 +492,7 @@ class Types(ModuleAnalysis):
                 else:
                     ntype = "pythonic::types::contiguous_slice"
             else:
-                ntype = "pythonic::types::cstride_slice<{}>".format(nstep.value)
+                ntype = f"pythonic::types::cstride_slice<{nstep.value}>"
             self.result[node] = self.builder.NamedType(ntype)
         else:
             self.result[node] = self.builder.NamedType(
@@ -521,7 +521,7 @@ class Types(ModuleAnalysis):
             self.visit(node.slice)
             self.update_type(node,
                              self.builder.ExpressionType,
-                             lambda a, *b: "{0}({1})".format(a, ", ".join(b)),
+                             lambda a, *b: "{}({})".format(a, ", ".join(b)),
                              self.result[node.value],
                              *[self.result[d] for d in node.slice.elts])
         elif isnum(node.slice) and node.slice.value >= 0:
@@ -537,7 +537,7 @@ class Types(ModuleAnalysis):
             self.visit(node.slice)
             self.update_type(node,
                              self.builder.ExpressionType,
-                             "{0}[{1}]".format,
+                             "{}[{}]".format,
                              self.result[node.value],
                              self.result[node.slice])
 
@@ -608,7 +608,7 @@ class Types(ModuleAnalysis):
         if node.type and node.name:
             if not isinstance(node.type, ast.Tuple):
                 tname = self.builder.NamedType(
-                    'pythonic::types::{0}'.format(node.type.attr))
+                    f'pythonic::types::{node.type.attr}')
                 self.result[node.type] = tname
                 self.combine(node.name, None, node.type)
         for n in node.body:

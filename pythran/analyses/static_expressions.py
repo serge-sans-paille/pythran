@@ -6,7 +6,7 @@ from pythran.passmanager import NodeAnalysis
 class HasStaticExpression(NodeAnalysis):
     def __init__(self):
         self.result = False
-        super(HasStaticExpression, self).__init__()
+        super().__init__()
 
     def visit_Attribute(self, node):
         self.generic_visit(node)
@@ -20,7 +20,7 @@ class StaticExpressions(NodeAnalysis):
     def __init__(self):
         self.result = set()
         self.constant_expressions = set()
-        super(StaticExpressions, self).__init__()
+        super().__init__()
 
     def add(self, node):
         self.result.add(node)

@@ -39,7 +39,7 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
         self.update = False
         self.defs = list()
         self.call_count = 0
-        super(Inlining, self).__init__(Inlinable, Aliases)
+        super().__init__(Inlinable, Aliases)
 
     def visit_Stmt(self, node):
         """ Add new variable definition before the Statement. """
@@ -102,7 +102,7 @@ class Inliner(ast.NodeTransformer):
     def __init__(self, match):
         """ match : {original_variable_name : Arguments use on call}. """
         self.match = match
-        super(Inliner, self).__init__()
+        super().__init__()
 
     def visit_Name(self, node):
         """ Transform name from match values if available. """

@@ -54,20 +54,20 @@ TYPE_TO_SUFFIX = {
 def pytype_to_ctype(t):
     """ Python -> pythonic type binding. """
     if isinstance(t, List):
-        return 'pythonic::types::list<{0}>'.format(
+        return 'pythonic::types::list<{}>'.format(
             pytype_to_ctype(t.__args__[0])
         )
     elif isinstance(t, Set):
-        return 'pythonic::types::set<{0}>'.format(
+        return 'pythonic::types::set<{}>'.format(
             pytype_to_ctype(t.__args__[0])
         )
     elif isinstance(t, Dict):
         tkey, tvalue = t.__args__
-        return 'pythonic::types::dict<{0},{1}>'.format(pytype_to_ctype(tkey),
+        return 'pythonic::types::dict<{},{}>'.format(pytype_to_ctype(tkey),
                                                        pytype_to_ctype(tvalue))
     elif isinstance(t, Tuple):
-        return 'decltype(pythonic::types::make_tuple({0}))'.format(
-            ", ".join('std::declval<{}>()'.format(pytype_to_ctype(p))
+        return 'decltype(pythonic::types::make_tuple({}))'.format(
+            ", ".join(f'std::declval<{pytype_to_ctype(p)}>()'
                       for p in t.__args__)
         )
     elif isinstance(t, NDArray):
@@ -78,62 +78,62 @@ def pytype_to_ctype(t):
                            else 'std::integral_constant<long, {}>'.format(
                                s.stop)
                            ) for s in t.__args__[1:])
-        pshape = 'pythonic::types::pshape<{0}>'.format(shapes)
-        arr = 'pythonic::types::ndarray<{0},{1}>'.format(
+        pshape = f'pythonic::types::pshape<{shapes}>'
+        arr = 'pythonic::types::ndarray<{},{}>'.format(
                     dtype, pshape)
         if t.__args__[1].start == -1:
-            return 'pythonic::types::numpy_texpr<{0}>'.format(arr)
+            return f'pythonic::types::numpy_texpr<{arr}>'
         elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):
             slices = ", ".join(['pythonic::types::normalized_slice'] * ndim)
-            return 'pythonic::types::numpy_gexpr<{0},{1}>'.format(arr, slices)
+            return f'pythonic::types::numpy_gexpr<{arr},{slices}>'
         else:
             return arr
     elif isinstance(t, Pointer):
-        return 'pythonic::types::pointer<{0}>'.format(
+        return 'pythonic::types::pointer<{}>'.format(
             pytype_to_ctype(t.__args__[0])
         )
     elif isinstance(t, Fun):
-        return 'pythonic::types::cfun<{0}({1})>'.format(
+        return 'pythonic::types::cfun<{}({})>'.format(
             pytype_to_ctype(t.__args__[-1]),
             ", ".join(pytype_to_ctype(arg) for arg in t.__args__[:-1]),
         )
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return PYTYPE_TO_CTYPE_TABLE[t]
     else:
-        raise NotImplementedError("{0}:{1}".format(type(t), t))
+        raise NotImplementedError(f"{type(t)}:{t}")
 
 
 def pytype_to_pretty_type(t):
     """ Python -> docstring type. """
     if isinstance(t, List):
-        return '{0} list'.format(pytype_to_pretty_type(t.__args__[0]))
+        return f'{pytype_to_pretty_type(t.__args__[0])} list'
     elif isinstance(t, Set):
-        return '{0} set'.format(pytype_to_pretty_type(t.__args__[0]))
+        return f'{pytype_to_pretty_type(t.__args__[0])} set'
     elif isinstance(t, Dict):
         tkey, tvalue = t.__args__
-        return '{0}:{1} dict'.format(pytype_to_pretty_type(tkey),
+        return '{}:{} dict'.format(pytype_to_pretty_type(tkey),
                                      pytype_to_pretty_type(tvalue))
     elif isinstance(t, Tuple):
-        return '({0})'.format(
+        return '({})'.format(
             ", ".join(pytype_to_pretty_type(p) for p in t.__args__)
         )
     elif isinstance(t, NDArray):
         dtype = pytype_to_pretty_type(t.__args__[0])
         ndim = len(t.__args__) - 1
-        arr = '{0}[{1}]'.format(
+        arr = '{}[{}]'.format(
             dtype,
             ','.join(':' if s.stop in (-1, None) else str(s.stop)
                      for s in t.__args__[1:]))
         # it's a transpose!
         if t.__args__[1].start == -1:
-            return '{} order(F)'.format(arr)
+            return f'{arr} order(F)'
         elif any(s.step is not None and s.step < 0 for s in t.__args__[1:]):
-            return '{0}[{1}]'.format(dtype, ','.join(['::'] * ndim))
+            return '{}[{}]'.format(dtype, ','.join(['::'] * ndim))
         else:
             return arr
     elif isinstance(t, Pointer):
         dtype = pytype_to_pretty_type(t.__args__[0])
-        return '{}*'.format(dtype)
+        return f'{dtype}*'
     elif isinstance(t, Fun):
         rtype = pytype_to_pretty_type(t.__args__[-1])
         argtypes = [pytype_to_pretty_type(arg) for arg in t.__args__[:-1]]
@@ -141,4 +141,4 @@ def pytype_to_pretty_type(t):
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return t.__name__
     else:
-        raise NotImplementedError("{0}:{1}".format(type(t), t))
+        raise NotImplementedError(f"{type(t)}:{t}")

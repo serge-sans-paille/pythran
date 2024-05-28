@@ -73,7 +73,7 @@ class NormalizeCompare(Transformation):
                            for i in imported_ids]
 
             # name of the new function
-            forged_name = "{0}_compare{1}".format(self.prefix,
+            forged_name = "{}_compare{}".format(self.prefix,
                                                   len(self.compare_functions))
 
             # call site
@@ -102,10 +102,10 @@ class NormalizeCompare(Transformation):
                 if is_trivially_copied(exp):
                     holder = exp
                 else:
-                    body.append(ast.Assign([ast.Name('${}'.format(i+1),
+                    body.append(ast.Assign([ast.Name(f'${i+1}',
                                                      ast.Store(), None, None)],
                                            exp, None))
-                    holder = ast.Name('${}'.format(i+1), ast.Load(),
+                    holder = ast.Name(f'${i+1}', ast.Load(),
                                       None, None)
                 cond = ast.Compare(prev_holder,
                                    [node.ops[i]],

@@ -33,7 +33,7 @@ class RemoveNamedArguments(Transformation):
     '''
 
     def __init__(self):
-        super(RemoveNamedArguments, self).__init__(Aliases)
+        super().__init__(Aliases)
 
     def handle_keywords(self, func, node, offset=0):
         '''

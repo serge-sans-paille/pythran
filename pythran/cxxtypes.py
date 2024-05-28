@@ -5,7 +5,7 @@ This module defines classes needed to manipulate c++ types from pythran.
 from inspect import isclass
 
 
-class ordered_set(object):
+class ordered_set:
 
     def __init__(self, elements=None):
         self.values = list()
@@ -32,7 +32,7 @@ class ordered_set(object):
         return self.values[index]
 
 
-class TypeBuilder(object):
+class TypeBuilder:
     '''
     >>> builder = TypeBuilder()
 
@@ -113,7 +113,7 @@ std::declval<bool>()))
     def __init__(builder):
         builder._instances = dict()
 
-        class Type(object):
+        class Type:
             """
             A generic type object to be sub-classed
 
@@ -124,7 +124,7 @@ std::declval<bool>()))
             def __new__(cls, *args, **kwargs):
                 # no memoization for PType
                 if cls.__name__ == 'PType':
-                    return super(Type, cls).__new__(cls)
+                    return super().__new__(cls)
 
                 key = cls,
                 for v in args + tuple(v for k, v in sorted(kwargs.items())):
@@ -133,7 +133,7 @@ std::declval<bool>()))
                     key += v,
 
                 if key not in builder._instances:
-                    builder._instances[key] = super(Type, cls).__new__(cls)
+                    builder._instances[key] = super().__new__(cls)
 
                 return builder._instances[key]
 
@@ -161,7 +161,7 @@ std::declval<bool>()))
             """
 
             def __init__(self, srepr):
-                super(NamedType, self).__init__(srepr=srepr)
+                super().__init__(srepr=srepr)
 
             def generate(self, _):
                 return self.srepr
@@ -175,7 +175,7 @@ std::declval<bool>()))
             count = 0
 
             def __init__(self, fun, ptype):
-                super(PType, self).__init__(fun=fun,
+                super().__init__(fun=fun,
                                             type=ptype,
                                             name=PType.prefix.format(
                                                 PType.count))
@@ -192,7 +192,7 @@ std::declval<bool>()))
 
         class LType(Type):
             def __init__(self, base, node):
-                super(LType, self).__init__(node=node)
+                super().__init__(node=node)
                 self.isrec = False
                 self.orig = base
                 self.final_type = base
@@ -209,18 +209,18 @@ std::declval<bool>()))
             A type instantiated from a parametric type
             """
             def __init__(self, fun, name, arguments):
-                super(InstantiatedType, self).__init__(fun=fun,
+                super().__init__(fun=fun,
                                                        name=name,
                                                        arguments=arguments)
 
             def generate(self, ctx):
                 if self.arguments:
                     args = ", ".join(ctx(arg) for arg in self.arguments)
-                    template_params = "<{0}>".format(args)
+                    template_params = f"<{args}>"
                 else:
                     template_params = ""
 
-                return "typename {0}::type{1}::{2}".format(self.fun.name,
+                return "typename {}::type{}::{}".format(self.fun.name,
                                                            template_params,
                                                            self.name)
 
@@ -231,7 +231,7 @@ std::declval<bool>()))
             """
 
             def __init__(self, *types):
-                super(CombinedTypes, self).__init__(types=types)
+                super().__init__(types=types)
 
             def iscombined(self):
                 return True
@@ -266,13 +266,13 @@ std::declval<bool>()))
             A type to hold function arguments
             """
             def __init__(self, num):
-                super(ArgumentType, self).__init__(num=num)
+                super().__init__(num=num)
 
             def generate(self, _):
-                argtype = "argument_type{0}".format(self.num)
-                noref = "typename std::remove_reference<{0}>::type".format(
+                argtype = f"argument_type{self.num}"
+                noref = "typename std::remove_reference<{}>::type".format(
                     argtype)
-                return "typename std::remove_cv<{0}>::type".format(noref)
+                return f"typename std::remove_cv<{noref}>::type"
 
         class DependentType(Type):
             """
@@ -280,7 +280,7 @@ std::declval<bool>()))
             """
             def __init__(self, of):
                 assert of is not None
-                super(DependentType, self).__init__(of=of)
+                super().__init__(of=of)
 
             def iscombined(self):
                 return self.of.iscombined()
@@ -295,7 +295,7 @@ std::declval<bool>()))
             """
 
             def generate(self, ctx):
-                return 'typename pythonic::assignable<{0}>::type'.format(
+                return 'typename pythonic::assignable<{}>::type'.format(
                     ctx(self.of))
 
         class AssignableNoEscape(DependentType):
@@ -304,7 +304,7 @@ std::declval<bool>()))
             """
 
             def generate(self, ctx):
-                return 'typename pythonic::assignable_noescape<{0}>::type'.format(
+                return 'typename pythonic::assignable_noescape<{}>::type'.format(
                     ctx(self.of))
 
         class Returnable(DependentType):
@@ -319,7 +319,7 @@ std::declval<bool>()))
             """
 
             def generate(self, ctx):
-                return 'typename pythonic::returnable<{0}>::type'.format(
+                return 'typename pythonic::returnable<{}>::type'.format(
                     ctx(self.of))
 
         class Lazy(DependentType):
@@ -331,7 +331,7 @@ std::declval<bool>()))
             """
 
             def generate(self, ctx):
-                return 'typename pythonic::lazy<{}>::type'.format(ctx(self.of))
+                return f'typename pythonic::lazy<{ctx(self.of)}>::type'
 
         class DeclType(NamedType):
             """
@@ -341,7 +341,7 @@ std::declval<bool>()))
             def generate(self, _):
                 return ('typename std::remove_cv<'
                         'typename std::remove_reference<'
-                        'decltype({0})>::type>::type'.format(self.srepr))
+                        'decltype({})>::type>::type'.format(self.srepr))
 
 
         class AddConst(DependentType):
@@ -371,9 +371,9 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 iterator_value_type = ctx(self.of)
-                return 'typename std::remove_cv<{0}>::type'.format(
-                    'typename std::iterator_traits<{0}>::value_type'.format(
-                        'typename std::remove_reference<{0}>::type::iterator'
+                return 'typename std::remove_cv<{}>::type'.format(
+                    'typename std::iterator_traits<{}>::value_type'.format(
+                        'typename std::remove_reference<{}>::type::iterator'
                         .format(iterator_value_type)
                         )
                     )
@@ -383,7 +383,7 @@ std::declval<bool>()))
             Type of a named attribute
             '''
             def __init__(self, param, attr):
-                super(GetAttr, self).__init__(param=param, attr=attr)
+                super().__init__(param=param, attr=attr)
 
             def generate(self, ctx):
                 return ('decltype(pythonic::builtins::getattr({}{{}}, {}))'
@@ -395,14 +395,14 @@ std::declval<bool>()))
             Return type of a call with arguments
             '''
             def __init__(self, ftype, *args):
-                super(ReturnType, self).__init__(ftype=ftype, args=args)
+                super().__init__(ftype=ftype, args=args)
 
             def generate(self, ctx):
                 # the return type of a constructor is obvious
-                cg = 'std::declval<{0}>()'.format(ctx(self.ftype))
-                args = ("std::declval<{0}>()".format(ctx(arg))
+                cg = f'std::declval<{ctx(self.ftype)}>()'
+                args = (f"std::declval<{ctx(arg)}>()"
                         for arg in self.args)
-                return 'decltype({0}({1}))'.format(cg, ", ".join(args))
+                return 'decltype({}({}))'.format(cg, ", ".join(args))
 
         class ElementType(Type):
             '''
@@ -410,15 +410,15 @@ std::declval<bool>()))
             '''
 
             def __init__(self, index, of):
-                super(ElementType, self).__init__(of=of, index=index)
+                super().__init__(of=of, index=index)
 
             def iscombined(self):
                 return self.of.iscombined()
 
             def generate(self, ctx):
-                return 'typename std::tuple_element<{0},{1}>::type'.format(
+                return 'typename std::tuple_element<{},{}>::type'.format(
                     self.index,
-                    'typename std::remove_reference<{0}>::type'.format(
+                    'typename std::remove_reference<{}>::type'.format(
                         ctx(self.of)
                         )
                     )
@@ -430,7 +430,7 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 return 'pythonic::types::list<{}>'.format(
-                    'typename std::remove_reference<{0}>::type'.format(
+                    'typename std::remove_reference<{}>::type'.format(
                         ctx(self.of)))
 
         class SetType(DependentType):
@@ -439,22 +439,22 @@ std::declval<bool>()))
             '''
 
             def generate(self, ctx):
-                return 'pythonic::types::set<{0}>'.format(ctx(self.of))
+                return f'pythonic::types::set<{ctx(self.of)}>'
 
         class TupleType(Type):
             '''
             Type holding a tuple of stuffs of various types
             '''
             def __init__(self, *ofs):
-                super(TupleType, self).__init__(ofs=ofs)
+                super().__init__(ofs=ofs)
 
             def iscombined(self):
                 return any(of.iscombined() for of in self.ofs)
 
             def generate(self, ctx):
                 elts = (ctx(of) for of in self.ofs)
-                telts = ('std::declval<{0}>()'.format(elt) for elt in elts)
-                return 'decltype(pythonic::types::make_tuple({0}))'.format(
+                telts = (f'std::declval<{elt}>()' for elt in elts)
+                return 'decltype(pythonic::types::make_tuple({}))'.format(
                     ", ".join(telts))
 
         class DictType(Type):
@@ -463,11 +463,11 @@ std::declval<bool>()))
             '''
 
             def __init__(self, of_key, of_val):
-                super(DictType, self).__init__(of_key=of_key, of_val=of_val)
+                super().__init__(of_key=of_key, of_val=of_val)
 
             def iscombined(self):
-                return any((of.iscombined()
-                            for of in (self.of_key, self.of_val)))
+                return any(of.iscombined()
+                            for of in (self.of_key, self.of_val))
 
             def generate(self, ctx):
                 return 'pythonic::types::dict<{},{}>'.format(ctx(self.of_key),
@@ -479,7 +479,7 @@ std::declval<bool>()))
             '''
 
             def generate(self, ctx):
-                return ('container<typename std::remove_reference<{0}>::type>'
+                return ('container<typename std::remove_reference<{}>::type>'
                         .format(ctx(self.of)))
 
         class IndexableType(DependentType):
@@ -488,7 +488,7 @@ std::declval<bool>()))
             '''
 
             def generate(self, ctx):
-                return 'indexable<{0}>'.format(ctx(self.of))
+                return f'indexable<{ctx(self.of)}>'
 
         class IndexableContainerType(Type):
             '''
@@ -496,16 +496,16 @@ std::declval<bool>()))
             indexable by another type
             '''
             def __init__(self, of_key, of_val):
-                super(IndexableContainerType, self).__init__(of_key=of_key,
+                super().__init__(of_key=of_key,
                                                              of_val=of_val)
 
             def iscombined(self):
-                return any((of.iscombined()
-                            for of in (self.of_key, self.of_val)))
+                return any(of.iscombined()
+                            for of in (self.of_key, self.of_val))
 
             def generate(self, ctx):
                 return ('indexable_container<'
-                        '{0}, typename std::remove_reference<{1}>::type'
+                        '{}, typename std::remove_reference<{}>::type'
                         '>'
                         .format(ctx(self.of_key), ctx(self.of_val)))
 
@@ -516,15 +516,15 @@ std::declval<bool>()))
             """
 
             def __init__(self, op, *exprs):
-                super(ExpressionType, self).__init__(op=op, exprs=exprs)
+                super().__init__(op=op, exprs=exprs)
 
             def iscombined(self):
                 return any(expr.iscombined() for expr in self.exprs)
 
             def generate(self, ctx):
-                gexprs = ["std::declval<{0}>()".format(ctx(expr))
+                gexprs = [f"std::declval<{ctx(expr)}>()"
                           for expr in self.exprs]
-                return 'decltype({0})'.format(self.op(*gexprs))
+                return f'decltype({self.op(*gexprs)})'
 
         builder.UnknownType = Type()
 

@@ -84,7 +84,7 @@ class RemoveComprehension(Transformation):
     def visit_AnyComp(self, node, comp_type, *path):
         self.update = True
         node.elt = self.visit(node.elt)
-        name = "{0}_comprehension{1}".format(comp_type, self.count)
+        name = f"{comp_type}_comprehension{self.count}"
         self.count += 1
         args = self.gather(ImportedIds, node)
         self.count_iter = 0
@@ -152,7 +152,7 @@ class RemoveComprehension(Transformation):
     def visit_GeneratorExp(self, node):
         self.update = True
         node.elt = self.visit(node.elt)
-        name = "generator_expression{0}".format(self.count)
+        name = f"generator_expression{self.count}"
         self.count += 1
         args = self.gather(ImportedIds, node)
         self.count_iter = 0

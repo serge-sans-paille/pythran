@@ -21,7 +21,7 @@ class RangeValueTooCostly(RuntimeError):
 
 
 def combine(op, node0, node1):
-    key = '__{}__'.format(op.__class__.__name__.lower())
+    key = f'__{op.__class__.__name__.lower()}__'
     try:
         return getattr(type(node0), key)(node0, node1)
     except AttributeError:
@@ -213,7 +213,7 @@ class RangeValuesBase(ModuleAnalysis):
         """Initialize instance variable and gather globals name information."""
         self.result = defaultdict(lambda: UNKNOWN_RANGE)
         from pythran.analyses import UseOMP
-        super(RangeValuesBase, self).__init__(Aliases, CFG, UseOMP)
+        super().__init__(Aliases, CFG, UseOMP)
         self.parent = self
 
     def add(self, variable, range_):
@@ -522,11 +522,11 @@ class RangeValuesSimple(RangeValuesBase):
             self.aliases = parent.aliases
             self.passmanager = parent.passmanager
         else:
-            super(RangeValuesSimple, self).__init__()
+            super().__init__()
 
     def generic_visit(self, node):
         """ Other nodes are not known and range value neither. """
-        super(RangeValuesSimple, self).generic_visit(node)
+        super().generic_visit(node)
         return self.add(node, UNKNOWN_RANGE)
 
     def save_state(self):
@@ -816,11 +816,11 @@ class RangeValues(RangeValuesBase):
     """
 
     def __init__(self):
-        super(RangeValues, self).__init__()
+        super().__init__()
 
     def generic_visit(self, node):
         """ Other nodes are not known and range value neither. """
-        super(RangeValues, self).generic_visit(node)
+        super().generic_visit(node)
 
         if isinstance(node, ast.stmt):
             if node in self.cfg:
@@ -838,7 +838,7 @@ class RangeValues(RangeValuesBase):
             visited.add(successor)
             nexts = self.visit(successor)
             if nexts:
-                successors.extend((n for n in nexts if n is not CFG.NIL))
+                successors.extend(n for n in nexts if n is not CFG.NIL)
 
     def save_state(self):
         return (self.cfg, self.aliases, self.use_omp, self.no_backward,

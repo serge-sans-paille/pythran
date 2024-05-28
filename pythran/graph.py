@@ -5,7 +5,7 @@ This has the sole advantage of being a standalone file that doesn't bring any
 dependency with it.
 '''
 
-class DiGraph(object):
+class DiGraph:
     def __init__(self):
         # adjacency[i][j] = True means j is a successor of i
         self._adjacency = {}

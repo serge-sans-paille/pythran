@@ -165,7 +165,7 @@ def gamma(img,
 
     # compute the lut
     for k in range(256):
-        lut[k] = np.uint8((pow((k / 255.), gamma) * 255))
+        lut[k] = np.uint8(pow((k / 255.), gamma) * 255)
 
     for i in range(height):
         for j in range(width):

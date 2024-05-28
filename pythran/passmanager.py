@@ -23,7 +23,7 @@ def uncamel(name):
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 
-class AnalysisContext(object):
+class AnalysisContext:
 
     """
     Class that stores the hierarchy of node visited.
@@ -38,7 +38,7 @@ class AnalysisContext(object):
         self.function = None
 
 
-class ContextManager(object):
+class ContextManager:
 
     """
     Class to be inherited from to add automatic update of context.
@@ -50,7 +50,7 @@ class ContextManager(object):
         """ Create default context and save all dependencies. """
         self.deps = dependencies
         self.verify_dependencies()
-        super(ContextManager, self).__init__()
+        super().__init__()
 
     def attach(self, pm, ctx=None):
         self.passmanager = pm
@@ -76,7 +76,7 @@ class ContextManager(object):
                     # method of function analysis triggered by prepare
                     result = self.passmanager._cache[node, D]
                     setattr(self, uncamel(D.__name__), result)
-        return super(ContextManager, self).visit(node)
+        return super().visit(node)
 
     def prepare(self, node):
         '''Gather analysis result required by this analysis'''
@@ -120,7 +120,7 @@ class Analysis(ContextManager, ast.NodeVisitor):
         if key in self.passmanager._cache:
             self.result = self.passmanager._cache[key]
         else:
-            super(Analysis, self).run(node)
+            super().run(node)
             self.passmanager._cache[key] = self.result
         return self.result
 
@@ -141,7 +141,7 @@ class ModuleAnalysis(Analysis):
                 raise ValueError("{} called in an uninitialized context"
                                  .format(type(self).__name__))
             node = self.ctx.module
-        return super(ModuleAnalysis, self).run(node)
+        return super().run(node)
 
 
 class FunctionAnalysis(Analysis):
@@ -162,7 +162,7 @@ class FunctionAnalysis(Analysis):
                 raise ValueError("{} called in an uninitialized context"
                                  .format(type(self).__name__))
             node = self.ctx.function
-        return super(FunctionAnalysis, self).run(node)
+        return super().run(node)
 
 
 class NodeAnalysis(Analysis):
@@ -181,12 +181,12 @@ class Transformation(ContextManager, ast.NodeTransformer):
 
     def __init__(self, *args, **kwargs):
         """ Initialize the update used to know if update happened. """
-        super(Transformation, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.update = False
 
     def run(self, node):
         """ Apply transformation and dependencies and fix new node location."""
-        n = super(Transformation, self).run(node)
+        n = super().run(node)
         # the transformation updated the AST, so analyse may need to be rerun
         # we could use a finer-grain caching system, and provide a way to flag
         # some analyses as `unmodified' by the transformation, as done in LLVM
@@ -201,7 +201,7 @@ class Transformation(ContextManager, ast.NodeTransformer):
         return self.update, new_node
 
 
-class PassManager(object):
+class PassManager:
     '''
     Front end to the pythran pass system.
     '''

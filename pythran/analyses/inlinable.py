@@ -19,7 +19,7 @@ class Inlinable(ModuleAnalysis):
 
     def __init__(self):
         self.result = dict()
-        super(Inlinable, self).__init__(PureExpressions)
+        super().__init__(PureExpressions)
 
     def visit_FunctionDef(self, node):
         """ Determine this function definition can be inlined. """

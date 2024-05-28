@@ -11,7 +11,7 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
     '''Order all global functions according to their callgraph depth'''
     def __init__(self):
         self.result = dict()
-        super(OrderedGlobalDeclarations, self).__init__(
+        super().__init__(
             StrictAliases, GlobalDeclarations)
 
     def visit_FunctionDef(self, node):
@@ -32,7 +32,7 @@ class OrderedGlobalDeclarations(ModuleAnalysis):
     def run(self, node):
         # compute the weight of each function
         # the weight of a function is the number functions it references
-        result = super(OrderedGlobalDeclarations, self).run(node)
+        result = super().run(node)
         old_count = -1
         new_count = 0
         # iteratively propagate weights

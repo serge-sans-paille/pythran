@@ -44,7 +44,7 @@ class Python(Backend):
 
     def __init__(self):
         self.result = ''
-        super(Python, self).__init__()
+        super().__init__()
 
     def visit(self, node):
         output = io.StringIO()
@@ -57,7 +57,7 @@ def templatize(node, types, default_types=None):
         default_types = [None] * len(types)
     if types:
         return Template(
-            ["typename {0} {1}".format(t, "= {0}".format(d) if d else "")
+            ["typename {} {}".format(t, f"= {d}" if d else "")
              for t, d in zip(types, default_types)],
             node)
     else:
@@ -98,7 +98,7 @@ def cxx_loop(visit):
                 res = visit(self, node)
             return res
 
-        break_handler = "__no_breaking{0}".format(id(node))
+        break_handler = f"__no_breaking{id(node)}"
         with pushpop(self.break_handlers, break_handler):
             res = visit(self, node)
 
@@ -131,7 +131,7 @@ class CachedTypeVisitor:
                 else:
                     self.rcache[t] = len(self.mapping)
                     self.mapping[node] = len(self.mapping)
-        return "__type{0}".format(self.mapping[node])
+        return f"__type{self.mapping[node]}"
 
     def typedefs(self):
         kv = sorted(self.rcache.items(), key=lambda x: x[1])
@@ -143,7 +143,7 @@ class CachedTypeVisitor:
 
 
 def make_default(d):
-    return "= {0}".format(d) if d else ""
+    return f"= {d}" if d else ""
 
 
 def make_function_declaration(self, node, rtype, name, ftypes, fargs,
@@ -156,7 +156,7 @@ def make_function_declaration(self, node, rtype, name, ftypes, fargs,
     arguments = list()
     first_default = len(node.args.args) - len(node.args.defaults)
     for i, (t, a, d) in enumerate(zip(ftypes, fargs, defaults)):
-        argument = Value(t, "{0}{1}".format(a, make_default(d)))
+        argument = Value(t, f"{a}{make_default(d)}")
         arguments.append(argument)
     return FunctionDeclaration(Value(rtype, name), arguments, *attributes)
 
@@ -211,7 +211,7 @@ class CxxFunction(ast.NodeVisitor):
         locals_visited = []
         for varname in local_vars:
             vartype = self.typeof(varname)
-            decl = Statement("{} {}".format(vartype, varname))
+            decl = Statement(f"{vartype} {varname}")
             locals_visited.append(decl)
         self.ldecls.difference_update(local_vars)
         return Block(locals_visited + [node_visited])
@@ -229,7 +229,7 @@ class CxxFunction(ast.NodeVisitor):
             return head, [StatementWithComments(t, line) for t in tail]
         if cfg.get('backend', 'annotation_kind') == 'lineno':
             return InstrumentedStatement(cxx_node,
-                    'pythran_trace_lineno({});'.format(node.lineno))
+                    f'pythran_trace_lineno({node.lineno});')
         else:
             return StatementWithComments(cxx_node, line)
 
@@ -238,7 +238,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit(self, node):
         metadata.visit(self, node)
-        result = super(CxxFunction, self).visit(node)
+        result = super().visit(node)
         return self.add_line_info(node, result)
 
     def process_omp_attachements(self, node, stmt, index=None):
@@ -315,16 +315,16 @@ class CxxFunction(ast.NodeVisitor):
 
         # a function has a call operator to be called
         # and a default constructor to create instances
-        fscope = "type{0}::".format("<{0}>".format(", ".join(formal_types))
+        fscope = "type{}::".format("<{}>".format(", ".join(formal_types))
                                     if formal_types
                                     else "")
-        ffscope = "{0}::{1}".format(self.fname, fscope)
+        ffscope = f"{self.fname}::{fscope}"
 
         operator_declaration = [
             templatize(
                 make_const_function_declaration(
                     self, node,
-                    "typename {0}result_type".format(fscope),
+                    f"typename {fscope}result_type",
                     "operator()",
                     formal_types, formal_args, dflt_argv),
                 formal_types,
@@ -333,12 +333,12 @@ class CxxFunction(ast.NodeVisitor):
             ]
         operator_signature = make_const_function_declaration(
             self, node,
-            "typename {0}result_type".format(ffscope),
-            "{0}::operator()".format(self.fname),
+            f"typename {ffscope}result_type",
+            f"{self.fname}::operator()",
             formal_types, formal_args)
         ctx = CachedTypeVisitor(self.lctx)
         operator_local_declarations = (
-            [Statement("{0} {1}".format(
+            [Statement("{} {}".format(
                 ctx(self.types[self.local_names[k]]), cxxid(k)))
              for k in self.ldecls]
         )
@@ -382,7 +382,7 @@ class CxxFunction(ast.NodeVisitor):
             # this happens for variant because the variant param
             # order may differ from the init order (because of the way we
             # do type inference
-            rtype = "typename {}::type::result_type".format(self.fname)
+            rtype = f"typename {self.fname}::type::result_type"
             stmt = Block([Assign("static %s tmp_global" % rtype, value),
                           ReturnStatement("tmp_global")])
         else:
@@ -432,7 +432,7 @@ class CxxFunction(ast.NodeVisitor):
                 alltargets = '{} {}'.format(
                     self.types.builder.AssignableNoEscape(
                         self.types.builder.NamedType(
-                            'decltype({})'.format(value))).sgenerate(),
+                            f'decltype({value})')).sgenerate(),
                     alltargets)
             else:
                 assert isinstance(self.types[node.targets[0]],
@@ -440,7 +440,7 @@ class CxxFunction(ast.NodeVisitor):
                 alltargets = '{} {}'.format(
                     self.types.builder.Lazy(
                         self.types.builder.NamedType(
-                            'decltype({})'.format(value))).sgenerate(),
+                            f'decltype({value})')).sgenerate(),
                     alltargets)
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
@@ -454,7 +454,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Print(self, node):
         values = [self.visit(n) for n in node.values]
-        stmt = Statement("pythonic::builtins::print{0}({1})".format(
+        stmt = Statement("pythonic::builtins::print{}({})".format(
             "" if node.nl else "_nonl",
             ", ".join(values))
             )
@@ -497,7 +497,7 @@ class CxxFunction(ast.NodeVisitor):
         is removed for iterator in case of yields statement in function.
         """
         # Choose target variable for iterator (which is iterator type)
-        local_target = "__target{0}".format(id(node))
+        local_target = f"__target{id(node)}"
         local_target_decl = self.typeof(
             self.types.builder.IteratorOfType(local_iter_decl))
 
@@ -519,9 +519,9 @@ class CxxFunction(ast.NodeVisitor):
 
         # Create the loop
         assign = self.make_assign(local_target_decl, local_target, local_iter)
-        loop = For("{}.begin()".format(assign),
-                   "{0} < {1}.end()".format(local_target, local_iter),
-                   "++{0}".format(local_target),
+        loop = For(f"{assign}.begin()",
+                   f"{local_target} < {local_iter}.end()",
+                   f"++{local_target}",
                    Block([loop_body_prelude, loop_body]))
         return [self.process_omp_attachements(node, loop)]
 
@@ -587,7 +587,7 @@ class CxxFunction(ast.NodeVisitor):
         if self.is_in_collapse(node, args[upper_arg]):
             upper_bound = upper_value  # compatible with collapse
         else:
-            upper_bound = "__target{0}".format(id(node))
+            upper_bound = f"__target{id(node)}"
 
         islocal = (node.target.id not in self.openmp_deps and
                    node.target.id in self.scope[node] and
@@ -605,15 +605,15 @@ class CxxFunction(ast.NodeVisitor):
             if node.target.id in self.scope[node]:
                 loop = []
             else:
-                loop = [If("{} == {}".format(local_iter, upper_bound),
-                        Statement("{} -= {}".format(local_iter, step)))]
+                loop = [If(f"{local_iter} == {upper_bound}",
+                        Statement(f"{local_iter} -= {step}"))]
 
         comparison = self.handle_real_loop_comparison(args, local_iter,
                                                       upper_bound)
 
-        forloop = For("{0} {1}={2}".format(iter_type, local_iter, lower_bound),
+        forloop = For(f"{iter_type} {local_iter}={lower_bound}",
                       comparison,
-                      "{0} += {1}".format(local_iter, step),
+                      f"{local_iter} += {step}",
                       loop_body)
 
         loop.insert(0, self.process_omp_attachements(node, forloop))
@@ -710,7 +710,7 @@ class CxxFunction(ast.NodeVisitor):
         return False
 
     def make_assign(self, local_iter_decl, local_iter, iterable):
-        return "{0} {1} = {2}".format(local_iter_decl, local_iter, iterable)
+        return f"{local_iter_decl} {local_iter} = {iterable}"
 
     def is_user_function(self, func):
         aliases = self.strict_aliases[func]
@@ -773,7 +773,7 @@ class CxxFunction(ast.NodeVisitor):
                 loop = [self.process_omp_attachements(node, autofor)]
             else:
                 # Iterator declaration
-                local_iter = "__iter{0}".format(id(node))
+                local_iter = f"__iter{id(node)}"
                 local_iter_decl = self.types.builder.Assignable(
                     self.types[node.iter])
 
@@ -791,7 +791,7 @@ class CxxFunction(ast.NodeVisitor):
         # For xxxComprehension, it is replaced by a for loop. In this case,
         # pre-allocate size of container.
         for comp in metadata.get(node, metadata.Comprehension):
-            header.append(Statement("pythonic::utils::reserve({0},{1})".format(
+            header.append(Statement("pythonic::utils::reserve({},{})".format(
                 comp.target,
                 iterable)))
 
@@ -842,12 +842,12 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Raise(self, node):
         exc = node.exc and self.visit(node.exc)
-        return Statement("throw {0}".format(exc or ""))
+        return Statement("throw {}".format(exc or ""))
 
     def visit_Assert(self, node):
         params = [self.visit(node.test), node.msg and self.visit(node.msg)]
         sparams = ", ".join(_f for _f in params if _f)
-        return Statement("pythonic::pythran_assert({0})".format(sparams))
+        return Statement(f"pythonic::pythran_assert({sparams})")
 
     def visit_Import(self, _):
         return Nop()  # everything is already #included
@@ -872,7 +872,7 @@ class CxxFunction(ast.NodeVisitor):
         """
         if self.break_handlers and self.break_handlers[-1]:
             self.used_break.add(self.break_handlers[-1])
-            return Statement("goto {0}".format(self.break_handlers[-1]))
+            return Statement(f"goto {self.break_handlers[-1]}")
         else:
             return Statement("break")
 
@@ -893,9 +893,9 @@ class CxxFunction(ast.NodeVisitor):
             right = 'std::integral_constant<long, {}>{{}}'.format(
                 node.right.value)
         if isstr(node.left):
-            left = "pythonic::types::str({})".format(left)
+            left = f"pythonic::types::str({left})"
         elif isstr(node.right):
-            right = "pythonic::types::str({})".format(right)
+            right = f"pythonic::types::str({right})"
         return operator_to_lambda[type(node.op)](left, right)
 
     def visit_UnaryOp(self, node):
@@ -914,7 +914,7 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_List(self, node):
         if not node.elts:  # empty list
-            return '{}(pythonic::types::empty_list())'.format(self.typeof(node))
+            return f'{self.typeof(node)}(pythonic::types::empty_list())'
         else:
 
             elts = [self.visit(n) for n in node.elts]
@@ -922,7 +922,7 @@ class CxxFunction(ast.NodeVisitor):
 
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
-                return "{0}({1}, pythonic::types::single_value())".format(
+                return "{}({}, pythonic::types::single_value())".format(
                     self.typeof(self.types.builder.Assignable(node_type)),
                     elts[0])
             else:
@@ -932,14 +932,14 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
-            return '{}(pythonic::types::empty_set())'.format(self.typeof(node))
+            return f'{self.typeof(node)}(pythonic::types::empty_set())'
         else:
             elts = [self.visit(n) for n in node.elts]
             node_type = self.types.builder.Assignable(self.types[node])
 
             # constructor disambiguation, clang++ workaround
             if len(elts) == 1:
-                return "{0}({1}, pythonic::types::single_value())".format(
+                return "{}({}, pythonic::types::single_value())".format(
                     self.typeof(node_type),
                     elts[0])
             else:
@@ -950,21 +950,21 @@ class CxxFunction(ast.NodeVisitor):
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict
-            return '{}(pythonic::types::empty_dict())'.format(self.typeof(node))
+            return f'{self.typeof(node)}(pythonic::types::empty_dict())'
         else:
             keys = [self.visit(n) for n in node.keys]
             values = [self.visit(n) for n in node.values]
             return "{0}{{{{{1}}}}}".format(
                 self.typeof(self.types.builder.Assignable(self.types[node])),
-                ", ".join("{{ {0}, {1} }}".format(k, v)
+                ", ".join(f"{{ {k}, {v} }}"
                           for k, v in zip(keys, values)))
 
     def visit_Tuple(self, node):
         elts = [self.visit(elt) for elt in node.elts]
         tuple_type = self.types[node]
-        result = "pythonic::types::make_tuple({0})".format(", ".join(elts))
+        result = "pythonic::types::make_tuple({})".format(", ".join(elts))
         if isinstance(tuple_type, self.types.builder.CombinedTypes):
-            return '({}){}'.format(self.typeof(tuple_type), result)
+            return f'({self.typeof(tuple_type)}){result}'
         else:
             return result
 
@@ -985,7 +985,7 @@ class CxxFunction(ast.NodeVisitor):
             attr = 'pythonic::types::attr::' + attrname.upper()
             if attributes_table[attrname][1].isstatic() and node in self.immediates:
                 # ugly hack to ensure constexprness of the call
-                arg = '(decltype(&{}))nullptr'.format(args[0])
+                arg = f'(decltype(&{args[0]}))nullptr'
             else:
                 arg = args[0]
             result = fmt.format(attr, arg)
@@ -998,7 +998,7 @@ class CxxFunction(ast.NodeVisitor):
 
         # When we have extra type information to inject as a cast
         if isinstance(self.types.get(node), self.types.builder.CombinedTypes):
-            return '({}){}'.format(self.typeof(node), result)
+            return f'({self.typeof(node)}){result}'
         else:
             return result
 
@@ -1015,7 +1015,7 @@ class CxxFunction(ast.NodeVisitor):
             else:
                 ret = 'pythonic::types::str("' + quoted + '")'
         elif isinstance(node.value, complex):
-            ret = "{0}({1}, {2})".format(
+            ret = "{}({}, {})".format(
                 PYTYPE_TO_CTYPE_TABLE[complex],
                 node.value.real,
                 node.value.imag)
@@ -1027,7 +1027,7 @@ class CxxFunction(ast.NodeVisitor):
             ret = repr(node.value) + TYPE_TO_SUFFIX.get(type(node.value), "")
         if node in self.immediates:
             assert isinstance(node.value, int)
-            return "std::integral_constant<%s, %s>{}" % (
+            return "std::integral_constant<{}, {}>{{}}".format(
                 PYTYPE_TO_CTYPE_TABLE[type(node.value)], str(node.value).lower())
         return ret
 
@@ -1061,20 +1061,20 @@ class CxxFunction(ast.NodeVisitor):
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         if self.stores_to(node):
-            value = 'pythonic::types::as_const({})'.format(value)
+            value = f'pythonic::types::as_const({value})'
 
         # we cannot overload the [] operator in that case
         if isstr(node.value):
-            value = 'pythonic::types::str({})'.format(value)
+            value = f'pythonic::types::str({value})'
         # positive static index case
         if (isnum(node.slice) and
                 (node.slice.value >= 0) and
                 isinstance(node.slice.value, int)):
-            return "std::get<{0}>({1})".format(node.slice.value, value)
+            return f"std::get<{node.slice.value}>({value})"
         # positive indexing case
         elif self.all_positive(node.slice):
             slice_ = self.visit(node.slice)
-            return "{1}.fast({0})".format(slice_, value)
+            return f"{value}.fast({slice_})"
         # extended slice case
         elif isextslice(node.slice):
             slices = [self.visit(elt) for elt in node.slice.elts]
@@ -1082,13 +1082,13 @@ class CxxFunction(ast.NodeVisitor):
         # standard case
         else:
             slice_ = self.visit(node.slice)
-            return "{1}[{0}]".format(slice_, value)
+            return f"{value}[{slice_}]"
 
     def visit_Name(self, node):
         if node.id in self.local_names:
             return cxxid(node.id)
         elif node.id in self.global_declarations:
-            return "{0}()".format(cxxid(node.id))
+            return f"{cxxid(node.id)}()"
         else:
             return cxxid(node.id)
 
@@ -1135,9 +1135,9 @@ class CxxGenerator(CxxFunction):
         self.extra_declarations = []
 
         # 0 is used as initial_state, thus the +1
-        self.yields = {k: (1 + v, "yield_point{0}".format(1 + v)) for (v, k) in
+        self.yields = {k: (1 + v, f"yield_point{1 + v}") for (v, k) in
                        enumerate(self.gather(YieldPoints, node))}
-        return super(CxxGenerator, self).prepare_functiondef_context(node)
+        return super().prepare_functiondef_context(node)
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -1149,10 +1149,10 @@ class CxxGenerator(CxxFunction):
         dflt_argv, dflt_argt, result_type, callable_type, pure_type = tmp
 
         # a generator has a call operator that returns the iterator
-        next_name = "__generator__{0}".format(cxxid(node.name))
-        instanciated_next_name = "{0}{1}".format(
+        next_name = f"__generator__{cxxid(node.name)}"
+        instanciated_next_name = "{}{}".format(
             next_name,
-            "<{0}>".format(", ".join(formal_types)) if formal_types else "")
+            "<{}>".format(", ".join(formal_types)) if formal_types else "")
 
         if self.returns:
             operator_body.append(Label(CxxGenerator.FinalStatement))
@@ -1189,7 +1189,7 @@ class CxxGenerator(CxxFunction):
                 Block([Statement("next()")])),
             FunctionBody(
                 FunctionDeclaration(
-                    Value("typename {0}::result_type".format(
+                    Value("typename {}::result_type".format(
                         instanciated_next_name),
                         "operator*"),
                     [], "const"),
@@ -1198,30 +1198,30 @@ class CxxGenerator(CxxFunction):
                         CxxGenerator.StateValue)])),
             FunctionBody(
                 FunctionDeclaration(
-                    Value("pythonic::types::generator_iterator<{0}>"
+                    Value("pythonic::types::generator_iterator<{}>"
                           .format(next_name),
                           "begin"),
                     []),
                 Block([Statement("next()"),
                        ReturnStatement(
-                           "pythonic::types::generator_iterator<{0}>"
+                           "pythonic::types::generator_iterator<{}>"
                            "(*this)".format(next_name))])),
             FunctionBody(
                 FunctionDeclaration(
-                    Value("pythonic::types::generator_iterator<{0}>"
+                    Value("pythonic::types::generator_iterator<{}>"
                           .format(next_name),
                           "end"),
                     []),
                 Block([ReturnStatement(
-                    "pythonic::types::generator_iterator<{0}>()"
+                    "pythonic::types::generator_iterator<{}>()"
                     .format(next_name))]))
             ]
         next_signature = templatize(
             FunctionDeclaration(
                 Value(
-                    "typename {0}::result_type".format(
+                    "typename {}::result_type".format(
                         instanciated_next_name),
-                    "{0}::next".format(instanciated_next_name)),
+                    f"{instanciated_next_name}::next"),
                 []),
             formal_types)
 
@@ -1229,22 +1229,22 @@ class CxxGenerator(CxxFunction):
         # the dispatch table at the entry point
         next_body.insert(0, Statement("switch({0}) {{ {1} }}".format(
             CxxGenerator.StateHolder,
-            " ".join("case {0}: goto {1};".format(num, where)
+            " ".join(f"case {num}: goto {where};"
                      for (num, where) in sorted(
                          self.yields.values(),
                          key=lambda x: x[0])))))
 
         ctx = CachedTypeVisitor(self.lctx)
-        next_members = ([Statement("{0} {1}".format(ft, fa))
+        next_members = ([Statement(f"{ft} {fa}")
                          for (ft, fa) in zip(formal_types, formal_args)] +
-                        [Statement("{0} {1}".format(
+                        [Statement("{} {}".format(
                             ctx(self.types[self.local_names[k]]),
                             k))
                          for k in self.ldecls] +
-                        [Statement("{0} {1}".format(v, k))
+                        [Statement(f"{v} {k}")
                          for k, v in self.extra_declarations] +
                         [Statement(
-                            "typename {0}::result_type {1}".format(
+                            "typename {}::result_type {}".format(
                                 instanciated_next_name,
                                 CxxGenerator.StateValue))])
 
@@ -1252,8 +1252,8 @@ class CxxGenerator(CxxFunction):
                            for t in self.types[node][1]]
         iterator_typedef = [
             Typedef(
-                Value("pythonic::types::generator_iterator<{0}>".format(
-                    "{0}<{1}>".format(next_name, ", ".join(formal_types))
+                Value("pythonic::types::generator_iterator<{}>".format(
+                    "{}<{}>".format(next_name, ", ".join(formal_types))
                     if formal_types else next_name),
                     "iterator")),
             Typedef(Value(ctx(result_type),
@@ -1286,11 +1286,11 @@ class CxxGenerator(CxxFunction):
             EmptyStatement()]
         operator_signature = make_const_function_declaration(
             self, node, instanciated_next_name,
-            "{0}::operator()".format(cxxid(node.name)),
+            f"{cxxid(node.name)}::operator()",
             formal_types, formal_args)
         operator_definition = FunctionBody(
             templatize(operator_signature, formal_types),
-            Block([ReturnStatement("{0}({1})".format(
+            Block([ReturnStatement("{}({})".format(
                 instanciated_next_name,
                 ", ".join(formal_args)))])
             )
@@ -1307,17 +1307,17 @@ class CxxGenerator(CxxFunction):
 
     def visit_Return(self, node):
         self.returns = True
-        return Block([Statement("{0} = -1".format(CxxGenerator.StateHolder)),
-                      Statement("goto {0}".format(CxxGenerator.FinalStatement))
+        return Block([Statement(f"{CxxGenerator.StateHolder} = -1"),
+                      Statement(f"goto {CxxGenerator.FinalStatement}")
                       ])
 
     def visit_Yield(self, node):
         num, label = self.yields[node]
         return "".join(n for n in Block([
             Assign(CxxGenerator.StateHolder, num),
-            ReturnStatement("{0} = {1}".format(CxxGenerator.StateValue,
+            ReturnStatement("{} = {}".format(CxxGenerator.StateValue,
                                                self.visit(node.value))),
-            Statement("{0}:".format(label))
+            Statement(f"{label}:")
             ]).generate())
 
     def visit_Assign(self, node):
@@ -1337,7 +1337,7 @@ class CxxGenerator(CxxFunction):
     def make_assign(self, local_iter_decl, local_iter, iterable):
         # For yield function, iterable is globals.
         self.extra_declarations.append((local_iter, local_iter_decl,))
-        return super(CxxGenerator, self).make_assign("", local_iter, iterable)
+        return super().make_assign("", local_iter, iterable)
 
 
 class Cxx(Backend):
@@ -1382,7 +1382,7 @@ class Cxx(Backend):
     def __init__(self):
         """ Basic initialiser gathering analysis informations. """
         self.result = None
-        super(Cxx, self).__init__(Dependencies, GlobalDeclarations, Types,
+        super().__init__(Dependencies, GlobalDeclarations, Types,
                                   Scope, RangeValues, PureExpressions,
                                   Immediates, Ancestors, StrictAliases)
 

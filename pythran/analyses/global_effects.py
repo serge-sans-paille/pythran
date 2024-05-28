@@ -11,7 +11,7 @@ import pythran.intrinsic as intrinsic
 import gast as ast
 from functools import reduce
 
-class FunctionEffect(object):
+class FunctionEffect:
     def __init__(self, node):
         self.func = node
         if isinstance(node, ast.FunctionDef):
@@ -53,7 +53,7 @@ class GlobalEffects(ModuleAnalysis):
     def __init__(self):
         self.result = DiGraph()
         self.node_to_functioneffect = dict()
-        super(GlobalEffects, self).__init__(Aliases, GlobalDeclarations,
+        super().__init__(Aliases, GlobalDeclarations,
                                             Intrinsics)
 
     def prepare(self, node):
@@ -63,7 +63,7 @@ class GlobalEffects(ModuleAnalysis):
         Initialisation done for Pythonic functions and default value set for
         user defined functions.
         """
-        super(GlobalEffects, self).prepare(node)
+        super().prepare(node)
 
         for i in self.intrinsics:
             fe = IntrinsicGlobalEffects[i]
@@ -79,7 +79,7 @@ class GlobalEffects(ModuleAnalysis):
             FunctionEffect(intrinsic.UnboundValue)
 
     def run(self, node):
-        result = super(GlobalEffects, self).run(node)
+        result = super().run(node)
         keep_going = True
         while keep_going:
             keep_going = False

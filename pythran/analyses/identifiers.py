@@ -9,7 +9,7 @@ class Identifiers(NodeAnalysis):
     """Gather all identifiers used throughout a node."""
     def __init__(self):
         self.result = set()
-        super(Identifiers, self).__init__()
+        super().__init__()
 
     def visit_Name(self, node):
         self.result.add(node.id)

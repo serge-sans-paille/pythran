@@ -99,7 +99,7 @@ class OMPDirective(AST):
     '''
 
     def __init__(self, *args):  # no positional argument to be deep copyable
-        super(OMPDirective, self).__init__()
+        super().__init__()
         if not args:
             return
 

@@ -163,23 +163,23 @@ def run():
 
     try:
         if not os.path.exists(args.input_file):
-            raise ValueError("input file `{0}' not found".format(
+            raise ValueError("input file `{}' not found".format(
                 args.input_file))
 
         module_name, ext = os.path.splitext(os.path.basename(args.input_file))
 
         # FIXME: do we want to support other ext than .cpp?
         if ext not in ['.cpp', '.py']:
-            raise SyntaxError("Unsupported file extension: '{0}'".format(ext))
+            raise SyntaxError(f"Unsupported file extension: '{ext}'")
 
         if ext == '.cpp':
             if args.optimize_only:
                 raise ValueError("Do you really ask for Python-to-Python "
-                                 "on this C++ input file: '{0}'?".format(
+                                 "on this C++ input file: '{}'?".format(
                                      args.input_file))
             if args.translate_only:
                 raise ValueError("Do you really ask for Python-to-C++ "
-                                 "on this C++ input file: '{0}'?".format(
+                                 "on this C++ input file: '{}'?".format(
                                      args.input_file))
             pythran.compile_cxxfile(module_name,
                                     args.input_file, args.output_file,
@@ -194,7 +194,7 @@ def run():
                                         report_times=args.report_times,
                                         **compile_flags(args))
 
-    except IOError as e:
+    except OSError as e:
         logger.critical("I've got a bad feeling about this...\n"
                         "E: " + str(e))
         sys.exit(1)
@@ -220,7 +220,7 @@ def run():
                         "E: not implemented feature needed, "
                         "bash the developers")
         raise  # Why ? we may instead display the stacktrace and exit?
-    except EnvironmentError as e:
+    except OSError as e:
         logger.critical("By Jove! Your environment does not seem "
                         "to provide all what we need\n"
                         "E: " + str(e))

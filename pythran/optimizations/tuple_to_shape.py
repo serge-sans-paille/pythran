@@ -41,7 +41,7 @@ class TupleToShape(Transformation):
     """
     def __init__(self):
         self.update = False
-        super(TupleToShape, self).__init__(Aliases)
+        super().__init__(Aliases)
 
     def visit_Call(self, node):
         func_aliases = self.aliases.get(node.func, None)

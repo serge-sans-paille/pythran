@@ -15,7 +15,7 @@ class ExtendedDefUseChains(beniget.DefUseChains):
     def visit(self, node):
         # be aware of metadata
         md.visit(self, node)
-        return super(ExtendedDefUseChains, self).visit(node)
+        return super().visit(node)
 
 
 class UseDefChains(ModuleAnalysis):
@@ -26,7 +26,7 @@ class UseDefChains(ModuleAnalysis):
 
     def __init__(self):
         self.result = None
-        super(UseDefChains, self).__init__(DefUseChains)
+        super().__init__(DefUseChains)
 
     def visit_Module(self, node):
         udc = beniget.UseDefChains(self.def_use_chains)
@@ -41,7 +41,7 @@ class DefUseChains(ModuleAnalysis):
 
     def __init__(self):
         self.result = None
-        super(DefUseChains, self).__init__()
+        super().__init__()
 
     def visit_Module(self, node):
         duc = ExtendedDefUseChains()

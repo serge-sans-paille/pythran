@@ -18,9 +18,9 @@ def calculate_u(dt, dx, dy, u, um, k):
         for j in range(1, len(u[0])-1):
             up[i][j] = 2*u[i][j] - um[i][j] + \
                 (dt/dx)**2*(
-                        (0.5*(k[i+1][j] + k[i][j])*(u[i+1][j] - u[i][j]) -
-                            0.5*(k[i][j] + k[i-1][j])*(u[i][j] - u[i-1][j]))) + \
+                        0.5*(k[i+1][j] + k[i][j])*(u[i+1][j] - u[i][j]) -
+                            0.5*(k[i][j] + k[i-1][j])*(u[i][j] - u[i-1][j])) + \
                         (dt/dy)**2*(
-                                (0.5*(k[i][j+1] + k[i][j])*(u[i][j+1] - u[i][j]) -
-                                    0.5*(k[i][j] + k[i][j-1])*(u[i][j] - u[i][j-1])))
+                                0.5*(k[i][j+1] + k[i][j])*(u[i][j+1] - u[i][j]) -
+                                    0.5*(k[i][j] + k[i][j-1])*(u[i][j] - u[i][j-1]))
     return up

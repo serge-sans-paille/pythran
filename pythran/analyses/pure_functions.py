@@ -12,10 +12,10 @@ class PureFunctions(ModuleAnalysis):
 
     def __init__(self):
         self.result = set()
-        super(PureFunctions, self).__init__(ArgumentEffects, GlobalEffects)
+        super().__init__(ArgumentEffects, GlobalEffects)
 
 
     def prepare(self, node):
-        super(PureFunctions, self).prepare(node)
+        super().prepare(node)
         self.result = {func for func, ae in self.argument_effects.items()
                        if func not in self.global_effects and not any(ae)}

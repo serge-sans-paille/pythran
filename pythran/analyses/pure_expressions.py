@@ -17,7 +17,7 @@ class PureExpressions(ModuleAnalysis):
 
     def __init__(self):
         self.result = set()
-        super(PureExpressions, self).__init__(ArgumentEffects, GlobalEffects,
+        super().__init__(ArgumentEffects, GlobalEffects,
                                               Aliases, PureFunctions)
 
     def visit_FunctionDef(self, node):

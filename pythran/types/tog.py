@@ -45,7 +45,7 @@ NoneType_ = type(None)
 # Types and type constructors
 
 
-class TypeVariable(object):
+class TypeVariable:
     """A type variable standing for an arbitrary type.
 
     All type variables have a unique id, but names are only assigned lazily,
@@ -70,7 +70,7 @@ class TypeVariable(object):
             )
 
 
-class TypeOperator(object):
+class TypeOperator:
     """An n-ary type constructor which builds a new type from old"""
 
     def __init__(self, name, types):
@@ -82,19 +82,19 @@ class TypeOperator(object):
         if num_types == 0:
             return self.name
         elif self.name == 'fun':
-            return 'Callable[[{0}], {1}]'.format(
+            return 'Callable[[{}], {}]'.format(
                 ', '.join(map(str, self.types[:-1])), self.types[-1])
         elif self.name == 'option':
-            return 'Option[{0}]'.format(self.types[0])
+            return f'Option[{self.types[0]}]'
         else:
-            return "{0}[{1}]" .format(self.name.capitalize(),
+            return "{}[{}]" .format(self.name.capitalize(),
                                       ', '.join(map(str, self.types)))
 
 
 class Collection(TypeOperator):
 
     def __init__(self, holder_type, key_type, value_type, iter_type):
-        super(Collection, self).__init__("collection",
+        super().__init__("collection",
                                          [holder_type, key_type, value_type,
                                           iter_type])
 
@@ -102,7 +102,7 @@ class Collection(TypeOperator):
         t0 = prune(self.types[0])
         if isinstance(t0, TypeVariable):
             if isinstance(prune(self.types[1]), TypeVariable):
-                return 'Iterable[{}]'.format(self.types[3])
+                return f'Iterable[{self.types[3]}]'
             else:
                 return 'Collection[{}, {}]'.format(self.types[1],
                                                    self.types[2])
@@ -119,11 +119,11 @@ class Collection(TypeOperator):
         if isinstance(t00, TypeOperator):
             type_trait = t00.name
             if type_trait == 'list':
-                return 'List[{}]'.format(self.types[2])
+                return f'List[{self.types[2]}]'
             if type_trait == 'set':
-                return 'Set[{}]'.format(self.types[2])
+                return f'Set[{self.types[2]}]'
             if type_trait == 'dict':
-                return 'Dict[{}, {}]'.format(self.types[1], self.types[2])
+                return f'Dict[{self.types[1]}, {self.types[2]}]'
             if type_trait == 'str':
                 return 'str'
             if type_trait == 'file':
@@ -158,12 +158,12 @@ class Collection(TypeOperator):
                         return pn, 0
                 t, n = rec(self)
                 if isinstance(t, TypeVariable):
-                    return 'Array[{} d+, {}]'.format(n, t)
+                    return f'Array[{n} d+, {t}]'
                 else:
-                    return 'Array[{}d, {}]'.format(n, t)
+                    return f'Array[{n}d, {t}]'
             if type_trait == 'gen':
-                return 'Generator[{}]'.format(self.types[2])
-        return super(Collection, self).__str__()
+                return f'Generator[{self.types[2]}]'
+        return super().__str__()
 
 
 def TupleTrait(of_types):
@@ -256,7 +256,7 @@ class Scalar(TypeOperator):
                 assert dtype is None
                 types = [TypeVariable(), TypeVariable(),
                          TypeVariable(), TypeVariable()]
-        super(Scalar, self).__init__('scalar', types)
+        super().__init__('scalar', types)
 
     def __str__(self):
         if isinstance(prune(self.types[0]), TypeOperator):
@@ -384,7 +384,7 @@ def is_getattr(node):
     return node.func.attr == 'getattr'
 
 
-class MultiType(object):
+class MultiType:
     """A binary type constructor which builds function types"""
 
     def __init__(self, types):
@@ -503,7 +503,7 @@ def analyse_body(body, env, non_generic):
 class HasYield(ast.NodeVisitor):
 
     def __init__(self):
-        super(HasYield, self).__init__()
+        super().__init__()
         self.has_yield = False
 
     def visit_FunctionDef(self, node):
@@ -591,9 +591,9 @@ def analyse(node, env, non_generic=None):
                 unify(Function([self_type], result_type), attr_type)
             except InferenceError:
                 if isinstance(prune(attr_type), MultiType):
-                    msg = 'no attribute found, tried:\n{}'.format(attr_type)
+                    msg = f'no attribute found, tried:\n{attr_type}'
                 else:
-                    msg = 'tried {}'.format(attr_type)
+                    msg = f'tried {attr_type}'
                 raise PythranTypeError(
                     "Invalid attribute for getattr call with self"
                     "of type `{}`, {}".format(self_type, msg), node)
@@ -608,13 +608,13 @@ def analyse(node, env, non_generic=None):
                 # recover original type
                 fun_type = analyse(node.func, env, non_generic)
                 if isinstance(prune(fun_type), MultiType):
-                    msg = 'no overload found, tried:\n{}'.format(fun_type)
+                    msg = f'no overload found, tried:\n{fun_type}'
                 else:
-                    msg = 'tried {}'.format(fun_type)
+                    msg = f'tried {fun_type}'
                 raise PythranTypeError(
                     "Invalid argument type for function call to "
                     "`Callable[[{}], ...]`, {}"
-                    .format(', '.join('{}'.format(at) for at in arg_types),
+                    .format(', '.join(f'{at}' for at in arg_types),
                             msg),
                     node)
         return result_type
@@ -809,7 +809,7 @@ def analyse(node, env, non_generic=None):
                 unify(Array(dtype, nbslice), clone(value_type))
             except InferenceError:
                 raise PythranTypeError(
-                    "Dimension mismatch when slicing `{}`".format(value_type),
+                    f"Dimension mismatch when slicing `{value_type}`",
                     node)
             return TypeVariable()  # FIXME
         else:
@@ -864,7 +864,7 @@ def analyse(node, env, non_generic=None):
         for alias in node.names:
             if alias.name not in MODULES[node.module]:
                 raise NotImplementedError(
-                    "unknown function: %s in %s" % (alias.name, node.module))
+                    "unknown function: {} in {}".format(alias.name, node.module))
             if alias.asname is None:
                 target = alias.name
             else:
@@ -1155,7 +1155,7 @@ def analyse(node, env, non_generic=None):
             Function([TypeVariable(), TypeVariable()], TypeVariable()),
         ])
 
-    raise RuntimeError("Unhandled syntax node {0}".format(type(node)))
+    raise RuntimeError(f"Unhandled syntax node {type(node)}")
 
 
 def get_type(name, env, non_generic):
@@ -1175,7 +1175,7 @@ def get_type(name, env, non_generic):
             return clone(env[name])
         return fresh(env[name], non_generic)
     else:
-        print("W: Undefined symbol {0}".format(name))
+        print(f"W: Undefined symbol {name}")
         return TypeVariable()
 
 
@@ -1212,7 +1212,7 @@ def fresh(t, non_generic):
         elif isinstance(p, MultiType):
             return MultiType([freshrec(x) for x in p.types])
         else:
-            assert False, "missing freshrec case {}".format(type(p))
+            assert False, f"missing freshrec case {type(p)}"
 
     return freshrec(t)
 
@@ -1313,7 +1313,7 @@ def unify(t1, t2):
         else:
             raise InferenceError("No overload")
     else:
-        raise RuntimeError("Not unified {} and {}".format(type(a), type(b)))
+        raise RuntimeError(f"Not unified {type(a)} and {type(b)}")
 
 
 def merge_unify(t1, t2):

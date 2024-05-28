@@ -423,9 +423,9 @@ class TestFromDir(TestEnv):
         """ Dynamically add methods for unittests, second stage. """
         TestFromDir.populate(self, stub=False)
 
-        super(TestFromDir, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-    class TestFunctor(object):
+    class TestFunctor:
 
         """
         Class to holds test information for a given test file.

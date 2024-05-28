@@ -61,7 +61,7 @@ class Dependencies(ModuleAnalysis):
 
     def __init__(self):
         self.result = set()
-        super(Dependencies, self).__init__()
+        super().__init__()
 
     def visit_List(self, node):
         self.result.add(('builtins', 'list'))

@@ -185,7 +185,7 @@ class Unparser:
             self.dispatch(t.locals)
 
     def _NameConstant(self, t):
-        self.write('{}'.format(t.value))
+        self.write(f'{t.value}')
 
     def _Print(self, t):
         # Assume from __future__ import print_function
@@ -616,7 +616,7 @@ class Unparser:
 
 
 def roundtrip(filename, output=sys.stdout):
-    with open(filename, "r") as pyfile:
+    with open(filename) as pyfile:
         source = pyfile.read()
     tree = compile(source, filename, "exec", ast.PyCF_ONLY_AST)
     Unparser(tree, output)

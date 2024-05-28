@@ -277,7 +277,7 @@ for exception in exceptions:
     if exception not in exception_args:
         continue
     args = exception_args[exception]
-    code = 'def {exception}_register(): raise {exception}{args}'.format(**locals())
+    code = f'def {exception}_register(): raise {exception}{args}'
     setattr(TestException, 'test_' + str(exception) + "_register",
-            eval("""lambda self: self.run_test('''{0}''', {1}_register=[], check_exception=True)""".format(code, exception)))
+            eval(f"""lambda self: self.run_test('''{code}''', {exception}_register=[], check_exception=True)"""))
 

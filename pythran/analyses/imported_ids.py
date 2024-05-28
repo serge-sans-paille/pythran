@@ -17,7 +17,7 @@ class ImportedIds(NodeAnalysis):
         self.current_locals = set()
         self.is_list = False
         self.in_augassign = False
-        super(ImportedIds, self).__init__(Globals, Locals)
+        super().__init__(Globals, Locals)
 
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Store) and not self.in_augassign:
@@ -93,7 +93,7 @@ class ImportedIds(NodeAnalysis):
         pass
 
     def prepare(self, node):
-        super(ImportedIds, self).prepare(node)
+        super().prepare(node)
         if self.is_list:  # so that this pass can be called on list
             node = node.body[0]
         self.visible_globals = set(self.globals) - self.locals[node]
@@ -102,4 +102,4 @@ class ImportedIds(NodeAnalysis):
         if isinstance(node, list):  # so that this pass can be called on list
             self.is_list = True
             node = ast.If(ast.Constant(1, None), node, [])
-        return super(ImportedIds, self).run(node)
+        return super().run(node)

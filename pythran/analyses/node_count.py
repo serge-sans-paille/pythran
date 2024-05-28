@@ -22,8 +22,8 @@ class NodeCount(NodeAnalysis):
 
     def __init__(self):
         self.result = 0
-        super(NodeCount, self).__init__()
+        super().__init__()
 
     def generic_visit(self, node):
         self.result += 1
-        super(NodeCount, self).generic_visit(node)
+        super().generic_visit(node)

@@ -21,7 +21,7 @@ class Placeholder(AST):
         self.id = identifier
         self.type = type
         self.constraint = constraint
-        super(Placeholder, self).__init__()
+        super().__init__()
 
 
 class AST_any(AST):
@@ -43,7 +43,7 @@ class AST_or(AST):
     def __init__(self, *args):
         """ Initialiser to keep track of arguments. """
         self.args = args
-        super(AST_or, self).__init__()
+        super().__init__()
 
 
 class Check(NodeVisitor):
@@ -207,7 +207,7 @@ class ASTMatcher(NodeVisitor):
         """ Basic initialiser saving pattern and initialising result set. """
         self.pattern = pattern
         self.result = set()
-        super(ASTMatcher, self).__init__()
+        super().__init__()
 
     def visit(self, node):
         """

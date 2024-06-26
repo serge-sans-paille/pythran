@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [3.7, 3.9, 3.11, 3.12, pypy-3.9]
+        python-version: [3.7, 3.9, 3.11, 3.12, "3.13.0-beta.1", pypy-3.9]
         cpp-version: [g++-8, clang-7]
     steps:
     - uses: actions/checkout@v2

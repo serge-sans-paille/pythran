@@ -23,15 +23,17 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install scipy-openblas64
         pip install pytest-xdist
-        sudo apt install libopenblas-dev ${{ matrix.cpp-version }}
+        sudo apt install ${{ matrix.cpp-version }}
         if test ${{ matrix.python-version }} != 'pypy-3.9'; then pip install scipy ; fi
     - name: Setup
       run: |
         python -m pip install .
         python -m pip install . 'pythran[test]'
-        printf '[compiler]\nblas=openblas\n' > ~/.config/.pythranrc
-        printf 'cflags=-std=c++11 -Wall -Werror -Wno-unknown-pragmas -Wno-unused-local-typedefs -Wno-cpp -Wno-deprecated-declarations -Wno-absolute-value -Wno-parentheses-equality\n' >> ~/.config/.pythranrc
+        printf '[compiler]\nblas=scipy-openblas\n' > ~/.config/.pythranrc
+        printf 'cflags=-std=c++11 -Wall -Werror -Wno-unknown-pragmas -Wno-unused-local-typedefs -Wno-cpp -Wno-deprecated-declarations' >> ~/.config/.pythranrc
+        if test "${{ matrix.cpp-version }}" = "clang-7" ; then printf -- " -Wno-absolute-value -Wno-parentheses-equality\n" ; else printf "\n" ; fi >> ~/.config/.pythranrc
     - name: Testing minimal CLI
       run: |
         pythran --version

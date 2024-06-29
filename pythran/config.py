@@ -231,7 +231,7 @@ def make_extension(python, **extra):
         extension['include_dirs'].append(numpy.get_include())
 
     # blas dependency
-    reserved_blas_entries = 'pythran-openblas', 'none'
+    reserved_blas_entries = 'scipy-openblas', 'pythran-openblas', 'none'
     user_blas = cfg.get('compiler', 'blas')
     if user_blas == 'pythran-openblas':
         try:
@@ -247,6 +247,21 @@ def make_extension(python, **extra):
                            "Please install it or change the compiler.blas "
                            "setting. Defaulting to 'none'")
             user_blas = 'none'
+    elif user_blas == 'scipy-openblas':
+        try:
+            import scipy_openblas64 as openblas
+            # required to cope with atlas missing extern "C"
+            extension['define_macros'].append('PYTHRAN_BLAS_SCIPY_OPENBLAS')
+            extension['include_dirs'].append(openblas.get_include_dir())
+            extension['library_dirs'].append(openblas.get_lib_dir())
+            extension['libraries'].append(openblas.get_library())
+            extension['extra_link_args'].append("-Wl,-rpath=" + openblas.get_lib_dir())
+        except ImportError:
+            logger.warning("Failed to find 'scipy-openblas64' package. "
+                           "Please install it or change the compiler.blas "
+                           "setting. Defaulting to 'none'")
+            user_blas = 'none'
+
 
     if user_blas == 'none':
         extension['define_macros'].append('PYTHRAN_BLAS_NONE')

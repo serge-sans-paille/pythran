@@ -1,5 +1,5 @@
 ply>=3.4
 setuptools
-gast~=0.5.0
+gast~=0.6.0
 numpy
 beniget~=0.4.0

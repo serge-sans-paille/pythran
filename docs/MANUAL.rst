@@ -591,9 +591,9 @@ loaded. This can be helpful for reproducible builds.
 All the options in the ``.pythranrc`` file can be specified when running pythran by using the command line argument --config= .
 For example::
 
-    pythran --config compiler.blas=pythran-openblas this_file.py
+    pythran --config compiler.blas=scipy-openblas this_file.py
 
-would specify that pythran-openblas is the blas library to use.
+would specify that ``scipy-openblas`` is the blas library to use.
 
 Options specified using command-line arguments override the options found in the ``.pythranrc`` file
 
@@ -648,15 +648,17 @@ This section contains compiler flags configuration. For education purpose, the d
 
 :``blas``:
 
-    BLAS library to use. ``none``, ``pythran-openblas``, ``blas``,
-    ``openblas``, ``atlas`` or ``mkl`` are viable choices.
-    ``none`` prevents from linking with blas.
-    ``pythran-openblas`` requires the `pythran-openblas
-    <https://pypi.org/project/pythran-openblas/>`_ package, which provides a
-    statically linked version of `OpenBLAS <https://www.openblas.net/>`_. Other
-    options are system dependant. Depending on your setup, you *may* need to
-    update ``include_dirs`` to point to the location of the BLAS headers, e.g.
-    ``/usr/include/openblas``.
+    BLAS library to use. ``none``, ``scipy-openblas``, ``pythran-openblas``,
+    ``blas``, ``openblas``, ``atlas`` or ``mkl`` are viable choices.  ``none``
+    prevents from linking with blas. ``scipy-openblas`` requires the
+    `scipy-openblas64 <https://pypi.org/project/scipy-openblas64/>`_ package,
+    which provides a prepcompiled version of `OpenBLAS
+    <https://www.openblas.net/>`_.  ``pythran-openblas`` requires the
+    `pythran-openblas <https://pypi.org/project/pythran-openblas/>`_ package,
+    which provides a statically linked version of `OpenBLAS
+    <https://www.openblas.net/>`_. Other options are system dependant. Depending
+    on your setup, you *may* need to update ``include_dirs`` to point to the
+    location of the BLAS headers, e.g.  ``/usr/include/openblas``.
 
 :``ignoreflags``:
 

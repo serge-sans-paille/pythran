@@ -1,8 +1,8 @@
-2024-05-27 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.16.1 2024-05-27 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix massive memory leak in ndarray i troduced in 0.16.0
 
-2024-05-14 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.16.0 2024-05-14 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Support numpy.vectorize, numpy.argsort's kind keyword, real/imag on
 	  numpy_iexpr
@@ -31,7 +31,7 @@
 
 	* Only link blas when needed
 
-2023-12-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.15.0 2023-12-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Use pyproject.toml to store setup and build configuration
 
@@ -45,7 +45,7 @@
 
 	* Improve detection of methods uses as functions
 
-2023-08-31 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.14.0 2023-08-31 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Numpy compatibility - update signatures, complex number handling, long
 	  double support
@@ -68,11 +68,11 @@
 
 	* Fix bug when filtering an empty sequence
 
-2023-05-02 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.13.1 2023-05-02 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Bump xsimd dependency to 11.0.0, with a backported patch.
 
-2023-04-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.13.0 2023-04-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Improve performance of functions revieving scalar arguments. This changes
 	  the internal function call API.
@@ -98,7 +98,7 @@
 	* Avoid generating a loop footer when the loop index is not used outside of
 	  the loop.
 
-2023-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.12.1 2023-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Bump xsimd depdency to 10.0.0
 
@@ -118,7 +118,7 @@
 
 	* Support axis parameter in numpy.argsort
 
-2022-09-20 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.12.0 2022-09-20 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Improve numpy expression computation speed
 
@@ -136,7 +136,7 @@
 
 	* A lot of small pesty bug fixes in the C++ headers
 
-2021-12-08 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.11.0 2021-12-08 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Upgrade xsimd version to 8.0.5
 
@@ -151,7 +151,7 @@
 	* Add pythran option -ftime-report to print out the time spent on optimizations
 	* Support isinstance when second argument is a tuple
 
-2021-09-08 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.10.0 2021-09-08 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix performance issue with assert handling
 
@@ -164,7 +164,7 @@
 
 	* And extra minor fixes :-)
 
-2021-07-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.12 2021-07-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Remove six, networkx and decorator dependency
 
@@ -190,11 +190,11 @@
 
 	* Trim the number of warnings in pythonic codebase
 
-2021-05-23 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.11 2021-05-23 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix compatibility issue with python 3.10
 
-2021-05-09 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.10 2021-05-09 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Honor CXXFLAGS and LDFLAGS
 
@@ -210,7 +210,7 @@
 
 	* Optimize some matrix transpose cases
 
-2021-03-30 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.9 2021-03-30 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Always honor $HOME for user configuration lookup (even on Windows)
 
@@ -242,7 +242,7 @@
 	* Improve PythranBuildExt to support base class customization
 
 
-2020-11-09 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.8 2020-11-09 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Basic f-string support
 
@@ -254,7 +254,7 @@
 
 	* Support list.sort with key argument
 
-2020-09-22 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.7 2020-09-22 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Improve computation of contiguous slices when bounds are positive
 
@@ -266,7 +266,7 @@
 
 	* Support Python 3.9
 
-2020-08-01 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.6 2020-08-01 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* First release only supporting Python3
 
@@ -308,7 +308,7 @@
 
 	* Fix interaction between OpenMP collapse and pythran-generated loops
 
-2019-12-31 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.5 2019-12-31 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Last release supporting both Python2 and Python3
 
@@ -324,7 +324,7 @@
 
 	* Various fixes for bug introduced in previous revision ^^!
 
-2019-10-30 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.4 2019-10-30 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Support Python up to 3.8 (included)
 
@@ -363,7 +363,7 @@
 	* Various fixes and doc upgrade I'm too lazy to list here ;-)
 
 
-2019-08-19 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.3 2019-08-19 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Warn users about deprecation of python2
 
@@ -395,7 +395,7 @@
 
 	* Support kind argument for np.sort
 
-2019-05-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.2 2019-05-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Better support for `is None` pattern
 
@@ -452,7 +452,7 @@
 
 	* Fix important memory leak in numpy_gexpr to_python
 
-2019-01-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.1post0 2019-01-29 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix np.transpose regression
 
@@ -460,7 +460,7 @@
 
 	* Fix setup.py test target
 
-2019-01-18 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.1 2019-01-18 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Honor PYTHRANRC environment variable for config file lookup
 
@@ -491,7 +491,7 @@
 
 	* More vectorized operations support
 
-2018-11-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.9.0 2018-11-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Moving to xsimd as vectorization engine, requires -DUSE_XSIMD
 
@@ -518,7 +518,7 @@
 	* And many minor bugfixes, as usual :-)
 
 
-2018-09-16 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.8.7 2018-09-16 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Decent support for ``is None`` pattern
 
@@ -547,7 +547,7 @@
 	* Better Windows support (fix compiler-specific bugs) including OpenMP
 
 
-2018-06-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.8.6 2018-06-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Much better support of fancy indexing, still not 100% support though
 
@@ -565,7 +565,7 @@
 	  and David Menéndez Hurtado, Fabien Rozar, C. Claus
 
 
-2018-04-23 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.8.5 2018-04-23 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* numpy.fft support (thanks to Jean Laroche)
 
@@ -579,7 +579,7 @@
 
 	* Many bugfixes and numpy improvements (thanks to Yann Diorecet and Jean Laroche)
 
-2018-02-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.8.4 2018-02-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Slimmer generated binaries
 
@@ -597,7 +597,7 @@
 
 	* Work around GCC-7 parsing bug
 
-2017-10-14 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.8.3 2017-10-14 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Moving to networkx 2.0
 
@@ -611,7 +611,7 @@
 
 	* Support out field in numpy.sum
 
-2017-09-12 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.8.2 2017-09-12 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Significant compilation time improvements (again)
 
@@ -623,7 +623,7 @@
 
 	* Exported functions now support keyword passing style
 
-2017-07-04 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.8.1 2017-07-04 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Significant compilation time improvements
 
@@ -631,7 +631,7 @@
 
 	* Many bug fixes and perf improvement
 
-2017-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.8.0 2017-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Python 3 support
 
@@ -639,7 +639,7 @@
 
 	* Various bug fixes and perf improvement, as usual
 
-2016-07-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.7.6 2016-07-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix install / setup minor issues
 
@@ -647,7 +647,7 @@
 
 	* Fix GMP installation issue
 
-2016-06-13 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.7.5 2016-06-13 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Better Jupyter Note book integration
 
@@ -667,7 +667,7 @@
 
 	* Global variable handling, as constants only though
 
-2016-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.7.4 2016-01-05 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* IPython's magic for pythran now supports extra compile flags
 
@@ -687,7 +687,7 @@
 
 	* Better testing (gcc + clang)
 
-2015-10-13 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.7.2 2015-10-13 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Significantly decrease compilation time
 
@@ -725,7 +725,7 @@
 
 	* Many bugfixes, thanks to all the bug reporters!
 
-2015-04-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.7 2015-04-06 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Various numpy.* function implementation improvement (incl. concatenate,
 	  str.join, itertools.combinations)
@@ -764,7 +764,7 @@
 
 	* Accept strided array as exported function input
 
-2014-10-22 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.6 2014-10-22 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Full SIMD support! Almost all numpy expressions are vectorized
 
@@ -798,7 +798,7 @@
 
 	* Make dependency on libgomp optional
 
-2014-05-17 Serge Guelton <serge.guelton@telecom-bretagne.eu>
+0.5 2014-05-17 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Improved C++ compilation time (twice as fast)
 

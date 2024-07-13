@@ -190,6 +190,11 @@ def make_extension(python, **extra):
         "extra_objects": []
     }
 
+    # In case the extension doesn't include any optimization level, make sure we
+    # have a decent default. Later options have prcedence so this is still
+    # customizable by users.
+    extension['extra_compile_args'].insert(0, "-O2")
+
     if python:
         extension['define_macros'].append('ENABLE_PYTHON_MODULE')
     extension['define_macros'].append(

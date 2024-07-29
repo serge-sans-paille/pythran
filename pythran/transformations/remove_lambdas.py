@@ -68,7 +68,7 @@ def issamelambda(pattern, f1):
 class _LambdaRemover(ast.NodeTransformer):
 
     def __init__(self, parent, prefix):
-        super(_LambdaRemover, self).__init__()
+        super().__init__()
         self.prefix = prefix
         self.parent = parent
         self.patterns = parent.patterns
@@ -89,7 +89,7 @@ class _LambdaRemover(ast.NodeTransformer):
                                  op, ast.Load())
 
         self.generic_visit(node)
-        forged_name = "{0}_lambda{1}".format(
+        forged_name = "{}_lambda{}".format(
             self.prefix,
             len(self.lambda_functions))
 
@@ -160,7 +160,7 @@ class RemoveLambdas(Transformation):
     """
 
     def __init__(self):
-        super(RemoveLambdas, self).__init__(GlobalDeclarations)
+        super().__init__(GlobalDeclarations)
 
     def visit_Module(self, node):
         self.lambda_functions = list()

@@ -120,7 +120,7 @@ class PatchBreakContinue(ast.NodeTransformer):
 class NormalizeStaticIf(Transformation):
 
     def __init__(self):
-        super(NormalizeStaticIf, self).__init__(StaticExpressions, Ancestors,
+        super().__init__(StaticExpressions, Ancestors,
                                                 DefUseChains)
 
     def visit_Module(self, node):
@@ -171,10 +171,10 @@ class NormalizeStaticIf(Transformation):
         return actual_call
 
     def true_name(self):
-        return "$isstatic{}".format(len(self.new_functions) + 0)
+        return f"$isstatic{len(self.new_functions) + 0}"
 
     def false_name(self):
-        return "$isstatic{}".format(len(self.new_functions) + 1)
+        return f"$isstatic{len(self.new_functions) + 1}"
 
     def visit_FunctionDef(self, node):
         self.cfgs.append(self.gather(CFG, node))
@@ -282,9 +282,9 @@ class NormalizeStaticIf(Transformation):
 
         # name for various variables resulting from the static_if
         n = len(self.new_functions)
-        status_n = "$status{}".format(n)
-        return_n = "$return{}".format(n)
-        cont_n = "$cont{}".format(n)
+        status_n = f"$status{n}"
+        return_n = f"$return{n}"
+        cont_n = f"$cont{n}"
 
         if has_return:
             cfg = self.cfgs[-1]
@@ -332,7 +332,7 @@ class NormalizeStaticIf(Transformation):
 class SplitStaticExpression(Transformation):
 
     def __init__(self):
-        super(SplitStaticExpression, self).__init__(StaticExpressions)
+        super().__init__(StaticExpressions)
 
     def visit_Cond(self, node):
         '''

@@ -1,4 +1,3 @@
-
 #pythran export lapl2d(float[,],float[,],int)
 #runas import numpy as np; x = np.arange(16.).reshape(4,4); lapl2d(x, x.T, 3)
 def lapl2d(In,Out,niter):

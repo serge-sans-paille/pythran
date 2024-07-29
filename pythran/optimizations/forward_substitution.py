@@ -71,7 +71,7 @@ class ForwardSubstitution(Transformation):
 
     def __init__(self):
         """ Satisfy dependencies on others analyses. """
-        super(ForwardSubstitution, self).__init__(LazynessAnalysis,
+        super().__init__(LazynessAnalysis,
                                                   UseDefChains,
                                                   DefUseChains,
                                                   Ancestors,
@@ -174,7 +174,6 @@ class PreInliningForwardSubstitution(ForwardSubstitution):
         # Only handle trivial cases, because this can lead to more inlining
         # opportunities.
         if all(isinstance(s, (ast.Return, ast.Assign)) for s in node.body):
-            r = super(PreInliningForwardSubstitution,
-                         self).visit_FunctionDef(node)
+            r = super().visit_FunctionDef(node)
             return r
         return node

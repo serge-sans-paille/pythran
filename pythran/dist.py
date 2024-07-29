@@ -11,7 +11,7 @@ from collections import defaultdict
 try:
     from collections.abc import Iterable
 except ImportError:
-    from collections import Iterable
+    from collections.abc import Iterable
 import os.path
 import os
 import re
@@ -30,7 +30,7 @@ except ImportError:
 
 
 
-class PythranBuildExtMixIn(object):
+class PythranBuildExtMixIn:
     """Subclass of `distutils.command.build_ext.build_ext` which is required to
     build `PythranExtension` with the configured C++ compiler. It may also be
     subclassed if you want to combine with another build_ext class (NumPy,
@@ -118,7 +118,7 @@ class PythranBuildExtMixIn(object):
                     self.compiler.compiler_so[i] = 'x86_64'
 
         try:
-            return super(PythranBuildExtMixIn, self).build_extension(ext)
+            return super().build_extension(ext)
         finally:
             # Revert compiler settings
             for key in prev.keys():

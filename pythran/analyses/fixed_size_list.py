@@ -15,7 +15,7 @@ class FixedSizeList(FunctionAnalysis):
         self.result = set()
         from pythran.analyses import Aliases, DefUseChains, Ancestors
         from pythran.analyses import ArgumentEffects
-        super(FixedSizeList, self).__init__(Aliases, DefUseChains, Ancestors,
+        super().__init__(Aliases, DefUseChains, Ancestors,
                                             ArgumentEffects)
 
     def is_fixed_size_list_def(self, node):

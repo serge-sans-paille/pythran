@@ -20,7 +20,7 @@ import pythran
 class PythranMagics(Magics):
 
     def __init__(self, shell):
-        super(PythranMagics,self).__init__(shell)
+        super().__init__(shell)
         self._reloads = {}
 
     def _import_all(self, module):

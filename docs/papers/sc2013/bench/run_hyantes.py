@@ -21,9 +21,9 @@ with file(candidate) as content:
                 os.path.basename(candidate))
         # pythran + omp
         runas_commands = runas[0].replace('#runas', '').split(";")
-        runas_context = ";".join(["import {0}_omp".format(
+        runas_context = ";".join(["import {}_omp".format(
                         module_name)] + runas_commands[:-1])
-        runas_command = "{0}_omp.{1}".format(module_name,
+        runas_command = "{}_omp.{}".format(module_name,
                         runas_commands[-1])
 
         ti = timeit.Timer(runas_command, runas_context)

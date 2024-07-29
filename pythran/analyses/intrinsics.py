@@ -13,7 +13,7 @@ class Intrinsics(ModuleAnalysis):
     def __init__(self):
         """ Result is a set of intrinsic values. """
         self.result = set()
-        super(Intrinsics, self).__init__()
+        super().__init__()
 
     def visit_Attribute(self, node):
         obj, _ = attr_to_path(node)

@@ -9,7 +9,7 @@ import gast as ast
 from inspect import isclass
 
 
-class Pattern(object):
+class Pattern:
 
     def match(self, node):
         self.check = Check(node, dict())
@@ -335,14 +335,14 @@ class PlaceholderReplace(Transformation):
     def __init__(self, placeholders):
         """ Store placeholders value collected. """
         self.placeholders = placeholders
-        super(PlaceholderReplace, self).__init__()
+        super().__init__()
 
     def visit(self, node):
         """ Replace the placeholder if it is one or continue. """
         if isinstance(node, Placeholder):
             return self.placeholders[node.id]
         else:
-            return super(PlaceholderReplace, self).visit(node)
+            return super().visit(node)
 
 class PatternTransform(Transformation):
 
@@ -354,7 +354,7 @@ class PatternTransform(Transformation):
 
     def __init__(self):
         """ Initialize the Basematcher to search for placeholders. """
-        super(PatternTransform, self).__init__()
+        super().__init__()
 
     def visit_Module(self, node):
         self.extra_imports = []
@@ -382,7 +382,7 @@ class PatternTransform(Transformation):
 
 for known_pattern in know_patterns:
     pattern_selector = type(known_pattern.pattern).__name__
-    attr_name = "{}Patterns".format(pattern_selector)
+    attr_name = f"{pattern_selector}Patterns"
     setattr(PatternTransform, attr_name,
             getattr(PatternTransform, attr_name) + (known_pattern,))
 

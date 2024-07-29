@@ -24,11 +24,11 @@ class ExtractDocStrings(Transformation):
     '''
 
     def __init__(self):
-        super(ExtractDocStrings, self).__init__()
+        super().__init__()
         self.docstrings = dict()
 
     def run(self, node):
-        super(ExtractDocStrings, self).run(node)
+        super().run(node)
         return self.docstrings
 
     def visit_Expr(self, node):

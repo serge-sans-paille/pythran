@@ -25,9 +25,9 @@ for candidate in candidates:
                     os.path.basename(candidate))
             # pythran
             runas_commands = runas[0].replace('#runas', '').split(";")
-            runas_context = ";".join(["import {0}".format(
+            runas_context = ";".join(["import {}".format(
                             module_name)] + runas_commands[:-1])
-            runas_command = "{0}.{1}".format(module_name,
+            runas_command = "{}.{}".format(module_name,
                             runas_commands[-1])
 
             ti = timeit.Timer(runas_command, runas_context)
@@ -35,9 +35,9 @@ for candidate in candidates:
             print module_name, timing, 
 
             # pythran + omp
-            runas_context = ";".join(["import {0}_omp".format(
+            runas_context = ";".join(["import {}_omp".format(
                             module_name)] + runas_commands[:-1])
-            runas_command = "{0}_omp.{1}".format(module_name,
+            runas_command = "{}_omp.{}".format(module_name,
                             runas_commands[-1])
 
             ti = timeit.Timer(runas_command, runas_context)
@@ -46,9 +46,9 @@ for candidate in candidates:
 
             #cython
             runas_commands = runas[0].replace('#runas', '').split(";")
-            runas_context = ";".join(["import c{0}".format(
+            runas_context = ";".join(["import c{}".format(
                             module_name)] + runas_commands[:-1])
-            runas_command = "c{0}.{1}".format(module_name,
+            runas_command = "c{}.{}".format(module_name,
                             runas_commands[-1])
 
             ti = timeit.Timer(runas_command, runas_context)
@@ -56,9 +56,9 @@ for candidate in candidates:
             print  timing,
 
             # cython + omp
-            runas_context = ";".join(["import c{0}_omp".format(
+            runas_context = ";".join(["import c{}_omp".format(
                             module_name)] + runas_commands[:-1])
-            runas_command = "c{0}_omp.{1}".format(module_name,
+            runas_command = "c{}_omp.{}".format(module_name,
                             runas_commands[-1])
 
             ti = timeit.Timer(runas_command, runas_context)

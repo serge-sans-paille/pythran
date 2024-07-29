@@ -52,7 +52,7 @@ class NormalizeTuples(Transformation):
     def get_new_id(self):
         i = 0
         while 1:
-            new_id = "{}{}".format(NormalizeTuples.tuple_name, i)
+            new_id = f"{NormalizeTuples.tuple_name}{i}"
             if new_id not in self.ids:
                 self.ids.add(new_id)
                 return new_id
@@ -91,7 +91,7 @@ class NormalizeTuples(Transformation):
         nnode = node
         for i, g in enumerate(generators):
             if isinstance(g, tuple):
-                gtarget = "{0}{1}".format(g[0], i)
+                gtarget = f"{g[0]}{i}"
                 nnode.generators[i].target = ast.Name(
                     gtarget,
                     nnode.generators[i].target.ctx, None, None)

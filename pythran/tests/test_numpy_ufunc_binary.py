@@ -58,7 +58,7 @@ for ns, f in binary_ufunc:
             setattr(TestNumpyUFuncBinary, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from {1} import {0}; import numpy; return {0}(numpy.array(a, dtype=int),a)', numpy.ones((2,5)) - 0.2 , np_{0}_matrix=[NDArray[float,:,:]])".format(f, ns)))
             ## Tests for integral numbers
             try:
-                eval('{1}.{0}(1, 1)'.format(f, ns))
+                eval(f'{ns}.{f}(1, 1)')
                 setattr(TestNumpyUFuncBinary, 'test_' + f + '_integer', eval("lambda self: self.run_test('def np_{0}_integer(a): from {1} import {0} ; return {0}(a, a)', numpy.ones(10,dtype=int), np_{0}_integer=[NDArray[int, :]])".format(f, ns)))
             except TypeError:
                 pass
@@ -68,13 +68,13 @@ for ns, f in binary_ufunc:
             setattr(TestNumpyUFuncBinary, 'test_' + f + '_matrix', eval("lambda self: self.run_test('def np_{0}_matrix(a): from {1} import {0} ; return {0}(a,a)', numpy.ones((2,5)) - 0.2 , np_{0}_matrix=[NDArray[float,:,:]])".format(f, ns)))
             ## Tests for complex numbers
             try:
-                eval('{1}.{0}(1.j, 1.j)'.format(f, ns))
+                eval(f'{ns}.{f}(1.j, 1.j)')
                 setattr(TestNumpyUFuncBinary, 'test_' + f + '_complex', eval("lambda self: self.run_test('def np_{0}_complex(a): from {1} import {0} ; return {0}(a,a)', numpy.ones(10)*1.j, np_{0}_complex=[NDArray[complex, :]])".format(f, ns)))
             except TypeError:
                 pass
             ## Tests for integral numbers
             try:
-                eval('{1}.{0}(1, 1)'.format(f, ns))
+                eval(f'{ns}.{f}(1, 1)')
                 setattr(TestNumpyUFuncBinary, 'test_' + f + '_integer', eval("lambda self: self.run_test('def np_{0}_integer(a): from {1} import {0} ; return {0}(a, a)', numpy.ones(10,dtype=int), np_{0}_integer=[NDArray[int, :]])".format(f, ns)))
             except TypeError:
                 pass

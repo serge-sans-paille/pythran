@@ -24,8 +24,7 @@ def solve():
             if bal > num: return
             elif bal == num: yield newpat
             elif coinnum < len(coins)-1:
-                for pat in gen(newpat, coinnum+1, num):
-                    yield pat
+                yield from gen(newpat, coinnum+1, num)
 
     return sum(1 for pat in gen((), 0, 200))
 

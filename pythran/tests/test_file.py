@@ -9,7 +9,7 @@ from pythran.typing import List
 class TestFile(TestEnv):
 
     def __init__(self, *args, **kwargs):
-        super(TestFile, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.file_content = """azerty\nqwerty\n\n"""
 
     def tempfile(self):
@@ -71,7 +71,7 @@ class TestFile(TestEnv):
     def test_write(self):
         self.filename=mkstemp()[1]
         content="""q2\naze23\n"""
-        self.run_test("""def _write(filename):\n f=open(filename,'a+')\n n = f.write("""+str('str("""q2\naze23\n""")')+""")\n f.close()\n return n""", self.filename, _write=[str])
+        self.run_test("""def _write(filename):\n f=open(filename,'a+')\n n = f.write("""+'str("""q2\naze23\n""")'+""")\n f.close()\n return n""", self.filename, _write=[str])
 
         with open(self.filename) as fd:
             self.assertEqual(fd.read(), content * 2)
@@ -87,7 +87,7 @@ class TestFile(TestEnv):
             self.filename, content, _writelines=[str, List[str]])
 
         with open(self.filename) as fd:
-            self.assertEqual(fd.read(), str().join(content)*2)
+            self.assertEqual(fd.read(), ''.join(content)*2)
 
     def test_close(self):
         filename=mkstemp()[1]

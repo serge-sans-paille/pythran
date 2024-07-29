@@ -37,7 +37,7 @@ class CFG(FunctionAnalysis):
 
     def __init__(self):
         self.result = DiGraph()
-        super(CFG, self).__init__()
+        super().__init__()
 
     def visit_FunctionDef(self, node):
         """OUT = node, RAISES = ()"""

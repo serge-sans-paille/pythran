@@ -48,10 +48,10 @@ class NormalizeIfElse(Transformation):
     '''
 
     def __init__(self):
-        super(NormalizeIfElse, self).__init__(Ancestors)
+        super().__init__(Ancestors)
 
     def check_lasts(self, node):
-        if isinstance(node, (ast.Return, ast.Break, ast.Return)):
+        if isinstance(node, (ast.Return, ast.Break)):
             return True
         if isinstance(node, ast.If):
             if not self.check_lasts(node.body[-1]):

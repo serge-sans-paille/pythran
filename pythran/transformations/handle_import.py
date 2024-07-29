@@ -49,15 +49,15 @@ def getsource(name, module_dir, level):
         assert level <= 0, "Cannot use relative path without module_dir"
         module_file = module_base
     else:
-        module_file = os.path.sep.join(([module_dir] + ['..'] * (level - 1)
-                                        + [module_base]))
+        module_file = os.path.sep.join([module_dir] + ['..'] * (level - 1)
+                                        + [module_base])
     try:
-        with open(module_file, 'r') as fp:
+        with open(module_file) as fp:
             from pythran.frontend import raw_parse
             node = raw_parse(fp.read())
             add_filename_field(node, name + ".py")
             return node
-    except IOError:
+    except OSError:
         raise PythranSyntaxError("Module '{}' not found."
                                  .format(name))
 
@@ -70,7 +70,7 @@ class HandleImport(Transformation):
     """
 
     def __init__(self):
-        super(HandleImport, self).__init__()
+        super().__init__()
         self.identifiers = [{}]
         self.imported = set()
         self.prefixes = [""]

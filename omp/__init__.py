@@ -82,7 +82,7 @@ def msvc_runtime_major():
     return major
 
 
-class OpenMP(object):
+class OpenMP:
 
     """
     Internal representation of the OpenMP module.

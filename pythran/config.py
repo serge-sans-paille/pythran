@@ -19,7 +19,7 @@ def get_include():
     return (os.path.dirname(os.path.dirname(__file__)) or '.') + '/pythran'
 
 
-class silent(object):
+class silent:
     '''
     Silent sys.stderr at the system level
     '''
@@ -32,7 +32,7 @@ class silent(object):
             self.prevfd = None
 
         self.prevstream = sys.stderr
-        sys.stderr = open(os.devnull, 'r')
+        sys.stderr = open(os.devnull)
 
     def __exit__(self, exc_type, exc_value, traceback):
         sys.stderr.close()
@@ -44,7 +44,7 @@ class silent(object):
 
 def get_paths_cfg(
         sys_file='pythran.cfg',
-        platform_file='pythran-{}.cfg'.format(sys.platform),
+        platform_file=f'pythran-{sys.platform}.cfg',
         user_file='.pythranrc'
 ):
     sys_config_dir = os.path.dirname(__file__)
@@ -121,7 +121,7 @@ def lint_cfg(cfgp, **paths):
         exists = os.path.exists(path)
 
         msg = " ".join([
-            "{} file".format(loc).rjust(13),
+            f"{loc} file".rjust(13),
             "exists:" if exists else "does not exist:",
             path
         ])
@@ -158,7 +158,7 @@ def lint_cfg(cfgp, **paths):
 def make_extension(python, **extra):
     # load platform specific configuration then user configuration
     cfg = init_cfg('pythran.cfg',
-                   'pythran-{}.cfg'.format(sys.platform),
+                   f'pythran-{sys.platform}.cfg',
                    '.pythranrc',
                    extra.pop('config', None))
 
@@ -198,7 +198,7 @@ def make_extension(python, **extra):
     if python:
         extension['define_macros'].append('ENABLE_PYTHON_MODULE')
     extension['define_macros'].append(
-        '__PYTHRAN__={}'.format(sys.version_info.major))
+        f'__PYTHRAN__={sys.version_info.major}')
 
     pythonic_dir = get_include()
 
@@ -312,7 +312,7 @@ def compiler():
 
 # load platform specific configuration then user configuration
 cfg = init_cfg('pythran.cfg',
-               'pythran-{}.cfg'.format(sys.platform),
+               f'pythran-{sys.platform}.cfg',
                '.pythranrc')
 
 

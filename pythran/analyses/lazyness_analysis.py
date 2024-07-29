@@ -104,7 +104,7 @@ class LazynessAnalysis(FunctionAnalysis):
         # prevent any form of Forward Substitution at omp frontier
         self.in_omp = set()
         self.name_to_nodes = dict()
-        super(LazynessAnalysis, self).__init__(ArgumentEffects, Aliases,
+        super().__init__(ArgumentEffects, Aliases,
                                                PureExpressions)
 
     def modify(self, name):
@@ -143,7 +143,7 @@ class LazynessAnalysis(FunctionAnalysis):
         omp_nodes = md.get(node, openmp.OMPDirective)
         if omp_nodes:
             self.in_omp = set(self.name_count.keys())
-        super(LazynessAnalysis, self).visit(node)
+        super().visit(node)
         if omp_nodes:
             new_nodes = set(self.name_count).difference(self.in_omp)
             for omp_node in omp_nodes:
@@ -367,7 +367,7 @@ class LazynessAnalysis(FunctionAnalysis):
         self.visit(node.func)
 
     def run(self, node):
-        result = super(LazynessAnalysis, self).run(node)
+        result = super().run(node)
 
         # update result with last name_count values
         for name, val in self.name_count.items():

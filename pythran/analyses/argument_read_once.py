@@ -23,7 +23,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         FunctionDef ast node to function effect binding.
     """
 
-    class FunctionEffects(object):
+    class FunctionEffects:
         def __init__(self, node):
             self.func = node
             self.dependencies = lambda ctx: 0
@@ -38,13 +38,13 @@ class ArgumentReadOnce(ModuleAnalysis):
             else:
                 raise NotImplementedError
 
-    class ConstructorEffects(object):
+    class ConstructorEffects:
         def __init__(self, node):
             self.func = node
             self.dependencies = lambda ctx: 0
             self.read_effects = [0]
 
-    class Context(object):
+    class Context:
         def __init__(self, function, index, path, global_dependencies):
             self.function = function
             self.index = index
@@ -55,7 +55,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         """ Basic initialiser for class attributes. """
         self.result = set()
         self.node_to_functioneffect = dict()
-        super(ArgumentReadOnce, self).__init__(Aliases, GlobalDeclarations)
+        super().__init__(Aliases, GlobalDeclarations)
 
     def prepare(self, node):
         """
@@ -64,7 +64,7 @@ class ArgumentReadOnce(ModuleAnalysis):
         Initialisation done for Pythonic functions and default values set for
         user defined functions.
         """
-        super(ArgumentReadOnce, self).prepare(node)
+        super().prepare(node)
         # global functions init
         for n in self.global_declarations.values():
             fe = ArgumentReadOnce.FunctionEffects(n)
@@ -88,7 +88,7 @@ class ArgumentReadOnce(ModuleAnalysis):
             save_effect(module)
 
     def run(self, node):
-        result = super(ArgumentReadOnce, self).run(node)
+        result = super().run(node)
         for fun in result:
             for i in range(len(fun.read_effects)):
                 self.recursive_weight(fun, i, set())

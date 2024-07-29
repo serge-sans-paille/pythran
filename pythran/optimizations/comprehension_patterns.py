@@ -1,4 +1,3 @@
-
 """ Comprehension patterns transforms list comprehension into intrinsics.  """
 
 from pythran.analyses import OptimizableComprehension

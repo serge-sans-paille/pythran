@@ -7,7 +7,7 @@ from pythran.passmanager import ModuleAnalysis
 class Globals(ModuleAnalysis):
     def __init__(self):
         self.result = set()
-        super(Globals, self).__init__(GlobalDeclarations)
+        super().__init__(GlobalDeclarations)
 
     def visit_Module(self, node):
         self.result = {'builtins',

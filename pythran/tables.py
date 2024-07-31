@@ -2835,6 +2835,9 @@ MODULES = {
             return_range=lambda _: interval.Range(1, 1)
         ),
     },
+    "array": {
+            "typecodes": ConstantIntr(signature=str),
+    },
     "scipy": {
         "special": {
             "binom": ConstFunctionIntr(
@@ -4536,6 +4539,9 @@ MODULES = {
     },
 }
 
+# PyPy doesn't seem to provide this.
+if sys.implementation.name == 'pypy':
+    del MODULES['array']['typecodes']
 
 if sys.version_info < (3, 5):
     del MODULES['operator']['matmul']

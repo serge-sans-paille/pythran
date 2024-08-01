@@ -179,6 +179,8 @@ CLASSES = {
     "dtype": {
         "type": MethodIntr(),
     },
+    "array": {
+    },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "extend": MethodIntr(update_effects),
@@ -2837,6 +2839,9 @@ MODULES = {
     },
     "array": {
             "typecodes": ConstantIntr(signature=str),
+            "array": ClassWithReadOnceConstructor(
+                CLASSES['array'],
+                immediate_arguments=[0]),
     },
     "scipy": {
         "special": {

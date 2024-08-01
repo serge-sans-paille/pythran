@@ -1026,9 +1026,13 @@ class CxxFunction(ast.NodeVisitor):
         else:
             ret = repr(node.value) + TYPE_TO_SUFFIX.get(type(node.value), "")
         if node in self.immediates:
-            assert isinstance(node.value, int)
-            return "std::integral_constant<%s, %s>{}" % (
-                PYTYPE_TO_CTYPE_TABLE[type(node.value)], str(node.value).lower())
+            if isinstance(node.value, int):
+                return "std::integral_constant<%s, %s>{}" % (
+                    PYTYPE_TO_CTYPE_TABLE[type(node.value)], str(node.value).lower())
+            if isinstance(node.value, str):
+                assert len(node.value) == 1
+                return "std::integral_constant<char, '%s'>{}" % node.value
+            raise PythranSyntaxError("Unsupported immediate type", node)
         return ret
 
     def visit_Attribute(self, node):

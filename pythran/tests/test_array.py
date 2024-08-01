@@ -9,3 +9,15 @@ class TestArray(TestEnv):
     def test_typecodes(self):
         self.run_test("def typecodes_(i): import array; return array.typecodes[i]",
                       2, typecodes_=[int])
+
+    def test_array_empty(self):
+        self.run_test("def array_empty_(): import array; return len(array.array('b'))",
+                      array_empty_=[])
+
+    def test_array_seq(self):
+        self.run_test("def array_seq_(): import array; return len(array.array('h', [1, 2, 3]))",
+                      array_seq_=[])
+
+    def test_array_seq_tuple(self):
+        self.run_test("def array_seq_tuple_(): import array; return len(array.array('h', (8, 9, 10)))",
+                      array_seq_tuple_=[])

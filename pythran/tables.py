@@ -802,30 +802,6 @@ CLASSES = {
             ]
         ),
         "T": AttributeIntr(signature=Fun[[NDArray[T0, :]], NDArray[T0, :]]),
-        "tolist": ConstMethodIntr(
-            signature=Union[
-                # 1d
-                Fun[[NDArray[bool, :]], List[bool]],
-                Fun[[NDArray[int, :]], List[int]],
-                Fun[[NDArray[float, :]], List[float]],
-                Fun[[NDArray[complex, :]], List[complex]],
-                # 2d
-                Fun[[NDArray[bool, :, :]], List[bool]],
-                Fun[[NDArray[int, :, :]], List[int]],
-                Fun[[NDArray[float, :, :]], List[float]],
-                Fun[[NDArray[complex, :, :]], List[complex]],
-                # 3d
-                Fun[[NDArray[bool, :, :, :]], List[bool]],
-                Fun[[NDArray[int, :, :, :]], List[int]],
-                Fun[[NDArray[float, :, :, :]], List[float]],
-                Fun[[NDArray[complex, :, :, :]], List[complex]],
-                # 4d
-                Fun[[NDArray[bool, :, :, :, :]], List[bool]],
-                Fun[[NDArray[int, :, :, :, :]], List[int]],
-                Fun[[NDArray[float, :, :, :, :]], List[float]],
-                Fun[[NDArray[complex, :, :, :, :]], List[complex]],
-            ]
-        ),
         "tofile": ConstMethodIntr(signature=Fun[[NDArray[T0, :]], str, str], global_effects=True),
         "tostring": ConstMethodIntr(signature=Fun[[NDArray[T0, :]], str]),
         "view": MethodIntr(),
@@ -4540,6 +4516,7 @@ MODULES = {
         "pop": MethodIntr(),
         "remove": MethodIntr(),
         "sort": MethodIntr(),
+        "tolist": ConstMethodIntr(),
         "update": MethodIntr(update_effects),
     },
 }

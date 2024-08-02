@@ -21,3 +21,7 @@ class TestArray(TestEnv):
     def test_array_seq_tuple(self):
         self.run_test("def array_seq_tuple_(): import array; return len(array.array('h', (8, 9, 10)))",
                       array_seq_tuple_=[])
+
+    def test_array_tolist(self):
+        self.run_test("def array_tolist_(n): import array; return array.array('h', [n]).tolist()",
+                      2, array_tolist_=[int])

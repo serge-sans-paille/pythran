@@ -217,7 +217,7 @@ namespace types
   struct is_array_index : std::false_type {
   };
   template <size_t N>
-  struct is_array_index<array<long, N>> : std::true_type {
+  struct is_array_index<array_tuple<long, N>> : std::true_type {
   };
 } // namespace types
 PYTHONIC_NS_END

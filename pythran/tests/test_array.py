@@ -25,3 +25,7 @@ class TestArray(TestEnv):
     def test_array_tolist(self):
         self.run_test("def array_tolist_(n): import array; return array.array('h', [n]).tolist()",
                       2, array_tolist_=[int])
+
+    def test_array_append(self):
+        self.run_test("def array_append_(n): import array; x = array.array('h', [n]); x.append(1); return x.tolist()",
+                      2, array_append_=[int])

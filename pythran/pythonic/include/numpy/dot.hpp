@@ -1,8 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_DOT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_DOT_HPP
 
-#include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/numpy/sum.hpp"
+#include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/numpy_expr.hpp"
 #include "pythonic/include/types/traits.hpp"
 
@@ -136,8 +136,7 @@ namespace numpy
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          &&
-          E::value == 2 && F::value == 1, // And it is matrix / vect
+          && E::value == 2 && F::value == 1,     // And it is matrix / vect
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           types::pshape<long>>>::type
@@ -154,8 +153,7 @@ namespace numpy
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          &&
-          E::value == 1 && F::value == 2, // And it is vect / matrix
+          && E::value == 1 && F::value == 2,     // And it is vect / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
           types::pshape<long>>>::type
@@ -195,7 +193,7 @@ namespace numpy
   typename std::enable_if<is_blas_type<E>::value &&
                               std::tuple_size<pS0>::value == 2 &&
                               std::tuple_size<pS1>::value == 2,
-                          types::ndarray<E, types::array<long, 2>>>::type
+                          types::ndarray<E, types::array_tuple<long, 2>>>::type
   dot(types::ndarray<E, pS0> const &a, types::ndarray<E, pS1> const &b);
 
   template <class E, class pS0, class pS1, class pS2>
@@ -211,21 +209,21 @@ namespace numpy
   typename std::enable_if<is_blas_type<E>::value &&
                               std::tuple_size<pS0>::value == 2 &&
                               std::tuple_size<pS1>::value == 2,
-                          types::ndarray<E, types::array<long, 2>>>::type
+                          types::ndarray<E, types::array_tuple<long, 2>>>::type
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
       types::ndarray<E, pS1> const &b);
   template <class E, class pS0, class pS1>
   typename std::enable_if<is_blas_type<E>::value &&
                               std::tuple_size<pS0>::value == 2 &&
                               std::tuple_size<pS1>::value == 2,
-                          types::ndarray<E, types::array<long, 2>>>::type
+                          types::ndarray<E, types::array_tuple<long, 2>>>::type
   dot(types::ndarray<E, pS0> const &a,
       types::numpy_texpr<types::ndarray<E, pS1>> const &b);
   template <class E, class pS0, class pS1>
   typename std::enable_if<is_blas_type<E>::value &&
                               std::tuple_size<pS0>::value == 2 &&
                               std::tuple_size<pS1>::value == 2,
-                          types::ndarray<E, types::array<long, 2>>>::type
+                          types::ndarray<E, types::array_tuple<long, 2>>>::type
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
       types::numpy_texpr<types::ndarray<E, pS1>> const &b);
 
@@ -240,11 +238,10 @@ namespace numpy
           is_blas_type<typename E::dtype>::value &&
           is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                  // blas
-          &&
-          E::value == 2 && F::value == 2, // And both are matrix
+          && E::value == 2 && F::value == 2,     // And both are matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
-          types::array<long, 2>>>::type
+          types::array_tuple<long, 2>>>::type
   dot(E const &e, F const &f);
 
   // If one of the arg doesn't have a "blas compatible type", we use a slow
@@ -256,7 +253,7 @@ namespace numpy
           E::value == 2 && F::value == 2, // And it is matrix / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
-          types::array<long, 2>>>::type
+          types::array_tuple<long, 2>>>::type
   dot(E const &e, F const &f);
 
   // N x M where N >= 3 and M == 1
@@ -265,7 +262,7 @@ namespace numpy
       (E::value >= 3 && F::value == 1),
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
-          types::array<long, E::value - 1>>>::type
+          types::array_tuple<long, E::value - 1>>>::type
   dot(E const &e, F const &f);
 
   // N x M where N >= 3 and M >= 2
@@ -274,11 +271,11 @@ namespace numpy
       (E::value >= 3 && F::value >= 2),
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
-          types::array<long, E::value - 1>>>::type
+          types::array_tuple<long, E::value - 1>>>::type
   dot(E const &e, F const &f);
 
   DEFINE_FUNCTOR(pythonic::numpy, dot);
-}
+} // namespace numpy
 PYTHONIC_NS_END
 
 #endif

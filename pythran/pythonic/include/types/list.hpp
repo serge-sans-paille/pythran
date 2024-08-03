@@ -104,10 +104,10 @@ namespace types
     static const bool is_flat = std::is_same<slice, S>::value;
     static const bool is_strided = std::is_same<slice, S>::value;
 
-    using shape_t = types::array<long, value>;
+    using shape_t = types::array_tuple<long, value>;
     template <size_t I>
-    auto shape() const
-        -> decltype(details::extract_shape(*this, utils::int_<I>{}))
+    auto shape() const -> decltype(details::extract_shape(*this,
+                                                          utils::int_<I>{}))
     {
       return details::extract_shape(*this, utils::int_<I>{});
     }
@@ -391,7 +391,7 @@ namespace types
     intptr_t id() const;
 
     long count(T const &x) const;
-    using shape_t = array<long, value>;
+    using shape_t = array_tuple<long, value>;
     template <size_t I>
     long shape() const
     {
@@ -439,7 +439,7 @@ namespace types
     static const size_t value = 1;
     static const bool is_vectorizable = false;
     static const bool is_strided = false;
-    using shape_t = types::array<long, value>;
+    using shape_t = types::array_tuple<long, value>;
     typedef char value_type;
 
     typedef empty_iterator iterator;

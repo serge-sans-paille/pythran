@@ -727,8 +727,8 @@ namespace types
 #endif
 
   template <class Arg, class... S>
-  auto numpy_gexpr<Arg, S...>::operator[](long i) const
-      -> decltype(this->fast(i))
+  auto
+  numpy_gexpr<Arg, S...>::operator[](long i) const -> decltype(this->fast(i))
   {
     if (i < 0)
       i += std::get<0>(_shape);
@@ -762,7 +762,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t M>
-  auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices)
+  auto numpy_gexpr<Arg, S...>::fast(array_tuple<long, M> const &indices)
       const & -> decltype(nget<M - 1>().fast(*this, indices))
   {
     return nget<M - 1>().fast(*this, indices);
@@ -770,7 +770,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t M>
-  auto numpy_gexpr<Arg, S...>::fast(array<long, M> const &indices)
+  auto numpy_gexpr<Arg, S...>::fast(array_tuple<long, M> const &indices)
       && -> decltype(nget<M - 1>().fast(std::move(*this), indices))
   {
     return nget<M - 1>().fast(std::move(*this), indices);
@@ -778,7 +778,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t M>
-  auto numpy_gexpr<Arg, S...>::operator[](array<long, M> const &indices)
+  auto numpy_gexpr<Arg, S...>::operator[](array_tuple<long, M> const &indices)
       const & -> decltype(nget<M - 1>()(*this, indices))
   {
     return nget<M - 1>()(*this, indices);
@@ -786,7 +786,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t M>
-  auto numpy_gexpr<Arg, S...>::operator[](array<long, M> const &indices)
+  auto numpy_gexpr<Arg, S...>::operator[](array_tuple<long, M> const &indices)
       && -> decltype(nget<M - 1>()(std::move(*this), indices))
   {
     return nget<M - 1>()(std::move(*this), indices);

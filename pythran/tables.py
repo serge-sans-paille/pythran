@@ -180,6 +180,8 @@ CLASSES = {
         "type": MethodIntr(),
     },
     "array": {
+        # array have fixed type, no need for signature
+        "append": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
@@ -4494,6 +4496,7 @@ MODULES = {
     },
     # conflicting method names must be listed here
     "__dispatch__": {
+        "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "clear": MethodIntr(signature=Fun[[T0], None]),
         "conjugate": ConstMethodIntr(),
         "copy": ConstMethodIntr(signature=Fun[[T0], T0]),

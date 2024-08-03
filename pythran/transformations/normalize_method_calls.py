@@ -22,7 +22,8 @@ class NormalizeMethodCalls(Transformation):
     >>> pm = passmanager.PassManager("test")
     >>> _, node = pm.apply(NormalizeMethodCalls, node)
     >>> print(pm.dump(backend.Python, node))
-    builtins.list.append([], 12)
+    import __dispatch__ as __pythran_import___dispatch__
+    __pythran_import___dispatch__.append([], 12)
     '''
 
     def __init__(self):

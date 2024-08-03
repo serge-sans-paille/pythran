@@ -1,12 +1,12 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_FILE_HPP
 #define PYTHONIC_INCLUDE_TYPES_FILE_HPP
 
-#include "pythonic/include/types/assignable.hpp"
-#include "pythonic/include/utils/shared_ref.hpp"
-#include "pythonic/include/types/str.hpp"
-#include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/NoneType.hpp"
+#include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/types/attr.hpp"
+#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/str.hpp"
+#include "pythonic/include/utils/shared_ref.hpp"
 
 #include <fstream>
 #include <iterator>
@@ -107,7 +107,7 @@ namespace types
     template <class T>
     void writelines(T const &seq);
   };
-}
+} // namespace types
 PYTHONIC_NS_END
 
 /* pythran attribute system { */
@@ -123,7 +123,7 @@ namespace builtins
 
   // Python seems to always return none... Doing the same.
   types::none_type getattr(types::attr::NEWLINES, types::file const &f);
-}
+} // namespace builtins
 PYTHONIC_NS_END
 
 /* } */

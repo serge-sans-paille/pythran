@@ -8,7 +8,7 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
   template <class T>
-  using dataarray = list<T>;
+  using array = list<T>;
 
 } // namespace types
 

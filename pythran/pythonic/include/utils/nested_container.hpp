@@ -1,9 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_NESTED_CONTAINER_HPP
 #define PYTHONIC_INCLUDE_UTILS_NESTED_CONTAINER_HPP
 
-#include <limits>
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
+#include <limits>
 
 PYTHONIC_NS_BEGIN
 namespace types
@@ -16,7 +16,7 @@ namespace types
   struct array_base;
   template <class T>
   struct dynamic_tuple;
-}
+} // namespace types
 
 namespace utils
 {
@@ -129,7 +129,7 @@ namespace utils
   struct nested_container_value_type<types::ndarray<T, sP>> {
     using type = T;
   };
-}
+} // namespace utils
 PYTHONIC_NS_END
 
 #endif

@@ -67,11 +67,11 @@ namespace array
   } // namespace details
 
   template <char c>
-  types::list<typename details::typecodes<c>::type>
+  types::array<typename details::typecodes<c>::type>
       array(std::integral_constant<char, c>);
 
   template <char c, class E>
-  types::list<typename details::typecodes<c>::type>
+  types::array<typename details::typecodes<c>::type>
   array(std::integral_constant<char, c>, E &&elts);
 
   DEFINE_FUNCTOR(pythonic::array, array);

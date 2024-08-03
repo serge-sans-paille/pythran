@@ -15,13 +15,13 @@ namespace __dispatch__
   }
 
   template <class T>
-  types::list<long> tolist(types::dataarray<T> &&a)
+  types::list<long> tolist(types::array<T> &&a)
   {
     return a;
   }
 
   template <class T>
-  types::list<long> tolist(types::dataarray<T> const &a)
+  types::list<long> tolist(types::array<T> const &a)
   {
     return a;
   }

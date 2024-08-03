@@ -266,7 +266,7 @@ namespace types
 
   inline file_iterator::file_iterator()
       : f(nullptr), set(false), curr(),
-        position(std::numeric_limits<long>::max()){};
+        position(std::numeric_limits<long>::max()) {};
 
   inline bool file_iterator::operator==(file_iterator const &f2) const
   {

@@ -29,3 +29,7 @@ class TestArray(TestEnv):
     def test_array_append(self):
         self.run_test("def array_append_(n): import array; x = array.array('h', [n]); x.append(1); return x.tolist()",
                       2, array_append_=[int])
+
+    def test_array_buffer_info(self):
+        self.run_test("def array_buffer_info_(n): import array; x = array.array('h', [n]); return x.buffer_info()[1]",
+                      2, array_buffer_info_=[int])

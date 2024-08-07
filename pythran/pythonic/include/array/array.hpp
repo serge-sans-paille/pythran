@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_ARRAY_ARRAY_HPP
 #define PYTHONIC_INCLUDE_ARRAY_ARRAY_HPP
 
-#include "pythonic/include/types/list.hpp"
+#include "pythonic/include/types/array.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -64,17 +64,17 @@ namespace array
     struct typecodes<'d'> {
       using type = double;
     };
+
+    template <char c>
+    types::array<typename details::typecodes<c>::type>
+        array(std::integral_constant<char, c>);
+
+    template <char c, class E>
+    types::array<typename details::typecodes<c>::type>
+    array(std::integral_constant<char, c>, E &&elts);
   } // namespace details
 
-  template <char c>
-  types::array<typename details::typecodes<c>::type>
-      array(std::integral_constant<char, c>);
-
-  template <char c, class E>
-  types::array<typename details::typecodes<c>::type>
-  array(std::integral_constant<char, c>, E &&elts);
-
-  DEFINE_FUNCTOR(pythonic::array, array);
+  DEFINE_FUNCTOR(pythonic::array::details, array);
 } // namespace array
 PYTHONIC_NS_END
 

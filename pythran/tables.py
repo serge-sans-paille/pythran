@@ -185,6 +185,7 @@ CLASSES = {
         "buffer_info": ConstMethodIntr(),
         "byteswap": MethodIntr(),
         "count": ConstMethodIntr(),
+        "extend": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
@@ -4511,6 +4512,7 @@ MODULES = {
             ],
             return_range=interval.positive_values
         ),
+        "extend": MethodIntr(signature=Fun[[List[T0], Iterable[T0]], None]),
         "index": ConstMethodIntr(
             signature=Union[
                 Fun[[Iterable[T0], T0], int],

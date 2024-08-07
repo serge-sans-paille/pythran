@@ -41,3 +41,7 @@ class TestArray(TestEnv):
     def test_array_count(self):
         self.run_test("def array_count_(n): import array; x = array.array('H', [n, n]); return x.count(1), x.count(2)",
                       2, array_count_=[int])
+
+    def test_array_extend(self):
+        self.run_test("def array_extend_(n): import array; x = array.array('h', [n]); x.extend((1, 1)); return x.tolist()",
+                      2, array_extend_=[int])

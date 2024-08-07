@@ -182,6 +182,7 @@ CLASSES = {
     "array": {
         # array have fixed type, no need for signature
         "append": MethodIntr(),
+        "buffer_info": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),

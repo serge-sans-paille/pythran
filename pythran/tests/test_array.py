@@ -37,3 +37,7 @@ class TestArray(TestEnv):
     def test_array_byteswap(self):
         self.run_test("def array_byteswap_(n): import array; x = array.array('H', [n]); x.byteswap(); return x.tolist()",
                       2, array_byteswap_=[int])
+
+    def test_array_count(self):
+        self.run_test("def array_count_(n): import array; x = array.array('H', [n, n]); return x.count(1), x.count(2)",
+                      2, array_count_=[int])

@@ -184,6 +184,7 @@ CLASSES = {
         "append": MethodIntr(),
         "buffer_info": ConstMethodIntr(),
         "byteswap": MethodIntr(),
+        "count": ConstMethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),

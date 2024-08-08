@@ -187,6 +187,7 @@ CLASSES = {
         "count": ConstMethodIntr(),
         "extend": MethodIntr(),
         "fromfile": MethodIntr(),
+        "fromlist": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),

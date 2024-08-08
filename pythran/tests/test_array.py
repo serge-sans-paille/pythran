@@ -2,6 +2,7 @@ from pythran.tests import TestEnv
 
 import unittest
 from tempfile import mkstemp
+import os
 import sys
 
 class TestArray(TestEnv):
@@ -53,7 +54,16 @@ class TestArray(TestEnv):
             fd.write("12345678"*100)
         self.run_test("def array_fromfile_(s): import array; x = array.array('h'); x.fromfile(open(s, 'rb'), 8); return x.tolist()",
                       filename, array_fromfile_=[str])
+        os.remove(filename)
 
     def test_array_fromlist(self):
         self.run_test("def array_fromlist_(f): import array; x = array.array('f'); x.fromlist([f]); return x.tolist()",
                       3., array_fromlist_=[float])
+
+    def test_array_frombytes(self):
+        filename = mkstemp()[1]
+        with open(filename, "w") as fd:
+            fd.write("12345678"*10)
+        self.run_test("def array_frombytes_(s): import array; x = array.array('i'); x.frombytes(open(s, 'rb').read()); return x.tolist()",
+                      filename, array_frombytes_=[str])
+        os.remove(filename)

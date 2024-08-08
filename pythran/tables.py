@@ -188,6 +188,7 @@ CLASSES = {
         "extend": MethodIntr(),
         "fromfile": MethodIntr(),
         "fromlist": MethodIntr(),
+        "frombytes": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),

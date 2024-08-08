@@ -1,6 +1,7 @@
 from pythran.tests import TestEnv
 
 import unittest
+from tempfile import mkstemp
 import sys
 
 class TestArray(TestEnv):
@@ -45,3 +46,10 @@ class TestArray(TestEnv):
     def test_array_extend(self):
         self.run_test("def array_extend_(n): import array; x = array.array('h', [n]); x.extend((1, 1)); return x.tolist()",
                       2, array_extend_=[int])
+
+    def test_array_fromfile(self):
+        filename = mkstemp()[1]
+        with open(filename, "w") as fd:
+            fd.write("12345678"*100)
+        self.run_test("def array_fromfile_(s): import array; x = array.array('h'); x.fromfile(open(s, 'rb'), 8); return x.tolist()",
+                      filename, array_fromfile_=[str])

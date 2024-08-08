@@ -186,6 +186,7 @@ CLASSES = {
         "byteswap": MethodIntr(),
         "count": ConstMethodIntr(),
         "extend": MethodIntr(),
+        "fromfile": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),

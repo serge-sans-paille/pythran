@@ -92,6 +92,9 @@ namespace types
 
     types::str read(long size = -1);
 
+    template <class T>
+    void read_as(long n, T *buffer);
+
     types::str readline(long size = std::numeric_limits<long>::max());
 
     types::list<types::str> readlines(long sizehint = -1);

@@ -53,3 +53,7 @@ class TestArray(TestEnv):
             fd.write("12345678"*100)
         self.run_test("def array_fromfile_(s): import array; x = array.array('h'); x.fromfile(open(s, 'rb'), 8); return x.tolist()",
                       filename, array_fromfile_=[str])
+
+    def test_array_fromlist(self):
+        self.run_test("def array_fromlist_(f): import array; x = array.array('f'); x.fromlist([f]); return x.tolist()",
+                      3., array_fromlist_=[float])

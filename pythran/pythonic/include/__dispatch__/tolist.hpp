@@ -15,13 +15,17 @@ namespace __dispatch__
   }
 
   template <class T>
-  types::list<long> tolist(types::array<T> &&a)
+  types::list<
+      typename std::conditional<std::is_integral<T>::value, long, double>::type>
+  tolist(types::array<T> &&a)
   {
     return a;
   }
 
   template <class T>
-  types::list<long> tolist(types::array<T> const &a)
+  types::list<
+      typename std::conditional<std::is_integral<T>::value, long, double>::type>
+  tolist(types::array<T> const &a)
   {
     return a;
   }

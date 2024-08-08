@@ -179,6 +179,17 @@ CLASSES = {
     "dtype": {
         "type": MethodIntr(),
     },
+    "array": {
+        # array have fixed type, no need for signature
+        "append": MethodIntr(),
+        "buffer_info": ConstMethodIntr(),
+        "byteswap": MethodIntr(),
+        "count": ConstMethodIntr(),
+        "extend": MethodIntr(),
+        "fromfile": MethodIntr(),
+        "fromlist": MethodIntr(),
+        "frombytes": MethodIntr(),
+    },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "extend": MethodIntr(update_effects),
@@ -800,30 +811,6 @@ CLASSES = {
             ]
         ),
         "T": AttributeIntr(signature=Fun[[NDArray[T0, :]], NDArray[T0, :]]),
-        "tolist": ConstMethodIntr(
-            signature=Union[
-                # 1d
-                Fun[[NDArray[bool, :]], List[bool]],
-                Fun[[NDArray[int, :]], List[int]],
-                Fun[[NDArray[float, :]], List[float]],
-                Fun[[NDArray[complex, :]], List[complex]],
-                # 2d
-                Fun[[NDArray[bool, :, :]], List[bool]],
-                Fun[[NDArray[int, :, :]], List[int]],
-                Fun[[NDArray[float, :, :]], List[float]],
-                Fun[[NDArray[complex, :, :]], List[complex]],
-                # 3d
-                Fun[[NDArray[bool, :, :, :]], List[bool]],
-                Fun[[NDArray[int, :, :, :]], List[int]],
-                Fun[[NDArray[float, :, :, :]], List[float]],
-                Fun[[NDArray[complex, :, :, :]], List[complex]],
-                # 4d
-                Fun[[NDArray[bool, :, :, :, :]], List[bool]],
-                Fun[[NDArray[int, :, :, :, :]], List[int]],
-                Fun[[NDArray[float, :, :, :, :]], List[float]],
-                Fun[[NDArray[complex, :, :, :, :]], List[complex]],
-            ]
-        ),
         "tofile": ConstMethodIntr(signature=Fun[[NDArray[T0, :]], str, str], global_effects=True),
         "tostring": ConstMethodIntr(signature=Fun[[NDArray[T0, :]], str]),
         "view": MethodIntr(),
@@ -2835,6 +2822,12 @@ MODULES = {
             return_range=lambda _: interval.Range(1, 1)
         ),
     },
+    "array": {
+            "typecodes": ConstantIntr(signature=str),
+            "array": ClassWithReadOnceConstructor(
+                CLASSES['array'],
+                immediate_arguments=[0]),
+    },
     "scipy": {
         "special": {
             "binom": ConstFunctionIntr(
@@ -4510,6 +4503,7 @@ MODULES = {
     },
     # conflicting method names must be listed here
     "__dispatch__": {
+        "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "clear": MethodIntr(signature=Fun[[T0], None]),
         "conjugate": ConstMethodIntr(),
         "copy": ConstMethodIntr(signature=Fun[[T0], T0]),
@@ -4521,6 +4515,7 @@ MODULES = {
             ],
             return_range=interval.positive_values
         ),
+        "extend": MethodIntr(signature=Fun[[List[T0], Iterable[T0]], None]),
         "index": ConstMethodIntr(
             signature=Union[
                 Fun[[Iterable[T0], T0], int],
@@ -4532,10 +4527,14 @@ MODULES = {
         "pop": MethodIntr(),
         "remove": MethodIntr(),
         "sort": MethodIntr(),
+        "tolist": ConstMethodIntr(),
         "update": MethodIntr(update_effects),
     },
 }
 
+# PyPy doesn't seem to provide this.
+if sys.implementation.name == 'pypy':
+    del MODULES['array']['typecodes']
 
 if sys.version_info < (3, 5):
     del MODULES['operator']['matmul']

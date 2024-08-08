@@ -461,8 +461,11 @@ class Types(ModuleAnalysis):
         else:
             sty = pytype_to_ctype(ty)
         if node in self.immediates:
-            sty = "std::integral_constant<%s, %s>" % (sty,
-                                                      str(node.value).lower())
+            if sty == 'pythonic::types::chr':
+                sty = "std::integral_constant<char, '%s'>" % (node.value)
+            else:
+                sty = "std::integral_constant<%s, %s>" % (sty,
+                                                          str(node.value).lower())
         self.result[node] = self.builder.NamedType(sty)
 
     def visit_Attribute(self, node):

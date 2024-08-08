@@ -172,7 +172,7 @@ namespace types
     static T get(...);
     using type = decltype(get<E>(nullptr));
   };
-}
+} // namespace types
 PYTHONIC_NS_END
 
 #endif

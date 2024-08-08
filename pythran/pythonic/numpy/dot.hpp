@@ -1329,8 +1329,8 @@ namespace numpy
     }
   };
   template <class T, size_t N>
-  struct blas_buffer_t<types::array<T, N>> {
-    T const *operator()(types::array<T, N> const &e) const
+  struct blas_buffer_t<types::array_tuple<T, N>> {
+    T const *operator()(types::array_tuple<T, N> const &e) const
     {
       return e.data();
     }
@@ -1616,7 +1616,7 @@ namespace numpy
         out(types::pshape<long>{f.template shape<1>()}, 0);
     for (long i = 0; i < out.template shape<0>(); i++)
       for (long j = 0; j < f.template shape<0>(); j++)
-        out[i] += e[j] * f[types::array<long, 2>{{j, i}}];
+        out[i] += e[j] * f[types::array_tuple<long, 2>{{j, i}}];
     return out;
   }
 
@@ -1638,7 +1638,7 @@ namespace numpy
         out(types::pshape<long>{e.template shape<0>()}, 0);
     for (long i = 0; i < out.template shape<0>(); i++)
       for (long j = 0; j < f.template shape<0>(); j++)
-        out[i] += e[types::array<long, 2>{{i, j}}] * f[j];
+        out[i] += e[types::array_tuple<long, 2>{{i, j}}] * f[j];
     return out;
   }
 
@@ -1670,14 +1670,14 @@ namespace numpy
   typename std::enable_if<is_blas_type<E>::value &&
                               std::tuple_size<pS0>::value == 2 &&
                               std::tuple_size<pS1>::value == 2,
-                          types::ndarray<E, types::array<long, 2>>>::type
+                          types::ndarray<E, types::array_tuple<long, 2>>>::type
   dot(types::ndarray<E, pS0> const &a, types::ndarray<E, pS1> const &b)
   {
     int n = b.template shape<1>(), m = a.template shape<0>(),
         k = b.template shape<0>();
 
-    types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
-                                                 builtins::None);
+    types::ndarray<E, types::array_tuple<long, 2>> out(
+        types::array_tuple<long, 2>{{m, n}}, builtins::None);
     mm(m, n, k, a.buffer, b.buffer, out.buffer);
     return out;
   }
@@ -1723,15 +1723,15 @@ namespace numpy
   typename std::enable_if<is_blas_type<E>::value &&
                               std::tuple_size<pS0>::value == 2 &&
                               std::tuple_size<pS1>::value == 2,
-                          types::ndarray<E, types::array<long, 2>>>::type
+                          types::ndarray<E, types::array_tuple<long, 2>>>::type
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
       types::ndarray<E, pS1> const &b)
   {
     int n = b.template shape<1>(), m = a.template shape<0>(),
         k = b.template shape<0>();
 
-    types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
-                                                 builtins::None);
+    types::ndarray<E, types::array_tuple<long, 2>> out(
+        types::array_tuple<long, 2>{{m, n}}, builtins::None);
     tm(m, n, k, a.arg.buffer, b.buffer, out.buffer);
     return out;
   }
@@ -1762,15 +1762,15 @@ namespace numpy
   typename std::enable_if<is_blas_type<E>::value &&
                               std::tuple_size<pS0>::value == 2 &&
                               std::tuple_size<pS1>::value == 2,
-                          types::ndarray<E, types::array<long, 2>>>::type
+                          types::ndarray<E, types::array_tuple<long, 2>>>::type
   dot(types::ndarray<E, pS0> const &a,
       types::numpy_texpr<types::ndarray<E, pS1>> const &b)
   {
     int n = b.template shape<1>(), m = a.template shape<0>(),
         k = b.template shape<0>();
 
-    types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
-                                                 builtins::None);
+    types::ndarray<E, types::array_tuple<long, 2>> out(
+        types::array_tuple<long, 2>{{m, n}}, builtins::None);
     mt(m, n, k, a.buffer, b.arg.buffer, out.buffer);
     return out;
   }
@@ -1800,15 +1800,15 @@ namespace numpy
   typename std::enable_if<is_blas_type<E>::value &&
                               std::tuple_size<pS0>::value == 2 &&
                               std::tuple_size<pS1>::value == 2,
-                          types::ndarray<E, types::array<long, 2>>>::type
+                          types::ndarray<E, types::array_tuple<long, 2>>>::type
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
       types::numpy_texpr<types::ndarray<E, pS1>> const &b)
   {
     int n = b.template shape<1>(), m = a.template shape<0>(),
         k = b.template shape<0>();
 
-    types::ndarray<E, types::array<long, 2>> out(types::array<long, 2>{{m, n}},
-                                                 builtins::None);
+    types::ndarray<E, types::array_tuple<long, 2>> out(
+        types::array_tuple<long, 2>{{m, n}}, builtins::None);
     tt(m, n, k, a.arg.buffer, b.arg.buffer, out.buffer);
     return out;
   }
@@ -1827,7 +1827,7 @@ namespace numpy
           && E::value == 2 && F::value == 2,     // And both are matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
-          types::array<long, 2>>>::type
+          types::array_tuple<long, 2>>>::type
   dot(E const &e, F const &f)
   {
     types::ndarray<
@@ -1850,21 +1850,21 @@ namespace numpy
           E::value == 2 && F::value == 2, // And it is matrix / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
-          types::array<long, 2>>>::type
+          types::array_tuple<long, 2>>>::type
   dot(E const &e, F const &f)
   {
     types::ndarray<
         typename __combined<typename E::dtype, typename F::dtype>::type,
-        types::array<long, 2>>
-        out(types::array<long, 2>{{e.template shape<0>(),
-                                   f.template shape<1>()}},
+        types::array_tuple<long, 2>>
+        out(types::array_tuple<long, 2>{{e.template shape<0>(),
+                                         f.template shape<1>()}},
             0);
     for (long i = 0; i < out.template shape<0>(); i++)
       for (long j = 0; j < out.template shape<1>(); j++)
         for (long k = 0; k < e.template shape<1>(); k++)
-          out[types::array<long, 2>{{i, j}}] +=
-              e[types::array<long, 2>{{i, k}}] *
-              f[types::array<long, 2>{{k, j}}];
+          out[types::array_tuple<long, 2>{{i, j}}] +=
+              e[types::array_tuple<long, 2>{{i, k}}] *
+              f[types::array_tuple<long, 2>{{k, j}}];
     return out;
   }
 
@@ -1873,12 +1873,13 @@ namespace numpy
       (E::value >= 3 && F::value == 1), // And it is matrix / matrix
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
-          types::array<long, E::value - 1>>>::type
+          types::array_tuple<long, E::value - 1>>>::type
   dot(E const &e, F const &f)
   {
-    auto out = dot(
-        e.reshape(types::array<long, 2>{{sutils::prod_head(e), f.size()}}), f);
-    types::array<long, E::value - 1> out_shape;
+    auto out = dot(e.reshape(types::array_tuple<long, 2>{
+                       {sutils::prod_head(e), f.size()}}),
+                   f);
+    types::array_tuple<long, E::value - 1> out_shape;
     auto tmp = sutils::getshape(e);
     std::copy(tmp.begin(), tmp.end() - 1, out_shape.begin());
     return out.reshape(out_shape);
@@ -1889,7 +1890,7 @@ namespace numpy
       (E::value >= 3 && F::value >= 2),
       types::ndarray<
           typename __combined<typename E::dtype, typename F::dtype>::type,
-          types::array<long, E::value - 1>>>::type
+          types::array_tuple<long, E::value - 1>>>::type
   dot(E const &e, F const &f)
   {
     static_assert(E::value == 0, "not implemented yet");

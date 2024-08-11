@@ -75,3 +75,7 @@ class TestArray(TestEnv):
     def test_array_insert(self):
         self.run_test("def array_insert_(f): import array; x = array.array('I',[1,2,3]); x.insert(0, f); x.insert(-1, f); return x.tolist()",
                       3, array_insert_=[int])
+
+    def test_array_pop(self):
+        self.run_test("def array_pop_(f): import array; x = array.array('I',[f,2,3]); x.pop(); return int(x.pop(0))",
+                      3, array_pop_=[int])

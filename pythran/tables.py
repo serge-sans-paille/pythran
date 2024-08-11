@@ -192,6 +192,7 @@ CLASSES = {
         "insert": MethodIntr(),
         "pop": MethodIntr(),
         "remove": MethodIntr(),
+        "reverse": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
@@ -4530,6 +4531,7 @@ MODULES = {
         "insert": MethodIntr(signature=Fun[[List[T0], int, T0], None]),
         "pop": MethodIntr(),
         "remove": MethodIntr(),
+        "reverse": MethodIntr(),
         "sort": MethodIntr(),
         "tolist": ConstMethodIntr(),
         "update": MethodIntr(update_effects),

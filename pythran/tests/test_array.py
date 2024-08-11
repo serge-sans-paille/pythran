@@ -83,3 +83,7 @@ class TestArray(TestEnv):
     def test_array_remove(self):
         self.run_test("def array_remove_(f): import array; x = array.array('I',[f,2,3]); x.remove(2); return x.tolist()",
                       3, array_remove_=[int])
+
+    def test_array_reverse(self):
+        self.run_test("def array_reverse_(f): import array; x = array.array('I',[f,2,3]); x.reverse(); return x.tolist()",
+                      3, array_reverse_=[int])

@@ -67,3 +67,11 @@ class TestArray(TestEnv):
         self.run_test("def array_frombytes_(s): import array; x = array.array('i'); x.frombytes(open(s, 'rb').read()); return x.tolist()",
                       filename, array_frombytes_=[str])
         os.remove(filename)
+
+    def test_array_index(self):
+        self.run_test("def array_index_(f): import array; x = array.array('I',[1,2,3]); return x.index(f)",
+                      3, array_index_=[int])
+
+    def test_array_insert(self):
+        self.run_test("def array_insert_(f): import array; x = array.array('I',[1,2,3]); x.insert(0, f); x.insert(-1, f); return x.tolist()",
+                      3, array_insert_=[int])

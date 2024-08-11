@@ -189,6 +189,7 @@ CLASSES = {
         "fromfile": MethodIntr(),
         "fromlist": MethodIntr(),
         "frombytes": MethodIntr(),
+        "insert": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
@@ -4524,6 +4525,7 @@ MODULES = {
             ],
             return_range=interval.positive_values
         ),
+        "insert": MethodIntr(signature=Fun[[List[T0], int, T0], None]),
         "pop": MethodIntr(),
         "remove": MethodIntr(),
         "sort": MethodIntr(),

@@ -190,6 +190,7 @@ CLASSES = {
         "fromlist": MethodIntr(),
         "frombytes": MethodIntr(),
         "insert": MethodIntr(),
+        "pop": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),

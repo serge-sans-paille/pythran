@@ -191,6 +191,7 @@ CLASSES = {
         "frombytes": MethodIntr(),
         "insert": MethodIntr(),
         "pop": MethodIntr(),
+        "remove": MethodIntr(),
     },
     "list": {
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),

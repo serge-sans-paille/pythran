@@ -79,3 +79,7 @@ class TestArray(TestEnv):
     def test_array_pop(self):
         self.run_test("def array_pop_(f): import array; x = array.array('I',[f,2,3]); x.pop(); return int(x.pop(0))",
                       3, array_pop_=[int])
+
+    def test_array_remove(self):
+        self.run_test("def array_remove_(f): import array; x = array.array('I',[f,2,3]); x.remove(2); return x.tolist()",
+                      3, array_remove_=[int])

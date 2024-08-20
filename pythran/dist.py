@@ -130,14 +130,10 @@ class PythranBuildExtMixIn(object):
                 msvc._find_exe = find_exe
 
 
-class PythranBuildExtMeta(type):
-
+class PythranBuildExtMeta(type(LegacyBuildExt)):
     def __getitem__(self, base):
-        class PythranBuildExt(PythranBuildExtMixIn, base):
-            pass
-
-        return PythranBuildExt
-
+        return type(
+            'PythranBuildExt', (PythranBuildExtMixIn, base), {})
 
 class PythranBuildExt(PythranBuildExtMixIn, LegacyBuildExt, metaclass=PythranBuildExtMeta):
     pass

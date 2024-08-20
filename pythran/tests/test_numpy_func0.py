@@ -1,10 +1,14 @@
 import unittest
 from pythran.tests import TestEnv
 import numpy
+from packaging import version
 import tempfile
 import os
 
 from pythran.typing import NDArray, List, Tuple
+
+
+np_version = version.parse(numpy.version.version)
 
 
 class TestNumpyFunc0(TestEnv):
@@ -910,6 +914,7 @@ def np_ravel3(v):
     def test_fix0(self):
         self.run_test("def np_fix0(x): from numpy import fix ; return fix(x)", 3.14, np_fix0=[float])
 
+    @unittest.skipIf(np_version <= version.Version("2.1"), reason="np.fix used to return float on integral input")
     def test_fix1(self):
         self.run_test("def np_fix1(x): from numpy import fix ; return fix(x)", 3, np_fix1=[int])
 

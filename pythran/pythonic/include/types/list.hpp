@@ -26,8 +26,6 @@ namespace types
   template <class T>
   using container = std::vector<T, utils::allocator<T>>;
 
-  static const size_t DEFAULT_LIST_CAPACITY = 16;
-
   /* forward declaration */
   struct empty_list;
   template <class T>
@@ -38,22 +36,6 @@ namespace types
   struct ndarray;
   template <class... Tys>
   struct pshape;
-  template <class T>
-  struct is_list {
-    static const bool value = false;
-  };
-  template <class T>
-  struct is_list<list<T>> {
-    static const bool value = true;
-  };
-  template <class T, class S>
-  struct is_list<sliced_list<T, S>> {
-    static const bool value = true;
-  };
-  template <class T, size_t N>
-  struct is_list<static_list<T, N>> {
-    static const bool value = true;
-  };
 
   /* for type disambiguification */
   struct single_value {
@@ -193,6 +175,7 @@ namespace types
   template <class T>
   class list
   {
+    static constexpr size_t DEFAULT_CAPACITY = 16;
 
     // data holder
     typedef

@@ -17,7 +17,7 @@ namespace array
     types::array<typename details::typecodes<c>::type>
     array(std::integral_constant<char, c>)
     {
-      return types::empty_list{};
+      return {0};
     }
 
     template <char c, class E>

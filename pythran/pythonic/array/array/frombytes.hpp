@@ -18,7 +18,7 @@ namespace array
     {
       long size = seq.size();
       seq.resize(size + s.size() / sizeof(T));
-      memcpy(&*seq.begin() + size, s.c_str(), s.size());
+      memcpy(seq.data() + size, s.c_str(), s.size());
       return {};
     }
 

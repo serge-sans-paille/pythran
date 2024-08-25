@@ -63,6 +63,12 @@ namespace types
   template <class T, class S>
   struct any_numop_arg<sliced_list<T, S>> : std::false_type {
   };
+  template <class T>
+  struct any_numop_arg<array<T>> : std::false_type {
+  };
+  template <class T, class S>
+  struct any_numop_arg<sliced_array<T, S>> : std::false_type {
+  };
   template <class T, size_t N, class V>
   struct any_numop_arg<array_base<T, N, V>> : std::false_type {
   };

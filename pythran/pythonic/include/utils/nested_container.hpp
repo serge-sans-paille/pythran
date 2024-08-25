@@ -12,6 +12,10 @@ namespace types
   class sliced_list;
   template <class T>
   class list;
+  template <class T, class S>
+  class sliced_array;
+  template <class T>
+  class array;
   template <class T, size_t N, class V>
   struct array_base;
   template <class T>
@@ -49,6 +53,16 @@ namespace utils
   template <class T, class S>
   struct nested_container_depth<types::sliced_list<T, S>> {
     static const int value = 1 + nested_container_depth<T>::value;
+  };
+
+  template <class T>
+  struct nested_container_depth<types::array<T>> {
+    static const int value = 1;
+  };
+
+  template <class T, class S>
+  struct nested_container_depth<types::sliced_array<T, S>> {
+    static const int value = 1;
   };
 
   template <class T>
@@ -118,6 +132,16 @@ namespace utils
   template <class T, class S>
   struct nested_container_value_type<types::sliced_list<T, S>> {
     using type = typename nested_container_value_type<T>::type;
+  };
+
+  template <class T>
+  struct nested_container_value_type<types::array<T>> {
+    using type = T;
+  };
+
+  template <class T, class S>
+  struct nested_container_value_type<types::sliced_array<T, S>> {
+    using type = T;
   };
 
   template <class T, size_t N, class V>

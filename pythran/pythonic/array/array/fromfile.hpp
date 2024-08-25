@@ -17,7 +17,7 @@ namespace array
     {
       long p = seq.size();
       seq.resize(p + n);
-      f.read_as(n, &*seq.begin() + p);
+      f.read_as(n, seq.data() + p);
       return {};
     }
 

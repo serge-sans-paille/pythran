@@ -14,12 +14,28 @@ namespace __dispatch__
     return numpy::ndarray::tolist(any);
   }
 
+  template <class T, class S>
+  types::list<
+      typename std::conditional<std::is_integral<T>::value, long, double>::type>
+  tolist(types::sliced_array<T, S> &&a)
+  {
+    return {a.begin(), a.end()};
+  }
+
+  template <class T, class S>
+  types::list<
+      typename std::conditional<std::is_integral<T>::value, long, double>::type>
+  tolist(types::sliced_array<T, S> const &a)
+  {
+    return {a.begin(), a.end()};
+  }
+
   template <class T>
   types::list<
       typename std::conditional<std::is_integral<T>::value, long, double>::type>
   tolist(types::array<T> &&a)
   {
-    return a;
+    return {a.begin(), a.end()};
   }
 
   template <class T>
@@ -27,7 +43,7 @@ namespace __dispatch__
       typename std::conditional<std::is_integral<T>::value, long, double>::type>
   tolist(types::array<T> const &a)
   {
-    return a;
+    return {a.begin(), a.end()};
   }
 
   DEFINE_FUNCTOR(pythonic::__dispatch__, tolist);

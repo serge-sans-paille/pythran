@@ -303,6 +303,72 @@ class TestNumpyFunc3(TestEnv):
                       np_dot24=[NDArray[numpy.float32,:,:,:],
                                 NDArray[numpy.float64,:,:,:,:]])
 
+    def test_dot25(self):
+        ''' 1d x 1d, slice'''
+        self.run_test("""
+        def np_dot25(x, y):
+            from numpy import dot
+            return dot(x[1:], y[:-1])""",
+                      numpy.arange(24., dtype=numpy.float32),
+                      numpy.arange(24., dtype=numpy.float32),
+                      np_dot25=[NDArray[numpy.float32,:],
+                                NDArray[numpy.float32,:]])
+
+    def test_dot26(self):
+        ''' 1d x 1d, slice'''
+        self.run_test("""
+        def np_dot26(x, y):
+            from numpy import dot
+            return dot(x[1:], y[:-1])""",
+                      numpy.arange(24., dtype=numpy.float64),
+                      numpy.arange(24., dtype=numpy.float64),
+                      np_dot26=[NDArray[numpy.float64,:],
+                                NDArray[numpy.float64,:]])
+
+    def test_dot27(self):
+        ''' 1d x 1d, slice'''
+        self.run_test("""
+        def np_dot27(x, y):
+            from numpy import dot
+            return dot(x[1:], y[:-1])""",
+                      numpy.arange(24., dtype=numpy.complex64),
+                      numpy.arange(24., dtype=numpy.complex64),
+                      np_dot27=[NDArray[numpy.complex64,:],
+                                NDArray[numpy.complex64,:]])
+
+    def test_dot28(self):
+        ''' 1d x 1d, slice'''
+        self.run_test("""
+        def np_dot28(x, y):
+            from numpy import dot
+            return dot(x[1:], y[:-1])""",
+                      numpy.arange(24., dtype=numpy.complex128),
+                      numpy.arange(24., dtype=numpy.complex128),
+                      np_dot28=[NDArray[numpy.complex128,:],
+                                NDArray[numpy.complex128,:]])
+
+    def test_dot29(self):
+        ''' 1d x 1d, slice'''
+        self.run_test("""
+        def np_dot29(x, y):
+            from numpy import dot
+            return dot(x[-1:0:-1], y[:-1])""",
+                      numpy.arange(24., dtype=numpy.float32),
+                      numpy.arange(24., dtype=numpy.float32),
+                      np_dot29=[NDArray[numpy.float32,:],
+                                NDArray[numpy.float32,:]])
+
+    def test_dot30(self):
+        ''' 1d x 1d, slice'''
+        self.run_test("""
+        def np_dot30(x, y):
+            from numpy import dot
+            return dot(x[-1:0:-1], y[-1:0:-1])""",
+                      numpy.arange(24., dtype=numpy.float32),
+                      numpy.arange(24., dtype=numpy.float32),
+                      np_dot30=[NDArray[numpy.float32,:],
+                                NDArray[numpy.float32,:]])
+
     def test_vdot0(self):
         self.run_test("""
         def np_vdot0(x, y):

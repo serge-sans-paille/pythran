@@ -31,7 +31,7 @@ struct is_blas_array {
   // FIXME: also support gexpr with stride?
   static constexpr bool value =
       pythonic::types::is_array<E>::value &&
-      is_blas_type<pythonic::types::dtype_of<E>>::value &&
+      is_blas_type<typename pythonic::types::dtype_of<E>::type>::value &&
       !is_strided<E>::value;
 };
 

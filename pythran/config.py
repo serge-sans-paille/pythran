@@ -282,9 +282,8 @@ def make_extension(python, **extra):
                     numpy_blas.get('library_dirs', []))
         # `numpy.distutils` not present for Python >= 3.12
         except ImportError:
-            blas = numpy.show_config('dicts')["Build Dependencies"]["blas"]
-            libblas = {'openblas64': 'openblas'}.get(blas['name'], blas['name'])
-            extension["libraries"].append(libblas)
+            extension["libraries"].append(user_blas)
+            extension['define_macros'].append('PYTHRAN_BLAS_{}'.format(user_blas.upper()))
 
 
     # final macro normalization

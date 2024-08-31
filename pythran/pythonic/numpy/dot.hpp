@@ -3,6 +3,7 @@
 
 #include "pythonic/include/numpy/dot.hpp"
 
+#include "pythonic/numpy/asarray.hpp"
 #include "pythonic/numpy/multiply.hpp"
 #include "pythonic/numpy/sum.hpp"
 #include "pythonic/types/ndarray.hpp"
@@ -1342,12 +1343,18 @@ namespace numpy
     return blas_buffer_t<E>{}(e);
   }
 
+  template <class E, class... S>
+  typename E::dtype const *blas_buffer(types::numpy_gexpr<E, S...> const &e)
+  {
+    return e.data();
+  }
+
   template <class E, class F>
   typename std::enable_if<
       types::is_numexpr_arg<E>::value &&
           types::is_numexpr_arg<F>::value   // Arguments are array_like
           && E::value == 1 && F::value == 1 // It is a two vectors.
-          && (!is_blas_array<E>::value || !is_blas_array<F>::value ||
+          && (!is_blas_expr<E>::value || !is_blas_expr<F>::value ||
               !std::is_same<typename E::dtype, typename F::dtype>::value),
       typename __combined<typename E::dtype, typename F::dtype>::type>::type
   dot(E const &e, F const &f)
@@ -1409,6 +1416,86 @@ namespace numpy
     BLAS_MANGLE(cblas_zdotu_sub)
     (e.size(), blas_buffer(e), 1, blas_buffer(f), 1, &out);
     return out;
+  }
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, float>::value &&
+          std::is_same<typename F::dtype, float>::value &&
+          (is_blas_expr<E>::value && is_blas_expr<F>::value &&
+           !(is_blas_array<E>::value && is_blas_array<F>::value)),
+      float>::type
+  dot(E const &e, F const &f)
+  {
+    if (e.template strides<0>() >= 1 && f.template strides<0>() >= 1) {
+      return BLAS_MANGLE(cblas_sdot)(e.size(), blas_buffer(e),
+                                     e.template strides<0>(), blas_buffer(f),
+                                     f.template strides<0>());
+    } else {
+      return dot(asarray(e), asarray(f));
+    }
+  }
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, double>::value &&
+          std::is_same<typename F::dtype, double>::value &&
+          (is_blas_expr<E>::value && is_blas_expr<F>::value &&
+           !(is_blas_array<E>::value && is_blas_array<F>::value)),
+      double>::type
+  dot(E const &e, F const &f)
+  {
+    if (e.template strides<0>() >= 1 && f.template strides<0>() >= 1) {
+      return BLAS_MANGLE(cblas_ddot)(e.size(), blas_buffer(e),
+                                     e.template strides<0>(), blas_buffer(f),
+                                     f.template strides<0>());
+    } else {
+      return dot(asarray(e), asarray(f));
+    }
+  }
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, std::complex<float>>::value &&
+          std::is_same<typename F::dtype, std::complex<float>>::value &&
+          (is_blas_expr<E>::value && is_blas_expr<F>::value &&
+           !(is_blas_array<E>::value && is_blas_array<F>::value)),
+      std::complex<float>>::type
+  dot(E const &e, F const &f)
+  {
+    if (e.template strides<0>() >= 1 && f.template strides<0>() >= 1) {
+      std::complex<float> out;
+      BLAS_MANGLE(cblas_cdotu_sub)
+      (e.size(), blas_buffer(e), e.template strides<0>(), blas_buffer(f),
+       f.template strides<0>(), &out);
+      return out;
+    } else {
+      return dot(asarray(e), asarray(f));
+    }
+  }
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, std::complex<double>>::value &&
+          std::is_same<typename F::dtype, std::complex<double>>::value &&
+          (is_blas_expr<E>::value && is_blas_expr<F>::value &&
+           !(is_blas_array<E>::value && is_blas_array<F>::value)),
+      std::complex<double>>::type
+  dot(E const &e, F const &f)
+  {
+    if (e.template strides<0>() >= 1 && f.template strides<0>() >= 1) {
+      std::complex<double> out;
+      BLAS_MANGLE(cblas_zdotu_sub)
+      (e.size(), blas_buffer(e), e.template strides<0>(), blas_buffer(f),
+       f.template strides<0>(), &out);
+      return out;
+    } else {
+      return dot(asarray(e), asarray(f));
+    }
   }
 
   /// Matrice / Vector multiplication

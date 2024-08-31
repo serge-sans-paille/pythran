@@ -28,11 +28,17 @@ struct is_strided {
 
 template <class E>
 struct is_blas_array {
-  // FIXME: also support gexpr with stride?
   static constexpr bool value =
       pythonic::types::is_array<E>::value &&
       is_blas_type<typename pythonic::types::dtype_of<E>::type>::value &&
       !is_strided<E>::value;
+};
+
+template <class E>
+struct is_blas_expr {
+  static constexpr bool value =
+      pythonic::types::is_array<E>::value &&
+      is_blas_type<typename pythonic::types::dtype_of<E>::type>::value;
 };
 
 PYTHONIC_NS_BEGIN
@@ -50,7 +56,7 @@ namespace numpy
   typename std::enable_if<
       types::is_numexpr_arg<E>::value && types::is_numexpr_arg<F>::value &&
           E::value == 1 && F::value == 1 &&
-          (!is_blas_array<E>::value || !is_blas_array<F>::value ||
+          (!is_blas_expr<E>::value || !is_blas_expr<F>::value ||
            !std::is_same<typename E::dtype, typename F::dtype>::value),
       typename __combined<typename E::dtype, typename F::dtype>::type>::type
   dot(E const &e, F const &f);
@@ -88,6 +94,46 @@ namespace numpy
           std::is_same<typename E::dtype, std::complex<double>>::value &&
           std::is_same<typename F::dtype, std::complex<double>>::value &&
           is_blas_array<E>::value && is_blas_array<F>::value,
+      std::complex<double>>::type
+  dot(E const &e, F const &f);
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, float>::value &&
+          std::is_same<typename F::dtype, float>::value &&
+          (is_blas_expr<E>::value && is_blas_expr<F>::value &&
+           !(is_blas_array<E>::value && is_blas_array<F>::value)),
+      float>::type
+  dot(E const &e, F const &f);
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, double>::value &&
+          std::is_same<typename F::dtype, double>::value &&
+          (is_blas_expr<E>::value && is_blas_expr<F>::value &&
+           !(is_blas_array<E>::value && is_blas_array<F>::value)),
+      double>::type
+  dot(E const &e, F const &f);
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, std::complex<float>>::value &&
+          std::is_same<typename F::dtype, std::complex<float>>::value &&
+          (is_blas_expr<E>::value && is_blas_expr<F>::value &&
+           !(is_blas_array<E>::value && is_blas_array<F>::value)),
+      std::complex<float>>::type
+  dot(E const &e, F const &f);
+
+  template <class E, class F>
+  typename std::enable_if<
+      E::value == 1 && F::value == 1 &&
+          std::is_same<typename E::dtype, std::complex<double>>::value &&
+          std::is_same<typename F::dtype, std::complex<double>>::value &&
+          (is_blas_expr<E>::value && is_blas_expr<F>::value &&
+           !(is_blas_array<E>::value && is_blas_array<F>::value)),
       std::complex<double>>::type
   dot(E const &e, F const &f);
 

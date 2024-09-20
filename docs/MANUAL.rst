@@ -465,12 +465,12 @@ However, if unset through ``-UNDEBUG``, all ``assert`` are executed and
 eventually raise an ``AssertionError``. Additionnaly, many internal checks are
 done and may fail with a C-ish assertion.
 
-Note that enven under ``NDEBUG``, Python's ``assert`` statement are still useful
+Note that even under ``NDEBUG``, Python's ``assert`` statement are still useful
 to provide extra information to the compiler. Currently, Pythran uses ``assert``
 to:
 
 1. Improve its range analysis, *e.g.* through ``assert a >= 0``. This can make
-   array indexing faster by specifying that are accesses are in bound.
+   array indexing faster by specifying that accesses are in bound.
 2. Improve its alias analysis, *e.g.* through ``assert a is not b``. This can
    make some numpy generalized indexing faster.
 

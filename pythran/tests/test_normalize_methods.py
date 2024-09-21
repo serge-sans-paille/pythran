@@ -125,6 +125,17 @@ class TestNormalizeMethods(TestEnv):
                       {1}, {1:1},
                       dispatch_update=[Set[int], Dict[int,int]])
 
+    def test_supported_attr_store(self):
+        self.run_test("def supported_attr_store(s): s.real += 1; return s",
+                      numpy.ones(10, dtype=complex),
+                      supported_attr_store=[NDArray[complex, :]])
+
+    def test_unsupported_attr_store(self):
+        with self.assertRaises(pythran.syntax.PythranSyntaxError):
+            self.run_test("def unsupported_attr_store(s): s.strides = 2; return s",
+                          numpy.ones(10, dtype=complex),
+                          unsupported_attr_store=[NDArray[complex, :]])
+
     def test_invalid_method_call(self):
         code = '''
 def np_asarray7(sRate=44100):

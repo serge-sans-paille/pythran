@@ -199,7 +199,11 @@ class NormalizeMethodCalls(Transformation):
                 # the only situation where this arises is for real/imag of
                 # a ndarray. As a call is not valid for a store, add a slice
                 # to ends up with a valid lhs
-                assert node.attr in ('real', 'imag'), "only store to imag/real"
+                if node.attr not in ('real', 'imag'):
+                    raise PythranSyntaxError(
+                            "Unsupported store to attribute {}".format(node.attr),
+                            node)
+
                 return ast.Subscript(call,
                                      ast.Slice(None, None, None),
                                      node.ctx)

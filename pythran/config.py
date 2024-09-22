@@ -402,7 +402,7 @@ def run():
 
     if args.libs or args.verbose >= 2:
         ldflags = []
-        ldflags.extend((compiler_obj.library_dir_option(include))
+        ldflags.extend(('-L' + compiler_obj.library_dir_option(include))
                        for include in extension['library_dirs'])
         ldflags.extend((compiler_obj.library_option(include))
                        for include in extension['libraries'])
@@ -410,7 +410,7 @@ def run():
         if args.python:
             libpl = distutils.sysconfig.get_config_var('LIBPL')
             if libpl:
-                ldflags.append(libpl)
+                ldflags.append('-L' + libpl)
             libs = distutils.sysconfig.get_config_var('LIBS')
             if libs:
                 ldflags.extend(shsplit(libs))

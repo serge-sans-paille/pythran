@@ -26,6 +26,7 @@ jobs:
         pip install scipy-openblas64
         pip install pytest-xdist
         sudo apt install ${{ matrix.cpp-version }}
+        sudo apt install libopenblas-dev  # for meson integration testing
         if test ${{ matrix.python-version }} != 'pypy-3.9'; then pip install scipy ; fi
     - name: Setup
       run: |

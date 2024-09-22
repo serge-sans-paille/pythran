@@ -1,0 +1,3 @@
+[compiler]
+blas=openblas
+include_dirs=/usr/include/openblas

@@ -170,3 +170,31 @@ class TestDistutils(unittest.TestCase):
         demo_so = find_so(r"a.*\.so", dist_path)
         self.assertIsNotNone(demo_so)
         shutil.rmtree(dist_path)
+
+try:
+    check_call(['ninja', '--version'])
+    has_ninja = True
+except:
+    has_ninja = False
+
+try:
+    check_call(['meson', '--version'])
+    has_meson = True
+except:
+    has_meson = False
+
+class TestMeson(unittest.TestCase):
+
+    @unittest.skipIf(not has_meson, "meson not found")
+    @unittest.skipIf(not has_ninja, "ninja not found")
+    def test_meson_build(self):
+        srcdir = os.path.join(cwd, 'test_distutils')
+        builddir = os.path.join(srcdir, '_meson_build')
+        shutil.rmtree(builddir, ignore_errors=True)
+        check_call(['meson', 'setup', builddir, '.'],
+                   cwd=srcdir)
+        check_call(['ninja', '-v'],
+                   cwd=builddir)
+        check_call([python, '-c', 'import b'],
+                   cwd=builddir)
+

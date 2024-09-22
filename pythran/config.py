@@ -272,18 +272,8 @@ def make_extension(python, **extra):
         extension['define_macros'].append('PYTHRAN_BLAS_NONE')
 
     if user_blas not in reserved_blas_entries:
-        try:
-            import numpy.distutils.system_info as numpy_sys
-             # Numpy can pollute stdout with checks
-            with silent():
-                numpy_blas = numpy_sys.get_info(user_blas)
-                extension['libraries'].extend(numpy_blas.get('libraries', []))
-                extension['library_dirs'].extend(
-                    numpy_blas.get('library_dirs', []))
-        # `numpy.distutils` not present for Python >= 3.12
-        except ImportError:
-            extension["libraries"].append(user_blas)
-            extension['define_macros'].append('PYTHRAN_BLAS_{}'.format(user_blas.upper()))
+        extension["libraries"].append(user_blas)
+        extension['define_macros'].append('PYTHRAN_BLAS_{}'.format(user_blas.upper()))
 
 
     # final macro normalization

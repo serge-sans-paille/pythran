@@ -27,7 +27,7 @@ Changelog = "https://pythran.readthedocs.io/en/latest/Changelog.html"
 
 [project.optional-dependencies]
 doc = ["numpy", "nbsphinx", "scipy", "guzzle_sphinx_theme"]
-test = ["ipython", "nbval", "cython", "wheel", "packaging"]
+test = ["ipython", "nbval", "cython", "wheel", "packaging", "ninja", "meson"]
 
 [project.scripts]
 pythran = "pythran.run:run"

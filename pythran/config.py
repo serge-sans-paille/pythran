@@ -343,6 +343,10 @@ def run():
     parser.add_argument('--no-python', action='store_true',
                         help='do not include Python-related flags')
 
+    parser.add_argument('-V', '--version',
+                        action='version',
+                        version=pythran.version.__version__)
+
     parser.add_argument('--verbose', '-v', action='count', default=0,
                         help=(
                             'verbose mode: [-v] prints warnings if pythranrc '

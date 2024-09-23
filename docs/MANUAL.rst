@@ -402,6 +402,15 @@ you can change its base class by using ``PythranBuildExt[base_cls]`` instead.
 
     This behavior is likely to change with revisions >= 1.
 
+Meson Integration
+*****************
+
+Pythran provides helper programs to easien integration with meson, through
+``pythran-config``. The following project is tested during validation and seems
+to work as expected. It includes support for a custom ``pythranrc`` file:
+
+.. literalinclude:: ../pythran/tests/test_distutils/meson.build
+
 
 Cross compilation
 *****************

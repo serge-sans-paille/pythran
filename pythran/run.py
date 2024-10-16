@@ -217,6 +217,17 @@ def run():
         logger.critical("Cover me Jack. Jack? Jaaaaack!!!!\n"
                         "E: " + str(e))
         sys.exit(1)
+    except SyntaxError as se:
+        # pythran syntax error formatter is just nicer
+        pse = PythranSyntaxError(se.args[0])
+        pse.filename, pse.lineno, pse.offset = se.args[1][:3]
+        if pse.filename == '<unknown>':
+            pse.filename = args.input_file
+        pse.offset -= 1
+
+        logger.critical("I think in all humility that your input code is not valid Python, "
+                        "that's a bit too much for me :-/\n" + str(pse))
+        sys.exit(1)
     except NotImplementedError:
         logger.critical("MAYDAY, MAYDAY, MAYDAY; pythran compiler; "
                         "code area out of control\n"

@@ -336,6 +336,23 @@ class Types(ModuleAnalysis):
                         fake = ast.Subscript(alias, t.slice, ast.Store())
                         self.combine(fake, None, node.value)
 
+    def visit_AnnAssign(self, node):
+        if not node.value:
+            # FIXME: replace this by actually setting the node type from the
+            # annotation
+            self.curr_locals_declaration.remove(node.target)
+            return
+        self.visit(node.value)
+        t = node.target
+        self.combine(t, None, node.value)
+        if t in self.curr_locals_declaration:
+            self.result[t] = self.get_qualifier(t)(self.result[t])
+        if isinstance(t, ast.Subscript):
+            if self.visit_AssignedSubscript(t):
+                for alias in self.strict_aliases[t.value]:
+                    fake = ast.Subscript(alias, t.slice, ast.Store())
+                    self.combine(fake, None, node.value)
+
     def visit_AugAssign(self, node):
         self.visit(node.value)
 

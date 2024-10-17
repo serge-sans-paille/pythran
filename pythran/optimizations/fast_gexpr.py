@@ -45,10 +45,14 @@ class FastGExpr(Transformation):
 
 
     def visit_Assign(self, node):
-        if len(node.targets) > 1:
+        targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+        if len(targets) > 1:
             return node
 
-        target, = node.targets
+        if not node.value:
+            return node
+
+        target, = targets
         value = node.value
         gexpr = self.as_gexpr(target)
         if not gexpr:
@@ -65,4 +69,5 @@ class FastGExpr(Transformation):
                                 attr="pythran", ctx=ast.Load()),
             attr="restrict_assign", ctx=ast.Load())
         return ast.Expr(ast.Call(func, args=[target, value], keywords=[]))
+    visit_AnnAssign = visit_Assign
 

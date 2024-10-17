@@ -651,8 +651,9 @@ class Aliases(ModuleAnalysis):
         Everyone points to the formal parameter 'a' \o/
         '''
         md.visit(self, node)
-        value_aliases = self.visit(node.value)
-        for t in node.targets:
+        value_aliases = self.visit(node.value) if node.value else {}
+        targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+        for t in targets:
             if isinstance(t, ast.Name):
                 self.aliases[t.id] = set(value_aliases) or {t}
                 for alias in list(value_aliases):
@@ -662,6 +663,8 @@ class Aliases(ModuleAnalysis):
                 self.add(t, self.aliases[t.id])
             else:
                 self.visit(t)
+
+    visit_AnnAssign = visit_Assign
 
     def visit_For(self, node):
         '''

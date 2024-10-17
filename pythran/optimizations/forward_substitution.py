@@ -35,6 +35,15 @@ class Remover(ast.NodeTransformer):
                 return ast.Pass()
         return node
 
+    def visit_AnnAssign(self, node):
+        if node in self.nodes:
+            to_prune = self.nodes[node]
+            if node.target in to_prune:
+                return ast.Pass()
+            else:
+                return node
+        return node
+
 
 class ForwardSubstitution(Transformation):
 

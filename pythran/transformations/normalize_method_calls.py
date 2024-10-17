@@ -84,10 +84,12 @@ class NormalizeMethodCalls(Transformation):
             return None
         else:
             n = self.generic_visit(node)
-            for t in node.targets:
+            targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+            for t in targets:
                 if isinstance(t, ast.Name):
                     self.imports.pop(t.id, None)
             return n
+    visit_AnnAssign = visit_Assign
 
     def visit_For(self, node):
         node.iter = self.visit(node.iter)

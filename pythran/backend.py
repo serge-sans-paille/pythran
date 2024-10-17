@@ -907,7 +907,7 @@ class CxxFunction(ast.NodeVisitor):
         body = self.visit(node.body)
         orelse = self.visit(node.orelse)
         return (
-            "(((bool){0}) "
+            "(pythonic::builtins::functor::bool_{{}}({0}) "
             "? typename __combined<decltype({1}), decltype({2})>::type({1}) "
             ": typename __combined<decltype({1}), decltype({2})>::type({2}))"
         ).format(test, body, orelse)

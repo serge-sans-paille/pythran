@@ -247,6 +247,11 @@ def lambda_():
     def test_tuple(self):
         self.run_test("def tuple_(t): return t[0]+t[1]", (0,1), tuple_=[Tuple[int, int]])
 
+    def test_tuple_implicit_empty(self):
+        self.run_test("def tuple_implicit_empty_(t): return 1 if t else 0",
+                      (0,1),
+                      tuple_implicit_empty_=[Tuple[int, int]])
+
     def test_nested_list_comprehension(self):
         self.run_test("def nested_list_comprehension(): return [ [ x+y for x in range(10) ] for y in range(20) ]", nested_list_comprehension=[])
 

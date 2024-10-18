@@ -1,3 +1,24 @@
+0.17.0 2024-10-19 Serge Guelton <sergesanspaille@free.fr>
+
+	* Support parsing annotated statement
+
+	* Document and test Meson integration
+
+	* Update / improve Blas detection, including scipy-openblas
+
+	* Fix usage of Blas library
+
+	* Improve error reporting
+
+	* Support array module
+
+	* Reduce dependency on setuptools
+
+	* Faster forward substitution
+
+	* Enforce default optimization level to `-O2`
+
+
 0.16.1 2024-05-27 Serge Guelton <serge.guelton@telecom-bretagne.eu>
 
 	* Fix massive memory leak in ndarray i troduced in 0.16.0

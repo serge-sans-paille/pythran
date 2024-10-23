@@ -11,8 +11,10 @@ from pythran.config import cfg
 from pythran.cxxtypes import TypeBuilder, ordered_set
 from pythran.intrinsic import UserFunction, Class
 from pythran.passmanager import ModuleAnalysis
+from pythran.errors import PythranSyntaxError
 from pythran.tables import operator_to_lambda, MODULES
-from pythran.types.conversion import pytype_to_ctype
+from pythran.typing import List, Dict, Set, Tuple, NDArray
+from pythran.types.conversion import pytype_to_ctype, PYTYPE_TO_CTYPE_TABLE
 from pythran.types.reorder import Reorder
 from pythran.utils import attr_to_path, cxxid, isnum, isextslice
 
@@ -21,6 +23,130 @@ from functools import reduce
 import gast as ast
 from itertools import islice
 from copy import deepcopy
+import numpy as np
+
+alias_to_type = {
+    MODULES['builtins']['int'] : int,
+    MODULES['builtins']['bool'] : bool,
+    MODULES['builtins']['float'] : float,
+    MODULES['builtins']['str'] : str,
+    MODULES['builtins']['complex'] : complex,
+    MODULES['builtins']['dict'] : Dict,
+    MODULES['builtins']['list'] : List,
+    MODULES['builtins']['set'] : Set,
+    MODULES['builtins']['tuple'] : Tuple,
+    MODULES['builtins']['type'] : type,
+    MODULES['builtins']['None'] : type(None),
+    MODULES['numpy']['intc']: np.intc,
+    MODULES['numpy']['intp']: np.intp,
+    MODULES['numpy']['int64']: np.int64,
+    MODULES['numpy']['int32']: np.int32,
+    MODULES['numpy']['int16']: np.int16,
+    MODULES['numpy']['int8']: np.int8,
+    MODULES['numpy']['uintc']: np.uintc,
+    MODULES['numpy']['uintp']: np.uintp,
+    MODULES['numpy']['uint64']: np.uint64,
+    MODULES['numpy']['uint32']: np.uint32,
+    MODULES['numpy']['uint16']: np.uint16,
+    MODULES['numpy']['uint8']: np.uint8,
+    MODULES['numpy']['float32']: np.float32,
+    MODULES['numpy']['float64']: np.float64,
+    MODULES['numpy']['complex64']: np.complex64,
+    MODULES['numpy']['complex128']: np.complex128,
+    MODULES['numpy']['ndarray']: NDArray,
+}
+try:
+    alias_to_type[MODULES['numpy']['float128']] = np.float128
+    alias_to_type[MODULES['numpy']['complex256']] = np.complex256
+except AttributeError:
+    pass
+
+
+class TypeAnnotationParser(ast.NodeVisitor):
+
+    class TypeOf:
+        def __init__(self, val):
+            self.val = val
+
+    def __init__(self, type_visitor):
+        self.type_visitor = type_visitor
+        self.aliases = self.type_visitor.strict_aliases
+
+    def extract(self, node):
+        node_aliases = self.aliases[node]
+        if len(node_aliases) > 1:
+            raise PythranSyntaxError("Ambiguous identifier in type annotation",
+                                     node)
+        if not node_aliases:
+            raise PythranSyntaxError("Unbound identifier in type annotation",
+                                     node)
+        node_alias, = node_aliases
+        if node_alias not in alias_to_type:
+            raise PythranSyntaxError("Unsupported identifier in type annotation",
+                                     node)
+
+        return alias_to_type[node_alias]
+
+
+    def visit_Attribute(self, node):
+        return self.extract(node)
+
+    def visit_Name(self, node):
+        return self.extract(node)
+
+    def visit_Constant(self, node):
+        return node.value
+
+    def visit_Call(self, node):
+        func = self.visit(node.func)
+        if func is not type:
+            raise PythranSyntaxError("Expecting a type or a call to `type(...)`",
+                                     node)
+        if len(node.args) != 1:
+            raise PythranSyntaxError("`type` only supports a single argument",
+                                     node)
+        self.type_visitor.visit(node.args[0])
+        return self.TypeOf(self.type_visitor.result[node.args[0]])
+
+    def visit_Tuple(self, node):
+        return tuple([self.visit(elt) for elt in node.elts])
+
+    def visit_Subscript(self, node):
+        value = self.visit(node.value)
+        slice_ = self.visit(node.slice)
+        if issubclass(value, NDArray):
+            dtype, ndims = slice_
+            return value[tuple([dtype, *([slice(0)] * ndims)])]
+        else:
+            return value[slice_]
+
+
+def build_type(builder, t):
+    """ Python -> pythonic type binding. """
+    if isinstance(t, List):
+        return builder.ListType(build_type(builder, t.__args__[0]))
+    elif isinstance(t, Set):
+        return builder.SetType(build_type(builder, t.__args__[0]))
+    elif isinstance(t, Dict):
+        tkey, tvalue = t.__args__
+        return builder.DictType(build_type(builder, tkey), build_type(builder,
+                                                                      tvalue))
+    elif isinstance(t, Tuple):
+        return builder.TupleType(*[build_type(builder, p) for p in t.__args__])
+    elif isinstance(t, NDArray):
+        return builder.NDArrayType(build_type(builder, t.__args__[0]), len(t.__args__) - 1)
+    if isinstance(t, TypeAnnotationParser.TypeOf):
+        return t.val
+    elif t in PYTYPE_TO_CTYPE_TABLE:
+        return builder.NamedType(PYTYPE_TO_CTYPE_TABLE[t])
+    else:
+        raise NotImplementedError("build_type on {}".format(type(t)))
+
+
+def parse_type_annotation(type_visitor, ann):
+    tap = TypeAnnotationParser(type_visitor)
+    typ = tap.visit(ann)
+    return build_type(type_visitor.builder, typ)
 
 
 class UnboundableRValue(Exception):
@@ -328,8 +454,6 @@ class Types(ModuleAnalysis):
         self.visit(node.value)
         for t in node.targets:
             self.combine(t, None, node.value)
-            if t in self.curr_locals_declaration:
-                self.result[t] = self.get_qualifier(t)(self.result[t])
             if isinstance(t, ast.Subscript):
                 if self.visit_AssignedSubscript(t):
                     for alias in self.strict_aliases[t.value]:
@@ -337,16 +461,20 @@ class Types(ModuleAnalysis):
                         self.combine(fake, None, node.value)
 
     def visit_AnnAssign(self, node):
+        node_type = parse_type_annotation(self, node.annotation)
+        t = node.target
+        if node_type:
+            self.result[t] = node_type
         if not node.value:
-            # FIXME: replace this by actually setting the node type from the
-            # annotation
-            self.curr_locals_declaration.remove(node.target)
+            self.curr_locals_declaration.remove(t)
             return
         self.visit(node.value)
-        t = node.target
-        self.combine(t, None, node.value)
-        if t in self.curr_locals_declaration:
-            self.result[t] = self.get_qualifier(t)(self.result[t])
+        if node_type:
+            # A bit odd, isn't it? :-)
+            self.combine(t, None, t)
+        else:
+            self.combine(t, None, node.value)
+
         if isinstance(t, ast.Subscript):
             if self.visit_AssignedSubscript(t):
                 for alias in self.strict_aliases[t.value]:

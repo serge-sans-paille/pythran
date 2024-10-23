@@ -953,6 +953,18 @@ def analyse(node, env, non_generic=None):
                         defn_type),
                     node)
         return env
+    elif isinstance(node, ast.AnnAssign):
+        defn_type = analyse(node.value, env, non_generic)
+        target_type = analyse(node.target, env, non_generic)
+        try:
+            unify(target_type, defn_type)
+        except InferenceError:
+            raise PythranTypeError(
+                "Invalid assignment from type `{}` to type `{}`".format(
+                    target_type,
+                    defn_type),
+                node)
+        return env
     elif isinstance(node, ast.AugAssign):
         # FIMXE: not optimal: evaluates type of node.value twice
         fake_target = deepcopy(node.target)

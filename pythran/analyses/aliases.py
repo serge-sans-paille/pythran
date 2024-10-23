@@ -664,7 +664,9 @@ class Aliases(ModuleAnalysis):
             else:
                 self.visit(t)
 
-    visit_AnnAssign = visit_Assign
+    def visit_AnnAssign(self, node):
+        self.visit_Assign(node)
+        self.visit(node.annotation)
 
     def visit_For(self, node):
         '''

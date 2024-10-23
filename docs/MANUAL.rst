@@ -282,6 +282,25 @@ Easy enough, isn't it?
     cannot go further that generic (a.k.a. heavily templated) c++ code. Use the
     ``-e`` switch!
 
+When Pythran needs a little help: type annotation
+*************************************************
+
+Type inference is hard. Pythran sometimes struggles to get the correct type of a
+variable, espetially when it's declared as an empty list, dictionary or set.
+
+Fortunately, it can also understand Python variable annotation, just like::
+
+    some_list : list[int] = []
+
+But because sometimes the typing depends on the type of other variables, or of
+the evaluation of an actual expression. The following is also valid in Pythran::
+
+    an_int_list = [5]
+    some_list : type(an_int_list) = []
+    some_dict : dict[str:type(some_list)] = {}
+
+This typing is optional and is taken as an extra hint to type inference.
+
 
 .pythran files
 --------------

@@ -334,15 +334,20 @@ class TypeDependencies(ModuleAnalysis):
         It is valid for subscript, `a[i] = foo()` means `a` type depend on
         `foo` return type.
         """
-        if not node.value:
-            return
         value_deps = self.visit(node.value)
-        targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
-        for target in targets:
+        for target in node.targets:
             name = get_variable(target)
             if isinstance(name, ast.Name):
                 self.naming[name.id] = value_deps
-    visit_AnnAssign = visit_Assign
+
+    def visit_AnnAssign(self, node):
+        deps = []
+        if node.value:
+            deps.extend(self.visit(node.value))
+        deps.extend(self.visit(node.annotation))
+        name = get_variable(node.target)
+        if isinstance(name, ast.Name):
+            self.naming[name.id] = deps
 
     def visit_AugAssign(self, node):
         """

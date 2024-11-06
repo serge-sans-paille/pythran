@@ -13,6 +13,7 @@ import builtins
 import gast as ast
 from copy import deepcopy
 import logging
+import numpy
 import sys
 
 logger = logging.getLogger('pythran')
@@ -63,6 +64,10 @@ class PythranBuiltins(object):
     @staticmethod
     def make_shape(*args):
         return args
+
+    @staticmethod
+    def restrict_assign(expr, value):
+        numpy.copyto(expr, value)
 
 class BreakLoop(Exception):
     pass

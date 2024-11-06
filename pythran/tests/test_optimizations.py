@@ -12,6 +12,20 @@ class TestOptimization(TestEnv):
         code = "def constant_fold_nan(a): from numpy import nan; a[0] = nan; return a"
         self.run_test(code, [1., 2.], constant_fold_nan=[List[float]])
 
+    def test_constant_fold_restrict_assign(self):
+        code = """
+import numpy as np
+def make_signal():
+    y = np.ones((44100,2))
+    y[:, 1:] = 0. #<--- the issue.
+    return y
+
+def constant_fold_restrict_assign():
+    x = make_signal()
+    return x
+    """
+        self.run_test(code, constant_fold_restrict_assign=[])
+
     def test_constant_fold_subscript(self):
         code = '''
 def aux(n):

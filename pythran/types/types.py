@@ -454,6 +454,8 @@ class Types(ModuleAnalysis):
         self.visit(node.value)
         for t in node.targets:
             self.combine(t, None, node.value)
+            if t in self.curr_locals_declaration:
+                self.result[t] = self.get_qualifier(t)(self.result[t])
             if isinstance(t, ast.Subscript):
                 if self.visit_AssignedSubscript(t):
                     for alias in self.strict_aliases[t.value]:
@@ -474,6 +476,8 @@ class Types(ModuleAnalysis):
             self.combine(t, None, t)
         else:
             self.combine(t, None, node.value)
+        if t in self.curr_locals_declaration:
+            self.result[t] = self.get_qualifier(t)(self.result[t])
 
         if isinstance(t, ast.Subscript):
             if self.visit_AssignedSubscript(t):

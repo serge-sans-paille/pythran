@@ -13,7 +13,7 @@ from pythran.intrinsic import UserFunction, Class
 from pythran.passmanager import ModuleAnalysis
 from pythran.errors import PythranSyntaxError
 from pythran.tables import operator_to_lambda, MODULES
-from pythran.typing import List, Dict, Set, Tuple, NDArray
+from pythran.typing import List, Dict, Set, Tuple, NDArray, Union
 from pythran.types.conversion import pytype_to_ctype, PYTYPE_TO_CTYPE_TABLE
 from pythran.types.reorder import Reorder
 from pythran.utils import attr_to_path, cxxid, isnum, isextslice
@@ -68,6 +68,11 @@ class TypeAnnotationParser(ast.NodeVisitor):
         def __init__(self, val):
             self.val = val
 
+    class UnionOf:
+        def __init__(self, lhs, rhs):
+            self.lhs = lhs
+            self.rhs = rhs
+
     def __init__(self, type_visitor):
         self.type_visitor = type_visitor
         self.aliases = self.type_visitor.strict_aliases
@@ -111,6 +116,14 @@ class TypeAnnotationParser(ast.NodeVisitor):
     def visit_Tuple(self, node):
         return tuple([self.visit(elt) for elt in node.elts])
 
+    def visit_BinOp(self, node):
+        if not isinstance(node.op, ast.BitOr):
+            raise PythranSyntaxError("Unsupported operation between type operands",
+                                     node)
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        return self.UnionOf(left, right)
+
     def visit_Subscript(self, node):
         value = self.visit(node.value)
         slice_ = self.visit(node.slice)
@@ -123,7 +136,9 @@ class TypeAnnotationParser(ast.NodeVisitor):
 
 def build_type(builder, t):
     """ Python -> pythonic type binding. """
-    if isinstance(t, List):
+    if t is None:
+        return builder.NamedType(pytype_to_ctype(type(None)))
+    elif isinstance(t, List):
         return builder.ListType(build_type(builder, t.__args__[0]))
     elif isinstance(t, Set):
         return builder.SetType(build_type(builder, t.__args__[0]))
@@ -135,8 +150,11 @@ def build_type(builder, t):
         return builder.TupleType(*[build_type(builder, p) for p in t.__args__])
     elif isinstance(t, NDArray):
         return builder.NDArrayType(build_type(builder, t.__args__[0]), len(t.__args__) - 1)
-    if isinstance(t, TypeAnnotationParser.TypeOf):
+    elif isinstance(t, TypeAnnotationParser.TypeOf):
         return t.val
+    elif isinstance(t, TypeAnnotationParser.UnionOf):
+        return builder.CombinedTypes(build_type(builder, t.lhs),
+                                     build_type(builder, t.rhs))
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return builder.NamedType(PYTYPE_TO_CTYPE_TABLE[t])
     else:

@@ -74,6 +74,26 @@ class TestTypeAnnotation(TestEnv):
                       1,
                       typeof_ann_local=[int])
 
+    def test_ann_union(self):
+        self.run_test("def typeof_ann_union(a):\n b: list[type(a) | float] = [1.]; b.append(a); return b",
+                      1,
+                      typeof_ann_union=[int])
+
+    def test_ann_union_redundant(self):
+        self.run_test("def typeof_ann_union_redundant(a):\n b: list[float | float] = [1.]; b.append(a); return b",
+                      1,
+                      typeof_ann_union_redundant=[int])
+
+    def test_ann_union_none(self):
+        self.run_test("def typeof_ann_union_none(a):\n b: list[None | int] = [a]; return b[0] is None",
+                      1,
+                      typeof_ann_union_none=[int])
+
+    def test_ann_union_none_init(self):
+        self.run_test("def typeof_ann_union_none_init(a):\n b: type(a) | None = None\n if a: b = a\n return b",
+                      1,
+                      typeof_ann_union_none_init=[int])
+
     def test_typeof_ann_expr(self):
         self.run_test("def typeof_ann_expr(a):\n b: list[type(a * 2)] = []; return b * a",
                       1,

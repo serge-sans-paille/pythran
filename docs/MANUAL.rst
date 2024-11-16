@@ -291,6 +291,7 @@ variable, espetially when it's declared as an empty list, dictionary or set.
 Fortunately, it can also understand Python variable annotation, just like::
 
     some_list : list[int] = []
+    option_type : int | None = None
 
 But because sometimes the typing depends on the type of other variables, or of
 the evaluation of an actual expression. The following is also valid in Pythran::

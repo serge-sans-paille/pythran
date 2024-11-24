@@ -369,6 +369,18 @@ class TestNumpyFunc3(TestEnv):
                       np_dot30=[NDArray[numpy.float32,:],
                                 NDArray[numpy.float32,:]])
 
+    def test_dot31(self):
+        ''' 1d x 1d, expr'''
+        self.run_test("""
+        def np_dot31(x):
+            import numpy  as np
+            func = np.exp(-2j * np.pi * np.arange(len(x)))
+            normFunc = np.sqrt(np.real(np.dot(np.conjugate(func), func)))
+            return normFunc
+        """,
+                      numpy.arange(24., dtype=numpy.float32),
+                      np_dot31=[NDArray[numpy.float32,:]])
+
     def test_vdot0(self):
         self.run_test("""
         def np_vdot0(x, y):

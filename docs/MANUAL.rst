@@ -753,6 +753,13 @@ This controls some behavior of the C++ backend, so the default should be safe::
     # to the original python code
     annotate = false
 
+    # set to 'lineno' if you want to generate line number instead of python extract
+    annotation_kind = 'comment'
+
+    # make generated module compatible with freethreading, see
+    # https://py-free-threading.github.io/
+    freethreading_compatible = true
+
 
 F.A.Q.
 ------

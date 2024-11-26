@@ -1,0 +1,48 @@
+# Kept seperate from core.yml because it uses a quantsight-built python setup
+name: freethreading
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: ["3.13t"]
+        cpp-version: [g++-8, clang-7]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install native dependencies
+      run: |
+        sudo apt install ${{ matrix.cpp-version }}
+        sudo apt install libopenblas-dev  # for meson integration testing
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: quansight-labs/setup-python@v5.3.1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install scipy-openblas64
+        pip install pytest-xdist
+    - name: Setup
+      run: |
+        python -m pip install .
+        printf '[compiler]\nblas=scipy-openblas\n' > ~/.config/.pythranrc
+        printf 'cflags=-std=c++11 -Wall -Werror -Wno-unknown-pragmas -Wno-unused-local-typedefs -Wno-cpp -Wno-deprecated-declarations' >> ~/.config/.pythranrc
+        if test "${{ matrix.cpp-version }}" = "clang-7" ; then printf -- " -Wno-absolute-value -Wno-parentheses-equality\n" ; else printf "\n" ; fi >> ~/.config/.pythranrc
+    - name: Testing minimal CLI
+      run: |
+        pythran --version
+        pythran --help
+        pythran-config -vvv
+    - name: Testing sequential
+      run: |
+        export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/gcc/'`
+        export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/clang++/'`
+        pytest pythran/tests/test_base.py -v -x

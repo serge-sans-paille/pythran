@@ -28,6 +28,7 @@ Generator for C/C++.
 #
 
 from textwrap import dedent
+from pythran.config import cfg
 from pythran.tables import pythran_ward
 from pythran.spec import signatures_to_string
 from pythran.utils import quote_cxxstring
@@ -732,11 +733,16 @@ class PythonModule(object):
                                    theDoc);
 
                 {extraobjects}
+                {freethreading}
                 return theModule;
             }}
             '''.format(name=self.name,
                        import_umath="import_umath();" if self.ufuncs else "",
                        extraobjects='\n'.join(theextraobjects),
+                       freethreading="""
+                            #ifdef Py_GIL_DISABLED
+                                PyUnstable_Module_SetGIL(theModule, Py_MOD_GIL_NOT_USED);
+                            #endif""" if cfg.getboolean("backend", "freethreading_compatible") else "",
                        **self.metadata))
 
         body = (self.preamble +

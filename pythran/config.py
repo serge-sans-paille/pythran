@@ -197,8 +197,6 @@ def make_extension(python, **extra):
 
     if python:
         extension['define_macros'].append('ENABLE_PYTHON_MODULE')
-    extension['define_macros'].append(
-        '__PYTHRAN__={}'.format(sys.version_info.major))
 
     pythonic_dir = get_include()
 

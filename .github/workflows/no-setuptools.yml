@@ -27,6 +27,9 @@ jobs:
       run: |
         python -m pip install .
         python -m pip uninstall -y setuptools  # the goal of that check is to test codegen without setuptools
+    - name: Testing pythran-config
+      run: |
+        pythran-config --cflags-pythran-only
     - name: Testing scipy
       run: |
         find pythran/tests/scipy/ -name '*.py' -exec pythran -E {} \;

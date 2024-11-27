@@ -695,26 +695,19 @@ class PythonModule(object):
             '''.format(methods="".join(m + "," for m in themethods)))
 
         module = dedent('''
-            #if PY_MAJOR_VERSION >= 3
-              static struct PyModuleDef moduledef = {{
-                PyModuleDef_HEAD_INIT,
-                "{name}",            /* m_name */
-                {moduledoc},         /* m_doc */
-                -1,                  /* m_size */
-                Methods,             /* m_methods */
-                NULL,                /* m_reload */
-                NULL,                /* m_traverse */
-                NULL,                /* m_clear */
-                NULL,                /* m_free */
-              }};
-            #define PYTHRAN_RETURN return theModule
-            #define PYTHRAN_MODULE_INIT(s) PyInit_##s
-            #else
-            #define PYTHRAN_RETURN return
-            #define PYTHRAN_MODULE_INIT(s) init##s
-            #endif
+            static struct PyModuleDef moduledef = {{
+              PyModuleDef_HEAD_INIT,
+              "{name}",            /* m_name */
+              {moduledoc},         /* m_doc */
+              -1,                  /* m_size */
+              Methods,             /* m_methods */
+              NULL,                /* m_reload */
+              NULL,                /* m_traverse */
+              NULL,                /* m_clear */
+              NULL,                /* m_free */
+            }};
             PyMODINIT_FUNC
-            PYTHRAN_MODULE_INIT({name})(void)
+            PyInit_{name}(void)
             #ifndef _WIN32
             __attribute__ ((visibility("default")))
             #if defined(GNUC) && !defined(__clang__)
@@ -723,30 +716,23 @@ class PythonModule(object):
             #endif
             ;
             PyMODINIT_FUNC
-            PYTHRAN_MODULE_INIT({name})(void) {{
+            PyInit_{name}(void) {{
                 import_array();
                 {import_umath}
-                #if PY_MAJOR_VERSION >= 3
                 PyObject* theModule = PyModule_Create(&moduledef);
-                #else
-                PyObject* theModule = Py_InitModule3("{name}",
-                                                     Methods,
-                                                     {moduledoc}
-                );
-                #endif
                 if(! theModule)
-                    PYTHRAN_RETURN;
+                    return theModule;
                 PyObject * theDoc = Py_BuildValue("(ss)",
                                                   "{version}",
                                                   "{hash}");
                 if(! theDoc)
-                    PYTHRAN_RETURN;
+                    return theModule;
                 PyModule_AddObject(theModule,
                                    "__pythran__",
                                    theDoc);
 
                 {extraobjects}
-                PYTHRAN_RETURN;
+                return theModule;
             }}
             '''.format(name=self.name,
                        import_umath="import_umath();" if self.ufuncs else "",

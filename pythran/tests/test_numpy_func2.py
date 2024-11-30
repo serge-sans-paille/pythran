@@ -737,6 +737,9 @@ def test_copy0(x):
     def test_array_iter(self):
         self.run_test("def np_array_iter():\n from numpy import array\n return array(list(reversed(range(0, 300)))) + 3", np_array_iter=[])
 
+    def test_array_tuple(self):
+        self.run_test("def np_array_tuple(x):\n from numpy import array\n return array((1, 2, x))", 3.5, np_array_tuple=[float])
+
     def test_array_typed(self):
         self.run_test("def np_array_typed(a):\n from numpy import array, int64\n return array(a, int64)", [1.,2.,3.], np_array_typed=[List[float]])
 

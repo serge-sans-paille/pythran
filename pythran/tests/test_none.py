@@ -467,6 +467,31 @@ def is_none_return_None_bis(signal=None):
                 return s'''
         self.run_test(code, 7, none_loop_break_continue_or_ret=[int])
 
+    def test_none_loop_break_nested(self):
+        code = '''
+            def none_loop_break_nested(n):
+                x = [None if i%2 else 1 for i in range(n)]
+                s = 3
+                for j in x:
+                    if j is None:
+                        for k in x:
+                            s += 1 if k is None else k
+                        continue
+                    else:
+                        s += 1
+                return s'''
+        self.run_test(code, 7, none_loop_break_nested=[int])
+
+    def test_none_nested_function(self):
+        code = '''
+            def none_nested_function(a):
+                if a is None:
+                    return 1
+                def bar(x):
+                    return [x]
+                return bar(a)[0]'''
+        self.run_test(code, 7, none_nested_function=[int])
+
     def test_none_operators0(self):
         code = '''
             def helper(x):

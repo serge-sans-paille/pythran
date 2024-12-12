@@ -581,9 +581,7 @@ class PythonModule(object):
         self.functions.setdefault(name, []).append(func_descriptor)
 
     def add_global_var(self, name, init):
-        self.global_vars.append(name)
-        self.python_implems.append(Assign('static PyObject* ' + name,
-                                   'to_python({})'.format(init)))
+        self.global_vars.append((name, 'to_python({})'.format(init)))
 
     def __str__(self):
         """Generate (i.e. yield) the source code of the
@@ -592,9 +590,9 @@ class PythonModule(object):
         themethods = []
         theextraobjects = []
         theoverloads = []
-        for vname in self.global_vars:
+        for vname, vinit in self.global_vars:
             theextraobjects.append(
-                'PyModule_AddObject(theModule, "{0}", {0});'.format(vname))
+                'PyModule_AddObject(theModule, "{0}", {1});'.format(vname, vinit))
 
         for fname, overloads in self.functions.items():
             tryall = []

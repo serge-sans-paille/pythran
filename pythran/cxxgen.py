@@ -721,6 +721,7 @@ class PythonModule(object):
                 PyObject* theModule = PyModule_Create(&moduledef);
                 if(! theModule)
                     return theModule;
+                {freethreading}
                 PyObject * theDoc = Py_BuildValue("(ss)",
                                                   "{version}",
                                                   "{hash}");
@@ -731,7 +732,6 @@ class PythonModule(object):
                                    theDoc);
 
                 {extraobjects}
-                {freethreading}
                 return theModule;
             }}
             '''.format(name=self.name,

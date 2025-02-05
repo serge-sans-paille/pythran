@@ -206,6 +206,12 @@ class TestNumpyFunc2(TestEnv):
                   numpy.arange(10,dtype=float),
                   np_convolve_2=[NDArray[float,:],NDArray[float,:]])
 
+    def test_convolve_2b(self):
+        self.run_test("def np_convolve_2b(a,b):\n from numpy import convolve\n return convolve(a,b)",
+                  numpy.arange(12,dtype=numpy.float128),
+                  numpy.arange(10,dtype=numpy.float128),
+                  np_convolve_2b=[NDArray[numpy.float128,:],NDArray[numpy.float128,:]])
+
     def test_convolve_3(self):
         self.run_test("def np_convolve_3(a,b):\n from numpy import convolve\n return convolve(a,b,'valid')",
                   numpy.arange(12,dtype=float),

@@ -6,11 +6,7 @@ from pythran.passmanager import Transformation
 import gast as ast
 
 
-class FastGExpr(Transformation):
-
-    def __init__(self):
-        self.update = False
-        super(FastGExpr, self).__init__(InterproceduralAliases)
+class FastGExpr(Transformation[InterproceduralAliases]):
 
     def as_gexpr(self, node):
         if not isinstance(node, ast.Subscript):

@@ -23,10 +23,7 @@ class GlobalDeclarations(ModuleAnalysis):
 
     """
 
-    def __init__(self):
-        """ Result is an identifier with matching definition. """
-        self.result = dict()
-        super(GlobalDeclarations, self).__init__()
+    ResultType = dict
 
     def visit_FunctionDef(self, node):
         """ Import module define a new variable name. """

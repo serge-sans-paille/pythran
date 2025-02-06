@@ -42,9 +42,7 @@ class Python(Backend):
     print('hello world')
     '''
 
-    def __init__(self):
-        self.result = ''
-        super(Python, self).__init__()
+    ResultType = str
 
     def visit(self, node):
         output = io.StringIO()
@@ -1354,7 +1352,8 @@ class CxxGenerator(CxxFunction):
         return super(CxxGenerator, self).make_assign("", local_iter, iterable)
 
 
-class Cxx(Backend):
+class Cxx(Backend[Dependencies, GlobalDeclarations, Types, Scope, RangeValues,
+                  PureExpressions, Immediates, Ancestors, StrictAliases]):
 
     """
     Produces a C++ representation of the AST.
@@ -1392,13 +1391,7 @@ class Cxx(Backend):
       }
     }
     """
-
-    def __init__(self):
-        """ Basic initialiser gathering analysis informations. """
-        self.result = None
-        super(Cxx, self).__init__(Dependencies, GlobalDeclarations, Types,
-                                  Scope, RangeValues, PureExpressions,
-                                  Immediates, Ancestors, StrictAliases)
+    ResultType = type(None)
 
     # mod
     def visit_Module(self, node):

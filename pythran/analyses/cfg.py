@@ -35,9 +35,7 @@ class CFG(FunctionAnalysis):
     #: control flow without a return statement.
     NIL = object()
 
-    def __init__(self):
-        self.result = DiGraph()
-        super(CFG, self).__init__()
+    ResultType = DiGraph
 
     def visit_FunctionDef(self, node):
         """OUT = node, RAISES = ()"""

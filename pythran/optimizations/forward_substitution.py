@@ -45,7 +45,8 @@ class Remover(ast.NodeTransformer):
         return node
 
 
-class ForwardSubstitution(Transformation):
+class ForwardSubstitution(Transformation[LazynessAnalysis, UseDefChains, DefUseChains,
+                                         Ancestors, CFG, Literals]):
 
     """
     Replace variable that can be computed later.
@@ -80,12 +81,7 @@ class ForwardSubstitution(Transformation):
 
     def __init__(self):
         """ Satisfy dependencies on others analyses. """
-        super(ForwardSubstitution, self).__init__(LazynessAnalysis,
-                                                  UseDefChains,
-                                                  DefUseChains,
-                                                  Ancestors,
-                                                  CFG,
-                                                  Literals)
+        super().__init__()
         self.to_remove = None
 
     def visit_FunctionDef(self, node):

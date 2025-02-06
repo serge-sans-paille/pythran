@@ -9,7 +9,7 @@ import gast as ast
 import copy
 
 
-class Inlinable(ModuleAnalysis):
+class Inlinable(ModuleAnalysis[PureExpressions]):
 
     """ Determine set of inlinable function.
 
@@ -17,9 +17,7 @@ class Inlinable(ModuleAnalysis):
     recurse on itself.
     """
 
-    def __init__(self):
-        self.result = dict()
-        super(Inlinable, self).__init__(PureExpressions)
+    ResultType = dict
 
     def visit_FunctionDef(self, node):
         """ Determine this function definition can be inlined. """

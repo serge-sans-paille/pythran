@@ -83,7 +83,7 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         return new_node
 
 
-class RemoveNestedFunctions(Transformation):
+class RemoveNestedFunctions(Transformation[GlobalDeclarations]):
 
     """
     Replace nested function by top-level functions.
@@ -104,8 +104,6 @@ class RemoveNestedFunctions(Transformation):
     def pythran_bar0(x, y):
         return (x + y)
     """
-    def __init__(self):
-        super(RemoveNestedFunctions, self).__init__(GlobalDeclarations)
 
     def visit_Module(self, node):
         # keep original node as it's updated by _NestedFunctionRemover

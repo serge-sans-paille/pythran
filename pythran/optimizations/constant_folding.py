@@ -392,7 +392,7 @@ class ConstEval(ast.NodeVisitor):
             assert not self.locals
 
 
-class ConstantFolding(Transformation):
+class ConstantFolding(Transformation[ConstantExpressions]):
 
     """
     Replace constant expression by their evaluation.
@@ -406,9 +406,6 @@ class ConstantFolding(Transformation):
     def foo():
         return 4
     """
-
-    def __init__(self):
-        Transformation.__init__(self, ConstantExpressions)
 
     def prepare(self, node):
         assert isinstance(node, ast.Module)
@@ -492,7 +489,7 @@ class ConstantFolding(Transformation):
         return Transformation.generic_visit(self, node)
 
 
-class PartialConstantFolding(Transformation):
+class PartialConstantFolding(Transformation[ConstantExpressions]):
 
     """
     Replace partially constant expression by their evaluation.
@@ -525,9 +522,6 @@ class PartialConstantFolding(Transformation):
     def foo(n, m):
         return (n, m, n)
     """
-
-    def __init__(self):
-        Transformation.__init__(self, ConstantExpressions)
 
     def fold_mult_left(self, node):
         if not isinstance(node.left, (ast.List, ast.Tuple)):

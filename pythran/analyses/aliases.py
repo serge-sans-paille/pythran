@@ -71,7 +71,7 @@ for module in MODULES.values():
     save_intrinsic_alias(module)
 
 
-class Aliases(ModuleAnalysis):
+class Aliases(ModuleAnalysis[GlobalDeclarations]):
     '''
     Gather aliasing informations across nodes
 
@@ -81,10 +81,11 @@ class Aliases(ModuleAnalysis):
 
     RetId = '@'
 
+    ResultType = dict
+
     def __init__(self):
-        self.result = dict()
+        super().__init__()
         self.aliases = None
-        super(Aliases, self).__init__(GlobalDeclarations)
 
     @staticmethod
     def dump(result, filter=None):

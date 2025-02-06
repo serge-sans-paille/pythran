@@ -123,11 +123,7 @@ class PatchBreakContinue(ast.NodeTransformer):
         return self.patch_Control(node, LOOP_CONT)
 
 
-class NormalizeStaticIf(Transformation):
-
-    def __init__(self):
-        super(NormalizeStaticIf, self).__init__(StaticExpressions, Ancestors,
-                                                DefUseChains)
+class NormalizeStaticIf(Transformation[StaticExpressions, Ancestors, DefUseChains]):
 
     def visit_Module(self, node):
         self.new_functions = []
@@ -335,10 +331,7 @@ class NormalizeStaticIf(Transformation):
             return ast.Expr(actual_call)
 
 
-class SplitStaticExpression(Transformation):
-
-    def __init__(self):
-        super(SplitStaticExpression, self).__init__(StaticExpressions)
+class SplitStaticExpression(Transformation[StaticExpressions]):
 
     def visit_Cond(self, node):
         '''

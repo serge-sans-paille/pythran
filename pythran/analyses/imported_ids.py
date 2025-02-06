@@ -8,16 +8,16 @@ import pythran.metadata as md
 import gast as ast
 
 
-class ImportedIds(NodeAnalysis):
+class ImportedIds(NodeAnalysis[Globals, Locals]):
 
     """Gather ids referenced by a node and not declared locally."""
 
+    ResultType = set
+
     def __init__(self):
-        self.result = set()
+        super().__init__()
         self.current_locals = set()
-        self.is_list = False
         self.in_augassign = False
-        super(ImportedIds, self).__init__(Globals, Locals)
 
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Store) and not self.in_augassign:
@@ -98,12 +98,4 @@ class ImportedIds(NodeAnalysis):
 
     def prepare(self, node):
         super(ImportedIds, self).prepare(node)
-        if self.is_list:  # so that this pass can be called on list
-            node = node.body[0]
         self.visible_globals = set(self.globals) - self.locals[node]
-
-    def run(self, node):
-        if isinstance(node, list):  # so that this pass can be called on list
-            self.is_list = True
-            node = ast.If(ast.Constant(1, None), node, [])
-        return super(ImportedIds, self).run(node)

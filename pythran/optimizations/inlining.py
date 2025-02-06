@@ -7,7 +7,7 @@ import gast as ast
 import copy
 
 
-class Inlining(Transformation):
+class Inlining(Transformation[Inlinable, Aliases]):
 
     """
     Inline one line functions.
@@ -36,10 +36,10 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
 
     def __init__(self):
         """ fun : Function {name :body} for inlinable functions. """
+        super().__init__()
         self.update = False
         self.defs = list()
         self.call_count = 0
-        super(Inlining, self).__init__(Inlinable, Aliases)
 
     def visit_Stmt(self, node):
         """ Add new variable definition before the Statement. """

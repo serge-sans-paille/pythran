@@ -180,7 +180,7 @@ How to
 
 :Add a new analysis:
     1. Subclass one of ``ModuleAnalysis``, ``FunctionAnalysis`` or ``NodeAnalysis``.
-    2. List analysis required by yours in the parent constructor, they will be built automatically and stored in the attribute with the corresponding uncameled name.
+    2. List analysis required by yours in the metaclass, they will be built automatically and stored in the attribute with the corresponding uncameled name.
     3. Write your analysis as a regular ``ast.NodeVisitor``. The analysis result must be stored in ``self.result``.
     4. Use it either from another pass's constructor, or through the ``passmanager.gather`` function.
 

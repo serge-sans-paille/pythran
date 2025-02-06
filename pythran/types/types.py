@@ -171,33 +171,30 @@ class UnboundableRValue(Exception):
     pass
 
 
-class Types(ModuleAnalysis):
+class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
+                           Immediates, RangeValues, Ancestors]):
 
     """ Infer symbolic type for all AST node. """
+    class ResultType(dict):
+        def __init__(self):
+            self.builder = TypeBuilder()
+
+        def copy(self):
+            other = TypeResult()
+            other.update(self.items())
+            other.builder = self.builder
+            return other
+
 
     def __init__(self):
-
+        super().__init__()
         self.max_seq_size = cfg.getint('typing',
                                        'max_heterogeneous_sequence_size')
-
-        class TypeResult(dict):
-            def __init__(self):
-                self.builder = TypeBuilder()
-
-            def copy(self):
-                other = TypeResult()
-                other.update(self.items())
-                other.builder = self.builder
-                return other
-
-        self.result = TypeResult()
         self.builder = self.result.builder
         self.result["bool"] = self.builder.NamedType("bool")
         self.combiners = defaultdict(UserFunction)
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
-        ModuleAnalysis.__init__(self, Reorder, StrictAliases, LazynessAnalysis,
-                                Immediates, RangeValues, Ancestors)
         self.curr_locals_declaration = None
 
     def combined(self, *types):
@@ -241,12 +238,11 @@ class Types(ModuleAnalysis):
             register(mname, module)
         super(Types, self).prepare(node)
 
-    def run(self, node):
-        super(Types, self).run(node)
+    def visit_Module(self, node):
+        self.generic_visit(node)
         for head in self.current_global_declarations.values():
             if head not in self.result:
                 self.result[head] = "pythonic::types::none_type"
-        return self.result
 
     def register(self, fname, nid, ptype):
         """register ptype as a local typedef"""

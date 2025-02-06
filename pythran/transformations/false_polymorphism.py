@@ -6,7 +6,7 @@ from pythran.analyses import DefUseChains, UseDefChains, Identifiers
 import gast as ast
 
 
-class FalsePolymorphism(Transformation):
+class FalsePolymorphism(Transformation[DefUseChains, UseDefChains]):
 
     """
     Rename variable when possible to avoid false polymorphism.
@@ -21,9 +21,6 @@ class FalsePolymorphism(Transformation):
         a = 12
         a_ = 'babar'
     """
-
-    def __init__(self):
-        super(FalsePolymorphism, self).__init__(DefUseChains, UseDefChains)
 
     def visit_FunctionDef(self, node):
 

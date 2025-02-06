@@ -10,7 +10,7 @@ from collections import defaultdict
 import gast as ast
 
 
-class Scope(FunctionAnalysis):
+class Scope(FunctionAnalysis[AncestorsWithBody, DefUseChains]):
     '''
     Associate each variable declaration with the node that defines it
 
@@ -20,12 +20,12 @@ class Scope(FunctionAnalysis):
     The result is a dictionary with nodes as key and set of names as values
     '''
 
+    ResultType = lambda: defaultdict(set)
     def __init__(self):
-        self.result = defaultdict(set)
+        super().__init__()
         self.decl_holders = (ast.FunctionDef, ast.For,
                              ast.excepthandler,
                              ast.While, ast.If, tuple)
-        super(Scope, self).__init__(AncestorsWithBody, DefUseChains)
 
     def visit_OMPDirective(self, node):
         for dep in node.deps:

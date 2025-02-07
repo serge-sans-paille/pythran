@@ -6,7 +6,7 @@ from pythran.passmanager import Transformation
 import gast as ast
 
 
-class FastGExpr(Transformation[InterproceduralAliases]):
+class FastGExpr(Transformation):
 
     def as_gexpr(self, node):
         if not isinstance(node, ast.Subscript):
@@ -35,10 +35,20 @@ class FastGExpr(Transformation[InterproceduralAliases]):
         if isinstance(value, ast.Subscript):
             if not isinstance(value.value, ast.Name):
                 return True
+            # Lazy loading of interprocedural_aliases as it's a costly analysis
+            if not self.interprocedural_aliases:
+                self.interprocedural_aliases = self.passmanager.gather(InterproceduralAliases, self.current_module)
             return not self.interprocedural_aliases[gexpr[0]].isdisjoint(self.interprocedural_aliases[value.value])
 
         return True
 
+    def visit_Module(self, node):
+        self.current_module = node
+        self.interprocedural_aliases = None
+        new_node = self.generic_visit(node)
+        self.interprocedural_aliases = None
+        self.current_module = None
+        return new_node
 
     def visit_Assign(self, node):
         targets = node.targets if isinstance(node, ast.Assign) else (node.target,)

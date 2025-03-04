@@ -319,7 +319,8 @@ def run():
     parser.add_argument('--compiler', action='store_true',
                         help='print default compiler')
 
-    parser.add_argument('--cflags', action='store_true',
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--cflags', action='store_true',
                         help='print compilation flags to compile extension '
                              'modules directly')
 
@@ -327,11 +328,11 @@ def run():
     # if there are packages that need this, and also integrate with a build
     # system for Python and NumPy flags. SciPy and scikit-image need the
     # no-BLAS variant.
-    parser.add_argument('--cflags-pythran-only', action='store_true',
-                        help='print compilation flags for usage by a build '
-                             'system (doesn\'t include Python, NumPy or BLAS '
-                             'flags).'
-                        )
+    group.add_argument('--cflags-pythran-only', action='store_true',
+                       help='print compilation flags for usage by a build '
+                            'system (doesn\'t include Python, NumPy or BLAS '
+                            'flags).'
+                       )
 
     parser.add_argument('--include-dir', action='store_true',
                         help=(
@@ -361,12 +362,7 @@ def run():
     # This should not rely on distutils/setuptools, or anything else not in the
     # stdlib. Please don't add imports higher up.
     if args.cflags_pythran_only:
-        if args.cflags:
-            print("Error: --cflags and --cflags-pythran-only are mutually "
-                  "exclusive, please use only one.")
-
         compile_flags = [
-                "-D__PYTHRAN__=3",
                 "-DENABLE_PYTHON_MODULE",
                 "-DPYTHRAN_BLAS_NONE",
                 ]

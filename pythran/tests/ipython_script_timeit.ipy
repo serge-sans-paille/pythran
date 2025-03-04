@@ -1,6 +1,6 @@
 from IPython import get_ipython
 ipython = get_ipython()
-ipython.magic('%load_ext pythran.magic')
+ipython.run_line_magic('load_ext', 'pythran.magic')
 ipython.run_cell_magic('pythran', '-O2', '''
 #pythran export foo(int)
 def foo(n):

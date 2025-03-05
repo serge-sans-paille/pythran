@@ -4590,7 +4590,12 @@ except ImportError:
     pass
 
 def looks_like_a_forward_function(spec):
-    return not spec.args and spec.varargs == 'args' and spec.varkw == 'kwargs'
+    sig = spec.args, spec.varargs, spec.varkw
+    if sig == ([], 'args', 'kwargs'):
+        return True  # cpython style
+    if sig == (['self'], 'args', 'keywords'):
+        return True  # pypy 3.11 style
+    return False
 
 # populate argument description through introspection
 def save_arguments(module_name, elements):
@@ -4617,7 +4622,8 @@ def save_arguments(module_name, elements):
             # some function are actually forward function, detect those
             # and accept to use our description instead.
             if looks_like_a_forward_function(spec):
-                assert signature.args.args, "{} require an explicit description".format(elem)
+                assert signature.args.args, "{}.{} require an explicit description".format(
+                        '.'.join(module_name), elem)
                 continue
 
             args = [ast.Name(arg, ast.Param(), None, None)

@@ -302,7 +302,7 @@ def foo():
     'omp parallel'
     if 1:
         builtins.print(a)
-    return builtins.None"""
+    return None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding2(self):
@@ -319,7 +319,7 @@ def foo():
     if 1:
         pass
         builtins.print(2)
-    return builtins.None"""
+    return None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_omp_forwarding3(self):
@@ -336,7 +336,7 @@ def foo():
     if 1:
         a = 2
     builtins.print(a)
-    return builtins.None"""
+    return None"""
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
     def test_forwarding0(self):

@@ -290,7 +290,7 @@ namespace types
 
   // dict interface
   template <class K, class V>
-  dict<K, V>::operator bool()
+  dict<K, V>::operator bool() const
   {
     return !data->empty();
   }

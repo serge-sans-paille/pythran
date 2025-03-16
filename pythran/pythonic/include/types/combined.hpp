@@ -183,6 +183,13 @@ private:
   container();
 };
 
+namespace std {
+  template <size_t I, class T>
+  struct tuple_element<I, container<T>> {
+    using type = typename container<T>::value_type;
+  };
+}
+
 template <class K, class V>
 class indexable_container
 {
@@ -196,6 +203,13 @@ private:
   indexable_container();
 };
 
+namespace std {
+  template <size_t I, class K, class V>
+  struct tuple_element<I, indexable_container<K, V>> {
+    using type = typename indexable_container<K, V>::value_type;
+  };
+}
+
 template <class T>
 class dict_container
 {
@@ -206,6 +220,13 @@ public:
 private:
   dict_container();
 };
+
+namespace std {
+  template <size_t I, class T>
+  struct tuple_element<I, dict_container<T>> {
+    using type = typename dict_container<T>::value_type;
+  };
+}
 
 template <class T>
 class indexable

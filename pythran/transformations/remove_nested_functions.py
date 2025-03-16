@@ -15,6 +15,7 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         ast.NodeTransformer.__init__(self)
         self.parent = parent
         self.identifiers = set(self.global_declarations.keys())
+        self.boxes = set()
 
     def __getattr__(self, attr):
         return getattr(self.parent, attr)
@@ -40,11 +41,25 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         self.identifiers.add(new_name)
 
         ii = self.gather(ImportedIds, node)
-        binded_args = [ast.Name(iin, ast.Load(), None, None)
+        self.boxes.update(ii)
+        binded_args = [ast.Name('__pythran_boxed_' + iin, ast.Load(), None,
+                                              None)
                        for iin in sorted(ii)]
         node.args.args = ([ast.Name(iin, ast.Param(), None, None)
                            for iin in sorted(ii)] +
                           node.args.args)
+
+        unboxing = [ast.Assign([ast.Name(iin, ast.Store(), None, None)],
+                               ast.Subscript(ast.Name('__pythran_boxed_args_' + iin, ast.Load(), None,
+                                                      None),
+                                             ast.Constant(None, None),
+                                             ast.Load()))
+                    for iin in ii]
+        for arg in node.args.args:
+            if arg.id in ii:
+                arg.id = '__pythran_boxed_args_' + arg.id
+
+        node.body = unboxing + node.body
 
         metadata.add(node, metadata.Local())
 
@@ -55,7 +70,7 @@ class _NestedFunctionRemover(ast.NodeTransformer):
                         node.func.id == former_name):
                     node.func.id = new_name
                     node.args = (
-                        [ast.Name(iin, ast.Load(), None, None)
+                        [ast.Name('__pythran_boxed_args_' + iin, ast.Load(), None, None)
                          for iin in sorted(ii)] +
                         node.args
                         )
@@ -82,6 +97,28 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         self.generic_visit(node)
         return new_node
 
+class BoxInserter(ast.NodeTransformer):
+
+    def __init__(self, insertion_points):
+        self.insertion_points = insertion_points
+
+    def visit_Assign(self, node):
+        extras = []
+        for t in node.targets:
+            if getattr(t, 'id', None) not in self.insertion_points:
+                continue
+            extra = ast.Assign(
+                    [ast.Subscript(
+                        ast.Name('__pythran_boxed_' + t.id, ast.Load(), None, None),
+                                 ast.Constant(None, None),
+                                 ast.Store())],
+                    ast.Name(t.id, ast.Load(), None, None))
+            extras.append(extra)
+        if extras:
+            return [node] + extras
+        else:
+            return node
+
 
 class RemoveNestedFunctions(Transformation[GlobalDeclarations]):
 
@@ -99,9 +136,11 @@ class RemoveNestedFunctions(Transformation[GlobalDeclarations]):
     >>> print(pm.dump(backend.Python, node))
     import functools as __pythran_import_functools
     def foo(x):
-        bar = __pythran_import_functools.partial(pythran_bar0, x)
+        __pythran_boxed_x = {None: x}
+        bar = __pythran_import_functools.partial(pythran_bar0, __pythran_boxed_x)
         bar(12)
-    def pythran_bar0(x, y):
+    def pythran_bar0(__pythran_boxed_args_x, y):
+        x = __pythran_boxed_args_x[None]
         return (x + y)
     """
 
@@ -115,4 +154,21 @@ class RemoveNestedFunctions(Transformation[GlobalDeclarations]):
         nfr = _NestedFunctionRemover(self)
         node.body = [nfr.visit(stmt) for stmt in node.body]
         self.update |= nfr.update
+        if nfr.update:
+            boxes = []
+            arg_ids = {arg.id for arg in node.args.args}
+            for i in nfr.boxes:
+                if i in arg_ids:
+                    box_value = ast.Dict([ast.Constant(None, None)], [ast.Name(i,
+                                                                               ast.Load(),
+                                                                               None,
+                                                                               None)])
+                else:
+                    box_value = ast.Dict([], [])
+                box = ast.Assign([ast.Name('__pythran_boxed_' + i, ast.Store(),
+                                          None, None)], box_value)
+                boxes.append(box)
+
+            BoxInserter(nfr.boxes).visit(node)
+            node.body = boxes + node.body
         return node

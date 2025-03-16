@@ -925,19 +925,12 @@ class CxxFunction(ast.NodeVisitor):
         if not node.elts:  # empty list
             return '{}(pythonic::types::empty_list())'.format(self.typeof(node))
         else:
-
+            node_type = self.types.builder.Assignable(self.types[node])
             elts = [self.visit(n) for n in node.elts]
-            node_type = self.types[node]
-
-            # constructor disambiguation, clang++ workaround
-            if len(elts) == 1:
-                return "{0}({1}, pythonic::types::single_value())".format(
-                    self.typeof(self.types.builder.Assignable(node_type)),
-                    elts[0])
-            else:
-                return "{0}({{{1}}})".format(
-                    self.typeof(self.types.builder.Assignable(node_type)),
-                    ", ".join(elts))
+            return "{0}({{{1}}})".format(
+                self.typeof(node_type),
+                ", ".join("static_cast<typename {}::value_type>({})"
+                          .format(self.typeof(node_type), elt) for elt in elts))
 
     def visit_Set(self, node):
         if not node.elts:  # empty set
@@ -945,17 +938,10 @@ class CxxFunction(ast.NodeVisitor):
         else:
             elts = [self.visit(n) for n in node.elts]
             node_type = self.types.builder.Assignable(self.types[node])
-
-            # constructor disambiguation, clang++ workaround
-            if len(elts) == 1:
-                return "{0}({1}, pythonic::types::single_value())".format(
-                    self.typeof(node_type),
-                    elts[0])
-            else:
-                return "{0}{{{{{1}}}}}".format(
-                    self.typeof(node_type),
-                    ", ".join("static_cast<typename {}::value_type>({})"
-                              .format(self.typeof(node_type), elt) for elt in elts))
+            return "{0}({{{1}}})".format(
+                self.typeof(node_type),
+                ", ".join("static_cast<typename {}::value_type>({})"
+                          .format(self.typeof(node_type), elt) for elt in elts))
 
     def visit_Dict(self, node):
         if not node.keys:  # empty dict

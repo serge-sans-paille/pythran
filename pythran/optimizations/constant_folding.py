@@ -58,6 +58,22 @@ class PythranBuiltins(object):
         return true_br if cond else false_br
 
     @staticmethod
+    def StaticIfReturn(val):
+        return (None, val, None)
+
+    @staticmethod
+    def StaticIfNoReturn(val):
+        return (None, val, None)
+
+    @staticmethod
+    def StaticIfCont(val):
+        return (None, val, None)
+
+    @staticmethod
+    def StaticIfBreak(val):
+        return (None, val, None)
+
+    @staticmethod
     def is_none(val):
         return val is None
 
@@ -91,7 +107,8 @@ class ConstEval(ast.NodeVisitor):
 
     # stmt
     def visit_Return(self, node):
-        self.locals['@'] = node.value and self.visit(node.value)
+        if '@' not in self.locals:
+            self.locals['@'] = node.value and self.visit(node.value)
 
     def visit_Delete(self, node):
         if isinstance(node, ast.Name):

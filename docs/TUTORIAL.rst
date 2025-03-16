@@ -128,7 +128,7 @@ There are many small passes used iteratively to produce the Pythran AST. For ins
   >>> print(pm.dump(backend.Python, tree))
   def foo():
       pass
-      return builtins.None
+      return None
 
 More complex ones rely on introspection to implement constant folding::
 

@@ -7,6 +7,7 @@ This module performs the return type inference, according to symbolic types,
 from pythran.analyses import LazynessAnalysis, StrictAliases, YieldPoints
 from pythran.analyses import LocalNodeDeclarations, Immediates, RangeValues
 from pythran.analyses import Ancestors
+from pythran.analyses.aliases import ContainerOf
 from pythran.config import cfg
 from pythran.cxxtypes import TypeBuilder, ordered_set
 from pythran.intrinsic import UserFunction, Class
@@ -253,21 +254,25 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         return False
 
     def node_to_id(self, n, depth=()):
+        name, depth = self.node_to_name(n, depth)
+        return name.id, depth
+
+    def node_to_name(self, n, depth=()):
         if isinstance(n, ast.Name):
-            return (n.id, depth)
+            return (n, depth)
         elif isinstance(n, ast.Subscript):
             if isinstance(n.slice, ast.Slice):
-                return self.node_to_id(n.value, depth)
+                return self.node_to_name(n.value, depth)
             else:
                 index = n.slice.value if isnum(n.slice) else None
-                return self.node_to_id(n.value, depth + (index,))
+                return self.node_to_name(n.value, depth + (index,))
         # use alias information if any
         elif isinstance(n, ast.Call):
             for alias in self.strict_aliases[n]:
                 if alias is n:  # no specific alias info
                     continue
                 try:
-                    return self.node_to_id(alias, depth)
+                    return self.node_to_name(alias, depth)
                 except UnboundableRValue:
                     continue
         raise UnboundableRValue()
@@ -305,9 +310,9 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             # This comes from an assignment,so we must check where the value is
             # assigned
             try:
-                node_id, depth = self.node_to_id(node)
+                name, depth = self.node_to_name(node)
                 if depth:
-                    node = ast.Name(node_id, ast.Load(), None, None)
+                    node = name
                     former_op = op
 
                     # update the type to reflect container nesting
@@ -328,13 +333,44 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
                             # FIXME: what about other key types?
                             return self.builder.ContainerType(ty)
 
+                    for node_alias in self.strict_aliases[name]:
+                        def traverse_alias(alias, l):
+                            if isinstance(alias, ContainerOf):
+                                for containee in alias.containees:
+                                    traverse_alias(containee, l + 1)
+                            else:
+                                def local_op(*args):
+                                    return reduce(merge_container_type,
+                                                  depth[:-l] if l else depth,
+                                                  former_op(*args))
+                                self.combine_(alias, local_op, othernode)
+                        traverse_alias(node_alias, 0)
+
                     def op(*args):
                         return reduce(merge_container_type, depth,
                                       former_op(*args))
 
-                self.name_to_nodes[node_id].append(node)
+                self.name_to_nodes[name.id].append(node)
             except UnboundableRValue:
                 pass
+
+            if isinstance(node, ContainerOf):
+                def containeeop(*args):
+                    container_type = op(*args)
+                    if isinstance(container_type, self.builder.IndexableType):
+                        raise NotImplementedError
+                    if isinstance(container_type, (self.builder.ListType,
+                                                   self.builder.SetType)):
+                        return container_type.of
+                    return self.builder.ElementType(
+                            0 if np.isnan(node.index) else node.index,
+                            container_type)
+
+                for containee in node.containees:
+                    try:
+                        self.combine(containee, containeeop, othernode)
+                    except NotImplementedError:
+                        pass
 
             # perform inter procedural combination
             if self.isargument(node):

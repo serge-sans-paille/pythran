@@ -126,6 +126,29 @@ def dict_of_set():
         '''
         self.run_test(code, 0, typing_aliasing_and_variable_subscript=[int])
 
+    def test_typing_aliasing_and_variable_subscript_through_call(self):
+        code = '''
+        def typing_aliasing_and_variable_subscript_through_call(i):
+            a: list[type(i)] =[]
+            b=[a]
+            (lambda x: b[0].append(x))(i)
+            return a, b
+        '''
+        self.run_test(code, 0,
+                      typing_aliasing_and_variable_subscript_through_call=[int])
+
+    def test_typing_aliasing_and_variable_subscript_through_call_set(self):
+        code = '''
+        def typing_aliasing_and_variable_subscript_through_call_list_list(i):
+            a: list[type(i)] = []
+            b=[(a,)]
+            #(lambda x: list(b)[0][0].append(x))(i)
+            list(b)[0][0].append(i)
+            return a, b
+        '''
+        self.run_test(code, 0,
+                      typing_aliasing_and_variable_subscript_through_call_list_list=[int])
+
     def test_typing_aliasing_and_variable_subscript_combiner(self):
         code = '''
         def typing_aliasing_and_variable_subscript_combiner(i):

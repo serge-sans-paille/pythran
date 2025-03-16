@@ -4,6 +4,7 @@ from pythran.passmanager import Transformation
 from pythran.analyses import DefUseChains, UseDefChains, Identifiers
 
 import gast as ast
+import re
 
 
 class FalsePolymorphism(Transformation[DefUseChains, UseDefChains]):
@@ -28,7 +29,12 @@ class FalsePolymorphism(Transformation[DefUseChains, UseDefChains]):
         # removing local identifiers from the list so that first occurrence can
         # actually use the slot
         identifiers = self.gather(Identifiers, node)
+        captured_identifiers = set()
+        captured_identifiers_pattern = re.compile('^__pythran_boxed_(?:args_)?(.*)$')
         for def_ in self.def_use_chains.locals[node]:
+            match = captured_identifiers_pattern.match(def_.name())
+            if match:
+                captured_identifiers.add(match.group(1))
             try:
                 identifiers.remove(def_.name())
             except KeyError:
@@ -38,6 +44,8 @@ class FalsePolymorphism(Transformation[DefUseChains, UseDefChains]):
         # that should have the same name
         visited_defs = set()
         for def_ in self.def_use_chains.locals[node]:
+            if def_.name() in captured_identifiers:
+                continue
             if def_ in visited_defs:
                 continue
 

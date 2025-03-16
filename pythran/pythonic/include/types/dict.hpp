@@ -239,7 +239,7 @@ namespace types
     value_const_iterator value_end() const;
 
     // dict interface
-    operator bool();
+    operator bool() const;
     V &operator[](K const &key) &;
 
     template <class OtherKey>

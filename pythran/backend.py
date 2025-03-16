@@ -114,25 +114,31 @@ class CachedTypeVisitor:
 
     def __init__(self, other=None):
         if other is None:
-            self.rcache = dict()
             self.mapping = dict()
+            self.typeid = dict()
+            self.combined = dict()
         else:
-            self.rcache = other.rcache.copy()
             self.mapping = other.mapping.copy()
+            self.typeid = other.typeid.copy()
+            self.combined = other.combined.copy()
 
     def __call__(self, node):
         if node not in self.mapping:
             t = node.generate(self)
             if node not in self.mapping:
-                if t in self.rcache:
-                    self.mapping[node] = self.rcache[t]
+                # Always re-evaluate LType as their evaluation depends on the
+                # callers (due to the recursion clause)
+                if type(node).__name__ == 'LType':
+                    return t
                 else:
-                    self.rcache[t] = len(self.mapping)
-                    self.mapping[node] = len(self.mapping)
-        return "__type{0}".format(self.mapping[node])
+                    if t not in self.typeid:
+                        self.typeid[t] = len(self.typeid)
+                    self.mapping[node] = (t, self.typeid[t])
+
+        return "__type{0}".format(self.mapping[node][1])
 
     def typedefs(self):
-        kv = sorted(self.rcache.items(), key=lambda x: x[1])
+        kv = sorted(set(self.mapping.values()), key=lambda x: x[1])
         L = list()
         for k, v in kv:
             typename = "__type" + str(v)

@@ -507,10 +507,7 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             if t in self.curr_locals_declaration:
                 self.result[t] = self.get_qualifier(t)(self.result[t])
             if isinstance(t, ast.Subscript):
-                if self.visit_AssignedSubscript(t):
-                    for alias in self.strict_aliases[t.value]:
-                        fake = ast.Subscript(alias, t.slice, ast.Store())
-                        self.combine(fake, None, node.value)
+                self.visit_AssignedSubscript(t)
 
     def visit_AnnAssign(self, node):
         node_type = parse_type_annotation(self, node.annotation)
@@ -530,19 +527,13 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             self.result[t] = self.get_qualifier(t)(self.result[t])
 
         if isinstance(t, ast.Subscript):
-            if self.visit_AssignedSubscript(t):
-                for alias in self.strict_aliases[t.value]:
-                    fake = ast.Subscript(alias, t.slice, ast.Store())
-                    self.combine(fake, None, node.value)
+            self.visit_AssignedSubscript(t)
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
 
         if isinstance(node.target, ast.Subscript):
-            if self.visit_AssignedSubscript(node.target):
-                for alias in self.strict_aliases[node.target.value]:
-                    fake = ast.Subscript(alias, node.target.slice, ast.Store())
-                    self.combine(fake, None, node.value)
+            self.visit_AssignedSubscript(node.target)
         else:
             self.combine(node.target, None, node.value)
 
@@ -745,13 +736,12 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
 
     def visit_AssignedSubscript(self, node):
         if isinstance(node.slice, ast.Slice):
-            return False
+            return
         elif isextslice(node.slice):
-            return False
+            return
         else:
             self.visit(node.slice)
             self.combine(node.value, self.builder.IndexableType, node.slice)
-            return True
 
     def delayed(self, node):
         fallback_type = self.combined(*[self.result[n] for n in

@@ -120,7 +120,7 @@ std::declval<bool>()))
             """
             A generic type object to be sub-classed
 
-            The keyword arguments are used to built the internal representation
+            The keyword arguments are used to build the internal representation
             one attribute per key with the associated value
             """
 

@@ -340,13 +340,13 @@ class CxxFunction(ast.NodeVisitor):
             "typename {0}result_type".format(ffscope),
             "{0}::operator()".format(self.fname),
             formal_types, formal_args)
-        ctx = CachedTypeVisitor(self.lctx)
+
         operator_local_declarations = (
             [Statement("{0} {1}".format(
-                ctx(self.types[self.local_names[k]]), cxxid(k)))
+                self.lctx(self.types[self.local_names[k]]), cxxid(k)))
              for k in self.ldecls]
         )
-        dependent_typedefs = ctx.typedefs()
+        dependent_typedefs = self.lctx.typedefs()
         operator_definition = FunctionBody(
             templatize(operator_signature, formal_types),
             Block(dependent_typedefs +
@@ -443,7 +443,9 @@ class CxxFunction(ast.NodeVisitor):
                     alltargets)
             else:
                 assert isinstance(self.types[targets[0]],
-                                  self.types.builder.Lazy)
+                                  (self.types.builder.Lazy,
+                                   self.types.builder.NamedType,
+                                   self.types.builder.ListType))
                 alltargets = '{} {}'.format(
                     self.types.builder.Lazy(
                         self.types.builder.NamedType(

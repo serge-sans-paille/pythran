@@ -807,3 +807,17 @@ def ftc (b, c, y, t, m):
                 else:
                     return 0'''
         self.run_test(code, [], insert_none0=[List[int]])
+
+    def test_inline_in_while_test(self):
+        code = '''
+def is_even(n: int) -> int:
+    return (n & 1) == 0
+
+def inline_in_while_test(n: int) -> int:
+    result = 0
+    while is_even(n):
+        n >>= 1
+        result += 1
+    return result
+        '''
+        self.run_test(code, 7, inline_in_while_test=[int])

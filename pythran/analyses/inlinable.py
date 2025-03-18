@@ -38,7 +38,7 @@ class Inlinable(ModuleAnalysis[PureExpressions]):
                 return
 
         ids = self.gather(Identifiers, sbody)
-        # FIXME : It mark "not inlinable" def foo(foo): return foo
+        # FIXME : It marks "not inlinable" def foo(foo): return foo
         if node.name not in ids:
             self.result[node.name] = copy.deepcopy(node)
             self.result[node.name].body = [self.result[node.name].body[sindex]]

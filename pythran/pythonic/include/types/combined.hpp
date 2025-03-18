@@ -45,9 +45,9 @@ struct __combined<T0, T1> {
   // by our clumsy type inference scheme
   // so we sometime endup with __combined<indexable_container<...>, int> which
   // only makes sense when broadcasting
-  // fortunately, broadcasting is only supported by ndarray, && we already
+  // fortunately, broadcasting is only supported by ndarray, and we already
   // ignore __combined for ndarray
-  // so the only thing to do in such situations is « ! throw an error »
+  // so the only thing to do in such situations is « not throw an error »
   template <class F0, class F1>
   static F0 get(...);
 
@@ -60,116 +60,91 @@ struct __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<const T0, T1> {
-  using type = typename std::add_const<typename __combined<T0, T1>::type>::type;
+struct __combined<const T0, T1> : std::add_const<typename __combined<T0, T1>::type> {
 };
 
 template <class T0, class T1>
-struct __combined<T0, const T1> {
-  using type = typename std::add_const<typename __combined<T0, T1>::type>::type;
+struct __combined<T0, const T1> : std::add_const<typename __combined<T0, T1>::type> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 &, T1> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 &, T1> :  __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 &&, T1> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 &&, T1> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 const &, T1> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 const &, T1> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0, T1 &> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0, T1 &> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0, T1 &&> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0, T1 &&> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0, T1 const &> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0, T1 const &> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<const T0, T1 const &> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<const T0, T1 const &> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<const T0, T1 &> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<const T0, T1 &> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<const T0, T1 &&> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<const T0, T1 &&> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 &, T1 const> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 &, T1 const> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 &&, T1 const> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 &&, T1 const> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 const &, T1 const> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 const &, T1 const> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 &, T1 const &> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 &, T1 const &> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 &&, T1 const &> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 &&, T1 const &> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 const &, T1 &> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 const &, T1 &> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 const &, T1 &&> {
-  using type = typename __combined<T0, T1>::type;
+struct __combined<T0 const &, T1 &&> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 &, T1 &> {
-  using type = typename std::add_lvalue_reference<
-      typename __combined<T0, T1>::type>::type;
+struct __combined<T0 &, T1 &> : std::add_lvalue_reference<typename __combined<T0, T1>::type> {
 };
 
 template <class T0, class T1>
-struct __combined<T0 &&, T1 &&> {
-  using type = typename std::add_rvalue_reference<
-      typename __combined<T0, T1>::type>::type;
+struct __combined<T0 &&, T1 &&> : std::add_rvalue_reference<typename __combined<T0, T1>::type> {
 };
 
 template <class T0, class T1>
-struct __combined<const T0, const T1> {
-  using type = typename std::add_const<typename __combined<T0, T1>::type>::type;
+struct __combined<const T0, const T1> : std::add_const<typename __combined<T0, T1>::type> {
 };
 
 template <class T0, class T1>
-struct __combined<const T0 &, const T1 &> {
-  using type = typename std::add_lvalue_reference<
-      typename std::add_const<typename __combined<T0, T1>::type>::type>::type;
+struct __combined<const T0 &, const T1 &> : std::add_lvalue_reference<typename std::add_const<typename __combined<T0, T1>::type>::type> {
 };
 
 template <class T>

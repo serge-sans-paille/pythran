@@ -98,8 +98,13 @@ class TestEnv(unittest.TestCase):
             self.assertIsInstance(res, (bool, bool_))
         elif hasattr(ref, 'dtype'):
             if hasattr(res, 'dtype'):
+                def issigned(ty):
+                    try:
+                        return ty(-1) == -1
+                    except OverflowError:
+                        return False
                 self.assertEqual(ref.dtype.itemsize, res.dtype.itemsize)
-                self.assertEqual(ref.dtype.type(-1), res.dtype.type(-1))
+                self.assertEqual(issigned(ref.dtype.type), issigned(res.dtype.type))
             else:
                 self.assertIsInstance(res, int)
         else:

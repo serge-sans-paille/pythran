@@ -19,7 +19,7 @@ class NormalizeReturn(Transformation[CFG]):
     >>> print(pm.dump(backend.Python, node))
     def foo(y):
         print(y)
-        return builtins.None
+        return None
     '''
 
     def visit_FunctionDef(self, node):
@@ -35,19 +35,13 @@ class NormalizeReturn(Transformation[CFG]):
                 if self.yield_points:
                     node.body.append(ast.Return(None))
                 else:
-                    none = ast.Attribute(
-                        ast.Name("builtins", ast.Load(), None, None),
-                        'None',
-                        ast.Load())
-                    node.body.append(ast.Return(none))
+                    node.body.append(ast.Return(ast.Constant(None, None)))
                 break
 
         return node
 
     def visit_Return(self, node):
         if not node.value and not self.yield_points:
-            none = ast.Attribute(ast.Name("builtins", ast.Load(), None, None),
-                                 'None', ast.Load())
-            node.value = none
+            node.value = ast.Constant(None, None)
             self.update = True
         return node

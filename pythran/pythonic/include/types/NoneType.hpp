@@ -15,6 +15,8 @@ namespace types
   struct none_type {
     none_type();
     intptr_t id() const;
+    bool operator==(none_type) const { return true;}
+    explicit operator bool() const { return false; }
   };
 
   inline std::ostream &operator<<(std::ostream &os, none_type const &)
@@ -268,6 +270,13 @@ namespace std
   template <size_t I, class T0>
   struct tuple_element<I, pythonic::types::none<T0>> {
     using type = typename std::tuple_element<I, T0>::type;
+  };
+
+  template <>
+  struct hash<pythonic::types::none_type> {
+    size_t operator()(const pythonic::types::none_type &x) const {
+      return 0;
+    }
   };
 } // namespace std
 

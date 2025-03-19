@@ -461,6 +461,11 @@ template <class E, class K>
 struct __combined<pythonic::types::numpy_iexpr<E>, container<K>> {
   using type = pythonic::types::numpy_iexpr<E>;
 };
+
+template <class E, class Arg, class...S>
+struct __combined<pythonic::types::numpy_iexpr<E>, pythonic::types::numpy_gexpr<Arg, S...>> {
+  using type = pythonic::types::numpy_iexpr<E>;
+};
 template <class E0, class E1>
 struct __combined<pythonic::types::numpy_iexpr<E0>,
                   pythonic::types::numpy_iexpr<E1>> {

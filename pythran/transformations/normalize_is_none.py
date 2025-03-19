@@ -9,15 +9,7 @@ import gast as ast
 
 
 def is_none(expr):
-    # py3
-    if isinstance(expr, ast.Constant) and expr.value is None:
-        return True
-
-    # py2
-    if not isinstance(expr, ast.Attribute):
-        return False
-
-    return expr.attr == "None"
+    return isinstance(expr, ast.Constant) and expr.value is None
 
 
 def is_is_none(expr):

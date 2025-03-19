@@ -7,6 +7,7 @@ This module performs the return type inference, according to symbolic types,
 from pythran.analyses import LazynessAnalysis, StrictAliases, YieldPoints
 from pythran.analyses import LocalNodeDeclarations, Immediates, RangeValues
 from pythran.analyses import Ancestors
+from pythran.analyses.aliases import ContainerOf
 from pythran.config import cfg
 from pythran.cxxtypes import TypeBuilder, ordered_set
 from pythran.intrinsic import UserFunction, Class
@@ -210,6 +211,16 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         elif len(all_types) == 1:
             return next(iter(all_types))
         else:
+            all_types = all_types[:cfg.getint('typing', 'max_combiner')]
+            if {type(ty) for ty in all_types} == {self.builder.ListType}:
+                return self.builder.ListType(self.combined(*[ty.of for ty in all_types]))
+            if {type(ty) for ty in all_types} == {self.builder.SetType}:
+                return self.builder.SetType(self.combined(*[ty.of for ty in all_types]))
+            if {type(ty) for ty in all_types} == {self.builder.Assignable}:
+                return self.builder.Assignable(self.combined(*[ty.of for ty in all_types]))
+            if {type(ty) for ty in all_types} == {self.builder.Lazy}:
+                return self.builder.Lazy(self.combined(*[ty.of for ty in all_types]))
+
             return self.builder.CombinedTypes(*all_types)
 
 
@@ -247,27 +258,32 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
     def register(self, fname, nid, ptype):
         """register ptype as a local typedef"""
         # Too many of them leads to memory burst
-        if len(self.typedefs[fname, nid]) < cfg.getint('typing', 'max_combiner'):
+        if len(self.typedefs[fname, nid]) < cfg.getint('typing',
+                                                       'max_interprocedural_combiner'):
             self.typedefs[fname, nid].append(ptype)
             return True
         return False
 
     def node_to_id(self, n, depth=()):
+        name, depth = self.node_to_name(n, depth)
+        return name.id, depth
+
+    def node_to_name(self, n, depth=()):
         if isinstance(n, ast.Name):
-            return (n.id, depth)
+            return (n, depth)
         elif isinstance(n, ast.Subscript):
             if isinstance(n.slice, ast.Slice):
-                return self.node_to_id(n.value, depth)
+                return self.node_to_name(n.value, depth)
             else:
                 index = n.slice.value if isnum(n.slice) else None
-                return self.node_to_id(n.value, depth + (index,))
+                return self.node_to_name(n.value, depth + (index,))
         # use alias information if any
         elif isinstance(n, ast.Call):
             for alias in self.strict_aliases[n]:
                 if alias is n:  # no specific alias info
                     continue
                 try:
-                    return self.node_to_id(alias, depth)
+                    return self.node_to_name(alias, depth)
                 except UnboundableRValue:
                     continue
         raise UnboundableRValue()
@@ -305,9 +321,8 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             # This comes from an assignment,so we must check where the value is
             # assigned
             try:
-                node_id, depth = self.node_to_id(node)
+                name, depth = self.node_to_name(node)
                 if depth:
-                    node = ast.Name(node_id, ast.Load(), None, None)
                     former_op = op
 
                     # update the type to reflect container nesting
@@ -328,13 +343,41 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
                             # FIXME: what about other key types?
                             return self.builder.ContainerType(ty)
 
-                    def op(*args):
-                        return reduce(merge_container_type, depth,
-                                      former_op(*args))
+                    for node_alias in self.strict_aliases[name].union([name]):
+                        def traverse_alias(alias, l):
+                            if isinstance(alias, ContainerOf):
+                                for containee in alias.containees:
+                                    traverse_alias(containee, l + 1)
+                            else:
+                                def local_op(*args):
+                                    return reduce(merge_container_type,
+                                                  depth[:-l] if l else depth,
+                                                  former_op(*args))
+                                self.combine_(alias, local_op, othernode)
+                        traverse_alias(node_alias, 0)
+                    return
 
-                self.name_to_nodes[node_id].append(node)
+                self.name_to_nodes[name.id].append(node)
             except UnboundableRValue:
                 pass
+
+            if isinstance(node, ContainerOf):
+                def containeeop(*args):
+                    container_type = op(*args)
+                    if isinstance(container_type, self.builder.IndexableType):
+                        raise NotImplementedError
+                    if isinstance(container_type, (self.builder.ListType,
+                                                   self.builder.SetType)):
+                        return container_type.of
+                    return self.builder.ElementType(
+                            0 if np.isnan(node.index) else node.index,
+                            container_type)
+
+                for containee in node.containees:
+                    try:
+                        self.combine(containee, containeeop, othernode)
+                    except NotImplementedError:
+                        pass
 
             # perform inter procedural combination
             if self.isargument(node):
@@ -420,10 +463,14 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
 
         for delayed_node in self.delayed_nodes:
             delayed_type = self.result[delayed_node]
+            if not isinstance(delayed_type, self.builder.LType):
+                continue
             all_types = ordered_set(self.result[ty] for ty in
                                     self.name_to_nodes[delayed_node.id])
             final_type = self.combined(*all_types)
             delayed_type.final_type = final_type
+            if final_type is delayed_type.orig:
+                self.result[delayed_node] = delayed_type.orig
 
         # propagate type information through all aliases
         for name, nodes in self.name_to_nodes.items():
@@ -445,11 +492,25 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         for k in self.curr_locals_declaration:
             self.result[k] = self.get_qualifier(k)(self.result[k])
 
+    def assignable(self, ty):
+        if isinstance(ty, (self.builder.Assignable, self.builder.ListType,
+                           self.builder.NamedType)):
+            return ty
+        else:
+            return self.builder.Assignable(ty)
+
+    def lazy(self, ty):
+        if isinstance(ty, (self.builder.Lazy, self.builder.ListType,
+                           self.builder.NamedType)):
+            return ty
+        else:
+            return self.builder.Lazy(ty)
+
     def get_qualifier(self, node):
         lazy_res = self.lazyness_analysis[node.id]
-        return (self.builder.Lazy
+        return (self.lazy
                 if lazy_res <= self.max_recompute
-                else self.builder.Assignable)
+                else self.assignable)
 
     def visit_Return(self, node):
         """ Compute return type and merges with others possible return type."""
@@ -471,10 +532,7 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             if t in self.curr_locals_declaration:
                 self.result[t] = self.get_qualifier(t)(self.result[t])
             if isinstance(t, ast.Subscript):
-                if self.visit_AssignedSubscript(t):
-                    for alias in self.strict_aliases[t.value]:
-                        fake = ast.Subscript(alias, t.slice, ast.Store())
-                        self.combine(fake, None, node.value)
+                self.visit_AssignedSubscript(t)
 
     def visit_AnnAssign(self, node):
         node_type = parse_type_annotation(self, node.annotation)
@@ -494,19 +552,13 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             self.result[t] = self.get_qualifier(t)(self.result[t])
 
         if isinstance(t, ast.Subscript):
-            if self.visit_AssignedSubscript(t):
-                for alias in self.strict_aliases[t.value]:
-                    fake = ast.Subscript(alias, t.slice, ast.Store())
-                    self.combine(fake, None, node.value)
+            self.visit_AssignedSubscript(t)
 
     def visit_AugAssign(self, node):
         self.visit(node.value)
 
         if isinstance(node.target, ast.Subscript):
-            if self.visit_AssignedSubscript(node.target):
-                for alias in self.strict_aliases[node.target.value]:
-                    fake = ast.Subscript(alias, node.target.slice, ast.Store())
-                    self.combine(fake, None, node.value)
+            self.visit_AssignedSubscript(node.target)
         else:
             self.combine(node.target, None, node.value)
 
@@ -709,13 +761,12 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
 
     def visit_AssignedSubscript(self, node):
         if isinstance(node.slice, ast.Slice):
-            return False
+            return
         elif isextslice(node.slice):
-            return False
+            return
         else:
             self.visit(node.slice)
             self.combine(node.value, self.builder.IndexableType, node.slice)
-            return True
 
     def delayed(self, node):
         fallback_type = self.combined(*[self.result[n] for n in

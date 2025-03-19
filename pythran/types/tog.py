@@ -5,6 +5,7 @@
 import gast as ast
 from copy import deepcopy
 
+import numpy
 from numpy import floating, integer, complexfloating
 
 from pythran.tables import MODULES, attributes
@@ -410,7 +411,7 @@ def tr(t):
         elif isinstance(t, NoneType_):
             return NoneType
 
-        elif t is bool:
+        elif t in (bool, numpy.bool):
             return Bool()
 
         elif issubclass(t, slice):

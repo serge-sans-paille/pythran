@@ -141,3 +141,33 @@ def dict_copy(a):
                  return v""",
             {1:2j},
             dict_return_complex_item=[Dict[int, complex]])
+
+    def test_dict_indexed_by_none(self):
+        return self.run_test(
+                """
+                def dict_indexed_by_none(l):
+                    x = {}
+                    x[None] = l
+                    y = x
+                    x[None] += 1
+                    equal = y == x
+                    x.clear()
+                    y.update({None: l + len(x)})
+                    x.pop(None)
+                    empty = bool(x)
+                    y.setdefault(None, l + 2)
+                    x[None] += 1
+                    acc = 0
+                    for j in x:
+                        acc += bool(j) or 1
+                    for j in x.items():
+                        acc += j[1]
+                    for j in x.keys():
+                        acc += bool(j) or 1
+                    for j in x.values():
+                        acc += j
+
+                    return x, y, equal, empty, acc""",
+                1,
+                dict_indexed_by_none=[int])
+

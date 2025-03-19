@@ -1,0 +1,35 @@
+name: system-dep
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v4
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install scipy scipy-openblas64
+        pip install pytest-xdist
+        sudo apt install ${{ matrix.cpp-version }}
+        sudo apt install libopenblas-dev
+        sudo apt install libboost-all-dev libxsimd-dev
+    - name: Unvendor
+      run: |
+        rm -r pythran/boost pythran/xsimd  # Unvendor third-party
+    - name: Setup
+      run: |
+        python -m pip install .
+        python -m pip install . 'pythran[test]'
+        printf '[compiler]\nblas=scipy-openblas\n' > ~/.config/.pythranrc
+    - name: Testing boost and xsimd integration
+      run: |
+        pytest pythran/tests/test_scipy.py -v -x --numprocesses=auto $PYTEST_ARGS

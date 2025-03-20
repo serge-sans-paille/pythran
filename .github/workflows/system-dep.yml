@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Python
-      uses: actions/setup-python@v4
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -30,6 +28,11 @@ jobs:
         python -m pip install .
         python -m pip install . 'pythran[test]'
         printf '[compiler]\nblas=scipy-openblas\n' > ~/.config/.pythranrc
+    - name: Compilation info
+      run: |
+        printf '#pythran export g\ng = 1' > dump.py
+        python -m pythran.run -v dump.py
+        x86_64-linux-gnu-gcc --version
     - name: Testing boost and xsimd integration
       run: |
         pytest pythran/tests/test_scipy.py -v -x --numprocesses=auto $PYTEST_ARGS

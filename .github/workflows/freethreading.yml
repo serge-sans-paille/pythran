@@ -22,7 +22,7 @@ jobs:
         sudo apt install ${{ matrix.cpp-version }}
         sudo apt install libopenblas-dev  # for meson integration testing
     - name: Setup Python ${{ matrix.python-version }}
-      uses: quansight-labs/setup-python@v5.3.1
+      uses: actions/setup-python@v5.5.0
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies

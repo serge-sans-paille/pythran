@@ -411,7 +411,7 @@ def tr(t):
         elif isinstance(t, NoneType_):
             return NoneType
 
-        elif t in (bool, numpy.bool):
+        elif t in (bool, getattr(numpy, 'bool', bool)):
             return Bool()
 
         elif issubclass(t, slice):

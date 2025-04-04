@@ -489,7 +489,7 @@ class Aliases(ModuleAnalysis[GlobalDeclarations]):
 
     def visit_Name(self, node):
         if node.id not in self.aliases:
-            raise UnboundIdentifierError
+            raise UnboundIdentifierError(node.id)
         return self.add(node, self.aliases[node.id])
 
     def visit_Tuple(self, node):

@@ -106,3 +106,15 @@ def ultra_nested_function(n):
         return bar(y)
     return foo(n)'''
         self.run_test(code, 42, ultra_nested_function=[int])
+
+    def test_nested_with_conflicting_argument_names(self):
+        code = '''
+def nested_with_conflicting_argument_names(a1):
+    def f2():
+        r2 = a1
+        def f3():
+            r3 = a1
+            return r3
+        return r2 + f3()
+    return f2()'''
+        self.run_test(code, 5, nested_with_conflicting_argument_names=[int])

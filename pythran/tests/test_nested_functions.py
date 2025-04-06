@@ -118,3 +118,52 @@ def nested_with_conflicting_argument_names(a1):
         return r2 + f3()
     return f2()'''
         self.run_test(code, 5, nested_with_conflicting_argument_names=[int])
+
+    def test_nonlocal_simple(self):
+        code = '''
+    def nonlocal_simple(x):
+      def myfunc2():
+        nonlocal x
+        x = "hello"
+      myfunc2()
+      return x'''
+        self.run_test(code, 'yo', nonlocal_simple=[str])
+
+    def test_nonlocal_base(self):
+        code = '''
+def nonlocal_base(a):
+    ret = 0
+    def modify_ret (delta):
+        nonlocal ret
+        ret += delta
+    for i in range(a):
+        modify_ret (10)
+    return ret'''
+        self.run_test(code, 5, nonlocal_base=[int])
+
+    def test_nonlocal_deep(self):
+        code = '''
+def nonlocal_deep(a):
+    ret = 0
+    def foo (delta):
+        def bar(beta):
+            nonlocal ret
+            ret += delta + beta
+        for i in range(a):
+            bar (10)
+    for i in range(a):
+        foo (3)
+    return ret'''
+        self.run_test(code, 5, nonlocal_deep=[int])
+
+    def test_nonlocal_shadow_global(self):
+        code = '''
+            x = 0
+            def nonlocal_shadow_global(x):
+                x = 1
+                def inner():
+                    nonlocal x
+                    x = 2
+
+                inner()'''
+        self.run_test(code, 8, nonlocal_shadow_global=[int])

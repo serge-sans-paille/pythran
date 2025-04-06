@@ -1,6 +1,6 @@
 """ RemoveNestedFunctions turns nested function into top-level functions. """
 
-from pythran.analyses import GlobalDeclarations, ImportedIds
+from pythran.analyses import GlobalDeclarations, NonlocalDeclarations, ImportedIds
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.conversion import mangle
@@ -16,9 +16,13 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         self.parent = parent
         self.identifiers = set(self.global_declarations.keys())
         self.boxes = set()
+        self.nonlocal_boxes = set()
 
     def __getattr__(self, attr):
         return getattr(self.parent, attr)
+
+    def visit_Nonlocal(self, node):
+        return ast.Pass()
 
     def visit_FunctionDef(self, node):
         self.update = True
@@ -41,7 +45,6 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         self.identifiers.add(new_name)
 
         ii = self.gather(ImportedIds, node)
-        self.boxes.update(ii)
         binded_args = [ast.Name('__pythran_boxed_' + iin, ast.Load(), None,
                                               None)
                        for iin in sorted(ii)]
@@ -49,12 +52,21 @@ class _NestedFunctionRemover(ast.NodeTransformer):
                            for iin in sorted(ii)] +
                           node.args.args)
 
-        unboxing = [ast.Assign([ast.Name(iin, ast.Store(), None, None)],
+        unboxing = []
+        nonlocal_boxes = set()
+        for iin in ii:
+            if iin in self.nonlocal_declarations[node]:
+                nonlocal_boxes.add(iin)
+                self.nonlocal_boxes.add(iin)
+            else:
+                unboxing.append(ast.Assign([ast.Name(iin, ast.Store(), None, None)],
                                ast.Subscript(ast.Name('__pythran_boxed_args_' + iin, ast.Load(), None,
                                                       None),
                                              ast.Constant(None, None),
-                                             ast.Load()))
-                    for iin in ii]
+                                             ast.Load())))
+                self.boxes.add(iin)
+        BoxArgsInserter(nonlocal_boxes).visit(node)
+
         for arg in node.args.args:
             if arg.id in ii:
                 arg.id = '__pythran_boxed_args_' + arg.id
@@ -105,7 +117,7 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         if self.update:
             boxes = []
             arg_ids = {arg.id for arg in node.args.args}
-            for i in self.boxes:
+            for i in self.boxes | self.nonlocal_boxes:
                 if i in arg_ids:
                     box_value = ast.Dict([ast.Constant(None, None)], [ast.Name(i,
                                                                                ast.Load(),
@@ -117,15 +129,15 @@ class _NestedFunctionRemover(ast.NodeTransformer):
                                           None, None)], box_value)
                 boxes.append(box)
 
-            BoxInserter(self.boxes).visit(node)
+            BoxPreInserter(self.boxes - self.nonlocal_boxes).visit(node)
+            BoxInserter(self.nonlocal_boxes).visit(node)
             node.body = boxes + node.body
         return self.update
 
-class BoxInserter(ast.NodeTransformer):
+class BoxPreInserter(ast.NodeTransformer):
 
     def __init__(self, insertion_points):
         self.insertion_points = insertion_points
-        self.skip_function = False
 
     def visit_Assign(self, node):
         extras = []
@@ -145,7 +157,32 @@ class BoxInserter(ast.NodeTransformer):
             return node
 
 
-class RemoveNestedFunctions(Transformation[GlobalDeclarations]):
+class BoxInserter(ast.NodeTransformer):
+
+    def __init__(self, insertion_points):
+        self.insertion_points = insertion_points
+        self.prefix = '__pythran_boxed_'
+
+    def visit_Name(self, node):
+        if node.id not in self.insertion_points:
+            return node
+        if isinstance(node.ctx, ast.Param):
+            return node
+        return ast.Subscript(
+                ast.Name(self.prefix + node.id,
+                        ast.Load(), None, None),
+                ast.Constant(None, None),
+                node.ctx)
+
+class BoxArgsInserter(BoxInserter):
+
+    def __init__(self, insertion_points):
+        super().__init__(insertion_points)
+        self.prefix += 'args_'
+
+
+class RemoveNestedFunctions(Transformation[GlobalDeclarations,
+                                           NonlocalDeclarations]):
 
     """
     Replace nested function by top-level functions.
@@ -171,6 +208,7 @@ class RemoveNestedFunctions(Transformation[GlobalDeclarations]):
 
     def visit_Module(self, node):
         # keep original node as it's updated by _NestedFunctionRemover
+        from pythran.backend import Python
         for stmt in node.body:
             self.visit(stmt)
         return node

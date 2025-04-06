@@ -62,6 +62,7 @@ class CFG(FunctionAnalysis):
     visit_Assign = visit_AnnAssign = visit_AugAssign = visit_Import = visit_Pass
     visit_Expr = visit_Print = visit_ImportFrom = visit_Pass
     visit_Yield = visit_Delete = visit_Pass
+    visit_Nonlocal = visit_Pass
 
     def visit_Return(self, node):
         """OUT = (), RAISES = ()"""

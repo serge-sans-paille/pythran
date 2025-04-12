@@ -4,6 +4,7 @@ from pythran.analyses.aliases import Aliases
 from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.passmanager import ModuleAnalysis
 from pythran.tables import MODULES
+from pythran.intrinsic import defaultlist
 import pythran.intrinsic as intrinsic
 
 import gast as ast
@@ -37,9 +38,15 @@ class ArgumentReadOnceHelper(ModuleAnalysis[Aliases, GlobalDeclarations]):
             if isinstance(node, ast.FunctionDef):
                 self.read_effects = [-1] * len(node.args.args)
             elif isinstance(node, intrinsic.Intrinsic):
-                self.read_effects = [
-                    1 if isinstance(x, intrinsic.ReadOnceEffect)
-                    else 2 for x in node.argument_effects]
+                def tocode(x):
+                    return 1 if isinstance(x, intrinsic.ReadOnceEffect) else 2
+
+                isdefaultlist = isinstance(node.argument_effects, defaultlist)
+                container = node.argument_effects.content if isdefaultlist else node.argument_effects
+                self.read_effects = [tocode(x) for x in container]
+                if isdefaultlist:
+                    default = lambda: tocode(node.argument_effects.default())
+                    self.read_effects = defaultlist(self.read_effects, default=default)
             elif isinstance(node, ast.alias):
                 self.read_effects = []
             else:

@@ -773,3 +773,18 @@ def numpy_array_in_tuple1(N = 10):
     CL = CL___init__(N)
     return CL_test(CL)'''
         return self.run_test(code, 6, numpy_array_in_tuple1=[int])
+
+    def test_complex_slice_combination(self):
+        code = '''
+import numpy
+def complex_slice_combination(x):
+    arr = numpy.empty(shape = (x, 1))
+    a1 = 1
+    def save_step():
+        arr[0][:] = [
+            a1,
+        ]
+    save_step()
+    return arr'''
+        return self.run_test(code, 1, complex_slice_combination=[int])
+

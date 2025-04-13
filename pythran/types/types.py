@@ -353,7 +353,9 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
                                     return reduce(merge_container_type,
                                                   depth[:-l] if l else depth,
                                                   former_op(*args))
-                                self.combine_(alias, local_op, othernode)
+                                if len(depth) > l:
+                                    self.combine_(alias, local_op, othernode)
+
                         traverse_alias(node_alias, 0)
                     return
 

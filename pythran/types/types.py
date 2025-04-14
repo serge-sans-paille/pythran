@@ -197,6 +197,7 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         self.current_global_declarations = dict()
         self.max_recompute = 1  # max number of use to be lazy
         self.curr_locals_declaration = None
+        self.ptype_count = 0
 
     def combined(self, *types):
         all_types = ordered_set()
@@ -389,7 +390,9 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
                 assert self.result[node], "found an alias with a type"
 
                 parametric_type = self.builder.PType(self.current,
-                                                     self.result[othernode])
+                                                     self.result[othernode],
+                                                     self.ptype_count)
+                self.ptype_count += 1
 
                 if self.register(self.current, node_id, parametric_type):
 

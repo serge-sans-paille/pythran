@@ -28,7 +28,7 @@ from pythran import compile_pythrancode, spec_parser, load_specfile, frontend
 from pythran.backend import Python
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
-from pythran.toolchain import _parse_optimization
+from pythran.toolchain import _parse_optimization, generate_cxx
 from pythran.spec import Spec
 
 logger = logging.getLogger("pythran")
@@ -303,6 +303,12 @@ class TestEnv(unittest.TestCase):
         modname = "test_" + name
 
         code = dedent(code)
+
+        cxx0, _ = generate_cxx(modname, code, interface)
+        cxx1, _ = generate_cxx(modname, code, interface)
+        self.maxDiff, maxDiff = None, self.maxDiff
+        self.assertEqual(str(cxx0), str(cxx1))
+        self.maxDiff = maxDiff
 
         cxx_compiled = compile_pythrancode(
             modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)

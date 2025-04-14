@@ -96,7 +96,7 @@ def cxx_loop(visit):
                 res = visit(self, node)
             return res
 
-        break_handler = "__no_breaking{0}".format(id(node))
+        break_handler = "__no_breaking{0}".format(len(self.break_handlers))
         with pushpop(self.break_handlers, break_handler):
             res = visit(self, node)
 
@@ -191,6 +191,7 @@ class CxxFunction(ast.NodeVisitor):
         self.used_break = set()
         self.ldecls = None
         self.openmp_deps = set()
+        self.unique_counter = 0
         if not (cfg.getboolean('backend', 'annotate') and
                 self.passmanager.code):
             self.add_line_info = self.skip_line_info
@@ -199,6 +200,10 @@ class CxxFunction(ast.NodeVisitor):
 
     def __getattr__(self, attr):
         return getattr(self.parent, attr)
+
+    def unique(self):
+        self.unique_counter += 1
+        return self.unique_counter
 
     # local declaration processing
     def process_locals(self, node, node_visited, *skipped):
@@ -508,7 +513,7 @@ class CxxFunction(ast.NodeVisitor):
         is removed for iterator in case of yields statement in function.
         """
         # Choose target variable for iterator (which is iterator type)
-        local_target = "__target{0}".format(id(node))
+        local_target = "__target{0}".format(self.unique())
         local_target_decl = self.typeof(
             self.types.builder.IteratorOfType(local_iter_decl))
 
@@ -598,7 +603,7 @@ class CxxFunction(ast.NodeVisitor):
         if self.is_in_collapse(node, args[upper_arg]):
             upper_bound = upper_value  # compatible with collapse
         else:
-            upper_bound = "__target{0}".format(id(node))
+            upper_bound = "__target{0}".format(self.unique())
 
         islocal = (node.target.id not in self.openmp_deps and
                    node.target.id in self.scope[node] and
@@ -784,7 +789,7 @@ class CxxFunction(ast.NodeVisitor):
                 loop = [self.process_omp_attachements(node, autofor)]
             else:
                 # Iterator declaration
-                local_iter = "__iter{0}".format(id(node))
+                local_iter = "__iter{0}".format(self.unique())
                 local_iter_decl = self.types.builder.Assignable(
                     self.types[node.iter])
 

@@ -15,8 +15,8 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         ast.NodeTransformer.__init__(self)
         self.parent = parent
         self.identifiers = set(self.global_declarations.keys())
-        self.boxes = set()
-        self.nonlocal_boxes = set()
+        self.boxes = {}
+        self.nonlocal_boxes = {}
 
     def __getattr__(self, attr):
         return getattr(self.parent, attr)
@@ -53,18 +53,18 @@ class _NestedFunctionRemover(ast.NodeTransformer):
                           node.args.args)
 
         unboxing = []
-        nonlocal_boxes = set()
+        nonlocal_boxes = {}
         for iin in ii:
             if iin in self.nonlocal_declarations[node]:
-                nonlocal_boxes.add(iin)
-                self.nonlocal_boxes.add(iin)
+                nonlocal_boxes.setdefault(iin, None)
+                self.nonlocal_boxes.setdefault(iin, None)
             else:
                 unboxing.append(ast.Assign([ast.Name(iin, ast.Store(), None, None)],
                                ast.Subscript(ast.Name('__pythran_boxed_args_' + iin, ast.Load(), None,
                                                       None),
                                              ast.Constant(None, None),
                                              ast.Load())))
-                self.boxes.add(iin)
+                self.boxes.setdefault(iin, None)
         BoxArgsInserter(nonlocal_boxes).visit(node)
 
         for arg in node.args.args:
@@ -117,7 +117,10 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         if self.update:
             boxes = []
             arg_ids = {arg.id for arg in node.args.args}
-            for i in self.boxes | self.nonlocal_boxes:
+            all_boxes = list(self.boxes)
+            all_boxes.extend(b for b in self.nonlocal_boxes if b not in
+                             self.boxes)
+            for i in all_boxes:
                 if i in arg_ids:
                     box_value = ast.Dict([ast.Constant(None, None)], [ast.Name(i,
                                                                                ast.Load(),
@@ -129,7 +132,11 @@ class _NestedFunctionRemover(ast.NodeTransformer):
                                           None, None)], box_value)
                 boxes.append(box)
 
-            BoxPreInserter(self.boxes - self.nonlocal_boxes).visit(node)
+            pre_boxes = self.boxes.copy()
+            for k in self.nonlocal_boxes:
+                pre_boxes.pop(k, None)
+
+            BoxPreInserter(pre_boxes).visit(node)
             BoxInserter(self.nonlocal_boxes).visit(node)
             node.body = boxes + node.body
         return self.update

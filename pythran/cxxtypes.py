@@ -175,14 +175,11 @@ std::declval<bool>()))
             """
 
             prefix = "__ptype{0}"
-            count = 0
 
-            def __init__(self, fun, ptype):
+            def __init__(self, fun, ptype, index):
                 super(PType, self).__init__(fun=fun,
                                             type=ptype,
-                                            name=PType.prefix.format(
-                                                PType.count))
-                PType.count += 1
+                                            name=PType.prefix.format(index))
 
             def generate(self, ctx):
                 return ctx(self.type)

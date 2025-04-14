@@ -349,7 +349,7 @@ class CxxFunction(ast.NodeVisitor):
         operator_local_declarations = (
             [Statement("{0} {1}".format(
                 self.lctx(self.types[self.local_names[k]]), cxxid(k)))
-             for k in self.ldecls]
+             for k in sorted(self.ldecls)]
         )
         dependent_typedefs = self.lctx.typedefs()
         operator_definition = FunctionBody(
@@ -1246,7 +1246,7 @@ class CxxGenerator(CxxFunction):
                         [Statement("{0} {1}".format(
                             ctx(self.types[self.local_names[k]]),
                             k))
-                         for k in self.ldecls] +
+                         for k in sorted(self.ldecls)] +
                         [Statement("{0} {1}".format(v, k))
                          for k, v in self.extra_declarations] +
                         [Statement(

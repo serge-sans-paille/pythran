@@ -625,7 +625,15 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
 
         func = node.func
 
-        for alias in self.strict_aliases[func]:
+        def alias_key(a):
+            if hasattr(a, 'path'):
+                return a.path
+            if hasattr(a, 'name'):
+                return a.name,
+            # FIXME: how could we order ast.Call?
+            return str(id(a)),
+
+        for alias in sorted(self.strict_aliases[func], key=alias_key):
             # this comes from a bind
             if isinstance(alias, ast.Call):
                 a0 = alias.args[0]

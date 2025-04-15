@@ -280,7 +280,7 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
                 return self.node_to_name(n.value, depth + (index,))
         # use alias information if any
         elif isinstance(n, ast.Call):
-            for alias in self.strict_aliases[n]:
+            for alias in self.sorted_strict_aliases(n):
                 if alias is n:  # no specific alias info
                     continue
                 try:
@@ -313,7 +313,8 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             op = lambda x: x
 
         node_aliases = ordered_set([node])
-        node_aliases.extend(self.strict_aliases.get(node, ()))
+        if node in self.strict_aliases:
+            node_aliases.extend(self.sorted_strict_aliases(node))
         for a in node_aliases:
             self.combine_(a, op, othernode)
 
@@ -344,7 +345,8 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
                             # FIXME: what about other key types?
                             return self.builder.ContainerType(ty)
 
-                    for node_alias in self.strict_aliases[name].union([name]):
+                    for node_alias in self.sorted_strict_aliases(name,
+                                                                 extra=[name]):
                         def traverse_alias(alias, l):
                             if isinstance(alias, ContainerOf):
                                 for containee in alias.containees:
@@ -620,20 +622,35 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
                              self.result[left],
                              self.result[right])
 
-    def visit_Call(self, node):
-        self.generic_visit(node)
-
-        func = node.func
-
+    def sorted_strict_aliases(self, func, extra=[]):
         def alias_key(a):
             if hasattr(a, 'path'):
                 return a.path
             if hasattr(a, 'name'):
                 return a.name,
-            # FIXME: how could we order ast.Call?
+            if hasattr(a, 'id'):
+                return a.id,
+            if isinstance(a, ast.Subscript):
+                return ('subscript:',) + alias_key(a.value) + alias_key(a.slice)
+            if isinstance(a, ast.Attribute):
+                return ('attr:', a.attr) + alias_key(a.value)
+            if isinstance(a, ast.Call):
+                return ('call:',) + alias_key(a.func)
+            if isinstance(a, ContainerOf):
+                return sum((alias_key(c) for c in a.containees), ())
+            if isinstance(a, ast.Constant):
+                return ('cst:', str(a.value))
+            # FIXME: how could we order those?
             return str(id(a)),
 
-        for alias in sorted(self.strict_aliases[func], key=alias_key):
+        return sorted(self.strict_aliases[func] | set(extra), key=alias_key)
+
+    def visit_Call(self, node):
+        self.generic_visit(node)
+
+        func = node.func
+
+        for alias in self.sorted_strict_aliases(func):
             # this comes from a bind
             if isinstance(alias, ast.Call):
                 a0 = alias.args[0]
@@ -655,7 +672,7 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         def last_chance():
             # maybe we can get saved if we have a hint about
             # the called function return type
-            for alias in self.strict_aliases[func]:
+            for alias in self.sorted_strict_aliases(func):
                 if alias is self.current and alias in self.result:
                     # great we have a (partial) type information
                     self.result[node] = self.result[alias]

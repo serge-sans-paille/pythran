@@ -45,16 +45,17 @@ class _NestedFunctionRemover(ast.NodeTransformer):
         self.identifiers.add(new_name)
 
         ii = self.gather(ImportedIds, node)
+        sii = sorted(ii)
         binded_args = [ast.Name('__pythran_boxed_' + iin, ast.Load(), None,
                                               None)
-                       for iin in sorted(ii)]
+                       for iin in sii]
         node.args.args = ([ast.Name(iin, ast.Param(), None, None)
-                           for iin in sorted(ii)] +
+                           for iin in sii] +
                           node.args.args)
 
         unboxing = []
         nonlocal_boxes = {}
-        for iin in ii:
+        for iin in sii:
             if iin in self.nonlocal_declarations[node]:
                 nonlocal_boxes.setdefault(iin, None)
                 self.nonlocal_boxes.setdefault(iin, None)
@@ -83,7 +84,7 @@ class _NestedFunctionRemover(ast.NodeTransformer):
                     node.func.id = new_name
                     node.args = (
                         [ast.Name('__pythran_boxed_args_' + iin, ast.Load(), None, None)
-                         for iin in sorted(ii)] +
+                         for iin in sii] +
                         node.args
                         )
                 return node
@@ -215,7 +216,6 @@ class RemoveNestedFunctions(Transformation[GlobalDeclarations,
 
     def visit_Module(self, node):
         # keep original node as it's updated by _NestedFunctionRemover
-        from pythran.backend import Python
         for stmt in node.body:
             self.visit(stmt)
         return node

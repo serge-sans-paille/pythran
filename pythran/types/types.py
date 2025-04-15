@@ -319,124 +319,122 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             self.combine_(a, op, othernode)
 
     def combine_(self, node, op, othernode):
+        # This comes from an assignment,so we must check where the value is
+        # assigned
+        name = None
         try:
-            # This comes from an assignment,so we must check where the value is
-            # assigned
-            try:
-                name, depth = self.node_to_name(node)
-                if depth:
-                    former_op = op
+            name, depth = self.node_to_name(node)
+            if depth:
+                former_op = op
 
-                    # update the type to reflect container nesting
-                    def merge_container_type(ty, index):
-                        # integral index make it possible to correctly
-                        # update tuple type
-                        if isinstance(index, int):
-                            kty = self.builder.NamedType(
-                                    'std::integral_constant<long,{}>'
-                                    .format(index))
-                            return self.builder.IndexableContainerType(kty,
-                                                                       ty)
-                        elif isinstance(index, float):
-                            kty = self.builder.NamedType('double')
-                            return self.builder.IndexableContainerType(kty,
-                                                                       ty)
+                # update the type to reflect container nesting
+                def merge_container_type(ty, index):
+                    # integral index make it possible to correctly
+                    # update tuple type
+                    if isinstance(index, int):
+                        kty = self.builder.NamedType(
+                                'std::integral_constant<long,{}>'
+                                .format(index))
+                        return self.builder.IndexableContainerType(kty,
+                                                                   ty)
+                    elif isinstance(index, float):
+                        kty = self.builder.NamedType('double')
+                        return self.builder.IndexableContainerType(kty,
+                                                                   ty)
+                    else:
+                        # FIXME: what about other key types?
+                        return self.builder.ContainerType(ty)
+
+                for node_alias in self.sorted_strict_aliases(name,
+                                                             extra=[name]):
+                    def traverse_alias(alias, l):
+                        if isinstance(alias, ContainerOf):
+                            for containee in alias.containees:
+                                traverse_alias(containee, l + 1)
                         else:
-                            # FIXME: what about other key types?
-                            return self.builder.ContainerType(ty)
+                            def local_op(*args):
+                                return reduce(merge_container_type,
+                                              depth[:-l] if l else depth,
+                                              former_op(*args))
+                            if len(depth) > l:
+                                self.combine_(alias, local_op, othernode)
 
-                    for node_alias in self.sorted_strict_aliases(name,
-                                                                 extra=[name]):
-                        def traverse_alias(alias, l):
-                            if isinstance(alias, ContainerOf):
-                                for containee in alias.containees:
-                                    traverse_alias(containee, l + 1)
-                            else:
-                                def local_op(*args):
-                                    return reduce(merge_container_type,
-                                                  depth[:-l] if l else depth,
-                                                  former_op(*args))
-                                if len(depth) > l:
-                                    self.combine_(alias, local_op, othernode)
-
-                        traverse_alias(node_alias, 0)
-                    return
-
-                self.name_to_nodes[name.id].append(node)
-            except UnboundableRValue:
-                pass
-
-            if isinstance(node, ContainerOf):
-                def containeeop(*args):
-                    container_type = op(*args)
-                    if isinstance(container_type, self.builder.IndexableType):
-                        raise NotImplementedError
-                    if isinstance(container_type, (self.builder.ListType,
-                                                   self.builder.SetType)):
-                        return container_type.of
-                    return self.builder.ElementType(
-                            0 if np.isnan(node.index) else node.index,
-                            container_type)
-
-                for containee in node.containees:
-                    try:
-                        self.combine(containee, containeeop, othernode)
-                    except NotImplementedError:
-                        pass
-
-            # perform inter procedural combination
-            if self.isargument(node):
-                node_id, _ = self.node_to_id(node)
-                if node not in self.result:
-                    self.result[node] = op(self.result[othernode])
-                assert self.result[node], "found an alias with a type"
-
-                parametric_type = self.builder.PType(self.current,
-                                                     self.result[othernode],
-                                                     self.ptype_count)
-                self.ptype_count += 1
-
-                if self.register(self.current, node_id, parametric_type):
-
-                    current_function = self.combiners[self.current]
-
-                    def translator_generator(args, op):
-                        ''' capture args for translator generation'''
-                        def interprocedural_type_translator(s, n):
-                            translated_othernode = ast.Name(
-                                '__fake__', ast.Load(), None, None)
-                            s.result[translated_othernode] = (
-                                parametric_type.instanciate(
-                                    s.current,
-                                    [s.result[arg] for arg in n.args]))
-
-                            # look for modified argument
-                            for p, effective_arg in enumerate(n.args):
-                                formal_arg = args[p]
-                                if formal_arg.id == node_id:
-                                    translated_node = effective_arg
-                                    break
-                            try:
-                                s.combine(translated_node,
-                                          op,
-                                          translated_othernode)
-                            except NotImplementedError:
-                                pass
-                                # this may fail when the effective
-                                # parameter is an expression
-                            except UnboundLocalError:
-                                pass
-                                # this may fail when translated_node
-                                # is a default parameter
-                        return interprocedural_type_translator
-
-                    translator = translator_generator(self.current.args.args, op)
-                    current_function.add_combiner(translator)
-            else:
-                self.update_type(node, op, self.result[othernode])
-
+                    traverse_alias(node_alias, 0)
+                return
         except UnboundableRValue:
             pass
+
+        if isinstance(node, ContainerOf):
+            def containeeop(*args):
+                container_type = op(*args)
+                if isinstance(container_type, self.builder.IndexableType):
+                    raise NotImplementedError
+                if isinstance(container_type, (self.builder.ListType,
+                                               self.builder.SetType)):
+                    return container_type.of
+                return self.builder.ElementType(
+                        0 if np.isnan(node.index) else node.index,
+                        container_type)
+
+            for containee in node.containees:
+                try:
+                    self.combine(containee, containeeop, othernode)
+                except NotImplementedError:
+                    pass
+
+        # perform inter procedural combination
+        if self.isargument(node):
+            node_id, _ = self.node_to_id(node)
+            if node not in self.result:
+                self.result[node] = op(self.result[othernode])
+            self.name_to_nodes[name.id].append(node)
+            assert self.result[node], "found an alias with a type"
+
+            parametric_type = self.builder.PType(self.current,
+                                                 self.result[othernode],
+                                                 self.ptype_count)
+            self.ptype_count += 1
+
+            if self.register(self.current, node_id, parametric_type):
+
+                current_function = self.combiners[self.current]
+
+                def translator_generator(args, op):
+                    ''' capture args for translator generation'''
+                    def interprocedural_type_translator(s, n):
+                        translated_othernode = ast.Name(
+                            '__fake__', ast.Load(), None, None)
+                        s.result[translated_othernode] = (
+                            parametric_type.instanciate(
+                                s.current,
+                                [s.result[arg] for arg in n.args]))
+
+                        # look for modified argument
+                        for p, effective_arg in enumerate(n.args):
+                            formal_arg = args[p]
+                            if formal_arg.id == node_id:
+                                translated_node = effective_arg
+                                break
+                        try:
+                            s.combine(translated_node,
+                                      op,
+                                      translated_othernode)
+                        except NotImplementedError:
+                            pass
+                            # this may fail when the effective
+                            # parameter is an expression
+                        except UnboundLocalError:
+                            pass
+                            # this may fail when translated_node
+                            # is a default parameter
+                    return interprocedural_type_translator
+
+                translator = translator_generator(self.current.args.args, op)
+                current_function.add_combiner(translator)
+        else:
+            self.update_type(node, op, self.result[othernode])
+            if name is not None:
+                self.name_to_nodes[name.id].append(node)
 
     def update_type(self, node, ty_builder, *args):
         if ty_builder is None:

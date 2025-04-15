@@ -9,11 +9,11 @@ on:
       - master
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: [3.7, 3.9, 3.11, 3.12, pypy-3.9]
-        cpp-version: [g++-8, clang-7]
+        cpp-version: [g++-12, clang-13]
     steps:
     - uses: actions/checkout@v2
     - name: Setup Python ${{ matrix.python-version }}

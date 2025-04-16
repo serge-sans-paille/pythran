@@ -112,7 +112,7 @@ class TestMath(TestEnv):
         self.run_test("def frexp_(a):\n from math import frexp\n return frexp(a)",2.2, frexp_=[float])
 
     def test_isinf_(self):
-        self.run_test("def isinf_(a):\n from math import isinf\n n=1\n while not isinf(a):\n  a=a*a\n  n+=1\n return isinf(a)", 2., isinf_=[float])
+        self.run_test("def isinf_(a):\n from math import isinf\n while not isinf(a):\n  a=a*a\n return isinf(a)", 2., isinf_=[float])
 
     def test_pow_accuracy(self):
         code = '''

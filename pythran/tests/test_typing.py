@@ -792,9 +792,9 @@ def complex_slice_combination(x):
         code = '''
 def augassign_update_dict_interprocedural(cache):
     cache_slice = cache[1,2]
-    aaa = [cache_slice[3], cache_slice[4]]
+    aaa = [cache_slice[3], cache_slice[2]]
     def do_thing ():
         aaa[0] -= 1
     do_thing ()'''
-        return self.run_test(code, np.arange(2*4*3).reshape((2,4,3)),
-        augassign_update_dict_interprocedural=[NDArray[float,:,:,:]])
+        return self.run_test(code, np.arange(2*3*4).reshape((2,3,4)),
+        augassign_update_dict_interprocedural=[NDArray[int,:,:,:]])

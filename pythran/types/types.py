@@ -560,12 +560,13 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             self.visit_AssignedSubscript(t)
 
     def visit_AugAssign(self, node):
-        self.visit(node.value)
-
         if isinstance(node.target, ast.Subscript):
-            self.visit_AssignedSubscript(node.target)
+            self.visit(node.target)
+            self.visit(node.value)
         else:
-            self.combine(node.target, None, node.value)
+            tmp = ast.BinOp(node.target, node.op, node.value)
+            self.visit(tmp)
+            self.combine(node.target, None, tmp)
 
 
     def visit_For(self, node):

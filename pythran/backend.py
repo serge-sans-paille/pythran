@@ -218,7 +218,7 @@ class CxxFunction(ast.NodeVisitor):
             return node_visited  # no processing
 
         locals_visited = []
-        for varname in local_vars:
+        for varname in sorted(local_vars):
             vartype = self.typeof(varname)
             decl = Statement("{} {}".format(vartype, varname))
             locals_visited.append(decl)

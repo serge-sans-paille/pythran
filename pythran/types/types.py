@@ -582,11 +582,13 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             self.visit_AssignedSubscript(t)
 
     def visit_AugAssign(self, node):
+        # No visit_AssignedSubscript as the container should already have been
+        # populated.
         if isinstance(node.target, ast.Subscript):
             self.visit(node.target)
             self.visit(node.value)
         else:
-            tmp = ast.BinOp(node.target, node.op, node.value)
+            tmp = ast.BinOp(deepcopy(node.target), node.op, node.value)
             self.visit(tmp)
             self.combine(node.target, None, tmp)
 
@@ -657,7 +659,7 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
                 a0 = alias.args[0]
                 # by construction of the bind construct
                 assert len(self.strict_aliases[a0]) == 1
-                bounded_function = next(iter(self.strict_aliases[a0]))
+                bounded_function = next(iter(self.sorted_strict_aliases(a0)))
                 fake_name = deepcopy(a0)
                 fake_node = ast.Call(fake_name, alias.args[1:] + node.args,
                                      [])

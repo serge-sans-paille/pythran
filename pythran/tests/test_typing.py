@@ -798,3 +798,21 @@ def augassign_update_dict_interprocedural(cache):
     do_thing ()'''
         return self.run_test(code, np.arange(2*3*4).reshape((2,3,4)),
         augassign_update_dict_interprocedural=[NDArray[int,:,:,:]])
+
+    def test_augassign_both_branches(self):
+        code = '''
+def augassign_both_branches(
+    x, y, z
+):
+    g = [1,2,3]
+    bools = [True, True, True]
+    ret = 0.
+    if bools[y]:
+        ret += g[y]
+        ret += 123
+    else:
+        ret += g[y]
+        ret += 234
+    return ret'''
+        return self.run_test(code, np.arange(4), 1, 2,
+                             augassign_both_branches=[NDArray[int,:], int, int])

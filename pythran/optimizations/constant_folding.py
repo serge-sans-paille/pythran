@@ -339,15 +339,17 @@ class ConstEval(ast.NodeVisitor):
             elif type(op) is ast.LtE:
                 cond = curr <= right
             elif type(op) is ast.Gt:
-                cond = curr <= right
+                cond = curr > right
             elif type(op) is ast.GtE:
-                cond = curr <= right
+                cond = curr >= right
             elif type(op) is ast.Is:
-                cond = curr <= right
+                cond = curr is right
             elif type(op) is ast.IsNot:
-                cond = curr <= right
+                cond = curr is not right
             elif type(op) is ast.In:
-                cond = curr <= right
+                cond = curr in right
+            elif type(op) is ast.NotIn:
+                cond = curr not in right
             else:
                 raise ValueError("invalid compare op")
             if not cond:

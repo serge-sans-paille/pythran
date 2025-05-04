@@ -147,20 +147,32 @@ class BoxPreInserter(ast.NodeTransformer):
     def __init__(self, insertion_points):
         self.insertion_points = insertion_points
 
+    def insert_target(self, target):
+        if getattr(target, 'id', None) not in self.insertion_points:
+            return None
+        return ast.Assign(
+                [ast.Subscript(
+                    ast.Name('__pythran_boxed_' + target.id, ast.Load(), None, None),
+                             ast.Constant(None, None),
+                             ast.Store())],
+                ast.Name(target.id, ast.Load(), None, None))
+
+
     def visit_Assign(self, node):
         extras = []
         for t in node.targets:
-            if getattr(t, 'id', None) not in self.insertion_points:
-                continue
-            extra = ast.Assign(
-                    [ast.Subscript(
-                        ast.Name('__pythran_boxed_' + t.id, ast.Load(), None, None),
-                                 ast.Constant(None, None),
-                                 ast.Store())],
-                    ast.Name(t.id, ast.Load(), None, None))
-            extras.append(extra)
+            extra = self.insert_target(t)
+            if extra:
+                extras.append(extra)
         if extras:
             return [node] + extras
+        else:
+            return node
+
+    def visit_AugAssign(self, node):
+        extra = self.insert_target(node.target)
+        if extra:
+            return [node, extra]
         else:
             return node
 

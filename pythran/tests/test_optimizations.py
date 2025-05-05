@@ -578,6 +578,10 @@ class TestConstantUnfolding(TestEnv):
     def test_constant_folding_set_literals(self):
         self.run_test("def constant_folding_set_literals(): return {1,2,3,3}", constant_folding_set_literals=[])
 
+    def test_constant_folding_comparators(self):
+        self.run_test("def constant_folding_comparators(): return 1 > 1, 1>=1, 1 < 1, 1 <= 1, 1 == 1, 1 != 1, 1 is 2, (1 < 2 < 3), 1 in [1, 2] in [(1,2)], 1 not in [1, 2]",
+                      constant_folding_comparators=[])
+
     def test_constant_folding_builtins(self):
         self.run_test("def constant_folding_builtins(): return list(map(len,zip(range(2), range(2))))", constant_folding_builtins=[])
 

@@ -585,6 +585,24 @@ def forelse():
     return l"""
         self.run_test(code, forelse=[])
 
+    def test_forelse_local(self):
+        code="""
+def forelse_local (x):
+    for val in x:
+        if val != 5:
+            case_ = 0
+            break
+    else:
+        case_ = 1
+    def f5():
+        if case_ == 0:
+            return 123
+        else:
+            return 234
+    return f5()
+    """
+        self.run_test(code, [1], forelse_local=[List[int]])
+
     def test_tuples(self):
         self.run_test("def tuples(n): return ((1,2.,'e') , [ x for x in tuple([1,2,n])] )", 1, tuples=[int])
 

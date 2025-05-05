@@ -223,4 +223,24 @@ def long_capture_list():
     return arr'''
         self.run_test(code, long_capture_list=[])
 
-
+    def test_capture_augassign(self):
+        code = '''
+def capture_augassign(cache, inputs):
+    aaa_init = inputs[0][0][0]
+    aaa = 0.
+    ny = 0
+    aaas = []
+    def save_step():
+        cache[0][ny][0][0][0][0] = aaa
+    for ny in range(2):
+        aaa = cache[0][ny - 1][0][0][0][0]
+        aaas.append(aaa)
+        aaa *= 0.9
+        save_step()
+    return aaas'''
+        self.run_test(code, 
+                      numpy.full(shape = (1, 10, 1, 1, 1, 1), fill_value =
+                      123.),
+                      ((numpy.asarray([20., 20.]),),),
+                      capture_augassign=[NDArray[float,:,:,:,:,:,:],
+                      Tuple[Tuple[NDArray[float, :]]]])

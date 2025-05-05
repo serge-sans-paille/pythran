@@ -1,4 +1,4 @@
-from subprocess import check_call
+from subprocess import check_call, CalledProcessError
 import os
 import re
 import shutil
@@ -47,6 +47,20 @@ class TestDistutils(unittest.TestCase):
                    cwd=os.path.join(cwd, 'test_distutils'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'demo_install'))
         shutil.rmtree(os.path.join(cwd, 'test_distutils', 'build'))
+
+    def test_invalid_compiler(self):
+        try:
+            cxx = os.environ.get('CXX')
+            os.environ['CXX'] = "ankou"
+            self.test_setup_build()
+            self.assertFalse(true)
+        except CalledProcessError:
+            pass
+        finally:
+            del os.environ['CXX']
+            if cxx is not None:
+                os.environ['CXX'] = cxx
+
 
     def test_setup_sdist_install(self):
         check_call([python, 'setup.py', 'sdist', "--dist-dir=sdist"],

@@ -465,6 +465,38 @@ def np_iexpr3 (x, nbits):
     return out'''
         self.run_test(code, numpy.arange(16, dtype=numpy.int16), 4, np_iexpr3=[NDArray[numpy.int16, :], int])
 
+    def test_iexpr4(self):
+        code = '''
+def iexpr4 (
+    cache,
+    n_max,
+    aaa,
+    bbb,
+):
+    ret = 0
+    for n in range(n_max):
+        row = [5., 5.]
+        if n:
+            previous_row = [
+                aaa[0],
+                bbb[0],
+            ]
+        else:
+            cache_slice = cache[n][9 - 1]
+            previous_row = [
+                cache_slice[0],
+                cache_slice[1],
+            ]
+        ret += row[0] - previous_row[0]
+    return ret'''
+        self.run_test(code,
+            numpy.full(shape = (11, 9, 13), fill_value = 5.),
+            3,
+            numpy.asarray([100., 100.]),
+            numpy.asarray([100., 100.]),
+            iexpr4=[NDArray[float, :,:,:], int, NDArray[float, :],
+            NDArray[float,:]])
+
     def test_item0(self):
         self.run_test("def np_item0(a): return a.item(3)", numpy.array([[3, 1, 7],[2, 8, 3],[8, 5, 3]]), np_item0=[NDArray[int, :,: ]])
 

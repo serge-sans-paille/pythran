@@ -106,7 +106,9 @@ def cxx_loop(visit):
             orelse_label = [Label(break_handler)]
         else:
             orelse_label = []
-        return Block([res] + orelse + orelse_label)
+        skip = [node.target.id] if isinstance(node, ast.For) else []
+        return self.process_locals(node, Block([res] + orelse + orelse_label),
+                                   *skip)
     return loop_visitor
 
 
@@ -775,7 +777,8 @@ class CxxFunction(ast.NodeVisitor):
         loop_body = Block([self.visit(stmt) for stmt in node.body])
 
         # Declare local variables at the top of the loop body
-        loop_body = self.process_locals(node, loop_body, node.target.id)
+        if not node.orelse:
+            loop_body = self.process_locals(node, loop_body, node.target.id)
         iterable = self.visit(node.iter)
 
         if self.can_use_c_for(node):

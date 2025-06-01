@@ -1,3 +1,36 @@
+0.18.0 2025-05-31 Serge Guelton <sergesanspaille@free.fr>
+
+	* Basic support for type annotation, used as a substitute to type inference
+	  when given
+
+	* Remove remaining Python2 support code
+
+	* freethreading support
+
+	* Improve if condidition with compile-time conditions
+
+	* Add float128 support
+
+	* Improve pythran-config CLI for integration in third-party build systems
+
+	* Python 3.13 compatibility
+
+	* Improve several situation related to comparison with None
+
+	* Significant improvement in nested function support
+
+	* Reduce compiler memory usage in presence of complex type expression
+
+	* Support nonlocal keyword
+
+	* Reproducible C++ code generation
+
+	* Fix bad interaction between local variables and else clause of for
+	  statements.
+
+	* Fix folding of comparison operators
+
+
 0.17.0 2024-10-19 Serge Guelton <sergesanspaille@free.fr>
 
 	* Support parsing annotated statement

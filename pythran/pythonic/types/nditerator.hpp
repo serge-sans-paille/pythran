@@ -98,6 +98,24 @@ namespace types
   }
 
   template <class E>
+  bool nditerator<E>::operator>(nditerator<E> const &other) const
+  {
+    return index > other.index;
+  }
+
+  template <class E>
+  bool nditerator<E>::operator<=(nditerator<E> const &other) const
+  {
+    return !(index > other.index);
+  }
+
+  template <class E>
+  bool nditerator<E>::operator>=(nditerator<E> const &other) const
+  {
+    return !(index < other.index);
+  }
+
+  template <class E>
   nditerator<E> &nditerator<E>::operator=(nditerator<E> const &other)
   {
     assert(&data == &other.data);
@@ -189,6 +207,24 @@ namespace types
   }
 
   template <class E>
+  bool const_nditerator<E>::operator>(const_nditerator<E> const &other) const
+  {
+    return index > other.index;
+  }
+
+  template <class E>
+  bool const_nditerator<E>::operator<=(const_nditerator<E> const &other) const
+  {
+    return !(index > other.index);
+  }
+
+  template <class E>
+  bool const_nditerator<E>::operator>=(const_nditerator<E> const &other) const
+  {
+    return !(index < other.index);
+  }
+
+  template <class E>
   const_nditerator<E> &
   const_nditerator<E>::operator=(const_nditerator const &other)
   {
@@ -269,6 +305,27 @@ namespace types
       const_simd_nditerator<E> const &other) const
   {
     return data < other.data;
+  }
+
+  template <class E>
+  bool const_simd_nditerator<E>::operator>(
+      const_simd_nditerator<E> const &other) const
+  {
+    return data > other.data;
+  }
+
+  template <class E>
+  bool const_simd_nditerator<E>::operator<=(
+      const_simd_nditerator<E> const &other) const
+  {
+    return !(data > other.data);
+  }
+
+  template <class E>
+  bool const_simd_nditerator<E>::operator>=(
+      const_simd_nditerator<E> const &other) const
+  {
+    return !(data < other.data);
   }
 
   template <class E>

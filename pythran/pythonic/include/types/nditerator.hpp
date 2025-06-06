@@ -66,6 +66,9 @@ namespace types
     bool operator!=(nditerator<E> const &other) const;
     bool operator==(nditerator<E> const &other) const;
     bool operator<(nditerator<E> const &other) const;
+    bool operator>(nditerator<E> const &other) const;
+    bool operator<=(nditerator<E> const &other) const;
+    bool operator>=(nditerator<E> const &other) const;
     nditerator &operator=(nditerator const &other);
   };
 
@@ -92,6 +95,9 @@ namespace types
     bool operator!=(const_nditerator<E> const &other) const;
     bool operator==(const_nditerator<E> const &other) const;
     bool operator<(const_nditerator<E> const &other) const;
+    bool operator>(const_nditerator<E> const &other) const;
+    bool operator<=(const_nditerator<E> const &other) const;
+    bool operator>=(const_nditerator<E> const &other) const;
     const_nditerator &operator=(const_nditerator const &other);
   };
 #ifdef USE_XSIMD
@@ -115,6 +121,9 @@ namespace types
     bool operator!=(const_simd_nditerator const &other) const;
     bool operator==(const_simd_nditerator const &other) const;
     bool operator<(const_simd_nditerator const &other) const;
+    bool operator>(const_simd_nditerator const &other) const;
+    bool operator<=(const_simd_nditerator const &other) const;
+    bool operator>=(const_simd_nditerator const &other) const;
     const_simd_nditerator &operator=(const_simd_nditerator const &other);
     void store(xsimd::batch<typename E::dtype> const &);
   };

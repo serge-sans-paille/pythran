@@ -28,7 +28,7 @@ inline bool from_python<bool>::convert(PyObject *obj)
   else if (obj == Py_False)
     return false;
   else
-    return PyInt_AsLong(obj);
+    return PyObject_IsTrue(obj);
 }
 
 PYTHONIC_NS_END

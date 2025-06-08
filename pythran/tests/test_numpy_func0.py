@@ -553,9 +553,11 @@ def np_rosen_der(x):
         finally:
             os.remove(temp_name)
 
+    @unittest.skipIf(np_version > version.Version("2.2"), reason="np.fromstring no longer supports binary mode")
     def test_fromstring0(self):
         self.run_test("def np_fromstring0(a): from numpy import fromstring, uint8 ; return fromstring(a, uint8)", '\x01\x02', np_fromstring0=[str])
 
+    @unittest.skipIf(np_version > version.Version("2.2"), reason="np.fromstring no longer supports binary mode")
     def test_fromstring1(self):
         self.run_test("def np_fromstring1(a): from numpy import fromstring, uint8 ; a = '\x01\x02\x03\x04' ; return fromstring(a, uint8,3)", '\x01\x02\x03\x04', np_fromstring1=[str])
 

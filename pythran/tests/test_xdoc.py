@@ -20,6 +20,8 @@ class TestDoctest(unittest.TestCase):
 
     @pytest.mark.skipif(sys.platform == "win32",
                         reason="We should create a file for windows.")
+    @pytest.mark.skipif(sys.version_info < (3, 13),
+                        reason="ast output changed with 3.13")
     def test_tutorial(self):
         failed, _ = doctest.testfile('../../docs/TUTORIAL.rst')
         self.assertEqual(failed, 0)
@@ -34,9 +36,19 @@ class TestDoctest(unittest.TestCase):
 
     @pytest.mark.skipif(sys.platform == "win32",
                         reason="We should create a file for windows.")
+    @pytest.mark.skipif(sys.version_info <= (3, 12),
+                        reason="argparse output changed with 3.13")
     def test_cli(self):
         tmpfile = self.adapt_rst('../../docs/CLI.rst')
-        failed, _ = doctest.testfile(tmpfile, False)
+        columns = os.environ.get('COLUMNS', None)
+        os.environ['COLUMNS'] = '80'
+        try:
+            failed, _ = doctest.testfile(tmpfile, False)
+        finally:
+            if columns is None:
+                del os.environ['COLUMNS']
+            else:
+                os.environ['COLUMNS'] = columns
         self.assertEqual(failed, 0)
         os.remove(tmpfile)
 

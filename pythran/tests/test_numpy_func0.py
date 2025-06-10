@@ -560,10 +560,22 @@ def np_rosen_der(x):
         self.run_test("def np_fromstring1(a): from numpy import fromstring, uint8 ; a = '\x01\x02\x03\x04' ; return fromstring(a, uint8,3)", '\x01\x02\x03\x04', np_fromstring1=[str])
 
     def test_fromstring2(self):
-        self.run_test("def np_fromstring2(a): from numpy import fromstring, uint32 ; return fromstring(a, uint32,-1, ' ')", '1 2 3 4', np_fromstring2=[str])
+        self.run_test("def np_fromstring2(a): from numpy import fromstring, uint32 ; return fromstring(a, uint32,-1, ' ')", '1 20 3 40', np_fromstring2=[str])
 
     def test_fromstring3(self):
         self.run_test("def np_fromstring3(a): from numpy import fromstring, uint32 ; return fromstring(a, uint32,2, ',')", '1,2, 3, 4', np_fromstring3=[str])
+
+    def test_frombuffer0(self):
+        self.run_test("def np_frombuffer0(a): from numpy import frombuffer, uint8 ; return frombuffer(b'\x01\x02' * a, uint8)", 1, np_frombuffer0=[int])
+
+    def test_frombuffer1(self):
+        self.run_test("def np_frombuffer1(a): from numpy import frombuffer, uint8 ; return frombuffer(b'\x01\x02\x03\x04' * a, uint8, 3)", 1, np_frombuffer1=[int])
+
+    def test_frombuffer2(self):
+        self.run_test("def np_frombuffer2(a): from numpy import frombuffer, uint16 ; return frombuffer(a * b'\x01\x02', uint16)", 1, np_frombuffer2=[int])
+
+    def test_frombuffer3(self):
+        self.run_test("def np_frombuffer3(a): from numpy import frombuffer, int8 ; return frombuffer(a * b'\x01\x02\x03\x04', int8, 3, 1)", 1, np_frombuffer3=[int])
 
     def test_outer0(self):
         self.run_test("def np_outer0(x): from numpy import outer ; return outer(x, x+2)", numpy.arange(6).reshape(2,3), np_outer0=[NDArray[int,:,:]])

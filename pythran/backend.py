@@ -1012,6 +1012,14 @@ class CxxFunction(ast.NodeVisitor):
             ret = 'pythonic::builtins::None'
         elif isinstance(node.value, bool):
             ret = str(node.value).lower()
+        elif isinstance(node.value, bytes):
+            quoted = "".join('\\' + hex(b)[1:] for b in node.value)
+            # FIXME: using str type as backend
+            if len(node.value) == 1:
+                quoted = quoted.replace("'", r"\'")
+                ret = 'pythonic::types::chr(\'' + quoted + '\')'
+            else:
+                ret = 'pythonic::types::str("' + quoted + '")'
         elif isinstance(node.value, str):
             quoted = quote_cxxstring(node.value)
             if len(node.value) == 1:

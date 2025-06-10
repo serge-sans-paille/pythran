@@ -9,6 +9,7 @@ from pythran.typing import List, Dict, Set, Tuple, NDArray, Pointer, Fun
 PYTYPE_TO_CTYPE_TABLE = {
     numpy.uint: 'npy_uint',
     #
+    bytes: 'pythonic::types::str',  # FIXME: using types::str as backend
     complex: 'std::complex<double>',
     bool: 'bool',
     int: 'long',

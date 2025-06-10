@@ -3752,6 +3752,7 @@ MODULES = {
         "fmin": UFunc(REDUCED_BINARY_UFUNC),
         "fmod": UFunc(BINARY_UFUNC),
         "frexp": ConstFunctionIntr(),
+        "frombuffer": ConstFunctionIntr(),
         "fromfunction": ConstFunctionIntr(),
         "fromiter": ConstFunctionIntr(args=("iterable", "dtype", "count"),
                                       defaults=(-1,)),

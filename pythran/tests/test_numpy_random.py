@@ -638,9 +638,9 @@ class TestNumpyRandom(TestEnv):
         self.run_test("""
             def numpy_random_bytes1(n):
                 from numpy.random import bytes
-                from numpy import mean, fromstring, uint8, asarray
+                from numpy import mean, frombuffer, uint8, asarray
                 a = bytes(n)
-                return (abs(mean(asarray(fromstring(a, uint8), dtype=float)) - 127.5) < .05)""",
+                return (abs(mean(asarray(frombuffer(a, uint8), dtype=float)) - 127.5) < .05)""",
                       10 ** 8, numpy_random_bytes1=[int])
 
     ###########################################################################

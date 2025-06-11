@@ -28,6 +28,7 @@ namespace builtins
       bool operator!=(range_iterator const &other) const;
       bool operator==(range_iterator const &other) const;
       bool operator<(range_iterator const &other) const;
+      bool operator<=(range_iterator const &other) const;
       long operator-(range_iterator const &other) const;
     };
   } // namespace

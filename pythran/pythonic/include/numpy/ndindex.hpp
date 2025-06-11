@@ -25,6 +25,10 @@ namespace numpy
     ndindex_iterator &operator++();
     ndindex_iterator &operator+=(long n);
     bool operator!=(ndindex_iterator const &other) const;
+    bool operator==(ndindex_iterator const &other) const
+    {
+      return !(*this != other);
+    }
     bool operator<(ndindex_iterator const &other) const;
     long operator-(ndindex_iterator const &other) const;
   };

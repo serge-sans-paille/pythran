@@ -25,6 +25,10 @@ namespace numpy
     ndenumerate_iterator &operator++();
     ndenumerate_iterator &operator+=(long n);
     bool operator!=(ndenumerate_iterator const &other) const;
+    bool operator==(ndenumerate_iterator const &other) const
+    {
+      return !(*this != other);
+    }
     bool operator<(ndenumerate_iterator const &other) const;
     long operator-(ndenumerate_iterator const &other) const;
   };

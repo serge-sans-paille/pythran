@@ -116,7 +116,7 @@ namespace types
     }
 
     auto operator*() const -> decltype(this->_dereference(
-                               utils::make_index_sequence<sizeof...(Iters)>{}))
+        utils::make_index_sequence<sizeof...(Iters)>{}))
     {
       return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
     }
@@ -240,6 +240,11 @@ namespace types
     {
       return _lt(other, utils::int_<sizeof...(Iters)>{});
     }
+
+    bool operator<=(numpy_expr_iterator const &other) const
+    {
+      return *this < other || *this == other;
+    }
   };
 #ifdef USE_XSIMD
   template <class E, class Op, class Steps, class SIters, class... Iters>
@@ -279,7 +284,7 @@ namespace types
     }
 
     auto operator*() const -> decltype(this->_dereference(
-                               utils::make_index_sequence<sizeof...(Iters)>{}))
+        utils::make_index_sequence<sizeof...(Iters)>{}))
     {
       return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
     }
@@ -439,7 +444,7 @@ namespace types
     }
 
     auto operator*() const -> decltype(this->_dereference(
-                               utils::make_index_sequence<sizeof...(Iters)>{}))
+        utils::make_index_sequence<sizeof...(Iters)>{}))
     {
       return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
     }
@@ -583,9 +588,9 @@ namespace types
   }
 
   template <size_t... J, class Arg, class Shp, class... S>
-  auto
-  make_subslice(utils::index_sequence<J...>, Arg const &arg, Shp const &shp,
-                std::tuple<S...> const &ss) -> decltype(arg(std::get<J>(ss)...))
+  auto make_subslice(utils::index_sequence<J...>, Arg const &arg,
+                     Shp const &shp, std::tuple<S...> const &ss)
+      -> decltype(arg(std::get<J>(ss)...))
   {
     // we need to adapt_slice to take broadcasting into account
     return arg(adapt_slice(
@@ -708,15 +713,14 @@ namespace types
     }
 
     template <class... Indices>
-    auto map_fast(Indices... indices) const
-        -> decltype(this->_map_fast(
-            array_tuple<long, sizeof...(Indices)>{{indices...}},
-            utils::make_index_sequence<sizeof...(Args)>{}));
+    auto map_fast(Indices... indices) const -> decltype(this->_map_fast(
+        array_tuple<long, sizeof...(Indices)>{{indices...}},
+        utils::make_index_sequence<sizeof...(Args)>{}));
 
   public:
     template <size_t I>
     auto shape() const -> decltype(details::init_shape_element<I>(
-                           args, valid_indices<value, std::tuple<Args...>>{}))
+        args, valid_indices<value, std::tuple<Args...>>{}))
     {
       return details::init_shape_element<I>(
           args, valid_indices<value, std::tuple<Args...>>{});
@@ -819,9 +823,8 @@ namespace types
       return Op{}(std::get<I>(args)[s]...);
     }
     template <class S>
-    auto operator[](S s) const
-        -> decltype((*this)._index(
-            (s.lower, s), utils::make_index_sequence<sizeof...(Args)>{}))
+    auto operator[](S s) const -> decltype((*this)._index(
+        (s.lower, s), utils::make_index_sequence<sizeof...(Args)>{}))
     {
       return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
     }

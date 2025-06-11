@@ -144,10 +144,34 @@ namespace builtins
     }
 
     template <typename Operator, typename... Iters>
+    template <size_t N>
+    bool map_iterator<Operator, Iters...>::lt(
+        map_iterator<Operator, Iters...> const &other, utils::int_<N>) const
+    {
+      return std::get<N>(it) < std::get<N>(other.it) ||
+             ((std::get<N>(it) == std::get<N>(other.it)) &&
+              lt(other, utils::int_<N - 1>()));
+    }
+
+    template <typename Operator, typename... Iters>
+    bool map_iterator<Operator, Iters...>::lt(
+        map_iterator<Operator, Iters...> const &other, utils::int_<0>) const
+    {
+      return std::get<0>(it) < std::get<0>(other.it);
+    }
+
+    template <typename Operator, typename... Iters>
     bool map_iterator<Operator, Iters...>::operator<(
         map_iterator<Operator, Iters...> const &other) const
     {
-      return !(*this == other);
+      return lt(other, utils::int_<sizeof...(Iters) - 1>());
+    }
+
+    template <typename Operator, typename... Iters>
+    bool map_iterator<Operator, Iters...>::operator<=(
+        map_iterator<Operator, Iters...> const &other) const
+    {
+      return (*this == other) || (*this < other);
     }
 
     template <typename Operator, typename... Iters>
@@ -208,12 +232,11 @@ namespace builtins
   } // namespace details
 
   template <typename Operator, typename... Iter>
-  auto map(Operator &&_op, Iter &&...iters)
-      -> details::map<
-          typename std::remove_cv<
-              typename std::remove_reference<Operator>::type>::type,
-          typename types::iterator<typename std::remove_cv<
-              typename std::remove_reference<Iter>::type>::type>::type...>
+  auto map(Operator &&_op, Iter &&...iters) -> details::map<
+      typename std::remove_cv<
+          typename std::remove_reference<Operator>::type>::type,
+      typename types::iterator<typename std::remove_cv<
+          typename std::remove_reference<Iter>::type>::type>::type...>
   {
     return {std::forward<Operator>(_op), std::forward<Iter>(iters)...};
   }

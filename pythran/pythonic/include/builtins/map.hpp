@@ -56,6 +56,7 @@ namespace builtins
       bool operator==(map_iterator const &other) const;
       bool operator!=(map_iterator const &other) const;
       bool operator<(map_iterator const &other) const;
+      bool operator<=(map_iterator const &other) const;
       long operator-(map_iterator const &other) const;
 
     private:
@@ -68,6 +69,10 @@ namespace builtins
       template <size_t N>
       bool equal(map_iterator const &other, utils::int_<N>) const;
       bool equal(map_iterator const &other, utils::int_<0>) const;
+
+      template <size_t N>
+      bool lt(map_iterator const &other, utils::int_<N>) const;
+      bool lt(map_iterator const &other, utils::int_<0>) const;
 
       template <size_t I>
       void advance(long i, utils::int_<I>);
@@ -107,12 +112,11 @@ namespace builtins
   } // namespace details
 
   template <typename Operator, typename... Iter>
-  auto map(Operator &&_op, Iter &&...iters)
-      -> details::map<
-          typename std::remove_cv<
-              typename std::remove_reference<Operator>::type>::type,
-          typename types::iterator<typename std::remove_cv<
-              typename std::remove_reference<Iter>::type>::type>::type...>;
+  auto map(Operator &&_op, Iter &&...iters) -> details::map<
+      typename std::remove_cv<
+          typename std::remove_reference<Operator>::type>::type,
+      typename types::iterator<typename std::remove_cv<
+          typename std::remove_reference<Iter>::type>::type>::type...>;
 
   DEFINE_FUNCTOR(pythonic::builtins, map);
 } // namespace builtins

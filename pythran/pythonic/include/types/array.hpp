@@ -129,6 +129,10 @@ namespace types
     {
       return index < other.index;
     }
+    bool operator<=(array_iterator const &other) const
+    {
+      return index <= other.index;
+    }
     array_iterator &operator=(array_iterator const &other)
     {
       index = other.index;
@@ -181,8 +185,8 @@ namespace types
 
     using shape_t = types::array_tuple<long, value>;
     template <size_t I>
-    auto shape() const -> decltype(details::extract_shape(*this,
-                                                          utils::int_<I>{}))
+    auto shape() const
+        -> decltype(details::extract_shape(*this, utils::int_<I>{}))
     {
       return details::extract_shape(*this, utils::int_<I>{});
     }

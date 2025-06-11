@@ -275,6 +275,14 @@ namespace types
     {
       return curr != other.curr;
     }
+    bool operator<(string_iterator const &other) const
+    {
+      return curr < other.curr;
+    }
+    bool operator<=(string_iterator const &other) const
+    {
+      return curr <= other.curr;
+    }
     std::ptrdiff_t operator-(string_iterator const &other) const
     {
       return curr - other.curr;
@@ -328,9 +336,8 @@ namespace operator_
 {
 
   template <size_t N, class Arg>
-  auto mod(const char (&fmt)[N],
-           Arg &&arg) -> decltype(pythonic::types::str(fmt) %
-                                  std::forward<Arg>(arg));
+  auto mod(const char (&fmt)[N], Arg &&arg)
+      -> decltype(pythonic::types::str(fmt) % std::forward<Arg>(arg));
 
   pythonic::types::str add(char const *self, char const *other);
 

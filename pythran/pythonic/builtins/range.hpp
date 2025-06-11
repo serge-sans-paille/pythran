@@ -89,6 +89,12 @@ namespace builtins
     return sign * value_ < sign * other.value_;
   }
 
+  inline bool range_iterator::operator<=(range_iterator const &other) const
+  {
+    const long sign = +1 | (step_ >> (sizeof(long) * CHAR_BIT - 1));
+    return sign * value_ <= sign * other.value_;
+  }
+
   inline long range_iterator::operator-(range_iterator const &other) const
   {
     return (value_ - other.value_) / step_;

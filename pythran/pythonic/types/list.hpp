@@ -152,9 +152,17 @@ namespace types
   sliced_list<T, S>::operator=(sliced_list<T, S> const &s)
   {
     if (slicing.step == 1) {
-      // inserting before erasing in case of self-copy
-      auto insert_pt = _data->begin() + slicing.lower;
-      _data->insert(insert_pt, s.begin(), s.end());
+      // no sharing
+      if (_data->data() != s._data->data()) {
+        auto insert_pt = _data->begin() + slicing.lower;
+        _data->insert(insert_pt, s.begin(), s.end());
+      }
+      // sharing
+      else {
+        std::vector<T> tmp{s.begin(), s.end()};
+        auto insert_pt = _data->begin() + slicing.lower;
+        _data->insert(insert_pt, tmp.begin(), tmp.end());
+      }
       auto erase_pt = _data->begin() + s.size();
       _data->erase(erase_pt + slicing.lower, erase_pt + slicing.upper);
     } else
@@ -165,9 +173,17 @@ namespace types
   sliced_list<T, S> &sliced_list<T, S>::operator=(list<T> const &seq)
   {
     if (slicing.step == 1) {
-      // inserting before erasing in case of self-copy
-      auto insert_pt = _data->begin() + slicing.lower;
-      _data->insert(insert_pt, seq.begin(), seq.end());
+      // no sharing
+      if (_data->data() != seq._data->data()) {
+        auto insert_pt = _data->begin() + slicing.lower;
+        _data->insert(insert_pt, seq.begin(), seq.end());
+      }
+      // sharing
+      else {
+        std::vector<T> tmp{seq.begin(), seq.end()};
+        auto insert_pt = _data->begin() + slicing.lower;
+        _data->insert(insert_pt, tmp.begin(), tmp.end());
+      }
       auto erase_pt = _data->begin() + seq.size();
       _data->erase(erase_pt + slicing.lower, erase_pt + slicing.upper);
     } else

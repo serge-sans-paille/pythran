@@ -36,7 +36,7 @@ class TestDoctest(unittest.TestCase):
 
     @pytest.mark.skipif(sys.platform == "win32",
                         reason="We should create a file for windows.")
-    @pytest.mark.skipif(sys.version_info <= (3, 12),
+    @pytest.mark.skipif(sys.version_info <= (3, 13, 4),
                         reason="argparse output changed with 3.13")
     def test_cli(self):
         tmpfile = self.adapt_rst('../../docs/CLI.rst')

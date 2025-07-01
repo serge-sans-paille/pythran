@@ -896,6 +896,24 @@ def test_copy0(x):
     def test_linspace4(self):
         self.run_test("def np_linspace4_(a):\n from numpy import linspace\n return linspace(1,a,dtype=int)", 4, np_linspace4_=[int])
 
+    def test_linspace5(self):
+        self.run_test("def np_linspace5_(a):\n from numpy import linspace\n return linspace(0,a,1)", 1, np_linspace5_=[int])
+
+    def test_linspace6(self):
+        self.run_test("def np_linspace6_(a):\n from numpy import linspace\n return linspace(0,a,1)", 1., np_linspace6_=[float])
+
+    def test_linspace7(self):
+        self.run_test("def np_linspace7_(a):\n from numpy import linspace\n return linspace(1,a,1)", 1, np_linspace7_=[int])
+
+    def test_linspace8(self):
+        self.run_test("def np_linspace8_(a):\n from numpy import linspace\n return linspace(0,a,0)", 0, np_linspace8_=[int])
+
+    def test_linspace9(self):
+        self.run_test("def np_linspace9_(a):\n from numpy import linspace\n return linspace(0,a,0)", 1, np_linspace9_=[int])
+
+    def test_linspace10(self):
+        self.run_test("def np_linspace10_(a):\n from numpy import linspace\n return linspace(0,a,1)", -.5, np_linspace10_=[float])
+
     def test_sin(self):
         self.run_test("def np_sin_(a):\n from numpy import sin\n return sin(a)", numpy.linspace(0,6), np_sin_=[NDArray[float,:]])
 

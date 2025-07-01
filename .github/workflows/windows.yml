@@ -22,7 +22,7 @@ jobs:
         architecture: ${{ matrix.architecture }}
     - name: Install clang-cl
       run: |
-        choco install llvm --yes
+        choco install llvm --yes --version 19.1.7
         @("C:/Program Files/LLVM/bin") +  (Get-Content $env:GITHUB_PATH) | Set-Content $env:GITHUB_PATH
     - name: Install dependencies
       run: |

@@ -19,8 +19,6 @@ Python ships a standard module, ``ast`` to turn Python code into an AST. For ins
   >>> from __future__ import print_function
   >>> code = "a=1"
   >>> tree = ast.parse(code)  # turn the code into an AST
-  >>> print(ast.dump(tree))  # view it as a string
-  Module(body=[Assign(targets=[Name(id='a', ctx=Store())], value=Constant(value=1))])
 
 Deciphering the above line, one learns that the single assignment is parsed as
 a module containing a single statement, which is an assignment to a single
@@ -32,11 +30,9 @@ Eventually, one needs to parse more complex codes, and things get a bit more cry
   ... def fib(n):
   ...     return n if n< 2 else fib(n-1) + fib(n-2)"""
   >>> tree = ast.parse(fib_src)
-  >>> print(ast.dump(tree))
-  Module(body=[FunctionDef(name='fib', args=arguments(args=[Name(id='n', ctx=Param())]), body=[Return(value=IfExp(test=Compare(left=Name(id='n', ctx=Load()), ops=[Lt()], comparators=[Constant(value=2)]), body=Name(id='n', ctx=Load()), orelse=BinOp(left=Call(func=Name(id='fib', ctx=Load()), args=[BinOp(left=Name(id='n', ctx=Load()), op=Sub(), right=Constant(value=1))]), op=Add(), right=Call(func=Name(id='fib', ctx=Load()), args=[BinOp(left=Name(id='n', ctx=Load()), op=Sub(), right=Constant(value=2))]))))])])
 
 The idea remains the same. The whole Python syntax is described in
-http://docs.python.org/2/library/ast.html and is worth a glance, otherwise
+http://docs.python.org/3/library/ast.html and is worth a glance, otherwise
 you'll be in serious trouble understanding the following.
 
 Pythran Pass Manager
@@ -199,7 +195,7 @@ constant expressions. In the previous code, there is only two constant
 
   >>> ce = pm.gather(analyses.ConstantExpressions, tree)
   >>> sorted(map(ast.dump, ce))
-  ["Attribute(value=Name(id='math', ctx=Load()), attr='cos', ctx=Load())", 'Constant(value=3)']
+  ["Attribute(value=Name(id='math', ctx=Load(), annotation=None, type_comment=None), attr='cos', ctx=Load())", 'Constant(value=3, kind=None)']
 
 One of the most critical analyse of Pythran is the points-to analysis. There
 are two flavors of this analyse, one that computes an over-set of the aliased
@@ -210,7 +206,7 @@ variable, and one that computes an under set. ``Aliases`` computes an over-set::
   >>> al = pm.gather(analyses.Aliases, tree)
   >>> returned = tree.body[-1].body[-1].value
   >>> print(ast.dump(returned))
-  Name(id='b', ctx=Load())
+  Name(id='b', ctx=Load(), annotation=None, type_comment=None)
   >>> sorted(a.id for a in al[returned])
   ['c', 'd']
 

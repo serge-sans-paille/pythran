@@ -816,3 +816,22 @@ def augassign_both_branches(
     return ret'''
         return self.run_test(code, np.arange(4), 1, 2,
                              augassign_both_branches=[NDArray[int,:], int, int])
+
+    def test_assign_interprocedural_subscript(self):
+        code = '''
+import numpy as np
+
+def assign_interprocedural_subscript(N):
+    self = ([0], [np.zeros(N)])
+    B(self, N)
+    return self
+
+def B(self, N):
+    mB = int(N)
+    self[0][0] = mB
+    self[1][0] = np.zeros(mB)
+    C(self)
+
+def C(self):
+    self[1][0][0:1] = self[1][0][0:1]*2'''
+        return self.run_test(code, 10, assign_interprocedural_subscript=[int])

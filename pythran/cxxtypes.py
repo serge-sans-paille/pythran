@@ -263,6 +263,19 @@ std::declval<bool>()))
                     sys.setrecursionlimit(current_recursion_limit)
                     return stmp
 
+        class IntegralConstant(Type):
+            """
+            A generic type object, to hold scalar types and such
+            """
+
+            def __init__(self, of, index):
+                super(IntegralConstant, self).__init__(of=of, index=index)
+
+            def generate(self, ctx):
+                ty = ctx(self.of)
+                return "std::integral_constant<%s, %s>" % (ty,
+                                                           str(self.index).lower())
+
         class ArgumentType(Type):
             """
             A type to hold function arguments
@@ -286,6 +299,7 @@ std::declval<bool>()))
 
             def iscombined(self):
                 return self.of.iscombined()
+
 
         class Assignable(DependentType):
             """

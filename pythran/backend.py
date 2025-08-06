@@ -298,12 +298,13 @@ class CxxFunction(ast.NodeVisitor):
 
     def prepare_types(self, node):
         # compute arg dump
+        dflt_v = [self.visit(n) for n in node.args.defaults]
         dflt_argv = (
             [None] * (len(node.args.args) - len(node.args.defaults)) +
-            [self.visit(n) for n in node.args.defaults])
+            dflt_v)
         dflt_argt = (
             [None] * (len(node.args.args) - len(node.args.defaults)) +
-            [self.types[n].sgenerate() for n in node.args.defaults])
+            ["decltype({})".format(v) for v in dflt_v])
 
         # compute type dump
         result_type = self.types[node][0]

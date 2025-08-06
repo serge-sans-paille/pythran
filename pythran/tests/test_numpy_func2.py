@@ -621,7 +621,7 @@ def test_copy0(x):
         self.run_test("def np_around5(x): from numpy import around ; return around(x,-1)", [1,2,3,11], np_around5=[List[int]])
 
     def test_argsort0(self):
-        self.run_test("def np_argsort0(x): from numpy import argsort ; return argsort(x)", numpy.array([3, 1, 2]), np_argsort0=[NDArray[int,:]])
+        self.run_test("import numpy\ndef np_argsort0(x: numpy.ndarray) -> numpy.ndarray: from numpy import argsort ; return argsort(x)", numpy.array([3, 1, 2]), np_argsort0=[NDArray[int,:]])
 
     def test_argsort1(self):
         self.run_test("def np_argsort1(x): return x.argsort()", numpy.array([[3, 1, 2], [1 , 2, 3]]), np_argsort1=[NDArray[int,:,:]])

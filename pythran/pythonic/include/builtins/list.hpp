@@ -29,4 +29,23 @@ namespace builtins
 } // namespace builtins
 PYTHONIC_NS_END
 
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+
+PYTHONIC_NS_BEGIN
+
+template <>
+struct to_python<builtins::functor::list> {
+  static PyObject *convert(builtins::functor::list const &c);
+};
+
+template <>
+struct from_python<builtins::functor::list> {
+  static bool is_convertible(PyObject *obj);
+  static builtins::functor::list convert(PyObject *obj);
+};
+PYTHONIC_NS_END
+#endif
+
 #endif

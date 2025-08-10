@@ -22,4 +22,22 @@ namespace builtins
   DEFINE_FUNCTOR(pythonic::builtins::anonymous, set);
 } // namespace builtins
 PYTHONIC_NS_END
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+
+PYTHONIC_NS_BEGIN
+
+template <>
+struct to_python<builtins::functor::set> {
+  static PyObject *convert(builtins::functor::set const &c);
+};
+
+template <>
+struct from_python<builtins::functor::set> {
+  static bool is_convertible(PyObject *obj);
+  static builtins::functor::set convert(PyObject *obj);
+};
+PYTHONIC_NS_END
+#endif
 #endif

@@ -13,6 +13,8 @@ namespace builtins
   template <class... Types>
   std::tuple<Types...> tuple(std::tuple<Types...> const &t);
 
+  inline std::tuple<> tuple() { return {}; }
+
   template <class Iterable> /* this is far from perfect, but how to cope with
                                the
                                difference between python tuples && c++ ones ? */
@@ -42,4 +44,22 @@ namespace builtins
 } // namespace builtins
 PYTHONIC_NS_END
 
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+
+PYTHONIC_NS_BEGIN
+
+template <>
+struct to_python<builtins::functor::tuple> {
+  static PyObject *convert(builtins::functor::tuple const &c);
+};
+
+template <>
+struct from_python<builtins::functor::tuple> {
+  static bool is_convertible(PyObject *obj);
+  static builtins::functor::tuple convert(PyObject *obj);
+};
+PYTHONIC_NS_END
+#endif
 #endif

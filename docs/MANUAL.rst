@@ -208,14 +208,15 @@ Constructed types are either tuples, introduced by parenthesis, like ``(int,
 ``set``) keyword::
 
     argument_type = basic_type
-                  | (argument_type+)    # this is a tuple
-                  | argument_type list    # this is a list
-                  | argument_type set    # this is a set
-                  | argument_type []+    # this is a ndarray, C-style
-                  | argument_type [::]+    # this is a strided ndarray
-                  | argument_type [:,...,:]+ # this is a ndarray, Cython style
-                  | argument_type [:,...,3]+ # this is a ndarray, some dimension fixed
-                  | argument_type:argument_type dict    # this is a dictionary
+                  | (argument_type+)                  # a tuple
+                  | argument_type list                # a list
+                  | argument_type set                 # a set
+                  | argument_type []+                 # a ndarray, C-style
+                  | argument_type [::]+               # a strided ndarray
+                  | argument_type [:,...,:]+          # a ndarray, Cython style
+                  | argument_type [:,...,3]+          # a ndarray, some dimension fixed
+                  | argument_type:argument_type dict  # a dictionary
+                  | argument_type type                # a type
 
     basic_type = bool | byte | int | float | str | None | slice
                | uint8 | uint16 | uint32 | uint64 | uintp
@@ -281,6 +282,29 @@ Easy enough, isn't it?
     It is in fact possible to analyse a code without specifications, but you
     cannot go further that generic (a.k.a. heavily templated) c++ code. Use the
     ``-e`` switch!
+
+
+Concering the ``type`` specification
+************************************
+
+Pythran-generated function can not only recieve scalars, containers etc as
+parameter, but also types. It can be useful to write generic functions such as
+
+.. code-block:: python
+
+    #pythran export gen_seq(int type, list type, int)
+    #pythran export gen_seq(float type, set type, int)
+    def gen_seq(dtype, seq_type, n):
+        return seq_type(map(dtype, range(n)))
+
+    >>> gen_seq(int, list, 3)
+    [0, 1, 2]
+    >>> gen_seq(float, set, 4)
+    {0.0, 1.0, 2.0, 3.0}
+
+.. note::
+
+   Container type, as in ``set type`` don't hold any information about their subtype.
 
 When Pythran needs a little help: type annotation
 *************************************************

@@ -29,4 +29,36 @@ namespace builtins
   } // namespace anonymous
 } // namespace builtins
 PYTHONIC_NS_END
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+
+PYTHONIC_NS_BEGIN
+
+inline PyObject *
+to_python<builtins::functor::set>::convert(builtins::functor::set const &c)
+{
+  return (PyObject*)&PySet_Type;
+}
+
+inline bool from_python<builtins::functor::set>::is_convertible(PyObject *obj)
+{
+  if(obj == (PyObject*)&PySet_Type)
+    return true;
+  PyObject* Origin = PyObject_GetAttrString(obj, "__origin__");
+  if(!Origin)
+    return false;
+  bool res = (Origin == (PyObject*)&PySet_Type);
+  Py_DECREF(Origin);
+  return res;
+}
+
+inline builtins::functor::set
+from_python<builtins::functor::set>::convert(PyObject *obj)
+{
+  return {};
+}
+
+PYTHONIC_NS_END
+#endif
 #endif

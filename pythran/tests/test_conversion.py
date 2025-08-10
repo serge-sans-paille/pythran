@@ -254,3 +254,38 @@ def dict_of_complex64_and_complex_128(l):
             self.run_test("def builtin_type9p{}(x): import numpy; x = {}(x); return type(x)(x)".format(i, t),
                           1,
                           **kwargs)
+
+    def test_simple_meta_types(self):
+        types = (complex, float, int, bool, str,
+                 np.float128, np.float64, np.float32,
+                 np.complex256, np.complex128, np.complex64,
+                 np.uint64, np.uint32, np.uint16, np.uint8,
+                 np.int64, np.int32, np.int16, np.int8,
+                 np.int64, np.int32, np.int16, np.int8,
+                 )
+        for i, ty in enumerate(types):
+            kwargs= {f"simple_meta_types_{i}": [Type[ty]]}
+            self.run_test(f"def simple_meta_types_{i}(obj): return obj()",
+                          ty,
+                          **kwargs)
+
+    def test_slice_meta_types(self):
+        self.run_test("def slice_meta_types(obj): return obj(0,10,1)",
+                      slice, slice_meta_types=[Type[slice]])
+
+    def test_compound_meta_types(self):
+        types = (
+        (dict, Dict[int, int]),
+        (dict, dict),
+        (list, List[int]),
+        (list, list),
+        (set, Set[int]),
+        (set, set),
+        (tuple, Tuple[int]),
+        (tuple, tuple),
+        )
+        for i, (pyty, ty) in enumerate(types):
+            kwargs= {f"compound_meta_types_{i}": [Type[ty]]}
+            self.run_test(f"def compound_meta_types_{i}(obj): return obj()",
+                          pyty,
+                          **kwargs)

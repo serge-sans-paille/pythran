@@ -94,6 +94,8 @@ class TestEnv(unittest.TestCase):
             self.assertIsInstance(res, (float, float64))
         elif isinstance(ref, (complex, complex128)):
             self.assertIsInstance(res, (complex, complex128))
+        elif isinstance(ref, complex256):
+            self.assertIsInstance(res, complex256)
         elif isinstance(ref, (bool, bool_)):
             self.assertIsInstance(res, (bool, bool_))
         elif hasattr(ref, 'dtype'):

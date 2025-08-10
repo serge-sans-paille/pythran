@@ -28,4 +28,31 @@ namespace numpy
 } // namespace numpy
 PYTHONIC_NS_END
 
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+#include "numpy/arrayscalars.h"
+
+PYTHONIC_NS_BEGIN
+
+inline PyObject *
+to_python<numpy::functor::float128>::convert(numpy::functor::float128 const &c)
+{
+  return (PyObject*)&PyLongDoubleArrType_Type;
+}
+
+inline bool from_python<numpy::functor::float128>::is_convertible(PyObject *obj)
+{
+  return obj == (PyObject*)&PyLongDoubleArrType_Type;
+}
+
+inline numpy::functor::float128
+from_python<numpy::functor::float128>::convert(PyObject *obj)
+{
+  return {};
+}
+
+PYTHONIC_NS_END
+#endif
+
 #endif

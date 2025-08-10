@@ -15,4 +15,31 @@ namespace numpy
 } // namespace numpy
 PYTHONIC_NS_END
 
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+#include "numpy/arrayscalars.h"
+
+PYTHONIC_NS_BEGIN
+
+inline PyObject *
+to_python<numpy::functor::float_>::convert(numpy::functor::float_ const &c)
+{
+  return (PyObject*)&PyDoubleArrType_Type;
+}
+
+inline bool from_python<numpy::functor::float_>::is_convertible(PyObject *obj)
+{
+  return obj == (PyObject*)&PyDoubleArrType_Type;
+}
+
+inline numpy::functor::float_
+from_python<numpy::functor::float_>::convert(PyObject *obj)
+{
+  return {};
+}
+
+PYTHONIC_NS_END
+#endif
+
 #endif

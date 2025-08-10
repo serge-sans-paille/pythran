@@ -439,6 +439,15 @@ std::declval<bool>()))
                         )
                     )
 
+        class TypeType(DependentType):
+            '''
+            Type holding a type
+            '''
+
+            def generate(self, ctx):
+                return 'pythonic::types::type_t<{}>'.format(ctx(self.of))
+
+
         class ListType(DependentType):
             '''
             Type holding a list of stuff of the same type

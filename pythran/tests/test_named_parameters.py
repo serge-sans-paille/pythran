@@ -110,3 +110,56 @@ def aliasing_functions_with_different_structural_types(n):
                 return a, b'''
         self.run_test(code, 10, default_argument_all_filled=[int])
 
+    def test_func_as_param0(self):
+        code = '''
+        def helper(c, i):
+            if i:
+                return c(i, j=1)
+            else:
+                return c(i, k=2)
+        def func_as_param0(n):
+            return helper((lambda i, j=0, k=0: (i, j, k)), n)'''
+        self.run_test(code, 0, func_as_param0=[int])
+        self.run_test(code, 1, func_as_param0=[int])
+
+    def test_func_as_param1(self):
+        code = '''
+        def helper(c, i):
+            if i:
+                return c(i, x=1)
+            else:
+                return c(i)
+        def foo0(i, x=1): return i, x
+        def foo1(i, x=1): return i, x
+        def func_as_param1(n):
+            return helper(foo0, n), helper(foo1, 1)'''
+        self.run_test(code, 0, func_as_param1=[int])
+        self.run_test(code, 1, func_as_param1=[int])
+
+    def test_func_as_param2(self):
+        code = '''
+        def helper(c, i):
+            if i:
+                return c(i, x=3)
+            else:
+                return c(i, y=1000)
+        def foo0(i, x=1, y=2): return i, x
+        def foo1(i, x=10, y=100): return i, x
+        def func_as_param2(n):
+            return helper(foo0, n), helper(foo1, 1)'''
+        with self.assertRaises(PythranSyntaxError):
+            self.run_test(code, 0, func_as_param2=[int])
+
+    def test_func_as_param3(self):
+        code = '''
+        def helper(c, i):
+            if i:
+                return c(i, x=1)
+            else:
+                return c(i)
+        def foo0(i, x=1): return i, x
+        def foo1(i, x=10): return i, x
+        def func_as_param3(n):
+            return helper(foo0, n), helper(foo1, 1 - n)'''
+        self.run_test(code, 0, func_as_param3=[int])
+        self.run_test(code, 1, func_as_param3=[int])

@@ -439,7 +439,7 @@ namespace types
   }
 
   template <class S, size_t... Is>
-  long prod_helper(S const &shape, utils::index_sequence<Is...>)
+  long prod_helper(S const &shape, std::index_sequence<Is...>)
   {
     long res = 1;
     (void)std::initializer_list<long>{
@@ -450,7 +450,7 @@ namespace types
   template <class Arg>
   long numpy_iexpr<Arg>::flat_size() const
   {
-    return prod_helper(*this, utils::make_index_sequence<value>());
+    return prod_helper(*this, std::make_index_sequence<value>());
   }
 
   template <class Arg>

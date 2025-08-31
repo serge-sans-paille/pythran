@@ -12,7 +12,7 @@ namespace types
     template <class F, typename ResType, typename... ArgTypes, size_t... Is>
     void ufunc_wrapper(char *output, char **inputs, npy_intp n,
                        npy_intp output_step, const npy_intp *inputs_steps,
-                       utils::index_sequence<Is...>)
+                       std::index_sequence<Is...>)
     {
       for (npy_intp i = 0; i < n; ++i) {
         *(ResType *)output =
@@ -31,7 +31,7 @@ namespace types
     npy_intp output_step = steps[sizeof...(ArgTypes)];
     return detail::ufunc_wrapper<F, ResType, ArgTypes...>(
         args[sizeof...(ArgTypes)], args, dimensions[0], output_step, steps,
-        utils::make_index_sequence<sizeof...(ArgTypes)>());
+        std::make_index_sequence<sizeof...(ArgTypes)>());
   }
 } // namespace types
 PYTHONIC_NS_END

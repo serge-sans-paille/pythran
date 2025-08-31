@@ -19,7 +19,7 @@ namespace numpy
   {
     auto constexpr N = std::tuple_size<pS>::value;
     sutils::push_front_t<pS, std::integral_constant<long, N>> oshape;
-    sutils::scopy_shape<1, -1>(oshape, shape, utils::make_index_sequence<N>());
+    sutils::scopy_shape<1, -1>(oshape, shape, std::make_index_sequence<N>());
     types::ndarray<typename dtype::type,
                    sutils::push_front_t<pS, std::integral_constant<long, N>>>
         out(oshape, builtins::None);

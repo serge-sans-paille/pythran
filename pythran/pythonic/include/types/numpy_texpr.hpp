@@ -201,7 +201,7 @@ namespace types
                                 (s0.step, s0)))>;
 
     template <class S, size_t... I>
-    auto _reverse_index(S const &indices, utils::index_sequence<I...>) const
+    auto _reverse_index(S const &indices, std::index_sequence<I...>) const
         -> decltype(numpy::functor::transpose{}(
             this->arg(std::get<I>(indices)...)))
     {

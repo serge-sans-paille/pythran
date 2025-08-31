@@ -92,7 +92,7 @@ namespace types
 
   /* helper to extract the tail of a tuple, && pop the head */
   template <int Offset, class T, size_t... N>
-  auto make_tuple_tail(T const &t, utils::index_sequence<N...>)
+  auto make_tuple_tail(T const &t, std::index_sequence<N...>)
       -> decltype(std::make_tuple(std::get<Offset + 1 + N>(t)...))
   {
     return std::make_tuple(std::get<Offset + 1 + N>(t)...);
@@ -114,16 +114,16 @@ namespace types
   auto tuple_pop(std::tuple<S, Stail...> const &t)
       -> decltype(make_tuple_tail<count_trailing_long<Stail...>::value>(
           t,
-          utils::make_index_sequence<sizeof...(Stail) -
+          std::make_index_sequence<sizeof...(Stail) -
                                      count_trailing_long<Stail...>::value>{}))
   {
     return make_tuple_tail<count_trailing_long<Stail...>::value>(
-        t, utils::make_index_sequence<sizeof...(Stail) -
+        t, std::make_index_sequence<sizeof...(Stail) -
                                       count_trailing_long<Stail...>::value>{});
   }
 
   template <class A, size_t... I, class... Types>
-  std::tuple<Types...> array_to_tuple(A const &a, utils::index_sequence<I...>,
+  std::tuple<Types...> array_to_tuple(A const &a, std::index_sequence<I...>,
                                       utils::type_sequence<Types...>)
   {
     return std::tuple<Types...>(a[I]...);
@@ -177,42 +177,42 @@ namespace types
     std::tuple<Tys...> values;
 
     template <class... Args, size_t... Is>
-    pshape(std::tuple<Args...> const &v, utils::index_sequence<Is...>)
+    pshape(std::tuple<Args...> const &v, std::index_sequence<Is...>)
         : values{check_type(std::get<Is>(values), std::get<Is>(v))...}
     {
     }
     template <class... Args>
     pshape(std::tuple<Args...> const &v)
-        : pshape(v, utils::make_index_sequence<sizeof...(Args)>())
+        : pshape(v, std::make_index_sequence<sizeof...(Args)>())
     {
     }
 
     template <class... Args>
     pshape(long arg, Args... args)
         : pshape(std::make_tuple(arg, args...),
-                 utils::make_index_sequence<1 + sizeof...(args)>())
+                 std::make_index_sequence<1 + sizeof...(args)>())
     {
     }
     template <class T, T N, class... Args>
     pshape(std::integral_constant<T, N> arg, Args... args)
         : pshape(std::make_tuple(arg, args...),
-                 utils::make_index_sequence<1 + sizeof...(args)>())
+                 std::make_index_sequence<1 + sizeof...(args)>())
     {
     }
 
     template <class S, size_t... Is>
-    pshape(S const *buffer, utils::index_sequence<Is...>)
+    pshape(S const *buffer, std::index_sequence<Is...>)
         : values{check_type(std::get<Is>(values), buffer[Is])...}
     {
     }
     template <class S>
     pshape(S const *buffer)
-        : pshape(buffer, utils::make_index_sequence<sizeof...(Tys)>())
+        : pshape(buffer, std::make_index_sequence<sizeof...(Tys)>())
     {
     }
     template <class... TyOs>
     pshape(pshape<TyOs...> other)
-        : pshape(other.values, utils::make_index_sequence<sizeof...(TyOs)>())
+        : pshape(other.values, std::make_index_sequence<sizeof...(TyOs)>())
     {
       static_assert(sizeof...(TyOs) == sizeof...(Tys), "compatible sizes");
     }
@@ -231,14 +231,14 @@ namespace types
 
     template <size_t... Is>
     types::array_tuple<long, sizeof...(Tys)>
-    array(utils::index_sequence<Is...>) const
+    array(std::index_sequence<Is...>) const
     {
       return {{get<Is>()...}};
     }
 
     types::array_tuple<long, sizeof...(Tys)> array() const
     {
-      return array(utils::make_index_sequence<sizeof...(Tys)>());
+      return array(std::make_index_sequence<sizeof...(Tys)>());
     }
     operator types::array_tuple<long, sizeof...(Tys)>() const
     {
@@ -453,7 +453,7 @@ namespace types
     operator array_base<Tp, N, Version>() const;
 
     auto to_tuple() const
-        -> decltype(array_to_tuple(*this, utils::make_index_sequence<N>{},
+        -> decltype(array_to_tuple(*this, std::make_index_sequence<N>{},
 
                                    utils::make_repeated_type<T, N>()));
 
@@ -611,7 +611,7 @@ namespace types
 
   template <class T, class Tuple, size_t... S>
   types::array_tuple<T, sizeof...(S)> _to_array(Tuple const &t,
-                                                utils::index_sequence<S...>)
+                                                std::index_sequence<S...>)
   {
     return {{static_cast<T>(std::get<S>(t))...}};
   }
@@ -619,7 +619,7 @@ namespace types
   template <class T, class... Tys>
   types::array_tuple<T, sizeof...(Tys)> to_array(std::tuple<Tys...> const &t)
   {
-    return _to_array<T>(t, utils::make_index_sequence<sizeof...(Tys)>());
+    return _to_array<T>(t, std::make_index_sequence<sizeof...(Tys)>());
   }
 
   // Tuple concatenation for array && tuple
@@ -841,10 +841,10 @@ struct __combined<std::tuple<t0...>,
   template <size_t... Is>
   static std::tuple<typename pythonic::details::pick_combined<
       typename std::tuple_element<Is, holder>::type, t, I == Is>::type...>
-      make_type(pythonic::utils::index_sequence<Is...>);
+      make_type(std::index_sequence<Is...>);
   static auto
   make_type() -> decltype(make_type(
-                  pythonic::utils::make_index_sequence<sizeof...(t0)>()));
+                  std::make_index_sequence<sizeof...(t0)>()));
   using type = decltype(make_type());
 };
 
@@ -1004,14 +1004,14 @@ namespace sutils
   struct merged_shapes;
 
   template <class Ss, size_t... Is>
-  struct merged_shapes<Ss, utils::index_sequence<Is...>> {
+  struct merged_shapes<Ss, std::index_sequence<Is...>> {
     using type = types::pshape<typename merge_shape<Is, Ss>::type...>;
   };
 
   template <size_t N, class... Ss>
   using merged_shapes_t =
       typename merged_shapes<std::tuple<Ss...>,
-                             utils::make_index_sequence<N>>::type;
+                             std::make_index_sequence<N>>::type;
 
   template <class... Ss>
   struct shape_commonifier;
@@ -1049,13 +1049,13 @@ namespace sutils
   struct common_shapes;
 
   template <class Ss, size_t... Is>
-  struct common_shapes<Ss, utils::index_sequence<Is...>> {
+  struct common_shapes<Ss, std::index_sequence<Is...>> {
     using type = types::pshape<typename common_shape<Is, Ss>::type...>;
   };
   template <size_t N, class... Ss>
   using common_shapes_t =
       typename common_shapes<std::tuple<Ss...>,
-                             utils::make_index_sequence<N>>::type;
+                             std::make_index_sequence<N>>::type;
 
   template <class T>
   struct transpose;
@@ -1083,7 +1083,7 @@ namespace sutils
   }
 
   template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
-  void copy_shape(T0 &shape0, T1 const &shape1, utils::index_sequence<Is...>)
+  void copy_shape(T0 &shape0, T1 const &shape1, std::index_sequence<Is...>)
   {
     (void)std::initializer_list<int>{
         (assign(std::get<Start + Is>(shape0),
@@ -1091,7 +1091,7 @@ namespace sutils
          1)...};
   }
   template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
-  void scopy_shape(T0 &shape0, T1 const &shape1, utils::index_sequence<Is...>)
+  void scopy_shape(T0 &shape0, T1 const &shape1, std::index_sequence<Is...>)
   {
     (void)std::initializer_list<int>{
         (assign(std::get<Start + Is>(shape0),
@@ -1100,7 +1100,7 @@ namespace sutils
   }
   template <size_t Start, ssize_t Offset, class T0, class T1, size_t... Is>
   void copy_strides(T0 &stride0, T1 const &stride1,
-                    utils::index_sequence<Is...>)
+                    std::index_sequence<Is...>)
   {
     (void)std::initializer_list<int>{
         (assign(std::get<Start + Is>(stride0),
@@ -1178,15 +1178,15 @@ namespace sutils
   }
   template <class E, size_t... Is>
   types::array_tuple<long, sizeof...(Is)> getshape(E const &e,
-                                                   utils::index_sequence<Is...>)
+                                                   std::index_sequence<Is...>)
   {
     return {(long)(e.template shape<Is>())...};
   }
   template <class E>
   auto getshape(E const &e)
-      -> decltype(getshape(e, utils::make_index_sequence<E::value>()))
+      -> decltype(getshape(e, std::make_index_sequence<E::value>()))
   {
-    return getshape(e, utils::make_index_sequence<E::value>());
+    return getshape(e, std::make_index_sequence<E::value>());
   }
 
   inline std::tuple<> getshape(...)
@@ -1624,7 +1624,7 @@ struct to_python<std::tuple<Types...>> {
 
   template <size_t... S>
   static PyObject *do_convert(std::tuple<Types...> const &t,
-                              utils::index_sequence<S...>);
+                              std::index_sequence<S...>);
 
   static PyObject *convert(std::tuple<Types...> const &t);
 };
@@ -1633,7 +1633,7 @@ template <typename T, size_t N>
 struct to_python<types::array_tuple<T, N>> {
   template <size_t... S>
   static PyObject *do_convert(types::array_tuple<T, N> const &t,
-                              utils::index_sequence<S...>);
+                              std::index_sequence<S...>);
 
   static PyObject *convert(types::array_tuple<T, N> const &t);
 };
@@ -1642,7 +1642,7 @@ template <typename T, size_t N>
 struct to_python<types::static_list<T, N>> {
   template <size_t... S>
   static PyObject *do_convert(types::static_list<T, N> const &t,
-                              utils::index_sequence<S...>);
+                              std::index_sequence<S...>);
 
   static PyObject *convert(types::static_list<T, N> const &t);
 };
@@ -1652,13 +1652,13 @@ struct from_python<std::tuple<Types...>> {
 
   template <size_t... S>
   static bool do_is_convertible(PyObject *obj,
-                                typename utils::index_sequence<S...>);
+                                typename std::index_sequence<S...>);
 
   static bool is_convertible(PyObject *obj);
 
   template <size_t... S>
   static std::tuple<Types...> do_convert(PyObject *obj,
-                                         typename utils::index_sequence<S...>);
+                                         typename std::index_sequence<S...>);
   static std::tuple<Types...> convert(PyObject *obj);
 };
 
@@ -1669,7 +1669,7 @@ struct from_python<types::array_tuple<T, N>> {
 
   template <size_t... S>
   static types::array_tuple<T, N>
-  do_convert(PyObject *obj, typename utils::index_sequence<S...>);
+  do_convert(PyObject *obj, typename std::index_sequence<S...>);
   static types::array_tuple<T, N> convert(PyObject *obj);
 };
 PYTHONIC_NS_END

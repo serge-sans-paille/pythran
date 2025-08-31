@@ -20,7 +20,7 @@ namespace itertools
     template <typename... Iters>
     template <size_t... I>
     product_iterator<Iters...>::product_iterator(
-        std::tuple<Iters...> &_iters, utils::index_sequence<I...> const &)
+        std::tuple<Iters...> &_iters, std::index_sequence<I...> const &)
         : it_begin(std::get<I>(_iters).begin()...),
           it_end(std::get<I>(_iters).end()...),
           it(std::get<I>(_iters).begin()...), end(it_begin == it_end)
@@ -30,7 +30,7 @@ namespace itertools
     template <typename... Iters>
     template <size_t... I>
     product_iterator<Iters...>::product_iterator(
-        npos, std::tuple<Iters...> &_iters, utils::index_sequence<I...> const &)
+        npos, std::tuple<Iters...> &_iters, std::index_sequence<I...> const &)
         : it_begin(std::get<I>(_iters).end()...),
           it_end(std::get<I>(_iters).end()...),
           it(std::get<I>(_iters).end()...), end(true)
@@ -41,7 +41,7 @@ namespace itertools
     template <size_t... I>
     types::make_tuple_t<typename Iters::value_type...>
     product_iterator<Iters...>::get_value(
-        utils::index_sequence<I...> const &) const
+        std::index_sequence<I...> const &) const
     {
       return types::make_tuple(*std::get<I>(it)...);
     }
@@ -50,7 +50,7 @@ namespace itertools
     types::make_tuple_t<typename Iters::value_type...>
     product_iterator<Iters...>::operator*() const
     {
-      return get_value(utils::make_index_sequence<sizeof...(Iters)>{});
+      return get_value(std::make_index_sequence<sizeof...(Iters)>{});
     }
 
     template <typename... Iters>
@@ -106,9 +106,9 @@ namespace itertools
     product<Iters...>::product(Iters const &..._iters)
         : utils::iterator_reminder<true, Iters...>(_iters...),
           iterator(this->values,
-                   utils::make_index_sequence<sizeof...(Iters)>{}),
+                   std::make_index_sequence<sizeof...(Iters)>{}),
           end_iter(npos(), this->values,
-                   utils::make_index_sequence<sizeof...(Iters)>{})
+                   std::make_index_sequence<sizeof...(Iters)>{})
     {
     }
 

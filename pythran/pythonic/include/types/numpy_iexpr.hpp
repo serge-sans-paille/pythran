@@ -295,7 +295,7 @@ namespace types
           fixed_new_shape;
       sutils::scopy_shape<1, -1>(
           fixed_new_shape, new_shape,
-          utils::make_index_sequence<std::tuple_size<pS>::value>{});
+          std::make_index_sequence<std::tuple_size<pS>::value>{});
       sutils::assign(std::get<0>(fixed_new_shape), arg.template shape<0>());
       return numpy_iexpr<decltype(arg.reshape(fixed_new_shape))>(
           arg.reshape(fixed_new_shape),

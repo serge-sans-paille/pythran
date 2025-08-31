@@ -13,7 +13,7 @@ namespace numpy
   namespace details
   {
     template <class P, size_t... Is>
-    P iota(utils::index_sequence<Is...>)
+    P iota(std::index_sequence<Is...>)
     {
       return {static_cast<typename P::value_type>(Is)...};
     }
@@ -21,7 +21,7 @@ namespace numpy
     template <class P>
     P iota()
     {
-      return iota<P>(utils::make_index_sequence<P::size>());
+      return iota<P>(std::make_index_sequence<P::size>());
     }
   } // namespace details
   template <class Op, class E, class T>
@@ -249,7 +249,7 @@ namespace numpy
 
   template <class Op, size_t N, class T, class E, size_t... Axis>
   void _argminmax_pick_axis(long axis, T &&out, E const &expr,
-                            utils::index_sequence<Axis...>)
+                            std::index_sequence<Axis...>)
   {
     (void)std::initializer_list<bool>{
         ((Axis == axis) && (_argminmax_head<Op, N, Axis>(
@@ -272,7 +272,7 @@ namespace numpy
     types::ndarray<long, types::array_tuple<long, E::value - 1>> out{
         shp, builtins::None};
     _argminmax_pick_axis<Op, E::value>(axis, out, array,
-                                       utils::make_index_sequence<E::value>());
+                                       std::make_index_sequence<E::value>());
     return out;
   }
 } // namespace numpy

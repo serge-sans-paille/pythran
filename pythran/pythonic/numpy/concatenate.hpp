@@ -54,7 +54,7 @@ namespace numpy
       // array version
       template <class Out, class A, size_t... I>
       void operator()(Out &&out, A const &from, long axis,
-                      utils::index_sequence<I...>) const
+                      std::index_sequence<I...>) const
       {
         if (axis == 0) {
           auto out_iter = out.begin();
@@ -74,7 +74,7 @@ namespace numpy
                 sizeof...(I)>
                 difroms = {*std::get<I>(ifroms)...};
             concatenate_helper<N - 1>()(iout, difroms, axis - 1,
-                                        utils::index_sequence<I...>{});
+                                        std::index_sequence<I...>{});
             (void)std::initializer_list<int>{(++std::get<I>(ifroms), 0)...};
           }
         }
@@ -82,7 +82,7 @@ namespace numpy
       // tuple version
       template <class Out, class... Ts, size_t... I>
       void operator()(Out &&out, std::tuple<Ts...> const &from, long axis,
-                      utils::index_sequence<I...>) const
+                      std::index_sequence<I...>) const
       {
         if (axis == 0) {
           auto out_iter = out.begin();
@@ -96,7 +96,7 @@ namespace numpy
           for (auto &&iout : out) {
             auto difroms = std::make_tuple(*std::get<I>(ifroms)...);
             concatenate_helper<N - 1>()(iout, difroms, axis - 1,
-                                        utils::index_sequence<I...>{});
+                                        std::index_sequence<I...>{});
             (void)std::initializer_list<int>{(++std::get<I>(ifroms), 0)...};
           }
         }
@@ -113,20 +113,20 @@ namespace numpy
       // array version
       template <class Out, class E, size_t... I>
       void operator()(Out &&, E const &, long,
-                      utils::index_sequence<I...>) const
+                      std::index_sequence<I...>) const
       {
       }
       // tuple version - sentinel
       template <class Out, class... Ts, size_t... I>
       void operator()(Out &&, std::tuple<Ts...> const &, long,
-                      utils::index_sequence<I...>) const
+                      std::index_sequence<I...>) const
       {
       }
     };
 
     template <class A, size_t... I>
     long concatenate_axis_size(A const &from, long axis,
-                               utils::index_sequence<I...>)
+                               std::index_sequence<I...>)
     {
       long sizes[] = {sutils::getshape(std::get<I>(from))[axis]...};
       return std::accumulate(std::begin(sizes), std::end(sizes), 0L,
@@ -146,7 +146,7 @@ namespace numpy
     auto constexpr N = std::decay<decltype(std::get<0>(args))>::type::value;
     auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] = details::concatenate_axis_size(
-        args, axis, utils::make_index_sequence<sizeof...(Types)>{});
+        args, axis, std::make_index_sequence<sizeof...(Types)>{});
 
     types::ndarray<
         typename __combined<typename std::decay<Types>::type::dtype...>::type,
@@ -154,7 +154,7 @@ namespace numpy
             long, std::decay<decltype(std::get<0>(args))>::type::value>>
         result{shape, types::none_type{}};
     details::concatenate_helper<N>()(
-        result, args, axis, utils::make_index_sequence<sizeof...(Types)>{});
+        result, args, axis, std::make_index_sequence<sizeof...(Types)>{});
     return result;
   }
 
@@ -166,11 +166,11 @@ namespace numpy
     auto constexpr N = E::value;
     auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] = details::concatenate_axis_size(
-        args, axis, utils::make_index_sequence<M>{});
+        args, axis, std::make_index_sequence<M>{});
     types::ndarray<typename E::dtype, types::array_tuple<long, E::value>> out(
         shape, types::none_type{});
     details::concatenate_helper<N>()(out, args, axis,
-                                     utils::make_index_sequence<M>{});
+                                     std::make_index_sequence<M>{});
     return out;
   }
 

@@ -42,7 +42,7 @@ namespace types
 
   template <size_t value, class Args, size_t... Is>
   struct all_valid_indices<value, Args, 0, Is...> {
-    using type = utils::index_sequence<Is...>;
+    using type = std::index_sequence<Is...>;
   };
   template <size_t value, class Args, size_t N, size_t... Is>
   struct all_valid_indices
@@ -67,7 +67,7 @@ namespace types
   template <class Op>
   struct Dereferencer {
     template <class Ts, size_t... I>
-    auto operator()(Ts const &iters, utils::index_sequence<I...>)
+    auto operator()(Ts const &iters, std::index_sequence<I...>)
         -> decltype(Op{}(*std::get<I>(iters)...))
     {
       return Op{}(*std::get<I>(iters)...);
@@ -80,7 +80,7 @@ namespace types
   namespace details
   {
     template <size_t I, class Args, size_t... Is>
-    long init_shape_element(Args const &args, utils::index_sequence<Is...>);
+    long init_shape_element(Args const &args, std::index_sequence<Is...>);
   }
 
   template <class Op, class Steps, class... Iters>
@@ -109,16 +109,16 @@ namespace types
     }
 
     template <size_t... I>
-    auto _dereference(utils::index_sequence<I...> s) const
+    auto _dereference(std::index_sequence<I...> s) const
         -> decltype(Dereferencer<Op>{}(iters_, s))
     {
       return Dereferencer<Op>{}(iters_, s);
     }
 
     auto operator*() const -> decltype(this->_dereference(
-        utils::make_index_sequence<sizeof...(Iters)>{}))
+        std::make_index_sequence<sizeof...(Iters)>{}))
     {
-      return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
+      return _dereference(std::make_index_sequence<sizeof...(Iters)>{});
     }
 
     template <size_t I>
@@ -140,7 +140,7 @@ namespace types
     }
 
     template <size_t... I>
-    void _incr(utils::index_sequence<I...>)
+    void _incr(std::index_sequence<I...>)
     {
       (void)std::initializer_list<bool>{_incr_opt<I>(
           std::integral_constant<
@@ -149,7 +149,7 @@ namespace types
     }
     numpy_expr_iterator &operator++()
     {
-      _incr(utils::make_index_sequence<sizeof...(Iters)>{});
+      _incr(std::make_index_sequence<sizeof...(Iters)>{});
       return *this;
     }
 
@@ -160,20 +160,20 @@ namespace types
     }
 
     template <size_t... I>
-    void _update(long i, utils::index_sequence<I...>)
+    void _update(long i, std::index_sequence<I...>)
     {
       (void)std::initializer_list<bool>{
           (std::get<I>(iters_) += std::get<I>(steps_) * i, true)...};
     }
     numpy_expr_iterator &operator+=(long i)
     {
-      _update(i, utils::make_index_sequence<sizeof...(Iters)>{});
+      _update(i, std::make_index_sequence<sizeof...(Iters)>{});
       return *this;
     }
 
     template <size_t... I>
     long _difference(numpy_expr_iterator const &other,
-                     utils::index_sequence<I...>) const
+                     std::index_sequence<I...>) const
     {
       std::initializer_list<long> distances{(static_cast<long>(
           std::get<I>(iters_) - std::get<I>(other.iters_)))...};
@@ -182,7 +182,7 @@ namespace types
 
     long operator-(numpy_expr_iterator const &other) const
     {
-      return _difference(other, utils::make_index_sequence<sizeof...(Iters)>{});
+      return _difference(other, std::make_index_sequence<sizeof...(Iters)>{});
     }
 
     bool _neq(numpy_expr_iterator const &other, utils::int_<0u>) const
@@ -276,7 +276,7 @@ namespace types
     }
 
     template <size_t... I>
-    auto _dereference(utils::index_sequence<I...>) const
+    auto _dereference(std::index_sequence<I...>) const
         -> decltype(Op{}(*std::get<I>(iters_)...))
     {
       return Op{}(((std::get<I>(steps_)) ? (*std::get<I>(iters_))
@@ -284,9 +284,9 @@ namespace types
     }
 
     auto operator*() const -> decltype(this->_dereference(
-        utils::make_index_sequence<sizeof...(Iters)>{}))
+        std::make_index_sequence<sizeof...(Iters)>{}))
     {
-      return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
+      return _dereference(std::make_index_sequence<sizeof...(Iters)>{});
     }
 
     template <size_t I>
@@ -308,7 +308,7 @@ namespace types
     }
 
     template <size_t... I>
-    void _incr(utils::index_sequence<I...>)
+    void _incr(std::index_sequence<I...>)
     {
       (void)std::initializer_list<bool>{_incr_opt<I>(
           std::integral_constant<
@@ -317,7 +317,7 @@ namespace types
     }
     numpy_expr_simd_iterator &operator++()
     {
-      _incr(utils::make_index_sequence<sizeof...(Iters)>{});
+      _incr(std::make_index_sequence<sizeof...(Iters)>{});
       return *this;
     }
 
@@ -328,20 +328,20 @@ namespace types
     }
 
     template <size_t... I>
-    void _update(long i, utils::index_sequence<I...>)
+    void _update(long i, std::index_sequence<I...>)
     {
       (void)std::initializer_list<bool>{
           (std::get<I>(iters_) += std::get<I>(steps_) * i, true)...};
     }
     numpy_expr_simd_iterator &operator+=(long i)
     {
-      _update(i, utils::make_index_sequence<sizeof...(Iters)>{});
+      _update(i, std::make_index_sequence<sizeof...(Iters)>{});
       return *this;
     }
 
     template <size_t... I>
     long _difference(numpy_expr_simd_iterator const &other,
-                     utils::index_sequence<I...>) const
+                     std::index_sequence<I...>) const
     {
       std::initializer_list<long> distances{
           (std::get<I>(iters_) - std::get<I>(other.iters_))...};
@@ -350,7 +350,7 @@ namespace types
 
     long operator-(numpy_expr_simd_iterator const &other) const
     {
-      return _difference(other, utils::make_index_sequence<sizeof...(Iters)>{});
+      return _difference(other, std::make_index_sequence<sizeof...(Iters)>{});
     }
 
     bool _neq(numpy_expr_simd_iterator const &other, utils::int_<0u>) const
@@ -437,32 +437,32 @@ namespace types
     }
 
     template <size_t... I>
-    auto _dereference(utils::index_sequence<I...>) const
+    auto _dereference(std::index_sequence<I...>) const
         -> decltype(Op{}(*std::get<I>(iters_)...))
     {
       return Op{}((*std::get<I>(iters_))...);
     }
 
     auto operator*() const -> decltype(this->_dereference(
-        utils::make_index_sequence<sizeof...(Iters)>{}))
+        std::make_index_sequence<sizeof...(Iters)>{}))
     {
-      return _dereference(utils::make_index_sequence<sizeof...(Iters)>{});
+      return _dereference(std::make_index_sequence<sizeof...(Iters)>{});
     }
 
     template <size_t... I>
-    void _incr(utils::index_sequence<I...>)
+    void _incr(std::index_sequence<I...>)
     {
       (void)std::initializer_list<bool>{(++std::get<I>(iters_), true)...};
     }
     numpy_expr_simd_iterator_nobroadcast &operator++()
     {
-      _incr(utils::make_index_sequence<sizeof...(Iters)>{});
+      _incr(std::make_index_sequence<sizeof...(Iters)>{});
       return *this;
     }
 
     template <size_t... I>
     long _difference(numpy_expr_simd_iterator_nobroadcast const &other,
-                     utils::index_sequence<I...>) const
+                     std::index_sequence<I...>) const
     {
       std::initializer_list<long> distances{
           (std::get<I>(iters_) - std::get<I>(other.iters_))...};
@@ -471,7 +471,7 @@ namespace types
 
     long operator-(numpy_expr_simd_iterator_nobroadcast const &other) const
     {
-      return _difference(other, utils::make_index_sequence<sizeof...(Iters)>{});
+      return _difference(other, std::make_index_sequence<sizeof...(Iters)>{});
     }
 
     numpy_expr_simd_iterator_nobroadcast operator+(long i) const
@@ -481,13 +481,13 @@ namespace types
     }
 
     template <size_t... I>
-    void _update(long i, utils::index_sequence<I...>)
+    void _update(long i, std::index_sequence<I...>)
     {
       (void)std::initializer_list<bool>{(std::get<I>(iters_) += i, true)...};
     }
     numpy_expr_simd_iterator_nobroadcast &operator+=(long i)
     {
-      _update(i, utils::make_index_sequence<sizeof...(Iters)>{});
+      _update(i, std::make_index_sequence<sizeof...(Iters)>{});
       return *this;
     }
 
@@ -588,7 +588,7 @@ namespace types
   }
 
   template <size_t... J, class Arg, class Shp, class... S>
-  auto make_subslice(utils::index_sequence<J...>, Arg const &arg,
+  auto make_subslice(std::index_sequence<J...>, Arg const &arg,
                      Shp const &shp, std::tuple<S...> const &ss)
       -> decltype(arg(std::get<J>(ss)...))
   {
@@ -659,26 +659,26 @@ namespace types
     numpy_expr(Args const &...args);
 
     template <size_t... I>
-    const_iterator _begin(utils::index_sequence<I...>) const;
+    const_iterator _begin(std::index_sequence<I...>) const;
     const_iterator begin() const;
 
     template <size_t... I>
-    const_iterator _end(utils::index_sequence<I...>) const;
+    const_iterator _end(std::index_sequence<I...>) const;
     const_iterator end() const;
 
     const_fast_iterator begin(types::fast) const;
     const_fast_iterator end(types::fast) const;
 
     template <size_t... I>
-    iterator _begin(utils::index_sequence<I...>);
+    iterator _begin(std::index_sequence<I...>);
     iterator begin();
 
     template <size_t... I>
-    iterator _end(utils::index_sequence<I...>);
+    iterator _end(std::index_sequence<I...>);
     iterator end();
 
     template <size_t... I>
-    auto _fast(long i, utils::index_sequence<I...>) const
+    auto _fast(long i, std::index_sequence<I...>) const
         -> decltype(Op()(std::get<I>(args).fast(i)...))
     {
       return Op()(std::get<I>(args).fast(i)...);
@@ -686,10 +686,10 @@ namespace types
 
     auto fast(long i) const
         -> decltype(this->_fast(i,
-                                utils::make_index_sequence<sizeof...(Args)>{}));
+                                std::make_index_sequence<sizeof...(Args)>{}));
 
     template <class... Indices, size_t... I>
-    auto _load(utils::index_sequence<I...>, Indices... indices) const
+    auto _load(std::index_sequence<I...>, Indices... indices) const
         -> decltype(Op()(std::get<I>(args).load(indices...)...))
     {
       return Op()(std::get<I>(args).load(indices...)...);
@@ -697,16 +697,16 @@ namespace types
 
     template <class... Indices>
     auto load(Indices... indices) const
-        -> decltype(this->_load(utils::make_index_sequence<sizeof...(Args)>{},
+        -> decltype(this->_load(std::make_index_sequence<sizeof...(Args)>{},
                                 indices...))
     {
-      return this->_load(utils::make_index_sequence<sizeof...(Args)>{},
+      return this->_load(std::make_index_sequence<sizeof...(Args)>{},
                          indices...);
     }
 
     template <size_t... I>
     auto _map_fast(array_tuple<long, sizeof...(I)> const &indices,
-                   utils::index_sequence<I...>) const
+                   std::index_sequence<I...>) const
         -> decltype(Op()(std::get<I>(args).fast(std::get<I>(indices))...))
     {
       return Op()(std::get<I>(args).fast(std::get<I>(indices))...);
@@ -715,7 +715,7 @@ namespace types
     template <class... Indices>
     auto map_fast(Indices... indices) const -> decltype(this->_map_fast(
         array_tuple<long, sizeof...(Indices)>{{indices...}},
-        utils::make_index_sequence<sizeof...(Args)>{}));
+        std::make_index_sequence<sizeof...(Args)>{}));
 
   public:
     template <size_t I>
@@ -726,13 +726,13 @@ namespace types
           args, valid_indices<value, std::tuple<Args...>>{});
     }
     template <size_t... I>
-    bool _no_broadcast(utils::index_sequence<I...>) const;
+    bool _no_broadcast(std::index_sequence<I...>) const;
     bool no_broadcast() const;
     template <size_t... I>
-    bool _no_broadcast_vectorize(utils::index_sequence<I...>) const;
+    bool _no_broadcast_vectorize(std::index_sequence<I...>) const;
     bool no_broadcast_vectorize() const;
     template <size_t... I>
-    bool _no_broadcast_ex(utils::index_sequence<I...>) const;
+    bool _no_broadcast_ex(std::index_sequence<I...>) const;
     bool no_broadcast_ex() const;
 
 #ifdef USE_XSIMD
@@ -748,37 +748,37 @@ namespace types
         typename std::remove_reference<
             Args>::type::simd_iterator_nobroadcast...>;
     template <size_t... I>
-    simd_iterator _vbegin(types::vectorize, utils::index_sequence<I...>) const;
+    simd_iterator _vbegin(types::vectorize, std::index_sequence<I...>) const;
     simd_iterator vbegin(types::vectorize) const;
     template <size_t... I>
-    simd_iterator _vend(types::vectorize, utils::index_sequence<I...>) const;
+    simd_iterator _vend(types::vectorize, std::index_sequence<I...>) const;
     simd_iterator vend(types::vectorize) const;
 
     template <size_t... I>
     simd_iterator_nobroadcast _vbegin(types::vectorize_nobroadcast,
-                                      utils::index_sequence<I...>) const;
+                                      std::index_sequence<I...>) const;
     simd_iterator_nobroadcast vbegin(types::vectorize_nobroadcast) const;
     template <size_t... I>
     simd_iterator_nobroadcast _vend(types::vectorize_nobroadcast,
-                                    utils::index_sequence<I...>) const;
+                                    std::index_sequence<I...>) const;
     simd_iterator_nobroadcast vend(types::vectorize_nobroadcast) const;
 
 #endif
 
     template <size_t... I, class... S>
-    auto _get(utils::index_sequence<I...> is, S const &...s) const
+    auto _get(std::index_sequence<I...> is, S const &...s) const
         -> decltype(Op{}(
-            make_subslice(utils::make_index_sequence<sizeof...(S)>{},
+            make_subslice(std::make_index_sequence<sizeof...(S)>{},
                           std::get<I>(args), *this, std::make_tuple(s...))...))
     {
-      return Op{}(make_subslice(utils::make_index_sequence<sizeof...(S)>{},
+      return Op{}(make_subslice(std::make_index_sequence<sizeof...(S)>{},
                                 std::get<I>(args), *this,
                                 std::make_tuple(s...))...);
     }
 
     template <class... S>
     auto operator()(S const &...s) const
-        -> decltype(this->_get(utils::make_index_sequence<sizeof...(Args)>{},
+        -> decltype(this->_get(std::make_index_sequence<sizeof...(Args)>{},
                                s...));
 
     template <class F>
@@ -817,21 +817,21 @@ namespace types
     auto operator[](long i) const -> decltype(this->fast(i));
 
     template <size_t... I, class S>
-    auto _index(S s, utils::index_sequence<I...>) const
+    auto _index(S s, std::index_sequence<I...>) const
         -> decltype(Op{}(std::get<I>(args)[s]...))
     {
       return Op{}(std::get<I>(args)[s]...);
     }
     template <class S>
     auto operator[](S s) const -> decltype((*this)._index(
-        (s.lower, s), utils::make_index_sequence<sizeof...(Args)>{}))
+        (s.lower, s), std::make_index_sequence<sizeof...(Args)>{}))
     {
-      return _index(s, utils::make_index_sequence<sizeof...(Args)>{});
+      return _index(s, std::make_index_sequence<sizeof...(Args)>{});
     }
 
     dtype operator[](array_tuple<long, value> const &indices) const
     {
-      return _index(indices, utils::make_index_sequence<sizeof...(Args)>{});
+      return _index(indices, std::make_index_sequence<sizeof...(Args)>{});
     }
 
     explicit operator bool() const;

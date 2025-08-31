@@ -44,7 +44,7 @@ namespace numpy
   template <size_t Shift, class R, class S, size_t... Is>
   types::array_tuple<long, sizeof...(Is)>
   tile_init_shape(R const &reps, S const &expr_shape,
-                  utils::index_sequence<Is...>)
+                  std::index_sequence<Is...>)
   {
     constexpr size_t M = S::value;
     return {
@@ -59,7 +59,7 @@ namespace numpy
   {
     size_t n = expr.flat_size();
     types::array_tuple<long, N> shape = tile_init_shape<N - E::value>(
-        reps, expr, utils::make_index_sequence<N>());
+        reps, expr, std::make_index_sequence<N>());
 
     long last_rep = (E::value == N) ? std::get<N - 1>(reps) : 1;
     types::ndarray<typename E::dtype, types::array_tuple<long, N>> out(

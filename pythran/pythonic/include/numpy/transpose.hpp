@@ -64,16 +64,16 @@ namespace numpy
   template <class Op, class... Args>
   auto transpose(types::numpy_expr<Op, Args...> const &expr)
       -> decltype(_transpose<types::numpy_expr<Op, Args...>>{}(
-          expr, utils::make_index_sequence<sizeof...(Args)>()))
+          expr, std::make_index_sequence<sizeof...(Args)>()))
   {
     return _transpose<types::numpy_expr<Op, Args...>>{}(
-        expr, utils::make_index_sequence<sizeof...(Args)>());
+        expr, std::make_index_sequence<sizeof...(Args)>());
   }
   template <class Op, class... Args>
   struct _transpose<types::numpy_expr<Op, Args...>> {
     template <size_t... Is>
     auto operator()(types::numpy_expr<Op, Args...> const &expr,
-                    utils::index_sequence<Is...>)
+                    std::index_sequence<Is...>)
         -> decltype(Op{}(transpose(std::get<Is>(expr.args))...))
     {
       return Op{}(transpose(std::get<Is>(expr.args))...);

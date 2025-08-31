@@ -13,13 +13,13 @@ namespace numpy
   {
     template <class E, class S, size_t... I>
     auto flip(E const &expr, S const &slices,
-              utils::index_sequence<I...>) -> decltype(expr(slices[I]...));
+              std::index_sequence<I...>) -> decltype(expr(slices[I]...));
   }
 
   template <class E>
   auto flip(E const &expr, long axis)
       -> decltype(details::flip(expr, std::array<types::slice, E::value>{},
-                                utils::make_index_sequence<E::value>{}));
+                                std::make_index_sequence<E::value>{}));
 
   DEFINE_FUNCTOR(pythonic::numpy, flip);
 } // namespace numpy

@@ -17,7 +17,7 @@ namespace numpy
     namespace misc
     {
       template <class P, size_t... Is>
-      void set(P &p, long i, long v, utils::index_sequence<Is...>)
+      void set(P &p, long i, long v, std::index_sequence<Is...>)
       {
         (void)std::initializer_list<bool>{
             (i == Is && (sutils::assign(std::get<Is>(p), v), true))...};
@@ -43,7 +43,7 @@ namespace numpy
         auto auto_shape = new_shape;
         misc::set(auto_shape, where,
                   expr.flat_size() / -sutils::sprod(new_shape),
-                  utils::make_index_sequence<std::tuple_size<NpS>::value>());
+                  std::make_index_sequence<std::tuple_size<NpS>::value>());
         return expr.reshape(auto_shape);
       } else {
         auto nshape = sutils::sprod(new_shape);

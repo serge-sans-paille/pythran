@@ -46,7 +46,7 @@ namespace utils
     template <class E, class F, class SelfIndices, class OtherIndices,
               size_t... Is>
     void helper(E &&self, F const &other, SelfIndices &&self_indices,
-                OtherIndices &&other_indices, utils::index_sequence<Is...>)
+                OtherIndices &&other_indices, std::index_sequence<Is...>)
     {
       std::forward<E>(self).store(
           (typename std::decay<E>::type::dtype)other.load(
@@ -65,7 +65,7 @@ namespace utils
                     OtherIndices &&other_indices)
     {
       helper(std::forward<E>(self), other, self_indices, other_indices,
-             utils::make_index_sequence<std::tuple_size<
+             std::make_index_sequence<std::tuple_size<
                  typename std::decay<SelfIndices>::type>::value>());
     }
   };
@@ -362,7 +362,7 @@ namespace utils
     template <class E, class F, class SelfIndices, class OtherIndices,
               size_t... Is>
     void helper(E &&self, F const &other, SelfIndices &&self_indices,
-                OtherIndices &&other_indices, utils::index_sequence<Is...>)
+                OtherIndices &&other_indices, std::index_sequence<Is...>)
     {
       self.template update<Op>(other.load((long)std::get<Is>(other_indices)...),
                                (long)std::get<Is>(self_indices)...);
@@ -379,7 +379,7 @@ namespace utils
                     OtherIndices &&other_indices)
     {
       helper(std::forward<E>(self), other, self_indices, other_indices,
-             utils::make_index_sequence<std::tuple_size<
+             std::make_index_sequence<std::tuple_size<
                  typename std::decay<SelfIndices>::type>::value>());
     }
   };

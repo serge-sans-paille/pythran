@@ -219,7 +219,7 @@ namespace numpy
     template <class E, class F, class EIndices, class FIndices, size_t... Es,
               size_t... Fs>
     void helper(E &&e, F &&f, EIndices &&e_indices, FIndices &&f_indices,
-                utils::index_sequence<Es...>, utils::index_sequence<Fs...>)
+                std::index_sequence<Es...>, std::index_sequence<Fs...>)
     {
       f.template update<Op>(e.load(std::get<Es>(e_indices)...),
                             (long)std::get<Fs>(f_indices)...);
@@ -230,9 +230,9 @@ namespace numpy
     {
       helper(
           std::forward<E>(e), std::forward<F>(f), e_indices, f_indices,
-          utils::make_index_sequence<
+          std::make_index_sequence<
               std::tuple_size<typename std::decay<EIndices>::type>::value>(),
-          utils::make_index_sequence<
+          std::make_index_sequence<
               std::tuple_size<typename std::decay<FIndices>::type>::value>());
     }
   };

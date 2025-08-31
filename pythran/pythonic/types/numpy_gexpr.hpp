@@ -98,7 +98,7 @@ namespace types
 
   template <class E0, class Op, class... Args, size_t... Is>
   bool may_overlap(E0 const &e0, types::numpy_expr<Op, Args...> const &e1,
-                   utils::index_sequence<Is...>)
+                   std::index_sequence<Is...>)
   {
     bool overlaps[] = {may_overlap(e0, std::get<Is>(e1.args))...};
     return std::any_of(std::begin(overlaps), std::end(overlaps),
@@ -108,7 +108,7 @@ namespace types
   template <class E0, class Op, class... Args>
   bool may_overlap(E0 const &e0, types::numpy_expr<Op, Args...> const &e1)
   {
-    return may_overlap(e0, e1, utils::make_index_sequence<sizeof...(Args)>());
+    return may_overlap(e0, e1, std::make_index_sequence<sizeof...(Args)>());
   }
 
   template <class E0, class T1>
@@ -225,24 +225,24 @@ namespace types
     }
 
     template <class T, size_t... Is>
-    constexpr long count_new_axis_helper(utils::index_sequence<Is...>)
+    constexpr long count_new_axis_helper(std::index_sequence<Is...>)
     {
       return count_new_axis<typename std::tuple_element<Is, T>::type...>::value;
     }
 
     template <size_t I, class S, class T, size_t... Is>
-    auto normalize_all(S const &s, T const &t, utils::index_sequence<Is...>)
+    auto normalize_all(S const &s, T const &t, std::index_sequence<Is...>)
         -> decltype(std::make_tuple(normalize(
             std::get<Is>(t),
             s.template shape<I + Is -
                              count_new_axis_helper<T>(
-                                 utils::make_index_sequence<1 + Is>())>())...))
+                                 std::make_index_sequence<1 + Is>())>())...))
     {
       return std::make_tuple(normalize(
           std::get<Is>(t),
           s.template shape<I + Is -
                            count_new_axis_helper<T>(
-                               utils::make_index_sequence<1 + Is>())>())...);
+                               std::make_index_sequence<1 + Is>())>())...);
     }
 
     template <class... T1>
@@ -252,7 +252,7 @@ namespace types
         S const &s, std::tuple<>, std::tuple<T1...> const &t1)
     {
       return normalize_all<I>(s, t1,
-                              utils::make_index_sequence<sizeof...(T1)>());
+                              std::make_index_sequence<sizeof...(T1)>());
     }
 
     template <class Arg, class... Sp>
@@ -266,7 +266,7 @@ namespace types
     template <class Arg, class S, size_t... Is>
     numpy_gexpr<Arg, typename to_normalized_slice<
                          typename std::tuple_element<Is, S>::type>::type...>
-    _make_gexpr_helper(Arg arg, S const &s, utils::index_sequence<Is...>)
+    _make_gexpr_helper(Arg arg, S const &s, std::index_sequence<Is...>)
     {
       return {arg,
               to_normalized_slice<typename std::tuple_element<Is, S>::type>{}(
@@ -281,20 +281,20 @@ namespace types
                 arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
                     arg, std::tuple<std::integral_constant<
                              bool, to_slice<Sp>::is_new_axis>...>())),
-                s, utils::make_index_sequence<sizeof...(Sp)>()))>::type
+                s, std::make_index_sequence<sizeof...(Sp)>()))>::type
     {
       return _make_gexpr_helper(
           arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
               arg, std::tuple<std::integral_constant<
                        bool, to_slice<Sp>::is_new_axis>...>())),
-          s, utils::make_index_sequence<sizeof...(Sp)>());
+          s, std::make_index_sequence<sizeof...(Sp)>());
     }
 
     template <class Arg, class... S>
     template <size_t... Is>
     numpy_gexpr<Arg, normalize_t<S>...>
     make_gexpr<Arg, S...>::operator()(Arg arg, std::tuple<S...> s,
-                                      utils::index_sequence<Is...>)
+                                      std::index_sequence<Is...>)
     {
       return {arg, normalize(std::get<Is>(s), arg.template shape<Is>())...};
     }
@@ -304,7 +304,7 @@ namespace types
     make_gexpr<Arg, S...>::operator()(Arg arg, S const &...s)
     {
       return operator()(arg, std::tuple<S...>(s...),
-                        utils::make_index_sequence<sizeof...(S)>());
+                        std::make_index_sequence<sizeof...(S)>());
     }
   } // namespace details
 
@@ -395,13 +395,13 @@ namespace types
     sutils::copy_shape<sizeof...(S) - count_long<S...>::value,
                        count_long<S...>::value>(
         _shape, arg,
-        utils::make_index_sequence<value -
+        std::make_index_sequence<value -
                                    (sizeof...(S) - count_long<S...>::value)>());
 
     sutils::copy_strides<sizeof...(S) - count_long<S...>::value,
                          count_long<S...>::value>(
         _strides, arg,
-        utils::make_index_sequence<value -
+        std::make_index_sequence<value -
                                    (sizeof...(S) - count_long<S...>::value)>());
   }
 
@@ -417,10 +417,10 @@ namespace types
       : arg(arg), slices(tuple_pop(expr.slices)), buffer(expr.buffer)
   {
     assert(buffer);
-    sutils::copy_shape<0, 1>(_shape, expr, utils::make_index_sequence<value>());
+    sutils::copy_shape<0, 1>(_shape, expr, std::make_index_sequence<value>());
     buffer += arg.buffer - expr.arg.buffer;
     sutils::copy_strides<0, 1>(_strides, expr,
-                               utils::make_index_sequence<value>());
+                               std::make_index_sequence<value>());
   }
 
   template <class Arg, class... S>
@@ -430,10 +430,10 @@ namespace types
         buffer(expr.buffer)
   {
     assert(buffer);
-    sutils::copy_shape<0, 1>(_shape, expr, utils::make_index_sequence<value>());
+    sutils::copy_shape<0, 1>(_shape, expr, std::make_index_sequence<value>());
     buffer += (arg.buffer - expr.arg.buffer);
     sutils::copy_strides<0, 1>(_strides, expr,
-                               utils::make_index_sequence<value>());
+                               std::make_index_sequence<value>());
   }
 
   template <class Arg, class... S>

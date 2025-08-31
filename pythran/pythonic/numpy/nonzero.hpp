@@ -43,7 +43,7 @@ namespace numpy
 
   template <size_t... Is>
   types::array_tuple<utils::shared_ref<types::raw_array<long>>, sizeof...(Is)>
-  init_buffers(long sz, utils::index_sequence<Is...>)
+  init_buffers(long sz, std::index_sequence<Is...>)
   {
     auto fwd = [](long ret, long) { return ret; }; // just to avoid a warning
     return {{fwd(sz, Is)...}};                     // too much memory used
@@ -61,7 +61,7 @@ namespace numpy
     long sz = expr.flat_size();
 
     types::array_tuple<utils::shared_ref<types::raw_array<long>>, N>
-        out_buffers = init_buffers(sz, utils::make_index_sequence<N>());
+        out_buffers = init_buffers(sz, std::make_index_sequence<N>());
     types::array_tuple<long *, N> out_iters;
     for (size_t i = 0; i < N; ++i)
       out_iters[i] = out_buffers[i]->data;

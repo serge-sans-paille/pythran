@@ -552,7 +552,7 @@ namespace types
 
     template <class... Tys, size_t... Is>
     auto _fwdlongindex(std::tuple<Tys...> const &indices,
-                       utils::index_sequence<Is...>) const
+                       std::index_sequence<Is...>) const
         -> decltype((*this)(static_cast<long>(Is)...))
     {
       return (*this)(static_cast<long>(std::get<Is>(indices))...);
@@ -563,15 +563,15 @@ namespace types
         typename std::enable_if<
             utils::all_of<std::is_integral<Tys>::value...>::value,
             decltype(this->_fwdlongindex(
-                indices, utils::make_index_sequence<sizeof...(Tys)>()))>::type
+                indices, std::make_index_sequence<sizeof...(Tys)>()))>::type
     {
       return _fwdlongindex(indices,
-                           utils::make_index_sequence<sizeof...(Tys)>());
+                           std::make_index_sequence<sizeof...(Tys)>());
     }
 
     template <class... Tys, size_t... Is>
     auto _fwdlongindex(std::tuple<Tys...> const &indices,
-                       utils::index_sequence<Is...>)
+                       std::index_sequence<Is...>)
         -> decltype((*this)(static_cast<long>(Is)...))
     {
       return (*this)(static_cast<long>(std::get<Is>(indices))...);
@@ -582,10 +582,10 @@ namespace types
         typename std::enable_if<
             utils::all_of<std::is_integral<Tys>::value...>::value,
             decltype(this->_fwdlongindex(
-                indices, utils::make_index_sequence<sizeof...(Tys)>()))>::type
+                indices, std::make_index_sequence<sizeof...(Tys)>()))>::type
     {
       return _fwdlongindex(indices,
-                           utils::make_index_sequence<sizeof...(Tys)>());
+                           std::make_index_sequence<sizeof...(Tys)>());
     }
 
     template <class Ty0, class Ty1, class... Tys>
@@ -600,7 +600,7 @@ namespace types
     }
 
     template <class Slices, size_t... Is>
-    auto _fwdindex(Slices const &indices, utils::index_sequence<Is...>)
+    auto _fwdindex(Slices const &indices, std::index_sequence<Is...>)
         const & -> decltype((*this)(std::get<Is>(indices)...))
     {
       return (*this)(std::get<Is>(indices)...);
@@ -608,7 +608,7 @@ namespace types
 
     template <class S, size_t... Is>
     auto _fwdindex(dynamic_tuple<S> const &indices,
-                   utils::index_sequence<Is...>)
+                   std::index_sequence<Is...>)
         const & -> decltype((*this)(std::get<Is>(indices)...))
     {
       return (*this)((indices.size() > Is ? std::get<Is>(indices)
@@ -621,23 +621,23 @@ namespace types
     auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
         typename std::enable_if<is_numexpr_arg<Ty0>::value,
                                 decltype(this->_fwdindex(
-                                    indices, utils::make_index_sequence<
+                                    indices, std::make_index_sequence<
                                                  2 + sizeof...(Tys)>()))>::type;
 
     template <class Ty, size_t M,
               class _ = typename std::enable_if<!std::is_integral<Ty>::value,
                                                 void>::type>
     auto operator[](array_tuple<Ty, M> const &indices) const
-        & -> decltype(this->_fwdindex(indices, utils::make_index_sequence<M>()))
+        & -> decltype(this->_fwdindex(indices, std::make_index_sequence<M>()))
     {
-      return _fwdindex(indices, utils::make_index_sequence<M>());
+      return _fwdindex(indices, std::make_index_sequence<M>());
     }
     template <class S>
     auto operator[](dynamic_tuple<S> const &indices) const
         -> decltype(this->_fwdindex(indices,
-                                    utils::make_index_sequence<value>()))
+                                    std::make_index_sequence<value>()))
     {
-      return _fwdindex(indices, utils::make_index_sequence<value>());
+      return _fwdindex(indices, std::make_index_sequence<value>());
     }
 
     /* through iterators */
@@ -850,7 +850,7 @@ namespace builtins
                            types::array_tuple<long, E::value>>{},
             types::slice()));
     template <class T, class Ss, size_t... Is>
-    auto real_get(T &&expr, Ss const &indices, utils::index_sequence<Is...>)
+    auto real_get(T &&expr, Ss const &indices, std::index_sequence<Is...>)
         -> decltype(std::forward<T>(expr)(std::get<Is>(indices)...))
     {
       return std::forward<T>(expr)(std::get<Is>(indices)...);
@@ -866,7 +866,7 @@ namespace builtins
                            types::array_tuple<long, E::value>>{},
             types::slice()));
     template <class T, class Ss, size_t... Is>
-    auto imag_get(T &&expr, Ss const &indices, utils::index_sequence<Is...>)
+    auto imag_get(T &&expr, Ss const &indices, std::index_sequence<Is...>)
         -> decltype(std::forward<T>(expr)(std::get<Is>(indices)...))
     {
       return std::forward<T>(expr)(std::get<Is>(indices)...);
@@ -962,11 +962,11 @@ namespace builtins
   auto getattr(types::attr::REAL, types::numpy_gexpr<E, S...> const &a)
       -> decltype(details::real_get(
           getattr(types::attr::REAL{}, a.arg), a.slices,
-          utils::make_index_sequence<
+          std::make_index_sequence<
               std::tuple_size<decltype(a.slices)>::value>()))
   {
     return details::real_get(getattr(types::attr::REAL{}, a.arg), a.slices,
-                             utils::make_index_sequence<
+                             std::make_index_sequence<
                                  std::tuple_size<decltype(a.slices)>::value>());
   }
 
@@ -1009,11 +1009,11 @@ namespace builtins
   auto getattr(types::attr::IMAG, types::numpy_gexpr<E, S...> const &a)
       -> decltype(details::imag_get(
           getattr(types::attr::IMAG{}, a.arg), a.slices,
-          utils::make_index_sequence<
+          std::make_index_sequence<
               std::tuple_size<decltype(a.slices)>::value>()))
   {
     return details::imag_get(getattr(types::attr::IMAG{}, a.arg), a.slices,
-                             utils::make_index_sequence<
+                             std::make_index_sequence<
                                  std::tuple_size<decltype(a.slices)>::value>());
   }
 

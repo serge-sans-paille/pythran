@@ -78,13 +78,13 @@ namespace numpy
       throw types::ValueError("axis out of bounds");
     if (axis == 0) {
       types::array_tuple<long, N - 1> shp;
-      sutils::copy_shape<0, 1>(shp, array, utils::make_index_sequence<N - 1>());
+      sutils::copy_shape<0, 1>(shp, array, std::make_index_sequence<N - 1>());
       types::ndarray<bool, types::array_tuple<long, N - 1>> out(shp, true);
       return std::accumulate(array.begin(), array.end(), out,
                              functor::multiply());
     } else {
       types::array_tuple<long, N - 1> shp;
-      sutils::copy_shape<0, 0>(shp, array, utils::make_index_sequence<N - 1>());
+      sutils::copy_shape<0, 0>(shp, array, std::make_index_sequence<N - 1>());
       types::ndarray<bool, types::array_tuple<long, N - 1>> ally(
           shp, builtins::None);
       std::transform(

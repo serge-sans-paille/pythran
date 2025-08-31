@@ -31,10 +31,10 @@ namespace itertools
       product_iterator() = default;
       template <size_t... I>
       product_iterator(std::tuple<Iters...> &_iters,
-                       utils::index_sequence<I...> const &);
+                       std::index_sequence<I...> const &);
       template <size_t... I>
       product_iterator(npos, std::tuple<Iters...> &_iters,
-                       utils::index_sequence<I...> const &);
+                       std::index_sequence<I...> const &);
       types::make_tuple_t<typename Iters::value_type...> operator*() const;
       product_iterator &operator++();
       bool operator==(product_iterator const &other) const;
@@ -47,7 +47,7 @@ namespace itertools
       void advance(utils::int_<0>);
       template <size_t... I>
       types::make_tuple_t<typename Iters::value_type...>
-      get_value(utils::index_sequence<I...> const &) const;
+      get_value(std::index_sequence<I...> const &) const;
     };
 
     template <typename... Iters>

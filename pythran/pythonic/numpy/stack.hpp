@@ -52,7 +52,7 @@ namespace numpy
   types::ndarray<
       typename details::stack_helper_t<Tys...>::dtype,
       types::array_tuple<long, details::stack_helper_t<Tys...>::value + 1>>
-  stack(std::tuple<Tys...> const &args, long axis, utils::index_sequence<Is...>)
+  stack(std::tuple<Tys...> const &args, long axis, std::index_sequence<Is...>)
   {
     types::array_tuple<
         types::ndarray<
@@ -69,7 +69,7 @@ namespace numpy
       types::array_tuple<long, details::stack_helper_t<Tys...>::value + 1>>
   stack(std::tuple<Tys...> const &args, long axis)
   {
-    return stack(args, axis, utils::make_index_sequence<sizeof...(Tys)>());
+    return stack(args, axis, std::make_index_sequence<sizeof...(Tys)>());
   }
 } // namespace numpy
 PYTHONIC_NS_END

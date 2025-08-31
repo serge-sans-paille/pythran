@@ -131,7 +131,7 @@ namespace types
 
     template <class E, class... S, size_t... Is>
     numpy_gexpr<typename std::decay<E>::type, normalize_t<S>...>
-    fwd(E &&expr, std::tuple<S...> const &s, utils::index_sequence<Is...>)
+    fwd(E &&expr, std::tuple<S...> const &s, std::index_sequence<Is...>)
     {
       return {std::forward<E>(expr),
               std::get<Is>(s).normalize(expr.template shape<Is>())...};
@@ -227,7 +227,7 @@ namespace types
 
     template <class T, class Ts, size_t... Is>
     std::tuple<T, typename std::tuple_element<Is, Ts>::type...>
-    tuple_push_head(T const &val, Ts const &vals, utils::index_sequence<Is...>)
+    tuple_push_head(T const &val, Ts const &vals, std::index_sequence<Is...>)
     {
       return std::tuple<T, typename std::tuple_element<Is, Ts>::type...>{
           val, std::get<Is>(vals)...};
@@ -237,10 +237,10 @@ namespace types
     auto tuple_push_head(T const &val, Ts const &vals)
         -> decltype(tuple_push_head(
             val, vals,
-            utils::make_index_sequence<std::tuple_size<Ts>::value>()))
+            std::make_index_sequence<std::tuple_size<Ts>::value>()))
     {
       return tuple_push_head(
-          val, vals, utils::make_index_sequence<std::tuple_size<Ts>::value>());
+          val, vals, std::make_index_sequence<std::tuple_size<Ts>::value>());
     }
 
     // this struct is specialized for every type combination && takes care of
@@ -401,7 +401,7 @@ namespace types
     template <class Arg, class S, size_t... Is>
     numpy_gexpr<Arg, typename to_normalized_slice<
                          typename std::tuple_element<Is, S>::type>::type...>
-    _make_gexpr_helper(Arg arg, S const &s, utils::index_sequence<Is...>);
+    _make_gexpr_helper(Arg arg, S const &s, std::index_sequence<Is...>);
 
     template <class Arg, class... Sp>
     auto _make_gexpr(Arg arg, std::tuple<Sp...> const &s) ->
@@ -411,13 +411,13 @@ namespace types
                 arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
                     arg, std::tuple<std::integral_constant<
                              bool, to_slice<Sp>::is_new_axis>...>())),
-                s, utils::make_index_sequence<sizeof...(Sp)>()))>::type;
+                s, std::make_index_sequence<sizeof...(Sp)>()))>::type;
 
     template <class Arg, class... S>
     struct make_gexpr {
       template <size_t... Is>
       numpy_gexpr<Arg, normalize_t<S>...>
-      operator()(Arg arg, std::tuple<S...>, utils::index_sequence<Is...>);
+      operator()(Arg arg, std::tuple<S...>, std::index_sequence<Is...>);
       numpy_gexpr<Arg, normalize_t<S>...> operator()(Arg arg, S const &...s);
     };
 
@@ -700,7 +700,7 @@ namespace types
                        typename to_normalized_slice<typename std::tuple_element<
                            Is, _other_classes>::type>::type...>
     details::_make_gexpr_helper(_Arg arg, _other_classes const &s,
-                                utils::index_sequence<Is...>);
+                                std::index_sequence<Is...>);
 
     template <size_t C>
     friend struct extended_slice;
@@ -934,7 +934,7 @@ namespace types
     }
 
     template <class Tp, size_t... Is>
-    auto recast(utils::index_sequence<Is...>)
+    auto recast(std::index_sequence<Is...>)
         -> decltype(make_gexpr(
             arg.template recast<Tp>(),
             recast_slice<sizeof(dtype), sizeof(Tp)>(std::get<Is>(slices))...))
@@ -946,9 +946,9 @@ namespace types
 
     template <class Tp>
     auto
-    recast() -> decltype(recast<Tp>(utils::make_index_sequence<sizeof...(S)>()))
+    recast() -> decltype(recast<Tp>(std::make_index_sequence<sizeof...(S)>()))
     {
-      return recast<Tp>(utils::make_index_sequence<sizeof...(S)>());
+      return recast<Tp>(std::make_index_sequence<sizeof...(S)>());
     }
   };
 } // namespace types

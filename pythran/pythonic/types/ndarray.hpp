@@ -74,7 +74,7 @@ namespace types
 {
   template <class pS, size_t... Is>
   array_tuple<long, std::tuple_size<pS>::value>
-  make_strides(pS const &shape, utils::index_sequence<Is...>)
+  make_strides(pS const &shape, std::index_sequence<Is...>)
   {
     array_tuple<long, std::tuple_size<pS>::value> out;
     out[std::tuple_size<pS>::value - 1] = 1;
@@ -89,7 +89,7 @@ namespace types
   array_tuple<long, std::tuple_size<pS>::value> make_strides(pS const &shape)
   {
     return make_strides(
-        shape, utils::make_index_sequence<std::tuple_size<pS>::value - 1>());
+        shape, std::make_index_sequence<std::tuple_size<pS>::value - 1>());
   }
 
   template <class T, class pS>
@@ -705,7 +705,7 @@ namespace types
     sutils::push_front_t<pS, std::integral_constant<long, 1>> new_shape;
     sutils::copy_shape<1, -1>(
         new_shape, *this,
-        utils::make_index_sequence<std::tuple_size<pS>::value>());
+        std::make_index_sequence<std::tuple_size<pS>::value>());
     return reshape(new_shape);
   }
 
@@ -851,9 +851,9 @@ namespace types
       typename std::enable_if<
           is_numexpr_arg<Ty0>::value,
           decltype(this->_fwdindex(
-              indices, utils::make_index_sequence<2 + sizeof...(Tys)>()))>::type
+              indices, std::make_index_sequence<2 + sizeof...(Tys)>()))>::type
   {
-    return _fwdindex(indices, utils::make_index_sequence<2 + sizeof...(Tys)>());
+    return _fwdindex(indices, std::make_index_sequence<2 + sizeof...(Tys)>());
   }
 
   /* through iterators */
@@ -1561,7 +1561,7 @@ namespace impl
   };
 
   template <class pS, class T, size_t... Is>
-  bool check_shape(T const *dims, utils::index_sequence<Is...>)
+  bool check_shape(T const *dims, std::index_sequence<Is...>)
   {
     types::array_tuple<bool, sizeof...(Is)> dims_match = {
         (is_integral_constant<typename std::tuple_element<Is, pS>::type>::value
@@ -1651,7 +1651,7 @@ bool from_python<types::ndarray<T, pS>>::is_convertible(PyObject *obj)
 
   // check if dimension size match
   return impl::check_shape<pS>(
-      dims, utils::make_index_sequence<std::tuple_size<pS>::value>());
+      dims, std::make_index_sequence<std::tuple_size<pS>::value>());
 }
 template <typename T, class pS>
 types::ndarray<T, pS> from_python<types::ndarray<T, pS>>::convert(PyObject *obj)

@@ -111,7 +111,7 @@ namespace numpy
         typename __combined<typename E::dtype, typename F::dtype>::type;
     types::array_tuple<long, E::value> out_shape;
     sutils::copy_shape<0, 0>(out_shape, e,
-                             utils::make_index_sequence<E::value - 1>());
+                             std::make_index_sequence<E::value - 1>());
     if (e.template shape<E::value - 1>() == 2) {
       if (f.template shape<F::value - 1>() == 2) {
         out_shape[E::value - 1] = 1;

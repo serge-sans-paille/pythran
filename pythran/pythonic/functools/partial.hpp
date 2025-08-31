@@ -31,10 +31,10 @@ namespace functools
     template <typename... Types>
     auto task<ClosureTypes...>::operator()(Types &&...types) const
         -> decltype(this->call(
-            utils::make_index_sequence<sizeof...(ClosureTypes) - 1>(),
+            std::make_index_sequence<sizeof...(ClosureTypes) - 1>(),
             std::forward<Types>(types)...))
     {
-      return call(utils::make_index_sequence<sizeof...(ClosureTypes) - 1>(),
+      return call(std::make_index_sequence<sizeof...(ClosureTypes) - 1>(),
                   std::forward<Types>(types)...);
     }
   } // namespace details

@@ -36,7 +36,7 @@ namespace functools
       task(ClosureTypes const &...types);
 
       template <std::size_t... S, typename... Types>
-      auto call(utils::index_sequence<S...>, Types &&...types) const
+      auto call(std::index_sequence<S...>, Types &&...types) const
           -> decltype(std::get<0>(closure)(std::get<S + 1>(closure)...,
                                            std::forward<Types>(types)...))
       {
@@ -47,7 +47,7 @@ namespace functools
       template <typename... Types>
       auto operator()(Types &&...types) const
           -> decltype(this->call(
-              utils::make_index_sequence<sizeof...(ClosureTypes) - 1>(),
+              std::make_index_sequence<sizeof...(ClosureTypes) - 1>(),
               std::forward<Types>(types)...));
     };
   } // namespace details

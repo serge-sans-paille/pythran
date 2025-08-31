@@ -47,8 +47,7 @@ class TypeBuilder(object):
     typename __combined<long,char>::type
 
     >>> builder.ArgumentType(4)
-    typename std::remove_cv<typename std::remove_reference<argument_type4>::\
-type>::type
+    std::remove_cv_t<std::remove_reference_t<argument_type4>>
 
     >>> builder.Assignable(builder.NamedType("long"))
     typename pythonic::assignable<long>::type
@@ -60,8 +59,7 @@ type>::type
     typename pythonic::lazy<long>::type
 
     >>> builder.DeclType("toto")
-    typename std::remove_cv<\
-typename std::remove_reference<decltype(toto)>::type>::type
+    std::remove_cv_t<std::remove_reference_t<decltype(toto)>>
 
     >>> builder.IteratorOfType(builder.NamedType('some'))
     typename some::iterator
@@ -69,8 +67,8 @@ typename std::remove_reference<decltype(toto)>::type>::type
     typename some::stuff::iterator
 
     >>> builder.IteratorContentType(builder.NamedType('str'))
-    typename std::remove_cv<typename std::iterator_traits<\
-typename std::remove_reference<str>::type::iterator>::value_type>::type
+    std::remove_cv_t<typename std::iterator_traits<\
+typename std::remove_reference_t<str>::iterator>::value_type>
 
     >>> builder.GetAttr(builder.NamedType('complex'), 'real')
     decltype(pythonic::builtins::getattr(\
@@ -81,13 +79,13 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
 
     >>> t = builder.TupleType(i_ty, builder.NamedType('str'))
     >>> builder.ElementType(1, t)
-    typename std::tuple_element<1,typename std::remove_reference<\
+    typename std::tuple_element<1,std::remove_reference_t<\
 decltype(pythonic::types::make_tuple(std::declval<int>(), \
-std::declval<str>()))>::type>::type
+std::declval<str>()))>>::type
 
 
     >>> builder.ListType(builder.NamedType('int'))
-    pythonic::types::list<typename std::remove_reference<int>::type>
+    pythonic::types::list<std::remove_reference_t<int>>
 
     >>> builder.NDArrayType(builder.NamedType('int'), 1)
     pythonic::types::ndarray<int, pythonic::types::pshape<long>>
@@ -103,7 +101,7 @@ std::declval<bool>()))
     pythonic::types::dict<int,float>
 
     >>> builder.ContainerType(builder.NamedType('int'))
-    container<typename std::remove_reference<int>::type>
+    container<std::remove_reference_t<int>>
 
     >>> builder.IndexableType(builder.NamedType('int'))
     indexable<int>
@@ -285,9 +283,8 @@ std::declval<bool>()))
 
             def generate(self, _):
                 argtype = "argument_type{0}".format(self.num)
-                noref = "typename std::remove_reference<{0}>::type".format(
-                    argtype)
-                return "typename std::remove_cv<{0}>::type".format(noref)
+                noref = "std::remove_reference_t<{0}>".format(argtype)
+                return "std::remove_cv_t<{0}>".format(noref)
 
         class DependentType(Type):
             """
@@ -355,9 +352,7 @@ std::declval<bool>()))
             """
 
             def generate(self, _):
-                return ('typename std::remove_cv<'
-                        'typename std::remove_reference<'
-                        'decltype({0})>::type>::type'.format(self.srepr))
+                return 'std::remove_cv_t<std::remove_reference_t<decltype({0})>>'.format(self.srepr)
 
 
         class AddConst(DependentType):
@@ -387,9 +382,9 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 iterator_value_type = ctx(self.of)
-                return 'typename std::remove_cv<{0}>::type'.format(
+                return 'std::remove_cv_t<{0}>'.format(
                     'typename std::iterator_traits<{0}>::value_type'.format(
-                        'typename std::remove_reference<{0}>::type::iterator'
+                        'typename std::remove_reference_t<{0}>::iterator'
                         .format(iterator_value_type)
                         )
                     )
@@ -434,9 +429,7 @@ std::declval<bool>()))
             def generate(self, ctx):
                 return 'typename std::tuple_element<{0},{1}>::type'.format(
                     self.index,
-                    'typename std::remove_reference<{0}>::type'.format(
-                        ctx(self.of)
-                        )
+                    'std::remove_reference_t<{0}>'.format(ctx(self.of))
                     )
 
         class TypeType(DependentType):
@@ -454,9 +447,7 @@ std::declval<bool>()))
             '''
 
             def generate(self, ctx):
-                return 'pythonic::types::list<{}>'.format(
-                    'typename std::remove_reference<{0}>::type'.format(
-                        ctx(self.of)))
+                return 'pythonic::types::list<std::remove_reference_t<{}>>'.format(ctx(self.of))
 
         class SetType(DependentType):
             '''
@@ -518,8 +509,7 @@ std::declval<bool>()))
             '''
 
             def generate(self, ctx):
-                return ('container<typename std::remove_reference<{0}>::type>'
-                        .format(ctx(self.of)))
+                return 'container<std::remove_reference_t<{0}>>'.format(ctx(self.of))
 
         class IndexableType(DependentType):
             '''
@@ -543,9 +533,7 @@ std::declval<bool>()))
                             for of in (self.of_key, self.of_val)))
 
             def generate(self, ctx):
-                return ('indexable_container<'
-                        '{0}, typename std::remove_reference<{1}>::type'
-                        '>'
+                return ('indexable_container<{0}, std::remove_reference_t<{1}>>'
                         .format(ctx(self.of_key), ctx(self.of_val)))
 
         class ExpressionType(Type):

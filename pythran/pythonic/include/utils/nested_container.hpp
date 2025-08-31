@@ -82,12 +82,11 @@ namespace utils
 
   /* Get the size of a container, using recursion on inner container if any
    * FIXME: should be a constexpr?
-   * FIXME: why a class && ! a function?
+   * FIXME: why a class and not a function?
    */
   template <class T>
   struct nested_container_size {
-    using Type =
-        typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+    using Type = std::remove_cv_t<std::remove_reference_t<T>>;
     static long flat_size(T const &t);
   };
 

@@ -58,11 +58,9 @@ namespace operator_
   template <typename... Types>
   template <class A>
   auto itemgetter_tuple_return<Types...>::operator()(A const &a) const
-      -> std::tuple<typename std::remove_cv<typename std::remove_reference<
-          decltype(a[std::declval<Types>()])>::type>::type...>
+      -> std::tuple<std::remove_cv_t<std::remove_reference_t<decltype(a[std::declval<Types>()])>>...>
   {
-    std::tuple<typename std::remove_cv<typename std::remove_reference<
-        decltype(a[std::declval<Types>()])>::type>::type...>
+    std::tuple<std::remove_cv_t<std::remove_reference_t<decltype(a[std::declval<Types>()])>>...>
         t;
     helper(t, a, utils::int_<sizeof...(Types) - 1>());
     return t;

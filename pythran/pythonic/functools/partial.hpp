@@ -41,8 +41,7 @@ namespace functools
 
   template <typename... Types>
   // remove references as closure capture the env by copy
-  details::task<typename std::remove_cv<
-      typename std::remove_reference<Types>::type>::type...>
+  details::task<std::remove_cv_t<std::remove_reference_t<Types>>...>
   partial(Types &&...types)
   {
     return {std::forward<Types>(types)...};

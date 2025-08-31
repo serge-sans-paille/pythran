@@ -35,8 +35,7 @@ namespace operator_
 
     template <class A>
     auto operator()(A const &a) const
-        -> std::tuple<typename std::remove_cv<typename std::remove_reference<
-            decltype(a[std::declval<Types>()])>::type>::type...>;
+        -> std::tuple<std::remove_cv_t<std::remove_reference_t<decltype(a[std::declval<Types>()])>>...>;
   };
 
   template <class... L>

@@ -587,9 +587,9 @@ namespace types
             std::is_same<S, typename std::decay<S>::type>::value...>::value,
         "no modifiers on slices");
 
-    using dtype = typename std::remove_reference<Arg>::type::dtype;
+    using dtype = typename std::remove_reference_t<Arg>::dtype;
     static constexpr size_t value =
-        std::remove_reference<Arg>::type::value - count_long<S...>::value;
+        std::remove_reference_t<Arg>::value - count_long<S...>::value;
 
     using last_arg_stride_t =
         decltype(std::declval<Arg>().template strides<sizeof...(S) - 1>());
@@ -602,15 +602,15 @@ namespace types
     // 2. the size of the gexpr is lower than the dim of arg, || it's the
     // same, but the last slice is contiguous
     static const bool is_vectorizable =
-        std::remove_reference<Arg>::type::is_vectorizable &&
-        (sizeof...(S) < std::remove_reference<Arg>::type::value ||
+        std::remove_reference_t<Arg>::is_vectorizable &&
+        (sizeof...(S) < std::remove_reference_t<Arg>::value ||
          std::is_same<cstride_normalized_slice<1>, last_slice_t>::value);
     static const bool is_flat =
-        std::remove_reference<Arg>::type::is_flat && value == 1 &&
+        std::remove_reference_t<Arg>::is_flat && value == 1 &&
         utils::all_of<
             std::is_same<cstride_normalized_slice<1>, S>::value...>::value;
     static const bool is_strided =
-        std::remove_reference<Arg>::type::is_strided ||
+        std::remove_reference_t<Arg>::is_strided ||
         (((sizeof...(S) - count_long<S...>::value) == value) &&
          !std::is_same<cstride_normalized_slice<1>, last_slice_t>::value);
 
@@ -626,12 +626,11 @@ namespace types
                                   const_nditerator<numpy_gexpr>,
                                   dtype const *>::type;
 
-    typename std::remove_cv<Arg>::type arg;
+    std::remove_cv_t<Arg> arg;
 
     std::tuple<S...> slices;
 
-    using shape_t =
-        gexpr_shape_t<typename std::remove_reference<Arg>::type::shape_t, S...>;
+    using shape_t = gexpr_shape_t<typename std::remove_reference_t<Arg>::shape_t, S...>;
 
     shape_t _shape;
     dtype *buffer;

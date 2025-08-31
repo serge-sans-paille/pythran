@@ -27,9 +27,8 @@ namespace numpy
   template <class T>
   auto atleast_2d(T &&t) ->
       typename std::enable_if<
-          (!types::is_dtype<typename std::remove_cv<
-               typename std::remove_reference<T>::type>::type>::value) &&
-              std::decay<T>::type::value >= 2,
+          (!types::is_dtype<std::remove_cv_t<std::remove_reference_t<T>>>::value) &&
+              std::decay_t<T>::value >= 2,
           decltype(std::forward<T>(t))>::type;
 
   DEFINE_FUNCTOR(pythonic::numpy, atleast_2d);

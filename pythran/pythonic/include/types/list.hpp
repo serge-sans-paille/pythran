@@ -43,9 +43,7 @@ namespace types
   {
 
     // data holder
-    typedef
-        typename std::remove_cv<typename std::remove_reference<T>::type>::type
-            _type;
+    using _type = std::remove_cv_t<std::remove_reference_t<T>>;
     typedef container<_type> container_type;
     utils::shared_ref<container_type> _data;
 
@@ -174,9 +172,7 @@ namespace types
     static constexpr size_t DEFAULT_CAPACITY = 16;
 
     // data holder
-    typedef
-        typename std::remove_cv<typename std::remove_reference<T>::type>::type
-            _type;
+    using _type = std::remove_cv_t<std::remove_reference_t<T>>;
     typedef container<_type> container_type;
     utils::shared_ref<container_type> _data;
 

@@ -542,8 +542,7 @@ namespace types
         Op, ndarray &, BExpr, value,
         value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
         is_vectorizable &&
-            types::is_vectorizable<typename std::remove_cv<
-                typename std::remove_reference<BExpr>::type>::type>::value &&
+            types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
             std::is_same<dtype, typename dtype_of<typename std::decay<
                                     BExpr>::type>::type>::value>(*this, bexpr);
     return *this;
@@ -1072,8 +1071,7 @@ namespace std
   template <size_t I, class E>
   auto get(E &&a) ->
       typename std::enable_if<
-          pythonic::types::is_array<typename std::remove_cv<
-              typename std::remove_reference<E>::type>::type>::value,
+          pythonic::types::is_array<std::remove_cv_t<std::remove_reference_t<E>>>::value,
           decltype(std::forward<E>(a)[I])>::type
   {
     return std::forward<E>(a)[I];

@@ -167,8 +167,8 @@ namespace types
   template <class T, class C>
   struct adapted_type<T, C, false, false> {
     using type = typename broadcasted_n<
-        T, absdiff(std::remove_reference<T>::type::value,
-                   std::remove_reference<C>::type::value)>::type;
+        T, absdiff(std::remove_reference_t<T>::value,
+                   std::remove_reference_t<C>::value)>::type;
   };
 
   template <class T, class... OtherTypes>

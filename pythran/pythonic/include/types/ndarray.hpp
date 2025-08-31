@@ -289,11 +289,8 @@ namespace types
     template <
         class Iterable,
         class = typename std::enable_if<
-            !is_array<typename std::remove_cv<
-                typename std::remove_reference<Iterable>::type>::type>::value &&
-                is_iterable<typename std::remove_cv<
-                    typename std::remove_reference<Iterable>::type>::type>::
-                    value,
+            !is_array<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value &&
+                is_iterable<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value,
             void>::type>
     ndarray(Iterable &&iterable);
 
@@ -722,8 +719,7 @@ namespace std
   template <size_t I, class E>
   auto get(E &&a) ->
       typename std::enable_if<
-          pythonic::types::is_array<typename std::remove_cv<
-              typename std::remove_reference<E>::type>::type>::value,
+          pythonic::types::is_array<std::remove_cv_t<std::remove_reference_t<E>>>::value,
           decltype(std::forward<E>(a)[I])>::type;
 
   template <size_t I, class T, class pS>

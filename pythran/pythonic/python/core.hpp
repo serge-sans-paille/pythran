@@ -28,13 +28,9 @@ PYTHONIC_NS_END
 
 template <class T>
 auto to_python(T &&value)
-    -> decltype(pythonic::to_python<typename std::remove_cv<
-                    typename std::remove_reference<T>::type>::type>::
-                    convert(std::forward<T>(value)))
+    -> decltype(pythonic::to_python<std::remove_cv_t<std::remove_reference_t<T>>>::convert(std::forward<T>(value)))
 {
-  return pythonic::to_python<
-      typename std::remove_cv<typename std::remove_reference<T>::type>::type>::
-      convert(std::forward<T>(value));
+  return pythonic::to_python<std::remove_cv_t<std::remove_reference_t<T>>>::convert(std::forward<T>(value));
 }
 template <class T>
 T from_python(PyObject *obj)

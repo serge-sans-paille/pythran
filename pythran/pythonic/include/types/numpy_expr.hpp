@@ -47,8 +47,8 @@ namespace types
   template <size_t value, class Args, size_t N, size_t... Is>
   struct all_valid_indices
       : std::conditional<(value <=
-                          std::remove_reference<typename std::tuple_element<
-                              N - 1, Args>::type>::type::value),
+                          std::remove_reference_t<typename std::tuple_element<
+                              N - 1, Args>::type>::value),
                          all_valid_indices<value, Args, N - 1, Is..., N - 1>,
                          all_valid_indices<value, Args, N - 1, Is...>>::type {
   };
@@ -87,8 +87,7 @@ namespace types
   struct numpy_expr_iterator
       : std::iterator<
             std::random_access_iterator_tag,
-            typename std::remove_reference<decltype(std::declval<Op>()(
-                *std::declval<Iters>()...))>::type> {
+            std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>> {
     Steps steps_;
     std::tuple<Iters...> iters_;
 
@@ -251,8 +250,7 @@ namespace types
   struct numpy_expr_simd_iterator
       : std::iterator<
             std::random_access_iterator_tag,
-            typename std::remove_reference<decltype(std::declval<Op>()(
-                *std::declval<Iters>()...))>::type> {
+            std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>> {
     Steps steps_;
     std::tuple<Iters...> iters_;
     SIters siters_;
@@ -415,8 +413,7 @@ namespace types
   struct numpy_expr_simd_iterator_nobroadcast
       : std::iterator<
             std::random_access_iterator_tag,
-            typename std::remove_reference<decltype(std::declval<Op>()(
-                *std::declval<Iters>()...))>::type> {
+            std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>> {
     std::tuple<Iters...> iters_;
 
     numpy_expr_simd_iterator_nobroadcast(Iters... iters) : iters_(iters...)
@@ -607,42 +604,39 @@ namespace types
     using first_arg = typename utils::front<Args...>::type;
     static const bool is_vectorizable =
         utils::all_of<
-            std::remove_reference<Args>::type::is_vectorizable...>::value &&
+            std::remove_reference_t<Args>::is_vectorizable...>::value &&
         utils::all_of<
-            std::is_same<typename std::remove_cv<typename std::remove_reference<
-                             first_arg>::type>::type::dtype,
-                         typename std::remove_cv<typename std::remove_reference<
-                             Args>::type>::type::dtype>::value...>::value &&
-        types::is_vector_op<
-            Op, typename std::remove_reference<Args>::type::dtype...>::value;
+            std::is_same<typename std::remove_cv_t<std::remove_reference_t<first_arg>>::dtype,
+                         typename std::remove_cv_t<std::remove_reference_t<Args>>::dtype>::value...>::value &&
+        types::is_vector_op<Op, typename std::remove_reference_t<Args>::dtype...>::value;
     static const bool is_flat = false;
     static const bool is_strided =
-        utils::any_of<std::remove_reference<Args>::type::is_strided...>::value;
+        utils::any_of<std::remove_reference_t<Args>::is_strided...>::value;
 
     static constexpr size_t value =
-        utils::max_element<std::remove_reference<Args>::type::value...>::value;
+        utils::max_element<std::remove_reference_t<Args>::value...>::value;
     using value_type = decltype(Op()(
         std::declval<
-            typename std::remove_reference<Args>::type::value_type>()...));
+            typename std::remove_reference_t<Args>::value_type>()...));
     using dtype = decltype(Op()(
-        std::declval<typename std::remove_reference<Args>::type::dtype>()...));
+        std::declval<typename std::remove_reference_t<Args>::dtype>()...));
 
 #ifdef CYTHON_ABI
-    std::tuple<typename std::remove_reference<Args>::type...> args;
+    std::tuple<std::remove_reference_t<Args>...> args;
 #else
     std::tuple<Args...> args;
 #endif
     using shape_t = sutils::merged_shapes_t<
-        value, typename std::remove_reference<Args>::type::shape_t...>;
+        value, typename std::remove_reference_t<Args>::shape_t...>;
     using steps_t = pshape<step_type_t<
-        shape_t, typename std::remove_reference<Args>::type::shape_t>...>;
+        shape_t, typename std::remove_reference_t<Args>::shape_t>...>;
     static_assert(value == std::tuple_size<shape_t>::value,
                   "consistent shape and size");
     using const_iterator = numpy_expr_iterator<
         Op, steps_t,
-        typename std::remove_reference<Args>::type::const_iterator...>;
+        typename std::remove_reference_t<Args>::const_iterator...>;
     using iterator = numpy_expr_iterator<
-        Op, steps_t, typename std::remove_reference<Args>::type::iterator...>;
+        Op, steps_t, typename std::remove_reference_t<Args>::iterator...>;
     using const_fast_iterator = const_nditerator<numpy_expr>;
 
     numpy_expr() = default;
@@ -739,14 +733,13 @@ namespace types
     using simd_iterator = numpy_expr_simd_iterator<
         numpy_expr, Op,
         pshape<step_type_t<
-            shape_t, typename std::remove_reference<Args>::type::shape_t>...>,
+            shape_t, typename std::remove_reference_t<Args>::shape_t>...>,
         std::tuple<xsimd::batch<
-            typename std::remove_reference<Args>::type::value_type>...>,
-        typename std::remove_reference<Args>::type::simd_iterator...>;
+            typename std::remove_reference_t<Args>::value_type>...>,
+        typename std::remove_reference_t<Args>::simd_iterator...>;
     using simd_iterator_nobroadcast = numpy_expr_simd_iterator_nobroadcast<
         numpy_expr, Op,
-        typename std::remove_reference<
-            Args>::type::simd_iterator_nobroadcast...>;
+        typename std::remove_reference_t<Args>::simd_iterator_nobroadcast...>;
     template <size_t... I>
     simd_iterator _vbegin(types::vectorize, std::index_sequence<I...>) const;
     simd_iterator vbegin(types::vectorize) const;

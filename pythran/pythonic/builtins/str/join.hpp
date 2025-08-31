@@ -43,12 +43,8 @@ namespace builtins
 
     template <class S, class Iterable>
     typename std::enable_if<
-        !std::is_same<typename std::remove_cv<
-                          typename std::remove_reference<Iterable>::type>::type,
-                      types::str>::value &&
-            std::is_same<
-                typename std::iterator_traits<typename std::remove_reference<
-                    Iterable>::type::iterator>::iterator_category,
+        !std::is_same<std::remove_cv_t<std::remove_reference_t<Iterable>>, types::str>::value &&
+         std::is_same<typename std::iterator_traits<typename std::remove_reference_t<Iterable>::iterator>::iterator_category,
                 std::random_access_iterator_tag>::value,
         types::str>::type
     join(S const &s, Iterable &&iterable)
@@ -94,8 +90,7 @@ namespace builtins
     template <class S, class Iterable>
     typename std::enable_if<
         !std::is_same<
-            typename std::iterator_traits<typename std::remove_reference<
-                Iterable>::type::iterator>::iterator_category,
+            typename std::iterator_traits<typename std::remove_reference_t<Iterable>::iterator>::iterator_category,
             std::random_access_iterator_tag>::value,
         types::str>::type
     join(S const &s, Iterable &&iterable)

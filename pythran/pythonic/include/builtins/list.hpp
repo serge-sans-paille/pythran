@@ -19,9 +19,7 @@ namespace builtins
     inline types::empty_list list(types::empty_list);
 
     template <class Iterable>
-    types::list<typename std::decay<typename std::iterator_traits<
-        typename std::remove_reference<Iterable>::type::iterator>::value_type>::
-                    type>
+    types::list<std::decay_t<typename std::iterator_traits<typename std::remove_reference_t<Iterable>::iterator>::value_type>>
     list(Iterable &&t);
   } // namespace anonymous
 

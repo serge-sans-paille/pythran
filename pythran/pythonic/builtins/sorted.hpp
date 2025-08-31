@@ -15,24 +15,20 @@ namespace builtins
 {
 
   template <class Iterable>
-  types::list<typename std::remove_cv<typename std::iterator_traits<
-      typename std::decay<Iterable>::type::iterator>::value_type>::type>
+  types::list<std::remove_cv_t<typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>>
   sorted(Iterable &&seq)
   {
-    types::list<typename std::remove_cv<typename std::iterator_traits<
-        typename std::decay<Iterable>::type::iterator>::value_type>::type>
+    types::list<std::remove_cv_t<typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>>
         out(seq.begin(), seq.end());
     pdqsort(out.begin(), out.end());
     return out;
   }
 
   template <class Iterable, class Key>
-  types::list<typename std::remove_cv<typename std::iterator_traits<
-      typename std::decay<Iterable>::type::iterator>::value_type>::type>
+  types::list<std::remove_cv_t<typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>>
   sorted(Iterable &&seq, Key const &key, bool reverse)
   {
-    using value_type = typename std::remove_cv<typename std::iterator_traits<
-        typename std::decay<Iterable>::type::iterator>::value_type>::type;
+    using value_type = std::remove_cv_t<typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>;
     types::list<value_type> out(seq.begin(), seq.end());
     if (reverse)
       pdqsort(out.begin(), out.end(),
@@ -48,12 +44,10 @@ namespace builtins
   }
 
   template <class Iterable>
-  types::list<typename std::remove_cv<typename std::iterator_traits<
-      typename std::decay<Iterable>::type::iterator>::value_type>::type>
+  types::list<std::remove_cv_t<typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>>
   sorted(Iterable &&seq, types::none_type const &key, bool reverse)
   {
-    using value_type = typename std::remove_cv<typename std::iterator_traits<
-        typename std::decay<Iterable>::type::iterator>::value_type>::type;
+    using value_type = std::remove_cv_t<typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>;
     types::list<value_type> out(seq.begin(), seq.end());
     if (reverse)
       pdqsort(out.begin(), out.end(),

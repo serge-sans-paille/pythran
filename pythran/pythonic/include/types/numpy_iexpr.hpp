@@ -33,17 +33,14 @@ namespace types
   struct numpy_iexpr {
     // wrapper around another numpy expression to skip first dimension using a
     // given value.
-    static constexpr size_t value = std::remove_reference<Arg>::type::value - 1;
-    static const bool is_vectorizable =
-        std::remove_reference<Arg>::type::is_vectorizable;
-    static const bool is_flat = std::remove_reference<Arg>::type::is_flat;
-    using dtype = typename std::remove_reference<Arg>::type::dtype;
-    using value_type =
-        typename std::remove_reference<decltype(numpy_iexpr_helper<value>::get(
-            std::declval<numpy_iexpr>(), 0L))>::type;
+    static constexpr size_t value = std::remove_reference_t<Arg>::value - 1;
+    static const bool is_vectorizable = std::remove_reference_t<Arg>::is_vectorizable;
+    static const bool is_flat = std::remove_reference_t<Arg>::is_flat;
+    using dtype = typename std::remove_reference_t<Arg>::dtype;
+    using value_type = std::remove_reference_t<decltype(numpy_iexpr_helper<value>::get(
+            std::declval<numpy_iexpr>(), 0L))>;
 
-    static constexpr bool is_strided =
-        std::remove_reference<Arg>::type::is_strided;
+    static constexpr bool is_strided = std::remove_reference_t<Arg>::is_strided;
 
     using iterator =
         typename std::conditional<is_strided || value != 1,
@@ -56,7 +53,7 @@ namespace types
     Arg arg;
     dtype *buffer;
     using shape_t =
-        sutils::pop_head_t<typename std::remove_reference<Arg>::type::shape_t>;
+        sutils::pop_head_t<typename std::remove_reference_t<Arg>::shape_t>;
 
     numpy_iexpr();
     numpy_iexpr(numpy_iexpr const &) = default;

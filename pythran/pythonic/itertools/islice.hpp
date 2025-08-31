@@ -108,16 +108,14 @@ namespace itertools
   }
 
   template <typename Iterable>
-  _islice<typename std::remove_cv<
-      typename std::remove_reference<Iterable>::type>::type>
+  _islice<std::remove_cv_t<std::remove_reference_t<Iterable>>>
   islice(Iterable &&iterable, long start, long stop, long step)
   {
     return {iterable, builtins::range(start, stop, step)};
   }
 
   template <typename Iterable>
-  _islice<typename std::remove_cv<
-      typename std::remove_reference<Iterable>::type>::type>
+  _islice<std::remove_cv_t<std::remove_reference_t<Iterable>>>
   islice(Iterable &&iterable, long stop)
   {
     return {iterable, builtins::range(0, stop, 1)};

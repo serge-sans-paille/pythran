@@ -45,7 +45,9 @@ cxx_keywords = {
     'using', 'virtual', 'void', 'volatile', 'wchar_t', 'while',
     'xor', 'xor_eq',
     # C++11 additions
-    'constexpr', 'decltype', 'noexcept', 'nullptr', 'static_assert',
+    'constexpr', 'decltype', 'thread_local', 'noexcept', 'nullptr', 'static_assert',
+    'alignof', 'alignas',
+    # C++14 additions (nothing)
     # reserved namespaces
     'std',
 }

@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
-#include <set>
+#include <unordered_set>
 #include <utility>
 
 PYTHONIC_NS_BEGIN
@@ -135,7 +135,8 @@ namespace types
     // data holder
     using _type = std::remove_cv_t<std::remove_reference_t<T>>;
     using container_type =
-        std::set<_type, std::less<_type>, utils::allocator<_type>>;
+        std::unordered_set<_type, std::hash<_type>, std::equal_to<_type>,
+                           utils::allocator<_type>>;
     utils::shared_ref<container_type> data;
 
   public:
@@ -145,19 +146,14 @@ namespace types
     // types
     using reference = typename container_type::reference;
     using const_reference = typename container_type::const_reference;
-    using iterator =
-        utils::comparable_iterator<typename container_type::iterator>;
-    using const_iterator =
-        utils::comparable_iterator<typename container_type::const_iterator>;
+    using iterator = typename container_type::iterator;
+    using const_iterator = typename container_type::const_iterator;
     using size_type = typename container_type::size_type;
     using difference_type = typename container_type::difference_type;
     using value_type = typename container_type::value_type;
     using allocator_type = typename container_type::allocator_type;
     using pointer = typename container_type::pointer;
     using const_pointer = typename container_type::const_pointer;
-    using reverse_iterator = typename container_type::reverse_iterator;
-    using const_reverse_iterator =
-        typename container_type::const_reverse_iterator;
 
     // constructors
     set();
@@ -174,10 +170,6 @@ namespace types
     const_iterator begin() const;
     iterator end();
     const_iterator end() const;
-    reverse_iterator rbegin();
-    const_reverse_iterator rbegin() const;
-    reverse_iterator rend();
-    const_reverse_iterator rend() const;
 
     // modifiers
     T pop();

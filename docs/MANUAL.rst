@@ -4,7 +4,7 @@ User Manual
 So you want to write algorithms that are easy to maintain as in Python and
 you want performance as in FORTRAN or C++? Lets give a try to Pythran!
 Pythran is a Python-to-c++ translator that turns Python modules into native
-c++11 modules. From a user point of view, you still ``import`` your module, but
+C++14 modules. From a user point of view, you still ``import`` your module, but
 under the hood... There is much more happening!
 
 Disclaimer
@@ -47,14 +47,14 @@ Pythran also depends on `Boost <https://www.boost.org/>`_ and
 vendor these dependencies for convenience (note though that conda-forge and some
 Linux distros may unvendor one or both of these).
 
-You also need a modern C++11 enabled compiler (e.g. g++>=5, clang>=3.5), that supports
+You also need a modern C++14 enabled compiler (e.g. g++>=5, clang>=3.5), that supports
 atomic operations (N3290) and variadic template (N2555).
 
 
 Installation from Sources
 -------------------------
 
-The prefered way to install Pythran is using ``pip install pythran`` or
+The preferred way to install Pythran is using ``pip install pythran`` or
 ``conda install pythran``. Yet if you want to install from sources,
 here is the procedure.
 
@@ -692,7 +692,7 @@ This section contains compiler flags configuration. For education purpose, the d
 :``cflags``:
 
     Additional random compiler flags (``-f``, ``-O``). Optimization flags generally
-    go there. The default is to set ``-std=c++11`` for C++11 support.
+    go there. The default is to set ``-std=c++14`` for C++14 support.
 
 :``libs``:
 

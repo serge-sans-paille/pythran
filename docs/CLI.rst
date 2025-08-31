@@ -67,7 +67,7 @@ Pythran can also generate raw C++ code, using the ``-e`` switch::
   $> printf 'msg = \"hello world\"\ndef bar(): print(msg)' > cli_bar.py
   $> pythran -e cli_bar.py -w -o cli_bar.hpp
   $> printf '#include \"cli_bar.hpp\"\nusing namespace __pythran_cli_bar ; int main() { bar()(); return 0 ; }' > cli_bar.cpp
-  $> `pythran-config --compiler --cflags` -std=c++11 cli_bar.cpp -o cli_bar
+  $> `pythran-config --compiler --cflags` -std=c++14 cli_bar.cpp -o cli_bar
   $> ./cli_bar
   hello world
 

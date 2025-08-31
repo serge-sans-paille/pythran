@@ -5,7 +5,7 @@ This is a long tutorial to help new Pythran developer discover the Pythran
 architecture. This is *not* a developer documentation, but it aims at giving a
 good overview of Pythran capacity.
 
-It requires you are comfortable with Python, and eventually with C++11. It also
+It requires you are comfortable with Python, and eventually with C++14. It also
 assumes you have some compilation background, i.e. you know what an AST is and
 you don't try to escape when hearing the words alias analysis, memory effect
 computations and such.
@@ -42,7 +42,7 @@ A pass is a code transformation, i.e. a function that turns an AST node into a
 new AST node with refined behavior. As a compiler infrastructure, Pythran
 proposes a pass manager that (guess what?) manages pass scheduling, that is
 the order in which pass is applied to achieve the ultimate goal, world
-domination. Oooops, efficient C++11 code generation.
+domination. Oooops, efficient C++14 code generation.
 
 One first need to instantiate a pass manager with a module name::
 
@@ -74,7 +74,7 @@ subset of Python AST) into a C++ AST::
   >>> str(cxx)
   '#include <pythonic/include/operator_/add.hpp>\n#include <pythonic/include/operator_/lt.hpp>\n#include <pythonic/include/operator_/sub.hpp>\n#include <pythonic/operator_/add.hpp>\n#include <pythonic/operator_/lt.hpp>\n#include <pythonic/operator_/sub.hpp>\nnamespace \n{\n  namespace __pythran_tutorial_module\n  {\n    struct fib\n    {\n      typedef void callable;\n      typedef void pure;\n      template <typename argument_type0 >\n      struct type\n      {\n        typedef typename std::remove_cv<typename std::remove_reference<argument_type0>::type>::type __type0;\n        typedef typename pythonic::returnable<__type0>::type __type1;\n        typedef __type1 result_type;\n      }  \n      ;\n      template <typename argument_type0 >\n      inline\n      typename type<argument_type0>::result_type operator()(argument_type0 n) const\n      ;\n    }  ;\n    template <typename argument_type0 >\n    inline\n    typename fib::type<argument_type0>::result_type fib::operator()(argument_type0 n) const\n    {\n      return (pythonic::builtins::functor::bool_{}(pythonic::operator_::lt(n, 2L)) ? typename __combined<decltype(n), decltype(pythonic::operator_::add(pythonic::types::call(fib(), pythonic::operator_::sub(n, 1L)), pythonic::types::call(fib(), pythonic::operator_::sub(n, 2L))))>::type(n) : typename __combined<decltype(n), decltype(pythonic::operator_::add(pythonic::types::call(fib(), pythonic::operator_::sub(n, 1L)), pythonic::types::call(fib(), pythonic::operator_::sub(n, 2L))))>::type(pythonic::operator_::add(pythonic::types::call(fib(), pythonic::operator_::sub(n, 1L)), pythonic::types::call(fib(), pythonic::operator_::sub(n, 2L)))));\n    }\n  }\n}'
 
-The above string is understandable by a C++11 compiler, but it quickly reaches the limit of our developer brain, so most of the time, we are more comfortable with the Python backend::
+The above string is understandable by a C++14 compiler, but it quickly reaches the limit of our developer brain, so most of the time, we are more comfortable with the Python backend::
 
   >>> py = pm.dump(backend.Python, tree)
   >>> print(py)

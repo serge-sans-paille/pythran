@@ -119,8 +119,7 @@ namespace types
         Op, numpy_iexpr &, BExpr, value,
         value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
         is_vectorizable &&
-            types::is_vectorizable<typename std::remove_cv<
-                typename std::remove_reference<BExpr>::type>::type>::value &&
+            types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
             std::is_same<dtype, typename dtype_of<typename std::decay<
                                     BExpr>::type>::type>::value>(*this, bexpr);
     return *this;

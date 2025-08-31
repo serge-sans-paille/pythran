@@ -48,8 +48,7 @@ namespace types
   template <class E>
   struct nditerator
       : public std::iterator<std::random_access_iterator_tag,
-                             typename std::remove_reference<
-                                 decltype(std::declval<E &>().fast(0))>::type> {
+                             std::remove_reference_t<decltype(std::declval<E &>().fast(0))>> {
     E &data;
     long index;
     nditerator(E &data, long index);
@@ -78,8 +77,7 @@ namespace types
   template <class E>
   struct const_nditerator
       : public std::iterator<std::random_access_iterator_tag,
-                             typename std::remove_reference<
-                                 decltype(std::declval<E &>().fast(0))>::type> {
+                             std::remove_reference_t<decltype(std::declval<E &>().fast(0))>> {
     E const &data;
     long index;
     const_nditerator(E const &data, long index);

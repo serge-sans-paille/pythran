@@ -17,15 +17,13 @@ namespace numpy
 
   template <class F, class dtype, class purity_tag>
   template <class pS>
-  types::ndarray<typename std::remove_cv<typename std::remove_reference<
-                     typename std::result_of<F(dtype)>::type>::type>::type,
+  types::ndarray<std::remove_cv_t<std::remove_reference_t<std::result_of_t<F(dtype)>>>,
                  pS>
   fromfunction_helper<F, 1, dtype, purity_tag>::operator()(F &&f,
                                                            pS const &shape,
                                                            dtype d)
   {
-    types::ndarray<typename std::remove_cv<typename std::remove_reference<
-                       typename std::result_of<F(dtype)>::type>::type>::type,
+    types::ndarray<std::remove_cv_t<std::remove_reference_t<std::result_of_t<F(dtype)>>>,
                    pS>
         out(shape, builtins::None);
     long n = out.template shape<0>();
@@ -36,17 +34,13 @@ namespace numpy
 
   template <class F, class dtype, class purity_tag>
   template <class pS>
-  types::ndarray<
-      typename std::remove_cv<typename std::remove_reference<
-          typename std::result_of<F(dtype, dtype)>::type>::type>::type,
+  types::ndarray<std::remove_cv_t<std::remove_reference_t<std::result_of_t<F(dtype, dtype)>>>,
       pS>
   fromfunction_helper<F, 2, dtype, purity_tag>::operator()(F &&f,
                                                            pS const &shape,
                                                            dtype d)
   {
-    types::ndarray<
-        typename std::remove_cv<typename std::remove_reference<
-            typename std::result_of<F(dtype, dtype)>::type>::type>::type,
+    types::ndarray<std::remove_cv_t<std::remove_reference_t<std::result_of_t<F(dtype, dtype)>>>,
         pS>
         out(shape, builtins::None);
     long n = out.template shape<0>();

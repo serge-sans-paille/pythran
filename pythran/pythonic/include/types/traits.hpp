@@ -36,7 +36,7 @@ namespace types
     template <class C>                                                         \
     static no _test(...);                                                      \
     static const bool value =                                                  \
-        sizeof(_test<typename std::remove_reference<T>::type>(nullptr)) ==     \
+        sizeof(_test<std::remove_reference_t<T>>(nullptr)) ==                  \
         sizeof(yes);                                                           \
   };
 
@@ -48,8 +48,7 @@ namespace types
     template <class C>                                                         \
     static std::integral_constant<bool, false> _test(...);                     \
     static const bool value =                                                  \
-        decltype(_test<typename std::remove_reference<T>::type>(               \
-            nullptr))::value;                                                  \
+        decltype(_test<std::remove_reference_t<T>>(nullptr))::value;           \
   };
 
   /* trait to check if a type is iterable*/

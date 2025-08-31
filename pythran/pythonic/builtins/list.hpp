@@ -28,15 +28,10 @@ namespace builtins
     }
 
     template <class Iterable>
-    types::list<typename std::decay<typename std::iterator_traits<
-        typename std::remove_reference<Iterable>::type::iterator>::value_type>::
-                    type>
+    types::list<std::decay_t<typename std::iterator_traits<typename std::remove_reference_t<Iterable>::iterator>::value_type>>
     list(Iterable &&t)
     {
-      return types::list<typename std::decay<
-          typename std::iterator_traits<typename std::remove_reference<
-              Iterable>::type::iterator>::value_type>::type>(t.begin(),
-                                                             t.end());
+      return types::list<std::decay_t<typename std::iterator_traits<typename std::remove_reference_t<Iterable>::iterator>::value_type>>(t.begin(), t.end());
     }
   } // namespace anonymous
 } // namespace builtins

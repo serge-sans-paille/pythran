@@ -105,8 +105,7 @@ namespace builtins
   /// enumerate implementation
 
   template <class Iterable>
-  details::enumerate<typename std::remove_cv<
-      typename std::remove_reference<Iterable>::type>::type>
+  details::enumerate<std::remove_cv_t<std::remove_reference_t<Iterable>>>
   enumerate(Iterable &&seq, long first)
   {
     return {std::forward<Iterable>(seq), first};

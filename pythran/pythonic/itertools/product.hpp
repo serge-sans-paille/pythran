@@ -132,8 +132,7 @@ namespace itertools
   } // namespace details
 
   template <typename... Iter>
-  details::product<typename std::remove_cv<
-      typename std::remove_reference<Iter>::type>::type...>
+  details::product<std::remove_cv_t<std::remove_reference_t<Iter>>...>
   product(Iter &&...iters)
   {
     return {std::forward<Iter>(iters)...};

@@ -133,8 +133,7 @@ namespace types
   {
 
     // data holder
-    using _type =
-        typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+    using _type = std::remove_cv_t<std::remove_reference_t<T>>;
     using container_type =
         std::set<_type, std::less<_type>, utils::allocator<_type>>;
     utils::shared_ref<container_type> data;

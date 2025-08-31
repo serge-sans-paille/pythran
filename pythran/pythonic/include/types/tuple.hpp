@@ -509,8 +509,7 @@ namespace types
     template <class T>
     struct alike<T> {
       static bool const value = true;
-      using type = typename std::remove_cv<
-          typename std::remove_reference<T>::type>::type;
+      using type = std::remove_cv_t<std::remove_reference_t<T>>;
     };
     template <class A, class... S>
     struct alike<numpy_gexpr<A, S...>, numpy_gexpr<A const &, S...>> {
@@ -547,13 +546,11 @@ namespace types
     struct alike<std::tuple<Types...>, array_base<T, N, V>> {
       static bool const value =
           sizeof...(Types) == N &&
-          alike<T, typename std::remove_cv<typename std::remove_reference<
-                       Types>::type>::type...>::value;
+          alike<T, std::remove_cv_t<std::remove_reference_t<Types>>...>::value;
       using type = typename std::conditional<
           value,
           typename alike<T,
-                         typename std::remove_cv<typename std::remove_reference<
-                             Types>::type>::type...>::type,
+                         std::remove_cv_t<std::remove_reference_t<Types>>...>::type,
           void>::type;
     };
 
@@ -571,8 +568,7 @@ namespace types
   } // namespace details
 
   template <class... Types>
-  struct alike : details::alike<typename std::remove_cv<
-                     typename std::remove_reference<Types>::type>::type...> {
+  struct alike : details::alike<std::remove_cv_t<std::remove_reference_t<Types>>...> {
   };
 
   // Pythonic implementation for make_tuple to have the best return type

@@ -232,11 +232,9 @@ namespace builtins
   } // namespace details
 
   template <typename Operator, typename... Iter>
-  auto map(Operator &&_op, Iter &&...iters) -> details::map<
-      typename std::remove_cv<
-          typename std::remove_reference<Operator>::type>::type,
-      typename types::iterator<typename std::remove_cv<
-          typename std::remove_reference<Iter>::type>::type>::type...>
+  details::map<std::remove_cv_t<std::remove_reference_t<Operator>>,
+               typename types::iterator<std::remove_cv_t<std::remove_reference_t<Iter>>>::type...>
+  map(Operator &&_op, Iter &&...iters)
   {
     return {std::forward<Operator>(_op), std::forward<Iter>(iters)...};
   }

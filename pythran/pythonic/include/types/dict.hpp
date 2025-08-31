@@ -32,7 +32,7 @@ namespace types
     I base;
     using difference_type = typename std::iterator_traits<I>::difference_type;
     using value_type = make_tuple_t<
-        typename std::remove_cv<typename std::iterator_traits<I>::value_type::first_type>::type,
+        std::remove_cv_t<typename std::iterator_traits<I>::value_type::first_type>,
         typename std::iterator_traits<I>::value_type::second_type>;
     using pointer = value_type *;
     using reference = value_type &;
@@ -170,10 +170,8 @@ namespace types
   {
 
     // data holder
-    using _key_type =
-        typename std::remove_cv<typename std::remove_reference<K>::type>::type;
-    using _value_type =
-        typename std::remove_cv<typename std::remove_reference<V>::type>::type;
+    using _key_type = std::remove_cv_t<std::remove_reference_t<K>>;
+    using _value_type = std::remove_cv_t<std::remove_reference_t<V>>;
     using container_type = typename std::conditional<std::is_same<K, none_type>::value,
           none_type_map<_value_type>,
           std::unordered_map<

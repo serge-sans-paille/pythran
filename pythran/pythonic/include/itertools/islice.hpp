@@ -15,10 +15,8 @@ namespace itertools
       : std::iterator<typename Iterable::iterator::iterator_category,
                       typename std::iterator_traits<
                           typename Iterable::iterator>::value_type> {
-    typename std::remove_reference<
-        typename std::remove_cv<Iterable>::type>::type iterable_ref;
-    typename std::remove_reference<
-        typename std::remove_cv<Iterable>::type>::type::iterator iterable;
+    std::remove_reference_t<std::remove_cv_t<Iterable>> iterable_ref;
+    typename std::remove_reference_t<std::remove_cv_t<Iterable>>::iterator iterable;
 
     builtins::range xr_ref;
     builtins::range_iterator state;
@@ -54,13 +52,11 @@ namespace itertools
   };
 
   template <typename Iterable>
-  _islice<typename std::remove_cv<
-      typename std::remove_reference<Iterable>::type>::type>
+  _islice<std::remove_cv_t<std::remove_reference_t<Iterable>>>
   islice(Iterable &&iterable, long start, long stop, long step = 1);
 
   template <typename Iterable>
-  _islice<typename std::remove_cv<
-      typename std::remove_reference<Iterable>::type>::type>
+  _islice<std::remove_cv_t<std::remove_reference_t<Iterable>>>
   islice(Iterable &&iterable, long stop);
 
   DEFINE_FUNCTOR(pythonic::itertools, islice);

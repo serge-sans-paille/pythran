@@ -112,11 +112,10 @@ namespace builtins
   } // namespace details
 
   template <typename Operator, typename... Iter>
-  auto map(Operator &&_op, Iter &&...iters) -> details::map<
-      typename std::remove_cv<
-          typename std::remove_reference<Operator>::type>::type,
-      typename types::iterator<typename std::remove_cv<
-          typename std::remove_reference<Iter>::type>::type>::type...>;
+details::map<
+      std::remove_cv_t<std::remove_reference_t<Operator>>,
+      typename types::iterator<std::remove_cv_t<std::remove_reference_t<Iter>>>::type...>
+  map(Operator &&_op, Iter &&...iters);
 
   DEFINE_FUNCTOR(pythonic::builtins, map);
 } // namespace builtins
@@ -126,14 +125,12 @@ namespace types
 
   template <class Op, class Iter>
   struct len_of<pythonic::builtins::details::map<Op, Iter>> {
-    static constexpr long value = len_of<typename std::remove_cv<
-        typename std::remove_reference<Iter>::type>::type>::value;
+    static constexpr long value = len_of<std::remove_cv_t<std::remove_reference_t<Iter>>>::value;
   };
 
   template <class Op, class I0, class I1, class... Iter>
   struct len_of<pythonic::builtins::details::map<Op, I0, I1, Iter...>> {
-    static constexpr long _head = len_of<typename std::remove_cv<
-        typename std::remove_reference<I0>::type>::type>::value;
+    static constexpr long _head = len_of<std::remove_cv_t<std::remove_reference_t<I0>>>::value;
     static constexpr long _tail =
         len_of<pythonic::builtins::details::map<Op, I1, Iter...>>::value;
     // take the minimal value. If one is negative, it will be automatically

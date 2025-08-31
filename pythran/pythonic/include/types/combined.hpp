@@ -151,8 +151,7 @@ template <class T>
 class container
 {
 public:
-  using value_type =
-      typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+  using value_type = std::remove_cv_t<std::remove_reference_t<T>>;
 
 private:
   container();
@@ -169,10 +168,8 @@ template <class K, class V>
 class indexable_container
 {
 public:
-  using key_type =
-      typename std::remove_cv<typename std::remove_reference<K>::type>::type;
-  using value_type =
-      typename std::remove_cv<typename std::remove_reference<V>::type>::type;
+  using key_type = std::remove_cv_t<std::remove_reference_t<K>>;
+  using value_type = std::remove_cv_t<std::remove_reference_t<V>>;
 
 private:
   indexable_container();
@@ -189,8 +186,7 @@ template <class T>
 class dict_container
 {
 public:
-  using value_type =
-      typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+  using value_type = std::remove_cv_t<std::remove_reference_t<T>>;
 
 private:
   dict_container();
@@ -207,8 +203,7 @@ template <class T>
 class indexable
 {
 public:
-  using type =
-      typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+  using type = std::remove_cv_t<std::remove_reference_t<T>>;
 
 private:
   indexable();
@@ -218,8 +213,7 @@ template <class T>
 class indexable_dict
 {
 public:
-  using type =
-      typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+  using type = std::remove_cv_t<std::remove_reference_t<T>>;
 
 private:
   indexable_dict();

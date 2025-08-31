@@ -549,8 +549,7 @@ namespace types
     return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
            value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
            is_vectorizable &&
-               types::is_vectorizable<typename std::remove_cv<
-                   typename std::remove_reference<BExpr>::type>::type>::value &&
+               types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
                std::is_same<dtype, typename dtype_of<typename std::decay<
                                        BExpr>::type>::type>::value >
                    (*this, bexpr);
@@ -569,8 +568,8 @@ namespace types
 
     if (may_overlap(*this, expr)) {
       using NBExpr =
-          ndarray<typename std::remove_reference<BExpr>::type::dtype,
-                  typename std::remove_reference<BExpr>::type::shape_t>;
+          ndarray<typename std::remove_reference_t<BExpr>::dtype,
+                  typename std::remove_reference_t<BExpr>::shape_t>;
       return utils::broadcast_update < Op, numpy_gexpr &, NBExpr, value,
              value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
              is_vectorizable && types::is_vectorizable<E>::value &&

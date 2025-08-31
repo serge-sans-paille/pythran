@@ -230,8 +230,7 @@ namespace types
   {
     return {
         {make_step(size(), std::get<I>(args).template shape<0>())...},
-        std::make_tuple(xsimd::batch<
-                        typename std::remove_reference<Args>::type::value_type>(
+        std::make_tuple(xsimd::batch<typename std::remove_reference_t<Args>::value_type>(
             *std::get<I>(args).begin())...),
         std::get<I>(args).vbegin(vectorize{})...};
   }

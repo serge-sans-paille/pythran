@@ -121,8 +121,7 @@ namespace itertools
   } // namespace details
 
   template <typename T0>
-  details::combination<
-      typename std::remove_cv<typename std::remove_reference<T0>::type>::type>
+  details::combination<std::remove_cv_t<std::remove_reference_t<T0>>>
   combinations(T0 &&iter, long num_elts)
   {
     return {std::forward<T0>(iter), num_elts};

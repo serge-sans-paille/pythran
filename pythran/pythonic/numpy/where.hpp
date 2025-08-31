@@ -39,15 +39,9 @@ namespace types
     template <class Ts>
     auto operator()(Ts const &iters, std::index_sequence<0, 1, 2>) ->
         typename std::enable_if<
-            types::is_dtype<
-                typename std::remove_cv<typename std::remove_reference<
-                    decltype(*std::get<0>(iters))>::type>::type>::value &&
-                types::is_dtype<
-                    typename std::remove_cv<typename std::remove_reference<
-                        decltype(*std::get<1>(iters))>::type>::type>::value &&
-                types::is_dtype<
-                    typename std::remove_cv<typename std::remove_reference<
-                        decltype(*std::get<2>(iters))>::type>::type>::value,
+            types::is_dtype<std::remove_cv_t<std::remove_reference_t<decltype(*std::get<0>(iters))>>>::value &&
+            types::is_dtype<std::remove_cv_t<std::remove_reference_t<decltype(*std::get<1>(iters))>>>::value &&
+            types::is_dtype<std::remove_cv_t<std::remove_reference_t<decltype(*std::get<2>(iters))>>>::value,
             decltype(numpy::impl::where(*std::get<0>(iters),
                                         *std::get<1>(iters),
                                         *std::get<2>(iters)))>::type

@@ -25,7 +25,7 @@ namespace numpy
     utils::broadcast_copy<array_type, E, array_type::value,
                           array_type::value -
                               utils::nested_container_depth<E>::value,
-                          std::remove_reference<BExpr>::type::is_vectorizable>(
+                          std::remove_reference_t<BExpr>::is_vectorizable>(
         out, bexpr);
     return out;
   }

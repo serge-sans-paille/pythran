@@ -10,8 +10,8 @@ namespace numpy
 
   template <class Op, class E>
   using result_dtype = types::dtype_t<decltype(std::declval<Op>()(
-      std::declval<typename std::remove_reference<E>::type::dtype>(),
-      std::declval<typename std::remove_reference<E>::type::dtype>()))>;
+      std::declval<typename std::remove_reference_t<E>::dtype>(),
+      std::declval<typename std::remove_reference_t<E>::dtype>()))>;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
   types::ndarray<typename dtype::type, types::pshape<long>>

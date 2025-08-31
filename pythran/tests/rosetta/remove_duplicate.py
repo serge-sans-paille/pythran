@@ -3,4 +3,4 @@
 #runas unique([1, 2, 3, 2, 3, 4])
 
 def unique(items):
-    return list(set(items))
+    return sorted(list(set(items)))

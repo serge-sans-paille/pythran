@@ -85,30 +85,6 @@ namespace types
     return data->end();
   }
 
-  template <class T>
-  typename set<T>::reverse_iterator set<T>::rbegin()
-  {
-    return data->rbegin();
-  }
-
-  template <class T>
-  typename set<T>::const_reverse_iterator set<T>::rbegin() const
-  {
-    return data->rbegin();
-  }
-
-  template <class T>
-  typename set<T>::reverse_iterator set<T>::rend()
-  {
-    return data->rend();
-  }
-
-  template <class T>
-  typename set<T>::const_reverse_iterator set<T>::rend() const
-  {
-    return data->rend();
-  }
-
   // modifiers
   template <class T>
   T set<T>::pop()
@@ -184,7 +160,7 @@ namespace types
   bool set<T>::isdisjoint(U const &other) const
   {
     // Return true if the this has no elements in common with other.
-    for (iterator it = begin(); it != end(); ++it) {
+    for (const_iterator it = begin(); it != end(); ++it) {
       if (in(other, *it))
         return false;
     }
@@ -196,7 +172,7 @@ namespace types
   bool set<T>::issubset(U const &other) const
   {
     // Test whether every element in the set is in other.
-    for (iterator it = begin(); it != end(); ++it) {
+    for (const_iterator it = begin(); it != end(); ++it) {
       if (!in(other, *it))
         return false;
     }

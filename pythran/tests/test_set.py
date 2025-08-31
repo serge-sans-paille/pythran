@@ -221,7 +221,7 @@ def are_equal(s1):
                       set(), {1, 2},set_to_bool_conversion=[Set[int], Set[int]])
 
     def test_print_set(self):
-        self.run_test("def print_set(s): return str(s)", {1, 2}, print_set=[Set[int]])
+        self.run_test("def print_set(s): return str(s)", {1}, print_set=[Set[int]])
 
     def test_print_empty_set(self):
         self.run_test("def print_empty_set(s): return str(s)", set(), print_empty_set=[Set[int]])

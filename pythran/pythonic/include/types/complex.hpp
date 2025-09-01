@@ -31,7 +31,7 @@ namespace std
   template <class T, class S>
   using complex_broadcast_t = std::enable_if_t<
       std::is_scalar<S>::value && !std::is_same<T, S>::value,
-      std::complex<typename std::common_type<T, S>::type>>;
+      std::complex<std::common_type_t<T, S>>>;
   template <class T, class S>
   using complex_bool_t = std::enable_if_t<
       std::is_scalar<S>::value && !std::is_same<T, S>::value, bool>;
@@ -122,9 +122,9 @@ struct __combined<std::complex<T0>, std::complex<T1>> {
 #define STD_COMPLEX_IMPLICT_OPERATOR_CAST(op)                                  \
   template <class T, class U>                                                  \
   auto operator op(std::complex<T> const &lhs, std::complex<U> const &rhs)     \
-      ->std::complex<typename std::common_type<T, U>::type>                    \
+      ->std::complex<std::common_type_t<T, U>>                                 \
   {                                                                            \
-    using ctype = std::complex<typename std::common_type<T, U>::type>;         \
+    using ctype = std::complex<std::common_type_t<T, U>>;                      \
     return ctype{lhs} op ctype{rhs};                                           \
   }
 

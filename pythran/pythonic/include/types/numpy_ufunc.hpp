@@ -16,7 +16,7 @@ namespace types
     {
       for (npy_intp i = 0; i < n; ++i) {
         *(ResType *)output =
-            F{}(*(typename std::tuple_element<Is, std::tuple<ArgTypes...>>::type
+            F{}(*(std::tuple_element_t<Is, std::tuple<ArgTypes...>>
                       *)(inputs[Is])...);
         output += output_step;
         (void)std::initializer_list<int>{

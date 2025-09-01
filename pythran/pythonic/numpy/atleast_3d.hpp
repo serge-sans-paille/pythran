@@ -29,14 +29,13 @@ namespace numpy
           (!types::is_dtype<T>::value) && (T::value == 1),
           types::ndarray<typename T::dtype,
                          types::pshape<std::integral_constant<long, 1>,
-                                       typename std::tuple_element<
-                                           0, typename T::shape_t>::type,
+                                       std::tuple_element_t<0, typename T::shape_t>,
                                        std::integral_constant<long, 1>>>>
   {
     auto r = asarray(t);
     return r.reshape(
         types::pshape<std::integral_constant<long, 1>,
-                      typename std::tuple_element<0, typename T::shape_t>::type,
+                      std::tuple_element_t<0, typename T::shape_t>,
                       std::integral_constant<long, 1>>(
             std::integral_constant<long, 1>(), r.template shape<0>(),
             std::integral_constant<long, 1>()));
@@ -49,14 +48,14 @@ namespace numpy
           types::ndarray<
               typename T::dtype,
               types::pshape<
-                  typename std::tuple_element<0, typename T::shape_t>::type,
-                  typename std::tuple_element<1, typename T::shape_t>::type,
+                  std::tuple_element_t<0, typename T::shape_t>,
+                  std::tuple_element_t<1, typename T::shape_t>,
                   std::integral_constant<long, 1>>>>
   {
     auto r = asarray(t);
     return r.reshape(
-        types::pshape<typename std::tuple_element<0, typename T::shape_t>::type,
-                      typename std::tuple_element<1, typename T::shape_t>::type,
+        types::pshape<std::tuple_element_t<0, typename T::shape_t>,
+                      std::tuple_element_t<1, typename T::shape_t>,
                       std::integral_constant<long, 1>>(
             r.template shape<0>(), r.template shape<1>(),
             std::integral_constant<long, 1>()));

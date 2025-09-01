@@ -21,8 +21,7 @@ namespace numpy
                    types::ndarray<
                        typename T::dtype,
                        types::pshape<std::integral_constant<long, 1>,
-                                     typename std::tuple_element<
-                                         0, typename T::shape_t>::type>>>;
+                                     std::tuple_element_t<0, typename T::shape_t>>>>;
 
   template <class T>
   auto atleast_2d(T &&t) ->

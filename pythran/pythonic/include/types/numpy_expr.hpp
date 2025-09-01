@@ -11,9 +11,9 @@ namespace types
   template <size_t I, class Args>
   bool is_trivial_broadcast()
   {
-    return std::is_same<typename std::tuple_element<
-                            0, typename std::decay_t<typename std::tuple_element<
-                                   I, Args>::type>::shape_t>::type,
+    return std::is_same<std::tuple_element_t<
+                            0, typename std::decay_t<std::tuple_element_t<
+                                   I, Args>>::shape_t>,
                         std::integral_constant<long, 1>>::value;
   }
 
@@ -47,8 +47,8 @@ namespace types
   template <size_t value, class Args, size_t N, size_t... Is>
   struct all_valid_indices
       : std::conditional_t<(value <=
-                          std::remove_reference_t<typename std::tuple_element<
-                              N - 1, Args>::type>::value),
+                          std::remove_reference_t<std::tuple_element_t<
+                              N - 1, Args>>::value),
                          all_valid_indices<value, Args, N - 1, Is..., N - 1>,
                          all_valid_indices<value, Args, N - 1, Is...>> {
   };
@@ -133,7 +133,7 @@ namespace types
     template <size_t I>
     bool _incr_opt(std::integral_constant<bool, false> long_step)
     {
-      if (std::tuple_element<I, Steps>::type::value)
+      if (std::tuple_element_t<I, Steps>::value)
         ++std::get<I>(iters_);
       return true;
     }
@@ -143,8 +143,8 @@ namespace types
     {
       (void)std::initializer_list<bool>{_incr_opt<I>(
           std::integral_constant<
-              bool, std::is_same<long, typename std::tuple_element<
-                                           I, Steps>::type>::value>{})...};
+              bool, std::is_same<long, std::tuple_element_t<
+                                           I, Steps>>::value>{})...};
     }
     numpy_expr_iterator &operator++()
     {
@@ -300,7 +300,7 @@ namespace types
     template <size_t I>
     bool _incr_opt(std::integral_constant<bool, false> long_step)
     {
-      if (std::tuple_element<I, Steps>::type::value)
+      if (std::tuple_element_t<I, Steps>::value)
         ++std::get<I>(iters_);
       return true;
     }
@@ -310,8 +310,8 @@ namespace types
     {
       (void)std::initializer_list<bool>{_incr_opt<I>(
           std::integral_constant<
-              bool, std::is_same<long, typename std::tuple_element<
-                                           I, Steps>::type>::value>{})...};
+              bool, std::is_same<long, std::tuple_element_t<
+                                           I, Steps>>::value>{})...};
     }
     numpy_expr_simd_iterator &operator++()
     {

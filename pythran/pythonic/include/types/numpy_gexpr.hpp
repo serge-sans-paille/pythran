@@ -226,10 +226,10 @@ namespace types
   {
 
     template <class T, class Ts, size_t... Is>
-    std::tuple<T, typename std::tuple_element<Is, Ts>::type...>
+    std::tuple<T, std::tuple_element_t<Is, Ts>...>
     tuple_push_head(T const &val, Ts const &vals, std::index_sequence<Is...>)
     {
-      return std::tuple<T, typename std::tuple_element<Is, Ts>::type...>{
+      return std::tuple<T, std::tuple_element_t<Is, Ts>...>{
           val, std::get<Is>(vals)...};
     }
 
@@ -400,7 +400,7 @@ namespace types
 
     template <class Arg, class S, size_t... Is>
     numpy_gexpr<Arg, typename to_normalized_slice<
-                         typename std::tuple_element<Is, S>::type>::type...>
+                         std::tuple_element_t<Is, S>>::type...>
     _make_gexpr_helper(Arg arg, S const &s, std::index_sequence<Is...>);
 
     template <class Arg, class... Sp>
@@ -593,8 +593,7 @@ namespace types
 
     using last_arg_stride_t =
         decltype(std::declval<Arg>().template strides<sizeof...(S) - 1>());
-    using last_slice_t =
-        typename std::tuple_element<sizeof...(S) - 1, std::tuple<S...>>::type;
+    using last_slice_t = std::tuple_element_t<sizeof...(S) - 1, std::tuple<S...>>;
 
     // It is not possible to vectorize everything. We only vectorize if the
     // last dimension is contiguous, which happens if
@@ -694,8 +693,8 @@ namespace types
         details::_make_gexpr(_Arg arg, std::tuple<_other_classes...> const &t);
     template <class _Arg, class _other_classes, size_t... Is>
     friend numpy_gexpr<_Arg,
-                       typename to_normalized_slice<typename std::tuple_element<
-                           Is, _other_classes>::type>::type...>
+                       typename to_normalized_slice<std::tuple_element_t<
+                           Is, _other_classes>>::type...>
     details::_make_gexpr_helper(_Arg arg, _other_classes const &s,
                                 std::index_sequence<Is...>);
 

@@ -218,7 +218,7 @@ namespace std
 
   template <size_t I, class T0>
   struct tuple_element<I, pythonic::types::none<T0>> {
-    using type = typename std::tuple_element<I, T0>::type;
+    using type = std::tuple_element_t<I, T0>;
   };
 
   template <>

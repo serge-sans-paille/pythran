@@ -13,57 +13,49 @@ namespace std
   template <class T, class S>
   complex_broadcast_t<T, S> operator+(std::complex<T> self, S other)
   {
-    return (complex_broadcast_t<T, S>)self +
-           (typename std::common_type<T, S>::type)(other);
+    return (complex_broadcast_t<T, S>)self + (std::common_type_t<T, S>)(other);
   }
 
   template <class T, class S>
   complex_broadcast_t<T, S> operator+(S self, std::complex<T> other)
   {
-    return (typename std::common_type<T, S>::type)(self) +
-           (complex_broadcast_t<T, S>)other;
+    return (std::common_type_t<T, S>)(self) + (complex_broadcast_t<T, S>)other;
   }
 
   template <class T, class S>
   complex_broadcast_t<T, S> operator-(std::complex<T> self, S other)
   {
-    return (complex_broadcast_t<T, S>)self -
-           (typename std::common_type<T, S>::type)(other);
+    return (complex_broadcast_t<T, S>)self - (std::common_type_t<T, S>)(other);
   }
 
   template <class T, class S>
   complex_broadcast_t<T, S> operator-(S self, std::complex<T> other)
   {
-    return (typename std::common_type<T, S>::type)(self) -
-           (complex_broadcast_t<T, S>)other;
+    return (std::common_type_t<T, S>)(self) - (complex_broadcast_t<T, S>)other;
   }
 
   template <class T, class S>
   complex_broadcast_t<T, S> operator*(std::complex<T> self, S other)
   {
-    return (complex_broadcast_t<T, S>)self *
-           (typename std::common_type<T, S>::type)(other);
+    return (complex_broadcast_t<T, S>)self * (std::common_type_t<T, S>)(other);
   }
 
   template <class T, class S>
   complex_broadcast_t<T, S> operator*(S self, std::complex<T> other)
   {
-    return (typename std::common_type<T, S>::type)(self) *
-           (complex_broadcast_t<T, S>)other;
+    return (std::common_type_t<T, S>)(self) * (complex_broadcast_t<T, S>)other;
   }
 
   template <class T, class S>
   complex_broadcast_t<T, S> operator/(std::complex<T> self, S other)
   {
-    return (complex_broadcast_t<T, S>)self /
-           (typename std::common_type<T, S>::type)(other);
+    return (complex_broadcast_t<T, S>)self / (std::common_type_t<T, S>)(other);
   }
 
   template <class T, class S>
   complex_broadcast_t<T, S> operator/(S self, std::complex<T> other)
   {
-    return (typename std::common_type<T, S>::type)(self) /
-           (complex_broadcast_t<T, S>)other;
+    return (std::common_type_t<T, S>)(self) / (complex_broadcast_t<T, S>)other;
   }
 
   template <class T, class S>

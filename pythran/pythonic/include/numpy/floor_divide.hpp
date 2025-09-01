@@ -14,7 +14,7 @@ namespace numpy
   namespace wrapper
   {
     template <class Arg0, class Arg1>
-    std::complex<typename std::common_type<Arg0, Arg1>::type>
+    std::complex<std::common_type_t<Arg0, Arg1>>
     divfloor(std::complex<Arg0> const &arg0, std::complex<Arg1> const &arg1)
     {
       return {functor::floor{}(std::real(arg0 / arg1)), 0};

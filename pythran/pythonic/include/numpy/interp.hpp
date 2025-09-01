@@ -11,8 +11,8 @@ namespace numpy
 {
   template <class T>
   using interp_out_type =
-      typename std::conditional<types::is_complex<typename T::dtype>::value,
-                                std::complex<double>, double>::type;
+      std::conditional_t<types::is_complex<typename T::dtype>::value,
+                                std::complex<double>, double>;
 
   // None,None,None
   template <class T1, class T2, class T3>

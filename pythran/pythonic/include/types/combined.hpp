@@ -51,12 +51,12 @@ struct __combined<T0, T1> {
   template <class F0, class F1>
   static F0 get(...);
 
-  using type = typename std::conditional<
+  using type = std::conditional_t<
       std::is_same<T0, T1>::value, T0,
       decltype(get<T0, T1>(std::integral_constant < bool,
                            pythonic::types::is_callable<T0>::value
                                    &&pythonic::types::is_callable<T1>::value >
-                               ()))>::type;
+                               ()))>;
 };
 
 template <class T0, class T1>

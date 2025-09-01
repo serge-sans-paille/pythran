@@ -40,13 +40,13 @@ namespace builtins
 
     template <class Obj, class... Clss>
     struct isinstance<Obj, std::tuple<Clss...>> {
-      using type = typename std::conditional<
+      using type = std::conditional_t<
           utils::any_of<std::is_same<
               typename types::isinstance<
                   Obj, std::decay_t<
                            decltype(std::declval<Clss>()())>>::type,
               types::true_type>::value...>::value,
-          types::true_type, types::false_type>::type;
+          types::true_type, types::false_type>;
     };
   } // namespace details
 

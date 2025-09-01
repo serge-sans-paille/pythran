@@ -658,9 +658,9 @@ struct to_python<typename std::vector<bool>::reference> {
 
 struct phantom_type; // ghost don't exist
 template <>
-struct to_python<typename std::conditional<
+struct to_python<std::conditional_t<
     std::is_same<bool, typename std::vector<bool>::const_reference>::value,
-    phantom_type, typename std::vector<bool>::const_reference>::type> {
+    phantom_type, typename std::vector<bool>::const_reference>> {
   static PyObject *
   convert(typename std::vector<bool>::const_reference const &v);
 };

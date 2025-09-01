@@ -172,11 +172,11 @@ namespace types
     // data holder
     using _key_type = std::remove_cv_t<std::remove_reference_t<K>>;
     using _value_type = std::remove_cv_t<std::remove_reference_t<V>>;
-    using container_type = typename std::conditional<std::is_same<K, none_type>::value,
+    using container_type = std::conditional_t<std::is_same<K, none_type>::value,
           none_type_map<_value_type>,
           std::unordered_map<
         _key_type, _value_type, std::hash<_key_type>, std::equal_to<_key_type>,
-        utils::allocator<std::pair<const _key_type, _value_type>>>>::type;
+        utils::allocator<std::pair<const _key_type, _value_type>>>>;
 
     utils::shared_ref<container_type> data;
     template <class Kp, class Vp>

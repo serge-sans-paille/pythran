@@ -158,8 +158,7 @@ namespace types
   public:
     //  types
     typedef T data_type;
-    typedef typename std::conditional<std::is_integral<T>::value, long,
-                                      double>::type value_type;
+    typedef std::conditional_t<std::is_integral<T>::value, long, double> value_type;
     typedef array_reference<sliced_array> reference;
     typedef value_type const_reference;
     typedef array_iterator<sliced_array> iterator;
@@ -303,8 +302,7 @@ namespace types
   public:
     // types
     typedef T data_type;
-    typedef typename std::conditional<std::is_integral<T>::value, long,
-                                      double>::type value_type;
+    typedef std::conditional_t<std::is_integral<T>::value, long, double> value_type;
     typedef array_reference<array> reference;
     typedef value_type const_reference;
     typedef array_iterator<array> iterator;

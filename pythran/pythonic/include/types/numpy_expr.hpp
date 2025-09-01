@@ -46,11 +46,11 @@ namespace types
   };
   template <size_t value, class Args, size_t N, size_t... Is>
   struct all_valid_indices
-      : std::conditional<(value <=
+      : std::conditional_t<(value <=
                           std::remove_reference_t<typename std::tuple_element<
                               N - 1, Args>::type>::value),
                          all_valid_indices<value, Args, N - 1, Is..., N - 1>,
-                         all_valid_indices<value, Args, N - 1, Is...>>::type {
+                         all_valid_indices<value, Args, N - 1, Is...>> {
   };
 
   template <size_t value, class Args>

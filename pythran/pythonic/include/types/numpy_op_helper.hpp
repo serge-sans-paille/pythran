@@ -88,9 +88,7 @@ namespace types
             bool T0_number = is_dtype<T0>::value,
             bool T1_number = is_dtype<T1>::value>
   struct the_common_type {
-    using type =
-        typename std::conditional <
-        std::decay_t<T0>::value<std::decay_t<T1>::value, T1, T0>::type;
+    using type = std::conditional_t<std::decay_t<T0>::value<std::decay_t<T1>::value, T1, T0>;
   };
 
   template <class T0, class T1>

@@ -68,8 +68,8 @@ namespace types
   template <class T>
   struct is_vectorizable {
     static const bool value =
-        std::conditional<is_dtype<T>::value, is_vectorizable_dtype<T>,
-                         is_vectorizable_array<T>>::type::value;
+        std::conditional_t<is_dtype<T>::value, is_vectorizable_dtype<T>,
+                         is_vectorizable_array<T>>::value;
   };
 
   template <class O, class... Args>

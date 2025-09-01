@@ -42,13 +42,11 @@ namespace types
 
     static constexpr bool is_strided = std::remove_reference_t<Arg>::is_strided;
 
-    using iterator =
-        typename std::conditional<is_strided || value != 1,
-                                  nditerator<numpy_iexpr>, dtype *>::type;
-    using const_iterator =
-        typename std::conditional<is_strided || value != 1,
+    using iterator = std::conditional_t<is_strided || value != 1,
+                                  nditerator<numpy_iexpr>, dtype *>;
+    using const_iterator = std::conditional_t<is_strided || value != 1,
                                   const_nditerator<numpy_iexpr>,
-                                  dtype const *>::type;
+                                  dtype const *>;
 
     Arg arg;
     dtype *buffer;

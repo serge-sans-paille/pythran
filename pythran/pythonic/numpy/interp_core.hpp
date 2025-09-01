@@ -186,9 +186,8 @@ static npy_intp binary_search_with_guess(const npy_double key, const T &arr,
 // xp->dx   fp->dy  x -> dz
 // This is the output type, based on the type of T, which can be complex.
 template <class T>
-using out_type =
-    typename std::conditional<types::is_complex<typename T::dtype>::value,
-                              std::complex<double>, double>::type;
+using out_type = std::conditional_t<types::is_complex<typename T::dtype>::value,
+                                    std::complex<double>, double>;
 
 template <typename npy_intp, typename T5, class T1, class T2, class T3,
           class T4>

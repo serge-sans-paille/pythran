@@ -258,12 +258,11 @@ namespace types
 
   template <class T, class B>
   struct broadcast_dtype {
-    using type =
-        typename std::conditional<(std::is_integral<T>::value &&
+    using type = std::conditional_t<(std::is_integral<T>::value &&
                                    std::is_integral<B>::value) ||
                                       (std::is_floating_point<T>::value &&
                                        std::is_floating_point<B>::value),
-                                  T, typename __combined<T, B>::type>::type;
+                                  T, typename __combined<T, B>::type>;
   };
 #ifndef USE_XSIMD
   template <class T, class B>

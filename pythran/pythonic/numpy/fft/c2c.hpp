@@ -24,9 +24,7 @@ namespace numpy
   {
     using pocketfft::shape_t;
     using pocketfft::stride_t;
-    using ldbl_t =
-        typename std::conditional<sizeof(long double) == sizeof(double), double,
-                                  long double>::type;
+    using ldbl_t = std::conditional_t<sizeof(long double) == sizeof(double), double, long double>;
 
     template <class T, class pS>
     types::ndarray<

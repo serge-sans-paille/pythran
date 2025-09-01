@@ -144,9 +144,8 @@ namespace types
   template <class Op, class Expr>
   numpy_vexpr<T, F> &numpy_vexpr<T, F>::update_(Expr const &expr)
   {
-    using BExpr =
-        typename std::conditional<std::is_scalar<Expr>::value,
-                                  broadcast<Expr, dtype>, Expr const &>::type;
+    using BExpr = std::conditional_t<std::is_scalar<Expr>::value,
+                                  broadcast<Expr, dtype>, Expr const &>;
     BExpr bexpr = expr;
     utils::broadcast_update<
         Op, numpy_vexpr &, BExpr, value,

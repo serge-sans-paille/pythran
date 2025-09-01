@@ -541,9 +541,8 @@ namespace types
                           numpy_gexpr<Arg, S...> &>
   numpy_gexpr<Arg, S...>::update_(E const &expr)
   {
-    using BExpr =
-        typename std::conditional<std::is_scalar<E>::value, broadcast<E, dtype>,
-                                  E const &>::type;
+    using BExpr = std::conditional_t<std::is_scalar<E>::value, broadcast<E, dtype>,
+                                  E const &>;
     BExpr bexpr = expr;
     // 100% sure there's no overlap
     return utils::broadcast_update < Op, numpy_gexpr &, BExpr, value,
@@ -560,9 +559,8 @@ namespace types
                           numpy_gexpr<Arg, S...> &>
   numpy_gexpr<Arg, S...>::update_(E const &expr)
   {
-    using BExpr =
-        typename std::conditional<std::is_scalar<E>::value, broadcast<E, dtype>,
-                                  E const &>::type;
+    using BExpr = std::conditional_t<std::is_scalar<E>::value, broadcast<E, dtype>,
+                                  E const &>;
     BExpr bexpr = expr;
 
     if (may_overlap(*this, expr)) {

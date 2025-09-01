@@ -20,16 +20,16 @@ namespace numpy
                     std::forward<Array>(array)))));
 
     template <class Array>
-    using norm_dtype_t = typename std::conditional<
+    using norm_dtype_t = std::conditional_t<
         std::is_floating_point<
             typename std::decay_t<Array>::dtype()>::value,
-        typename std::decay_t<Array>::dtype(), double>::type;
+        typename std::decay_t<Array>::dtype(), double>;
 
     template <class Array>
-    using norm_t = typename std::conditional<
+    using norm_t = std::conditional_t<
         std::decay_t<Array>::value == 1, norm_dtype_t<Array>,
         types::ndarray<norm_dtype_t<Array>,
-                       types::array_tuple<long, std::decay_t<Array>::value - 1>>>::type;
+                       types::array_tuple<long, std::decay_t<Array>::value - 1>>>;
 
     template <class Array>
     norm_t<Array> norm(Array &&array, double ord, types::none_type axis = {});

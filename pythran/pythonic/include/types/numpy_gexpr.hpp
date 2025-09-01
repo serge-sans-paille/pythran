@@ -617,12 +617,12 @@ namespace types
     using value_type = std::decay_t<decltype(numpy_iexpr_helper<value>::get(std::declval<numpy_gexpr>(), 1))>;
 
     using iterator =
-        typename std::conditional<is_strided || value != 1,
-                                  nditerator<numpy_gexpr>, dtype *>::type;
+        std::conditional_t<is_strided || value != 1,
+                                  nditerator<numpy_gexpr>, dtype *>;
     using const_iterator =
-        typename std::conditional<is_strided || value != 1,
+        std::conditional_t<is_strided || value != 1,
                                   const_nditerator<numpy_gexpr>,
-                                  dtype const *>::type;
+                                  dtype const *>;
 
     std::remove_cv_t<Arg> arg;
 
@@ -641,10 +641,10 @@ namespace types
     static constexpr types::array_tuple<long, 1> last_stride(...);
 
     sutils::concat_t<types::array_tuple<long, value - 1>,
-                     typename std::conditional<
+                     std::conditional_t<
                          sizeof...(S) == std::decay_t<Arg>::value,
                          decltype(last_stride(std::declval<last_slice_t>())),
-                         types::array_tuple<long, 1>>::type>
+                         types::array_tuple<long, 1>>>
         _strides; // strides
 
     template <size_t I>

@@ -69,9 +69,7 @@ namespace numpy
       };
 
       template <class T>
-      using comparator =
-          typename std::conditional<types::is_complex<T>::value, _comp<T>,
-                                    std::less<T>>::type;
+      using comparator = std::conditional_t<types::is_complex<T>::value, _comp<T>, std::less<T>>;
 
       template <class T, class pS, class Sorter>
       std::enable_if_t<std::tuple_size<pS>::value == 1, void>

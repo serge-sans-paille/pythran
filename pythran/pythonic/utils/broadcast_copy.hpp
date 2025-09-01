@@ -112,10 +112,10 @@ namespace utils
     void operator()(E &&self, F const &other, SelfIndices &&self_indices,
                     OtherIndices &&other_indices)
     {
-      using broadcaster = typename std::conditional<
+      using broadcaster = std::conditional_t<
           types::is_dtype<F>::value,
           types::broadcast<F, typename std::decay_t<E>::dtype>,
-          types::broadcasted<F>>::type;
+          types::broadcasted<F>>;
       _broadcast_copy<fast_novectorize, N, D - 1>{}(
           std::forward<E>(self), broadcaster(other),
           std::forward<SelfIndices>(self_indices),
@@ -426,10 +426,10 @@ namespace utils
     void operator()(E &&self, F const &other, SelfIndices &&self_indices,
                     OtherIndices &&other_indices)
     {
-      using broadcaster = typename std::conditional<
+      using broadcaster = std::conditional_t<
           types::is_dtype<F>::value,
           types::broadcast<F, typename std::decay_t<E>::dtype>,
-          types::broadcasted<F>>::type;
+          types::broadcasted<F>>;
       _broadcast_update<Op, fast_novectorize, N, D - 1>{}(
           std::forward<E>(self), broadcaster(other),
           std::forward<SelfIndices>(self_indices),

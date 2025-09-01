@@ -849,9 +849,9 @@ inline PyObject *to_python<typename std::vector<bool>::reference>::convert(
   return ::to_python((bool)v);
 }
 
-inline PyObject *to_python<typename std::conditional<
+inline PyObject *to_python<std::conditional_t<
     std::is_same<bool, typename std::vector<bool>::const_reference>::value,
-    phantom_type, typename std::vector<bool>::const_reference>::type>::
+    phantom_type, typename std::vector<bool>::const_reference>>::
     convert(typename std::vector<bool>::const_reference const &v)
 {
   return ::to_python((bool)v);

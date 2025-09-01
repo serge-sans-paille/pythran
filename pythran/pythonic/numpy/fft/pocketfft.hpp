@@ -426,8 +426,7 @@ namespace pocketfft
     class sincos_2pibyn
     {
     private:
-      using Thigh = typename std::conditional<(sizeof(T) > sizeof(double)), T,
-                                              double>::type;
+      using Thigh = std::conditional_t<(sizeof(T) > sizeof(double)), T, double>;
       size_t N, mask, shift;
       arr<cmplx<Thigh>> v1, v2;
 

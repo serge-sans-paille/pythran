@@ -110,9 +110,8 @@ namespace types
   template <class Op, class Expr>
   numpy_iexpr<Arg> &numpy_iexpr<Arg>::update_(Expr const &expr)
   {
-    using BExpr =
-        typename std::conditional<std::is_scalar<Expr>::value,
-                                  broadcast<Expr, dtype>, Expr const &>::type;
+    using BExpr = std::conditional_t<std::is_scalar<Expr>::value,
+                                  broadcast<Expr, dtype>, Expr const &>;
     assert(buffer);
     BExpr bexpr = expr;
     utils::broadcast_update<

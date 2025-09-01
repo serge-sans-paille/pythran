@@ -534,9 +534,7 @@ namespace types
   template <class Op, class Expr>
   ndarray<T, pS> &ndarray<T, pS>::update_(Expr const &expr)
   {
-    using BExpr =
-        typename std::conditional<std::is_scalar<Expr>::value,
-                                  broadcast<Expr, T>, Expr const &>::type;
+    using BExpr = std::conditional_t<std::is_scalar<Expr>::value, broadcast<Expr, T>, Expr const &>;
     BExpr bexpr = expr;
     utils::broadcast_update<
         Op, ndarray &, BExpr, value,
@@ -1563,11 +1561,11 @@ namespace impl
     types::array_tuple<bool, sizeof...(Is)> dims_match = {
         (is_integral_constant<typename std::tuple_element<Is, pS>::type>::value
              ? (dims[Is] ==
-                std::conditional<
+                std::conditional_t<
                     is_integral_constant<
                         typename std::tuple_element<Is, pS>::type>::value,
                     typename std::tuple_element<Is, pS>::type,
-                    std::integral_constant<long, 0>>::type::value)
+                    std::integral_constant<long, 0>>::value)
              : true)...};
     return std::find(dims_match.begin(), dims_match.end(), false) ==
            dims_match.end();

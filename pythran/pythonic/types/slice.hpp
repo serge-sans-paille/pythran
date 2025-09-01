@@ -234,12 +234,10 @@ namespace types
 
   template <long stride>
   template <long other_stride>
-  inline
-      typename std::conditional<(stride < 256 && other_stride < 256),
+  inline std::conditional_t<(stride < 256 && other_stride < 256),
                                 cstride_normalized_slice<stride * other_stride>,
-                                normalized_slice>::type
-      cstride_normalized_slice<stride>::operator*(
-          cstride_normalized_slice<other_stride> const &other) const
+                                normalized_slice>
+  cstride_normalized_slice<stride>::operator*(cstride_normalized_slice<other_stride> const &other) const
   {
     return {lower + step * other.lower, lower + step * other.upper,
             step * other.step};
@@ -262,12 +260,10 @@ namespace types
 
   template <long stride>
   template <long other_stride>
-  inline
-      typename std::conditional<(stride < 256 && other_stride < 256),
+  inline std::conditional_t<(stride < 256 && other_stride < 256),
                                 cstride_normalized_slice<stride * other_stride>,
-                                normalized_slice>::type
-      cstride_normalized_slice<stride>::operator*(
-          cstride_slice<other_stride> const &other) const
+                                normalized_slice>
+  cstride_normalized_slice<stride>::operator*(cstride_slice<other_stride> const &other) const
   {
     return (*this) * other.normalize(size());
   }
@@ -346,9 +342,9 @@ namespace types
 
   template <long stride>
   template <long other_stride>
-  inline typename std::conditional<(stride < 256 && other_stride < 256),
+  inline std::conditional_t<(stride < 256 && other_stride < 256),
                                    cstride_slice<stride * other_stride>,
-                                   slice>::type
+                                   slice>
   cstride_slice<stride>::operator*(
       cstride_slice<other_stride> const &other) const
   {

@@ -27,18 +27,18 @@ namespace numpy
     };
     template <class Op, class E>
     struct reduce_result_type_helper<Op, E, types::none_type> {
-      using type = typename std::conditional<
+      using type = std::conditional_t<
           std::is_integral<typename types::dtype_of<E>::type>::value &&
               (sizeof(typename types::dtype_of<E>::type) < sizeof(long)) &&
               !std::is_same<Op, operator_::functor::imin>::value &&
               !std::is_same<Op, operator_::functor::imax>::value,
-          typename std::conditional<
+          std::conditional_t<
               std::is_same<typename types::dtype_of<E>::type, bool>::value,
               long,
-              typename std::conditional<
+              std::conditional_t<
                   std::is_signed<typename types::dtype_of<E>::type>::value,
-                  long, unsigned long>::type>::type,
-          typename types::dtype_of<E>::type>::type;
+                  long, unsigned long>>,
+          typename types::dtype_of<E>::type>;
     };
     template <class Op, class E, class T = types::none_type>
     using reduce_result_type =

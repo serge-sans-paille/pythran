@@ -132,8 +132,8 @@ namespace std
 {
   template <size_t I, class T0, class T1>
   struct tuple_element<I, pythonic::types::StaticIfReturnHolder<T0, T1>> {
-    using type = typename std::conditional<
-        I == 0, bool, typename std::conditional<I == 1, T0, T1>::type>::type;
+    using type = std::conditional_t<
+        I == 0, bool, std::conditional_t<I == 1, T0, T1>>;
   };
   template <size_t I, class T0, class T1>
   auto get(pythonic::types::StaticIfReturnHolder<T0, T1> &t)

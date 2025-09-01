@@ -50,8 +50,8 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::enable_if_t<
                        !types::is_complex<T>::value,
-                       typename std::conditional<std::is_integral<T>::value,
-                                                 double, T>::type>,
+                       std::conditional_t<std::is_integral<T>::value,
+                                                 double, T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     irfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
           types::str const &norm)
@@ -63,8 +63,8 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::enable_if_t<
                        !types::is_complex<T>::value,
-                       typename std::conditional<std::is_integral<T>::value,
-                                                 double, T>::type>,
+                       std::conditional_t<std::is_integral<T>::value,
+                                                 double, T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     irfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
           types::none_type norm)
@@ -76,8 +76,8 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::enable_if_t<
                        !types::is_complex<T>::value,
-                       typename std::conditional<std::is_integral<T>::value,
-                                                 double, T>::type>,
+                       std::conditional_t<std::is_integral<T>::value,
+                                                 double, T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     irfft(types::ndarray<T, pS> const &in_array, long n, long axis,
           types::none_type norm)
@@ -89,8 +89,8 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::enable_if_t<
                        !types::is_complex<T>::value,
-                       typename std::conditional<std::is_integral<T>::value,
-                                                 double, T>::type>,
+                       std::conditional_t<std::is_integral<T>::value,
+                                                 double, T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     irfft(types::ndarray<T, pS> const &in_array, long n, long axis,
           types::str const &norm)

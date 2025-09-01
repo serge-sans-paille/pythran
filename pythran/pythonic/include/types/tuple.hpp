@@ -520,7 +520,7 @@ namespace types
     template <class T0, class T1>
     struct alike<T0, T1> {
       static bool const value = std::is_same<T0, T1>::value;
-      using type = typename std::conditional<value, T0, void>::type;
+      using type = std::conditional_t<value, T0, void>;
     };
 
     // specialization to make static string alike types::str
@@ -547,11 +547,11 @@ namespace types
       static bool const value =
           sizeof...(Types) == N &&
           alike<T, std::remove_cv_t<std::remove_reference_t<Types>>...>::value;
-      using type = typename std::conditional<
+      using type = std::conditional_t<
           value,
           typename alike<T,
                          std::remove_cv_t<std::remove_reference_t<Types>>...>::type,
-          void>::type;
+          void>;
     };
 
     template <class T, size_t N, class V, class... Types>
@@ -1026,11 +1026,11 @@ namespace sutils
   template <long N0, long N1, class... Ss>
   struct shape_commonifier<std::integral_constant<long, N0>,
                            std::integral_constant<long, N1>, Ss...> {
-    using type = typename std::conditional<
+    using type = std::conditional_t<
         N0 == N1,
         typename shape_commonifier<std::integral_constant<long, N0>,
                                    Ss...>::type,
-        long>::type;
+        long>;
   };
 
   template <size_t I, class Ss>

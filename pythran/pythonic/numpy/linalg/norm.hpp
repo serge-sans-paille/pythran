@@ -33,7 +33,7 @@ namespace numpy
     template <class Array>
     norm_t<Array> norm(Array &&x, double ord, types::none_type)
     {
-      switch (std::decay<Array>::type::value) {
+      switch (std::decay_t<Array>::value) {
       case 1:
         return norm(std::forward<Array>(x), ord, 0L);
       case 2:

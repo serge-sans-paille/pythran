@@ -8,7 +8,7 @@ namespace types
   template <class T>
   using lazy_res_t = decltype((std::declval<T>()()));
   template <class T>
-  using lazy_res_decay_t = typename std::decay<lazy_res_t<T>>::type;
+  using lazy_res_decay_t = std::decay_t<lazy_res_t<T>>;
 
   template <class T0, class T1>
   using lazy_combined_t = typename std::conditional<

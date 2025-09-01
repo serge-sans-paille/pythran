@@ -137,21 +137,21 @@ namespace numpy
   template <class... Types>
   auto concatenate(std::tuple<Types...> const &args, long axis)
       -> types::ndarray<
-          typename __combined<typename std::decay<Types>::type::dtype...>::type,
+          typename __combined<typename std::decay_t<Types>::dtype...>::type,
           types::array_tuple<
               long, std::tuple_element<0, std::tuple<Types...>>::type::value>>
   {
     using T =
-        typename __combined<typename std::decay<Types>::type::dtype...>::type;
-    auto constexpr N = std::decay<decltype(std::get<0>(args))>::type::value;
+        typename __combined<typename std::decay_t<Types>::dtype...>::type;
+    auto constexpr N = std::decay_t<decltype(std::get<0>(args))>::value;
     auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] = details::concatenate_axis_size(
         args, axis, std::make_index_sequence<sizeof...(Types)>{});
 
     types::ndarray<
-        typename __combined<typename std::decay<Types>::type::dtype...>::type,
+        typename __combined<typename std::decay_t<Types>::dtype...>::type,
         types::array_tuple<
-            long, std::decay<decltype(std::get<0>(args))>::type::value>>
+            long, std::decay_t<decltype(std::get<0>(args))>::value>>
         result{shape, types::none_type{}};
     details::concatenate_helper<N>()(
         result, args, axis, std::make_index_sequence<sizeof...(Types)>{});

@@ -32,7 +32,7 @@ namespace numpy
 
     // only for compatibility purpose, very bad impl
     template <class E>
-    typename std::decay<E>::type::dtype item(E &&expr, long i)
+    typename std::decay_t<E>::dtype item(E &&expr, long i)
     {
       if (i < 0)
         i += expr.flat_size();

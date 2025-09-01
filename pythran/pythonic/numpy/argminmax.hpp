@@ -60,7 +60,7 @@ namespace numpy
                                          Indices... indices)
   {
     long res = -1;
-    long n = elts.template shape<std::decay<E>::type::value - 1>();
+    long n = elts.template shape<std::decay_t<E>::value - 1>();
     for (long i = 0; i < n; ++i) {
       auto elt = elts.load(indices..., i);
       if (Op::value(elt, minmax_elts)) {
@@ -156,7 +156,7 @@ namespace numpy
                   utils::int_<N>, Indices... indices)
   {
     long current_minmaxarg = 0;
-    for (long i = 0, n = elts.template shape<std::decay<E>::type::value - N>();
+    for (long i = 0, n = elts.template shape<std::decay_t<E>::value - N>();
          i < n; ++i) {
       long v;
       std::tie(v, current_pos) = _argminmax_fast<Op>(

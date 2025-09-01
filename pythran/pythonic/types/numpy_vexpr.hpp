@@ -153,8 +153,7 @@ namespace types
         value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
         is_vectorizable &&
             types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
-            std::is_same<dtype, typename dtype_of<typename std::decay<
-                                    BExpr>::type>::type>::value>(*this, bexpr);
+            std::is_same<dtype, typename dtype_of<std::decay_t<BExpr>>::type>::value>(*this, bexpr);
     return *this;
   }
   template <class T, class F>

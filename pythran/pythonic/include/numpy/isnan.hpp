@@ -16,12 +16,12 @@ namespace numpy
     template <class T>
     auto isnan(T const &v) ->
         typename std::enable_if<
-            std::is_floating_point<typename std::decay<T>::type>::value,
+            std::is_floating_point<std::decay_t<T>>::value,
             bool>::type;
     template <class T>
     auto isnan(T const &v) ->
         typename std::enable_if<
-            !std::is_floating_point<typename std::decay<T>::type>::value,
+            !std::is_floating_point<std::decay_t<T>>::value,
             bool>::type;
   } // namespace wrapper
 

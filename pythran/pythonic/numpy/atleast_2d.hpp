@@ -41,7 +41,7 @@ namespace numpy
   auto atleast_2d(T &&t) ->
       typename std::enable_if<
           (!types::is_dtype<std::remove_cv_t<std::remove_reference_t<T>>>::value) &&
-              std::decay<T>::type::value >= 2,
+              std::decay_t<T>::value >= 2,
           decltype(std::forward<T>(t))>::type
   {
     return std::forward<T>(t);

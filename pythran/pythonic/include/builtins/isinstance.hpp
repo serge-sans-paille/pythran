@@ -35,7 +35,7 @@ namespace builtins
     struct isinstance {
       using type = typename types::isinstance<
           Obj,
-          typename std::decay<decltype(std::declval<Cls>()())>::type>::type;
+          std::decay_t<decltype(std::declval<Cls>()())>>::type;
     };
 
     template <class Obj, class... Clss>
@@ -43,8 +43,8 @@ namespace builtins
       using type = typename std::conditional<
           utils::any_of<std::is_same<
               typename types::isinstance<
-                  Obj, typename std::decay<
-                           decltype(std::declval<Clss>()())>::type>::type,
+                  Obj, std::decay_t<
+                           decltype(std::declval<Clss>()())>>::type,
               types::true_type>::value...>::value,
           types::true_type, types::false_type>::type;
     };

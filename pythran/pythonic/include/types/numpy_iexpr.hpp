@@ -70,7 +70,7 @@ namespace types
     long size() const;
 
     template <class E0, class E1>
-    struct is_almost_same : std::is_same<typename std::decay<E0>::type, typename std::decay<E1>::type> {
+    struct is_almost_same : std::is_same<std::decay_t<E0>, std::decay_t<E1>> {
     };
 
     template <class A0, class A1>
@@ -283,12 +283,12 @@ namespace types
         -> numpy_iexpr<decltype(std::declval<Arg>().reshape(
             std::declval<sutils::push_front_t<
                 pS, typename std::tuple_element<
-                        0, typename std::decay<Arg>::type::shape_t>::type>>()))>
+                        0, typename std::decay_t<Arg>::shape_t>::type>>()))>
     {
       assert(buffer);
       sutils::push_front_t<
           pS, typename std::tuple_element<
-                  0, typename std::decay<Arg>::type::shape_t>::type>
+                  0, typename std::decay_t<Arg>::shape_t>::type>
           fixed_new_shape;
       sutils::scopy_shape<1, -1>(
           fixed_new_shape, new_shape,

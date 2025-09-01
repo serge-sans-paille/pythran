@@ -47,7 +47,7 @@ namespace types
   {
     return {
         {make_step(size(), std::get<I>(args).template shape<0>())...},
-        const_cast<typename std::decay<Args>::type const &>(std::get<I>(args))
+        const_cast<std::decay_t<Args> const &>(std::get<I>(args))
             .begin()...};
   }
 
@@ -65,7 +65,7 @@ namespace types
   {
     return {
         {make_step(size(), std::get<I>(args).template shape<0>())...},
-        const_cast<typename std::decay<Args>::type const &>(std::get<I>(args))
+        const_cast<std::decay_t<Args> const &>(std::get<I>(args))
             .end()...};
   }
 
@@ -168,7 +168,7 @@ namespace types
   numpy_expr<Op, Args...>::_begin(std::index_sequence<I...>)
   {
     return {{make_step(size(), std::get<I>(args).template shape<0>())...},
-            const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
+            const_cast<std::decay_t<Args> &>(std::get<I>(args))
                 .begin()...};
   }
 
@@ -184,7 +184,7 @@ namespace types
   numpy_expr<Op, Args...>::_end(std::index_sequence<I...>)
   {
     return {{make_step(size(), std::get<I>(args).template shape<0>())...},
-            const_cast<typename std::decay<Args>::type &>(std::get<I>(args))
+            const_cast<std::decay_t<Args> &>(std::get<I>(args))
                 .end()...};
   }
 

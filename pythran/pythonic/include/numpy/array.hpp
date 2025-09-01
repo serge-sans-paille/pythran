@@ -10,28 +10,28 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T,
-            class dtype = types::dtype_t<typename std::decay<T>::type::dtype>>
+            class dtype = types::dtype_t<typename std::decay_t<T>::dtype>>
   typename std::enable_if<
-      types::has_size<typename std::decay<T>::type>::value,
+      types::has_size<std::decay_t<T>>::value,
       types::ndarray<typename dtype::type,
-                     types::array_tuple<long, std::decay<T>::type::value>>>::
+                     types::array_tuple<long, std::decay_t<T>::value>>>::
       type
       array(T &&iterable, dtype d = dtype());
   template <class T,
-            class dtype = types::dtype_t<typename std::decay<T>::type::dtype>>
+            class dtype = types::dtype_t<typename std::decay_t<T>::dtype>>
   typename std::enable_if<
-      !types::has_size<typename std::decay<T>::type>::value &&
-          !types::is_dtype<typename std::decay<T>::type>::value,
+      !types::has_size<std::decay_t<T>>::value &&
+          !types::is_dtype<std::decay_t<T>>::value,
       types::ndarray<typename dtype::type,
-                     types::array_tuple<long, std::decay<T>::type::value>>>::
+                     types::array_tuple<long, std::decay_t<T>::value>>>::
       type
       array(T &&iterable, dtype d = dtype());
 
   template <class T, class dtype = types::dtype_t<typename types::dtype_of<
-                         typename std::decay<T>::type>::type>>
+                         std::decay_t<T>>::type>>
   typename std::enable_if<
-      !types::has_size<typename std::decay<T>::type>::value &&
-          types::is_dtype<typename std::decay<T>::type>::value,
+      !types::has_size<std::decay_t<T>>::value &&
+          types::is_dtype<std::decay_t<T>>::value,
       typename dtype::type>::type
   array(T &&non_iterable, dtype d = dtype());
 

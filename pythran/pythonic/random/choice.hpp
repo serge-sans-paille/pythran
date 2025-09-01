@@ -32,7 +32,7 @@ namespace random
                             typename Seq::value_type>::type
     choice(Seq const &seq)
     {
-      using dtype = typename std::decay<typename Seq::value_type>::type;
+      using dtype = std::decay_t<typename Seq::value_type>;
       std::vector<dtype, utils::allocator<dtype>> tmp(seq.begin(), seq.end());
       return tmp[long(random() * tmp.size())];
     }

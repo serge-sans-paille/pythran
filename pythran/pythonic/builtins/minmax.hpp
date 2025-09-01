@@ -14,13 +14,13 @@ namespace builtins
   namespace details
   {
     template <typename Op, class T>
-    typename std::decay<T>::type::value_type minmax(Op const &op, T &&t)
+    typename std::decay_t<T>::value_type minmax(Op const &op, T &&t)
     {
       return *std::max_element(t.begin(), t.end(), op);
     }
 
     template <typename Op, class T, class F>
-    typename std::decay<T>::type::value_type minmax(Op const &op, T &&t,
+    typename std::decay_t<T>::value_type minmax(Op const &op, T &&t,
                                                     types::kwonly, F key)
     {
       using value_type = decltype(*t.begin());

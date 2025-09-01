@@ -26,15 +26,15 @@ namespace numpy
   auto around(E &&a, long decimals) ->
       typename std::enable_if<
           !std::is_integral<typename types::dtype_of<
-              typename std::decay<E>::type>::type>::value,
+              std::decay_t<E>>::type>::value,
           decltype(functor::rint{}(functor::multiply{}(
                        std::forward<E>(a),
                        std::declval<typename types::dtype_of<
-                           typename std::decay<E>::type>::type>())) /
+                           std::decay_t<E>>::type>())) /
                    std::declval<typename types::dtype_of<
-                       typename std::decay<E>::type>::type>())>::type
+                       std::decay_t<E>>::type>())>::type
   {
-    typename types::dtype_of<typename std::decay<E>::type>::type const fact =
+    typename types::dtype_of<std::decay_t<E>>::type const fact =
         functor::power{}(10., decimals);
     return functor::rint{}(functor::multiply{}(std::forward<E>(a), fact)) /
            fact;
@@ -45,15 +45,15 @@ namespace numpy
   auto around(E &&a, long decimals) ->
       typename std::enable_if<
           std::is_integral<typename types::dtype_of<
-              typename std::decay<E>::type>::type>::value,
+              std::decay_t<E>>::type>::value,
           decltype(numpy::functor::floor_divide{}(
                        functor::float64{}(std::forward<E>(a)),
                        std::declval<typename types::dtype_of<
-                           typename std::decay<E>::type>::type>()) *
+                           std::decay_t<E>>::type>()) *
                    std::declval<typename types::dtype_of<
-                       typename std::decay<E>::type>::type>())>::type
+                       std::decay_t<E>>::type>())>::type
   {
-    typename types::dtype_of<typename std::decay<E>::type>::type const fact =
+    typename types::dtype_of<std::decay_t<E>>::type const fact =
         functor::power{}(10L, std::max(0L, -decimals));
     return pythonic::numpy::functor::floor_divide{}(
                functor::float64{}(std::forward<E>(a)), fact) *

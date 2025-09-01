@@ -35,7 +35,7 @@ namespace types
 
   template <class T>
   using by_val_t = typename by_val<
-      T, std::is_integral<typename std::decay<T>::type>::value>::type;
+      T, std::is_integral<std::decay_t<T>>::value>::type;
 
   template <class F, class... Args>
   static inline auto call(F &&f, Args &&...args)

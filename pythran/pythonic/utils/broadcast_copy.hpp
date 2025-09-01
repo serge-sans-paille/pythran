@@ -49,7 +49,7 @@ namespace utils
                 OtherIndices &&other_indices, std::index_sequence<Is...>)
     {
       std::forward<E>(self).store(
-          (typename std::decay<E>::type::dtype)other.load(
+          (typename std::decay_t<E>::dtype)other.load(
               (long)std::get<Is>(other_indices)...),
           (long)std::get<Is>(self_indices)...);
     }
@@ -66,7 +66,7 @@ namespace utils
     {
       helper(std::forward<E>(self), other, self_indices, other_indices,
              std::make_index_sequence<std::tuple_size<
-                 typename std::decay<SelfIndices>::type>::value>());
+                 std::decay_t<SelfIndices>>::value>());
     }
   };
   template <size_t N>
@@ -114,7 +114,7 @@ namespace utils
     {
       using broadcaster = typename std::conditional<
           types::is_dtype<F>::value,
-          types::broadcast<F, typename std::decay<E>::type::dtype>,
+          types::broadcast<F, typename std::decay_t<E>::dtype>,
           types::broadcasted<F>>::type;
       _broadcast_copy<fast_novectorize, N, D - 1>{}(
           std::forward<E>(self), broadcaster(other),
@@ -301,7 +301,7 @@ namespace utils
         self, other, std::integral_constant<bool, (D >= 0)>(),
         std::integral_constant < bool,
         std::decay<E>::type::is_flat
-                &&is_flat<typename std::decay<F>::type>::value > {});
+                &&is_flat<std::decay_t<F>>::value > {});
   }
 
   /* update
@@ -380,7 +380,7 @@ namespace utils
     {
       helper(std::forward<E>(self), other, self_indices, other_indices,
              std::make_index_sequence<std::tuple_size<
-                 typename std::decay<SelfIndices>::type>::value>());
+                 std::decay_t<SelfIndices>>::value>());
     }
   };
 
@@ -428,7 +428,7 @@ namespace utils
     {
       using broadcaster = typename std::conditional<
           types::is_dtype<F>::value,
-          types::broadcast<F, typename std::decay<E>::type::dtype>,
+          types::broadcast<F, typename std::decay_t<E>::dtype>,
           types::broadcasted<F>>::type;
       _broadcast_update<Op, fast_novectorize, N, D - 1>{}(
           std::forward<E>(self), broadcaster(other),

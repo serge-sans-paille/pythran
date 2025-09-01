@@ -653,7 +653,7 @@ inline void pdqsort(Iter begin, Iter end, Compare comp)
   pdqsort_detail::pdqsort_loop<
       Iter, Compare,
       pdqsort_detail::is_default_compare<
-          typename std::decay<Compare>::type>::value &&
+          std::decay_t<Compare>>::value &&
           std::is_arithmetic<
               typename std::iterator_traits<Iter>::value_type>::value>(
       begin, end, comp, pdqsort_detail::log2(end - begin));

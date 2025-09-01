@@ -502,7 +502,7 @@ namespace types
   {
     if (buffer == nullptr) {
       // arg = expr.arg;
-      const_cast<typename std::decay<Arg>::type &>(arg) = expr.arg;
+      const_cast<std::decay_t<Arg> &>(arg) = expr.arg;
       slices = expr.slices;
       assert(expr.buffer);
       buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
@@ -523,7 +523,7 @@ namespace types
   {
     if (buffer == nullptr) {
       // arg = expr.arg;
-      const_cast<typename std::decay<Arg>::type &>(arg) = expr.arg;
+      const_cast<std::decay_t<Arg> &>(arg) = expr.arg;
       slices = expr.slices;
       assert(expr.buffer);
       buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
@@ -550,8 +550,7 @@ namespace types
            value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
            is_vectorizable &&
                types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
-               std::is_same<dtype, typename dtype_of<typename std::decay<
-                                       BExpr>::type>::type>::value >
+               std::is_same<dtype, typename dtype_of<std::decay_t<BExpr>>::type>::value >
                    (*this, bexpr);
   }
 
@@ -574,7 +573,7 @@ namespace types
              value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
              is_vectorizable && types::is_vectorizable<E>::value &&
                  std::is_same<dtype,
-                              typename std::decay<BExpr>::type::dtype>::value >
+                              typename std::decay_t<BExpr>::dtype>::value >
                      (*this, NBExpr(bexpr));
     } else {
       // 100% sure there's no overlap
@@ -582,7 +581,7 @@ namespace types
              value - (std::is_scalar<E>::value + utils::dim_of<E>::value),
              is_vectorizable && types::is_vectorizable<E>::value &&
                  std::is_same<dtype,
-                              typename std::decay<BExpr>::type::dtype>::value >
+                              typename std::decay_t<BExpr>::dtype>::value >
                      (*this, bexpr);
     }
   }

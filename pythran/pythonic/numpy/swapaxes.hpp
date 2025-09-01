@@ -13,9 +13,9 @@ namespace numpy
   auto swapaxes(T &&a, int axis1, int axis2)
       -> decltype(functor::transpose{}(
           std::forward<T>(a),
-          std::declval<types::array_tuple<long, std::decay<T>::type::value>>()))
+          std::declval<types::array_tuple<long, std::decay_t<T>::value>>()))
   {
-    constexpr long N = std::decay<T>::type::value;
+    constexpr long N = std::decay_t<T>::value;
     types::array_tuple<long, N> t;
     for (unsigned long i = 0; i < N; ++i)
       t[i] = i;

@@ -12,7 +12,7 @@ namespace numpy
       -> decltype(functor::transpose{}(
           std::forward<T>(a),
           std::declval<
-              types::array_tuple<long, std::decay<T>::type::value>>()));
+              types::array_tuple<long, std::decay_t<T>::value>>()));
 
   DEFINE_FUNCTOR(pythonic::numpy, swapaxes);
 } // namespace numpy

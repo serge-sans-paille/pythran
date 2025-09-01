@@ -11,10 +11,10 @@ namespace builtins
   namespace details
   {
     template <class Op, class T>
-    typename std::decay<T>::type::value_type minmax(Op const &, T &&t);
+    typename std::decay_t<T>::value_type minmax(Op const &, T &&t);
 
     template <class Op, class T, class F>
-    typename std::decay<T>::type::value_type minmax(Op const &, T &&t,
+    typename std::decay_t<T>::value_type minmax(Op const &, T &&t,
                                                     types::kwonly, F key);
 
     template <class Op, class T0, class T1, class... Types>

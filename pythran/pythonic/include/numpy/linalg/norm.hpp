@@ -22,15 +22,14 @@ namespace numpy
     template <class Array>
     using norm_dtype_t = typename std::conditional<
         std::is_floating_point<
-            typename std::decay<Array>::type::dtype()>::value,
-        typename std::decay<Array>::type::dtype(), double>::type;
+            typename std::decay_t<Array>::dtype()>::value,
+        typename std::decay_t<Array>::dtype(), double>::type;
 
     template <class Array>
     using norm_t = typename std::conditional<
-        std::decay<Array>::type::value == 1, norm_dtype_t<Array>,
+        std::decay_t<Array>::value == 1, norm_dtype_t<Array>,
         types::ndarray<norm_dtype_t<Array>,
-                       types::array_tuple<long, std::decay<Array>::type::value -
-                                                    1>>>::type;
+                       types::array_tuple<long, std::decay_t<Array>::value - 1>>>::type;
 
     template <class Array>
     norm_t<Array> norm(Array &&array, double ord, types::none_type axis = {});

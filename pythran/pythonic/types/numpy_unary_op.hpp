@@ -7,7 +7,7 @@
 
 template <class E>
 typename std::enable_if<
-    types::valid_numop_parameters<typename std::decay<E>::type>::value,
+    types::valid_numop_parameters<std::decay_t<E>>::value,
     types::numpy_expr<NUMPY_UNARY_FUNC_SYM, E>>::type
 NUMPY_UNARY_FUNC_NAME(E &&self)
 {

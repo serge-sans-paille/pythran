@@ -12,8 +12,8 @@ namespace types
   bool is_trivial_broadcast()
   {
     return std::is_same<typename std::tuple_element<
-                            0, typename std::decay<typename std::tuple_element<
-                                   I, Args>::type>::type::shape_t>::type,
+                            0, typename std::decay_t<typename std::tuple_element<
+                                   I, Args>::type>::shape_t>::type,
                         std::integral_constant<long, 1>>::value;
   }
 

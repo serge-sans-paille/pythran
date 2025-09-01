@@ -12,9 +12,9 @@ namespace numpy
 {
   template <class E>
   types::none_type fill_diagonal(E &&expr,
-                                 typename std::decay<E>::type::dtype fill_value)
+                                 typename std::decay_t<E>::dtype fill_value)
   {
-    constexpr auto N = std::decay<E>::type::value;
+    constexpr auto N = std::decay_t<E>::value;
     types::array_tuple<long, N> indices;
     for (long i = 0, n = sutils::min(expr); i < n; ++i) {
       std::fill(indices.begin(), indices.end(), i);

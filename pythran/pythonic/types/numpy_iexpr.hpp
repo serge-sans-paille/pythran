@@ -43,7 +43,7 @@ namespace types
   template <class Argp> // not using the default one, to make it possible to
   // accept reference and non reference version of Argp
   numpy_iexpr<Arg>::numpy_iexpr(numpy_iexpr<Argp &> const &other)
-      : arg(const_cast<typename std::decay<Argp>::type &>(other.arg)),
+      : arg(const_cast<std::decay_t<Argp> &>(other.arg)),
         buffer(other.buffer)
   {
     assert(buffer);
@@ -120,8 +120,7 @@ namespace types
         value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
         is_vectorizable &&
             types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
-            std::is_same<dtype, typename dtype_of<typename std::decay<
-                                    BExpr>::type>::type>::value>(*this, bexpr);
+            std::is_same<dtype, typename dtype_of<std::decay_t<BExpr>>::type>::value>(*this, bexpr);
     return *this;
   }
 

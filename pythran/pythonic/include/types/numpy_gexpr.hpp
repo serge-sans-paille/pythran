@@ -130,7 +130,7 @@ namespace types
     }
 
     template <class E, class... S, size_t... Is>
-    numpy_gexpr<typename std::decay<E>::type, normalize_t<S>...>
+    numpy_gexpr<std::decay_t<E>, normalize_t<S>...>
     fwd(E &&expr, std::tuple<S...> const &s, std::index_sequence<Is...>)
     {
       return {std::forward<E>(expr),
@@ -149,13 +149,13 @@ namespace types
     template <class E, class F, class... S>
     typename std::enable_if<
         !is_slice<F>::value,
-        numpy_gexpr<ndarray<typename std::decay<E>::type::dtype,
-                            array_tuple<long, std::decay<E>::type::value>>,
+        numpy_gexpr<ndarray<typename std::decay_t<E>::dtype,
+                            array_tuple<long, std::decay_t<E>::value>>,
                     cstride_normalized_slice<1>, normalize_t<S>...>>::type
     operator()(E &&expr, F const &s0, S const &...s)
     {
-      return numpy_vexpr<ndarray<typename std::decay<E>::type::dtype,
-                                 array_tuple<long, std::decay<E>::type::value>>,
+      return numpy_vexpr<ndarray<typename std::decay_t<E>::dtype,
+                                 array_tuple<long, std::decay_t<E>::value>>,
                          F>{std::forward<E>(expr), s0}(
           fast_contiguous_slice(none_type{}, none_type{}), s...);
     }
@@ -570,7 +570,7 @@ namespace types
     static_assert(utils::all_of<(std::is_same<S, long>::value ||
                                  is_normalized_slice<S>::value)...>::value,
                   "all slices are valid");
-    static_assert(std::decay<Arg>::type::value >= sizeof...(S),
+    static_assert(std::decay_t<Arg>::value >= sizeof...(S),
                   "slicing respects array shape");
 
     // numpy_gexpr is a wrapper for extended sliced array around a numpy
@@ -584,7 +584,7 @@ namespace types
 
     static_assert(
         utils::all_of<
-            std::is_same<S, typename std::decay<S>::type>::value...>::value,
+            std::is_same<S, std::decay_t<S>>::value...>::value,
         "no modifiers on slices");
 
     using dtype = typename std::remove_reference_t<Arg>::dtype;
@@ -614,9 +614,7 @@ namespace types
         (((sizeof...(S) - count_long<S...>::value) == value) &&
          !std::is_same<cstride_normalized_slice<1>, last_slice_t>::value);
 
-    using value_type =
-        typename std::decay<decltype(numpy_iexpr_helper<value>::get(
-            std::declval<numpy_gexpr>(), 1))>::type;
+    using value_type = std::decay_t<decltype(numpy_iexpr_helper<value>::get(std::declval<numpy_gexpr>(), 1))>;
 
     using iterator =
         typename std::conditional<is_strided || value != 1,
@@ -644,7 +642,7 @@ namespace types
 
     sutils::concat_t<types::array_tuple<long, value - 1>,
                      typename std::conditional<
-                         sizeof...(S) == std::decay<Arg>::type::value,
+                         sizeof...(S) == std::decay_t<Arg>::value,
                          decltype(last_stride(std::declval<last_slice_t>())),
                          types::array_tuple<long, 1>>::type>
         _strides; // strides

@@ -13,8 +13,8 @@ namespace operator_
   template <class A, class B>
   auto mod(A &&a, B &&b) ->
       typename std::enable_if<
-          std::is_fundamental<typename std::decay<A>::type>::value &&
-              std::is_fundamental<typename std::decay<B>::type>::value,
+          std::is_fundamental<std::decay_t<A>>::value &&
+              std::is_fundamental<std::decay_t<B>>::value,
           decltype(std::forward<A>(a) % std::forward<B>(b))>::type
   {
     auto t = std::forward<A>(a) % b;
@@ -36,8 +36,8 @@ namespace operator_
   template <class A, class B>
   auto mod(A &&a, B &&b) // for ndarrays
       -> typename std::enable_if<
-          !std::is_fundamental<typename std::decay<A>::type>::value ||
-              !std::is_fundamental<typename std::decay<B>::type>::value,
+          !std::is_fundamental<std::decay_t<A>>::value ||
+              !std::is_fundamental<std::decay_t<B>>::value,
           decltype(std::forward<A>(a) % std::forward<B>(b))>::type
   {
     return std::forward<A>(a) % std::forward<B>(b);

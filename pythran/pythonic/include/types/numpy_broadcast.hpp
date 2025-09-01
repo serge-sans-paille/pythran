@@ -154,8 +154,8 @@ namespace types
 
     template <class S, class Arg1, class... Args>
     auto operator()(S arg0, Arg1 &&arg1, Args &&...args) const
-        -> broadcast_or_broadcasted_t<typename std::decay<decltype(ref(
-            std::forward<Arg1>(arg1), std::forward<Args>(args)...))>::type>;
+        -> broadcast_or_broadcasted_t<std::decay_t<decltype(ref(
+            std::forward<Arg1>(arg1), std::forward<Args>(args)...))>>;
 
     long flat_size() const;
   };

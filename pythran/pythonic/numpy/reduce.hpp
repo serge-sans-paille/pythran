@@ -49,7 +49,7 @@ namespace numpy
     template <class E, class F, class... Indices>
     F operator()(E &&e, F acc, Indices... indices)
     {
-      for (long i = 0, n = e.template shape<std::decay<E>::type::value - N>();
+      for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>();
            i < n; ++i) {
         acc = _reduce<Op, N - 1, types::novectorize_nobroadcast>{}(
             e, acc, indices..., i);
@@ -63,7 +63,7 @@ namespace numpy
     template <class E, class F, class... Indices>
     F operator()(E &&e, F acc, Indices... indices)
     {
-      for (long i = 0, n = e.template shape<std::decay<E>::type::value - 1>();
+      for (long i = 0, n = e.template shape<std::decay_t<E>::value - 1>();
            i < n; ++i) {
         Op{}(acc, e.load(indices..., i));
       }
@@ -205,7 +205,7 @@ namespace numpy
     void operator()(E &&e, F &&f, long axis, EIndices &&e_indices,
                     FIndices &&f_indices)
     {
-      for (long i = 0, n = e.template shape<std::decay<E>::type::value - N>();
+      for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>();
            i < n; ++i) {
         _reduce_axisb<Op, N - 1>{}(
             e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)),
@@ -231,9 +231,9 @@ namespace numpy
       helper(
           std::forward<E>(e), std::forward<F>(f), e_indices, f_indices,
           std::make_index_sequence<
-              std::tuple_size<typename std::decay<EIndices>::type>::value>(),
+              std::tuple_size<std::decay_t<EIndices>>::value>(),
           std::make_index_sequence<
-              std::tuple_size<typename std::decay<FIndices>::type>::value>());
+              std::tuple_size<std::decay_t<FIndices>>::value>());
     }
   };
 
@@ -243,15 +243,15 @@ namespace numpy
     void operator()(E &&e, F &&f, long axis, EIndices &&e_indices,
                     FIndices &&f_indices)
     {
-      if (axis == std::decay<E>::type::value - N) {
-        for (long i = 0, n = e.template shape<std::decay<E>::type::value - N>();
+      if (axis == std::decay_t<E>::value - N) {
+        for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>();
              i < n; ++i) {
           _reduce_axisb<Op, N - 1>{}(
               e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)),
               std::forward<FIndices>(f_indices));
         }
       } else {
-        for (long i = 0, n = e.template shape<std::decay<E>::type::value - N>();
+        for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>();
              i < n; ++i) {
           _reduce_axis<Op, N - 1>{}(
               e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)),

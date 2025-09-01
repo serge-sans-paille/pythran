@@ -90,7 +90,7 @@ namespace types
   struct the_common_type {
     using type =
         typename std::conditional <
-        std::decay<T0>::type::value<std::decay<T1>::type::value, T1, T0>::type;
+        std::decay_t<T0>::value<std::decay_t<T1>::value, T1, T0>::type;
   };
 
   template <class T0, class T1>
@@ -144,8 +144,8 @@ namespace types
 
   template <class T, class C>
   struct adapted_type<T, C, false, true> {
-    using type = broadcast<typename std::decay<C>::type::dtype,
-                           typename std::decay<T>::type>;
+    using type = broadcast<typename std::decay_t<C>::dtype,
+                           std::decay_t<T>>;
   };
 
   template <class T, size_t N>
@@ -174,11 +174,11 @@ namespace types
   template <class T, class... OtherTypes>
   struct adapt_type {
     using ctype =
-        typename common_type<typename std::decay<T>::type, OtherTypes...>::type;
+        typename common_type<std::decay_t<T>, OtherTypes...>::type;
     static constexpr bool isdtype =
-        is_dtype<typename std::decay<T>::type>::value;
+        is_dtype<std::decay_t<T>>::value;
     using type = typename adapted_type<
-        T, ctype, std::is_same<typename std::decay<T>::type, ctype>::value,
+        T, ctype, std::is_same<std::decay_t<T>, ctype>::value,
         isdtype>::type;
   };
   template <class T, class Tp, class... OtherTypes>
@@ -201,7 +201,7 @@ namespace types
   template <class T, class C>
   struct reshaped_type<T, C, false, true> {
     using type =
-        broadcast<typename std::decay<T>::type, typename std::decay<T>::type>;
+        broadcast<std::decay_t<T>, std::decay_t<T>>;
   };
 
   template <class T, class C>
@@ -211,12 +211,10 @@ namespace types
 
   template <class T, class... OtherTypes>
   struct reshape_type {
-    using ctype =
-        typename common_type<typename std::decay<T>::type, OtherTypes...>::type;
-    static constexpr bool isdtype =
-        is_dtype<typename std::decay<T>::type>::value;
+    using ctype = typename common_type<std::decay_t<T>, OtherTypes...>::type;
+    static constexpr bool isdtype = is_dtype<std::decay_t<T>>::value;
     using type = typename reshaped_type<
-        T, ctype, std::is_same<typename std::decay<T>::type, ctype>::value,
+        T, ctype, std::is_same<std::decay_t<T>, ctype>::value,
         isdtype>::type;
   };
   template <class T>

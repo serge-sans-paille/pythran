@@ -836,7 +836,7 @@ struct __combined<std::tuple<t0...>,
   using holder = std::tuple<t0...>;
   template <size_t... Is>
   static std::tuple<typename pythonic::details::pick_combined<
-      typename std::tuple_element<Is, holder>::type, t, I == Is>::type...>
+      std::tuple_element_t<Is, holder>, t, I == Is>::type...>
       make_type(std::index_sequence<Is...>);
   static auto
   make_type() -> decltype(make_type(
@@ -937,8 +937,7 @@ namespace std
 
   template <size_t I, class... Tys>
   struct tuple_element<I, pythonic::types::pshape<Tys...>> {
-    using type = typename std::tuple_element <
-                 I<sizeof...(Tys) ? I : 0, std::tuple<Tys...>>::type;
+    using type = std::tuple_element_t<I<sizeof...(Tys) ? I : 0, std::tuple<Tys...>>;
   };
 } // namespace std
 PYTHONIC_NS_BEGIN
@@ -984,8 +983,7 @@ namespace sutils
   struct shape_selecter
       : std::conditional<
             (I < std::tuple_size<Ss>::value),
-            typename std::tuple_element<
-                (I < std::tuple_size<Ss>::value ? I : 0L), Ss>::type,
+            std::tuple_element_t<(I < std::tuple_size<Ss>::value ? I : 0L), Ss>,
             std::integral_constant<long, 1>> {
   };
 
@@ -1038,7 +1036,7 @@ namespace sutils
   template <size_t I, class... Ss>
   struct common_shape<I, std::tuple<Ss...>> {
     using type = typename shape_commonifier<
-        typename std::tuple_element<I, Ss>::type...>::type;
+        std::tuple_element_t<I, Ss>...>::type;
   };
 
   template <class Ss, class T>
@@ -1428,9 +1426,7 @@ namespace sutils
 
   template <size_t I, class P>
   struct safe_tuple_element {
-    using type =
-        typename std::tuple_element<(I < std::tuple_size<P>::value ? I : 0),
-                                    P>::type;
+    using type = std::tuple_element_t<(I < std::tuple_size<P>::value ? I : 0), P>;
   };
 
   template <size_t I>
@@ -1441,7 +1437,7 @@ namespace sutils
     template <class S0, class S1, class S2, size_t J>
     std::enable_if_t<
         (0 != std::tuple_size<S2>::value) &&
-            std::tuple_element<0, S2>::type::value,
+            std::tuple_element_t<0, S2>::value,
         sutils::push_front_t<S0, std::integral_constant<long, 1>>>
     doit(S0 s, S1 const &shape, S2 const &new_axis,
          std::integral_constant<size_t, J>)
@@ -1452,9 +1448,9 @@ namespace sutils
     template <class S0, class S1, class S2, size_t J>
     std::enable_if_t<
         (0 != std::tuple_size<S2>::value) &&
-            !std::tuple_element<0, S2>::type::value,
-        sutils::push_front_t<S0, typename std::tuple_element<
-                                     0, typename S1::shape_t>::type>>
+            !std::tuple_element_t<0, S2>::value,
+        sutils::push_front_t<S0, std::tuple_element_t<
+                                     0, typename S1::shape_t>>>
     doit(S0 s, S1 const &shape, S2 const &new_axis,
          std::integral_constant<size_t, J>)
     {
@@ -1465,8 +1461,8 @@ namespace sutils
     template <class S0, class S1, class S2, size_t J>
     std::enable_if_t<
         (0 == std::tuple_size<S2>::value),
-        sutils::push_front_t<S0, typename std::tuple_element<
-                                     J, typename S1::shape_t>::type>>
+        sutils::push_front_t<S0, std::tuple_element_t<
+                                     J, typename S1::shape_t>>>
     doit(S0 s, S1 const &shape, S2 const &new_axis,
          std::integral_constant<size_t, J>)
     {
@@ -1500,14 +1496,14 @@ namespace sutils
         std::enable_if_t<
             (I >= std::tuple_size<S2>::value),
             decltype(copy_new_axis_helper<I - 1>{}.doit(
-                sutils::push_front_t<S0, typename std::tuple_element<
-                                             J, typename S1::shape_t>::type>(),
+                sutils::push_front_t<S0, std::tuple_element_t<
+                                             J, typename S1::shape_t>>(),
                 shape, new_axis,
                 std::integral_constant<size_t, J == 0 ? J : J - 1>()))>
     {
       return copy_new_axis_helper<I - 1>{}.doit(
           sutils::push_front_t<
-              S0, typename std::tuple_element<J, typename S1::shape_t>::type>(
+              S0, std::tuple_element_t<J, typename S1::shape_t>>(
               std::tuple_cat(std::make_tuple(shape.template shape<J>()),
                              s.values)),
           shape, new_axis, std::integral_constant < size_t,
@@ -1520,14 +1516,14 @@ namespace sutils
             (I < std::tuple_size<S2>::value) &&
                 !safe_tuple_element<I, S2>::type::value,
             decltype(copy_new_axis_helper<I - 1>{}.doit(
-                sutils::push_front_t<S0, typename std::tuple_element<
-                                             J, typename S1::shape_t>::type>(),
+                sutils::push_front_t<S0, std::tuple_element_t<
+                                             J, typename S1::shape_t>>(),
                 shape, new_axis,
                 std::integral_constant<size_t, J == 0 ? J : J - 1>()))>
     {
       return copy_new_axis_helper<I - 1>{}.doit(
           sutils::push_front_t<
-              S0, typename std::tuple_element<J, typename S1::shape_t>::type>(
+              S0, std::tuple_element_t<J, typename S1::shape_t>>(
               std::tuple_cat(std::make_tuple(shape.template shape<J>()),
                              s.values)),
           shape, new_axis, std::integral_constant < size_t,

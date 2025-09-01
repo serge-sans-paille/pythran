@@ -280,13 +280,13 @@ namespace types
     auto reshape(pS const &new_shape) const
         -> numpy_iexpr<decltype(std::declval<Arg>().reshape(
             std::declval<sutils::push_front_t<
-                pS, typename std::tuple_element<
-                        0, typename std::decay_t<Arg>::shape_t>::type>>()))>
+                pS, std::tuple_element_t<
+                        0, typename std::decay_t<Arg>::shape_t>>>()))>
     {
       assert(buffer);
       sutils::push_front_t<
-          pS, typename std::tuple_element<
-                  0, typename std::decay_t<Arg>::shape_t>::type>
+          pS, std::tuple_element_t<
+                  0, typename std::decay_t<Arg>::shape_t>>
           fixed_new_shape;
       sutils::scopy_shape<1, -1>(
           fixed_new_shape, new_shape,

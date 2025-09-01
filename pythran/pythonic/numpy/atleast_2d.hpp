@@ -28,12 +28,11 @@ namespace numpy
                    types::ndarray<
                        typename T::dtype,
                        types::pshape<std::integral_constant<long, 1>,
-                                     typename std::tuple_element<
-                                         0, typename T::shape_t>::type>>>
+                                     std::tuple_element_t<0, typename T::shape_t>>>>
   {
     return t.reshape(types::pshape<
                      std::integral_constant<long, 1>,
-                     typename std::tuple_element<0, typename T::shape_t>::type>(
+                     std::tuple_element_t<0, typename T::shape_t>>(
         std::integral_constant<long, 1>(), t.template shape<0>()));
   }
 

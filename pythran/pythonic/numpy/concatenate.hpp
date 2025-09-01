@@ -139,7 +139,7 @@ namespace numpy
       -> types::ndarray<
           typename __combined<typename std::decay_t<Types>::dtype...>::type,
           types::array_tuple<
-              long, std::tuple_element<0, std::tuple<Types...>>::type::value>>
+              long, std::tuple_element_t<0, std::tuple<Types...>>::value>>
   {
     using T =
         typename __combined<typename std::decay_t<Types>::dtype...>::type;

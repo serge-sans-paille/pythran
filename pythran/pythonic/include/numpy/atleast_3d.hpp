@@ -20,8 +20,7 @@ namespace numpy
           (!types::is_dtype<T>::value) && (T::value == 1),
           types::ndarray<typename T::dtype,
                          types::pshape<std::integral_constant<long, 1>,
-                                       typename std::tuple_element<
-                                           0, typename T::shape_t>::type,
+                                       std::tuple_element_t<0, typename T::shape_t>,
                                        std::integral_constant<long, 1>>>>;
 
   template <class T>
@@ -31,8 +30,8 @@ namespace numpy
           types::ndarray<
               typename T::dtype,
               types::pshape<
-                  typename std::tuple_element<0, typename T::shape_t>::type,
-                  typename std::tuple_element<1, typename T::shape_t>::type,
+                  std::tuple_element_t<0, typename T::shape_t>,
+                  std::tuple_element_t<1, typename T::shape_t>,
                   std::integral_constant<long, 1>>>>;
 
   template <class T>

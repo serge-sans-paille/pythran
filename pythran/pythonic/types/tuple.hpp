@@ -455,7 +455,7 @@ namespace
                                          const std::tuple<types...> &t) const
   {
     using nexttype =
-        typename std::tuple_element<index, std::tuple<types...>>::type;
+        std::tuple_element_t<index, std::tuple<types...>>;
     hash_impl<index - 1, types...> next;
     size_t b = std::hash<nexttype>()(std::get<index>(t));
     return next(hash_combiner(a, b), t);
@@ -465,7 +465,7 @@ namespace
   size_t hash_impl<0, types...>::operator()(size_t a,
                                             const std::tuple<types...> &t) const
   {
-    using nexttype = typename std::tuple_element<0, std::tuple<types...>>::type;
+    using nexttype = std::tuple_element_t<0, std::tuple<types...>>;
     size_t b = std::hash<nexttype>()(std::get<0>(t));
     return hash_combiner(a, b);
   }
@@ -610,7 +610,7 @@ bool from_python<std::tuple<Types...>>
     ::do_is_convertible(PyObject *obj, typename std::index_sequence<S...>)
 {
   bool checks[] = {::is_convertible<
-      typename std::tuple_element<S, std::tuple<Types...>>::type>(
+      std::tuple_element_t<S, std::tuple<Types...>>>(
       PyTuple_GET_ITEM(obj, S))...};
   return std::find(std::begin(checks), std::end(checks), false) ==
          std::end(checks);
@@ -635,7 +635,7 @@ std::tuple<Types...> from_python<std::tuple<Types...>>::do_convert(
     PyObject *obj, typename std::index_sequence<S...>)
 {
   return std::tuple<Types...>{
-      ::from_python<typename std::tuple_element<S, std::tuple<Types...>>::type>(
+      ::from_python<std::tuple_element_t<S, std::tuple<Types...>>>(
           PyTuple_GET_ITEM(obj, S))...};
 }
 template <typename... Types>

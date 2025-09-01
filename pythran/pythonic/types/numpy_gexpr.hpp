@@ -227,7 +227,7 @@ namespace types
     template <class T, size_t... Is>
     constexpr long count_new_axis_helper(std::index_sequence<Is...>)
     {
-      return count_new_axis<typename std::tuple_element<Is, T>::type...>::value;
+      return count_new_axis<std::tuple_element_t<Is, T>...>::value;
     }
 
     template <size_t I, class S, class T, size_t... Is>
@@ -265,11 +265,11 @@ namespace types
 
     template <class Arg, class S, size_t... Is>
     numpy_gexpr<Arg, typename to_normalized_slice<
-                         typename std::tuple_element<Is, S>::type>::type...>
+                         std::tuple_element_t<Is, S>>::type...>
     _make_gexpr_helper(Arg arg, S const &s, std::index_sequence<Is...>)
     {
       return {arg,
-              to_normalized_slice<typename std::tuple_element<Is, S>::type>{}(
+              to_normalized_slice<std::tuple_element_t<Is, S>>{}(
                   std::get<Is>(s))...};
     }
 

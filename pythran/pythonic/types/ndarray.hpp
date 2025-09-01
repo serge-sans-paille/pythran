@@ -307,7 +307,7 @@ namespace types
   {
     auto index = patch_index(
         indices[M - L],
-        typename std::tuple_element<M - L, typename S::shape_t>::type());
+        std::tuple_element_t<M - L, typename S::shape_t>());
     auto offset = noffset<L - 1>{}(strides, indices);
     auto stride = strides.template strides<M - L>();
     return offset + stride * index;
@@ -321,7 +321,7 @@ namespace types
   {
     auto index = patch_index(
         indices[M - L],
-        typename std::tuple_element<M - L, typename S::shape_t>::type());
+        std::tuple_element_t<M - L, typename S::shape_t>());
     if (index < 0)
       index += std::get<M - L>(shape);
     assert(0 <= index and index < std::get<M - L>(shape));
@@ -337,7 +337,7 @@ namespace types
   {
     auto index = patch_index(
         indices[M - 1],
-        typename std::tuple_element<M - 1, typename S::shape_t>::type());
+        std::tuple_element_t<M - 1, typename S::shape_t>());
     return strides.template strides<M - 1>() * index;
   }
 
@@ -349,7 +349,7 @@ namespace types
   {
     auto index = patch_index(
         indices[M - 1],
-        typename std::tuple_element<M - 1, typename S::shape_t>::type());
+        std::tuple_element_t<M - 1, typename S::shape_t>());
     if (index < 0)
       index += std::get<M - 1>(shape);
     assert(0 <= index && index < std::get<M - 1>(shape));
@@ -1559,12 +1559,12 @@ namespace impl
   bool check_shape(T const *dims, std::index_sequence<Is...>)
   {
     types::array_tuple<bool, sizeof...(Is)> dims_match = {
-        (is_integral_constant<typename std::tuple_element<Is, pS>::type>::value
+        (is_integral_constant<std::tuple_element_t<Is, pS>>::value
              ? (dims[Is] ==
                 std::conditional_t<
                     is_integral_constant<
-                        typename std::tuple_element<Is, pS>::type>::value,
-                    typename std::tuple_element<Is, pS>::type,
+                        std::tuple_element_t<Is, pS>>::value,
+                    std::tuple_element_t<Is, pS>,
                     std::integral_constant<long, 0>>::value)
              : true)...};
     return std::find(dims_match.begin(), dims_match.end(), false) ==

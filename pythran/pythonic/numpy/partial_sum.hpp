@@ -86,8 +86,8 @@ namespace numpy
 
   template <class Op, class E, class dtype>
   auto partial_sum(E const &expr, long axis, dtype d) ->
-      typename std::enable_if<E::value == 1,
-                              decltype(partial_sum<Op, E, dtype>(expr))>::type
+      std::enable_if_t<E::value == 1,
+                              decltype(partial_sum<Op, E, dtype>(expr))>
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -95,7 +95,7 @@ namespace numpy
   }
 
   template <class Op, class E, class dtype>
-  typename std::enable_if<E::value != 1, partial_sum_type<Op, E, dtype>>::type
+  std::enable_if_t<E::value != 1, partial_sum_type<Op, E, dtype>>
   partial_sum(E const &expr, long axis, dtype d)
   {
     if (axis < 0 || size_t(axis) >= E::value)

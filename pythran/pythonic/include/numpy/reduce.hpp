@@ -46,18 +46,18 @@ namespace numpy
   } // namespace
 
   template <class Op, class E>
-  typename std::enable_if<
-      std::is_scalar<E>::value || types::is_complex<E>::value, E>::type
+  std::enable_if_t<
+      std::is_scalar<E>::value || types::is_complex<E>::value, E>
   reduce(E const &expr, types::none_type _ = types::none_type());
 
   template <class Op, class E>
-  typename std::enable_if<
-      std::is_scalar<E>::value || types::is_complex<E>::value, E>::type
+  std::enable_if_t<
+      std::is_scalar<E>::value || types::is_complex<E>::value, E>
   reduce(E const &array, long axis);
 
   template <class Op, class E, class dtype = types::none_type>
-  typename std::enable_if<types::is_numexpr_arg<E>::value,
-                          reduce_result_type<Op, E, dtype>>::type
+  std::enable_if_t<types::is_numexpr_arg<E>::value,
+                          reduce_result_type<Op, E, dtype>>
   reduce(E const &expr, types::none_type axis = {}, dtype d = {});
 
   template <class Op, class E, class dtype = types::none_type>
@@ -68,11 +68,11 @@ namespace numpy
   }
 
   template <class Op, class E, class dtype = types::none_type>
-  typename std::enable_if<E::value == 1, reduce_result_type<Op, E, dtype>>::type
+  std::enable_if_t<E::value == 1, reduce_result_type<Op, E, dtype>>
   reduce(E const &array, long axis, dtype d = {}, types::none_type out = {});
 
   template <class Op, class E, class Out>
-  typename std::enable_if<E::value == 1, reduce_result_type<Op, E>>::type
+  std::enable_if_t<E::value == 1, reduce_result_type<Op, E>>
   reduce(E const &array, long axis, types::none_type dtype, Out &&out);
 
   namespace
@@ -83,7 +83,7 @@ namespace numpy
   }
 
   template <class Op, class E, class dtype = types::none_type>
-  typename std::enable_if<E::value != 1, reduced_type<E, Op, dtype>>::type
+  std::enable_if_t<E::value != 1, reduced_type<E, Op, dtype>>
   reduce(E const &array, long axis, dtype d = {},
          types::none_type out = types::none_type());
 
@@ -96,7 +96,7 @@ namespace numpy
   }
 
   template <class Op, class E, class Out>
-  typename std::enable_if<E::value != 1, reduced_type<E, Op>>::type
+  std::enable_if_t<E::value != 1, reduced_type<E, Op>>
   reduce(E const &array, long axis, types::none_type dtype, Out &&out);
 } // namespace numpy
 PYTHONIC_NS_END

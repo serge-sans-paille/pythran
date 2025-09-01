@@ -11,8 +11,8 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class pS>
-  typename std::enable_if<std::tuple_size<pS>::value == 1,
-                          types::ndarray<long, types::pshape<long>>>::type
+  std::enable_if_t<std::tuple_size<pS>::value == 1,
+                          types::ndarray<long, types::pshape<long>>>
   bincount(types::ndarray<T, pS> const &expr, types::none_type weights,
            types::none<long> minlength)
   {
@@ -28,11 +28,11 @@ namespace numpy
   }
 
   template <class T, class E, class pS>
-  typename std::enable_if<
+  std::enable_if_t<
       std::tuple_size<pS>::value == 1,
       types::ndarray<decltype(std::declval<long>() *
                               std::declval<typename E::dtype>()),
-                     types::pshape<long>>>::type
+                     types::pshape<long>>>
   bincount(types::ndarray<T, pS> const &expr, E const &weights,
            types::none<long> minlength)
   {
@@ -40,11 +40,11 @@ namespace numpy
     if (minlength)
       length = (long)minlength;
     length = std::max<long>(length, 1 + max(expr));
-    typename std::enable_if<
+    std::enable_if_t<
         std::tuple_size<pS>::value == 1,
         types::ndarray<
             decltype(std::declval<long>() * std::declval<typename E::dtype>()),
-            types::pshape<long>>>::type out(types::pshape<long>(length), 0L);
+            types::pshape<long>>> out(types::pshape<long>(length), 0L);
     auto iweight = weights.begin();
     for (auto iter = expr.fbegin(), end = expr.fend(); iter != end;
          ++iter, ++iweight)

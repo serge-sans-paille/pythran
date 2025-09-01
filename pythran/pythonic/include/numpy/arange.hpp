@@ -149,10 +149,10 @@ namespace numpy
 
       template <class... S>
       auto operator()(S const &...s) const ->
-          typename std::enable_if<
+          std::enable_if_t<
               (sizeof...(S) > 1),
               decltype(std::declval<types::ndarray<dtype, shape_t>>()(
-                  s...))>::type
+                  s...))>
       {
         return types::ndarray<dtype, shape_t>{
             types::numpy_expr<pythonic::operator_::functor::pos, arange_index>{

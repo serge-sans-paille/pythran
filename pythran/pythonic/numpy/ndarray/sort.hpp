@@ -74,14 +74,14 @@ namespace numpy
                                     std::less<T>>::type;
 
       template <class T, class pS, class Sorter>
-      typename std::enable_if<std::tuple_size<pS>::value == 1, void>::type
+      std::enable_if_t<std::tuple_size<pS>::value == 1, void>
       _sort(types::ndarray<T, pS> &out, long axis, Sorter sorter)
       {
         sorter(out.begin(), out.end(), comparator<T>{});
       }
 
       template <class T, class pS, class Sorter>
-      typename std::enable_if<std::tuple_size<pS>::value != 1, void>::type
+      std::enable_if_t<std::tuple_size<pS>::value != 1, void>
       _sort(types::ndarray<T, pS> &out, long axis, Sorter sorter)
       {
         constexpr auto N = std::tuple_size<pS>::value;

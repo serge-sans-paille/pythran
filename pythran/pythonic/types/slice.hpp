@@ -565,7 +565,7 @@ namespace types
     return (b.is_none() ? (os << "None") : (os << (T)b));
   }
   template <class S>
-  typename std::enable_if<is_slice<S>::value, std::ostream &>::type
+  std::enable_if_t<is_slice<S>::value, std::ostream &>
   operator<<(std::ostream &os, S const &s)
   {
     return os << "slice(" << s.lower << ", " << s.upper << ", " << s.step

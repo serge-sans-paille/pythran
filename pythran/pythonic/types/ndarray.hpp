@@ -602,7 +602,7 @@ namespace types
 
   template <class T, class pS>
   template <class Ty>
-  typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+  std::enable_if_t<std::is_integral<Ty>::value, T &>
   ndarray<T, pS>::fast(array_tuple<Ty, value> const &indices)
   {
     assert(inbound_indices(indices));
@@ -611,7 +611,7 @@ namespace types
 
   template <class T, class pS>
   template <class Ty>
-  typename std::enable_if<std::is_integral<Ty>::value, T>::type
+  std::enable_if_t<std::is_integral<Ty>::value, T>
   ndarray<T, pS>::fast(array_tuple<Ty, value> const &indices) const
   {
     assert(inbound_indices(indices));
@@ -621,9 +621,9 @@ namespace types
   template <class T, class pS>
   template <class Ty, size_t M>
   auto ndarray<T, pS>::fast(array_tuple<Ty, M> const &indices) const & ->
-      typename std::enable_if<std::is_integral<Ty>::value,
+      std::enable_if_t<std::is_integral<Ty>::value,
                               decltype(nget<M - 1>().fast(*this,
-                                                          indices))>::type
+                                                          indices))>
   {
     return nget<M - 1>().fast(*this, indices);
   }
@@ -631,16 +631,16 @@ namespace types
   template <class T, class pS>
   template <class Ty, size_t M>
   auto ndarray<T, pS>::fast(array_tuple<Ty, M> const &indices) && ->
-      typename std::enable_if<std::is_integral<Ty>::value,
+      std::enable_if_t<std::is_integral<Ty>::value,
                               decltype(nget<M - 1>().fast(std::move(*this),
-                                                          indices))>::type
+                                                          indices))>
   {
     return nget<M - 1>().fast(std::move(*this), indices);
   }
 
   template <class T, class pS>
   template <class Ty>
-  typename std::enable_if<std::is_integral<Ty>::value, T const &>::type
+  std::enable_if_t<std::is_integral<Ty>::value, T const &>
   ndarray<T, pS>::operator[](array_tuple<Ty, value> const &indices) const
   {
     return *(buffer +
@@ -649,7 +649,7 @@ namespace types
 
   template <class T, class pS>
   template <class Ty>
-  typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+  std::enable_if_t<std::is_integral<Ty>::value, T &>
   ndarray<T, pS>::operator[](array_tuple<Ty, value> const &indices)
   {
     return *(buffer +
@@ -659,8 +659,8 @@ namespace types
   template <class T, class pS>
   template <class Ty, size_t M>
   auto ndarray<T, pS>::operator[](array_tuple<Ty, M> const &indices) const & ->
-      typename std::enable_if<std::is_integral<Ty>::value,
-                              decltype(nget<M - 1>()(*this, indices))>::type
+      std::enable_if_t<std::is_integral<Ty>::value,
+                              decltype(nget<M - 1>()(*this, indices))>
   {
     return nget<M - 1>()(*this, indices);
   }
@@ -668,9 +668,9 @@ namespace types
   template <class T, class pS>
   template <class Ty, size_t M>
   auto ndarray<T, pS>::operator[](array_tuple<Ty, M> const &indices) && ->
-      typename std::enable_if<std::is_integral<Ty>::value,
+      std::enable_if_t<std::is_integral<Ty>::value,
                               decltype(nget<M - 1>()(std::move(*this),
-                                                     indices))>::type
+                                                     indices))>
   {
     return nget<M - 1>()(std::move(*this), indices);
   }
@@ -709,9 +709,9 @@ namespace types
 
   template <class T, class pS>
   template <class S>
-  typename std::enable_if<
+  std::enable_if_t<
       is_slice<S>::value,
-      numpy_gexpr<ndarray<T, pS> const &, normalize_t<S>>>::type
+      numpy_gexpr<ndarray<T, pS> const &, normalize_t<S>>>
   ndarray<T, pS>::operator[](S const &s) const &
   {
     return make_gexpr(*this, s);
@@ -719,8 +719,8 @@ namespace types
 
   template <class T, class pS>
   template <class S>
-  typename std::enable_if<is_slice<S>::value,
-                          numpy_gexpr<ndarray<T, pS>, normalize_t<S>>>::type
+  std::enable_if_t<is_slice<S>::value,
+                          numpy_gexpr<ndarray<T, pS>, normalize_t<S>>>
   ndarray<T, pS>::operator[](S const &s) &&
   {
     return make_gexpr(std::move(*this), s);
@@ -764,11 +764,11 @@ namespace types
   /* element filtering */
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
           !is_pod_array<F>::value,
-      numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>
   ndarray<T, pS>::fast(F const &filter) const
   {
     long sz = filter.template shape<0>();
@@ -784,22 +784,22 @@ namespace types
 
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
           !is_pod_array<F>::value,
-      numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>
   ndarray<T, pS>::operator[](F const &filter) const
   {
     return fast(filter);
   }
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           std::is_same<bool, typename F::dtype>::value && F::value != 1 &&
           !is_pod_array<F>::value,
-      numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>
   ndarray<T, pS>::fast(F const &filter) const
   {
     return flat()[ndarray<typename F::dtype, typename F::shape_t>(filter)
@@ -808,11 +808,11 @@ namespace types
 
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           std::is_same<bool, typename F::dtype>::value && F::value != 1 &&
           !is_pod_array<F>::value,
-      numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>
   ndarray<T, pS>::operator[](F const &filter) const
   {
     return fast(filter);
@@ -820,11 +820,11 @@ namespace types
 
   template <class T, class pS>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<is_numexpr_arg<F>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value &&
                               !is_array_index<F>::value &&
                               !std::is_same<bool, typename F::dtype>::value &&
                               !is_pod_array<F>::value,
-                          numpy_vexpr<ndarray<T, pS>, F>>::type
+                          numpy_vexpr<ndarray<T, pS>, F>>
   ndarray<T, pS>::operator[](F const &filter) const
   {
     return {*this, filter};
@@ -832,11 +832,11 @@ namespace types
 
   template <class T, class pS>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<is_numexpr_arg<F>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value &&
                               !is_array_index<F>::value &&
                               !std::is_same<bool, typename F::dtype>::value &&
                               !is_pod_array<F>::value,
-                          numpy_vexpr<ndarray<T, pS>, F>>::type
+                          numpy_vexpr<ndarray<T, pS>, F>>
   ndarray<T, pS>::fast(F const &filter) const
   {
     return {*this, filter};
@@ -846,10 +846,10 @@ namespace types
   template <class Ty0, class Ty1, class... Tys, class _>
   auto ndarray<T, pS>::operator[](
       std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
-      typename std::enable_if<
+      std::enable_if_t<
           is_numexpr_arg<Ty0>::value,
           decltype(this->_fwdindex(
-              indices, std::make_index_sequence<2 + sizeof...(Tys)>()))>::type
+              indices, std::make_index_sequence<2 + sizeof...(Tys)>()))>
   {
     return _fwdindex(indices, std::make_index_sequence<2 + sizeof...(Tys)>());
   }
@@ -1046,7 +1046,7 @@ namespace types
   }
 
   template <class E>
-  typename std::enable_if<is_array<E>::value, std::ostream &>::type
+  std::enable_if_t<is_array<E>::value, std::ostream &>
   operator<<(std::ostream &os, E const &e)
   {
     return os << ndarray<typename E::dtype, typename E::shape_t>{e};
@@ -1069,9 +1069,9 @@ namespace std
 
   template <size_t I, class E>
   auto get(E &&a) ->
-      typename std::enable_if<
+      std::enable_if_t<
           pythonic::types::is_array<std::remove_cv_t<std::remove_reference_t<E>>>::value,
-          decltype(std::forward<E>(a)[I])>::type
+          decltype(std::forward<E>(a)[I])>
   {
     return std::forward<E>(a)[I];
   }

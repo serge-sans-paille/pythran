@@ -18,7 +18,7 @@ namespace numpy
   {
 
     template <class T_out, class T, class pS>
-    typename std::enable_if<std::tuple_size<pS>::value != 1, void>::type
+    std::enable_if_t<std::tuple_size<pS>::value != 1, void>
     _median(T_out *out, types::ndarray<T, pS> const &tmp, long axis)
     {
       auto tmp_shape = sutils::getshape(tmp);
@@ -83,11 +83,11 @@ namespace numpy
   }
 
   template <class T, class pS>
-  typename std::enable_if<
+  std::enable_if_t<
       std::tuple_size<pS>::value != 1,
       types::ndarray<
           decltype(std::declval<T>() + 1.),
-          types::array_tuple<long, std::tuple_size<pS>::value - 1>>>::type
+          types::array_tuple<long, std::tuple_size<pS>::value - 1>>>
   median(types::ndarray<T, pS> const &arr, long axis)
   {
     constexpr auto N = std::tuple_size<pS>::value;
@@ -107,8 +107,8 @@ namespace numpy
   }
 
   template <class T, class pS>
-  typename std::enable_if<std::tuple_size<pS>::value == 1,
-                          decltype(std::declval<T>() + 1.)>::type
+  std::enable_if_t<std::tuple_size<pS>::value == 1,
+                          decltype(std::declval<T>() + 1.)>
   median(types::ndarray<T, pS> const &arr, long axis)
   {
     if (axis != 0)

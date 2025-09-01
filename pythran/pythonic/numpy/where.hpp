@@ -38,13 +38,13 @@ namespace types
 
     template <class Ts>
     auto operator()(Ts const &iters, std::index_sequence<0, 1, 2>) ->
-        typename std::enable_if<
+        std::enable_if_t<
             types::is_dtype<std::remove_cv_t<std::remove_reference_t<decltype(*std::get<0>(iters))>>>::value &&
             types::is_dtype<std::remove_cv_t<std::remove_reference_t<decltype(*std::get<1>(iters))>>>::value &&
             types::is_dtype<std::remove_cv_t<std::remove_reference_t<decltype(*std::get<2>(iters))>>>::value,
             decltype(numpy::impl::where(*std::get<0>(iters),
                                         *std::get<1>(iters),
-                                        *std::get<2>(iters)))>::type
+                                        *std::get<2>(iters)))>
     {
       if (*std::get<0>(iters))
         return *std::get<1>(iters);

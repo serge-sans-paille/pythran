@@ -80,12 +80,12 @@ namespace types
     struct is_almost_same<ndarray<T, S0>, ndarray<T, S1>> : std::integral_constant<bool, (std::tuple_size<S0>::value == std::tuple_size<S1>::value)> {
     };
 
-    template <class E, class Requires = typename std::enable_if<
-                           !is_almost_same<numpy_iexpr, E>::value, void>::type>
+    template <class E, class Requires = std::enable_if_t<
+                           !is_almost_same<numpy_iexpr, E>::value, void>>
     numpy_iexpr &operator=(E const &expr);
     template <class Argp,
-              class Requires = typename std::enable_if<
-                  is_almost_same<Arg, Argp>::value, void>::type>
+              class Requires = std::enable_if_t<
+                  is_almost_same<Arg, Argp>::value, void>>
     numpy_iexpr &operator=(numpy_iexpr<Argp> const &expr);
     numpy_iexpr &operator=(numpy_iexpr const &expr);
 
@@ -183,10 +183,10 @@ namespace types
     }
 
     template <class F>
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value,
-        numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class E, class... Indices>
@@ -225,9 +225,9 @@ namespace types
 #endif
 
     template <class Sp, class... S>
-    typename std::enable_if<
+    std::enable_if_t<
         is_slice<Sp>::value,
-        numpy_gexpr<numpy_iexpr, normalize_t<Sp>, normalize_t<S>...>>::type
+        numpy_gexpr<numpy_iexpr, normalize_t<Sp>, normalize_t<S>...>>
     operator()(Sp const &s0, S const &...s) const;
 
     template <class... S>
@@ -243,17 +243,17 @@ namespace types
     }
 
     template <class F>
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value,
-        numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_iexpr, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
     auto operator[](long i) const & -> decltype(this->fast(i));
     auto operator[](long i) & -> decltype(this->fast(i));
     auto operator[](long i) && -> decltype(std::move(*this).fast(i));
     template <class Sp>
-    typename std::enable_if<is_slice<Sp>::value,
-                            numpy_gexpr<numpy_iexpr, normalize_t<Sp>>>::type
+    std::enable_if_t<is_slice<Sp>::value,
+                            numpy_gexpr<numpy_iexpr, normalize_t<Sp>>>
     operator[](Sp const &s0) const;
 
     dtype const &operator[](array_tuple<long, value> const &indices) const;
@@ -318,22 +318,22 @@ namespace types
     }
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value &&
                                 !is_pod_array<F>::value,
-                            numpy_vexpr<numpy_iexpr, F>>::type
+                            numpy_vexpr<numpy_iexpr, F>>
     operator[](F const &filter) const
     {
       return {*this, filter};
     }
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value &&
                                 !is_pod_array<F>::value,
-                            numpy_vexpr<numpy_iexpr, F>>::type
+                            numpy_vexpr<numpy_iexpr, F>>
     operator[](F const &filter)
     {
       return {*this, filter};

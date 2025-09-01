@@ -775,35 +775,35 @@ namespace types
                                s...));
 
     template <class F>
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value &&
             !is_pod_array<F>::value,
-        numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F>
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value &&
             !is_pod_array<F>::value,
-        numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value &&
                                 !is_pod_array<F>::value,
-                            numpy_vexpr<numpy_expr, F>>::type
+                            numpy_vexpr<numpy_expr, F>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value &&
                                 !is_pod_array<F>::value,
-                            numpy_vexpr<numpy_expr, F>>::type
+                            numpy_vexpr<numpy_expr, F>>
     fast(F const &filter) const;
 
     // FIXME: this does not take into account bounds and broadcasting

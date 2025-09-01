@@ -109,9 +109,9 @@ namespace types
 
   template <class T, class S>
   template <class Sp>
-  typename std::enable_if<
+  std::enable_if_t<
       is_slice<Sp>::value,
-      sliced_list<T, decltype(std::declval<S>() * std::declval<Sp>())>>::type
+      sliced_list<T, decltype(std::declval<S>() * std::declval<Sp>())>>
   sliced_list<T, S>::operator[](Sp s) const
   {
     return {_data, slicing * s.normalize(this->size())};
@@ -543,7 +543,7 @@ namespace types
 
   template <class T>
   template <class Sp>
-  typename std::enable_if<is_slice<Sp>::value, sliced_list<T, Sp>>::type
+  std::enable_if_t<is_slice<Sp>::value, sliced_list<T, Sp>>
   list<T>::operator[](Sp const &s) const
   {
     return {*this, s};
@@ -754,8 +754,8 @@ namespace types
     return empty_list();
   }
   template <class F>
-  typename std::enable_if<!is_numexpr_arg<F>::value,
-                          list<typename F::value_type>>::type
+  std::enable_if_t<!is_numexpr_arg<F>::value,
+                          list<typename F::value_type>>
   empty_list::operator+(F s) const
   {
     return {s.begin(), s.end()};

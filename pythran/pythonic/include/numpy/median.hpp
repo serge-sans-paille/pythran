@@ -15,16 +15,16 @@ namespace numpy
                                           types::none_type = {});
 
   template <class T, class pS>
-  typename std::enable_if<
+  std::enable_if_t<
       std::tuple_size<pS>::value != 1,
       types::ndarray<
           decltype(std::declval<T>() + 1.),
-          types::array_tuple<long, std::tuple_size<pS>::value - 1>>>::type
+          types::array_tuple<long, std::tuple_size<pS>::value - 1>>>
   median(types::ndarray<T, pS> const &arr, long axis);
 
   template <class T, class pS>
-  typename std::enable_if<std::tuple_size<pS>::value == 1,
-                          decltype(std::declval<T>() + 1.)>::type
+  std::enable_if_t<std::tuple_size<pS>::value == 1,
+                          decltype(std::declval<T>() + 1.)>
   median(types::ndarray<T, pS> const &arr, long axis);
 
   NUMPY_EXPR_TO_NDARRAY0_DECL(median);

@@ -16,29 +16,29 @@ namespace types
 
   template <class T>
   auto fast_begin(T const &e) ->
-      typename std::enable_if<has_fast_iterator<T>::value,
-                              decltype(e.begin(fast{}))>::type
+      std::enable_if_t<has_fast_iterator<T>::value,
+                              decltype(e.begin(fast{}))>
   {
     return e.begin(fast{});
   }
   template <class T>
   auto fast_begin(T const &e) ->
-      typename std::enable_if<!has_fast_iterator<T>::value,
-                              decltype(e.begin())>::type
+      std::enable_if_t<!has_fast_iterator<T>::value,
+                              decltype(e.begin())>
   {
     return e.begin();
   }
   template <class T>
   auto fast_end(T const &e) ->
-      typename std::enable_if<has_fast_iterator<T>::value,
-                              decltype(e.end(fast{}))>::type
+      std::enable_if_t<has_fast_iterator<T>::value,
+                              decltype(e.end(fast{}))>
   {
     return e.end(fast{});
   }
   template <class T>
   auto fast_end(T const &e) ->
-      typename std::enable_if<!has_fast_iterator<T>::value,
-                              decltype(e.end())>::type
+      std::enable_if_t<!has_fast_iterator<T>::value,
+                              decltype(e.end())>
   {
     return e.end();
   }

@@ -140,11 +140,11 @@ namespace types
   /* element filtering */
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
           !is_pod_array<F>::value,
-      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::fast(F const &filter) const
   {
     long sz = filter.template shape<0>();
@@ -159,12 +159,12 @@ namespace types
   }
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           std::is_same<bool, typename F::dtype>::value && F::value != 1 &&
           !is_pod_array<F>::value,
       numpy_vexpr<ndarray<typename numpy_texpr_2<E>::dtype, pshape<long>>,
-                  ndarray<long, pshape<long>>>>::type
+                  ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::fast(F const &filter) const
   {
     return numpy::functor::array{}(*this)
@@ -173,11 +173,11 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
           !is_pod_array<F>::value,
-      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::operator[](F const &filter) const
   {
     return fast(filter);
@@ -185,12 +185,12 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           std::is_same<bool, typename F::dtype>::value && F::value != 1 &&
           !is_pod_array<F>::value,
       numpy_vexpr<ndarray<typename numpy_texpr_2<E>::dtype, pshape<long>>,
-                  ndarray<long, pshape<long>>>>::type
+                  ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::operator[](F const &filter) const
   {
     return fast(filter);
@@ -198,11 +198,11 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           !std::is_same<bool, typename F::dtype>::value &&
           !is_pod_array<F>::value,
-      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::operator[](F const &filter) const
   {
     static_assert(F::value == 1,
@@ -213,11 +213,11 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value &&
           !std::is_same<bool, typename F::dtype>::value &&
           !is_pod_array<F>::value,
-      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::fast(F const &filter) const
   {
     static_assert(F::value == 1,
@@ -228,11 +228,11 @@ namespace types
   template <class E>
   template <class S0, class... S>
   auto numpy_texpr_2<E>::operator()(S0 const &s0, S const &...s) const ->
-      typename std::enable_if<
+      std::enable_if_t<
           !is_numexpr_arg<S0>::value,
           decltype(this->_reverse_index(
               std::tuple<S0 const &, S const &...>{s0, s...},
-              utils::make_reversed_index_sequence<1 + sizeof...(S)>()))>::type
+              utils::make_reversed_index_sequence<1 + sizeof...(S)>()))>
   {
     return _reverse_index(
         std::tuple<S0 const &, S const &...>{s0, s...},
@@ -241,8 +241,8 @@ namespace types
   template <class E>
   template <class S0, class... S>
   auto numpy_texpr_2<E>::operator()(S0 const &s0, S const &...s) const ->
-      typename std::enable_if<is_numexpr_arg<S0>::value,
-                              decltype(this->copy()(s0, s...))>::type
+      std::enable_if_t<is_numexpr_arg<S0>::value,
+                              decltype(this->copy()(s0, s...))>
   {
     return copy()(s0, s...);
   }

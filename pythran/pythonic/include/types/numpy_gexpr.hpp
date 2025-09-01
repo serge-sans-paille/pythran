@@ -114,17 +114,17 @@ namespace types
   struct extended_slice<0> {
     template <class E, class... S>
     auto operator()(E &&expr, long const &s0, S const &...s) ->
-        typename std::enable_if<
+        std::enable_if_t<
             utils::all_of<std::is_integral<S>::value...>::value,
-            decltype(std::forward<E>(expr)[types::make_tuple(s0, s...)])>::type
+            decltype(std::forward<E>(expr)[types::make_tuple(s0, s...)])>
     {
       return std::forward<E>(expr)[types::make_tuple(s0, s...)];
     }
     template <class E, class... S>
     auto operator()(E &&expr, long const &s0, S const &...s) ->
-        typename std::enable_if<
+        std::enable_if_t<
             !utils::all_of<std::is_integral<S>::value...>::value,
-            decltype(std::forward<E>(expr)[s0](s...))>::type
+            decltype(std::forward<E>(expr)[s0](s...))>
     {
       return std::forward<E>(expr)[s0](s...);
     }
@@ -138,20 +138,20 @@ namespace types
     }
 
     template <class E, class Sp, class... S>
-    typename std::enable_if<
+    std::enable_if_t<
         is_slice<Sp>::value,
-        numpy_gexpr<E, normalize_t<Sp>, normalize_t<S>...>>::type
+        numpy_gexpr<E, normalize_t<Sp>, normalize_t<S>...>>
     operator()(E &&expr, Sp const &s0, S const &...s)
     {
       return make_gexpr(std::forward<E>(expr), s0, s...);
     }
 
     template <class E, class F, class... S>
-    typename std::enable_if<
+    std::enable_if_t<
         !is_slice<F>::value,
         numpy_gexpr<ndarray<typename std::decay_t<E>::dtype,
                             array_tuple<long, std::decay_t<E>::value>>,
-                    cstride_normalized_slice<1>, normalize_t<S>...>>::type
+                    cstride_normalized_slice<1>, normalize_t<S>...>>
     operator()(E &&expr, F const &s0, S const &...s)
     {
       return numpy_vexpr<ndarray<typename std::decay_t<E>::dtype,
@@ -394,8 +394,8 @@ namespace types
     };
 
     template <class Arg, class... Sp>
-    typename std::enable_if<count_new_axis<Sp...>::value == 0,
-                            numpy_gexpr<Arg, Sp...>>::type
+    std::enable_if_t<count_new_axis<Sp...>::value == 0,
+                            numpy_gexpr<Arg, Sp...>>
     _make_gexpr(Arg arg, std::tuple<Sp...> const &t);
 
     template <class Arg, class S, size_t... Is>
@@ -405,13 +405,13 @@ namespace types
 
     template <class Arg, class... Sp>
     auto _make_gexpr(Arg arg, std::tuple<Sp...> const &s) ->
-        typename std::enable_if<
+        std::enable_if_t<
             count_new_axis<Sp...>::value != 0,
             decltype(_make_gexpr_helper(
                 arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
                     arg, std::tuple<std::integral_constant<
                              bool, to_slice<Sp>::is_new_axis>...>())),
-                s, std::make_index_sequence<sizeof...(Sp)>()))>::type;
+                s, std::make_index_sequence<sizeof...(Sp)>()))>;
 
     template <class Arg, class... S>
     struct make_gexpr {
@@ -668,11 +668,11 @@ namespace types
     numpy_gexpr(numpy_gexpr<Argp, S...> const &other);
 
     template <size_t J, class Slice>
-    typename std::enable_if<is_normalized_slice<Slice>::value, void>::type
+    std::enable_if_t<is_normalized_slice<Slice>::value, void>
     init_shape(Slice const &s, utils::int_<1>, utils::int_<J>);
 
     template <size_t I, size_t J, class Slice>
-    typename std::enable_if<is_normalized_slice<Slice>::value, void>::type
+    std::enable_if_t<is_normalized_slice<Slice>::value, void>
     init_shape(Slice const &s, utils::int_<I>, utils::int_<J>);
 
     template <size_t J>
@@ -689,8 +689,8 @@ namespace types
     friend struct array_base_slicer;
     template <class _Arg, class... _other_classes>
     friend
-        typename std::enable_if<count_new_axis<_other_classes...>::value == 0,
-                                numpy_gexpr<_Arg, _other_classes...>>::type
+        std::enable_if_t<count_new_axis<_other_classes...>::value == 0,
+                                numpy_gexpr<_Arg, _other_classes...>>
         details::_make_gexpr(_Arg arg, std::tuple<_other_classes...> const &t);
     template <class _Arg, class _other_classes, size_t... Is>
     friend numpy_gexpr<_Arg,
@@ -733,11 +733,11 @@ namespace types
     }
 
     template <class E>
-    typename std::enable_if<may_overlap_gexpr<E>::value, numpy_gexpr &>::type
+    std::enable_if_t<may_overlap_gexpr<E>::value, numpy_gexpr &>
     _copy(E const &expr);
 
     template <class E>
-    typename std::enable_if<!may_overlap_gexpr<E>::value, numpy_gexpr &>::type
+    std::enable_if_t<!may_overlap_gexpr<E>::value, numpy_gexpr &>
     _copy(E const &expr);
 
     template <class E>
@@ -752,11 +752,11 @@ namespace types
     numpy_gexpr &operator=(numpy_gexpr<Argp, S...> const &expr);
 
     template <class Op, class E>
-    typename std::enable_if<may_overlap_gexpr<E>::value, numpy_gexpr &>::type
+    std::enable_if_t<may_overlap_gexpr<E>::value, numpy_gexpr &>
     update_(E const &expr);
 
     template <class Op, class E>
-    typename std::enable_if<!may_overlap_gexpr<E>::value, numpy_gexpr &>::type
+    std::enable_if_t<!may_overlap_gexpr<E>::value, numpy_gexpr &>
     update_(E const &expr);
 
     template <class E>
@@ -848,9 +848,9 @@ namespace types
 
     template <class Sp>
     auto operator[](Sp const &s) const ->
-        typename std::enable_if<is_slice<Sp>::value,
+        std::enable_if_t<is_slice<Sp>::value,
                                 decltype(make_gexpr(*this,
-                                                    (s.lower, s)))>::type;
+                                                    (s.lower, s)))>;
 
     template <size_t M>
     auto fast(array_tuple<long, M> const &indices)
@@ -869,36 +869,36 @@ namespace types
         && -> decltype(nget<M - 1>()(std::move(*this), indices));
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_gexpr, F>>::type
+                            numpy_vexpr<numpy_gexpr, F>>
     operator[](F const &filter) const
     {
       return {*this, filter};
     }
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value,
-                            numpy_vexpr<numpy_gexpr, F>>::type
+                            numpy_vexpr<numpy_gexpr, F>>
     fast(F const &filter) const
     {
       return {*this, filter};
     }
 
     template <class F>
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value,
-        numpy_vexpr<numpy_gexpr, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_gexpr, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F>
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value,
-        numpy_vexpr<numpy_gexpr, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_gexpr, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));

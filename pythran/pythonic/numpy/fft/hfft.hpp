@@ -48,10 +48,10 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<typename std::enable_if<
+    types::ndarray<std::enable_if_t<
                        !types::is_complex<T>::value,
                        typename std::conditional<std::is_integral<T>::value,
-                                                 double, T>::type>::type,
+                                                 double, T>::type>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::str const &norm)
@@ -61,10 +61,10 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<typename std::enable_if<
+    types::ndarray<std::enable_if_t<
                        !types::is_complex<T>::value,
                        typename std::conditional<std::is_integral<T>::value,
-                                                 double, T>::type>::type,
+                                                 double, T>::type>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::none_type norm)
@@ -74,10 +74,10 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<typename std::enable_if<
+    types::ndarray<std::enable_if_t<
                        !types::is_complex<T>::value,
                        typename std::conditional<std::is_integral<T>::value,
-                                                 double, T>::type>::type,
+                                                 double, T>::type>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<T, pS> const &in_array, long n, long axis,
          types::none_type norm)
@@ -87,10 +87,10 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<typename std::enable_if<
+    types::ndarray<std::enable_if_t<
                        !types::is_complex<T>::value,
                        typename std::conditional<std::is_integral<T>::value,
-                                                 double, T>::type>::type,
+                                                 double, T>::type>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     hfft(types::ndarray<T, pS> const &in_array, long n, long axis,
          types::str const &norm)

@@ -15,8 +15,8 @@ namespace numpy
 
   template <class ArraySequence>
   auto vstack(ArraySequence &&seq) ->
-      typename std::enable_if<(impl::vstack_helper<ArraySequence>::value > 1),
-                              impl::vstack_helper<ArraySequence>>::type;
+      std::enable_if_t<(impl::vstack_helper<ArraySequence>::value > 1),
+                              impl::vstack_helper<ArraySequence>>;
 
   // according to the numpy.vstack doc:
   //  Equivalent to ``np.concatenate(tup, axis=0)`` if `tup` contains arrays
@@ -26,10 +26,10 @@ namespace numpy
   // the enable if is there to match this behavior
   template <class ArraySequence>
   auto vstack(ArraySequence &&seq) ->
-      typename std::enable_if<
+      std::enable_if_t<
           (impl::vstack_helper<ArraySequence>::value == 1),
           decltype(std::declval<impl::vstack_helper<ArraySequence>>().reshape(
-              std::declval<types::array_tuple<long, 2>>()))>::type;
+              std::declval<types::array_tuple<long, 2>>()))>;
 
   DEFINE_FUNCTOR(pythonic::numpy, vstack);
 } // namespace numpy

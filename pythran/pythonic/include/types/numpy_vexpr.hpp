@@ -40,10 +40,10 @@ namespace types
     }
 
     template <class E>
-    typename std::enable_if<is_iterable<E>::value, numpy_vexpr &>::type
+    std::enable_if_t<is_iterable<E>::value, numpy_vexpr &>
     operator=(E const &);
     template <class E>
-    typename std::enable_if<!is_iterable<E>::value, numpy_vexpr &>::type
+    std::enable_if_t<!is_iterable<E>::value, numpy_vexpr &>
     operator=(E const &expr);
 
     numpy_vexpr &operator=(numpy_vexpr const &);
@@ -106,7 +106,7 @@ namespace types
     }
 
     template <class S>
-    typename std::enable_if<
+    std::enable_if_t<
         is_slice<S>::value,
         numpy_gexpr<numpy_vexpr, decltype(std::declval<S>().normalize(1))>>
     operator[](S s) const
@@ -116,35 +116,35 @@ namespace types
 
     /* element filtering */
     template <class E> // indexing through an array of boolean -- a mask
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<E>::value &&
             std::is_same<bool, typename E::dtype>::value &&
             !is_pod_array<F>::value,
-        numpy_vexpr<numpy_vexpr, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_vexpr, ndarray<long, pshape<long>>>>
     fast(E const &filter) const;
 
     template <class E> // indexing through an array of boolean -- a mask
-    typename std::enable_if<
+    std::enable_if_t<
         !is_slice<E>::value && is_numexpr_arg<E>::value &&
             std::is_same<bool, typename E::dtype>::value &&
             !is_pod_array<F>::value,
-        numpy_vexpr<numpy_vexpr, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_vexpr, ndarray<long, pshape<long>>>>
     operator[](E const &filter) const;
 
     template <class E> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<E>::value &&
+    std::enable_if_t<is_numexpr_arg<E>::value &&
                                 !is_array_index<E>::value &&
                                 !std::is_same<bool, typename E::dtype>::value &&
                                 !is_pod_array<F>::value,
-                            numpy_vexpr<numpy_vexpr, E>>::type
+                            numpy_vexpr<numpy_vexpr, E>>
     operator[](E const &filter) const;
 
     template <class E> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<E>::value &&
+    std::enable_if_t<is_numexpr_arg<E>::value &&
                                 !is_array_index<E>::value &&
                                 !std::is_same<bool, typename E::dtype>::value &&
                                 !is_pod_array<F>::value,
-                            numpy_vexpr<numpy_vexpr, E>>::type
+                            numpy_vexpr<numpy_vexpr, E>>
     fast(E const &filter) const;
 
     template <class Op, class Expr>

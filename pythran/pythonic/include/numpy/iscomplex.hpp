@@ -14,11 +14,11 @@ namespace numpy
   namespace wrapper
   {
     template <class I>
-    typename std::enable_if<types::is_complex<I>::value, bool>::type
+    std::enable_if_t<types::is_complex<I>::value, bool>
     iscomplex(I const &a);
 
     template <class I>
-    constexpr typename std::enable_if<!types::is_complex<I>::value, bool>::type
+    constexpr std::enable_if_t<!types::is_complex<I>::value, bool>
     iscomplex(I const &a);
   } // namespace wrapper
 

@@ -238,9 +238,9 @@ namespace types
     const_reference operator[](long i) const;
     reference operator[](long i);
     template <class Sp>
-    typename std::enable_if<
+    std::enable_if_t<
         is_slice<Sp>::value,
-        sliced_array<T, decltype(std::declval<S>() * std::declval<Sp>())>>::type
+        sliced_array<T, decltype(std::declval<S>() * std::declval<Sp>())>>
     operator[](Sp s) const;
 
     template <class... Indices>
@@ -417,7 +417,7 @@ namespace types
     const_reference operator[](long n) const;
 
     template <class Sp>
-    typename std::enable_if<is_slice<Sp>::value, sliced_array<T, Sp>>::type
+    std::enable_if_t<is_slice<Sp>::value, sliced_array<T, Sp>>
     operator[](Sp const &s) const;
 
     template <class... Indices>

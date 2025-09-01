@@ -26,23 +26,22 @@ namespace numpy
   }
 
   template <class E>
-  typename std::enable_if<E::value == 2, types::numpy_texpr<E>>::type
+  std::enable_if_t<E::value == 2, types::numpy_texpr<E>>
   transpose(E const &arr)
   {
     return {arr};
   }
 
   template <class E>
-  typename std::enable_if<E::value == 1, E>::type transpose(E const &arr)
+  std::enable_if_t<E::value == 1, E>transpose(E const &arr)
   {
     return arr;
   }
 
   template <class T, class pS>
-  typename std::enable_if<
+  std::enable_if_t<
       (std::tuple_size<pS>::value > 2),
-      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>>::
-      type
+      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>>
       transpose(types::ndarray<T, pS> const &a);
 
   template <class T, class pS, size_t M>
@@ -82,10 +81,10 @@ namespace numpy
 
   template <class E>
   auto transpose(E const &expr) ->
-      typename std::enable_if<
+      std::enable_if_t<
           (E::value > 2),
           decltype(transpose(types::ndarray<typename E::dtype,
-                                            typename E::shape_t>{expr}))>::type
+                                            typename E::shape_t>{expr}))>
   {
     return transpose(
         types::ndarray<typename E::dtype, typename E::shape_t>{expr});

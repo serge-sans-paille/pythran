@@ -115,7 +115,7 @@ namespace types
     T const &operator[](long i) const;
 
     template <class S>
-    typename std::enable_if<is_slice<S>::value, broadcasted const &>::type
+    std::enable_if_t<is_slice<S>::value, broadcasted const &>
     operator[](S s) const
     {
       return *this;
@@ -137,7 +137,7 @@ namespace types
 #endif
 
     template <class S>
-    typename std::enable_if<is_slice<S>::value, broadcasted const &>::type
+    std::enable_if_t<is_slice<S>::value, broadcasted const &>
     operator()(S s) const
     {
       return *this;
@@ -304,7 +304,7 @@ namespace types
     dtype operator[](array_tuple<long, N>) const;
 
     template <class S>
-    typename std::enable_if<is_slice<S>::value, broadcast const &>::type
+    std::enable_if_t<is_slice<S>::value, broadcast const &>
     operator[](S) const
     {
       return *this;

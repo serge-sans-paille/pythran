@@ -45,7 +45,7 @@ namespace numpy
     }
 
     template <class To, class From, size_t N, size_t M>
-    typename std::enable_if<M != N - 1, To>::type
+    std::enable_if_t<M != N - 1, To>
     _roll(To to, From from, long shift, long axis,
           types::array_tuple<long, N> const &shape, utils::int_<M>)
     {
@@ -103,7 +103,7 @@ namespace numpy
     }
 
     template <class To, class From, size_t N, size_t M>
-    typename std::enable_if<M != N - 1, To>::type
+    std::enable_if_t<M != N - 1, To>
     _rolls(To to, From from, long shifts[N],
            types::array_tuple<long, N> const &shape, utils::int_<M>)
     {

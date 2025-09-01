@@ -297,9 +297,9 @@ namespace types
 
   template <class Arg>
   template <class F>
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
-      numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>
   numpy_iexpr<Arg>::fast(F const &filter) const
   {
     long sz = filter.template shape<0>();
@@ -361,8 +361,8 @@ namespace types
 
   template <class Arg>
   template <class Sp>
-  typename std::enable_if<is_slice<Sp>::value,
-                          numpy_gexpr<numpy_iexpr<Arg>, normalize_t<Sp>>>::type
+  std::enable_if_t<is_slice<Sp>::value,
+                          numpy_gexpr<numpy_iexpr<Arg>, normalize_t<Sp>>>
   numpy_iexpr<Arg>::operator[](Sp const &s0) const
   {
     return make_gexpr(*this, s0);
@@ -370,9 +370,9 @@ namespace types
 
   template <class Arg>
   template <class Sp, class... S>
-  typename std::enable_if<
+  std::enable_if_t<
       is_slice<Sp>::value,
-      numpy_gexpr<numpy_iexpr<Arg>, normalize_t<Sp>, normalize_t<S>...>>::type
+      numpy_gexpr<numpy_iexpr<Arg>, normalize_t<Sp>, normalize_t<S>...>>
   numpy_iexpr<Arg>::operator()(Sp const &s0, S const &...s) const
   {
     return make_gexpr(*this, s0, s...);
@@ -380,9 +380,9 @@ namespace types
 
   template <class Arg>
   template <class F>
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
-      numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>
   numpy_iexpr<Arg>::operator[](F const &filter) const
   {
     return fast(filter);

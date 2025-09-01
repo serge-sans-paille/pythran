@@ -22,8 +22,7 @@ namespace utils
   };
 
   template <class T>
-  struct dim_of<T,
-                typename std::enable_if<std::is_fundamental<T>::value>::type> {
+  struct dim_of<T, std::enable_if_t<std::is_fundamental<T>::value>> {
     static const size_t value = 0;
   };
 

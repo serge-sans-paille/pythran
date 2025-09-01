@@ -32,8 +32,8 @@ namespace builtins
     }
 
     template <class Op, class T0, class T1, class... Types>
-    typename std::enable_if<!std::is_same<T1, types::kwonly>::value,
-                            typename __combined<T0, T1, Types...>::type>::type
+    std::enable_if_t<!std::is_same<T1, types::kwonly>::value,
+                            typename __combined<T0, T1, Types...>::type>
     minmax(Op const &op, T0 const &t0, T1 const &t1, Types const &...ts)
     {
       using value_type = typename __combined<T0, T1, Types...>::type;

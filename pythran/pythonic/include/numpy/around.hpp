@@ -18,7 +18,7 @@ namespace numpy
   // generic floating point version, pure numpy_expr
   template <class E>
   auto around(E &&a, long decimals) ->
-      typename std::enable_if<
+      std::enable_if_t<
           !std::is_integral<typename types::dtype_of<
               std::decay_t<E>>::type>::value,
           decltype(functor::rint{}(functor::multiply{}(
@@ -26,12 +26,12 @@ namespace numpy
                        std::declval<typename types::dtype_of<
                            std::decay_t<E>>::type>())) /
                    std::declval<typename types::dtype_of<
-                       std::decay_t<E>>::type>())>::type;
+                       std::decay_t<E>>::type>())>;
 
   // the integer version is only relevant when decimals < 0
   template <class E>
   auto around(E &&a, long decimals) ->
-      typename std::enable_if<
+      std::enable_if_t<
           std::is_integral<typename types::dtype_of<
               std::decay_t<E>>::type>::value,
           decltype(numpy::functor::floor_divide{}(
@@ -39,7 +39,7 @@ namespace numpy
                        std::declval<typename types::dtype_of<
                            std::decay_t<E>>::type>()) *
                    std::declval<typename types::dtype_of<
-                       std::decay_t<E>>::type>())>::type;
+                       std::decay_t<E>>::type>())>;
 
   DEFINE_FUNCTOR(pythonic::numpy, around);
 } // namespace numpy

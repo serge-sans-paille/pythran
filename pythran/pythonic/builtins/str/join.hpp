@@ -42,11 +42,11 @@ namespace builtins
     }
 
     template <class S, class Iterable>
-    typename std::enable_if<
+    std::enable_if_t<
         !std::is_same<std::remove_cv_t<std::remove_reference_t<Iterable>>, types::str>::value &&
          std::is_same<typename std::iterator_traits<typename std::remove_reference_t<Iterable>::iterator>::iterator_category,
                 std::random_access_iterator_tag>::value,
-        types::str>::type
+        types::str>
     join(S const &s, Iterable &&iterable)
     {
       long ssize = builtins::functor::len{}(s);
@@ -88,11 +88,11 @@ namespace builtins
     }
 
     template <class S, class Iterable>
-    typename std::enable_if<
+    std::enable_if_t<
         !std::is_same<
             typename std::iterator_traits<typename std::remove_reference_t<Iterable>::iterator>::iterator_category,
             std::random_access_iterator_tag>::value,
-        types::str>::type
+        types::str>
     join(S const &s, Iterable &&iterable)
     {
       types::str out;

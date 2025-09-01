@@ -30,7 +30,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<
-        typename std::enable_if<std::is_integral<T>::value, double>::type,
+        std::enable_if_t<std::is_integral<T>::value, double>,
         types::array_tuple<long, std::tuple_size<pS>::value>>
     _copy_to_double(types::ndarray<T, pS> const &in_array)
     {
@@ -42,8 +42,8 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
-                                           std::complex<T>>::type,
+    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value,
+                                           std::complex<T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     _copy_to_complex(types::ndarray<T, pS> const &in_array)
     {
@@ -56,8 +56,8 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_integral<T>::value,
-                                           std::complex<double>>::type,
+    types::ndarray<std::enable_if_t<std::is_integral<T>::value,
+                                           std::complex<double>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     _copy_to_complex(types::ndarray<T, pS> const &in_array)
     {
@@ -241,8 +241,8 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<typename std::enable_if<std::is_floating_point<T>::value,
-                                           std::complex<T>>::type,
+    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value,
+                                           std::complex<T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     r2c(types::ndarray<T, pS> const &in_array, long n, long axis,
         types::str const &norm, bool forward, bool extend = true)

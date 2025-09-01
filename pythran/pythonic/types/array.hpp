@@ -119,9 +119,9 @@ namespace types
 
   template <class T, class S>
   template <class Sp>
-  typename std::enable_if<
+  std::enable_if_t<
       is_slice<Sp>::value,
-      sliced_array<T, decltype(std::declval<S>() * std::declval<Sp>())>>::type
+      sliced_array<T, decltype(std::declval<S>() * std::declval<Sp>())>>
   sliced_array<T, S>::operator[](Sp s) const
   {
     return {_data, slicing * s.normalize(this->size())};
@@ -488,7 +488,7 @@ namespace types
 
   template <class T>
   template <class Sp>
-  typename std::enable_if<is_slice<Sp>::value, sliced_array<T, Sp>>::type
+  std::enable_if_t<is_slice<Sp>::value, sliced_array<T, Sp>>
   array<T>::operator[](Sp const &s) const
   {
     return {*this, s};

@@ -120,9 +120,9 @@ namespace types
     const_reference operator[](long i) const;
     reference operator[](long i);
     template <class Sp>
-    typename std::enable_if<
+    std::enable_if_t<
         is_slice<Sp>::value,
-        sliced_list<T, decltype(std::declval<S>() * std::declval<Sp>())>>::type
+        sliced_list<T, decltype(std::declval<S>() * std::declval<Sp>())>>
     operator[](Sp s) const;
 
     template <class... Indices>
@@ -292,7 +292,7 @@ namespace types
     const_reference operator[](long n) const;
 
     template <class Sp>
-    typename std::enable_if<is_slice<Sp>::value, sliced_list<T, Sp>>::type
+    std::enable_if_t<is_slice<Sp>::value, sliced_list<T, Sp>>
     operator[](Sp const &s) const;
 
     template <class... Indices>
@@ -430,8 +430,8 @@ namespace types
     static_list<T, N> operator+(array_base<T, N, V> const &s) const;
     empty_list operator+(empty_list const &) const;
     template <class F>
-    typename std::enable_if<!is_numexpr_arg<F>::value,
-                            list<typename F::value_type>>::type
+    std::enable_if_t<!is_numexpr_arg<F>::value,
+                            list<typename F::value_type>>
     operator+(F s) const;
     explicit operator bool() const;
     template <class T>
@@ -453,7 +453,7 @@ namespace types
       return {};
     }
     template <class S>
-    typename std::enable_if<is_slice<S>::value, empty_list>::type
+    std::enable_if_t<is_slice<S>::value, empty_list>
     operator[](S) const
     {
       return {};

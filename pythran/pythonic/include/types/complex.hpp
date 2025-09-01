@@ -29,12 +29,12 @@ namespace std
 {
 
   template <class T, class S>
-  using complex_broadcast_t = typename std::enable_if<
+  using complex_broadcast_t = std::enable_if_t<
       std::is_scalar<S>::value && !std::is_same<T, S>::value,
-      std::complex<typename std::common_type<T, S>::type>>::type;
+      std::complex<typename std::common_type<T, S>::type>>;
   template <class T, class S>
-  using complex_bool_t = typename std::enable_if<
-      std::is_scalar<S>::value && !std::is_same<T, S>::value, bool>::type;
+  using complex_bool_t = std::enable_if_t<
+      std::is_scalar<S>::value && !std::is_same<T, S>::value, bool>;
 
   template <class T, class S>
   complex_broadcast_t<T, S> operator+(std::complex<T> self, S other);

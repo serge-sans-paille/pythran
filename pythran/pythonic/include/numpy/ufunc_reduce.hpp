@@ -28,10 +28,10 @@ namespace numpy
     }
     template <class... Args>
     auto reduce(Args &&...args) ->
-        typename std::enable_if<
+        std::enable_if_t<
             sizeof...(Args) != 1,
             decltype(numpy::reduce<operator_::functor::UFUNC_INAME>(
-                std::forward<Args>(args)...))>::type
+                std::forward<Args>(args)...))>
     {
       return numpy::reduce<operator_::functor::UFUNC_INAME>(
           std::forward<Args>(args)...);

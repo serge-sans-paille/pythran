@@ -239,7 +239,7 @@ namespace types
   using normalize_t = typename normalized<S>::type;
 
   template <class S>
-  typename std::enable_if<!is_slice<S>::value, S>::type normalize(S s, long n)
+  std::enable_if_t<!is_slice<S>::value, S> normalize(S s, long n)
   {
     if (s < 0)
       s += n;
@@ -296,7 +296,7 @@ namespace types
   }
 
   template <class S>
-  typename std::enable_if<is_slice<S>::value, std::ostream &>::type
+  std::enable_if_t<is_slice<S>::value, std::ostream &>
   operator<<(std::ostream &os, S const &s);
 } // namespace types
 namespace builtins

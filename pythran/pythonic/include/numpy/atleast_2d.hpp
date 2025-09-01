@@ -8,28 +8,28 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T>
-  typename std::enable_if<
+  std::enable_if_t<
       types::is_dtype<T>::value,
       types::ndarray<T, types::pshape<std::integral_constant<long, 1>,
-                                      std::integral_constant<long, 1>>>>::type
+                                      std::integral_constant<long, 1>>>>
   atleast_2d(T t);
 
   template <class T>
   auto atleast_2d(T const &t) ->
-      typename std::enable_if < (!types::is_dtype<T>::value) &&
+  std::enable_if_t< (!types::is_dtype<T>::value) &&
           T::value<2,
                    types::ndarray<
                        typename T::dtype,
                        types::pshape<std::integral_constant<long, 1>,
                                      typename std::tuple_element<
-                                         0, typename T::shape_t>::type>>>::type;
+                                         0, typename T::shape_t>::type>>>;
 
   template <class T>
   auto atleast_2d(T &&t) ->
-      typename std::enable_if<
+      std::enable_if_t<
           (!types::is_dtype<std::remove_cv_t<std::remove_reference_t<T>>>::value) &&
               std::decay_t<T>::value >= 2,
-          decltype(std::forward<T>(t))>::type;
+          decltype(std::forward<T>(t))>;
 
   DEFINE_FUNCTOR(pythonic::numpy, atleast_2d);
 } // namespace numpy

@@ -13,15 +13,15 @@ namespace numpy
     using callable = void;
     template <typename... T>
     auto operator()(T &&...args) const ->
-        typename std::enable_if<!types::valid_numexpr_parameters<
+        std::enable_if_t<!types::valid_numexpr_parameters<
                                     std::decay_t<T>...>::value,
-                                decltype(F{}(std::forward<T>(args)...))>::type;
+                                decltype(F{}(std::forward<T>(args)...))>;
 
     template <class... E>
-    typename std::enable_if<
+    std::enable_if_t<
         types::valid_numexpr_parameters<std::decay_t<E>...>::value,
         types::numpy_expr<F,
-                          typename types::adapt_type<E, E...>::type...>>::type
+                          typename types::adapt_type<E, E...>::type...>>
     operator()(E &&...args) const;
   };
 

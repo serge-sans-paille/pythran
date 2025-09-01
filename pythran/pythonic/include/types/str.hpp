@@ -105,7 +105,7 @@ namespace types
     chr operator[](long i) const;
     chr fast(long i) const;
     template <class Sp>
-    typename std::enable_if<is_slice<Sp>::value, sliced_str<Sp>>::type
+    std::enable_if_t<is_slice<Sp>::value, sliced_str<Sp>>
     operator[](Sp const &s) const;
 
     // conversion
@@ -209,14 +209,14 @@ namespace types
     bool operator==(chr other) const;
 
     template <class S>
-    typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type
+    std::enable_if_t<is_slice<S>::value, sliced_str<S>>
     operator()(S const &s) const;
 
     chr operator[](long i) const;
     chr fast(long i) const;
 
     template <class S>
-    typename std::enable_if<is_slice<S>::value, sliced_str<S>>::type
+    std::enable_if_t<is_slice<S>::value, sliced_str<S>>
     operator[](S const &s) const;
 
     explicit operator bool() const;

@@ -13,10 +13,10 @@ namespace numpy
   split(types::ndarray<T, pS> const &a, long nb_split);
 
   template <class T, class pS, class I>
-  typename std::enable_if<
+  std::enable_if_t<
       types::is_iterable<I>::value,
       types::list<types::ndarray<
-          T, types::array_tuple<long, std::tuple_size<pS>::value>>>>::type
+          T, types::array_tuple<long, std::tuple_size<pS>::value>>>>
   split(types::ndarray<T, pS> const &a, I const &split_mask);
 
   template <class E, class I>

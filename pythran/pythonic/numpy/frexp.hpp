@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T>
-  typename std::enable_if<std::is_scalar<T>::value, std::tuple<T, int>>::type
+  std::enable_if_t<std::is_scalar<T>::value, std::tuple<T, int>>
   frexp(T val)
   {
     int exp;
@@ -42,10 +42,10 @@ namespace numpy
   } // namespace
 
   template <class E>
-  typename std::enable_if<
+  std::enable_if_t<
       !types::is_dtype<E>::value,
       std::tuple<types::ndarray<typename E::dtype, typename E::shape_t>,
-                 types::ndarray<int, typename E::shape_t>>>::type
+                 types::ndarray<int, typename E::shape_t>>>
   frexp(E const &arr)
   {
     auto arr_shape = sutils::getshape(arr);

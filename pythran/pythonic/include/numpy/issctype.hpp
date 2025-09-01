@@ -13,15 +13,15 @@ namespace numpy
 {
   template <class E>
   constexpr auto issctype(E const &expr) ->
-      typename std::enable_if<!types::is_dtype<E>::value &&
+      std::enable_if_t<!types::is_dtype<E>::value &&
                                   !std::is_same<E, types::str>::value,
-                              bool>::type;
+                              bool>;
 
   template <class E>
   constexpr auto issctype(E const &expr) ->
-      typename std::enable_if<types::is_dtype<E>::value ||
+      std::enable_if_t<types::is_dtype<E>::value ||
                                   std::is_same<E, types::str>::value,
-                              bool>::type;
+                              bool>;
 
   DEFINE_FUNCTOR(pythonic::numpy, issctype);
 } // namespace numpy

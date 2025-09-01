@@ -18,7 +18,7 @@ namespace types
     }
 
     template <class U, U Wal,
-              class _ = typename std::enable_if<Val == (T)Wal, void>::type>
+              class _ = std::enable_if_t<Val == (T)Wal, void>>
     immediate(std::integral_constant<U, Wal>)
     {
     }

@@ -12,11 +12,11 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class pS, class F>
-  typename std::enable_if<
+  std::enable_if_t<
       !types::is_dtype<F>::value,
       types::ndarray<
           typename __combined<T, typename types::dtype_of<F>::type>::type,
-          types::pshape<long>>>::type
+          types::pshape<long>>>
   append(types::ndarray<T, pS> const &nto, F const &data)
   {
     auto ndata = numpy::functor::asarray{}(data);
@@ -30,11 +30,11 @@ namespace numpy
     return out;
   }
   template <class T, class pS, class F>
-  typename std::enable_if<
+  std::enable_if_t<
       types::is_dtype<F>::value,
       types::ndarray<
           typename __combined<T, typename types::dtype_of<F>::type>::type,
-          types::pshape<long>>>::type
+          types::pshape<long>>>
   append(types::ndarray<T, pS> const &nto, F const &data)
   {
     long nsize = nto.flat_size() + 1;

@@ -16,17 +16,17 @@ namespace numpy
   {
 
     template <class T, class pS>
-    typename std::enable_if<std::tuple_size<pS>::value == 1,
-                            types::list<T>>::type
+    std::enable_if_t<std::tuple_size<pS>::value == 1,
+                            types::list<T>>
     tolist(types::ndarray<T, pS> const &expr)
     {
       return {expr.fbegin(), expr.fend()};
     }
 
     template <class T, class pS>
-    typename std::enable_if<
+    std::enable_if_t<
         std::tuple_size<pS>::value != 1,
-        typename tolist_type<T, std::tuple_size<pS>::value>::type>::type
+        typename tolist_type<T, std::tuple_size<pS>::value>::type>
     tolist(types::ndarray<T, pS> const &expr)
     {
       typename tolist_type<T, std::tuple_size<pS>::value>::type out(0);

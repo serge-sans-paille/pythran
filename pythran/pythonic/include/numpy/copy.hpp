@@ -11,22 +11,22 @@ namespace numpy
 {
   // list case
   template <class E>
-  typename std::enable_if<
+  std::enable_if_t<
       !types::is_array<E>::value && !types::is_dtype<E>::value,
       types::ndarray<typename E::dtype,
-                     types::array_tuple<long, E::value>>>::type
+                     types::array_tuple<long, E::value>>>
   copy(E const &v);
 
   // scalar / complex case
   template <class E>
   auto copy(E const &v) ->
-      typename std::enable_if<types::is_dtype<E>::value, E>::type;
+      std::enable_if_t<types::is_dtype<E>::value, E>;
 
   // No copy is required for numpy_expr
   template <class E>
   auto copy(E &&v) ->
-      typename std::enable_if<types::is_array<E>::value,
-                              decltype(std::forward<E>(v))>::type;
+      std::enable_if_t<types::is_array<E>::value,
+                              decltype(std::forward<E>(v))>;
 
   // ndarray case
   template <class T, class pS>

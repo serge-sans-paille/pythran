@@ -30,8 +30,8 @@ namespace numpy
 
     template <class T, class pS, class O, class Indices, class S, class Perm,
               size_t I>
-    typename std::enable_if<std::tuple_size<pS>::value - 1 != I,
-                            O const *>::type
+    std::enable_if_t<std::tuple_size<pS>::value - 1 != I,
+                            O const *>
     _transposer(types::ndarray<T, pS> &expr, O const *iter, Indices &indices,
                 S const &shape, Perm const &perm, utils::int_<I>)
     {
@@ -69,10 +69,9 @@ namespace numpy
   } // namespace
 
   template <class T, class pS>
-  typename std::enable_if<
+  std::enable_if_t<
       (std::tuple_size<pS>::value > 2),
-      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>>::
-      type
+      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>>
       transpose(types::ndarray<T, pS> const &a)
   {
     long t[std::tuple_size<pS>::value];

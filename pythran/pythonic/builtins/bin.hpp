@@ -15,7 +15,7 @@ PYTHONIC_NS_BEGIN
 namespace builtins
 {
   template <class T>
-  typename std::enable_if<std::is_scalar<T>::value, types::str>::type
+  std::enable_if_t<std::is_scalar<T>::value, types::str>
   bin(T const &v)
   {
     using UT = typename std::make_unsigned<T>::type;

@@ -10,9 +10,9 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T>
-  typename std::enable_if<
+  std::enable_if_t<
       types::is_dtype<T>::value,
-      types::ndarray<T, types::pshape<std::integral_constant<long, 1>>>>::type
+      types::ndarray<T, types::pshape<std::integral_constant<long, 1>>>>
   atleast_1d(T t)
   {
     return {types::pshape<std::integral_constant<long, 1>>(), t};
@@ -20,8 +20,7 @@ namespace numpy
 
   template <class T>
   auto atleast_1d(T const &t) ->
-      typename std::enable_if<!(types::is_dtype<T>::value),
-                              decltype(asarray(t))>::type
+      std::enable_if_t<!types::is_dtype<T>::value, decltype(asarray(t))>
   {
     return asarray(t);
   }

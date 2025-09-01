@@ -18,8 +18,8 @@ namespace builtins
                                                     types::kwonly, F key);
 
     template <class Op, class T0, class T1, class... Types>
-    typename std::enable_if<!std::is_same<T1, types::kwonly>::value,
-                            typename __combined<T0, T1, Types...>::type>::type
+    std::enable_if_t<!std::is_same<T1, types::kwonly>::value,
+                            typename __combined<T0, T1, Types...>::type>
     minmax(Op const &, T0 const &, T1 const &, Types const &...);
   } // namespace details
 } // namespace builtins

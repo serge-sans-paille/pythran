@@ -10,10 +10,10 @@ namespace operator_
 {
   template <class A, class B>
   auto div(A &&a, B &&b) // for ndarrays
-      -> typename std::enable_if<
+      -> std::enable_if_t<
           !std::is_fundamental<std::decay_t<A>>::value ||
               !std::is_fundamental<std::decay_t<B>>::value,
-          decltype(std::forward<A>(a) / std::forward<B>(b))>::type;
+          decltype(std::forward<A>(a) / std::forward<B>(b))>;
 
   double div(double a, double b);
 

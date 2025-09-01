@@ -14,8 +14,8 @@ namespace numpy
           types::none_type axis = builtins::None);
 
   template <class T, class pS, class I>
-  typename std::enable_if<!std::is_scalar<I>::value,
-                          types::ndarray<T, types::pshape<long>>>::type
+  std::enable_if_t<!std::is_scalar<I>::value,
+                          types::ndarray<T, types::pshape<long>>>
   delete_(types::ndarray<T, pS> const &in, I const &indices,
           types::none_type axis = builtins::None);
 

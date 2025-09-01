@@ -17,8 +17,8 @@ namespace numpy
   {
 
     template <class pS>
-    typename std::enable_if<!std::is_integral<pS>::value,
-                            types::ndarray<long, pS>>::type
+    std::enable_if_t<!std::is_integral<pS>::value,
+                            types::ndarray<long, pS>>
     randint(long min, long max, pS const &shape)
     {
       types::ndarray<long, pS> result{shape, types::none_type()};
@@ -29,8 +29,8 @@ namespace numpy
     }
 
     template <class pS>
-    typename std::enable_if<std::is_integral<pS>::value,
-                            types::ndarray<long, types::pshape<long>>>::type
+    std::enable_if_t<std::is_integral<pS>::value,
+                            types::ndarray<long, types::pshape<long>>>
     randint(long min, long max, pS const &shape)
     {
       return randint(min, max, types::pshape<long>{shape});

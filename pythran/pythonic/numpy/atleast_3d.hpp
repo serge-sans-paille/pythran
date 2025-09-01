@@ -10,11 +10,11 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T>
-  typename std::enable_if<
+  std::enable_if_t<
       types::is_dtype<T>::value,
       types::ndarray<T, types::pshape<std::integral_constant<long, 1>,
                                       std::integral_constant<long, 1>,
-                                      std::integral_constant<long, 1>>>>::type
+                                      std::integral_constant<long, 1>>>>
   atleast_3d(T t)
   {
     return {types::pshape<std::integral_constant<long, 1>,
@@ -25,13 +25,13 @@ namespace numpy
 
   template <class T>
   auto atleast_3d(T const &t) ->
-      typename std::enable_if<
+      std::enable_if_t<
           (!types::is_dtype<T>::value) && (T::value == 1),
           types::ndarray<typename T::dtype,
                          types::pshape<std::integral_constant<long, 1>,
                                        typename std::tuple_element<
                                            0, typename T::shape_t>::type,
-                                       std::integral_constant<long, 1>>>>::type
+                                       std::integral_constant<long, 1>>>>
   {
     auto r = asarray(t);
     return r.reshape(
@@ -44,14 +44,14 @@ namespace numpy
 
   template <class T>
   auto atleast_3d(T const &t) ->
-      typename std::enable_if<
+      std::enable_if_t<
           (!types::is_dtype<T>::value) && (T::value == 2),
           types::ndarray<
               typename T::dtype,
               types::pshape<
                   typename std::tuple_element<0, typename T::shape_t>::type,
                   typename std::tuple_element<1, typename T::shape_t>::type,
-                  std::integral_constant<long, 1>>>>::type
+                  std::integral_constant<long, 1>>>>
   {
     auto r = asarray(t);
     return r.reshape(
@@ -64,8 +64,7 @@ namespace numpy
 
   template <class T>
   auto atleast_3d(T const &t) ->
-      typename std::enable_if<(!types::is_dtype<T>::value) && T::value >= 3,
-                              decltype(asarray(t))>::type
+      std::enable_if_t<(!types::is_dtype<T>::value) && T::value >= 3, decltype(asarray(t))>
   {
     return asarray(t);
   }

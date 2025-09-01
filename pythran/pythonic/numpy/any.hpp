@@ -30,15 +30,15 @@ namespace numpy
   }
 
   template <class E>
-  typename std::enable_if<types::is_numexpr_arg<E>::value, bool>::type
+  std::enable_if_t<types::is_numexpr_arg<E>::value, bool>
   any(E const &expr, types::none_type)
   {
     return _any(expr, utils::int_<E::value>());
   }
 
   template <class E>
-  typename std::enable_if<
-      std::is_scalar<E>::value || types::is_complex<E>::value, bool>::type
+  std::enable_if_t<
+      std::is_scalar<E>::value || types::is_complex<E>::value, bool>
   any(E const &expr, types::none_type)
   {
     return expr;
@@ -46,9 +46,9 @@ namespace numpy
 
   template <class E>
   auto any(E const &array, long axis) ->
-      typename std::enable_if<std::is_scalar<E>::value ||
+      std::enable_if_t<std::is_scalar<E>::value ||
                                   types::is_complex<E>::value,
-                              decltype(any(array))>::type
+                              decltype(any(array))>
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -57,7 +57,7 @@ namespace numpy
 
   template <class E>
   auto any(E const &array, long axis) ->
-      typename std::enable_if<E::value == 1, decltype(any(array))>::type
+      std::enable_if_t<E::value == 1, decltype(any(array))>
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -65,10 +65,10 @@ namespace numpy
   }
 
   template <class E>
-  typename std::enable_if<
+  std::enable_if_t<
       E::value != 1,
       types::ndarray<typename E::dtype,
-                     types::array_tuple<long, E::value - 1>>>::type
+                     types::array_tuple<long, E::value - 1>>>
   any(E const &array, long axis)
   {
     constexpr long N = E::value;

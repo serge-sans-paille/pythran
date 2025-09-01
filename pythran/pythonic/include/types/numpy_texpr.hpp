@@ -110,49 +110,49 @@ namespace types
 
     /* element filtering */
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
             !is_pod_array<F>::value,
-        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value &&
                                 F::value != 1 && !is_pod_array<F>::value,
                             numpy_vexpr<ndarray<dtype, pshape<long>>,
-                                        ndarray<long, pshape<long>>>>::type
+                                        ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             !std::is_same<bool, typename F::dtype>::value &&
             !is_pod_array<F>::value,
-        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
             !is_pod_array<F>::value,
-        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value &&
                                 F::value != 1 && !is_pod_array<F>::value,
                             numpy_vexpr<ndarray<dtype, pshape<long>>,
-                                        ndarray<long, pshape<long>>>>::type
+                                        ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             !std::is_same<bool, typename F::dtype>::value &&
             !is_pod_array<F>::value,
-        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<numpy_texpr_2, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
     auto operator[](long i) const -> decltype(this->fast(i));
     auto operator[](long i) -> decltype(this->fast(i));
@@ -221,17 +221,16 @@ namespace types
 
     template <class S0, class... S>
     auto operator()(S0 const &s0, S const &...s) const ->
-        typename std::enable_if<
+        std::enable_if_t<
             !is_numexpr_arg<S0>::value,
             decltype(this->_reverse_index(
                 std::tuple<S0 const &, S const &...>{s0, s...},
-                utils::make_reversed_index_sequence<1 + sizeof...(S)>()))>::
-            type;
+                utils::make_reversed_index_sequence<1 + sizeof...(S)>()))>;
 
     template <class S0, class... S>
     auto operator()(S0 const &s0, S const &...s) const ->
-        typename std::enable_if<is_numexpr_arg<S0>::value,
-                                decltype(this->copy()(s0, s...))>::type;
+        std::enable_if_t<is_numexpr_arg<S0>::value,
+                                decltype(this->copy()(s0, s...))>;
 
     explicit operator bool() const;
     long flat_size() const;

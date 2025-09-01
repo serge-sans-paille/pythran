@@ -19,8 +19,8 @@ namespace numpy
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
   auto partial_sum(E const &expr, long axis, dtype d = dtype()) ->
-      typename std::enable_if<E::value == 1,
-                              decltype(partial_sum<Op, E, dtype>(expr))>::type;
+      std::enable_if_t<E::value == 1,
+                              decltype(partial_sum<Op, E, dtype>(expr))>;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
   using partial_sum_type =
@@ -31,7 +31,7 @@ namespace numpy
                      types::array_tuple<long, E::value - 1>>;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
-  typename std::enable_if<E::value != 1, partial_sum_type<Op, E, dtype>>::type
+  std::enable_if_t<E::value != 1, partial_sum_type<Op, E, dtype>>
   partial_sum(E const &expr, long axis, dtype d = dtype());
 } // namespace numpy
 PYTHONIC_NS_END

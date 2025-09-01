@@ -41,11 +41,11 @@ namespace numpy
   }
   template <class Op, class E, class T>
 #ifdef USE_XSIMD
-  typename std::enable_if<
+  std::enable_if_t<
       !E::is_vectorizable ||
           !types::is_vector_op<typename Op::op, T, T>::value ||
           std::is_same<typename E::dtype, bool>::value,
-      long>::type
+      long>
 #else
   long
 #endif
@@ -74,10 +74,10 @@ namespace numpy
 
 #ifdef USE_XSIMD
   template <class Op, class E, class T>
-  typename std::enable_if<
+  std::enable_if_t<
       E::is_vectorizable && types::is_vector_op<typename Op::op, T, T>::value &&
           !std::is_same<typename E::dtype, bool>::value,
-      long>::type
+      long>
   _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
   {
     using vT = xsimd::batch<T>;
@@ -151,7 +151,7 @@ namespace numpy
     return current_minmaxarg;
   }
   template <class Op, class E, size_t N, class T, class... Indices>
-  typename std::enable_if<N != 1, std::tuple<long, long>>::type
+  std::enable_if_t<N != 1, std::tuple<long, long>>
   _argminmax_fast(E const &elts, T &minmax_elts, long current_pos,
                   utils::int_<N>, Indices... indices)
   {
@@ -195,7 +195,7 @@ namespace numpy
 
   template <class Op, size_t Dim, size_t Axis, class T, class E, class V,
             size_t N>
-  typename std::enable_if<Axis != (Dim - N), void>::type
+  std::enable_if_t<Axis != (Dim - N), void>
   _argminmax_tail(T &&out, E const &expr, long curr, V &&curr_minmax,
                   std::integral_constant<size_t, N>)
   {
@@ -210,7 +210,7 @@ namespace numpy
   }
 
   template <class Op, size_t Dim, size_t Axis, class T, class E>
-  typename std::enable_if<Axis == (Dim - 1), void>::type
+  std::enable_if_t<Axis == (Dim - 1), void>
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, 1>)
   {
     typename E::dtype val = Op::limit();
@@ -221,7 +221,7 @@ namespace numpy
   }
 
   template <class Op, size_t Dim, size_t Axis, class T, class E, size_t N>
-  typename std::enable_if<Axis == (Dim - N), void>::type
+  std::enable_if_t<Axis == (Dim - N), void>
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, N>)
   {
     static_assert(N > 1, "specialization ok");
@@ -235,7 +235,7 @@ namespace numpy
   }
 
   template <class Op, size_t Dim, size_t Axis, class T, class E, size_t N>
-  typename std::enable_if<Axis != (Dim - N), void>::type
+  std::enable_if_t<Axis != (Dim - N), void>
   _argminmax_head(T &&out, E const &expr, std::integral_constant<size_t, N>)
   {
     static_assert(N >= 1, "specialization ok");

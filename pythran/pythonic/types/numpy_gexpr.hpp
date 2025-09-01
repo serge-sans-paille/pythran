@@ -124,7 +124,7 @@ namespace types
     return false;
   }
   template <class Arg, class E1, class... S>
-  typename std::enable_if<std::is_scalar<E1>::value, bool>::type
+  std::enable_if_t<std::is_scalar<E1>::value, bool>
   may_overlap(numpy_gexpr<Arg, S...> const &gexpr, E1 const &)
   {
     return false;
@@ -256,8 +256,8 @@ namespace types
     }
 
     template <class Arg, class... Sp>
-    typename std::enable_if<count_new_axis<Sp...>::value == 0,
-                            numpy_gexpr<Arg, Sp...>>::type
+    std::enable_if_t<count_new_axis<Sp...>::value == 0,
+                            numpy_gexpr<Arg, Sp...>>
     _make_gexpr(Arg arg, std::tuple<Sp...> const &t)
     {
       return {arg, t};
@@ -275,13 +275,13 @@ namespace types
 
     template <class Arg, class... Sp>
     auto _make_gexpr(Arg arg, std::tuple<Sp...> const &s) ->
-        typename std::enable_if<
+        std::enable_if_t<
             count_new_axis<Sp...>::value != 0,
             decltype(_make_gexpr_helper(
                 arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
                     arg, std::tuple<std::integral_constant<
                              bool, to_slice<Sp>::is_new_axis>...>())),
-                s, std::make_index_sequence<sizeof...(Sp)>()))>::type
+                s, std::make_index_sequence<sizeof...(Sp)>()))>
     {
       return _make_gexpr_helper(
           arg.reshape(make_reshape<count_new_axis<Sp...>::value>(
@@ -337,7 +337,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t J, class Slice>
-  typename std::enable_if<is_normalized_slice<Slice>::value, void>::type
+  std::enable_if_t<is_normalized_slice<Slice>::value, void>
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<1>,
                                      utils::int_<J>)
   {
@@ -350,7 +350,7 @@ namespace types
 
   template <class Arg, class... S>
   template <size_t I, size_t J, class Slice>
-  typename std::enable_if<is_normalized_slice<Slice>::value, void>::type
+  std::enable_if_t<is_normalized_slice<Slice>::value, void>
   numpy_gexpr<Arg, S...>::init_shape(Slice const &s, utils::int_<I>,
                                      utils::int_<J>)
   {
@@ -438,8 +438,8 @@ namespace types
 
   template <class Arg, class... S>
   template <class E>
-  typename std::enable_if<may_overlap_gexpr<E>::value,
-                          numpy_gexpr<Arg, S...> &>::type
+  std::enable_if_t<may_overlap_gexpr<E>::value,
+                          numpy_gexpr<Arg, S...> &>
   numpy_gexpr<Arg, S...>::_copy(E const &expr)
   {
     static_assert(value >= utils::dim_of<E>::value, "dimensions match");
@@ -468,8 +468,8 @@ namespace types
 
   template <class Arg, class... S>
   template <class E>
-  typename std::enable_if<!may_overlap_gexpr<E>::value,
-                          numpy_gexpr<Arg, S...> &>::type
+  std::enable_if_t<!may_overlap_gexpr<E>::value,
+                          numpy_gexpr<Arg, S...> &>
   numpy_gexpr<Arg, S...>::_copy(E const &expr)
   {
     return _copy_restrict(expr);
@@ -537,8 +537,8 @@ namespace types
 
   template <class Arg, class... S>
   template <class Op, class E>
-  typename std::enable_if<!may_overlap_gexpr<E>::value,
-                          numpy_gexpr<Arg, S...> &>::type
+  std::enable_if_t<!may_overlap_gexpr<E>::value,
+                          numpy_gexpr<Arg, S...> &>
   numpy_gexpr<Arg, S...>::update_(E const &expr)
   {
     using BExpr =
@@ -556,8 +556,8 @@ namespace types
 
   template <class Arg, class... S>
   template <class Op, class E>
-  typename std::enable_if<may_overlap_gexpr<E>::value,
-                          numpy_gexpr<Arg, S...> &>::type
+  std::enable_if_t<may_overlap_gexpr<E>::value,
+                          numpy_gexpr<Arg, S...> &>
   numpy_gexpr<Arg, S...>::update_(E const &expr)
   {
     using BExpr =
@@ -759,8 +759,8 @@ namespace types
   template <class Arg, class... S>
   template <class Sp>
   auto numpy_gexpr<Arg, S...>::operator[](Sp const &s) const ->
-      typename std::enable_if<is_slice<Sp>::value,
-                              decltype(make_gexpr(*this, (s.lower, s)))>::type
+      std::enable_if_t<is_slice<Sp>::value,
+                              decltype(make_gexpr(*this, (s.lower, s)))>
   {
     return make_gexpr(*this, s);
   }
@@ -799,9 +799,9 @@ namespace types
 
   template <class Arg, class... S>
   template <class F>
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
-      numpy_vexpr<numpy_gexpr<Arg, S...>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<numpy_gexpr<Arg, S...>, ndarray<long, pshape<long>>>>
   numpy_gexpr<Arg, S...>::fast(F const &filter) const
   {
     long sz = filter.template shape<0>();
@@ -818,9 +818,9 @@ namespace types
 
   template <class Arg, class... S>
   template <class F>
-  typename std::enable_if<
+  std::enable_if_t<
       is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
-      numpy_vexpr<numpy_gexpr<Arg, S...>, ndarray<long, pshape<long>>>>::type
+      numpy_vexpr<numpy_gexpr<Arg, S...>, ndarray<long, pshape<long>>>>
   numpy_gexpr<Arg, S...>::operator[](F const &filter) const
   {
     return fast(filter);

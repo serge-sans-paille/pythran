@@ -21,10 +21,10 @@ namespace builtins
   template <class Iterable>
       /* this is far from perfect, but how to cope with the
          difference between python tuples and c++ ones ? */
-      typename std::enable_if <
+      std::enable_if_t<
         types::len_of<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value<0,
         types::dynamic_tuple<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<Iterable>>::iterator>::value_type>
-      >::type
+      >
           tuple(Iterable &&i)
   {
     return {i.begin(), i.end()};
@@ -33,10 +33,10 @@ namespace builtins
   template <class StaticIterable>
   /* specialization if we are capable to statically compute the size of the
      input */
-  typename std::enable_if<
+  std::enable_if_t<
       types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value >= 0,
       types::array_tuple<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<StaticIterable>>::iterator>::value_type,
-                         types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value>>::type
+                         types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value>>
   tuple(StaticIterable &&i)
   {
     types::array_tuple<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<StaticIterable>>::iterator>::value_type,

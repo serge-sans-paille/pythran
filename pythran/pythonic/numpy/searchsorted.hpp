@@ -42,7 +42,7 @@ namespace numpy
   } // namespace details
 
   template <class T, class U>
-  typename std::enable_if<!types::is_numexpr_arg<T>::value, long>::type
+  std::enable_if_t<!types::is_numexpr_arg<T>::value, long>
   searchsorted(U const &a, T const &v, types::str const &side)
   {
     bool left = details::issearchsortedleft(side);
@@ -70,9 +70,9 @@ namespace numpy
   } // namespace
 
   template <class E, class T>
-  typename std::enable_if<
+  std::enable_if_t<
       types::is_numexpr_arg<E>::value,
-      types::ndarray<long, types::array_tuple<long, E::value>>>::type
+      types::ndarray<long, types::array_tuple<long, E::value>>>
   searchsorted(T const &a, E const &v, types::str const &side)
   {
     static_assert(T::value == 1,

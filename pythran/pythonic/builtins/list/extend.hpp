@@ -16,9 +16,8 @@ namespace builtins
   namespace list
   {
     template <class T0, class T1>
-    typename std::enable_if<
-        !std::is_same<std::decay_t<T0>, types::empty_list>::value,
-        types::none_type>::type
+    std::enable_if_t<!std::is_same<std::decay_t<T0>, types::empty_list>::value,
+                     types::none_type>
     extend(T0 &&seq, T1 const &add)
     {
       std::forward<T0>(seq) += add;
@@ -26,9 +25,8 @@ namespace builtins
     }
 
     template <class T0, class T1>
-    typename std::enable_if<
-        std::is_same<std::decay_t<T0>, types::empty_list>::value,
-        types::none_type>::type
+    std::enable_if_t<std::is_same<std::decay_t<T0>, types::empty_list>::value,
+                     types::none_type>
     extend(T0 &&seq, T1 const &add)
     {
       return {};

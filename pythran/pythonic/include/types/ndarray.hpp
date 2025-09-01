@@ -288,10 +288,10 @@ namespace types
 
     template <
         class Iterable,
-        class = typename std::enable_if<
+        class = std::enable_if_t<
             !is_array<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value &&
                 is_iterable<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value,
-            void>::type>
+            void>>
     ndarray(Iterable &&iterable);
 
     /* from a  numpy expression */
@@ -380,23 +380,23 @@ namespace types
     }
 
     template <class Ty>
-    typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+    std::enable_if_t<std::is_integral<Ty>::value, T &>
     fast(array_tuple<Ty, value> const &indices);
     template <class Ty>
-    typename std::enable_if<std::is_integral<Ty>::value, T>::type
+    std::enable_if_t<std::is_integral<Ty>::value, T>
     fast(array_tuple<Ty, value> const &indices) const;
 
     template <class Ty, size_t M>
     auto fast(array_tuple<Ty, M> const &indices) const & ->
-        typename std::enable_if<std::is_integral<Ty>::value,
+        std::enable_if_t<std::is_integral<Ty>::value,
                                 decltype(nget<M - 1>().fast(*this,
-                                                            indices))>::type;
+                                                            indices))>;
 
     template <class Ty, size_t M>
     auto fast(array_tuple<Ty, M> const &indices) && ->
-        typename std::enable_if<std::is_integral<Ty>::value,
+        std::enable_if_t<std::is_integral<Ty>::value,
                                 decltype(nget<M - 1>().fast(std::move(*this),
-                                                            indices))>::type;
+                                                            indices))>;
 
 #ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<ndarray>;
@@ -427,13 +427,13 @@ namespace types
     operator[](none_type) const;
 
     template <class S>
-    typename std::enable_if<is_slice<S>::value,
-                            numpy_gexpr<ndarray const &, normalize_t<S>>>::type
+    std::enable_if_t<is_slice<S>::value,
+                            numpy_gexpr<ndarray const &, normalize_t<S>>>
     operator[](S const &s) const &;
 
     template <class S>
-    typename std::enable_if<is_slice<S>::value,
-                            numpy_gexpr<ndarray, normalize_t<S>>>::type
+    std::enable_if_t<is_slice<S>::value,
+                            numpy_gexpr<ndarray, normalize_t<S>>>
     operator[](S const &s) &&;
 
     long size() const;
@@ -441,8 +441,8 @@ namespace types
     /* extended slice indexing */
     template <class Ty>
     auto operator()(Ty s) const ->
-        typename std::enable_if<std::is_integral<Ty>::value,
-                                decltype((*this)[s])>::type
+        std::enable_if_t<std::is_integral<Ty>::value,
+                                decltype((*this)[s])>
     {
       return (*this)[s];
     }
@@ -465,51 +465,51 @@ namespace types
 
     /* element filtering */
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
             !is_pod_array<F>::value,
-        numpy_vexpr<ndarray, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<ndarray, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<
+    std::enable_if_t<
         is_numexpr_arg<F>::value &&
             std::is_same<bool, typename F::dtype>::value && F::value == 1 &&
             !is_pod_array<F>::value,
-        numpy_vexpr<ndarray, ndarray<long, pshape<long>>>>::type
+        numpy_vexpr<ndarray, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value &&
                                 F::value != 1 && !is_pod_array<F>::value,
                             numpy_vexpr<ndarray<T, pshape<long>>,
-                                        ndarray<long, pshape<long>>>>::type
+                                        ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 std::is_same<bool, typename F::dtype>::value &&
                                 F::value != 1 && !is_pod_array<F>::value,
                             numpy_vexpr<ndarray<T, pshape<long>>,
-                                        ndarray<long, pshape<long>>>>::type
+                                        ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value &&
                                 !is_pod_array<F>::value,
-                            numpy_vexpr<ndarray, F>>::type
+                            numpy_vexpr<ndarray, F>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
-    typename std::enable_if<is_numexpr_arg<F>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value &&
                                 !is_array_index<F>::value &&
                                 !std::is_same<bool, typename F::dtype>::value &&
                                 !is_pod_array<F>::value,
-                            numpy_vexpr<ndarray, F>>::type
+                            numpy_vexpr<ndarray, F>>
     fast(F const &filter) const;
 
     auto operator[](long i) const & -> decltype(this->fast(i))
@@ -529,23 +529,23 @@ namespace types
     }
 
     template <class Ty>
-    typename std::enable_if<std::is_integral<Ty>::value, T const &>::type
+    std::enable_if_t<std::is_integral<Ty>::value, T const &>
     operator[](array_tuple<Ty, value> const &indices) const;
 
     template <class Ty>
-    typename std::enable_if<std::is_integral<Ty>::value, T &>::type
+    std::enable_if_t<std::is_integral<Ty>::value, T &>
     operator[](array_tuple<Ty, value> const &indices);
 
     template <class Ty, size_t M>
     auto operator[](array_tuple<Ty, M> const &indices) const & ->
-        typename std::enable_if<std::is_integral<Ty>::value,
-                                decltype(nget<M - 1>()(*this, indices))>::type;
+        std::enable_if_t<std::is_integral<Ty>::value,
+                                decltype(nget<M - 1>()(*this, indices))>;
 
     template <class Ty, size_t M>
     auto operator[](array_tuple<Ty, M> const &indices) && ->
-        typename std::enable_if<std::is_integral<Ty>::value,
+        std::enable_if_t<std::is_integral<Ty>::value,
                                 decltype(nget<M - 1>()(std::move(*this),
-                                                       indices))>::type;
+                                                       indices))>;
 
     template <class... Tys, size_t... Is>
     auto _fwdlongindex(std::tuple<Tys...> const &indices,
@@ -557,10 +557,10 @@ namespace types
 
     template <class... Tys>
     auto operator[](std::tuple<Tys...> const &indices) const ->
-        typename std::enable_if<
+        std::enable_if_t<
             utils::all_of<std::is_integral<Tys>::value...>::value,
             decltype(this->_fwdlongindex(
-                indices, std::make_index_sequence<sizeof...(Tys)>()))>::type
+                indices, std::make_index_sequence<sizeof...(Tys)>()))>
     {
       return _fwdlongindex(indices,
                            std::make_index_sequence<sizeof...(Tys)>());
@@ -576,10 +576,10 @@ namespace types
 
     template <class... Tys>
     auto operator[](std::tuple<Tys...> const &indices) ->
-        typename std::enable_if<
+        std::enable_if_t<
             utils::all_of<std::is_integral<Tys>::value...>::value,
             decltype(this->_fwdlongindex(
-                indices, std::make_index_sequence<sizeof...(Tys)>()))>::type
+                indices, std::make_index_sequence<sizeof...(Tys)>()))>
     {
       return _fwdlongindex(indices,
                            std::make_index_sequence<sizeof...(Tys)>());
@@ -587,11 +587,11 @@ namespace types
 
     template <class Ty0, class Ty1, class... Tys>
     auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
-        typename std::enable_if<
+        std::enable_if_t<
             std::is_integral<Ty0>::value &&
                 !utils::all_of<std::is_integral<Ty1>::value,
                                std::is_integral<Tys>::value...>::value,
-            decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>::type
+            decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>
     {
       return (*this)[std::get<0>(indices)][tuple_tail(indices)];
     }
@@ -613,17 +613,15 @@ namespace types
     }
 
     template <class Ty0, class Ty1, class... Tys,
-              class _ = typename std::enable_if<is_numexpr_arg<Ty0>::value,
-                                                void>::type>
+              class _ = std::enable_if_t<is_numexpr_arg<Ty0>::value, void>>
     auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const ->
-        typename std::enable_if<is_numexpr_arg<Ty0>::value,
+        std::enable_if_t<is_numexpr_arg<Ty0>::value,
                                 decltype(this->_fwdindex(
                                     indices, std::make_index_sequence<
-                                                 2 + sizeof...(Tys)>()))>::type;
+                                                 2 + sizeof...(Tys)>()))>;
 
     template <class Ty, size_t M,
-              class _ = typename std::enable_if<!std::is_integral<Ty>::value,
-                                                void>::type>
+              class _ = std::enable_if_t<!std::is_integral<Ty>::value, void>>
     auto operator[](array_tuple<Ty, M> const &indices) const
         & -> decltype(this->_fwdindex(indices, std::make_index_sequence<M>()))
     {
@@ -706,7 +704,7 @@ namespace types
   std::ostream &operator<<(std::ostream &os, ndarray<T, pS> const &e);
 
   template <class E>
-  typename std::enable_if<is_array<E>::value, std::ostream &>::type
+  std::enable_if_t<is_array<E>::value, std::ostream &>
   operator<<(std::ostream &os, E const &e);
   /* } */
 } // namespace types
@@ -717,10 +715,10 @@ namespace std
 {
 
   template <size_t I, class E>
-  auto get(E &&a) ->
-      typename std::enable_if<
+  auto get(E && a) ->
+      std::enable_if_t<
           pythonic::types::is_array<std::remove_cv_t<std::remove_reference_t<E>>>::value,
-          decltype(std::forward<E>(a)[I])>::type;
+          decltype(std::forward<E>(a)[I])>;
 
   template <size_t I, class T, class pS>
   struct tuple_element<I, pythonic::types::ndarray<T, pS>> {

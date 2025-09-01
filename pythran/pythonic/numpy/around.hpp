@@ -24,7 +24,7 @@ namespace numpy
   // generic floating point version, pure numpy_expr
   template <class E>
   auto around(E &&a, long decimals) ->
-      typename std::enable_if<
+      std::enable_if_t<
           !std::is_integral<typename types::dtype_of<
               std::decay_t<E>>::type>::value,
           decltype(functor::rint{}(functor::multiply{}(
@@ -32,7 +32,7 @@ namespace numpy
                        std::declval<typename types::dtype_of<
                            std::decay_t<E>>::type>())) /
                    std::declval<typename types::dtype_of<
-                       std::decay_t<E>>::type>())>::type
+                       std::decay_t<E>>::type>())>
   {
     typename types::dtype_of<std::decay_t<E>>::type const fact =
         functor::power{}(10., decimals);
@@ -43,7 +43,7 @@ namespace numpy
   // the integer version is only relevant when decimals < 0
   template <class E>
   auto around(E &&a, long decimals) ->
-      typename std::enable_if<
+      std::enable_if_t<
           std::is_integral<typename types::dtype_of<
               std::decay_t<E>>::type>::value,
           decltype(numpy::functor::floor_divide{}(
@@ -51,7 +51,7 @@ namespace numpy
                        std::declval<typename types::dtype_of<
                            std::decay_t<E>>::type>()) *
                    std::declval<typename types::dtype_of<
-                       std::decay_t<E>>::type>())>::type
+                       std::decay_t<E>>::type>())>
   {
     typename types::dtype_of<std::decay_t<E>>::type const fact =
         functor::power{}(10L, std::max(0L, -decimals));

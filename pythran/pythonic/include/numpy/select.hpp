@@ -15,32 +15,32 @@ namespace numpy
          typename L::dtype _default = 0);
 
   template <class T, class TpS, class U, class UpS>
-  typename std::enable_if<
+  std::enable_if_t<
       std::tuple_size<TpS>::value == std::tuple_size<UpS>::value,
       types::ndarray<
-          T, types::array_tuple<long, std::tuple_size<TpS>::value>>>::type
+          T, types::array_tuple<long, std::tuple_size<TpS>::value>>>
   select(types::list<types::ndarray<U, UpS>> const &condlist,
          types::list<types::ndarray<T, TpS>> const &choicelist, T _default = 0);
 
   template <class T, class TpS, class U, class UpS, size_t M>
-  typename std::enable_if<std::tuple_size<TpS>::value ==
+  std::enable_if_t<std::tuple_size<TpS>::value ==
                               std::tuple_size<UpS>::value,
-                          types::ndarray<T, TpS>>::type
+                          types::ndarray<T, TpS>>
   select(types::static_list<types::ndarray<U, UpS>, M> const &condlist,
          types::static_list<types::ndarray<T, TpS>, M> const &choicelist,
          T _default = 0);
 
   template <class T, class TpS, class U, class UpS, size_t M>
-  typename std::enable_if<std::tuple_size<TpS>::value ==
+  std::enable_if_t<std::tuple_size<TpS>::value ==
                               std::tuple_size<UpS>::value,
-                          types::ndarray<T, TpS>>::type
+                          types::ndarray<T, TpS>>
   select(types::static_list<types::ndarray<U, UpS>, M> const &condlist,
          types::list<types::ndarray<T, TpS>> const &choicelist, T _default = 0);
 
   template <class T, class TpS, class U, class UpS, size_t M>
-  typename std::enable_if<std::tuple_size<TpS>::value ==
+  std::enable_if_t<std::tuple_size<TpS>::value ==
                               std::tuple_size<UpS>::value,
-                          types::ndarray<T, TpS>>::type
+                          types::ndarray<T, TpS>>
   select(types::list<types::ndarray<U, UpS>> const &condlist,
          types::static_list<types::ndarray<T, TpS>, M> const &choicelist,
          T _default = 0);

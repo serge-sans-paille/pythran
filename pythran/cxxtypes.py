@@ -3,6 +3,7 @@ This module defines classes needed to manipulate c++ types from pythran.
 '''
 
 from inspect import isclass
+from pythran.utils import cxxid
 
 
 class ordered_set(object):
@@ -58,8 +59,8 @@ class TypeBuilder(object):
     >>> builder.Lazy(builder.NamedType("long"))
     typename pythonic::lazy<long>::type
 
-    >>> builder.DeclType("toto")
-    std::remove_cv_t<std::remove_reference_t<decltype(toto)>>
+    >>> builder.FunctionType("toto")
+    toto
 
     >>> builder.IteratorOfType(builder.NamedType('some'))
     typename some::iterator
@@ -75,13 +76,11 @@ typename std::remove_reference_t<str>::iterator>::value_type>
 pythonic::types::attr::REAL{}, std::declval<complex>()))
 
     >>> builder.ReturnType(builder.NamedType('math::cos'), f_ty)
-    decltype(std::declval<math::cos>()(std::declval<float>()))
+    std::result_of_t<math::cos(float)>
 
     >>> t = builder.TupleType(i_ty, builder.NamedType('str'))
     >>> builder.ElementType(1, t)
-    typename std::tuple_element<1,std::remove_reference_t<\
-decltype(pythonic::types::make_tuple(std::declval<int>(), \
-std::declval<str>()))>>::type
+    std::tuple_element_t<1, std::remove_reference_t<pythonic::types::make_tuple_t<int, str>>>
 
 
     >>> builder.ListType(builder.NamedType('int'))
@@ -94,8 +93,7 @@ std::declval<str>()))>>::type
     pythonic::types::set<int>
 
     >>> builder.TupleType(i_ty, builder.NamedType('bool'))
-    decltype(pythonic::types::make_tuple(std::declval<int>(), \
-std::declval<bool>()))
+    pythonic::types::make_tuple_t<int, bool>
 
     >>> builder.DictType(builder.NamedType('int'), builder.NamedType('float'))
     pythonic::types::dict<int,float>
@@ -346,13 +344,16 @@ std::declval<bool>()))
             def generate(self, ctx):
                 return 'typename pythonic::lazy<{}>::type'.format(ctx(self.of))
 
-        class DeclType(NamedType):
+        class FunctionType(Type):
             """
-            Gather the type of a variable
+            Gather the type of a function reference
             """
 
+            def __init__(self, *path):
+                super(FunctionType, self).__init__(path=path)
+
             def generate(self, _):
-                return 'std::remove_cv_t<std::remove_reference_t<decltype({0})>>'.format(self.srepr)
+                return '::'.join(map(cxxid, self.path))
 
 
         class AddConst(DependentType):
@@ -410,10 +411,9 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 # the return type of a constructor is obvious
-                cg = 'std::declval<{0}>()'.format(ctx(self.ftype))
-                args = ("std::declval<{0}>()".format(ctx(arg))
-                        for arg in self.args)
-                return 'decltype({0}({1}))'.format(cg, ", ".join(args))
+                cg = ctx(self.ftype)
+                args = [ctx(arg) for arg in self.args]
+                return 'std::result_of_t<{0}({1})>'.format(cg, ", ".join(args))
 
         class ElementType(Type):
             '''
@@ -427,10 +427,7 @@ std::declval<bool>()))
                 return self.of.iscombined()
 
             def generate(self, ctx):
-                return 'typename std::tuple_element<{0},{1}>::type'.format(
-                    self.index,
-                    'std::remove_reference_t<{0}>'.format(ctx(self.of))
-                    )
+                return 'std::tuple_element_t<{0}, {1}>'.format(self.index, 'std::remove_reference_t<{0}>'.format(ctx(self.of)))
 
         class TypeType(DependentType):
             '''
@@ -469,9 +466,7 @@ std::declval<bool>()))
 
             def generate(self, ctx):
                 elts = (ctx(of) for of in self.ofs)
-                telts = ('std::declval<{0}>()'.format(elt) for elt in elts)
-                return 'decltype(pythonic::types::make_tuple({0}))'.format(
-                    ", ".join(telts))
+                return 'pythonic::types::make_tuple_t<{0}>'.format(", ".join(elts))
 
         class DictType(Type):
             '''

@@ -17,7 +17,7 @@ from pythran.tables import operator_to_lambda, MODULES
 from pythran.typing import List, Dict, Set, Tuple, NDArray, Union
 from pythran.types.conversion import pytype_to_ctype, PYTYPE_TO_CTYPE_TABLE
 from pythran.types.reorder import Reorder
-from pythran.utils import attr_to_path, cxxid, isnum, isextslice
+from pythran.utils import attr_to_path, isnum, isextslice
 
 from collections import defaultdict
 from functools import reduce
@@ -739,8 +739,7 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
             typename = pytype_to_ctype(obj.signature)
             self.result[node] = self.builder.NamedType(typename)
         else:
-            path = '::'.join(map(cxxid, path)) + '{}'
-            self.result[node] = self.builder.DeclType(path)
+            self.result[node] = self.builder.FunctionType(*path)
 
     def visit_Slice(self, node):
         """

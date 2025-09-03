@@ -170,12 +170,10 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             A generic parametric type
             """
 
-            prefix = "__ptype{0}"
-
             def __init__(self, fun, ptype, index):
                 super(PType, self).__init__(fun=fun,
                                             type=ptype,
-                                            name=PType.prefix.format(index))
+                                            name=f"__ptype{index}")
 
             def generate(self, ctx):
                 return ctx(self.type)
@@ -214,13 +212,11 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             def generate(self, ctx):
                 if self.arguments:
                     args = ", ".join(ctx(arg) for arg in self.arguments)
-                    template_params = "<{0}>".format(args)
+                    template_params = f"<{args}>"
                 else:
                     template_params = ""
 
-                return "typename {0}::type{1}::{2}".format(self.fun.name,
-                                                           template_params,
-                                                           self.name)
+                return f"typename {self.fun.name}::type{template_params}::{self.name}"
 
         class CombinedTypes(Type):
             """
@@ -254,8 +250,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                     sys.setrecursionlimit(current_recursion_limit)
                     return stypes[0]
                 else:
-                    stmp = 'typename __combined<{}>::type'.format(
-                        ','.join(stypes))
+                    stmp = f'typename __combined<{",".join(stypes)}>::type'
                     sys.setrecursionlimit(current_recursion_limit)
                     return stmp
 
@@ -269,8 +264,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
 
             def generate(self, ctx):
                 ty = ctx(self.of)
-                return "std::integral_constant<%s, %s>" % (ty,
-                                                           str(self.index).lower())
+                return f"std::integral_constant<{ty}, {str(self.index).lower()}>"
 
         class ArgumentType(Type):
             """
@@ -280,9 +274,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                 super(ArgumentType, self).__init__(num=num)
 
             def generate(self, _):
-                argtype = "argument_type{0}".format(self.num)
-                noref = "std::remove_reference_t<{0}>".format(argtype)
-                return "std::remove_cv_t<{0}>".format(noref)
+                return f'std::remove_cv_t<std::remove_reference_t<argument_type{self.num}>>'
 
         class DependentType(Type):
             """
@@ -306,8 +298,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             """
 
             def generate(self, ctx):
-                return 'typename pythonic::assignable<{0}>::type'.format(
-                    ctx(self.of))
+                return f'typename pythonic::assignable<{ctx(self.of)}>::type'
 
         class AssignableNoEscape(DependentType):
             """
@@ -315,8 +306,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             """
 
             def generate(self, ctx):
-                return 'typename pythonic::assignable_noescape<{0}>::type'.format(
-                    ctx(self.of))
+                return f'typename pythonic::assignable_noescape<{ctx(self.of)}>::type'
 
         class Returnable(DependentType):
             """
@@ -330,8 +320,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             """
 
             def generate(self, ctx):
-                return 'typename pythonic::returnable<{0}>::type'.format(
-                    ctx(self.of))
+                return f'typename pythonic::returnable<{ctx(self.of)}>::type'
 
         class Lazy(DependentType):
             """
@@ -342,7 +331,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             """
 
             def generate(self, ctx):
-                return 'typename pythonic::lazy<{}>::type'.format(ctx(self.of))
+                return f'typename pythonic::lazy<{ctx(self.of)}>::type'
 
         class FunctionType(Type):
             """
@@ -362,8 +351,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             '''
             def generate(self, ctx):
                 of_type = ctx(self.of)
-                return ('decltype(pythonic::types::as_const(std::declval<'
-                        + of_type + '>()))')
+                return f'decltype(pythonic::types::as_const(std::declval<{of_type}>()))'
 
         class IteratorOfType(DependentType):
             '''
@@ -372,9 +360,9 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             def generate(self, ctx):
                 container_type = ctx(self.of)
                 if container_type.startswith('typename'):
-                    return container_type + '::iterator'
+                    return f'{container_type}::iterator'
                 else:
-                    return 'typename ' + container_type + '::iterator'
+                    return f'typename {container_type}::iterator'
 
         class IteratorContentType(DependentType):
             '''
@@ -383,12 +371,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
 
             def generate(self, ctx):
                 iterator_value_type = ctx(self.of)
-                return 'std::remove_cv_t<{0}>'.format(
-                    'typename std::iterator_traits<{0}>::value_type'.format(
-                        'typename std::remove_reference_t<{0}>::iterator'
-                        .format(iterator_value_type)
-                        )
-                    )
+                return f'std::remove_cv_t<typename std::iterator_traits<typename std::remove_reference_t<{iterator_value_type}>::iterator>::value_type>'
 
         class GetAttr(Type):
             '''
@@ -398,9 +381,8 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                 super(GetAttr, self).__init__(param=param, attr=attr)
 
             def generate(self, ctx):
-                return ('decltype(pythonic::builtins::getattr({}{{}}, {}))'
-                        .format('pythonic::types::attr::' + self.attr.upper(),
-                                'std::declval<' + ctx(self.param) + '>()'))
+                attr = f'pythonic::types::attr::{self.attr.upper()}'
+                return f'decltype(pythonic::builtins::getattr({attr}{{}}, std::declval<{ctx(self.param)}>()))'
 
         class ReturnType(Type):
             '''
@@ -413,7 +395,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                 # the return type of a constructor is obvious
                 cg = ctx(self.ftype)
                 args = [ctx(arg) for arg in self.args]
-                return 'std::result_of_t<{0}({1})>'.format(cg, ", ".join(args))
+                return f'std::result_of_t<{cg}({", ".join(args)})>'
 
         class ElementType(Type):
             '''
@@ -427,7 +409,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                 return self.of.iscombined()
 
             def generate(self, ctx):
-                return 'std::tuple_element_t<{0}, {1}>'.format(self.index, 'std::remove_reference_t<{0}>'.format(ctx(self.of)))
+                return f'std::tuple_element_t<{self.index}, std::remove_reference_t<{ctx(self.of)}>>'
 
         class TypeType(DependentType):
             '''
@@ -435,7 +417,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             '''
 
             def generate(self, ctx):
-                return 'pythonic::types::type_t<{}>'.format(ctx(self.of))
+                return f'pythonic::types::type_t<{ctx(self.of)}>'
 
 
         class ListType(DependentType):
@@ -444,7 +426,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             '''
 
             def generate(self, ctx):
-                return 'pythonic::types::list<std::remove_reference_t<{}>>'.format(ctx(self.of))
+                return f'pythonic::types::list<std::remove_reference_t<{ctx(self.of)}>>'
 
         class SetType(DependentType):
             '''
@@ -452,7 +434,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             '''
 
             def generate(self, ctx):
-                return 'pythonic::types::set<{0}>'.format(ctx(self.of))
+                return f'pythonic::types::set<{ctx(self.of)}>'
 
         class TupleType(Type):
             '''
@@ -466,7 +448,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
 
             def generate(self, ctx):
                 elts = (ctx(of) for of in self.ofs)
-                return 'pythonic::types::make_tuple_t<{0}>'.format(", ".join(elts))
+                return f'pythonic::types::make_tuple_t<{", ".join(elts)}>'
 
         class DictType(Type):
             '''
@@ -481,8 +463,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                             for of in (self.of_key, self.of_val)))
 
             def generate(self, ctx):
-                return 'pythonic::types::dict<{},{}>'.format(ctx(self.of_key),
-                                                             ctx(self.of_val))
+                return f'pythonic::types::dict<{ctx(self.of_key)},{ctx(self.of_val)}>'
 
         class NDArrayType(DependentType):
             '''
@@ -492,10 +473,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                 super(DependentType, self).__init__(of=dtype, nbdims=nbdims)
 
             def generate(self, ctx):
-                return 'pythonic::types::ndarray<{}, pythonic::types::pshape<{}>>'.format(
-                        ctx(self.of),
-                        ", ".join((['long'] * self.nbdims))
-                        )
+                return f'pythonic::types::ndarray<{ctx(self.of)}, pythonic::types::pshape<{", ".join(["long"] * self.nbdims)}>>'
 
 
         class ContainerType(DependentType):
@@ -504,7 +482,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             '''
 
             def generate(self, ctx):
-                return 'container<std::remove_reference_t<{0}>>'.format(ctx(self.of))
+                return f'container<std::remove_reference_t<{ctx(self.of)}>>'
 
         class IndexableType(DependentType):
             '''
@@ -512,7 +490,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             '''
 
             def generate(self, ctx):
-                return 'indexable<{0}>'.format(ctx(self.of))
+                return f'indexable<{ctx(self.of)}>'
 
         class IndexableContainerType(Type):
             '''
@@ -528,8 +506,7 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                             for of in (self.of_key, self.of_val)))
 
             def generate(self, ctx):
-                return ('indexable_container<{0}, std::remove_reference_t<{1}>>'
-                        .format(ctx(self.of_key), ctx(self.of_val)))
+                return f'indexable_container<{ctx(self.of_key)}, std::remove_reference_t<{ctx(self.of_val)}>>'
 
         class ExpressionType(Type):
 
@@ -544,9 +521,8 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                 return any(expr.iscombined() for expr in self.exprs)
 
             def generate(self, ctx):
-                gexprs = ["std::declval<{0}>()".format(ctx(expr))
-                          for expr in self.exprs]
-                return 'decltype({0})'.format(self.op(*gexprs))
+                gexprs = [f"std::declval<{ctx(expr)}>()" for expr in self.exprs]
+                return f'decltype({self.op(*gexprs)})'
 
         builder.UnknownType = Type()
 

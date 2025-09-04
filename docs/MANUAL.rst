@@ -367,6 +367,22 @@ function run. And that's what it does :-) Put an another way, you can rip some
 speedup at the Python level just by spawning multiple ``threading.Thread``.
 
 
+Limited C API
+-------------
+
+Pythran-generated can be made compatible with `Limited C API <https://docs.python.org/3/c-api/stable.html>`_,
+making Pythran native module compatible with multiple Python version. It comes
+at a price though: conversion of Python Objects to Pythran objects will be
+slightly slower. The core of the kernels, which contains no reference to Python
+code, is not impacted, so if the kernel is compute-intensive, the overhead
+should be hidden.
+
+One just need to add ``Py_LIMITED_API=0x03070000`` to the macro definitions
+passed to the compiler to enable this feature, and support any CPython version
+greater or equal to 3.7. Lower versions of CPython are not tested (and thus not
+supported ;-))
+
+
 IPython Integration
 -------------------
 

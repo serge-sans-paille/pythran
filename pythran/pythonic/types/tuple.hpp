@@ -532,6 +532,11 @@ namespace std
 
 PYTHONIC_NS_BEGIN
 
+#ifdef Py_LIMITED_API
+#define PyTuple_SET_ITEM PyTuple_SetItem
+#define PyList_SET_ITEM PyList_SetItem
+#endif
+
 template <typename K, typename V>
 PyObject *to_python<std::pair<K, V>>::convert(std::pair<K, V> const &t)
 {
@@ -611,7 +616,13 @@ bool from_python<std::tuple<Types...>>
 {
   bool checks[] = {::is_convertible<
       std::tuple_element_t<S, std::tuple<Types...>>>(
-      PyTuple_GET_ITEM(obj, S))...};
+#ifdef Py_LIMITED_API
+      PyTuple_GetItem(obj, S)
+#else
+      PyTuple_GET_ITEM(obj, S)
+#endif
+      )...
+  };
   return std::find(std::begin(checks), std::end(checks), false) ==
          std::end(checks);
 }
@@ -620,7 +631,11 @@ template <typename... Types>
 bool from_python<std::tuple<Types...>>::is_convertible(PyObject *obj)
 {
   if (PyTuple_Check(obj)) {
+#ifdef Py_LIMITED_API
+    auto n = PyTuple_Size(obj);
+#else
     auto n = PyTuple_GET_SIZE(obj);
+#endif
     if (n == sizeof...(Types)) {
       return do_is_convertible(obj,
                                std::make_index_sequence<sizeof...(Types)>());
@@ -636,7 +651,12 @@ std::tuple<Types...> from_python<std::tuple<Types...>>::do_convert(
 {
   return std::tuple<Types...>{
       ::from_python<std::tuple_element_t<S, std::tuple<Types...>>>(
-          PyTuple_GET_ITEM(obj, S))...};
+#ifdef Py_LIMITED_API
+      PyTuple_GetItem(obj, S)
+#else
+      PyTuple_GET_ITEM(obj, S)
+#endif
+          )...};
 }
 template <typename... Types>
 std::tuple<Types...> from_python<std::tuple<Types...>>::convert(PyObject *obj)
@@ -650,9 +670,19 @@ bool from_python<types::array_tuple<T, N>>::
     is_convertible(PyObject *obj)
 {
   if (PyTuple_Check(obj)) {
+#ifdef Py_LIMITED_API
+    auto n = PyTuple_Size(obj);
+#else
     auto n = PyTuple_GET_SIZE(obj);
+#endif
     if (n == N) {
-      return ::is_convertible<T>(PyTuple_GET_ITEM(obj, 0));
+      return ::is_convertible<T>(
+#ifdef Py_LIMITED_API
+      PyTuple_GetItem(obj, 0)
+#else
+      PyTuple_GET_ITEM(obj, 0)
+#endif
+      );
     }
   }
   return false;
@@ -663,7 +693,13 @@ template <size_t... S>
 types::array_tuple<T, N> from_python<types::array_tuple<T, N>>::do_convert(
     PyObject *obj, typename std::index_sequence<S...>)
 {
-  return {::from_python<T>(PyTuple_GET_ITEM(obj, S))...};
+  return {::from_python<T>(
+#ifdef Py_LIMITED_API
+      PyTuple_GetItem(obj, S)
+#else
+      PyTuple_GET_ITEM(obj, S)
+#endif
+      )...};
 }
 template <typename T, size_t N>
 types::array_tuple<T, N> from_python<types::array_tuple<T, N>>::
@@ -672,6 +708,11 @@ types::array_tuple<T, N> from_python<types::array_tuple<T, N>>::
 {
   return do_convert(obj, std::make_index_sequence<N>());
 }
+
+#ifdef Py_LIMITED_API
+#undef PyTuple_SET_ITEM
+#undef PyList_SET_ITEM
+#endif
 PYTHONIC_NS_END
 #endif
 

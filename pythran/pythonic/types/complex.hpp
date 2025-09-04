@@ -220,7 +220,12 @@ template <>
 inline std::complex<long double>
 from_python<std::complex<long double>>::convert(PyObject *obj)
 {
+#ifdef Py_LIMITED_API
+  npy_clongdouble val;
+  PyArray_ScalarAsCtype(obj, &val);
+#else
   auto val = PyArrayScalar_VAL(obj, CLongDouble);
+#endif
   return {npy_creall(val), npy_cimagl(val)};
 }
 
@@ -235,7 +240,12 @@ template <>
 inline std::complex<float>
 from_python<std::complex<float>>::convert(PyObject *obj)
 {
+#ifdef Py_LIMITED_API
+  npy_cfloat val;
+  PyArray_ScalarAsCtype(obj, &val);
+#else
   auto val = PyArrayScalar_VAL(obj, CFloat);
+#endif
   return {npy_crealf(val), npy_cimagf(val)};
 }
 PYTHONIC_NS_END

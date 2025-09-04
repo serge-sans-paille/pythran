@@ -29,6 +29,11 @@
 // clang-format on
 
 #ifdef ENABLE_PYTHON_MODULE
+
+#if defined(Py_LIMITED_API) && Py_LIMITED_API < 0x03070000
+#error Pythran only supports Py_LIMITED_API from 0x03070000 upward
+#endif
+
 // Define python's visibility macros
 #include "pyconfig.h"
 

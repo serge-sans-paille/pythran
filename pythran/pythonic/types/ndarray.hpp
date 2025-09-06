@@ -1464,10 +1464,10 @@ to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const &cn,
         return Transposed;
       }
     } else {
-      Py_INCREF(PyArray_DESCR(arr));
+      Py_INCREF((PyObject*)PyArray_DESCR(arr));
       auto array = sutils::array(n._shape);
       auto *res = pyarray_new<long, std::tuple_size<pS>::value>{}.from_descr(
-          Py_TYPE(arr), PyArray_DESCR(arr), array.data(), PyArray_DATA(arr),
+          Py_TYPE((PyObject *)arr), PyArray_DESCR(arr), array.data(), PyArray_DATA(arr),
           PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
       if (transpose && (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS)) {
         PyObject *Transposed =
@@ -1748,7 +1748,7 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(
                       utils::int_<sizeof...(S)>());
   types::numpy_gexpr<types::ndarray<T, pS>, S...> r(base_array, slices);
 
-  Py_INCREF(base_arr);
+  Py_INCREF((PyObject*)base_arr);
   return r;
 }
 

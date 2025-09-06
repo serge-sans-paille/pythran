@@ -739,13 +739,19 @@ namespace std
 
 #ifndef PyString_FromStringAndSize
 #define PyString_FromStringAndSize PyUnicode_FromStringAndSize
+#endif
 
+#ifdef Py_LIMITED_API
+#define PyString_Check(x) (PyUnicode_Check(x) && [x]() { PyObject * tmp = PyUnicode_AsASCIIString(x); bool res = tmp != nullptr; Py_DECREF(tmp); PyErr_Clear(); return res; }())
+#else
 #ifndef PyString_Check
-#define PyString_Check(x) PyUnicode_Check(x) && PyUnicode_IS_COMPACT_ASCII(x)
+#define PyString_Check(x) (PyUnicode_Check(x) && PyUnicode_IS_COMPACT_ASCII(x))
 #endif
-#ifndef PyString_AS_STRING
-#define PyString_AS_STRING (char *)_PyUnicode_COMPACT_DATA
 #endif
+
+#ifdef Py_LIMITED_API
+#define PyString_GET_SIZE PyUnicode_GetLength
+#else
 #ifndef PyString_GET_SIZE
 #define PyString_GET_SIZE PyUnicode_GET_LENGTH
 #endif

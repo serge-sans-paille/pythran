@@ -843,6 +843,10 @@ namespace std
 
 PYTHONIC_NS_BEGIN
 
+#ifdef Py_LIMITED_API
+#define PyList_SET_ITEM PyList_SetItem
+#endif
+
 inline PyObject *to_python<typename std::vector<bool>::reference>::convert(
     typename std::vector<bool>::reference const &v)
 {
@@ -886,23 +890,49 @@ to_python<types::empty_list>::convert(types::empty_list const &)
 template <class T>
 bool from_python<types::list<T>>::is_convertible(PyObject *obj)
 {
-  return PyList_Check(obj) &&
-         (PyObject_Not(obj) ||
-          ::is_convertible<T>(PySequence_Fast_GET_ITEM(obj, 0)));
+  if (!PyList_Check(obj))
+    return false;
+  if (PyObject_Not(obj))
+    return true;
+#ifdef Py_LIMITED_API
+  PyObject * Item = PySequence_GetItem(obj, 0);
+  bool result = ::is_convertible<T>(Item);
+  Py_DECREF(Item);
+  return result;
+#else
+  return ::is_convertible<T>(PySequence_Fast_GET_ITEM(obj, 0));
+#endif
 }
 
 template <class T>
 types::list<T> from_python<types::list<T>>::convert(PyObject *obj)
 {
+#ifdef Py_LIMITED_API
+  Py_ssize_t l = PySequence_Size(obj);
+#else
   Py_ssize_t l = PySequence_Fast_GET_SIZE(obj);
+#endif
   types::list<T> v(l);
 
+#ifdef Py_LIMITED_API
+  for(Py_ssize_t i = 0; i < l; ++i) {
+    PyObject *item = PySequence_GetItem(obj, i);
+    v.fast(i) = ::from_python<T>(item);
+    Py_DECREF(item);
+  }
+#else
   PyObject **core = PySequence_Fast_ITEMS(obj);
   std::transform(core, core + l, v.begin(),
                  [](PyObject *o) { return ::from_python<T>(o); });
+#endif
 
   return v;
 }
+
+#ifdef Py_LIMITED_API
+#undef PyList_SET_ITEM
+#endif
+
 PYTHONIC_NS_END
 
 #endif

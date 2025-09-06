@@ -119,6 +119,10 @@ namespace std
 
 PYTHONIC_NS_BEGIN
 
+#ifdef Py_LIMITED_API
+#define PyTuple_SET_ITEM PyTuple_SetItem
+#endif
+
 template <typename T>
 PyObject *
 to_python<types::dynamic_tuple<T>>::convert(types::dynamic_tuple<T> const &t)
@@ -130,6 +134,9 @@ to_python<types::dynamic_tuple<T>>::convert(types::dynamic_tuple<T> const &t)
   return out;
 }
 
+#ifdef Py_LIMITED_API
+#undef PyTuple_SET_ITEM
+#endif
 PYTHONIC_NS_END
 #endif
 

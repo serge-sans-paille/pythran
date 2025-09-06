@@ -2,6 +2,7 @@ import os
 import glob
 import sys
 import unittest
+import pythran.config
 
 class TestCython(unittest.TestCase):
     pass
@@ -17,6 +18,10 @@ for intermediate in glob.glob(os.path.join(os.path.dirname(__file__), "cython",
         pass
 
 try:
+    if 'Py_LIMITED_API' in pythran.config.cfg.get('compiler', 'cflags'):
+        raise NotImplementedError()
+    if 'Py_LIMITED_API' in pythran.config.cfg.get('compiler', 'defines'):
+        raise NotImplementedError()
     import Cython
     targets = glob.glob(os.path.join(os.path.dirname(__file__), "cython", "setup_*.py"))
     sys.path.append(os.path.join(os.path.dirname(__file__), "cython"))
@@ -35,6 +40,6 @@ try:
         add_test(name, runner, target)
 
 
-except ImportError:
+except (ImportError, NotImplementedError):
     pass
 

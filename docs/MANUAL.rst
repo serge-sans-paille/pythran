@@ -800,6 +800,9 @@ This controls some behavior of the C++ backend, so the default should be safe::
     # https://py-free-threading.github.io/
     freethreading_compatible = true
 
+    # Use limited API, see https://docs.python.org/3/c-api/stable.html#limited-c-api.
+    # Set to true, to "3.7" or to any more recent version to enable.
+    limited_api = false
 
 F.A.Q.
 ------

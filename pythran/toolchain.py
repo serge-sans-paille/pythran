@@ -331,7 +331,15 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     # local import so that we don't depend on setuptools for the code generation
     # part
     from pythran.dist import PythranExtension, PythranBuildExt
-    from setuptools import setup
+
+    if sys.version_info >= (3, 10):
+        from setuptools import setup
+    else:
+        try:
+            # `numpy.distutils is deprecated, may not be present, or broken
+            from numpy.distutils.core import setup
+        except Exception:
+            from setuptools import setup
 
     builddir = mkdtemp()
     buildtmp = mkdtemp()
@@ -363,7 +371,7 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
                 dest.write(src.read())
 
     ext = sysconfig.get_config_var('EXT_SUFFIX')
-    if extension.py_limited_api:
+    if extension.py_limited_api and sys.version_info >= (3, 10):
         _, ext = os.path.splitext(ext)
         ext = f".abi3{ext}"
 
@@ -380,7 +388,6 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
                 output_binary = output_binary.replace('%{ext}', '')
                 output_directory = os.path.dirname(output_binary)
             else:
-                output_binary = os.path.basename(f)
                 output_directory = os.getcwd()
             copy(f, os.path.join(output_directory, os.path.basename(f)))
     shutil.rmtree(builddir)

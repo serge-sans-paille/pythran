@@ -835,3 +835,25 @@ def B(self, N):
 def C(self):
     self[1][0][0:1] = self[1][0][0:1]*2'''
         return self.run_test(code, 10, assign_interprocedural_subscript=[int])
+
+    def test_expr_cast(self):
+        code = '''
+def test(x):
+    import numpy as np
+    N = x.shape[0]
+    out = np.empty_like(x, np.float32)
+    for i in range(N):
+        if x[i] > 0:
+            out[i] = x[i]
+        else:
+            out[i] = 0
+    return out
+
+# pythran export f(float32[:, :]):
+def test_expr_cast(x):
+    import numpy as np
+    out = np.empty_like(x, np.float32)
+    out[0] = test(np.abs(x[0]))
+    return out'''
+        self.run_test(code, np.ones((1,1), dtype=np.float32),
+                      test_expr_cast=[NDArray[np.float32, :, :]])

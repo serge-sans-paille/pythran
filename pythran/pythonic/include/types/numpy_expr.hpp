@@ -643,12 +643,10 @@ namespace types
     numpy_expr(numpy_expr const &) = default;
     numpy_expr(numpy_expr &&) = default;
 
-#ifdef CYTHON_ABI
     template <class... Argp>
     numpy_expr(numpy_expr<Op, Argp...> const &other) : args(other.args)
     {
     }
-#endif
 
     numpy_expr(Args const &...args);
 

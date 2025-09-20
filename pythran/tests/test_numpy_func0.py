@@ -833,6 +833,12 @@ def np_ravel3(v):
     def test_sort_complex1(self):
         self.run_test("def np_sort_complex1(a): from numpy import sort_complex ; return sort_complex(a)", numpy.array([1 + 2j, 2 - 1j, 3 - 2j, 3 - 3j, 3 + 5j]), np_sort_complex1=[NDArray[complex,:]])
 
+    def test_sort_nan0(self):
+        self.run_test("def np_sort_nan0(x): from numpy import sort; return sort(x)", numpy.array([1., numpy.nan, 0., numpy.nan]), np_sort_nan0=[NDArray[float,:]])
+
+    def test_sort_nan1(self):
+        self.run_test("def np_sort_nan1(x): from numpy import sort; return sort(x)", numpy.array([1., numpy.nan, 0., numpy.nan], dtype=numpy.float32), np_sort_nan1=[NDArray[numpy.float32,:]])
+
     def test_split0(self):
         self.run_test("def np_split0(a): from numpy import split,array2string ; return list(map(array2string,split(a, 3)))", numpy.arange(12), np_split0=[NDArray[int,:]])
 

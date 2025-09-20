@@ -15,18 +15,24 @@ except ImportError:
 import os.path
 import os
 import re
+import sys
 
-try:
-    from distutils.command.build_ext import build_ext as LegacyBuildExt
-except ImportError:
+
+if sys.version_info >= (3, 10):
     from setuptools.command.build_ext import build_ext as LegacyBuildExt
-
-try:
-    # `numpy.distutils` is deprecated, and won't be present on Python >=3.12
-    # If it is installed, we need to use it though, so try-import it:
-    from numpy.distutils.extension import Extension
-except ImportError:
     from setuptools.extension import Extension
+else:
+    try:
+        from distutils.command.build_ext import build_ext as LegacyBuildExt
+    except ImportError:
+        from setuptools.command.build_ext import build_ext as LegacyBuildExt
+
+    try:
+        # `numpy.distutils` is deprecated, and won't be present on Python >=3.12
+        # If it is installed, we need to use it though, so try-import it:
+        from numpy.distutils.extension import Extension
+    except ImportError:
+        from setuptools.extension import Extension
 
 
 

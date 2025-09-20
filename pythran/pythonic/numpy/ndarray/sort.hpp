@@ -55,7 +55,25 @@ namespace numpy
       };
 
       template <class T>
-      struct _comp;
+      struct _comp : std::less<T>
+      {};
+
+      template <>
+      struct _comp<float> {
+        bool operator()(float x, float y) {
+          if (__builtin_expect(std::isnan(y), false)) return true;
+          return x < y;
+        }
+      };
+
+      template <>
+      struct _comp<double> {
+        bool operator()(double x, double y) {
+          if (__builtin_expect(std::isnan(y), false)) return true;
+          return x < y;
+        }
+      };
+
       template <class T>
       struct _comp<std::complex<T>> {
         bool operator()(std::complex<T> const &i,
@@ -69,7 +87,7 @@ namespace numpy
       };
 
       template <class T>
-      using comparator = std::conditional_t<types::is_complex<T>::value, _comp<T>, std::less<T>>;
+      using comparator = _comp<T>;
 
       template <class T, class pS, class Sorter>
       std::enable_if_t<std::tuple_size<pS>::value == 1, void>

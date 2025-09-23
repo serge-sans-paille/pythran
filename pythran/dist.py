@@ -89,6 +89,8 @@ class PythranBuildExtMixIn(object):
         if getattr(ext, 'cc', None) is not None:
             try:
                 import distutils._msvccompiler as msvc
+                if not hasattr(msvc, "_find_exe"):
+                    msvc = msvc.msvc
                 # install hook
                 find_exe = msvc._find_exe
 
@@ -98,7 +100,7 @@ class PythranBuildExtMixIn(object):
                     return find_exe(exe, *args, **kwargs)
 
                 msvc._find_exe = _find_exe
-            except (AttributeError, ImportError):
+            except (AttributeError, ImportError) as e:
                 pass
 
         # In general, distutils uses -Wstrict-prototypes, but this option

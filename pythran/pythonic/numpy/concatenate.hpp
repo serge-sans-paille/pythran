@@ -141,8 +141,6 @@ namespace numpy
           types::array_tuple<
               long, std::tuple_element_t<0, std::tuple<Types...>>::value>>
   {
-    using T =
-        typename __combined<typename std::decay_t<Types>::dtype...>::type;
     auto constexpr N = std::decay_t<decltype(std::get<0>(args))>::value;
     auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] = details::concatenate_axis_size(
@@ -162,7 +160,6 @@ namespace numpy
   types::ndarray<typename E::dtype, types::array_tuple<long, E::value>>
   concatenate(types::array_base<E, M, V> const &args, long axis)
   {
-    using T = typename E::dtype;
     auto constexpr N = E::value;
     auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] = details::concatenate_axis_size(
@@ -180,7 +177,6 @@ namespace numpy
   {
     using return_type =
         types::ndarray<typename E::dtype, types::array_tuple<long, E::value>>;
-    using T = typename return_type::dtype;
     auto constexpr N = return_type::value;
     auto shape = sutils::getshape(ai[0]);
     shape[axis] = std::accumulate(ai.begin(), ai.end(), 0L,

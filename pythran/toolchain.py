@@ -332,14 +332,7 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
     # part
     from pythran.dist import PythranExtension, PythranBuildExt
 
-    if sys.version_info >= (3, 10):
-        from setuptools import setup
-    else:
-        try:
-            # `numpy.distutils is deprecated, may not be present, or broken
-            from numpy.distutils.core import setup
-        except Exception:
-            from setuptools import setup
+    from setuptools import setup
 
     builddir = mkdtemp()
     buildtmp = mkdtemp()

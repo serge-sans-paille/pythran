@@ -931,9 +931,6 @@ namespace types
 
     template <class Tp, size_t... Is>
     auto recast(std::index_sequence<Is...>)
-        -> decltype(make_gexpr(
-            arg.template recast<Tp>(),
-            recast_slice<sizeof(dtype), sizeof(Tp)>(std::get<Is>(slices))...))
     {
       return make_gexpr(
           arg.template recast<Tp>(),
@@ -942,7 +939,7 @@ namespace types
 
     template <class Tp>
     auto
-    recast() -> decltype(recast<Tp>(std::make_index_sequence<sizeof...(S)>()))
+    recast()
     {
       return recast<Tp>(std::make_index_sequence<sizeof...(S)>());
     }

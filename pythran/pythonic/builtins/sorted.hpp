@@ -29,7 +29,7 @@ namespace builtins
   template <class Iterable, class Key>
   types::list<std::remove_cv_t<
       typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>>
-  sorted(Iterable &&seq, Key const &key, bool reverse)
+  sorted(Iterable &&seq, types::kwonly, Key const &key, bool reverse)
   {
     using value_type = std::remove_cv_t<
         typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>;
@@ -48,7 +48,7 @@ namespace builtins
   template <class Iterable>
   types::list<std::remove_cv_t<
       typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>>
-  sorted(Iterable &&seq, types::none_type const &key, bool reverse)
+  sorted(Iterable &&seq, types::kwonly, types::none_type const &key, bool reverse)
   {
     using value_type = std::remove_cv_t<
         typename std::iterator_traits<typename std::decay_t<Iterable>::iterator>::value_type>;

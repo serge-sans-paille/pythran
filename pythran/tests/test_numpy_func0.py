@@ -562,10 +562,16 @@ def np_rosen_der(x):
         self.run_test("def np_fromstring1(a): from numpy import fromstring, uint8 ; a = '\x01\x02\x03\x04' ; return fromstring(a, uint8,3)", '\x01\x02\x03\x04', np_fromstring1=[str])
 
     def test_fromstring2(self):
-        self.run_test("def np_fromstring2(a): from numpy import fromstring, uint32 ; return fromstring(a, uint32,-1, ' ')", '1 20 3 40', np_fromstring2=[str])
+        self.run_test("def np_fromstring2(a): from numpy import fromstring, uint32 ; return fromstring(a, uint32,-1, sep=' ')", '1 20 3 40', np_fromstring2=[str])
 
     def test_fromstring3(self):
-        self.run_test("def np_fromstring3(a): from numpy import fromstring, uint32 ; return fromstring(a, uint32,2, ',')", '1,2, 3, 4', np_fromstring3=[str])
+        self.run_test("def np_fromstring3(a): from numpy import fromstring, uint32 ; return fromstring(a, uint32,2, sep=',')", '1,2, 3, 4', np_fromstring3=[str])
+
+    def test_fromstring4(self):
+        self.run_test("def np_fromstring4(a): from numpy import fromstring ; return fromstring(a, sep=',')", '1.1, 2.2, 3.3, 4.4', np_fromstring4=[str])
+
+    def test_fromstring5(self):
+        self.run_test("def np_fromstring5(a): from numpy import fromstring, uint32 ; return fromstring(a, uint32, sep=',')", '1, 2, 3, 4', np_fromstring5=[str])
 
     def test_frombuffer0(self):
         self.run_test("def np_frombuffer0(a): from numpy import frombuffer, uint8 ; return frombuffer(b'\x01\x02' * a, uint8)", 1, np_frombuffer0=[int])

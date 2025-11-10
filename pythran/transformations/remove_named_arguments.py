@@ -55,8 +55,6 @@ class RemoveNamedArguments(Transformation[Aliases, DefUseChains]):
         Assumes the named parameter exist, raises a KeyError otherwise
         '''
         func_argument_names = {}
-        if isinstance(func, ast.Name):
-            breakpoint()
         for i, arg in enumerate(func.args.args[offset:]):
             assert isinstance(arg, ast.Name)
             func_argument_names[arg.id] = i

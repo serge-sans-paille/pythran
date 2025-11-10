@@ -17,7 +17,7 @@ namespace numpy
 {
   template <class dtype>
   types::ndarray<typename dtype::type, types::pshape<long>>
-  fromstring(types::str const &string, dtype d, long count, types::str const &sep)
+  fromstring(types::str const &string, dtype d, long count, types::kwonly, types::str const &sep)
   {
     if (sep) {
       types::list<typename dtype::type> res(0);

@@ -3758,7 +3758,9 @@ MODULES = {
         "fromfunction": ConstFunctionIntr(),
         "fromiter": ConstFunctionIntr(args=("iterable", "dtype", "count"),
                                       defaults=(-1,)),
-        "fromstring": ConstFunctionIntr(),
+        "fromstring": ConstFunctionIntr(args=('string', 'dtype', 'count',),
+                                        kwonlyargs=('sep', 'like'),
+                                        defaults=(float, -1, '', None)),
         "fromfile":  FunctionIntr(args=('file', 'dtype', 'count', "sep", "offset"),
                                   defaults=(None, None, -1, None, 0),
                                   global_effects=True),
@@ -4644,7 +4646,9 @@ def save_arguments(module_name, elements):
             defaults = list(spec.defaults or [])
             args += [ast.Name(arg, ast.Param(), None, None)
                      for arg in spec.kwonlyargs]
-            defaults += [spec.kwonlydefaults[kw] for kw in spec.kwonlyargs]
+            if spec.kwonlydefaults:
+                defaults += [spec.kwonlydefaults[kw] for kw in
+                             spec.kwonlyargs[-len(spec.kwonlydefaults):]]
 
             # Check if we already have a pythran description for that object
             if signature.args.args:

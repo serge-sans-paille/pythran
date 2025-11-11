@@ -12,10 +12,8 @@ namespace builtins
   namespace anonymous
   {
     types::cstride_slice<1> slice(types::none<long> stop);
-    types::cstride_slice<1> slice(types::none<long> start,
-                                  types::none<long> stop);
-    types::slice slice(types::none<long> start, types::none<long> stop,
-                       types::none<long> step);
+    types::cstride_slice<1> slice(types::none<long> start, types::none<long> stop);
+    types::slice slice(types::none<long> start, types::none<long> stop, types::none<long> step);
   } // namespace anonymous
 
   DEFINE_FUNCTOR(pythonic::builtins::anonymous, slice);

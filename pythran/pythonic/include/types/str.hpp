@@ -105,8 +105,7 @@ namespace types
     chr operator[](long i) const;
     chr fast(long i) const;
     template <class Sp>
-    std::enable_if_t<is_slice<Sp>::value, sliced_str<Sp>>
-    operator[](Sp const &s) const;
+    std::enable_if_t<is_slice<Sp>::value, sliced_str<Sp>> operator[](Sp const &s) const;
 
     // conversion
     operator long() const;
@@ -119,8 +118,7 @@ namespace types
 
     // io
     template <class SS>
-    friend std::ostream &operator<<(std::ostream &os,
-                                    types::sliced_str<SS> const &v);
+    friend std::ostream &operator<<(std::ostream &os, types::sliced_str<SS> const &v);
   };
 
   struct string_iterator;
@@ -209,15 +207,13 @@ namespace types
     bool operator==(chr other) const;
 
     template <class S>
-    std::enable_if_t<is_slice<S>::value, sliced_str<S>>
-    operator()(S const &s) const;
+    std::enable_if_t<is_slice<S>::value, sliced_str<S>> operator()(S const &s) const;
 
     chr operator[](long i) const;
     chr fast(long i) const;
 
     template <class S>
-    std::enable_if_t<is_slice<S>::value, sliced_str<S>>
-    operator[](S const &s) const;
+    std::enable_if_t<is_slice<S>::value, sliced_str<S>> operator[](S const &s) const;
 
     explicit operator bool() const;
     long count(types::str const &sub) const;
@@ -228,8 +224,8 @@ namespace types
     }
   };
 
-  struct string_iterator : std::iterator<std::random_access_iterator_tag, str,
-                                         std::ptrdiff_t, str *, str> {
+  struct string_iterator
+      : std::iterator<std::random_access_iterator_tag, str, std::ptrdiff_t, str *, str> {
     std::string::const_iterator curr;
     string_iterator() = default;
     string_iterator(std::string::const_iterator iter) : curr(iter)
@@ -289,8 +285,7 @@ namespace types
     }
   };
   struct const_sliced_str_iterator
-      : std::iterator<std::random_access_iterator_tag, str, std::ptrdiff_t,
-                      str *, str> {
+      : std::iterator<std::random_access_iterator_tag, str, std::ptrdiff_t, str *, str> {
     const char *data;
     long step;
     const_sliced_str_iterator(char const *data, long step);

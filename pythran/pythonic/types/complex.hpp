@@ -85,29 +85,25 @@ namespace std
   template <class T, class S>
   bool operator<(std::complex<T> self, std::complex<S> other)
   {
-    return self.real() == other.real() ? self.imag() < other.imag()
-                                       : self.real() < other.real();
+    return self.real() == other.real() ? self.imag() < other.imag() : self.real() < other.real();
   }
 
   template <class T, class S>
   bool operator<=(std::complex<T> self, std::complex<S> other)
   {
-    return self.real() == other.real() ? self.imag() <= other.imag()
-                                       : self.real() <= other.real();
+    return self.real() == other.real() ? self.imag() <= other.imag() : self.real() <= other.real();
   }
 
   template <class T, class S>
   bool operator>(std::complex<T> self, std::complex<S> other)
   {
-    return self.real() == other.real() ? self.imag() > other.imag()
-                                       : self.real() > other.real();
+    return self.real() == other.real() ? self.imag() > other.imag() : self.real() > other.real();
   }
 
   template <class T, class S>
   bool operator>=(std::complex<T> self, std::complex<S> other)
   {
-    return self.real() == other.real() ? self.imag() >= other.imag()
-                                       : self.real() >= other.real();
+    return self.real() == other.real() ? self.imag() >= other.imag() : self.real() >= other.real();
   }
 
   template <class T, class S>
@@ -148,18 +144,16 @@ namespace builtins
   {
     return std::imag(self);
   }
-  inline numpy::functor::complex64 getattr(types::attr::DTYPE,
-                                           std::complex<float> const &self)
+  inline numpy::functor::complex64 getattr(types::attr::DTYPE, std::complex<float> const &self)
   {
     return {};
   }
-  inline numpy::functor::complex128 getattr(types::attr::DTYPE,
-                                            std::complex<double> const &self)
+  inline numpy::functor::complex128 getattr(types::attr::DTYPE, std::complex<double> const &self)
   {
     return {};
   }
-  inline numpy::functor::complex256
-  getattr(types::attr::DTYPE, std::complex<long double> const &self)
+  inline numpy::functor::complex256 getattr(types::attr::DTYPE,
+                                            std::complex<long double> const &self)
   {
     return {};
   }
@@ -175,31 +169,27 @@ PYTHONIC_NS_END
 PYTHONIC_NS_BEGIN
 
 template <>
-inline PyObject *to_python<std::complex<long double>>::convert(
-    std::complex<long double> const &c)
+inline PyObject *to_python<std::complex<long double>>::convert(std::complex<long double> const &c)
 {
   return PyArray_Scalar(const_cast<std::complex<long double> *>(&c),
                         PyArray_DescrFromType(NPY_CLONGDOUBLE), nullptr);
 }
 
 template <>
-inline PyObject *
-to_python<std::complex<double>>::convert(std::complex<double> const &c)
+inline PyObject *to_python<std::complex<double>>::convert(std::complex<double> const &c)
 {
   return PyComplex_FromDoubles(c.real(), c.imag());
 }
 
 template <>
-inline PyObject *
-to_python<std::complex<float>>::convert(std::complex<float> const &c)
+inline PyObject *to_python<std::complex<float>>::convert(std::complex<float> const &c)
 {
-  return PyArray_Scalar(const_cast<std::complex<float> *>(&c),
-                        PyArray_DescrFromType(NPY_CFLOAT), nullptr);
+  return PyArray_Scalar(const_cast<std::complex<float> *>(&c), PyArray_DescrFromType(NPY_CFLOAT),
+                        nullptr);
 }
 
 template <>
-inline bool
-from_python<std::complex<long double>>::is_convertible(PyObject *obj)
+inline bool from_python<std::complex<long double>>::is_convertible(PyObject *obj)
 {
   return PyArray_IsScalar(obj, CLongDouble);
 }
@@ -217,8 +207,7 @@ inline bool from_python<std::complex<float>>::is_convertible(PyObject *obj)
 }
 
 template <>
-inline std::complex<long double>
-from_python<std::complex<long double>>::convert(PyObject *obj)
+inline std::complex<long double> from_python<std::complex<long double>>::convert(PyObject *obj)
 {
 #ifdef Py_LIMITED_API
   npy_clongdouble val;
@@ -230,15 +219,13 @@ from_python<std::complex<long double>>::convert(PyObject *obj)
 }
 
 template <>
-inline std::complex<double>
-from_python<std::complex<double>>::convert(PyObject *obj)
+inline std::complex<double> from_python<std::complex<double>>::convert(PyObject *obj)
 {
   return {PyComplex_RealAsDouble(obj), PyComplex_ImagAsDouble(obj)};
 }
 
 template <>
-inline std::complex<float>
-from_python<std::complex<float>>::convert(PyObject *obj)
+inline std::complex<float> from_python<std::complex<float>>::convert(PyObject *obj)
 {
 #ifdef Py_LIMITED_API
   npy_cfloat val;

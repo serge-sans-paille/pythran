@@ -11,7 +11,8 @@ PYTHONIC_NS_BEGIN
 namespace random
 {
   template <class Iterable>
-  types::list<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<Iterable>>::iterator>::value_type>
+  types::list<typename std::iterator_traits<
+      typename std::remove_cv_t<std::remove_reference_t<Iterable>>::iterator>::value_type>
   sample(Iterable &&s, size_t k);
 
   DEFINE_FUNCTOR(pythonic::random, sample);

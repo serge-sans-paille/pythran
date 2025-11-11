@@ -17,8 +17,8 @@ namespace builtins
   {
 
     template <class Iterable, class V>
-    types::dict<typename std::remove_reference_t<Iterable>::value_type, V>
-    fromkeys(Iterable &&iter, V const &v)
+    types::dict<typename std::remove_reference_t<Iterable>::value_type, V> fromkeys(Iterable &&iter,
+                                                                                    V const &v)
     {
       types::dict<typename std::remove_reference_t<Iterable>::value_type,
                   V>

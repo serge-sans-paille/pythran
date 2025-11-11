@@ -21,28 +21,24 @@ namespace builtins
 } // namespace builtins
 PYTHONIC_NS_END
 
-
-
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/core.hpp"
 #include "numpy/arrayscalars.h"
+#include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<builtins::functor::complex>::convert(builtins::functor::complex const &c)
+inline PyObject *to_python<builtins::functor::complex>::convert(builtins::functor::complex const &c)
 {
-  return (PyObject*)&PyComplex_Type;
+  return (PyObject *)&PyComplex_Type;
 }
 
 inline bool from_python<builtins::functor::complex>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject*)&PyComplex_Type || obj == (PyObject*)&PyCDoubleArrType_Type;
+  return obj == (PyObject *)&PyComplex_Type || obj == (PyObject *)&PyCDoubleArrType_Type;
 }
 
-inline builtins::functor::complex
-from_python<builtins::functor::complex>::convert(PyObject *obj)
+inline builtins::functor::complex from_python<builtins::functor::complex>::convert(PyObject *obj)
 {
   return {};
 }

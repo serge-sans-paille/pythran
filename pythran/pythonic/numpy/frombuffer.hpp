@@ -22,10 +22,8 @@ namespace numpy
     if (count < 0)
       count = string.size() / sizeof(typename dtype::type);
     types::pshape<long> shape = count;
-    utils::shared_ref<types::raw_array<typename dtype::type>> buffer(
-        std::get<0>(shape));
-    auto const *tstring =
-        reinterpret_cast<typename dtype::type const *>(string.c_str()) + offset;
+    utils::shared_ref<types::raw_array<typename dtype::type>> buffer(std::get<0>(shape));
+    auto const *tstring = reinterpret_cast<typename dtype::type const *>(string.c_str()) + offset;
     std::copy(tstring, tstring + std::get<0>(shape), buffer->data);
     return {buffer, shape};
   }

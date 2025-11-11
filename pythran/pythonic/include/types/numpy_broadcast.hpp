@@ -16,8 +16,7 @@ namespace types
 {
   template <class T>
   struct broadcasted_iterator
-      : std::iterator<std::random_access_iterator_tag,
-                      std::remove_reference_t<T>> {
+      : std::iterator<std::random_access_iterator_tag, std::remove_reference_t<T>> {
     T value_;
 
     broadcasted_iterator(T const &value) : value_(value)
@@ -92,8 +91,7 @@ namespace types
     template <size_t I>
     long shape() const
     {
-      return I == 0 ? 1
-                    : (long)(ref.template shape < I == 0 ? 0 : (I - 1) > ());
+      return I == 0 ? 1 : (long)(ref.template shape<I == 0 ? 0 : (I - 1)>());
     }
 
     broadcasted() = default;
@@ -115,8 +113,7 @@ namespace types
     T const &operator[](long i) const;
 
     template <class S>
-    std::enable_if_t<is_slice<S>::value, broadcasted const &>
-    operator[](S s) const
+    std::enable_if_t<is_slice<S>::value, broadcasted const &> operator[](S s) const
     {
       return *this;
     }
@@ -137,8 +134,7 @@ namespace types
 #endif
 
     template <class S>
-    std::enable_if_t<is_slice<S>::value, broadcasted const &>
-    operator()(S s) const
+    std::enable_if_t<is_slice<S>::value, broadcasted const &> operator()(S s) const
     {
       return *this;
     }
@@ -153,9 +149,8 @@ namespace types
         -> decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...));
 
     template <class S, class Arg1, class... Args>
-    auto operator()(S arg0, Arg1 &&arg1, Args &&...args) const
-        -> broadcast_or_broadcasted_t<std::decay_t<decltype(ref(
-            std::forward<Arg1>(arg1), std::forward<Args>(args)...))>>;
+    auto operator()(S arg0, Arg1 &&arg1, Args &&...args) const -> broadcast_or_broadcasted_t<
+        std::decay_t<decltype(ref(std::forward<Arg1>(arg1), std::forward<Args>(args)...))>>;
 
     long flat_size() const;
   };
@@ -199,8 +194,7 @@ namespace types
 #endif
 
   template <class T>
-  struct const_broadcast_iterator
-      : public std::iterator<std::random_access_iterator_tag, T> {
+  struct const_broadcast_iterator : public std::iterator<std::random_access_iterator_tag, T> {
     T value;
     const_broadcast_iterator(T data) : value{data}
     {
@@ -258,11 +252,10 @@ namespace types
 
   template <class T, class B>
   struct broadcast_dtype {
-    using type = std::conditional_t<(std::is_integral<T>::value &&
-                                   std::is_integral<B>::value) ||
-                                      (std::is_floating_point<T>::value &&
-                                       std::is_floating_point<B>::value),
-                                  T, typename __combined<T, B>::type>;
+    using type = std::conditional_t<(std::is_integral<T>::value && std::is_integral<B>::value) ||
+                                        (std::is_floating_point<T>::value &&
+                                         std::is_floating_point<B>::value),
+                                    T, typename __combined<T, B>::type>;
   };
 #ifndef USE_XSIMD
   template <class T, class B>
@@ -303,8 +296,7 @@ namespace types
     dtype operator[](array_tuple<long, N>) const;
 
     template <class S>
-    std::enable_if_t<is_slice<S>::value, broadcast const &>
-    operator[](S) const
+    std::enable_if_t<is_slice<S>::value, broadcast const &> operator[](S) const
     {
       return *this;
     }

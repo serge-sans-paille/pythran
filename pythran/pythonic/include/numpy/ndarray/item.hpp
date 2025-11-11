@@ -16,8 +16,7 @@ namespace numpy
     T item(types::ndarray<T, pS> const &expr, long i);
 
     template <class E, size_t N>
-    auto item(E &&expr,
-              types::array_tuple<long, N> const &i) -> decltype(expr[i]);
+    auto item(E &&expr, types::array_tuple<long, N> const &i) -> decltype(expr[i]);
 
     // only for compatibility purpose, very bad impl
     template <class E>

@@ -26,10 +26,10 @@ namespace utils
     static const size_t value = 0;
   };
 
-#define SPECIALIZE_DIM_OF(TYPE)                                                \
-  template <>                                                                  \
-  struct dim_of<TYPE> {                                                        \
-    static const size_t value = 0;                                             \
+#define SPECIALIZE_DIM_OF(TYPE)                                                                    \
+  template <>                                                                                      \
+  struct dim_of<TYPE> {                                                                            \
+    static const size_t value = 0;                                                                 \
   }
 
   SPECIALIZE_DIM_OF(std::complex<float>);

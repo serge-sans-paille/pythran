@@ -45,19 +45,17 @@ PYTHONIC_NS_END
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<builtins::functor::bool_>::convert(builtins::functor::bool_ const &c)
+inline PyObject *to_python<builtins::functor::bool_>::convert(builtins::functor::bool_ const &c)
 {
-  return (PyObject*)&PyBool_Type;
+  return (PyObject *)&PyBool_Type;
 }
 
 inline bool from_python<builtins::functor::bool_>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject*)&PyBool_Type;
+  return obj == (PyObject *)&PyBool_Type;
 }
 
-inline builtins::functor::bool_
-from_python<builtins::functor::bool_>::convert(PyObject *obj)
+inline builtins::functor::bool_ from_python<builtins::functor::bool_>::convert(PyObject *obj)
 {
   return {};
 }

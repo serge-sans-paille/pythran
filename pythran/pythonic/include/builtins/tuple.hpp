@@ -13,25 +13,28 @@ namespace builtins
   template <class... Types>
   std::tuple<Types...> tuple(std::tuple<Types...> const &t);
 
-  inline std::tuple<> tuple() { return {}; }
+  inline std::tuple<> tuple()
+  {
+    return {};
+  }
 
   template <class Iterable> /* this is far from perfect, but how to cope with
                                the
                                difference between python tuples && c++ ones ? */
-      std::enable_if_t<
-        types::len_of<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value<0,
-        types::dynamic_tuple<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<Iterable>>::iterator>::value_type>
-      >
+      std::enable_if_t <
+      types::len_of<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value<
+          0, types::dynamic_tuple<typename std::iterator_traits<typename std::remove_cv_t<
+                 std::remove_reference_t<Iterable>>::iterator>::value_type>>
       tuple(Iterable &&i);
 
-  template <
-      class StaticIterable> /* specialization if we are capable to statically
-                               compute the size of the input */
+  template <class StaticIterable> /* specialization if we are capable to statically
+                                     compute the size of the input */
   std::enable_if_t<
       types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value >= 0,
-      types::array_tuple<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<StaticIterable>>::iterator>::value_type,
-                         types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value>
-  >
+      types::array_tuple<
+          typename std::iterator_traits<typename std::remove_cv_t<
+              std::remove_reference_t<StaticIterable>>::iterator>::value_type,
+          types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value>>
   tuple(StaticIterable &&i);
 
   DEFINE_FUNCTOR(pythonic::builtins, tuple);

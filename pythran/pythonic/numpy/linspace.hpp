@@ -12,14 +12,14 @@ namespace numpy
 {
   template <class dtype>
   types::ndarray<typename dtype::type, types::pshape<long>>
-  linspace(double start, double stop, long num, bool endpoint, bool retstep,
-           dtype d)
+  linspace(double start, double stop, long num, bool endpoint, bool retstep, dtype d)
   {
     assert(!retstep && "retstep not supported");
-    if(num <= 1) endpoint = 0;
+    if (num <= 1)
+      endpoint = 0;
     double step = 1.;
-    if(stop == start || num == 0)   // Special case, return [start] if num>0 and [] if num=0
-      stop = start + ((num>0) ? 1 : 0);
+    if (stop == start || num == 0) // Special case, return [start] if num>0 and [] if num=0
+      stop = start + ((num > 0) ? 1 : 0);
     else
       step = (stop - start) / (num - (endpoint ? 1 : 0));
     if (std::is_integral<typename dtype::type>::value)

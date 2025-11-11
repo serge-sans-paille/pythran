@@ -19,9 +19,8 @@ namespace itertools
 
     // FIXME : should be a combined_iterator_tag
     template <typename... Iters>
-    struct product_iterator
-        : std::iterator<std::forward_iterator_tag,
-                        types::make_tuple_t<typename Iters::value_type...>> {
+    struct product_iterator : std::iterator<std::forward_iterator_tag,
+                                            types::make_tuple_t<typename Iters::value_type...>> {
 
       std::tuple<typename Iters::iterator...> const it_begin;
       std::tuple<typename Iters::iterator...> const it_end;
@@ -30,11 +29,9 @@ namespace itertools
 
       product_iterator() = default;
       template <size_t... I>
-      product_iterator(std::tuple<Iters...> &_iters,
-                       std::index_sequence<I...> const &);
+      product_iterator(std::tuple<Iters...> &_iters, std::index_sequence<I...> const &);
       template <size_t... I>
-      product_iterator(npos, std::tuple<Iters...> &_iters,
-                       std::index_sequence<I...> const &);
+      product_iterator(npos, std::tuple<Iters...> &_iters, std::index_sequence<I...> const &);
       types::make_tuple_t<typename Iters::value_type...> operator*() const;
       product_iterator &operator++();
       bool operator==(product_iterator const &other) const;
@@ -51,8 +48,7 @@ namespace itertools
     };
 
     template <typename... Iters>
-    struct product : utils::iterator_reminder<true, Iters...>,
-                     product_iterator<Iters...> {
+    struct product : utils::iterator_reminder<true, Iters...>, product_iterator<Iters...> {
 
       using value_type = types::make_tuple_t<typename Iters::value_type...>;
       using iterator = product_iterator<Iters...>;
@@ -69,8 +65,7 @@ namespace itertools
   } // namespace details
 
   template <typename... Iter>
-  details::product<std::remove_cv_t<std::remove_reference_t<Iter>>...>
-  product(Iter &&...iters);
+  details::product<std::remove_cv_t<std::remove_reference_t<Iter>>...> product(Iter &&...iters);
 
   DEFINE_FUNCTOR(pythonic::itertools, product);
 } // namespace itertools
@@ -81,9 +76,8 @@ PYTHONIC_NS_END
 
 template <class E, class... Iter>
 struct __combined<E, pythonic::itertools::details::product<Iter...>> {
-  using type =
-      typename __combined<E, container<typename pythonic::itertools::details::
-                                           product<Iter...>::value_type>>::type;
+  using type = typename __combined<
+      E, container<typename pythonic::itertools::details::product<Iter...>::value_type>>::type;
 };
 
 /* } */

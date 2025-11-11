@@ -21,11 +21,11 @@ namespace builtins
   template <class Iterable>
       /* this is far from perfect, but how to cope with the
          difference between python tuples and c++ ones ? */
-      std::enable_if_t<
-        types::len_of<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value<0,
-        types::dynamic_tuple<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<Iterable>>::iterator>::value_type>
-      >
-          tuple(Iterable &&i)
+      std::enable_if_t <
+      types::len_of<std::remove_cv_t<std::remove_reference_t<Iterable>>>::value<
+          0, types::dynamic_tuple<typename std::iterator_traits<typename std::remove_cv_t<
+                 std::remove_reference_t<Iterable>>::iterator>::value_type>>
+      tuple(Iterable &&i)
   {
     return {i.begin(), i.end()};
   }
@@ -35,12 +35,17 @@ namespace builtins
      input */
   std::enable_if_t<
       types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value >= 0,
-      types::array_tuple<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<StaticIterable>>::iterator>::value_type,
-                         types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value>>
+      types::array_tuple<
+          typename std::iterator_traits<typename std::remove_cv_t<
+              std::remove_reference_t<StaticIterable>>::iterator>::value_type,
+          types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value>>
   tuple(StaticIterable &&i)
   {
-    types::array_tuple<typename std::iterator_traits<typename std::remove_cv_t<std::remove_reference_t<StaticIterable>>::iterator>::value_type,
-                       types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value> res;
+    types::array_tuple<
+        typename std::iterator_traits<typename std::remove_cv_t<
+            std::remove_reference_t<StaticIterable>>::iterator>::value_type,
+        types::len_of<std::remove_cv_t<std::remove_reference_t<StaticIterable>>>::value>
+        res;
     std::copy(i.begin(), i.end(), res.begin());
     return res;
   }
@@ -53,26 +58,24 @@ PYTHONIC_NS_END
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<builtins::functor::tuple>::convert(builtins::functor::tuple const &c)
+inline PyObject *to_python<builtins::functor::tuple>::convert(builtins::functor::tuple const &c)
 {
-  return (PyObject*)&PyTuple_Type;
+  return (PyObject *)&PyTuple_Type;
 }
 
 inline bool from_python<builtins::functor::tuple>::is_convertible(PyObject *obj)
 {
-  if(obj == (PyObject*)&PyTuple_Type)
+  if (obj == (PyObject *)&PyTuple_Type)
     return true;
-  PyObject* Origin = PyObject_GetAttrString(obj, "__origin__");
-  if(!Origin)
+  PyObject *Origin = PyObject_GetAttrString(obj, "__origin__");
+  if (!Origin)
     return false;
-  bool res = (Origin == (PyObject*)&PyTuple_Type);
+  bool res = (Origin == (PyObject *)&PyTuple_Type);
   Py_DECREF(Origin);
   return res;
 }
 
-inline builtins::functor::tuple
-from_python<builtins::functor::tuple>::convert(PyObject *obj)
+inline builtins::functor::tuple from_python<builtins::functor::tuple>::convert(PyObject *obj)
 {
   return {};
 }

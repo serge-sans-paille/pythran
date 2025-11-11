@@ -33,36 +33,30 @@ namespace numpy
               !std::is_same<Op, operator_::functor::imin>::value &&
               !std::is_same<Op, operator_::functor::imax>::value,
           std::conditional_t<
-              std::is_same<typename types::dtype_of<E>::type, bool>::value,
-              long,
-              std::conditional_t<
-                  std::is_signed<typename types::dtype_of<E>::type>::value,
-                  long, unsigned long>>,
+              std::is_same<typename types::dtype_of<E>::type, bool>::value, long,
+              std::conditional_t<std::is_signed<typename types::dtype_of<E>::type>::value, long,
+                                 unsigned long>>,
           typename types::dtype_of<E>::type>;
     };
     template <class Op, class E, class T = types::none_type>
-    using reduce_result_type =
-        typename reduce_result_type_helper<Op, E, T>::type;
+    using reduce_result_type = typename reduce_result_type_helper<Op, E, T>::type;
   } // namespace
 
   template <class Op, class E>
-  std::enable_if_t<
-      std::is_scalar<E>::value || types::is_complex<E>::value, E>
+  std::enable_if_t<std::is_scalar<E>::value || types::is_complex<E>::value, E>
   reduce(E const &expr, types::none_type _ = types::none_type());
 
   template <class Op, class E>
-  std::enable_if_t<
-      std::is_scalar<E>::value || types::is_complex<E>::value, E>
+  std::enable_if_t<std::is_scalar<E>::value || types::is_complex<E>::value, E>
   reduce(E const &array, long axis);
 
   template <class Op, class E, class dtype = types::none_type>
-  std::enable_if_t<types::is_numexpr_arg<E>::value,
-                          reduce_result_type<Op, E, dtype>>
+  std::enable_if_t<types::is_numexpr_arg<E>::value, reduce_result_type<Op, E, dtype>>
   reduce(E const &expr, types::none_type axis = {}, dtype d = {});
 
   template <class Op, class E, class dtype = types::none_type>
-  reduce_result_type<Op, E> reduce(types::numpy_texpr<E> const &expr,
-                                   types::none_type axis = {}, dtype d = {})
+  reduce_result_type<Op, E> reduce(types::numpy_texpr<E> const &expr, types::none_type axis = {},
+                                   dtype d = {})
   {
     return reduce<Op>(expr.arg, axis, d);
   }
@@ -78,14 +72,13 @@ namespace numpy
   namespace
   {
     template <class E, class Op, class dtype = types::none_type>
-    using reduced_type = types::ndarray<reduce_result_type<Op, E, dtype>,
-                                        types::array_tuple<long, E::value - 1>>;
+    using reduced_type =
+        types::ndarray<reduce_result_type<Op, E, dtype>, types::array_tuple<long, E::value - 1>>;
   }
 
   template <class Op, class E, class dtype = types::none_type>
   std::enable_if_t<E::value != 1, reduced_type<E, Op, dtype>>
-  reduce(E const &array, long axis, dtype d = {},
-         types::none_type out = types::none_type());
+  reduce(E const &array, long axis, dtype d = {}, types::none_type out = types::none_type());
 
   template <class Op, class E>
   reduced_type<E, Op> reduce(types::numpy_texpr<E> const &array, long axis,
@@ -96,8 +89,8 @@ namespace numpy
   }
 
   template <class Op, class E, class Out>
-  std::enable_if_t<E::value != 1, reduced_type<E, Op>>
-  reduce(E const &array, long axis, types::none_type dtype, Out &&out);
+  std::enable_if_t<E::value != 1, reduced_type<E, Op>> reduce(E const &array, long axis,
+                                                              types::none_type dtype, Out &&out);
 } // namespace numpy
 PYTHONIC_NS_END
 

@@ -16,15 +16,13 @@ namespace numpy
   namespace wrapper
   {
     template <class I>
-    std::enable_if_t<types::is_complex<I>::value, bool>
-    iscomplex(I const &a)
+    std::enable_if_t<types::is_complex<I>::value, bool> iscomplex(I const &a)
     {
       return a.imag() != 0.;
     }
 
     template <class I>
-    constexpr std::enable_if_t<!types::is_complex<I>::value, bool>
-    iscomplex(I const &a)
+    constexpr std::enable_if_t<!types::is_complex<I>::value, bool> iscomplex(I const &a)
     {
       return false;
     }

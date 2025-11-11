@@ -18,20 +18,17 @@ namespace functor
 {
 
   template <typename... T>
-  auto NUMPY_NARY_FUNC_NAME::operator()(T &&...args) const ->
-      std::enable_if_t<
-          !types::valid_numexpr_parameters<std::decay_t<T>...>::value,
-          decltype(NUMPY_NARY_FUNC_SYM(std::forward<T>(args)...))>
+  auto NUMPY_NARY_FUNC_NAME::operator()(T &&...args) const
+      -> std::enable_if_t<!types::valid_numexpr_parameters<std::decay_t<T>...>::value,
+                          decltype(NUMPY_NARY_FUNC_SYM(std::forward<T>(args)...))>
   {
     return NUMPY_NARY_FUNC_SYM(std::forward<T>(args)...);
   }
 
   template <class... E>
-  std::enable_if_t<
-      types::valid_numexpr_parameters<std::decay_t<E>...>::value,
-      types::numpy_expr<
-          NUMPY_NARY_FUNC_NAME,
-          typename types::NUMPY_NARY_RESHAPE_MODE<E, E...>::type...>>
+  std::enable_if_t<types::valid_numexpr_parameters<std::decay_t<E>...>::value,
+                   types::numpy_expr<NUMPY_NARY_FUNC_NAME,
+                                     typename types::NUMPY_NARY_RESHAPE_MODE<E, E...>::type...>>
   NUMPY_NARY_FUNC_NAME::operator()(E &&...args) const
   {
     return {std::forward<E>(args)...};

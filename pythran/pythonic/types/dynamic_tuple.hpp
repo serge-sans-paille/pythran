@@ -56,8 +56,7 @@ namespace types
   template <typename T>
   bool dynamic_tuple<T>::operator<(dynamic_tuple<T> const &other) const
   {
-    return std::lexicographical_compare(begin(), end(), other.begin(),
-                                        other.end(), std::less<T>());
+    return std::lexicographical_compare(begin(), end(), other.begin(), other.end(), std::less<T>());
   }
 
   template <typename T>
@@ -65,15 +64,14 @@ namespace types
   {
     if (size() == other.size() && std::equal(begin(), end(), other.begin()))
       return true;
-    return std::lexicographical_compare(begin(), end(), other.begin(),
-                                        other.end(), std::less<T>());
+    return std::lexicographical_compare(begin(), end(), other.begin(), other.end(), std::less<T>());
   }
 
   template <typename T>
   bool dynamic_tuple<T>::operator>(dynamic_tuple<T> const &other) const
   {
-    return std::lexicographical_compare(begin(), end(), other.begin(),
-                                        other.end(), std::greater<T>());
+    return std::lexicographical_compare(begin(), end(), other.begin(), other.end(),
+                                        std::greater<T>());
   }
 
   template <typename T>
@@ -81,13 +79,12 @@ namespace types
   {
     if (size() == other.size() && std::equal(begin(), end(), other.begin()))
       return true;
-    return std::lexicographical_compare(begin(), end(), other.begin(),
-                                        other.end(), std::greater<T>());
+    return std::lexicographical_compare(begin(), end(), other.begin(), other.end(),
+                                        std::greater<T>());
   }
 
   template <typename T>
-  dynamic_tuple<T>
-  dynamic_tuple<T>::operator+(dynamic_tuple<T> const &other) const
+  dynamic_tuple<T> dynamic_tuple<T>::operator+(dynamic_tuple<T> const &other) const
   {
     dynamic_tuple<T> result(begin(), end());
     result.data->resize(size() + other.size());
@@ -124,8 +121,7 @@ PYTHONIC_NS_BEGIN
 #endif
 
 template <typename T>
-PyObject *
-to_python<types::dynamic_tuple<T>>::convert(types::dynamic_tuple<T> const &t)
+PyObject *to_python<types::dynamic_tuple<T>>::convert(types::dynamic_tuple<T> const &t)
 {
   size_t N = t.size();
   PyObject *out = PyTuple_New(N);

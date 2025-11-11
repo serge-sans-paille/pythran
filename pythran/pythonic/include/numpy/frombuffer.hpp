@@ -16,8 +16,7 @@ namespace numpy
 {
   template <class dtype = functor::float64>
   types::ndarray<typename dtype::type, types::pshape<long>>
-  frombuffer(types::str const &string, dtype d = dtype(), long count = -1,
-             long offset = 0);
+  frombuffer(types::str const &string, dtype d = dtype(), long count = -1, long offset = 0);
 
   DEFINE_FUNCTOR(pythonic::numpy, frombuffer);
 } // namespace numpy

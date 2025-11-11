@@ -65,8 +65,7 @@ namespace types
   };
 
   template <class E>
-  struct array_iterator
-      : std::iterator<std::random_access_iterator_tag, typename E::value_type> {
+  struct array_iterator : std::iterator<std::random_access_iterator_tag, typename E::value_type> {
     E data;
     long index;
     array_iterator(E data, long index) : data(data), index(index)
@@ -175,15 +174,13 @@ namespace types
     typedef data_type dtype;
     static const size_t value = 1;
     static const bool is_vectorizable =
-        types::is_vectorizable_dtype<dtype>::value &&
-        !std::is_same<S, slice>::value;
+        types::is_vectorizable_dtype<dtype>::value && !std::is_same<S, slice>::value;
     static const bool is_flat = std::is_same<slice, S>::value;
     static const bool is_strided = std::is_same<slice, S>::value;
 
     using shape_t = types::array_tuple<long, value>;
     template <size_t I>
-    auto shape() const
-        -> decltype(details::extract_shape(*this, utils::int_<I>{}))
+    auto shape() const -> decltype(details::extract_shape(*this, utils::int_<I>{}))
     {
       return details::extract_shape(*this, utils::int_<I>{});
     }
@@ -202,8 +199,7 @@ namespace types
     template <size_t N, class V>
     array<T> operator+(array_base<T, N, V> const &) const;
     template <class Tp, class Sp>
-    array<typename __combined<T, Tp>::type>
-    operator+(sliced_array<Tp, Sp> const &) const;
+    array<typename __combined<T, Tp>::type> operator+(sliced_array<Tp, Sp> const &) const;
 
     // iterators
     iterator begin();
@@ -237,9 +233,8 @@ namespace types
     const_reference operator[](long i) const;
     reference operator[](long i);
     template <class Sp>
-    std::enable_if_t<
-        is_slice<Sp>::value,
-        sliced_array<T, decltype(std::declval<S>() * std::declval<Sp>())>>
+    std::enable_if_t<is_slice<Sp>::value,
+                     sliced_array<T, decltype(std::declval<S>() * std::declval<Sp>())>>
     operator[](Sp s) const;
 
     template <class... Indices>
@@ -277,8 +272,7 @@ namespace types
 
     long count(T const &x) const;
     template <class Tp, class Sp>
-    friend std::ostream &operator<<(std::ostream &os,
-                                    sliced_array<Tp, Sp> const &v);
+    friend std::ostream &operator<<(std::ostream &os, sliced_array<Tp, Sp> const &v);
   };
 
   /* array */
@@ -351,8 +345,7 @@ namespace types
     array<T> &operator=(sliced_array<Tp, S> const &other);
 
     template <class pS>
-    array &
-    operator=(ndarray<T, pshape<pS>> const &); // implemented in ndarray.hpp
+    array &operator=(ndarray<T, pshape<pS>> const &); // implemented in ndarray.hpp
 
     template <class S>
     array<T> &operator+=(sliced_array<T, S> const &other);
@@ -415,8 +408,7 @@ namespace types
     const_reference operator[](long n) const;
 
     template <class Sp>
-    std::enable_if_t<is_slice<Sp>::value, sliced_array<T, Sp>>
-    operator[](Sp const &s) const;
+    std::enable_if_t<is_slice<Sp>::value, sliced_array<T, Sp>> operator[](Sp const &s) const;
 
     template <class... Indices>
     dtype load(long index0, long index1, Indices... indices) const
@@ -465,8 +457,7 @@ namespace types
     array<typename __combined<T, F>::type> operator+(array<F> const &s) const;
 
     template <class F, class S>
-    array<decltype(std::declval<T>() +
-                   std::declval<typename sliced_array<F, S>::value_type>())>
+    array<decltype(std::declval<T>() + std::declval<typename sliced_array<F, S>::value_type>())>
     operator+(sliced_array<F, S> const &s) const;
 
     array<T> operator*(long t) const;
@@ -518,8 +509,7 @@ namespace utils
    * const_iterator type.
    */
   template <class T, class From>
-  void reserve(types::array<T> &l, From const &f,
-               typename From::const_iterator *p = nullptr);
+  void reserve(types::array<T> &l, From const &f, typename From::const_iterator *p = nullptr);
 } // namespace utils
 
 template <class T>
@@ -543,16 +533,13 @@ PYTHONIC_NS_END
 namespace std
 {
   template <size_t I, class T>
-  typename pythonic::types::array<T>::reference
-  get(pythonic::types::array<T> &t);
+  typename pythonic::types::array<T>::reference get(pythonic::types::array<T> &t);
 
   template <size_t I, class T>
-  typename pythonic::types::array<T>::const_reference
-  get(pythonic::types::array<T> const &t);
+  typename pythonic::types::array<T>::const_reference get(pythonic::types::array<T> const &t);
 
   template <size_t I, class T>
-  typename pythonic::types::array<T>::value_type
-  get(pythonic::types::array<T> &&t);
+  typename pythonic::types::array<T>::value_type get(pythonic::types::array<T> &&t);
 
   template <size_t I, class T, class S>
   typename pythonic::types::sliced_array<T, S>::reference
@@ -615,24 +602,20 @@ struct __combined<pythonic::types::array<T0>, pythonic::types::array<T1>> {
 };
 
 template <class T0, class T1, class S>
-struct __combined<pythonic::types::sliced_array<T1, S>,
-                  pythonic::types::array<T0>> {
+struct __combined<pythonic::types::sliced_array<T1, S>, pythonic::types::array<T0>> {
   typedef pythonic::types::array<typename __combined<T0, T1>::type> type;
 };
 template <class T0, class T1, class S>
-struct __combined<pythonic::types::array<T0>,
-                  pythonic::types::sliced_array<T1, S>> {
+struct __combined<pythonic::types::array<T0>, pythonic::types::sliced_array<T1, S>> {
   typedef pythonic::types::array<typename __combined<T0, T1>::type> type;
 };
 
 template <class T, size_t N, class V, class Tp>
-struct __combined<pythonic::types::array_base<T, N, V>,
-                  pythonic::types::array<Tp>> {
+struct __combined<pythonic::types::array_base<T, N, V>, pythonic::types::array<Tp>> {
   typedef pythonic::types::array<typename __combined<T, Tp>::type> type;
 };
 template <class T, size_t N, class V, class Tp>
-struct __combined<pythonic::types::array<Tp>,
-                  pythonic::types::array_base<T, N, V>> {
+struct __combined<pythonic::types::array<Tp>, pythonic::types::array_base<T, N, V>> {
   typedef pythonic::types::array<typename __combined<T, Tp>::type> type;
 };
 

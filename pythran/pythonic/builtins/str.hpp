@@ -84,19 +84,17 @@ PYTHONIC_NS_END
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<builtins::functor::str>::convert(builtins::functor::str const &c)
+inline PyObject *to_python<builtins::functor::str>::convert(builtins::functor::str const &c)
 {
-  return (PyObject*)&PyUnicode_Type;
+  return (PyObject *)&PyUnicode_Type;
 }
 
 inline bool from_python<builtins::functor::str>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject*)&PyUnicode_Type;
+  return obj == (PyObject *)&PyUnicode_Type;
 }
 
-inline builtins::functor::str
-from_python<builtins::functor::str>::convert(PyObject *obj)
+inline builtins::functor::str from_python<builtins::functor::str>::convert(PyObject *obj)
 {
   return {};
 }

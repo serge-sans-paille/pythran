@@ -14,8 +14,7 @@ namespace builtins
   {
 
     template <typename Operator, typename List0>
-    struct filter_iterator
-        : std::iterator<std::forward_iterator_tag, typename List0::value_type> {
+    struct filter_iterator : std::iterator<std::forward_iterator_tag, typename List0::value_type> {
       using sequence_type = std::remove_cv_t<std::remove_reference_t<List0>>;
 
       Operator op;
@@ -48,8 +47,7 @@ namespace builtins
     // typing is not good enough for this as arguments have
     // remove_cv_t/remove_ref_t
     template <typename Operator, typename List0>
-    struct filter : utils::iterator_reminder<false, List0>,
-                    filter_iterator<Operator, List0> {
+    struct filter : utils::iterator_reminder<false, List0>, filter_iterator<Operator, List0> {
 
       using value_type = typename List0::value_type;
       using iterator = filter_iterator<Operator, List0>;
@@ -79,9 +77,8 @@ PYTHONIC_NS_END
 
 template <class E, class Op, class T>
 struct __combined<E, pythonic::builtins::details::filter<Op, T>> {
-  using type =
-      typename __combined<E, container<typename pythonic::builtins::details::
-                                           filter<Op, T>::value_type>>::type;
+  using type = typename __combined<
+      E, container<typename pythonic::builtins::details::filter<Op, T>::value_type>>::type;
 };
 /* } */
 

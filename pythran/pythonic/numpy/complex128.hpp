@@ -34,24 +34,22 @@ namespace numpy
 PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/core.hpp"
 #include "numpy/arrayscalars.h"
+#include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<numpy::functor::complex128>::convert(numpy::functor::complex128 const &c)
+inline PyObject *to_python<numpy::functor::complex128>::convert(numpy::functor::complex128 const &c)
 {
-  return (PyObject*)&PyCDoubleArrType_Type;
+  return (PyObject *)&PyCDoubleArrType_Type;
 }
 
 inline bool from_python<numpy::functor::complex128>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject*)&PyCDoubleArrType_Type;
+  return obj == (PyObject *)&PyCDoubleArrType_Type;
 }
 
-inline numpy::functor::complex128
-from_python<numpy::functor::complex128>::convert(PyObject *obj)
+inline numpy::functor::complex128 from_python<numpy::functor::complex128>::convert(PyObject *obj)
 {
   return {};
 }

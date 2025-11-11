@@ -16,22 +16,19 @@ namespace numpy
   {
 
     template <class pS, class dtype>
-    types::ndarray<typename dtype::type, sutils::shape_t<pS>>
-    ndarray(pS const &shape, dtype)
+    types::ndarray<typename dtype::type, sutils::shape_t<pS>> ndarray(pS const &shape, dtype)
     {
       return {(sutils::shape_t<pS>)shape, builtins::None};
     }
 
     template <class dtype>
-    types::ndarray<typename dtype::type, types::pshape<long>> ndarray(long size,
-                                                                      dtype d)
+    types::ndarray<typename dtype::type, types::pshape<long>> ndarray(long size, dtype d)
     {
       return ndarray(types::pshape<long>(size), d);
     }
 
     template <long N, class dtype>
-    types::ndarray<typename dtype::type,
-                   types::pshape<std::integral_constant<long, N>>>
+    types::ndarray<typename dtype::type, types::pshape<std::integral_constant<long, N>>>
     ndarray(std::integral_constant<long, N>, dtype d)
     {
       return ndarray(types::pshape<std::integral_constant<long, N>>({}), d);

@@ -26,18 +26,14 @@ namespace functor
     NUMPY_NARY_EXTRA_METHOD
 
     template <typename... T>
-    auto operator()(T &&...args) const ->
-        std::enable_if_t<
-            !types::valid_numexpr_parameters<
-                std::decay_t<T>...>::value,
-            decltype(NUMPY_NARY_FUNC_SYM(std::forward<T>(args)...))>;
+    auto operator()(T &&...args) const
+        -> std::enable_if_t<!types::valid_numexpr_parameters<std::decay_t<T>...>::value,
+                            decltype(NUMPY_NARY_FUNC_SYM(std::forward<T>(args)...))>;
 
     template <class... E>
-    std::enable_if_t<
-        types::valid_numexpr_parameters<std::decay_t<E>...>::value,
-        types::numpy_expr<
-            NUMPY_NARY_FUNC_NAME,
-            typename types::NUMPY_NARY_RESHAPE_MODE<E, E...>::type...>>
+    std::enable_if_t<types::valid_numexpr_parameters<std::decay_t<E>...>::value,
+                     types::numpy_expr<NUMPY_NARY_FUNC_NAME,
+                                       typename types::NUMPY_NARY_RESHAPE_MODE<E, E...>::type...>>
     operator()(E &&...args) const;
 
     friend std::ostream &operator<<(std::ostream &os, NUMPY_NARY_FUNC_NAME)

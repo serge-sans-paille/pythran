@@ -41,8 +41,7 @@ namespace utils
 
   template <class T>
   struct nested_container_depth {
-    static const int value =
-        nested_container_depth_helper<T, types::is_array<T>::value>::value;
+    static const int value = nested_container_depth_helper<T, types::is_array<T>::value>::value;
   };
 
   template <class T>
@@ -114,8 +113,7 @@ namespace utils
 
   template <class T>
   struct nested_container_value_type {
-    using type = typename nested_container_value_type_helper<
-        T, types::is_array<T>::value>::type;
+    using type = typename nested_container_value_type_helper<T, types::is_array<T>::value>::type;
   };
 
   template <class T>

@@ -35,24 +35,22 @@ PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/core.hpp"
 #include "numpy/arrayscalars.h"
+#include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<numpy::functor::uint32>::convert(numpy::functor::uint32 const &c)
+inline PyObject *to_python<numpy::functor::uint32>::convert(numpy::functor::uint32 const &c)
 {
-  return (PyObject*)&PyUInt32ArrType_Type;
+  return (PyObject *)&PyUInt32ArrType_Type;
 }
 
 inline bool from_python<numpy::functor::uint32>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject*)&PyUInt32ArrType_Type;
+  return obj == (PyObject *)&PyUInt32ArrType_Type;
 }
 
-inline numpy::functor::uint32
-from_python<numpy::functor::uint32>::convert(PyObject *obj)
+inline numpy::functor::uint32 from_python<numpy::functor::uint32>::convert(PyObject *obj)
 {
   return {};
 }

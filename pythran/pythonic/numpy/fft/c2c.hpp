@@ -27,9 +27,8 @@ namespace numpy
     using ldbl_t = std::conditional_t<sizeof(long double) == sizeof(double), double, long double>;
 
     template <class T, class pS>
-    types::ndarray<
-        std::enable_if_t<std::is_integral<T>::value, double>,
-        types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::enable_if_t<std::is_integral<T>::value, double>,
+                   types::array_tuple<long, std::tuple_size<pS>::value>>
     _copy_to_double(types::ndarray<T, pS> const &in_array)
     {
       auto out_shape = sutils::getshape(in_array);
@@ -40,29 +39,25 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value,
-                                           std::complex<T>>,
+    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     _copy_to_complex(types::ndarray<T, pS> const &in_array)
     {
       auto out_shape = sutils::getshape(in_array);
       size_t l = in_array.flat_size();
-      auto out_array =
-          numpy::empty(out_shape, types::dtype_t<typename std::complex<T>>());
+      auto out_array = numpy::empty(out_shape, types::dtype_t<typename std::complex<T>>());
       std::copy(in_array.buffer, in_array.buffer + l, out_array.buffer);
       return out_array;
     }
 
     template <class T, class pS>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value,
-                                           std::complex<double>>,
+    types::ndarray<std::enable_if_t<std::is_integral<T>::value, std::complex<double>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     _copy_to_complex(types::ndarray<T, pS> const &in_array)
     {
       auto out_shape = sutils::getshape(in_array);
       size_t l = in_array.flat_size();
-      auto out_array = numpy::empty(
-          out_shape, types::dtype_t<typename std::complex<double>>());
+      auto out_array = numpy::empty(out_shape, types::dtype_t<typename std::complex<double>>());
       std::copy(in_array.buffer, in_array.buffer + l, out_array.buffer);
       return out_array;
     }
@@ -100,8 +95,8 @@ namespace numpy
     }
 
     template <typename T>
-    T norm_fct(Inorm inorm, const shape_t &shape, const shape_t &axes,
-               size_t fct = 1, int delta = 0)
+    T norm_fct(Inorm inorm, const shape_t &shape, const shape_t &axes, size_t fct = 1,
+               int delta = 0)
     {
       // Fast path
       if (inorm == Inorm::forward)
@@ -120,8 +115,8 @@ namespace numpy
       auto shape = sutils::getshape(in_array);
       stride_t strides = stride_t(N);
       strides[N - 1] = sizeof(T);
-      std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin(),
-                     strides.rbegin() + 1, std::multiplies<long>());
+      std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin(), strides.rbegin() + 1,
+                     std::multiplies<long>());
       return strides;
     }
 
@@ -129,14 +124,11 @@ namespace numpy
     types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
     _pad_in_array(types::ndarray<T, pS> const &in_array, long axis, long n)
     {
-      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
-          extended_array;
+      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>> extended_array;
       auto tmp_shape = sutils::getshape(in_array);
       tmp_shape[axis] = n;
       auto tmp_array = zeros(tmp_shape, types::dtype_t<T>());
-      types::list<types::ndarray<
-          T, types::array_tuple<long, std::tuple_size<pS>::value>>>
-          bi(0);
+      types::list<types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>> bi(0);
       bi.push_back(in_array);
       bi.push_back(tmp_array);
       extended_array = concatenate(bi, axis);
@@ -159,11 +151,10 @@ namespace numpy
       auto out_shape = sutils::getshape(in_array);
       out_shape[axis] = n;
       // Create output array.
-      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
-          out_array(out_shape, builtins::None);
+      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>> out_array(
+          out_shape, builtins::None);
       std::complex<T> *d_in;
-      types::ndarray<std::complex<T>,
-                     types::array_tuple<long, std::tuple_size<pS>::value>>
+      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
           extended_array;
       stride_t in_strides;
       auto out_strides = create_strides(out_array);
@@ -173,8 +164,8 @@ namespace numpy
         in_strides = create_strides(extended_array);
         d_in = reinterpret_cast<std::complex<T> *>(extended_array.buffer);
       } else {
-        in_strides = create_strides(
-            in_array); // for cropped arrays we need to use different strides
+        in_strides =
+            create_strides(in_array); // for cropped arrays we need to use different strides
         d_in = reinterpret_cast<std::complex<T> *>(in_array.buffer);
       }
       auto d_out = reinterpret_cast<T *>(out_array.buffer);
@@ -184,14 +175,12 @@ namespace numpy
       shape_t shapes = shape_t(size_t(N));
       std::copy(out_shape.begin(), out_shape.begin() + N, shapes.begin());
       auto fct = norm_fct<T>(inorm, shapes, axes);
-      pocketfft::c2r(shapes, in_strides, out_strides, axes, forward, d_in,
-                     d_out, fct, size_t(0));
+      pocketfft::c2r(shapes, in_strides, out_strides, axes, forward, d_in, d_out, fct, size_t(0));
       return out_array;
     }
 
     template <class T, class pS>
-    types::ndarray<std::complex<T>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
     c2c(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
         types::str const &norm, bool forward)
     {
@@ -206,12 +195,10 @@ namespace numpy
       auto out_shape = sutils::getshape(in_array);
       out_shape[axis] = n;
       // Create output array.
-      types::ndarray<std::complex<T>,
-                     types::array_tuple<long, std::tuple_size<pS>::value>>
+      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
           out_array(out_shape, builtins::None);
       std::complex<T> *d_in;
-      types::ndarray<std::complex<T>,
-                     types::array_tuple<long, std::tuple_size<pS>::value>>
+      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
           extended_array;
       stride_t in_strides;
       if (n > npts) {
@@ -221,8 +208,8 @@ namespace numpy
         in_strides = create_strides(extended_array); //
       } else {
         d_in = reinterpret_cast<std::complex<T> *>(in_array.buffer);
-        in_strides = create_strides(
-            in_array); // for cropped arrays we need to use different strides
+        in_strides =
+            create_strides(in_array); // for cropped arrays we need to use different strides
       }
       auto d_out = reinterpret_cast<std::complex<T> *>(out_array.buffer);
       // axes calculation is for 1D transform
@@ -233,17 +220,15 @@ namespace numpy
       for (size_t i = 0; i < N; ++i)
         shapes[i] = size_t(out_shape[i]);
       auto fct = norm_fct<T>(inorm, shapes, axes);
-      pocketfft::c2c(shapes, in_strides, out_strides, axes, forward, d_in,
-                     d_out, fct, size_t(0));
+      pocketfft::c2c(shapes, in_strides, out_strides, axes, forward, d_in, d_out, fct, size_t(0));
       return out_array;
     }
 
     template <class T, class pS>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value,
-                                           std::complex<T>>,
+    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
-    r2c(types::ndarray<T, pS> const &in_array, long n, long axis,
-        types::str const &norm, bool forward, bool extend = true)
+    r2c(types::ndarray<T, pS> const &in_array, long n, long axis, types::str const &norm,
+        bool forward, bool extend = true)
     {
       auto constexpr N = std::tuple_size<pS>::value;
       Inorm inorm = _get_inorm(norm, forward);
@@ -260,12 +245,10 @@ namespace numpy
         out_shape[axis] = n / 2 + 1;
       }
       // Create output array.
-      types::ndarray<std::complex<T>,
-                     types::array_tuple<long, std::tuple_size<pS>::value>>
+      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
           out_array(out_shape, builtins::None);
       T *d_in;
-      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
-          extended_array;
+      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>> extended_array;
       shape_t shapes = shape_t(size_t(N));
       stride_t in_strides;
       if (n > npts) {
@@ -279,8 +262,8 @@ namespace numpy
         d_in = reinterpret_cast<T *>(in_array.buffer);
         in_shape[axis] = n;
         std::copy(in_shape.begin(), in_shape.begin() + N, shapes.begin());
-        in_strides = create_strides(
-            in_array); // for cropped arrays we need to use different strides
+        in_strides =
+            create_strides(in_array); // for cropped arrays we need to use different strides
       }
       auto d_out = reinterpret_cast<std::complex<T> *>(out_array.buffer);
       // axes calculation is for 1D transform
@@ -288,8 +271,7 @@ namespace numpy
       axes[0] = axis;
       auto out_strides = create_strides(out_array);
       auto fct = norm_fct<T>(inorm, shapes, axes);
-      pocketfft::r2c(shapes, in_strides, out_strides, axes, forward, d_in,
-                     d_out, fct, size_t(0));
+      pocketfft::r2c(shapes, in_strides, out_strides, axes, forward, d_in, d_out, fct, size_t(0));
       if (extend) {
         using namespace pocketfft::detail;
         ndarr<std::complex<T>> ares(out_array.buffer, shapes, out_strides);

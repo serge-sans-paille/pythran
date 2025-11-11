@@ -19,8 +19,7 @@ namespace numpy
     }
 
     template <class T>
-    types::ndarray<T, types::pshape<long>> as_array(types::pointer<T> ptr,
-                                                    long size)
+    types::ndarray<T, types::pshape<long>> as_array(types::pointer<T> ptr, long size)
     {
       return as_array(ptr, types::pshape<long>{size});
     }

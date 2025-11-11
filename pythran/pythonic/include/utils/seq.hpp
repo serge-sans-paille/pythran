@@ -11,13 +11,15 @@ namespace utils
   namespace details
   {
 
-    template<class T, T... Is>
-    constexpr std::integer_sequence<T, (sizeof...(Is) -1 - Is)...> reverse_integer_sequence(std::integer_sequence<T, Is...>);
+    template <class T, T... Is>
+    constexpr std::integer_sequence<T, (sizeof...(Is) - 1 - Is)...>
+        reverse_integer_sequence(std::integer_sequence<T, Is...>);
 
   } // namespace details
 
   template <class T, std::size_t N>
-  using make_reversed_integer_sequence = decltype(details::reverse_integer_sequence(std::make_integer_sequence<T, N>()));
+  using make_reversed_integer_sequence =
+      decltype(details::reverse_integer_sequence(std::make_integer_sequence<T, N>()));
   template <std::size_t N>
   using make_reversed_index_sequence = make_reversed_integer_sequence<std::size_t, N>;
 

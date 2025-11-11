@@ -2,13 +2,13 @@
 #ifndef PYTHONIC_CORE_HPP
 #define PYTHONIC_CORE_HPP
 
-#define PYTHONIC_NS_BEGIN                                                      \
-  namespace                                                                    \
-  {                                                                            \
-    namespace pythonic                                                         \
+#define PYTHONIC_NS_BEGIN                                                                          \
+  namespace                                                                                        \
+  {                                                                                                \
+    namespace pythonic                                                                             \
     {
-#define PYTHONIC_NS_END                                                        \
-  }                                                                            \
+#define PYTHONIC_NS_END                                                                            \
+  }                                                                                                \
   }
 
 // mostly to flag '_' as unused in generated code

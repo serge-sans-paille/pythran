@@ -15,8 +15,7 @@ namespace builtins
     {
       return {types::none<long>(), stop};
     }
-    inline types::cstride_slice<1> slice(types::none<long> start,
-                                         types::none<long> stop)
+    inline types::cstride_slice<1> slice(types::none<long> start, types::none<long> stop)
     {
       return {start, stop};
     }
@@ -35,19 +34,17 @@ PYTHONIC_NS_END
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<builtins::functor::slice>::convert(builtins::functor::slice const &c)
+inline PyObject *to_python<builtins::functor::slice>::convert(builtins::functor::slice const &c)
 {
-  return (PyObject*)&PySlice_Type;
+  return (PyObject *)&PySlice_Type;
 }
 
 inline bool from_python<builtins::functor::slice>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject*)&PySlice_Type;
+  return obj == (PyObject *)&PySlice_Type;
 }
 
-inline builtins::functor::slice
-from_python<builtins::functor::slice>::convert(PyObject *obj)
+inline builtins::functor::slice from_python<builtins::functor::slice>::convert(PyObject *obj)
 {
   return {};
 }

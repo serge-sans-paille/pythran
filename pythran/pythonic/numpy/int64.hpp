@@ -35,24 +35,22 @@ namespace numpy
 PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/core.hpp"
 #include "numpy/arrayscalars.h"
+#include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<numpy::functor::int64>::convert(numpy::functor::int64 const &c)
+inline PyObject *to_python<numpy::functor::int64>::convert(numpy::functor::int64 const &c)
 {
-  return (PyObject*)&PyInt64ArrType_Type;
+  return (PyObject *)&PyInt64ArrType_Type;
 }
 
 inline bool from_python<numpy::functor::int64>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject*)&PyInt64ArrType_Type;
+  return obj == (PyObject *)&PyInt64ArrType_Type;
 }
 
-inline numpy::functor::int64
-from_python<numpy::functor::int64>::convert(PyObject *obj)
+inline numpy::functor::int64 from_python<numpy::functor::int64>::convert(PyObject *obj)
 {
   return {};
 }

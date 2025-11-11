@@ -11,8 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  types::none_type fill_diagonal(E &&expr,
-                                 typename std::decay_t<E>::dtype fill_value)
+  types::none_type fill_diagonal(E &&expr, typename std::decay_t<E>::dtype fill_value)
   {
     constexpr auto N = std::decay_t<E>::value;
     types::array_tuple<long, N> indices;

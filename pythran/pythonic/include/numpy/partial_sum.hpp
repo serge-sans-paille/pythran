@@ -14,21 +14,18 @@ namespace numpy
       std::declval<typename std::remove_reference_t<E>::dtype>()))>;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
-  types::ndarray<typename dtype::type, types::pshape<long>>
-  partial_sum(E const &expr, dtype d = dtype());
+  types::ndarray<typename dtype::type, types::pshape<long>> partial_sum(E const &expr,
+                                                                        dtype d = dtype());
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
-  auto partial_sum(E const &expr, long axis, dtype d = dtype()) ->
-      std::enable_if_t<E::value == 1,
-                              decltype(partial_sum<Op, E, dtype>(expr))>;
+  auto partial_sum(E const &expr, long axis, dtype d = dtype())
+      -> std::enable_if_t<E::value == 1, decltype(partial_sum<Op, E, dtype>(expr))>;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
-  using partial_sum_type =
-      types::ndarray<typename dtype::type, types::array_tuple<long, E::value>>;
+  using partial_sum_type = types::ndarray<typename dtype::type, types::array_tuple<long, E::value>>;
   template <class Op, class E, class dtype = result_dtype<Op, E>>
   using partial_sum_type2 =
-      types::ndarray<typename dtype::type,
-                     types::array_tuple<long, E::value - 1>>;
+      types::ndarray<typename dtype::type, types::array_tuple<long, E::value - 1>>;
 
   template <class Op, class E, class dtype = result_dtype<Op, E>>
   std::enable_if_t<E::value != 1, partial_sum_type<Op, E, dtype>>

@@ -32,13 +32,11 @@ template <class T0, class T1>
 struct __combined<T0, T1> {
   // callable -> functor
   template <class F0, class F1>
-  static pythonic::types::variant_functor<F0, F1>
-      get(std::integral_constant<bool, true>);
+  static pythonic::types::variant_functor<F0, F1> get(std::integral_constant<bool, true>);
 
   // operator+ exists -> deduce type
   template <class F0, class F1>
-  static decltype(std::declval<F0>() +
-                  std::declval<F1>()) get(std::integral_constant<bool, false>);
+  static decltype(std::declval<F0>() + std::declval<F1>()) get(std::integral_constant<bool, false>);
 
   // operator+ does not exists -> pick first one, better than error
   // note that this is needed because broadcasting is too complex to be modeled
@@ -53,10 +51,9 @@ struct __combined<T0, T1> {
 
   using type = std::conditional_t<
       std::is_same<T0, T1>::value, T0,
-      decltype(get<T0, T1>(std::integral_constant < bool,
-                           pythonic::types::is_callable<T0>::value
-                                   &&pythonic::types::is_callable<T1>::value >
-                               ()))>;
+      decltype(get<T0, T1>(
+          std::integral_constant<bool, pythonic::types::is_callable<T0>::value &&
+                                           pythonic::types::is_callable<T1>::value>()))>;
 };
 
 template <class T0, class T1>
@@ -68,7 +65,7 @@ struct __combined<T0, const T1> : std::add_const<typename __combined<T0, T1>::ty
 };
 
 template <class T0, class T1>
-struct __combined<T0 &, T1> :  __combined<T0, T1> {
+struct __combined<T0 &, T1> : __combined<T0, T1> {
 };
 
 template <class T0, class T1>
@@ -144,7 +141,8 @@ struct __combined<const T0, const T1> : std::add_const<typename __combined<T0, T
 };
 
 template <class T0, class T1>
-struct __combined<const T0 &, const T1 &> : std::add_lvalue_reference<typename std::add_const<typename __combined<T0, T1>::type>::type> {
+struct __combined<const T0 &, const T1 &>
+    : std::add_lvalue_reference<typename std::add_const<typename __combined<T0, T1>::type>::type> {
 };
 
 template <class T>
@@ -157,12 +155,13 @@ private:
   container();
 };
 
-namespace std {
+namespace std
+{
   template <size_t I, class T>
   struct tuple_element<I, container<T>> {
     using type = typename container<T>::value_type;
   };
-}
+} // namespace std
 
 template <class K, class V>
 class indexable_container
@@ -175,12 +174,13 @@ private:
   indexable_container();
 };
 
-namespace std {
+namespace std
+{
   template <size_t I, class K, class V>
   struct tuple_element<I, indexable_container<K, V>> {
     using type = typename indexable_container<K, V>::value_type;
   };
-}
+} // namespace std
 
 template <class T>
 class dict_container
@@ -192,12 +192,13 @@ private:
   dict_container();
 };
 
-namespace std {
+namespace std
+{
   template <size_t I, class T>
   struct tuple_element<I, dict_container<T>> {
     using type = typename dict_container<T>::value_type;
   };
-}
+} // namespace std
 
 template <class T>
 class indexable
@@ -221,8 +222,8 @@ private:
 
 template <class K0, class V0, class K1, class V1>
 struct __combined<indexable_container<K0, V0>, indexable_container<K1, V1>> {
-  using type = indexable_container<typename __combined<K0, K1>::type,
-                                   typename __combined<V0, V1>::type>;
+  using type =
+      indexable_container<typename __combined<K0, K1>::type, typename __combined<V0, V1>::type>;
 };
 
 template <class K, class V>
@@ -288,10 +289,10 @@ struct __combined<pythonic::types::variant_functor<Types0...>,
 /* } */
 
 /* mimic numpy behavior { */
-#define SCALAR_COMBINER(Type)                                                  \
-  template <>                                                                  \
-  struct __combined<Type, Type> {                                              \
-    using type = Type;                                                         \
+#define SCALAR_COMBINER(Type)                                                                      \
+  template <>                                                                                      \
+  struct __combined<Type, Type> {                                                                  \
+    using type = Type;                                                                             \
   };
 SCALAR_COMBINER(bool)
 SCALAR_COMBINER(uint8_t)

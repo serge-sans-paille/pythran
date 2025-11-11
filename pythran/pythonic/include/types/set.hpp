@@ -106,14 +106,12 @@ struct __combined<pythonic::types::set<V>, indexable<K>> {
 
 template <class K, class V1, class V2>
 struct __combined<indexable_container<K, V1>, pythonic::types::set<V2>> {
-  using type =
-      pythonic::types::set<decltype(std::declval<V1>() + std::declval<V2>())>;
+  using type = pythonic::types::set<decltype(std::declval<V1>() + std::declval<V2>())>;
 };
 
 template <class K, class V1, class V2>
 struct __combined<pythonic::types::set<V2>, indexable_container<K, V1>> {
-  using type =
-      pythonic::types::set<decltype(std::declval<V1>() + std::declval<V2>())>;
+  using type = pythonic::types::set<decltype(std::declval<V1>() + std::declval<V2>())>;
 };
 
 template <class T0, class T1>
@@ -135,8 +133,7 @@ namespace types
     // data holder
     using _type = std::remove_cv_t<std::remove_reference_t<T>>;
     using container_type =
-        std::unordered_set<_type, std::hash<_type>, std::equal_to<_type>,
-                           utils::allocator<_type>>;
+        std::unordered_set<_type, std::hash<_type>, std::equal_to<_type>, utils::allocator<_type>>;
     utils::shared_ref<container_type> data;
 
   public:
@@ -204,8 +201,7 @@ namespace types
     set<T> union_() const;
 
     template <typename U, typename... Types>
-    typename __combined<set<T>, U, Types...>::type
-    union_(U &&other, Types &&...others) const;
+    typename __combined<set<T>, U, Types...>::type union_(U &&other, Types &&...others) const;
 
     template <typename... Types>
     none_type update(Types &&...others);
@@ -213,8 +209,8 @@ namespace types
     set<T> intersection() const;
 
     template <typename U, typename... Types>
-    typename __combined<set<T>, U, Types...>::type
-    intersection(U const &other, Types const &...others) const;
+    typename __combined<set<T>, U, Types...>::type intersection(U const &other,
+                                                                Types const &...others) const;
 
     template <typename... Types>
     void intersection_update(Types const &...others);
@@ -231,12 +227,10 @@ namespace types
     void difference_update(Types const &...others);
 
     template <typename U>
-    set<typename __combined<T, U>::type>
-    symmetric_difference(set<U> const &other) const;
+    set<typename __combined<T, U>::type> symmetric_difference(set<U> const &other) const;
 
     template <typename U>
-    typename __combined<U, set<T>>::type
-    symmetric_difference(U const &other) const;
+    typename __combined<U, set<T>>::type symmetric_difference(U const &other) const;
 
     template <typename U>
     void symmetric_difference_update(U const &other);

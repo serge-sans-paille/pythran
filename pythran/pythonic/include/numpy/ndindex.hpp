@@ -13,10 +13,9 @@ namespace numpy
   template <size_t N>
   struct ndindex_iterator
       : std::iterator<
-            std::random_access_iterator_tag, types::array_tuple<long, N>,
-            ptrdiff_t, types::array_tuple<long, N> *,
-            types::array_tuple<
-                long, N> /* reference_type, but no reference is possible*/> {
+            std::random_access_iterator_tag, types::array_tuple<long, N>, ptrdiff_t,
+            types::array_tuple<long, N> *,
+            types::array_tuple<long, N> /* reference_type, but no reference is possible*/> {
     long index;
     types::array_tuple<long, N> shape;
     ndindex_iterator();

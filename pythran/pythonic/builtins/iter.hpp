@@ -48,8 +48,7 @@ namespace builtins
   /// iter implementation
 
   template <class T>
-  details::iter<std::remove_cv_t<std::remove_reference_t<T>>>
-  iter(T &&t)
+  details::iter<std::remove_cv_t<std::remove_reference_t<T>>> iter(T &&t)
   {
     return {std::forward<T>(t)};
   }

@@ -84,13 +84,13 @@ def has_argument(module, fname):
 
 
 def front_middle_end(module_name, code, optimizations=None, module_dir=None,
-                     entry_points=None, report_times = False):
+                     entry_points=None, pkgs=None, report_times=False):
     """Front-end and middle-end compilation steps"""
 
     pm = PassManager(module_name, module_dir, code)
 
     # front end
-    ir, docstrings = frontend.parse(pm, code)
+    ir, docstrings = frontend.parse(pm, code, pkgs)
 
     if entry_points is not None:
         ir = mark_unexported_functions(ir, entry_points)
@@ -135,7 +135,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
     pm, ir, docstrings = front_middle_end(module_name, code, optimizations,
                                           module_dir,
                                           report_times=report_times,
-                                          entry_points=entry_points)
+                                          entry_points=entry_points,
+                                          pkgs=getattr(specs, 'pkgs', None))
 
     # back-end
     content = pm.dump(Cxx, ir)

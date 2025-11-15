@@ -9,7 +9,7 @@ from pythran.errors import PythranInternalError
 from pythran.passmanager import ModuleAnalysis
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE
 from pythran.utils import get_variable
-from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun, Type
+from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun, Type, Pkg
 from pythran.graph import DiGraph
 
 
@@ -42,6 +42,8 @@ def pytype_to_deps_hpp(t):
         return {'cfun.hpp'}.union(*[pytype_to_deps_hpp(a) for a in t.__args__])
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return {'{}.hpp'.format(t.__name__)}
+    elif isinstance(t, Pkg):
+        return {f'pkg/{t.name}.hpp'}
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))
 

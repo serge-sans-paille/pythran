@@ -4,7 +4,7 @@ from numpy import int8, int16, int32, int64, intp, intc
 from numpy import uint8, uint16, uint32, uint64, uintp, uintc
 from numpy import float64, float32, complex64, complex128
 import numpy
-from pythran.typing import List, Dict, Set, Tuple, NDArray, Pointer, Fun, Type
+from pythran.typing import List, Dict, Set, Tuple, NDArray, Pointer, Fun, Type, Pkg
 
 PYTYPE_TO_CTYPE_TABLE = {
     numpy.uint: 'npy_uint',
@@ -110,6 +110,8 @@ def pytype_to_ctype(t):
         )
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return PYTYPE_TO_CTYPE_TABLE[t]
+    elif isinstance(t, Pkg):
+        return f'pythonic::types::pkg::{t.name}'
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))
 
@@ -155,5 +157,7 @@ def pytype_to_pretty_type(t):
         return '{}({})'.format(rtype, ", ".join(argtypes))
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return t.__name__
+    elif isinstance(t, Pkg):
+        return f'{t.name} pkg'
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))

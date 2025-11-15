@@ -146,5 +146,10 @@ class File(object):
     pass
 
 
+class Pkg(object):
+    def __init__(self, name):
+        self.name = name
+
+
 class Type(TypeBase, metaclass=TypeMeta):
     pass

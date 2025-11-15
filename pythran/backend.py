@@ -1106,7 +1106,10 @@ class CxxFunction(ast.NodeVisitor):
         if node.id in self.local_names:
             return cxxid(node.id)
         elif node.id in self.global_declarations:
-            return "{0}()".format(cxxid(node.id))
+            if isinstance(self.types[node], self.types.builder.PkgRefType):
+                return f"{self.types[node].generate(None)}{{}}"
+            else:
+                return "{0}()".format(cxxid(node.id))
         else:
             return cxxid(node.id)
 

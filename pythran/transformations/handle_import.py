@@ -171,8 +171,14 @@ class HandleImport(Transformation):
     def visit_Name(self, node):
         if isinstance(node.ctx, ast.Load):
             renaming = self.lookup(node.id)
-            if renaming:
-                node.id = renaming
+            # do not rename direct reference to package
+            if not renaming:
+                return node
+            if is_mangled_module(renaming):
+                base_module = demangle(renaming)
+                if is_builtin_module(base_module):
+                    return node
+            node.id = renaming
         elif isinstance(node.ctx, (ast.Store, ast.Param)):
             self.identifiers[-1][node.id] = node.id
         elif isinstance(node.ctx, ast.Del):

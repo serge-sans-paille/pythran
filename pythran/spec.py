@@ -10,7 +10,7 @@ import re
 import ply.lex as lex
 import ply.yacc as yacc
 
-from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun, Type
+from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun, Type, Pkg
 from pythran.syntax import PythranSyntaxError
 from pythran.config import cfg
 
@@ -84,10 +84,11 @@ class Spec(object):
     ``capsule'' is a mapping from function name to signature
     '''
 
-    def __init__(self, functions, capsules=None, ufuncs=None):
+    def __init__(self, functions, capsules=None, ufuncs=None, pkgs=None):
         self.functions = dict(functions)
         self.capsules = capsules or dict()
         self.ufuncs = ufuncs or dict()
+        self.pkgs = pkgs or dict()
 
         # normalize function signatures
         for fname, signatures in functions.items():
@@ -174,6 +175,7 @@ class SpecParser(object):
         'tuple': 'TUPLE',
         'set': 'SET',
         'dict': 'DICT',
+        'pkg': 'PKG',
         'slice': 'SLICE',
         'str': 'STR',
         'None': 'NONE',
@@ -309,7 +311,18 @@ class SpecParser(object):
                        | type OPT
                        | type COMMA
                        | type COMMA param_types
-                       | type OPT COMMA default_types'''
+                       | type OPT COMMA default_types
+                       | pkg
+                       | pkg COMMA
+                       | pkg COMMA param_types'''
+
+    def p_pkg(self, p):
+        if len(p) == 3:
+            p[0] = Pkg(p[1]),
+        else:
+            raise self.PythranSpecIdentifierError(p[1], p.lexpos(1))
+    p_pkg.__doc__ = '''pkg : IDENTIFIER PKG
+                           | IDENTIFIER'''
 
     def p_default_types(self, p):
         if len(p) == 3:
@@ -519,6 +532,7 @@ class SpecParser(object):
         self.exports = defaultdict(tuple)
         self.native_exports = defaultdict(tuple)
         self.ufunc_exports = defaultdict(tuple)
+        self.pkgs = dict()
         self.export_info = defaultdict(tuple)
         self.input_text = text
         self.input_file = input_file
@@ -573,7 +587,18 @@ class SpecParser(object):
                         loc = self.export_info[key][i]
                         raise self.PythranSpecError(msg, loc)
 
-        return Spec(self.exports, self.native_exports, self.ufunc_exports)
+            if any(isinstance(ty, Pkg) for overload in overloads for ty in overload):
+                pkg_signatures = {tuple((i, ty.name) for i, ty in enumerate(overload) if
+                                isinstance(ty, Pkg))
+                               for overload in overloads}
+                if len(pkg_signatures) != 1:
+                    loc = self.export_info[key][-1]
+                    raise self.PythranSpecError(f"export overloads for {key} contains incompatible `pkg` arguments", loc)
+
+                pkg_signature = next(iter(pkg_signatures))
+                self.pkgs[key] = pkg_signature
+
+        return Spec(self.exports, self.native_exports, self.ufunc_exports, self.pkgs)
 
 
 class ExtraSpecParser(SpecParser):

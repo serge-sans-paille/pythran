@@ -4747,11 +4747,15 @@ save_function(MODULES, ())
 # {attribute_name : ((full module path), signature)}
 attributes = {}
 
+# {subpackage_name : [((full module path), signature)]}
+subpackages = {}
+
 
 def save_attribute(elements, module_path):
     """ Recursively save attributes with module name and signature. """
     for elem, signature in elements.items():
         if isinstance(signature, dict):  # Submodule case
+            subpackages.setdefault(elem, []).append((module_path, signature,))
             save_attribute(signature, module_path + (elem,))
         elif signature.isattribute():
             assert elem not in attributes  # we need unicity

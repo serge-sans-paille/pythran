@@ -857,3 +857,11 @@ def test_expr_cast(x):
     return out'''
         self.run_test(code, np.ones((1,1), dtype=np.float32),
                       test_expr_cast=[NDArray[np.float32, :, :]])
+
+    def test_package_inference0(self):
+        code = 'import numpy\ndef package_inference0(x, p=None):\n if p is None: p = numpy\n return p.cos(x), p.ones(1)'
+        return self.run_test(code, 1., package_inference0=[float])
+
+    def test_package_inference1(self):
+        code = 'import numpy\ndef package_inference1(x, p=None):\n if p is None: p = numpy\n return (p.zeros if x else p.ones)(x)'
+        return self.run_test(code, 1, package_inference1=[int])

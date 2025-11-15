@@ -482,6 +482,10 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
 
         self.result[node] = self.combined(curr_ty, ty)
 
+    def visit_Import(self, node):
+        for alias in node.names:
+            self.current_global_declarations[alias.asname or alias.name] = self.builder.PkgType(alias.name)
+
     def visit_FunctionDef(self, node):
         self.delayed_nodes = set()
         self.curr_locals_declaration = self.gather(
@@ -824,8 +828,11 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         if node.id in self.name_to_nodes:
             self.result[node] = self.delayed(node)
         elif node.id in self.current_global_declarations:
-            newtype = self.builder.NamedType(
-                self.current_global_declarations[node.id].name)
+            node_ty = self.current_global_declarations[node.id]
+            if isinstance(node_ty, self.builder.PkgType):
+                newtype = self.builder.PkgRefType(node_ty.name)
+            else:
+                newtype = self.builder.NamedType(node_ty.name)
             if node not in self.result:
                 self.result[node] = newtype
         else:

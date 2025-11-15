@@ -217,6 +217,7 @@ Constructed types are either tuples, introduced by parenthesis, like ``(int,
                   | argument_type [:,...,3]+          # a ndarray, some dimension fixed
                   | argument_type:argument_type dict  # a dictionary
                   | argument_type type                # a type
+                  | package_name pkg                  # a package name
 
     basic_type = bool | byte | int | float | str | None | slice
                | uint8 | uint16 | uint32 | uint64 | uintp
@@ -305,6 +306,31 @@ parameter, but also types. It can be useful to write generic functions such as
 .. note::
 
    Container type, as in ``set type`` don't hold any information about their subtype.
+
+Concerning the ``pkg`` specification
+************************************
+
+When exporting a function that takes a ``pkg`` argument, as in
+
+.. code-block:: python
+
+   #pythran export compute(float[], numpy pkg)
+   def compute(a, xp):
+       return xp.cos(a)
+
+Pythran actually transforms your code so that any package passed as ``pkg``
+argument is named according to the specification (in our example, the name of
+the package has to be ``numpy``).
+
+There currently are several restrictions though:
+
+1. The same function cannot be exported with different package names (*a.k.a.* no
+   overloads based on the package name). This is valid for exported and non
+   exported functions.
+
+2. The package argument can only be used as an attribute root, or as a
+   non-keyword argument to other user function.
+
 
 When Pythran needs a little help: type annotation
 *************************************************

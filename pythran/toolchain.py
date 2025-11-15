@@ -11,6 +11,7 @@ from pythran.cxxgen import ReturnStatement
 from pythran.errors import PythranCompileError
 from pythran.middlend import refine, mark_unexported_functions
 from pythran.passmanager import PassManager
+from pythran.preprocessor import infer_packages
 from pythran.tables import pythran_ward
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
@@ -84,13 +85,16 @@ def has_argument(module, fname):
 
 
 def front_middle_end(module_name, code, optimizations=None, module_dir=None,
-                     entry_points=None, report_times = False):
+                     entry_points=None, pkgs=None, report_times=False):
     """Front-end and middle-end compilation steps"""
 
     pm = PassManager(module_name, module_dir, code)
 
     # front end
     ir, docstrings = frontend.parse(pm, code)
+
+    # Infer package passed as arguments etc.
+    ir = infer_packages(ir, pkgs)
 
     if entry_points is not None:
         ir = mark_unexported_functions(ir, entry_points)
@@ -107,14 +111,15 @@ def front_middle_end(module_name, code, optimizations=None, module_dir=None,
 # PUBLIC INTERFACE STARTS HERE
 
 
-def generate_py(module_name, code, optimizations=None, module_dir=None, report_times=False):
+def generate_py(module_name, code, specs=None, optimizations=None, module_dir=None, report_times=False):
     '''python + pythran spec -> py code
 
     Prints and returns the optimized python code.
 
     '''
 
-    pm, ir, _ = front_middle_end(module_name, code, optimizations, module_dir, report_times=report_times)
+    pm, ir, _ = front_middle_end(module_name, code, optimizations, module_dir, report_times=report_times,
+                                 pkgs=getattr(specs, 'pkgs', None))
     return pm.dump(Python, ir)
 
 
@@ -135,7 +140,8 @@ def generate_cxx(module_name, code, specs=None, optimizations=None,
     pm, ir, docstrings = front_middle_end(module_name, code, optimizations,
                                           module_dir,
                                           report_times=report_times,
-                                          entry_points=entry_points)
+                                          entry_points=entry_points,
+                                          pkgs=getattr(specs, 'pkgs', None))
 
     # back-end
     content = pm.dump(Cxx, ir)
@@ -423,9 +429,15 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
     otherwise, return the generated native library filename
     '''
 
+    from pythran.spec import spec_parser
+    # Autodetect the Pythran spec if not given as parameter
+    if specs is None:
+        specs = spec_parser(pythrancode)
+
+
     if pyonly:
         # Only generate the optimized python code
-        content = generate_py(module_name, pythrancode, opts, module_dir, report_times)
+        content = generate_py(module_name, pythrancode, specs, opts, module_dir, report_times)
         if output_file is None:
             print(content)
             return None
@@ -434,11 +446,6 @@ def compile_pythrancode(module_name, pythrancode, specs=None,
             output_file = output_file.format('.py')
             shutil.move(tmp_file, output_file)
             logger.info("Generated Python source file: " + output_file)
-
-    # Autodetect the Pythran spec if not given as parameter
-    from pythran.spec import spec_parser
-    if specs is None:
-        specs = spec_parser(pythrancode)
 
     # Generate C++, get a PythonModule object
     module, error_checker = generate_cxx(module_name, pythrancode, specs, opts,

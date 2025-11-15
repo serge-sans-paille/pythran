@@ -175,3 +175,32 @@ coo = 1
 def foo(n): return n
             '''
         self.assertTrue(pythran.spec_parser(code))
+
+    def test_pkg_spec0(self):
+        code = '''
+#      pythran export pkg0(numpy pkg)
+def pkg0(np): return np.cos(1)
+            '''
+        self.assertTrue(pythran.spec_parser(code))
+
+    def test_pkg_spec1(self):
+        code = '''
+#      pythran export pkg1(math pkg)
+def pkg1(np): return np.cos(1)
+            '''
+        self.assertTrue(pythran.spec_parser(code))
+
+    def test_pkg_spec2(self):
+        code = '''
+#      pythran export pkg2(math pkg, numpy pkg)
+def pkg2(m, np): return m.cos(1), np.cos(1)
+            '''
+        self.assertTrue(pythran.spec_parser(code))
+
+    def test_pkg_spec3(self):
+        code = '''#pythran export pkg3(numpy pkg)
+#pythran export pkg3(math pkg)
+def pkg3(mnp): return mnp.cos(1)
+            '''
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as e:
+            pythran.spec_parser(code)

@@ -3,7 +3,8 @@
 """
 
 from pythran.openmp import GatherOMPData
-from pythran.syntax import check_syntax
+from pythran.syntax import check_syntax, PythranSyntaxError
+from pythran.tables import pythran_ward
 from pythran.transformations import ExtractDocStrings, HandleImport
 
 import gast as ast
@@ -15,7 +16,6 @@ def raw_parse(code):
     code = re.sub(r'(\s*)#\s*(omp\s[^\n]+)', r'\1"\2"', code)
 
     return ast.parse(code)
-
 
 def parse(pm, code):
 

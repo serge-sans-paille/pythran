@@ -1,3 +1,31 @@
+0.18.1 2025-11-15 Serge Guelton <sergesanspaille@free.fr>
+
+	* Add support for passing types as pythran export parameters, esp. to pass
+	  dtype parameters to numpy arrays
+
+	* Improve the normalization pass that removes keyword parameter
+
+	* Move default compiler flag to C++14, modernize the codebase accordingly
+
+	* Use std::unordered_set instead of std::set as set backend
+
+	* Stable API support, for CPython 3.7+
+
+	* Fix ufunc support
+
+	* Add support for generation of .abi3.* limited api extensions
+
+	* Obsolete support of numpy.distutils for python 3.9
+
+	* Improve interactions with numpy.nditerator
+
+	* Support numpy.frombuffer
+
+	* Update numpy.fromstring support to match numpy's change
+
+	* Avoid internal conflict between ndarray (the function) and ndarray (the
+	  namespace)
+
 0.18.0 2025-05-31 Serge Guelton <sergesanspaille@free.fr>
 
 	* Basic support for type annotation, used as a substitute to type inference

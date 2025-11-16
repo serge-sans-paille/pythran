@@ -72,11 +72,29 @@ class TestSpecParser(unittest.TestCase):
         with self.assertRaises(pythran.syntax.PythranSyntaxError):
             pythran.compile_pythrancode("dumber", code)
 
+    def test_invalid_specs6(self):
+        code = '#pythran export bar(int[] order(UNSUPPORTED))\ndef bar(x):pass'
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as e:
+            pythran.compile_pythrancode("dumber", code)
+        self.assertIn('UNSUPPORTED', e.exception.msg)
+
+    def test_invalid_specs7(self):
+        code = '#pythran export bar(int[]\ndef bar(x):pass'
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as e:
+            pythran.compile_pythrancode("dumber", code)
+        self.assertIn('Unterminated', e.exception.msg)
+
+    def test_invalid_specs8(self):
+        code = '#pythran export bar(int[] order(F))\ndef bar(x):pass'
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as e:
+            pythran.compile_pythrancode("dumber", code)
+        self.assertIn('F order is only valid for 2D plain arrays', e.exception.msg)
+
     def test_invalid_specs_with_hint(self):
         code = '#pythran export bar(double)\ndef bar(x):pass'
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as e:
             pythran.compile_pythrancode("dumber", code)
-        self.assertTrue('float64' in e.exception.msg)
+        self.assertIn('float64', e.exception.msg)
 
     def test_multiline_spec0(self):
         code = '''

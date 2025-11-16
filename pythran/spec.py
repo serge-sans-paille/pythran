@@ -72,6 +72,10 @@ def istransposable(t):
     return all(s.step == 1 for s in t.__args__[1:])
 
 
+class PythranSyntaxErrorWrapper(RuntimeError):
+    def __init__(self, e):
+        self.e = e
+
 class Spec(object):
     '''
     Result of spec parsing.
@@ -357,7 +361,7 @@ class SpecParser(object):
                     if not istransposable(nd):
                         msg = ("Invalid Pythran spec. F order is only valid "
                                "for 2D plain arrays")
-                        self.p_error(p, msg)
+                        raise self.PythranSpecError(msg, p.lexpos(1))
                 p[0] = tuple(NDArray[nd.__args__[0], -1::, -1::]
                              for nd in p[1])
             else:
@@ -377,7 +381,7 @@ class SpecParser(object):
             p[0] = p[2]
         else:
             msg = "Invalid Pythran spec. Unknown text '{0}'".format(p.value)
-            self.p_error(p, msg)
+            raise self.PythranSpecError(msg, p.lexpos(1))
 
     p_type.__doc__ = '''type : term
                 | array_type opt_order
@@ -401,7 +405,7 @@ class SpecParser(object):
             p[0] = p[1] + p[3]
         else:
             msg = "Invalid Pythran spec. Unknown text '{0}'".format(p.value)
-            self.p_error(p, msg)
+            raise PythranSpecError(msg, p.lexpos(1))
 
     p_generic_type.__doc__ = '''generic_type : term
                 | LIST
@@ -416,7 +420,7 @@ class SpecParser(object):
         if len(p) > 1:
             if p[3] not in 'CF':
                 msg = "Invalid Pythran spec. Unknown order '{}'".format(p[3])
-                self.p_error(p, msg)
+                raise self.PythranSpecError(msg, p.lexpos(3))
             p[0] = p[3]
         else:
             p[0] = None
@@ -475,24 +479,28 @@ class SpecParser(object):
             err.lineno = 1 + self.input_text.count('\n', 0, lexpos)
         if self.input_file:
             err.filename = self.input_file
-        return err
+        return PythranSyntaxErrorWrapper(err)
+
+    def PythranSpecIdentifierError(self, identifier, lexpos):
+        alt = {'double': 'float64',
+               'void': 'None',
+               'char': 'int8',
+               'short': 'int16',
+               'long': 'int64',
+               }.get(identifier)
+        if alt:
+            hint = " Did you mean `{}`?".format(alt)
+        else:
+            hint = ''
+        return self.PythranSpecError(
+            "Unsupported identifier `{}` at that point.{}".format(identifier,
+                                                                 hint), lexpos)
 
     def p_error(self, p):
-        if p.type == 'IDENTIFIER':
-            alt = {'double': 'float64',
-                   'void': 'None',
-                   'char': 'int8',
-                   'short': 'int16',
-                   'long': 'int64',
-                   }.get(p.value)
-            if alt:
-                hint = " Did you mean `{}`?".format(alt)
-            else:
-                hint = ''
-            raise self.PythranSpecError(
-                "Unsupported identifier `{}` at that point.{}".format(p.value,
-                                                                     hint),
-                p.lexpos)
+        if p is None:
+            raise self.PythranSpecError("Unterminated export line", 0)
+        elif p.type == 'IDENTIFIER':
+            raise self.PythranSpecIdentifierError(p.value, p.lexpos)
         else:
             raise self.PythranSpecError(
                 "Unexpected token `{}` at that point.".format(p.value),
@@ -593,7 +601,10 @@ def signatures_to_string(func_name, signatures):
 
 
 def spec_parser(text):
-    return SpecParser()(text)
+    try:
+        return SpecParser()(text)
+    except PythranSyntaxErrorWrapper as e:
+        raise e.e
 
 
 def parse_pytypes(s):

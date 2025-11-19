@@ -257,12 +257,14 @@ def dict_of_complex64_and_complex_128(l):
 
     def test_simple_meta_types(self):
         types = (complex, float, int, bool, str,
-                 np.float128, np.float64, np.float32,
-                 np.complex256, np.complex128, np.complex64,
+                 np.float64, np.float32,
+                 np.complex128, np.complex64,
                  np.uint64, np.uint32, np.uint16, np.uint8,
                  np.int64, np.int32, np.int16, np.int8,
                  np.int64, np.int32, np.int16, np.int8,
                  )
+        if has_float128:
+            types += np.float128, np.complex256
         for i, ty in enumerate(types):
             kwargs= {f"simple_meta_types_{i}": [Type[ty]]}
             self.run_test(f"def simple_meta_types_{i}(obj): return obj()",

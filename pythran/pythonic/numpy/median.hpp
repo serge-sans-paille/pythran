@@ -65,7 +65,14 @@ namespace numpy
     T *tmp = utils::allocate<T>(n);
     std::copy(arr.buffer, arr.buffer + n, tmp);
     std::nth_element(tmp, tmp + n / 2, tmp + n, ndarray::comparator<T>{});
+#if defined(_GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     T t0 = tmp[n / 2];
+#if defined(_GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
     if (n % 2 == 1) {
       utils::deallocate(tmp);
       return t0;

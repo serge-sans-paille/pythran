@@ -125,7 +125,7 @@ class ExpandImports(Transformation[Ancestors]):
                         err = "Unsupported module aliasing"
                         raise PythranSyntaxError(err, target)
                     self.symbols[target.id] = self.symbols[node.value.id]
-                return None  # this assignment is no longer needed
+                return ast.Pass()  # this assignment is no longer needed
         new_node = self.generic_visit(node)
         ntargets = new_node.targets if isinstance(node, ast.Assign) else (new_node.target,)
         # no problem if targets contains a subscript, it is not a new assign.

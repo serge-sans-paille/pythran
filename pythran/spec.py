@@ -585,7 +585,7 @@ class SpecParser(object):
                         raise self.PythranSpecError(msg, loc)
 
             if any(isinstance(ty, Pkg) for overload in overloads for ty in overload):
-                pkg_signatures = {tuple((i, ty.value) for i, ty in enumerate(overload) if
+                pkg_signatures = {tuple((i, ty.name) for i, ty in enumerate(overload) if
                                 isinstance(ty, Pkg))
                                for overload in overloads}
                 if len(pkg_signatures) != 1:

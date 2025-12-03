@@ -266,6 +266,21 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                 ty = ctx(self.of)
                 return f"std::integral_constant<{ty}, {str(self.index).lower()}>"
 
+        class PkgType(Type):
+            """
+            A type to hold package name
+            """
+            def __init__(self, name):
+                super(PkgType, self).__init__(name=name)
+
+            def generate(self, _):
+                return f'pythonic::types::pkg::{self.name}'
+
+        class PkgRefType(PkgType):
+            """
+            A type to hold reference to package name
+            """
+
         class ArgumentType(Type):
             """
             A type to hold function arguments

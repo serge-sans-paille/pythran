@@ -43,7 +43,7 @@ def pytype_to_deps_hpp(t):
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return {'{}.hpp'.format(t.__name__)}
     elif isinstance(t, Pkg):
-        return {f'pkg/{t.value}.hpp'}
+        return {f'pkg/{t.name}.hpp'}
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))
 

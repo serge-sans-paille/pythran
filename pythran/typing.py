@@ -147,8 +147,8 @@ class File(object):
 
 
 class Pkg(object):
-    def __init__(self, value):
-        self.value = value
+    def __init__(self, name):
+        self.name = name
 
 
 class Type(TypeBase, metaclass=TypeMeta):

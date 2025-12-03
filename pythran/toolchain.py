@@ -11,7 +11,7 @@ from pythran.cxxgen import ReturnStatement
 from pythran.errors import PythranCompileError
 from pythran.middlend import refine, mark_unexported_functions
 from pythran.passmanager import PassManager
-from pythran.preprocessor import materialize_pkgs
+from pythran.preprocessor import infer_packages
 from pythran.tables import pythran_ward
 from pythran.types.type_dependencies import pytype_to_deps
 from pythran.types.conversion import pytype_to_ctype
@@ -93,9 +93,8 @@ def front_middle_end(module_name, code, optimizations=None, module_dir=None,
     # front end
     ir, docstrings = frontend.parse(pm, code)
 
-    # Materialize user-defined pkg arguments, if any
-    if pkgs:
-        ir = materialize_pkgs(ir, pkgs)
+    # Infer package passed as arguments etc.
+    ir = infer_packages(ir, pkgs)
 
     if entry_points is not None:
         ir = mark_unexported_functions(ir, entry_points)

@@ -111,7 +111,7 @@ def pytype_to_ctype(t):
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return PYTYPE_TO_CTYPE_TABLE[t]
     elif isinstance(t, Pkg):
-        return f'pythonic::types::pkg::{t.value}'
+        return f'pythonic::types::pkg::{t.name}'
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))
 
@@ -158,6 +158,6 @@ def pytype_to_pretty_type(t):
     elif t in PYTYPE_TO_CTYPE_TABLE:
         return t.__name__
     elif isinstance(t, Pkg):
-        return f'{t.value} pkg'
+        return f'{t.name} pkg'
     else:
         raise NotImplementedError("{0}:{1}".format(type(t), t))

@@ -1,144 +1,177 @@
-'''
+"""
 This modules contains various preprocessing passes before any other transformations
 
 Those transformation are applied for any backend
-'''
+"""
 
 import beniget
 import gast as ast
+from collections import defaultdict
 
-from pythran.tables import pythran_ward
+from pythran.tables import attributes, functions, methods, subpackages
 from pythran.syntax import PythranSyntaxError
 
-class GatherFunctionDefs(ast.NodeVisitor):
-    '''
-    Helper analysis to create a binding between function name and node
 
-    >>> import gast as ast
-    >>> node = ast.parse("def foo():\\n def bar(): pass\\n return bar")
-    >>> gfd = GatherFunctionDefs()
-    >>> gfd.visit(node)
-    >>> list(gfd.defs.keys())
-    ['foo', 'bar']
-    '''
-    def __init__(self):
-        self.defs = {}
+class SetView:
+    def __init__(self, on=None):
+        self.on = on if on is not None else set()
+
+    def walk(self):
+        return self.on if isinstance(self.on, set) else self.on.walk()
+
+    def _join(self, s):
+        assert self is not s
+        if isinstance(self.on, set):
+            self.on = s
+        else:
+            self.on._join(s)
+
+    def join(self, with_):
+        if self.walk() is with_.walk():
+            return
+
+        # FIXME: reduce walking
+        print(self.walk(), "/\\", with_.walk(), end="")
+        self_ = self.walk()
+        if not self_:
+            self_.update(with_.walk())
+        else:
+            self_.intersection_update(with_.walk())
+        with_._join(self)
+        print(" =", self.walk())
+
+    def add(self, elt):
+        self.on.add(elt)
+
+
+class PkgEquivalenceClasses(ast.NodeVisitor):
+    def __init__(self, duc, udc, ancestors):
+        self.duc = duc
+        self.udc = udc
+        self.ancestors = ancestors
+        self.equivalence_classes = defaultdict(SetView)
+
+    def mark_equivalent(self, nodes):
+        if not nodes:
+            return
+        ref_node, nodes = nodes[0], nodes[1:]
+        ref_set = self.equivalence_classes[ref_node]
+        for value in nodes:
+            value_defs = self.udc.chains[value]
+            for value_def in value_defs:
+                if isinstance(value_def.node, ast.FunctionDef):
+                    self.equivalence_classes[ref_node].join(
+                        self.equivalence_classes[value_def.node]
+                    )
+                    self.equivalence_classes[ref_node].add(value_def.node)
+
     def visit_FunctionDef(self, node):
-        self.defs[node.name] = node
+        callees = self.duc.chains[node]
+        for callee in callees.users():
+            parent = self.ancestors.parent(callee.node)
+            if isinstance(parent, ast.Call):
+                if parent.func is callee.node:
+                    self.equivalence_classes[node].add(node)
+            elif isinstance(parent, (ast.List, ast.Tuple, ast.Set)):
+                self.mark_equivalent(parent.elts)
+            elif isinstance(parent, ast.Dict):
+                if callee.node in parent.keys:
+                    self.mark_equivalent(parent.keys)
+                else:
+                    self.mark_equivalent(parent.values)
+            else:
+                continue
         self.generic_visit(node)
 
-class MaterializePkg(ast.NodeTransformer):
-    '''
-    Helper transformation to fold package arguments
 
-    It works for simple cases:
-
-    >>> import gast as ast
-    >>> mp = MaterializePkg({"foo": [(0, "numpy")]})
-    >>> node = ast.parse("def foo(xp): return xp.cos(1)")
-    >>> print(ast.unparse(mp.visit(node)))
-    def foo(__pythran__folded_package_0):
-        import numpy as xp
-        return xp.cos(1)
-
-    But it can also propagate through multiple calls, even when only materializing
-    the argument of a single function:
-    >>> mp = MaterializePkg({"foo": [(1, "numpy")]})
-    >>> node = ast.parse("def foo(v, xp): return 1 + bar(v, 2, xp)\\ndef bar(x, y, z): return x + z.cos(y)")
-    >>> print(ast.unparse(mp.visit(node)))
-    def foo(v, __pythran__folded_package_1):
-        return 1 + bar(v, 2, None)
-    <BLANKLINE>
-    def bar(x, y, __pythran__folded_package_2):
-        import numpy as z
-        return x + z.cos(y)
-    '''
-
-    def __init__(self, pkgs):
-        self.pkgs = pkgs.copy()
-
-    def visit_Module(self, node):
-        self.duc = beniget.DefUseChains()
-        self.duc.visit(node)
-        self.udc = beniget.UseDefChains(self.duc)
-
-        self.ancestors = beniget.Ancestors()
-        self.ancestors.visit(node)
-
-        gfd = GatherFunctionDefs()
-        gfd.visit(node)
-        self.fdefs = gfd.defs
-        self.visited = set()
-
-        return self.generic_visit(node)
+class LocalAttributeInference(ast.NodeVisitor):
+    def __init__(self, pkgs, udc, ancestors, equivalence_classes):
+        self.pkgs_description = pkgs
+        self.pkg_constraints = defaultdict(lambda: defaultdict(set))
+        self.equivalence_classes = equivalence_classes
+        self.udc = udc
+        self.ancestors = ancestors
 
     def visit_FunctionDef(self, node):
-        self.visited.add(node.name)
-        if node.name not in self.pkgs:
-            return node
+        if (
+            len(self.ancestors.parents(node)) == 1
+            and node.name in self.pkgs_description
+        ):
+            # Only top-level functions can be annotated
+            description = self.pkgs_description[node.name]
+            for materialized_index, materialized_pkg in description:
+                self.pkg_constraints[node][materialized_index] = {(materialized_pkg,)}
+        self.generic_visit(node)
 
-        pkg_renames = [(pkgname, node.args.args[i]) for i, pkgname in
-                       self.pkgs[node.name]]
+    def visit_Attribute(self, node):
+        self.generic_visit(node)
 
-        extra_imports = []
-        extra_functions_to_process = []
-        for pkgname, arg in pkg_renames:
-            arg_users = self.duc.chains[arg].users()
-            add_import = False
-            for user in arg_users:
-                parents = self.ancestors.parents(user.node)
-                if isinstance(parents[-1], ast.Attribute):
-                    add_import =True
-                elif isinstance(parents[-1], ast.Call):
-                    call = parents[-1]
-                    try:
-                        user_index = call.args.index(user.node)
-                    except IndexError:
-                        raise PythranSyntaxError(
-                                "Forwarding package as keyword parameter is not supported",
-                                arg)
-                    call.args[user_index] = ast.Constant(None, None)
-                    call_defs = self.udc.chains[call.func]
-                    if len(call_defs) != 1:
-                        raise PythranSyntaxError(
-                                "Forwarding package as argument of a dynamic call is not supported",
-                                call.func)
-                    call_def = call_defs[0].node
-                    if not isinstance(call_def, ast.FunctionDef):
-                        raise PythranSyntaxError(
-                                "Forwarding package as argument of a dynamic call is not supported",
-                                call.func)
-                    key = user_index, pkgname
-                    if call_def.name in self.pkgs:
-                        # make sure the signature request is compatible with other specs
-                        if key not in self.pkgs[call_def.id]:
-                            raise PythranSyntaxError(
-                                    f"Forwarding package as argument number {user_index + 1} of {call_def.id} is incompatible with export specification",
-                                    call)
-                    if call_def.name not in self.pkgs:
-                        extra_functions_to_process.append(self.fdefs[call_def.name])
-                        self.pkgs[call_def.name] = []
-                    self.pkgs[call_def.name].append(key)
-                else:
-                    raise PythranSyntaxError(
-                            f"Forwarding package can only be propagated through function call",
-                            parents[-1])
-            if add_import:
-                extra_imports.append((pkgname, arg.id))
+        if node.attr in attributes:
+            return
+        if node.attr in subpackages:
+            pkgnames = {p for p, _ in subpackages[node.attr]}
+            strict = True
+        elif node.attr in functions and isinstance(node.value, ast.Name):
+            pkgnames = {p for p, _ in functions.get(node.attr, ())}
+        else:
+            return
 
-        node.body = [ast.Import([ast.alias(*extra_import)]) for extra_import in
-                                extra_imports] + node.body
-        for i, _ in self.pkgs[node.name]:
-            node.args.args[i].id = f'{pythran_ward}_folded_package_{i}'
+        val_defs = self.udc.chains[node.value]
+        if len(val_defs) != 1:
+            raise PythranSyntaxError("too many options")
+        (val_def,) = val_defs
+        val_node = val_def.node
+        if not isinstance(val_node, ast.Name) or not isinstance(
+            val_node.ctx, ast.Param
+        ):
+            return
+        val_function = self.ancestors.parentFunction(val_node)
+        val_index = val_function.args.args.index(val_node)
+        for val_function in self.equivalence_classes[val_function].walk():
+            constraints = self.pkg_constraints[val_function][val_index]
+            if not constraints:
+                constraints.update(pkgnames)
+            else:
+                constraints.intersection_update(pkgnames)
+            if not constraints:
+                raise PythranSyntaxError("...")
 
-        # propagate package information
-        for fdef in extra_functions_to_process:
-            if fdef.name in self.visited:
-                # we can't let the generic processing do its job there
-                self.visit(fdef)
 
-        # no recursive call, we cannot export inner functions
+class AttributeResolver(ast.NodeTransformer):
+    def __init__(self, pkg_constraints):
+        self.pkg_constraints = pkg_constraints
+
+    def visit_FunctionDef(self, node):
+        self.generic_visit(node)
+        extra_imports = sorted(self.pkg_constraints.get(node, {}).items())
+        extra_aliases = []
+        for i, pkgnames in extra_imports:
+            if len(pkgnames) != 1:
+                continue
+            (pkgname,) = pkgnames
+            # FIXME: extra verifications
+            (pkg,) = pkgname
+            extra_aliases.append(ast.alias(pkg, node.args.args[i].id))
+        if extra_aliases:
+            node.body.insert(0, ast.Import(extra_aliases))
         return node
 
-def materialize_pkgs(ir, pkgs):
-    return MaterializePkg(pkgs).visit(ir)
+
+def infer_packages(ir, pkgs):
+    duc = beniget.DefUseChains()
+    duc.visit(ir)
+    udc = beniget.UseDefChains(duc)
+    ancestors = beniget.Ancestors()
+    ancestors.visit(ir)
+
+    pec = PkgEquivalenceClasses(duc, udc, ancestors)
+    pec.visit(ir)
+
+    inference = LocalAttributeInference(
+        pkgs or {}, udc, ancestors, pec.equivalence_classes
+    )
+    inference.visit(ir)
+
+    resolver = AttributeResolver(inference.pkg_constraints)
+    new_ir = resolver.visit(ir)
+    return new_ir

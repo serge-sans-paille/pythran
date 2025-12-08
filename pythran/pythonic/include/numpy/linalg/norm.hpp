@@ -31,6 +31,9 @@ namespace numpy
     norm_t<Array> norm(Array &&array, double ord, types::none_type axis = {});
 
     template <class Array>
+    norm_dtype_t<Array> norm(Array &&array, types::str const &ord, types::none_type axis = {});
+
+    template <class Array>
     norm_t<Array> norm(Array &&array, types::none_type ord, double axis);
 
     template <class Array>
@@ -41,6 +44,7 @@ namespace numpy
 
     template <class Array>
     norm_t<Array> norm(Array &&array, double ord, types::array_tuple<long, 2> axis);
+
     DEFINE_FUNCTOR(pythonic::numpy::linalg, norm);
   } // namespace linalg
 } // namespace numpy

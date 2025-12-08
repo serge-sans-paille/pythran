@@ -3820,7 +3820,9 @@ MODULES = {
         "lexsort": ConstFunctionIntr(),
         "linalg": {
             "norm": FunctionIntr(),
+            "matrix_norm": FunctionIntr(),
             "matrix_power": ConstFunctionIntr(requires_blas=True),
+            "vector_norm": FunctionIntr(),
         },
         "linspace": ConstFunctionIntr(),
         "log": ConstFunctionIntr(),
@@ -4559,6 +4561,9 @@ if 'VMSError' in sys.modules['builtins'].__dict__:
 # WindowsError is only available on Windows
 if 'WindowsError' in sys.modules['builtins'].__dict__:
     MODULES['builtins']['WindowsError'] = ConstExceptionIntr()
+
+# numpy alias
+MODULES['numpy']['concat'] = MODULES['numpy']['concatenate']
 
 # detect and prune unsupported modules
 for module_name in ["omp", "scipy", "scipy.special"]:

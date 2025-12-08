@@ -56,3 +56,24 @@ class TestNumpyLinalg(TestEnv):
                               LA.norm(c, ord=1, axis=1),
                      )''',
                       10, linalg_norm_pydoc=[int])
+
+    def test_linalg_matrix_norm0(self):
+        self.run_test("def linalg_matrix_norm0(x): from numpy.linalg import matrix_norm ; return matrix_norm(x)",
+                      numpy.arange(6.).reshape((3,2)),
+                      linalg_matrix_norm0=[NDArray[float,:,:]])
+
+    def test_linalg_matrix_norm1(self):
+        self.run_test("def linalg_matrix_norm1(x): from numpy.linalg import matrix_norm ; return matrix_norm(x)",
+                      numpy.arange(6.).reshape((3,2)) * 1j + 2,
+                      linalg_matrix_norm1=[NDArray[complex,:,:]])
+
+    def test_linalg_vector_norm0(self):
+        self.run_test("def linalg_vector_norm0(x): from numpy.linalg import vector_norm ; return vector_norm(x)",
+                      numpy.arange(6.),
+                      linalg_vector_norm0=[NDArray[float,:]])
+
+    def test_linalg_vector_norm1(self):
+        self.run_test("def linalg_vector_norm1(x): from numpy.linalg import vector_norm ; return vector_norm(x)",
+                      numpy.arange(6.) * 1j - 2,
+                      linalg_vector_norm1=[NDArray[complex,:]])
+

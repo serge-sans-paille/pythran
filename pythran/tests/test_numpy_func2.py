@@ -330,6 +330,9 @@ def test_copy0(x):
     def test_concatenate3(self):
         self.run_test("def np_concatenate3(a): from numpy import array, concatenate ; return concatenate([[1],a + a])", numpy.array([1, 2]), np_concatenate3=[NDArray[int,:]])
 
+    def test_concatenate4(self):
+        self.run_test("def np_concatenate4(a): from numpy import array, concat ; return concat([[1],a + a])", numpy.array([1, 2]), np_concatenate4=[NDArray[int,:]])
+
     def test_hstack_empty(self):
         code = 'def np_test_stack_empty(a): import numpy as np;return np.stack(a)'
         with self.assertRaises(ValueError):

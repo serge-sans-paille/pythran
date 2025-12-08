@@ -41,6 +41,21 @@ namespace numpy
     }
 
     template <class Array>
+    norm_dtype_t<Array> norm(Array &&x, types::str const &ord, types::none_type)
+    {
+      switch (std::decay_t<Array>::value) {
+      case 2:
+        if (ord == "fro")
+          return pythonic::numpy::functor::sqrt{}(pythonic::numpy::functor::sum{}(
+              pythonic::numpy::functor::real{}(pythonic::numpy::functor::conj{}(x)*x)));
+        else
+          throw pythonic::builtins::NotImplementedError("We need more dev!");
+      default:
+        throw pythonic::builtins::NotImplementedError("Invalid norm order for matrices.");
+      }
+    }
+
+    template <class Array>
     norm_t<Array> norm(Array &&x, double ord, long axis)
     {
       auto &&y = pythonic::numpy::functor::asfarray{}(x);
@@ -62,6 +77,7 @@ namespace numpy
             1. / ord);
       }
     }
+
     template <class Array>
     norm_t<Array> norm(Array &&x, types::none_type ord, double axis)
     {
@@ -77,6 +93,7 @@ namespace numpy
     {
       throw pythonic::builtins::NotImplementedError("We need more dev!");
     }
+
   } // namespace linalg
 } // namespace numpy
 PYTHONIC_NS_END

@@ -8,7 +8,9 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
-  template <class E, class dtype = functor::float64>
+  template <class E, class dtype = std::conditional_t<
+                         types::is_complex<typename std::decay_t<E>::dtype>::value,
+                         functor::complex256, functor::float64>>
   auto asfarray(E &&e, dtype d = dtype()) -> decltype(asarray(std::forward<E>(e), d));
   DEFINE_FUNCTOR(pythonic::numpy, asfarray);
 } // namespace numpy

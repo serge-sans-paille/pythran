@@ -70,6 +70,7 @@ _submodules = [
     'openmp',
     'optimizations',
     'passmanager',
+    'preprocessor',
     'spec',
     'syntax',
     'tables',

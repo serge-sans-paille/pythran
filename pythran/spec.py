@@ -361,7 +361,7 @@ class SpecParser(object):
                     if not istransposable(nd):
                         msg = ("Invalid Pythran spec. F order is only valid "
                                "for 2D plain arrays")
-                        raise self.PythranSpecError(msg, p.lexpos(1))
+                        raise self.PythranSpecError(msg, self.tokenpos['optorder'])
                 p[0] = tuple(NDArray[nd.__args__[0], -1::, -1::]
                              for nd in p[1])
             else:
@@ -405,7 +405,7 @@ class SpecParser(object):
             p[0] = p[1] + p[3]
         else:
             msg = "Invalid Pythran spec. Unknown text '{0}'".format(p.value)
-            raise PythranSpecError(msg, p.lexpos(1))
+            raise self.PythranSpecError(msg, p.lexpos(1))
 
     p_generic_type.__doc__ = '''generic_type : term
                 | LIST
@@ -421,6 +421,7 @@ class SpecParser(object):
             if p[3] not in 'CF':
                 msg = "Invalid Pythran spec. Unknown order '{}'".format(p[3])
                 raise self.PythranSpecError(msg, p.lexpos(3))
+            self.tokenpos['optorder'] = p.lexpos(3)
             p[0] = p[3]
         else:
             p[0] = None
@@ -474,6 +475,7 @@ class SpecParser(object):
     def PythranSpecError(self, msg, lexpos=None):
         err = PythranSyntaxError(msg)
         if lexpos is not None:
+            lexpos += 1
             line_start = self.input_text.rfind('\n', 0, lexpos) + 1
             err.offset = lexpos - line_start
             err.lineno = 1 + self.input_text.count('\n', 0, lexpos)
@@ -520,6 +522,7 @@ class SpecParser(object):
         self.export_info = defaultdict(tuple)
         self.input_text = text
         self.input_file = input_file
+        self.tokenpos = {}
 
         lines = []
         in_pythran_export = False
@@ -530,13 +533,13 @@ class SpecParser(object):
             elif in_pythran_export:
                 stripped = line.strip()
                 if stripped.startswith('#'):
-                    lines.append(line.replace('#', ''))
+                    lines.append(line.replace('#', ' '))
                 else:
                     in_pythran_export = not stripped
-                    lines.append('')
+                    lines.append(' ' * len(line))
             else:
                 in_pythran_export &= not line.strip()
-                lines.append('')
+                lines.append(' ' * len(line))
 
         pythran_data = '\n'.join(lines)
         self.parser.parse(pythran_data, lexer=self.lexer, debug=False)

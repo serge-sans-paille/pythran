@@ -85,10 +85,11 @@ class TestSpecParser(unittest.TestCase):
         self.assertIn('Unterminated', e.exception.msg)
 
     def test_invalid_specs8(self):
-        code = '#pythran export bar(int[] order(F))\ndef bar(x):pass'
+        code = '\n  ' * 100 + '#pythran export bar(int[] order(F))\ndef bar(x):pass'
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as e:
             pythran.compile_pythrancode("dumber", code)
         self.assertIn('F order is only valid for 2D plain arrays', e.exception.msg)
+        self.assertEqual(e.exception.lineno, 101)
 
     def test_invalid_specs_with_hint(self):
         code = '#pythran export bar(double)\ndef bar(x):pass'

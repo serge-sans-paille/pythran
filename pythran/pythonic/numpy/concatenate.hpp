@@ -59,7 +59,6 @@ namespace numpy
         } else {
           types::array_tuple<typename A::value_type::const_iterator, sizeof...(I)> ifroms = {
               std::get<I>(from).begin()...};
-
           for (auto &&iout : out) {
             types::array_tuple<
                 typename std::iterator_traits<typename A::value_type::const_iterator>::value_type,
@@ -125,6 +124,8 @@ namespace numpy
       types::array_tuple<long, std::tuple_element_t<0, std::tuple<Types...>>::value>>
   {
     auto constexpr N = std::decay_t<decltype(std::get<0>(args))>::value;
+    if (axis < 0)
+      axis += N;
     auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] =
         details::concatenate_axis_size(args, axis, std::make_index_sequence<sizeof...(Types)>{});
@@ -142,6 +143,8 @@ namespace numpy
   concatenate(types::array_base<E, M, V> const &args, long axis)
   {
     auto constexpr N = E::value;
+    if (axis < 0)
+      axis += N;
     auto shape = sutils::getshape(std::get<0>(args));
     shape[axis] = details::concatenate_axis_size(args, axis, std::make_index_sequence<M>{});
     types::ndarray<typename E::dtype, types::array_tuple<long, E::value>> out(shape,
@@ -156,6 +159,8 @@ namespace numpy
   {
     using return_type = types::ndarray<typename E::dtype, types::array_tuple<long, E::value>>;
     auto constexpr N = return_type::value;
+    if (axis < 0)
+      axis += N;
     auto shape = sutils::getshape(ai[0]);
     shape[axis] = std::accumulate(ai.begin(), ai.end(), 0L, [axis](long v, E const &from) {
       return v + sutils::getshape(from)[axis];

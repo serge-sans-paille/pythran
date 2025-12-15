@@ -603,9 +603,8 @@ namespace types
     numpy_gexpr(numpy_gexpr const &) = default;
     numpy_gexpr(numpy_gexpr &&) = default;
 
-    template <class Argp> // ! using the default one, to make it possible to
-    // accept reference && non reference version of
-    // Argp
+    template <class Argp> // not using the default one, to make it possible to
+    // accept reference and non reference version of Argp
     numpy_gexpr(numpy_gexpr<Argp, S...> const &other);
 
     template <size_t J, class Slice>

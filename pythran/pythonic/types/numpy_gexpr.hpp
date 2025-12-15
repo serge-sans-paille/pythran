@@ -305,10 +305,10 @@ namespace types
 
   template <class Arg, class... S>
   template <class Argp> // not using the default one, to make it possible to
-  // accept reference && non reference version of Argp
+  // accept reference and non reference version of Argp
   numpy_gexpr<Arg, S...>::numpy_gexpr(numpy_gexpr<Argp, S...> const &other)
-      : arg(other.arg), slices(other.slices), _shape(other._shape), buffer(other.buffer),
-        _strides(other._strides)
+      : arg(const_cast<std::decay_t<Argp> &>(other.arg)), slices(other.slices),
+        _shape(other._shape), buffer(other.buffer), _strides(other._strides)
   {
     static_assert(
         std::is_same<typename returnable<Arg>::type, typename returnable<Argp>::type>::value,

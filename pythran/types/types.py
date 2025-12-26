@@ -37,7 +37,6 @@ alias_to_type = {
     MODULES['builtins']['set'] : Set,
     MODULES['builtins']['tuple'] : Tuple,
     MODULES['builtins']['type'] : type,
-    MODULES['builtins']['None'] : type(None),
     MODULES['numpy']['intc']: np.intc,
     MODULES['numpy']['intp']: np.intp,
     MODULES['numpy']['int64']: np.int64,

@@ -2819,15 +2819,6 @@ MODULES = {
                     List[Tuple[T0, T1, T2, T3]]],
             ]
         ),
-        "False": ConstantIntr(
-            signature=bool,
-            return_range=lambda _: interval.Range(0, 0)
-        ),
-        "None": ConstantIntr(signature=None),
-        "True": ConstantIntr(
-            signature=bool,
-            return_range=lambda _: interval.Range(1, 1)
-        ),
     },
     "array": {
             "typecodes": ConstantIntr(signature=str),

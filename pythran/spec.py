@@ -10,7 +10,7 @@ import re
 import ply.lex as lex
 import ply.yacc as yacc
 
-from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun, Type
+from pythran.typing import List, Set, Dict, NDArray, Tuple, Pointer, Fun, Type, Pkg
 from pythran.syntax import PythranSyntaxError
 from pythran.config import cfg
 
@@ -84,10 +84,11 @@ class Spec(object):
     ``capsule'' is a mapping from function name to signature
     '''
 
-    def __init__(self, functions, capsules=None, ufuncs=None):
+    def __init__(self, functions, capsules=None, ufuncs=None, pkgs=None):
         self.functions = dict(functions)
         self.capsules = capsules or dict()
         self.ufuncs = ufuncs or dict()
+        self.pkgs = pkgs or dict()
 
         # normalize function signatures
         for fname, signatures in functions.items():
@@ -174,6 +175,7 @@ class SpecParser(object):
         'tuple': 'TUPLE',
         'set': 'SET',
         'dict': 'DICT',
+        'pkg': 'PKG',
         'slice': 'SLICE',
         'str': 'STR',
         'None': 'NONE',
@@ -309,7 +311,18 @@ class SpecParser(object):
                        | type OPT
                        | type COMMA
                        | type COMMA param_types
-                       | type OPT COMMA default_types'''
+                       | type OPT COMMA default_types
+                       | pkg
+                       | pkg COMMA
+                       | pkg COMMA param_types'''
+
+    def p_pkg(self, p):
+        if len(p) == 3:
+            p[0] = Pkg(p[1]),
+        else:
+            raise self.PythranSpecIdentifierError(p[1], p.lexpos(1))
+    p_pkg.__doc__ = '''pkg : IDENTIFIER PKG
+                           | IDENTIFIER'''
 
     def p_default_types(self, p):
         if len(p) == 3:
@@ -361,7 +374,7 @@ class SpecParser(object):
                     if not istransposable(nd):
                         msg = ("Invalid Pythran spec. F order is only valid "
                                "for 2D plain arrays")
-                        raise self.PythranSpecError(msg, p.lexpos(1))
+                        raise self.PythranSpecError(msg, self.tokenpos['optorder'])
                 p[0] = tuple(NDArray[nd.__args__[0], -1::, -1::]
                              for nd in p[1])
             else:
@@ -405,7 +418,7 @@ class SpecParser(object):
             p[0] = p[1] + p[3]
         else:
             msg = "Invalid Pythran spec. Unknown text '{0}'".format(p.value)
-            raise PythranSpecError(msg, p.lexpos(1))
+            raise self.PythranSpecError(msg, p.lexpos(1))
 
     p_generic_type.__doc__ = '''generic_type : term
                 | LIST
@@ -421,6 +434,7 @@ class SpecParser(object):
             if p[3] not in 'CF':
                 msg = "Invalid Pythran spec. Unknown order '{}'".format(p[3])
                 raise self.PythranSpecError(msg, p.lexpos(3))
+            self.tokenpos['optorder'] = p.lexpos(3)
             p[0] = p[3]
         else:
             p[0] = None
@@ -474,6 +488,7 @@ class SpecParser(object):
     def PythranSpecError(self, msg, lexpos=None):
         err = PythranSyntaxError(msg)
         if lexpos is not None:
+            lexpos += 1
             line_start = self.input_text.rfind('\n', 0, lexpos) + 1
             err.offset = lexpos - line_start
             err.lineno = 1 + self.input_text.count('\n', 0, lexpos)
@@ -517,9 +532,11 @@ class SpecParser(object):
         self.exports = defaultdict(tuple)
         self.native_exports = defaultdict(tuple)
         self.ufunc_exports = defaultdict(tuple)
+        self.pkgs = dict()
         self.export_info = defaultdict(tuple)
         self.input_text = text
         self.input_file = input_file
+        self.tokenpos = {}
 
         lines = []
         in_pythran_export = False
@@ -530,13 +547,13 @@ class SpecParser(object):
             elif in_pythran_export:
                 stripped = line.strip()
                 if stripped.startswith('#'):
-                    lines.append(line.replace('#', ''))
+                    lines.append(line.replace('#', ' '))
                 else:
                     in_pythran_export = not stripped
-                    lines.append('')
+                    lines.append(' ' * len(line))
             else:
                 in_pythran_export &= not line.strip()
-                lines.append('')
+                lines.append(' ' * len(line))
 
         pythran_data = '\n'.join(lines)
         self.parser.parse(pythran_data, lexer=self.lexer, debug=False)
@@ -570,7 +587,18 @@ class SpecParser(object):
                         loc = self.export_info[key][i]
                         raise self.PythranSpecError(msg, loc)
 
-        return Spec(self.exports, self.native_exports, self.ufunc_exports)
+            if any(isinstance(ty, Pkg) for overload in overloads for ty in overload):
+                pkg_signatures = {tuple((i, ty.name) for i, ty in enumerate(overload) if
+                                isinstance(ty, Pkg))
+                               for overload in overloads}
+                if len(pkg_signatures) != 1:
+                    loc = self.export_info[key][-1]
+                    raise self.PythranSpecError(f"export overloads for {key} contains incompatible `pkg` arguments", loc)
+
+                pkg_signature = next(iter(pkg_signatures))
+                self.pkgs[key] = pkg_signature
+
+        return Spec(self.exports, self.native_exports, self.ufunc_exports, self.pkgs)
 
 
 class ExtraSpecParser(SpecParser):

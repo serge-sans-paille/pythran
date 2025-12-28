@@ -85,10 +85,11 @@ class TestSpecParser(unittest.TestCase):
         self.assertIn('Unterminated', e.exception.msg)
 
     def test_invalid_specs8(self):
-        code = '#pythran export bar(int[] order(F))\ndef bar(x):pass'
+        code = '\n  ' * 100 + '#pythran export bar(int[] order(F))\ndef bar(x):pass'
         with self.assertRaises(pythran.syntax.PythranSyntaxError) as e:
             pythran.compile_pythrancode("dumber", code)
         self.assertIn('F order is only valid for 2D plain arrays', e.exception.msg)
+        self.assertEqual(e.exception.lineno, 101)
 
     def test_invalid_specs_with_hint(self):
         code = '#pythran export bar(double)\ndef bar(x):pass'
@@ -174,3 +175,32 @@ coo = 1
 def foo(n): return n
             '''
         self.assertTrue(pythran.spec_parser(code))
+
+    def test_pkg_spec0(self):
+        code = '''
+#      pythran export pkg0(numpy pkg)
+def pkg0(np): return np.cos(1)
+            '''
+        self.assertTrue(pythran.spec_parser(code))
+
+    def test_pkg_spec1(self):
+        code = '''
+#      pythran export pkg1(math pkg)
+def pkg1(np): return np.cos(1)
+            '''
+        self.assertTrue(pythran.spec_parser(code))
+
+    def test_pkg_spec2(self):
+        code = '''
+#      pythran export pkg2(math pkg, numpy pkg)
+def pkg2(m, np): return m.cos(1), np.cos(1)
+            '''
+        self.assertTrue(pythran.spec_parser(code))
+
+    def test_pkg_spec3(self):
+        code = '''#pythran export pkg3(numpy pkg)
+#pythran export pkg3(math pkg)
+def pkg3(mnp): return mnp.cos(1)
+            '''
+        with self.assertRaises(pythran.syntax.PythranSyntaxError) as e:
+            pythran.spec_parser(code)

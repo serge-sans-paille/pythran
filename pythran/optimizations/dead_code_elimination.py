@@ -75,13 +75,14 @@ class DeadCodeElimination(Transformation[PureExpressions, DefUseChains, Ancestor
         return self.generic_visit(node)
 
     def visit_Pass(self, node):
-        ancestor = self.ancestors[node][-1]
-        if getattr(ancestor, 'body', ()) == [node]:
-            return node
-        if getattr(ancestor, 'orelse', ()) == [node]:
-            return node
         if metadata.get(node, OMPDirective):
             return node
+        ancestor = self.ancestors[node][-1]
+        for holder in ('body', 'orelse'):
+            body = getattr(ancestor, holder, ())
+            if body and all(isinstance(n, ast.Pass) for n in body) and node is body[-1]:
+                return node
+        self.update = True
         return None
 
     def visit_Assign(self, node):

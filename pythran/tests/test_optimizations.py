@@ -443,6 +443,14 @@ def foo(a):
                                    "pythran.optimizations.ConstantFolding",
                                    "pythran.optimizations.DeadCodeElimination"])
 
+    def test_deadcodeelimination5(self):
+        init = 'def noeffect(l):\n for i in l:\n  a = 1\n  b = 2'
+        ref = 'def noeffect(l):\n    for i in l:\n        pass\n    return None'
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution",
+                                   "pythran.optimizations.ConstantFolding",
+                                   "pythran.optimizations.DeadCodeElimination"])
+
+
     def test_patternmatching(self):
         init = """
 def foo(a):

@@ -222,26 +222,24 @@ namespace numpy
 
   template <class Op, size_t N>
   struct _reduce_axis {
-    template <class E, class F, class EIndices, class FIndices>
-    void operator()(E &&e, F &&f, long axis, EIndices &&e_indices, FIndices &&f_indices)
+    template <class E, class F, class EIndices>
+    void operator()(E &&e, F &&f, long axis, EIndices &&e_indices)
     {
       if (axis == std::decay_t<E>::value - N) {
         for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>(); i < n; ++i) {
-          _reduce_axisb<Op, N - 1>{}(e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)),
-                                     std::forward<FIndices>(f_indices));
+          _reduce_axisb<Op, N - 1>{}(e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)), std::forward<EIndices>(e_indices));
         }
       } else {
         for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>(); i < n; ++i) {
-          _reduce_axis<Op, N - 1>{}(e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)),
-                                    std::tuple_cat(f_indices, std::make_tuple(i)));
+          _reduce_axis<Op, N - 1>{}(e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)));
         }
       }
     }
   };
   template <class Op>
   struct _reduce_axis<Op, 0> {
-    template <class E, class F, class EIndices, class FIndices>
-    void operator()(E &&e, F &&f, long axis, EIndices &&e_indices, FIndices &&f_indices)
+    template <class E, class F, class EIndices>
+    void operator()(E &&e, F &&f, long axis, EIndices &&e_indices)
     {
     }
   };
@@ -271,8 +269,7 @@ namespace numpy
       throw types::ValueError("axis out of bounds");
     if (utils::no_broadcast(array)) {
       std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
-      _reduce_axis<Op, E::value>{}(array, std::forward<Out>(out), axis, std::make_tuple(),
-                                   std::make_tuple());
+      _reduce_axis<Op, E::value>{}(array, std::forward<Out>(out), axis, std::make_tuple());
       return std::forward<Out>(out);
     } else {
       if (axis == 0) {

@@ -259,7 +259,6 @@ namespace numpy
     auto next = std::copy(tmp.begin(), tmp.begin() + axis, shp.begin());
     std::copy(tmp.begin() + axis + 1, tmp.end(), next);
     reduced_type<E, Op, dtype> out{shp, builtins::None};
-    std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
     return reduce<Op>(array, axis, types::none_type{}, out);
   }
   template <class Op, class E, class Out>

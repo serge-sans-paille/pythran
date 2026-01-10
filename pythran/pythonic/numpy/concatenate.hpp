@@ -92,21 +92,39 @@ namespace numpy
     };
 
     template <>
-    struct concatenate_helper<0> {
-      // list version - sentinel
+    struct concatenate_helper<1> {
+      // list version
       template <class Out, class A>
-      void operator()(Out &&buffer, A const &from, long axis) const
+      void operator()(Out &&out, A const &from, long axis) const
       {
+        if (axis == 0) {
+          auto out_iter = out.begin();
+          for (auto &&ifrom : from)
+            out_iter = std::copy(ifrom.begin(), ifrom.end(), out_iter);
+        }
       }
       // array version
-      template <class Out, class E, size_t... I>
-      void operator()(Out &&, E const &, long, std::index_sequence<I...>) const
+      template <class Out, class A, size_t... I>
+      void operator()(Out &&out, A const &from, long axis, std::index_sequence<I...>) const
       {
+        if (axis == 0) {
+          auto out_iter = out.begin();
+          (void)std::initializer_list<int>{
+              (out_iter = std::copy(std::get<I>(from).begin(), std::get<I>(from).end(), out_iter),
+               1)...};
+        }
       }
-      // tuple version - sentinel
+      // tuple version
       template <class Out, class... Ts, size_t... I>
-      void operator()(Out &&, std::tuple<Ts...> const &, long, std::index_sequence<I...>) const
+      void operator()(Out &&out, std::tuple<Ts...> const &from, long axis,
+                      std::index_sequence<I...>) const
       {
+        if (axis == 0) {
+          auto out_iter = out.begin();
+          (void)std::initializer_list<int>{
+              (out_iter = std::copy(std::get<I>(from).begin(), std::get<I>(from).end(), out_iter),
+               1)...};
+        }
       }
     };
 

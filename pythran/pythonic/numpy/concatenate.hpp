@@ -47,31 +47,9 @@ namespace numpy
           }
         }
       }
-      // array version
+      // static version
       template <class Out, class A, size_t... I>
-      void operator()(Out &&out, A const &from, long axis, std::index_sequence<I...>) const
-      {
-        if (axis == 0) {
-          auto out_iter = out.begin();
-          (void)std::initializer_list<int>{
-              (out_iter = std::copy(std::get<I>(from).begin(), std::get<I>(from).end(), out_iter),
-               1)...};
-        } else {
-          types::array_tuple<typename A::value_type::const_iterator, sizeof...(I)> ifroms = {
-              std::get<I>(from).begin()...};
-          for (auto &&iout : out) {
-            types::array_tuple<
-                typename std::iterator_traits<typename A::value_type::const_iterator>::value_type,
-                sizeof...(I)>
-                difroms = {*std::get<I>(ifroms)...};
-            concatenate_helper<N - 1>()(iout, difroms, axis - 1, std::index_sequence<I...>{});
-            (void)std::initializer_list<int>{(++std::get<I>(ifroms), 0)...};
-          }
-        }
-      }
-      // tuple version
-      template <class Out, class... Ts, size_t... I>
-      void operator()(Out &&out, std::tuple<Ts...> const &from, long axis,
+      void operator()(Out &&out, A const &from, long axis,
                       std::index_sequence<I...>) const
       {
         if (axis == 0) {
@@ -98,12 +76,7 @@ namespace numpy
       void operator()(Out &&buffer, A const &from, long axis) const
       {
       }
-      // array version
-      template <class Out, class E, size_t... I>
-      void operator()(Out &&, E const &, long, std::index_sequence<I...>) const
-      {
-      }
-      // tuple version - sentinel
+      // static version - sentinel
       template <class Out, class... Ts, size_t... I>
       void operator()(Out &&, std::tuple<Ts...> const &, long, std::index_sequence<I...>) const
       {

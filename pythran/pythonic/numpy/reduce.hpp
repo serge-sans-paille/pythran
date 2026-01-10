@@ -194,10 +194,10 @@ namespace numpy
   template <class Op, size_t N>
   struct _reduce_axisb {
     template <class E, class F, class EIndices, class FIndices>
-    void operator()(E &&e, F &&f, long axis, EIndices &&e_indices, FIndices &&f_indices)
+    void operator()(E &&e, F &&f, EIndices &&e_indices, FIndices &&f_indices)
     {
       for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>(); i < n; ++i) {
-        _reduce_axisb<Op, N - 1>{}(e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)),
+        _reduce_axisb<Op, N - 1>{}(e, f, std::tuple_cat(e_indices, std::make_tuple(i)),
                                    std::tuple_cat(f_indices, std::make_tuple(i)));
       }
     }
@@ -212,13 +212,33 @@ namespace numpy
       f.template update<Op>(e.load(std::get<Es>(e_indices)...), (long)std::get<Fs>(f_indices)...);
     }
     template <class E, class F, class EIndices, class FIndices>
-    void operator()(E &&e, F &&f, long axis, EIndices &&e_indices, FIndices &&f_indices)
+    void operator()(E &&e, F &&f, EIndices &&e_indices, FIndices &&f_indices)
     {
       helper(std::forward<E>(e), std::forward<F>(f), e_indices, f_indices,
              std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>(),
              std::make_index_sequence<std::tuple_size<std::decay_t<FIndices>>::value>());
     }
   };
+
+  namespace detail {
+    template<class E, class EIndices, size_t... Es>
+    auto loader(E&& e, EIndices&& e_indices, long i, std::index_sequence<Es...>) {
+      return e.load(std::get<Es>(e_indices)..., i);
+    }
+    template<class E, class EIndices>
+    auto loader(E&& e, EIndices&& e_indices, long i) {
+      return loader(std::forward<E>(e), std::forward<EIndices>(e_indices), i, std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>());
+    }
+
+    template<class T, class E, class EIndices, size_t... Es>
+    void storer(T acc, E&& e, EIndices&& e_indices, std::index_sequence<Es...>) {
+      e.store(acc, std::get<Es>(e_indices)...);
+    }
+    template<class T, class E, class EIndices>
+    void storer(T acc, E&& e, EIndices&& e_indices) {
+      return storer(acc, std::forward<E>(e), std::forward<EIndices>(e_indices), std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>());
+    }
+  }
 
   template <class Op, size_t N>
   struct _reduce_axis {
@@ -227,11 +247,29 @@ namespace numpy
     {
       if (axis == std::decay_t<E>::value - N) {
         for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>(); i < n; ++i) {
-          _reduce_axisb<Op, N - 1>{}(e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)), std::forward<EIndices>(e_indices));
+          _reduce_axisb<Op, N - 1>{}(e, f, std::tuple_cat(e_indices, std::make_tuple(i)), std::forward<EIndices>(e_indices));
         }
       } else {
         for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>(); i < n; ++i) {
           _reduce_axis<Op, N - 1>{}(e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)));
+        }
+      }
+    }
+  };
+  template <class Op>
+  struct _reduce_axis<Op, 1> {
+    template <class E, class F, class EIndices>
+    void operator()(E &&e, F &&f, long axis, EIndices &&e_indices)
+    {
+      if (axis == std::decay_t<E>::value - 1) {
+        auto acc = utils::neutral<Op, typename std::decay_t<F>::dtype>::value;
+        for (long i = 0, n = e.template shape<std::decay_t<E>::value - 1>(); i < n; ++i) {
+          Op{}(acc, detail::loader(e, e_indices, i));
+        }
+        detail::storer(acc, std::forward<F>(f), std::forward<EIndices>(e_indices));
+      } else {
+        for (long i = 0, n = e.template shape<std::decay_t<E>::value - 1>(); i < n; ++i) {
+          _reduce_axis<Op, 0>{}(e, f, axis, std::tuple_cat(e_indices, std::make_tuple(i)));
         }
       }
     }
@@ -268,7 +306,8 @@ namespace numpy
     if (axis < 0 || size_t(axis) >= E::value)
       throw types::ValueError("axis out of bounds");
     if (utils::no_broadcast(array)) {
-      std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
+      if(axis != E::value - 1)
+        std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
       _reduce_axis<Op, E::value>{}(array, std::forward<Out>(out), axis, std::make_tuple());
       return std::forward<Out>(out);
     } else {

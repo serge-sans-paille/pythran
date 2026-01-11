@@ -745,6 +745,10 @@ CLASSES = {
         ),
         "ndim": StaticAttributeIntr(signature=Fun[[NDArray[T0, :]], int],
                               return_range=interval.positive_values),
+        "prod": ConstMethodIntr(
+                args=("self", "axis", "dtype", "out"),
+                defaults=(None, None, None),
+        ),
         "reshape": ConstMethodIntr(
             signature=Union[
                 Fun[[NDArray[T0, :], int], NDArray[T1, :]],
@@ -816,6 +820,10 @@ CLASSES = {
                 Fun[[NDArray[complex, :, :, :, :]], Tuple[int, int, int, int]],
             ]
         ),
+        "sum": ConstMethodIntr(
+                args=("self", "axis", "dtype", "out"),
+                defaults=(None, None, None)
+                ),
         "T": AttributeIntr(signature=Fun[[NDArray[T0, :]], NDArray[T0, :]]),
         "tofile": ConstMethodIntr(signature=Fun[[NDArray[T0, :]], str, str], global_effects=True),
         "tostring": ConstMethodIntr(signature=Fun[[NDArray[T0, :]], str]),
@@ -3882,7 +3890,8 @@ MODULES = {
             BINARY_UFUNC,
             signature=_numpy_binary_op_signature
         ),
-        "prod": ConstMethodIntr(),
+        "prod": ReadOnceFunctionIntr(
+            signature=_numpy_unary_op_sum_axis_signature),
         "product": ConstFunctionIntr(
             args=("a", "axis", "dtype", "out"),
             defaults=(None, None, None),
@@ -4036,7 +4045,7 @@ MODULES = {
             BINARY_UFUNC,
             signature=_numpy_binary_op_signature,
         ),
-        "sum": ReadOnceMethodIntr(
+        "sum": ReadOnceFunctionIntr(
             signature=_numpy_unary_op_sum_axis_signature),
         "swapaxes": ConstMethodIntr(),
         "short": ConstFunctionIntr(signature=_int_signature),

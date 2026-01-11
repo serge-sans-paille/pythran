@@ -206,18 +206,11 @@ def pretty_constraints(constraints):
     return ", ".join(pretty)
 
 
-def looseconstraints(constraints):
-    """
-    A constraint is loose if it may be applied to an instance or a package - we
-    don't know. Internally they are represented as ast.Name
-    """
-    return [constraint for constraint in constraints if isinstance(constraint, ast.Name)]
-
 def haslooseconstraint(constraints):
     """
     Check if the set of constraints contains any loose constraint
     """
-    return any(isinstance(constraint, ast.Name) for constraint in constraints)
+    return None in constraints
 
 
 class LocalAttributeInference(ast.NodeVisitor):
@@ -283,7 +276,7 @@ class LocalAttributeInference(ast.NodeVisitor):
             pkgnames = {p for p, _ in subpackages[node.attr]}
             strict = True
         elif node.attr in functions and isinstance(node.value, ast.Name):
-            pkgnames = {p for p, _ in functions.get(node.attr, ())}
+            pkgnames = {p for p, _ in functions[node.attr]}
         else:
             return
 
@@ -293,7 +286,7 @@ class LocalAttributeInference(ast.NodeVisitor):
                 pkgnames.add(methods[node.attr][0])  # esp. important for numpy
             # it's a method/attribute, so add an extra candidate which
             # represents the object itself
-            pkgnames.add(node.value)
+            pkgnames.add(None)
 
         # At this point the rhs of the attribute indicates we are attempting to
         # resolve a function call, and the lhs of the attributes indicates that
@@ -315,10 +308,9 @@ class LocalAttributeInference(ast.NodeVisitor):
                 if not constraints:
                     constraints.update(pkgnames)
                 else:
-                    pkgnames_loose = looseconstraints(pkgnames)
                     if constraints.isdisjoint(pkgnames):
-                        if pkgnames_loose or haslooseconstraint(constraints):
-                            constraints.update(pkgnames_loose)
+                        if haslooseconstraint(pkgnames) or haslooseconstraint(constraints):
+                            constraints.add(None)
                             continue
                         raise PythranSyntaxError(
                         "this attribute allows for packages `{}' but other constraints enforce `{}', and those are incompatible".format(
@@ -326,7 +318,6 @@ class LocalAttributeInference(ast.NodeVisitor):
                         node
                         )
                     constraints.intersection_update(pkgnames)
-                    constraints.update(pkgnames_loose)
 
 
 class AttributeResolver(ast.NodeTransformer):

@@ -1,4 +1,5 @@
 import os
+import re
 import glob
 import pytest
 import importlib
@@ -56,19 +57,10 @@ def make_benchmark(benchmark_path):
 for file_py in glob.glob(os.path.join(os.path.dirname(__file__), "..", "tests", "cases", "*.py")):
     with open(file_py) as fd:
         code = fd.read()
-        if "#bench " not in code:
+        if not re.search(r"#bench\s+", code):
             continue
-        if "#pythran export " not in code:
+        if not re.search(r"#\s*pythran\s+export\s+", code):
             continue
 
     modname, benchmark = make_benchmark(file_py)
     globals()[f'test_{modname}'] = benchmark
-#
-#
-#test_allpairs = make_benchmark(os.path.join(os.path.dirname(__file__),
-#                                            "cases", "allpairs.py"),
-#                               )
-#
-#test_brownian = make_benchmark(os.path.join(os.path.dirname(__file__),
-#                                            "cases", "brownian.py"),
-#                               )

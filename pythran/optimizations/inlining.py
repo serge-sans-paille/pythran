@@ -103,7 +103,7 @@ __pythran_inlinefooa0)) * (__pythran_inlinefoob1 + \
 
                 self.call_count += 1
                 return Inliner(arg_to_value).visit(to_inline.body[0])
-        return node
+        return self.generic_visit(node)
 
 
 class Inliner(ast.NodeTransformer):

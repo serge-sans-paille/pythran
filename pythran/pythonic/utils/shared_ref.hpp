@@ -21,36 +21,36 @@ namespace utils
    */
   template <class T>
   template <class... Types>
-  shared_ref<T>::memory::memory(Types &&...args)
+  inline shared_ref<T>::memory::memory(Types &&...args)
       : ptr(std::forward<Types>(args)...), count(1), foreign(nullptr)
   {
   }
 
   template <class T>
-  shared_ref<T>::shared_ref(no_memory const &) noexcept : mem(nullptr)
+  inline shared_ref<T>::shared_ref(no_memory const &) noexcept : mem(nullptr)
   {
   }
 
   template <class T>
-  shared_ref<T>::shared_ref(no_memory &&) noexcept : mem(nullptr)
+  inline shared_ref<T>::shared_ref(no_memory &&) noexcept : mem(nullptr)
   {
   }
 
   template <class T>
   template <class... Types>
-  shared_ref<T>::shared_ref(Types &&...args)
+  inline shared_ref<T>::shared_ref(Types &&...args)
       : mem(new(utils::allocate<memory>(1)) memory(std::forward<Types>(args)...))
   {
   }
 
   template <class T>
-  shared_ref<T>::shared_ref(shared_ref<T> &&p) noexcept : mem(p.mem)
+  inline shared_ref<T>::shared_ref(shared_ref<T> &&p) noexcept : mem(p.mem)
   {
     p.mem = nullptr;
   }
 
   template <class T>
-  shared_ref<T>::shared_ref(shared_ref<T> const &p) noexcept : mem(p.mem)
+  inline shared_ref<T>::shared_ref(shared_ref<T> const &p) noexcept : mem(p.mem)
   {
     if (mem)
       acquire();
@@ -58,7 +58,7 @@ namespace utils
 
   template <class T>
   template <class Tp>
-  shared_ref<Tp> shared_ref<T>::recast() noexcept
+  inline shared_ref<Tp> shared_ref<T>::recast() noexcept
   {
     shared_ref<Tp> res = no_memory{};
     if (mem)
@@ -68,60 +68,60 @@ namespace utils
   }
 
   template <class T>
-  shared_ref<T>::shared_ref(shared_ref<T> &p) noexcept : mem(p.mem)
+  inline shared_ref<T>::shared_ref(shared_ref<T> &p) noexcept : mem(p.mem)
   {
     if (mem)
       acquire();
   }
 
   template <class T>
-  shared_ref<T>::~shared_ref() noexcept
+  inline shared_ref<T>::~shared_ref() noexcept
   {
     dispose();
   }
 
   template <class T>
-  void shared_ref<T>::swap(shared_ref<T> &rhs) noexcept
+  inline void shared_ref<T>::swap(shared_ref<T> &rhs) noexcept
   {
     using std::swap;
     swap(mem, rhs.mem);
   }
 
   template <class T>
-  shared_ref<T> &shared_ref<T>::operator=(shared_ref<T> p) noexcept
+  inline shared_ref<T> &shared_ref<T>::operator=(shared_ref<T> p) noexcept
   {
     swap(p);
     return *this;
   }
 
   template <class T>
-  T &shared_ref<T>::operator*() const noexcept
+  inline T &shared_ref<T>::operator*() const noexcept
   {
     assert(mem);
     return mem->ptr;
   }
 
   template <class T>
-  T *shared_ref<T>::operator->() const noexcept
+  inline T *shared_ref<T>::operator->() const noexcept
   {
     assert(mem);
     return &mem->ptr;
   }
 
   template <class T>
-  bool shared_ref<T>::operator!=(shared_ref<T> const &other) const noexcept
+  inline bool shared_ref<T>::operator!=(shared_ref<T> const &other) const noexcept
   {
     return mem != other.mem;
   }
 
   template <class T>
-  bool shared_ref<T>::operator==(shared_ref<T> const &other) const noexcept
+  inline bool shared_ref<T>::operator==(shared_ref<T> const &other) const noexcept
   {
     return mem == other.mem;
   }
 
   template <class T>
-  void shared_ref<T>::external(extern_type obj_ptr)
+  inline void shared_ref<T>::external(extern_type obj_ptr)
   {
     assert(mem);
     mem->foreign = obj_ptr;
@@ -135,7 +135,7 @@ namespace utils
   }
 
   template <class T>
-  void shared_ref<T>::dispose()
+  inline void shared_ref<T>::dispose()
   {
     if (mem && --mem->count == 0) {
 #ifdef ENABLE_PYTHON_MODULE
@@ -150,7 +150,7 @@ namespace utils
   }
 
   template <class T>
-  void shared_ref<T>::acquire()
+  inline void shared_ref<T>::acquire()
   {
     assert(mem);
     ++mem->count;

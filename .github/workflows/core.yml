@@ -38,6 +38,7 @@ jobs:
         printf 'cflags=-std=c++14 -Wall -Wno-unknown-pragmas -Wno-unused-local-typedefs -Wno-cpp -Wno-deprecated-declarations -D_GLIBCXX_DEBUG' >> ~/.config/.pythranrc
         if test "${{ matrix.python-version }}" != "pypy-3.11" ; then printf -- " -Werror " ; fi >> ~/.config/.pythranrc
         if test "${{ matrix.cpp-version }}" = "clang-13" ; then printf -- " -Wno-absolute-value -Wno-parentheses-equality\n" ; fi >> ~/.config/.pythranrc
+        if test "${{ matrix.cpp-version }}" = "g++-12" ; then printf -- "  -Wuse-after-free=0 \n" ; fi >> ~/.config/.pythranrc
         printf "\n" >> ~/.config/.pythranrc
     - name: Testing minimal CLI
       run: |

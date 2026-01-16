@@ -183,12 +183,19 @@ namespace numpy
   }
 
   template <class Op, class E, class Out>
+  std::enable_if_t<E::value == 1, reduce_result_type<Op, E>>
+  reduce_no_axis_check(E const &array, long axis, types::none_type, Out &&out)
+  {
+    return std::forward<Out>(out) = reduce<Op>(array);
+  }
+
+  template <class Op, class E, class Out>
   std::enable_if_t<E::value == 1, reduce_result_type<Op, E>> reduce(E const &array, long axis,
                                                                     types::none_type, Out &&out)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
-    return std::forward<Out>(out) = reduce<Op>(array);
+    return reduce_no_axis_check<Op>(array, axis, types::none_type{}, out);
   }
 
   template <class Op, size_t N>
@@ -282,6 +289,32 @@ namespace numpy
     }
   };
 
+  template <class Op, class E, class Out>
+  std::enable_if_t<E::value != 1, std::decay_t<Out>>
+  reduce_no_axis_check(E const &array, long axis, types::none_type, Out &&out)
+  {
+    if (utils::no_broadcast(array)) {
+      if(axis != E::value - 1)
+        std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
+      _reduce_axis<Op, E::value>{}(array, std::forward<Out>(out), axis, std::make_tuple());
+      return std::forward<Out>(out);
+    } else {
+      if (axis == 0) {
+        std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
+        return _reduce<Op, 1, types::novectorize /* not on scalars*/>{}(array,
+                                                                        std::forward<Out>(out));
+      } else {
+        auto out_iter = out.begin();
+        std::for_each(array.begin(), array.end(),
+                      [&out_iter, axis](typename E::const_iterator::value_type other) {
+                        reduce_no_axis_check<Op>(other, axis - 1, types::none_type{}, *out_iter);
+                        ++out_iter;
+                      });
+        return std::forward<Out>(out);
+      }
+    }
+  }
+
   template <class Op, class E, class dtype>
   std::enable_if_t<E::value != 1, reduced_type<E, Op, dtype>> reduce(E const &array, long axis,
                                                                      dtype, types::none_type)
@@ -295,34 +328,17 @@ namespace numpy
     auto next = std::copy(tmp.begin(), tmp.begin() + axis, shp.begin());
     std::copy(tmp.begin() + axis + 1, tmp.end(), next);
     reduced_type<E, Op, dtype> out{shp, builtins::None};
-    return reduce<Op>(array, axis, types::none_type{}, out);
+    return reduce_no_axis_check<Op>(array, axis, types::none_type{}, out);
   }
   template <class Op, class E, class Out>
-  std::enable_if_t<E::value != 1, reduced_type<E, Op>> reduce(E const &array, long axis,
-                                                              types::none_type, Out &&out)
+  std::enable_if_t<E::value != 1, std::decay_t<Out>> reduce(E const &array, long axis,
+                                                            types::none_type, Out &&out)
   {
     if (axis < 0)
       axis += E::value;
     if (axis < 0 || size_t(axis) >= E::value)
       throw types::ValueError("axis out of bounds");
-    if (utils::no_broadcast(array)) {
-      if(axis != E::value - 1)
-        std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
-      _reduce_axis<Op, E::value>{}(array, std::forward<Out>(out), axis, std::make_tuple());
-      return std::forward<Out>(out);
-    } else {
-      if (axis == 0) {
-        std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
-        return _reduce<Op, 1, types::novectorize /* not on scalars*/>{}(array,
-                                                                        std::forward<Out>(out));
-      } else {
-        std::transform(array.begin(), array.end(), out.begin(),
-                       [axis](typename E::const_iterator::value_type other) {
-                         return reduce<Op>(other, axis - 1);
-                       });
-        return std::forward<Out>(out);
-      }
-    }
+    return reduce_no_axis_check<Op>(array, axis, types::none_type{}, out);
   }
 } // namespace numpy
 PYTHONIC_NS_END

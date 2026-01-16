@@ -89,8 +89,8 @@ namespace numpy
   }
 
   template <class Op, class E, class Out>
-  std::enable_if_t<E::value != 1, reduced_type<E, Op>> reduce(E const &array, long axis,
-                                                              types::none_type dtype, Out &&out);
+  std::enable_if_t<E::value != 1, std::decay_t<Out>> reduce(E const &array, long axis,
+                                                            types::none_type dtype, Out &&out);
 } // namespace numpy
 PYTHONIC_NS_END
 

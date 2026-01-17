@@ -269,8 +269,8 @@ namespace numpy
     void operator()(E &&e, F &&f, long axis, EIndices &&e_indices)
     {
       if (axis == std::decay_t<E>::value - 1) {
-        auto acc = utils::neutral<Op, typename std::decay_t<F>::dtype>::value;
-        for (long i = 0, n = e.template shape<std::decay_t<E>::value - 1>(); i < n; ++i) {
+        typename std::decay_t<F>::dtype acc = detail::loader(e, e_indices, 0);
+        for (long i = 1, n = e.template shape<std::decay_t<E>::value - 1>(); i < n; ++i) {
           Op{}(acc, detail::loader(e, e_indices, i));
         }
         detail::storer(acc, std::forward<F>(f), std::forward<EIndices>(e_indices));

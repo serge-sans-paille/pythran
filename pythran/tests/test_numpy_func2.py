@@ -5,6 +5,12 @@ from packaging import version
 
 from pythran.typing import NDArray, List, Tuple
 
+try:
+    numpy.float128
+    has_float128 = True
+except AttributeError:
+    has_float128 = False
+
 
 np_version = version.parse(numpy.version.version)
 
@@ -206,6 +212,7 @@ class TestNumpyFunc2(TestEnv):
                   numpy.arange(10,dtype=float),
                   np_convolve_2=[NDArray[float,:],NDArray[float,:]])
 
+    @unittest.skipIf(not has_float128, 'not float128')
     def test_convolve_2b(self):
         self.run_test("def np_convolve_2b(a,b):\n from numpy import convolve\n return convolve(a,b)",
                   numpy.arange(12,dtype=numpy.float128),

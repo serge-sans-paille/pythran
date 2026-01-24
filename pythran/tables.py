@@ -150,16 +150,56 @@ _complex_signature = Union[
 ]
 
 # workaround changes in numpy interaction with getfullargspec
-try:
-    inspect.getfullargspec(numpy.asarray)
-    # if we have a description, honor it
-    extra_numpy_asarray_descr = {}
-except TypeError:
-    extra_numpy_asarray_descr = {'args':('a', 'dtype'),
-                                 'defaults': (None,)}
+_extra_descr = {
+        "asarray": {
+            'args':('a', 'dtype'),
+            'defaults': (None,)
+            },
+        "array": {
+            'args': ('object', 'dtype'),
+            'defaults': (None,),
+            },
+        "arange": {
+            'args':('start', 'stop', 'step', 'dtype'),
+            'defaults':(1, None),
+            },
+        "concatenate": {
+            'args': ('_', 'axis'),
+            'defaults': (0,),
+            },
+        "empty": {
+            'args': ('shape', 'dtype'),
+            'defaults': ("numpy.float64",),
+        },
+        "empty_like": {
+            'args': ('a', 'dtype'),
+            'defaults': ("numpy.float64",),
+            },
+        "fromiter": {
+            'args': ("iterable", "dtype", "count"),
+            'defaults': (-1,),
+            },
+        "fromfile": {
+            'args': ('file', 'dtype', 'count', "sep", "offset"),
+            'defaults': (None, None, -1, None, 0),
+            },
+        "zeros": {
+            'args': ('shape', 'dtype'),
+            'defaults': ("numpy.float64",),
+        },
+}
 
 
-
+for attr in list(_extra_descr.keys()):
+    try:
+        obj = getattr(numpy, attr)
+        while hasattr(obj, '__wrapped__'):
+            obj = obj.__wrapped__
+        inspect.getfullargspec(obj)
+        # if we have a description, honor it
+        _extra_descr[attr].clear()
+    except (TypeError, AttributeError):
+        ...
 
 
 def update_effects(self, node):
@@ -3167,8 +3207,7 @@ MODULES = {
                     NDArray[complex, :]],
             ],
             return_range_content=interval.range_values,
-            args=('start', 'stop', 'step', 'dtype'),
-            defaults=(1, None)
+            **_extra_descr["arange"]
         ),
         "arccos": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
         "arccosh": ConstFunctionIntr(
@@ -3201,8 +3240,7 @@ MODULES = {
         ),
         "around": ConstFunctionIntr(signature=_numpy_around_signature),
         "array": FunctionIntr(signature=_numpy_array_signature,
-                              args=('object', 'dtype'),
-                              defaults=(None,)),
+                              **_extra_descr["array"]),
         "array2string": ConstFunctionIntr(
             signature=_numpy_array_str_signature),
         "array_equal": ConstFunctionIntr(signature=Fun[[T0, T1], bool]),
@@ -3217,7 +3255,7 @@ MODULES = {
         ),
         "array_str": ConstFunctionIntr(signature=_numpy_array_str_signature),
         "asarray": ReadOnceFunctionIntr(signature=_numpy_array_signature,
-                                        **extra_numpy_asarray_descr),
+                                        **_extra_descr['asarray']),
         "asarray_chkfinite": ConstFunctionIntr(
             signature=_numpy_array_signature),
         "ascontiguousarray": ConstFunctionIntr(
@@ -3411,8 +3449,6 @@ MODULES = {
         "ceil": ConstFunctionIntr(signature=_numpy_float_unary_op_signature),
         "clip": ConstMethodIntr(signature=_numpy_ternary_op_signature),
         "concatenate": ConstFunctionIntr(
-            args=('_', 'axis'),
-            defaults=(0,),
             signature=Union[
                 # 1D
                 Fun[[Iterable[Iterable[bool]]], NDArray[bool, :]],
@@ -3578,7 +3614,8 @@ MODULES = {
                            Iterable[Iterable[complex]],
                            Iterable[Iterable[complex]], int]],
                     NDArray[complex, :, :]],
-            ]
+            ],
+            **_extra_descr["concatenate"]
         ),
         "complex64": ConstFunctionIntr(signature=_complex_signature),
         "complex128": ConstFunctionIntr(signature=_complex_signature),
@@ -3713,15 +3750,14 @@ MODULES = {
         "dtype": ClassWithConstConstructor(CLASSES["dtype"]),
         "e": ConstantIntr(),
         "ediff1d": ConstFunctionIntr(),
-        "empty": ConstFunctionIntr(args=('shape', 'dtype'),
-                                   defaults=("numpy.float64",),
+        "empty": ConstFunctionIntr(
                                    signature=_numpy_ones_signature,
                                    global_effects=True, # to avoid folding
+            **_extra_descr["empty"]
                                    ),
         "empty_like": ConstFunctionIntr(
-            args=('a', 'dtype'),
-            defaults=("numpy.float64",),
-            signature=_numpy_ones_like_signature
+            signature=_numpy_ones_like_signature,
+            **_extra_descr["empty_like"]
         ),
         "equal": UFunc(BINARY_UFUNC),
         "exp": ConstFunctionIntr(signature=_numpy_unary_op_float_signature),
@@ -3755,14 +3791,12 @@ MODULES = {
         "frexp": ConstFunctionIntr(),
         "frombuffer": ConstFunctionIntr(),
         "fromfunction": ConstFunctionIntr(),
-        "fromiter": ConstFunctionIntr(args=("iterable", "dtype", "count"),
-                                      defaults=(-1,)),
+        "fromiter": ConstFunctionIntr(**_extra_descr["fromiter"]),
         "fromstring": ConstFunctionIntr(args=('string', 'dtype', 'count',),
                                         kwonlyargs=('sep', 'like'),
                                         defaults=(float, -1, '', None)),
-        "fromfile":  FunctionIntr(args=('file', 'dtype', 'count', "sep", "offset"),
-                                  defaults=(None, None, -1, None, 0),
-                                  global_effects=True),
+        "fromfile":  FunctionIntr(global_effects=True,
+                                  **_extra_descr["fromfile"]),
         "full": ConstFunctionIntr(signature=_numpy_ones_signature),
         "full_like": ConstFunctionIntr(signature=_numpy_ones_like_signature),
         "greater": UFunc(
@@ -4079,10 +4113,8 @@ MODULES = {
         "vdot": ConstMethodIntr(requires_blas=True),
         "vstack": ConstFunctionIntr(),
         "where": ConstFunctionIntr(),
-        "zeros": ConstFunctionIntr(args=('shape', 'dtype'),
-                                   defaults=("numpy.float64",),
-                                   signature=_numpy_ones_signature,
-                                   ),
+        "zeros": ConstFunctionIntr(signature=_numpy_ones_signature,
+                                   **_extra_descr["zeros"]),
         "zeros_like": ConstFunctionIntr(signature=_numpy_ones_like_signature),
     },
     "time": {
@@ -4546,6 +4578,9 @@ MODULES = {
     },
 }
 
+# numpy alias
+MODULES['numpy']['concat'] = MODULES['numpy']['concatenate']
+
 # PyPy doesn't seem to provide this.
 if sys.implementation.name == 'pypy':
     del MODULES['array']['typecodes']
@@ -4561,9 +4596,6 @@ if 'VMSError' in sys.modules['builtins'].__dict__:
 # WindowsError is only available on Windows
 if 'WindowsError' in sys.modules['builtins'].__dict__:
     MODULES['builtins']['WindowsError'] = ConstExceptionIntr()
-
-# numpy alias
-MODULES['numpy']['concat'] = MODULES['numpy']['concatenate']
 
 # detect and prune unsupported modules
 for module_name in ["omp", "scipy", "scipy.special"]:

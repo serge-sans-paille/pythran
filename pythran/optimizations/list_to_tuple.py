@@ -15,6 +15,9 @@ patterns = {MODULES['numpy']['full'],
             MODULES['builtins']['tuple'],
            }
 
+if 'concat' in MODULES['numpy']:
+    patterns.add(MODULES['numpy']['concat'])
+
 
 def islist(node):
     return isinstance(node, ast.List)

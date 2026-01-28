@@ -6,6 +6,7 @@ from pythran.types.conversion import pytype_to_pretty_type
 
 from collections import defaultdict
 from itertools import product, chain
+import inspect
 import re
 import ply.lex as lex
 import ply.yacc as yacc
@@ -523,10 +524,12 @@ class SpecParser(object):
 
     def __init__(self):
         self.lexer = lex.lex(module=self, debug=False)
-        # Do not write the table for better compatibility across ply version
-        self.parser = yacc.yacc(module=self,
-                                debug=False,
-                                write_tables=False)
+
+        yacc_kwargs = {'module': self, 'debug': False}
+        # ply post-3.11 version removed the write_tables parameter
+        if 'write_tables' in inspect.signature(yacc.yacc).parameters:
+            yacc_kwargs['write_tables'] = False
+        self.parser = yacc.yacc(**yacc_kwargs)
 
     def __call__(self, text, input_file=None):
         self.exports = defaultdict(tuple)

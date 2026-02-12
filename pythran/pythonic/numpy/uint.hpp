@@ -43,18 +43,12 @@ PYTHONIC_NS_BEGIN
 
 inline PyObject *to_python<numpy::functor::uint>::convert(numpy::functor::uint const &c)
 {
-  return (PyObject *)&PyUIntArrType_Type;
+  return (PyObject *)&PyULongArrType_Type;
 }
 
 inline bool from_python<numpy::functor::uint>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject *)&PyUIntArrType_Type ||
-#if NPY_SIZEOF_INTP == NPY_SIZEOF_LONG
-         obj == (PyObject *)&PyUInt64ArrType_Type
-#else
-         obj == (PyObject *)&PyUInt32ArrType_Type
-#endif
-      ;
+  return obj == (PyObject *)&PyULongArrType_Type;
 }
 
 inline numpy::functor::uint from_python<numpy::functor::uint>::convert(PyObject *obj)

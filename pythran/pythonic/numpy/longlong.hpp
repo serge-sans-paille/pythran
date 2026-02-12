@@ -34,4 +34,31 @@ namespace numpy
 } // namespace numpy
 PYTHONIC_NS_END
 
+#ifdef ENABLE_PYTHON_MODULE
+
+#include "pythonic/python/core.hpp"
+#include "numpy/arrayscalars.h"
+
+PYTHONIC_NS_BEGIN
+
+inline PyObject *
+to_python<numpy::functor::longlong>::convert(numpy::functor::longlong const &c)
+{
+  return (PyObject*)&PyLongLongArrType_Type;
+}
+
+inline bool from_python<numpy::functor::longlong>::is_convertible(PyObject *obj)
+{
+  return obj == (PyObject*)&PyLongLongArrType_Type;
+}
+
+inline numpy::functor::longlong
+from_python<numpy::functor::longlong>::convert(PyObject *obj)
+{
+  return {};
+}
+
+PYTHONIC_NS_END
+#endif
+
 #endif

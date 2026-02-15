@@ -22,7 +22,6 @@ jobs:
         architecture: ${{ matrix.architecture }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install scipy
         pip install pythran-openblas pytest
     - name: Setup

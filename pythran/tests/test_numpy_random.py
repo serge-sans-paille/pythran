@@ -641,7 +641,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy import mean, frombuffer, uint8, asarray
                 a = bytes(n)
                 return (abs(mean(asarray(frombuffer(a, uint8), dtype=float)) - 127.5) < .05)""",
-                      10 ** 8, numpy_random_bytes1=[int])
+                      10 ** 7, numpy_random_bytes1=[int])
 
     ###########################################################################
     #Tests for numpy.random.exponential

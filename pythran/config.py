@@ -283,7 +283,7 @@ def make_extension(python, **extra):
             extension['libraries'].append(openblas.get_library())
             extension['extra_link_args'].append("-Wl,-rpath=" + openblas.get_lib_dir())
         except ImportError:
-            logger.warning("Failed to find 'scipy-openblas64' package. "
+            logger.warning("Failed to find 'scipy-openblas(32|64)' package. "
                            "Please install it or change the compiler.blas "
                            "setting. Defaulting to 'none'")
             user_blas = 'none'

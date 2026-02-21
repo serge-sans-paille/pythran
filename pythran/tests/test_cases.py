@@ -7,6 +7,7 @@ import numpy
 import unittest
 
 from pythran.tests import TestFromDir
+from pythran.config import cfg
 
 
 class TestCases(TestFromDir):
@@ -26,6 +27,16 @@ if Version(numpy.__version__) >= Version('1.20'):
 # too template intensive for old g++
 if os.environ.get('CXX', None) == 'g++-5':
     del TestCases.test_loopy_jacob_run0
+
+# requires blas
+if cfg.get('compiler', 'blas') == 'none':
+    del TestCases.test_convnet_run0
+    del TestCases.test_descent_run0
+    del TestCases.test_rand_mat_stat_norun0
+    del TestCases.test_euclidean_distance_square_run0
+    del TestCases.test_ldpc_decoder_norun0
+    del TestCases.test_pythagorean_triples_run0
+
 
 
 if __name__ == '__main__':

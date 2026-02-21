@@ -1,5 +1,6 @@
 import unittest
 from pythran.tests import TestEnv
+from pythran.config import cfg
 import numpy
 from packaging import version
 import tempfile
@@ -444,9 +445,11 @@ def np_rosen_der(x):
     def test_insert2(self):
         self.run_test("def np_insert2(a): from numpy import insert ; return insert(a, [1,1], [5.2,6])", numpy.array([[1, 1], [2, 2], [3, 3]]), np_insert2=[NDArray[int,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_inner0(self):
         self.run_test("def np_inner0(x): from numpy import inner ; y = 3 ; return inner(x,y)", 2, np_inner0=[int])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_inner1(self):
         self.run_test("def np_inner1(x): from numpy import inner ; y = [2, 3] ; return inner(x,y)", [2, 3], np_inner1=[List[int]])
 

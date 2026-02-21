@@ -4,6 +4,7 @@ import numpy
 from packaging import version
 
 from pythran.typing import NDArray, List, Tuple
+from pythran.config import cfg
 
 try:
     numpy.float128
@@ -133,41 +134,48 @@ class TestNumpyFunc2(TestEnv):
     def test_cumprod5_(self):
         self.run_test("def np_cumprod5_(a):\n from numpy import cumprod\n return a.cumprod(0)", numpy.arange(10), np_cumprod5_=[NDArray[int,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_1(self):
         self.run_test("def np_correlate_1(a,b):\n from numpy import correlate\n return correlate(a,b)",
                       numpy.arange(10,dtype=float),
                       numpy.arange(12,dtype=float),
                       np_correlate_1=[NDArray[float,:],NDArray[float,:]])
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_2(self):
         self.run_test("def np_correlate_2(a,b):\n from numpy import correlate\n return correlate(a,b)",
                   numpy.arange(12,dtype=float),
                   numpy.arange(10,dtype=float),
                   np_correlate_2=[NDArray[float,:],NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_3(self):
         self.run_test("def np_correlate_3(a,b):\n from numpy import correlate\n return correlate(a,b,'valid')",
                   numpy.arange(12,dtype=float),
                   numpy.arange(10,dtype=float),
                   np_correlate_3=[NDArray[float,:],NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_4(self):
         self.run_test("def np_correlate_4(a,b):\n from numpy import correlate\n return correlate(a,b,'same')",
                   numpy.arange(12,dtype=float),
                   numpy.arange(10,dtype=float),
                   np_correlate_4=[NDArray[float,:],NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_5(self):
         self.run_test("def np_correlate_5(a,b):\n from numpy import correlate\n return correlate(a,b,'same')",
                   numpy.arange(12,dtype=float),
                   numpy.arange(7,dtype=float),
                   np_correlate_5=[NDArray[float,:],NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_6(self):
         self.run_test("def np_correlate_6(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
                   numpy.arange(12) + 1j*numpy.arange(12.),
                   numpy.arange(7.) + 1j* numpy.arange(7.),
                   np_correlate_6=[NDArray[complex,:],NDArray[complex,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_7(self):
         dtype = numpy.float32
         self.run_test("def np_correlate_7(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
@@ -175,6 +183,7 @@ class TestNumpyFunc2(TestEnv):
                   numpy.arange(7).astype(dtype) + 1j* numpy.arange(7).astype(dtype),
                   np_correlate_7=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_8(self):
         dtype = numpy.float32
         self.run_test("def np_correlate_8(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
@@ -182,6 +191,7 @@ class TestNumpyFunc2(TestEnv):
                   numpy.arange(12).astype(dtype) + 1j*numpy.arange(12).astype(dtype),
                   np_correlate_8=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_9(self):
         dtype = float
         self.run_test("def np_correlate_9(a,b):\n from numpy import correlate\n return correlate(a,b,'full')",
@@ -189,23 +199,27 @@ class TestNumpyFunc2(TestEnv):
                   numpy.arange(12).astype(dtype) + 1j*numpy.arange(12).astype(dtype),
                   np_correlate_9=[NDArray[numpy.complex128,:],NDArray[numpy.complex128,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_10(self):
         self.run_test("def np_correlate_10(a,b):\n from numpy import correlate\n return correlate(a,b,'same')",
                   numpy.arange(12,dtype=float),
                   numpy.arange(7,dtype=numpy.float32),
                   np_correlate_10=[NDArray[float,:],NDArray[numpy.float32,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_correlate_11(self):
         self.run_test("def np_correlate_11(a,b):\n from numpy import correlate\n return correlate(a,b,'same')",
                   numpy.arange(12,dtype=numpy.float32),
                   numpy.arange(7,dtype=float),
                   np_correlate_11=[NDArray[numpy.float32,:],NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_1(self):
         self.run_test("def np_convolve_1(a,b):\n from numpy import convolve\n return convolve(a,b)",
                       numpy.arange(10,dtype=float),
                       numpy.arange(12,dtype=float),
                       np_convolve_1=[NDArray[float,:],NDArray[float,:]])
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_2(self):
         self.run_test("def np_convolve_2(a,b):\n from numpy import convolve\n return convolve(a,b)",
                   numpy.arange(12,dtype=float),
@@ -213,36 +227,42 @@ class TestNumpyFunc2(TestEnv):
                   np_convolve_2=[NDArray[float,:],NDArray[float,:]])
 
     @unittest.skipIf(not has_float128, 'not float128')
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_2b(self):
         self.run_test("def np_convolve_2b(a,b):\n from numpy import convolve\n return convolve(a,b)",
                   numpy.arange(12,dtype=numpy.float128),
                   numpy.arange(10,dtype=numpy.float128),
                   np_convolve_2b=[NDArray[numpy.float128,:],NDArray[numpy.float128,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_3(self):
         self.run_test("def np_convolve_3(a,b):\n from numpy import convolve\n return convolve(a,b,'valid')",
                   numpy.arange(12,dtype=float),
                   numpy.arange(10,dtype=float),
                   np_convolve_3=[NDArray[float,:],NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_4(self):
         self.run_test("def np_convolve_4(a,b):\n from numpy import convolve\n return convolve(a,b,'same')",
                   numpy.arange(12,dtype=float),
                   numpy.arange(10,dtype=float),
                   np_convolve_4=[NDArray[float,:],NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_5(self):
         self.run_test("def np_convolve_5(a,b):\n from numpy import convolve\n return convolve(a,b,'same')",
                   numpy.arange(12,dtype=float),
                   numpy.arange(7,dtype=float),
                   np_convolve_5=[NDArray[float,:],NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_6(self):
         self.run_test("def np_convolve_6(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
                   numpy.arange(12.) + 1j*numpy.arange(12.),
                   numpy.arange(7.) + 1j* numpy.arange(7.),
                   np_convolve_6=[NDArray[complex,:],NDArray[complex,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_7(self):
         dtype = numpy.float32
         self.run_test("def np_convolve_7(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
@@ -250,6 +270,7 @@ class TestNumpyFunc2(TestEnv):
                   numpy.arange(7).astype(dtype) +  1j*numpy.arange(7).astype(dtype),
                   np_convolve_7=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_8(self):
         dtype = numpy.float32
         self.run_test("def np_convolve_8(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
@@ -257,6 +278,7 @@ class TestNumpyFunc2(TestEnv):
                   numpy.arange(12).astype(dtype) +1j*numpy.arange(12).astype(dtype),
                   np_convolve_8=[NDArray[numpy.complex64,:],NDArray[numpy.complex64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_9(self):
         dtype = float
         self.run_test("def np_convolve_9(a,b):\n from numpy import convolve\n return convolve(a,b,'full')",
@@ -264,12 +286,14 @@ class TestNumpyFunc2(TestEnv):
                   numpy.arange(12).astype(dtype) + 1j* numpy.arange(12).astype(dtype),
                   np_convolve_9=[NDArray[numpy.complex128,:],NDArray[numpy.complex128,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_10(self):
         self.run_test("def np_convolve_10(a,b):\n from numpy import convolve\n return convolve(a,b,'same')",
                   numpy.arange(12,dtype=float),
                   numpy.arange(7,dtype=numpy.float32),
                   np_convolve_10=[NDArray[float,:],NDArray[numpy.float32,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_convolve_11(self):
         self.run_test("def np_convolve_11(a,b):\n from numpy import convolve\n return convolve(a,b,'same')",
                   numpy.arange(12,dtype=numpy.float32),
@@ -1139,6 +1163,7 @@ def np_broadcast_dup():
     def test_sum_neg_shape(self):
         self.run_test("def np_sum_neg_shape(a): return a.sum(axis=-1)", numpy.arange(10).reshape(5,2), np_sum_neg_shape=[NDArray[int,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_matrix_power0(self):
         self.run_test(
             "def np_matrix_power0(a): from numpy.linalg import matrix_power; return matrix_power(a, 0)",
@@ -1146,6 +1171,7 @@ def np_broadcast_dup():
             np_matrix_power0=[NDArray[float,:,:]]
         )
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_matrix_power1(self):
         self.run_test(
             "def np_matrix_power1(a): from numpy.linalg import matrix_power; return matrix_power(a, 1)",
@@ -1153,6 +1179,7 @@ def np_broadcast_dup():
             np_matrix_power1=[NDArray[float,:,:]]
         )
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_matrix_power2(self):
         self.run_test(
             "def np_matrix_power2(a): from numpy.linalg import matrix_power; return matrix_power(a, 5)",

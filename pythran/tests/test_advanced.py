@@ -5,6 +5,7 @@ from unittest import skip, skipIf
 import numpy
 
 from pythran.typing import *
+from pythran.config import cfg
 from packaging.version import Version
 
 class TestAdvanced(TestEnv):
@@ -293,22 +294,23 @@ def default_arg7(n):
         '''
         self.run_test(code, function_with_non_ascii_docstring=[])
 
-    def test_matmul_operator(self):
-        code = 'def matmul_operator(x, y): return x @ y'
-        self.run_test(
-            code,
-            numpy.array([[1., 1.], [2., 2.]]),
-            numpy.array([[0., 2.], [1., 3.]]),
-            matmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])
+    if cfg.get('compiler', 'blas') != 'none':
+        def test_matmul_operator(self):
+            code = 'def matmul_operator(x, y): return x @ y'
+            self.run_test(
+                code,
+                numpy.array([[1., 1.], [2., 2.]]),
+                numpy.array([[0., 2.], [1., 3.]]),
+                matmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])
 
-    @skipIf(Version(numpy.__version__) <= Version('1.26'), "Not supported upstream")
-    def test_imatmul_operator(self):
-        code = 'def imatmul_operator(x, y): x @= y; return x'
-        self.run_test(
-            code,
-            numpy.array([[1., 1.], [2., 2.]]),
-            numpy.array([[0., 2.], [1., 3.]]),
-            imatmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])
+        @skipIf(Version(numpy.__version__) <= Version('1.26'), "Not supported upstream")
+        def test_imatmul_operator(self):
+            code = 'def imatmul_operator(x, y): x @= y; return x'
+            self.run_test(
+                code,
+                numpy.array([[1., 1.], [2., 2.]]),
+                numpy.array([[0., 2.], [1., 3.]]),
+                imatmul_operator=[NDArray[float, :,:], NDArray[float, :,:]])
 
     def test_generator_handler_name(self):
         code = '''

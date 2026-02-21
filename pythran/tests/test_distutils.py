@@ -6,6 +6,8 @@ import sys
 import sysconfig
 import unittest
 
+from pythran.config import cfg
+
 cwd = os.path.dirname(__file__)
 
 def _get_implementation():
@@ -203,6 +205,7 @@ if sys.version_info > (3, 9):
 
         @unittest.skipIf(not has_meson, "meson not found")
         @unittest.skipIf(not has_ninja, "ninja not found")
+        @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
         def test_meson_build(self):
             srcdir = os.path.join(cwd, 'test_distutils')
             builddir = os.path.join(srcdir, '_meson_build')

@@ -4,6 +4,7 @@ import unittest
 
 import numpy
 from pythran.typing import List, NDArray, Tuple
+from pythran.config import cfg
 
 from pythran.tests import TestEnv
 
@@ -28,36 +29,47 @@ class TestNumpyFunc3(TestEnv):
     and various combinations of +/-/** and trigonometric operations.
     """
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot0(self):
         self.run_test("def np_dot0(x, y): from numpy import dot; return dot(x, y)", 2, 3, np_dot0=[int, int])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot1(self):
         self.run_test("def np_dot1(x): from numpy import dot ; y = [2, 3] ; return dot(x,y)", [2, 3], np_dot1=[List[int]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot2(self):
         self.run_test("def np_dot2(x): from numpy import dot ; y = [2j, 3j] ; return dot(x,y)", [2j, 3j], np_dot2=[List[complex]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot3(self):
         self.run_test("def np_dot3(x): from numpy import array ; y = array([2, 3]) ; return y.dot(x+x)", numpy.array([2, 3]), np_dot3=[NDArray[int,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot4a(self):
         self.run_test("def np_dot4a(x): from numpy import dot ; y = [2, 3] ; return dot(x,y)", numpy.array([2, 3]), np_dot4a=[NDArray[int,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot4b(self):
         self.run_test("def np_dot4b(x): from numpy import dot ; y = [2., 3.] ; return dot(x[1:],y)", numpy.array([2, 3, 4], dtype=numpy.float32), np_dot4b=[NDArray[numpy.float32,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot4c(self):
         self.run_test("def np_dot4c(x): from numpy import dot ; return dot(x[1:],x[:-1])", numpy.array([2, 3, 4], dtype=numpy.float64), np_dot4c=[NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot4d(self):
         self.run_test("def np_dot4d(x): from numpy import dot ; return dot(x, x)", numpy.array([2j, 3j, 4.]), np_dot4d=[NDArray[complex,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot4e(self):
         self.run_test("def np_dot4e(x): from numpy import dot ; y = (2.j, 3.j) ; return dot(x[:-1],y)", numpy.array([2.j, 3.j, 4.j], dtype=numpy.complex64), np_dot4e=[NDArray[numpy.complex64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot4f(self):
         self.run_test("def np_dot4f(x): from numpy import dot ; y = (1., 2., 3.) ; return dot(2*x, y)", numpy.array([2., 3., 4.]), np_dot4f=[NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot5(self):
         """ Check for dgemm version of dot. """
         self.run_test("""
@@ -68,6 +80,7 @@ class TestNumpyFunc3(TestEnv):
                       [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]],
                       np_dot5=[List[List[float]], List[List[float]]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot6(self):
         """ Check for dot with "no blas type". """
         self.run_test("""
@@ -78,6 +91,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(9, 18).reshape(3, 3),
                       np_dot6=[NDArray[int,:,:], NDArray[int,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot7(self):
         """ Check for dgemm version of dot with rectangular shape. """
         self.run_test("""
@@ -88,6 +102,7 @@ class TestNumpyFunc3(TestEnv):
                       [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]],
                       np_dot7=[List[List[float]], List[List[float]]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot8(self):
         """ Check for dot with "no blas type" with rectangulare shape. """
         self.run_test("""
@@ -98,6 +113,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(6, 12).reshape(2, 3),
                       np_dot8=[NDArray[int,:,:], NDArray[int,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot9(self):
         """ Check for gemv version of dot. """
         self.run_test("""
@@ -108,6 +124,7 @@ class TestNumpyFunc3(TestEnv):
                       [float(x) for x in range(9, 12)],
                       np_dot9=[List[List[float]], List[float]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot10(self):
         """ Check for dot gemv with "no blas type". """
         self.run_test("""
@@ -118,6 +135,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(9, 12),
                       np_dot10=[NDArray[int,:,:], NDArray[int,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot11(self):
         """ Check for gemv version of dot with rectangular shape. """
         self.run_test("""
@@ -128,6 +146,7 @@ class TestNumpyFunc3(TestEnv):
                       [float(x) for x  in range(6, 8)],
                       np_dot11=[List[List[float]], List[float]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot12(self):
         """ Check for dot gemv with "no blas type" with rectangulare shape. """
         self.run_test("""
@@ -138,6 +157,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(6, 8),
                       np_dot12=[NDArray[int,:,:], NDArray[int,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot12b(self):
         """ Check for dot gemv transposed. """
         self.run_test("""
@@ -148,6 +168,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(6, 8.),
                       np_dot12b=[NDArray[float,:,:], NDArray[float,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot13(self):
         """ Check for gevm version of dot. """
         self.run_test("""
@@ -158,6 +179,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(9.).reshape(3, 3).tolist(),
                       np_dot13=[List[float], List[List[float]]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot14(self):
         """ Check for dot gevm with "no blas type". """
         self.run_test("""
@@ -168,6 +190,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(9).reshape(3, 3),
                       np_dot14=[NDArray[int,:], NDArray[int,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot14b(self):
         """ Check for dot gevm trabsposed. """
         self.run_test("""
@@ -178,6 +201,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(12.).reshape(4, 3),
                       np_dot14b=[NDArray[float,:], NDArray[float,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot15(self):
         """ Check for gevm version of dot with rectangular shape. """
         self.run_test("""
@@ -189,6 +213,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot15=[List[float], List[List[float]]])
 
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot16(self):
         """ Check for dot gevm with "no blas type" with rectangular shape. """
         self.run_test("""
@@ -200,6 +225,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot16=[NDArray[float,:,:], NDArray[float,:,:]])
 
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot17(self):
         """ Check for dot gevm with "no blas type" with rectangular shape,
         first arg transposed."""
@@ -213,6 +239,7 @@ class TestNumpyFunc3(TestEnv):
 
 
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot18(self):
         """ Check for dot gevm with "no blas type" with rectangular shape,
         second arg transposed"""
@@ -226,6 +253,7 @@ class TestNumpyFunc3(TestEnv):
 
 
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot19(self):
         """ Check for dot gevm with "no blas type" with rectangular shape,
         both args transposed"""
@@ -237,6 +265,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.array(numpy.arange(18.).reshape(6,3)),
                       np_dot19=[NDArray[float,:,:], NDArray[float,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot20(self):
         ''' Mixed type: matrix x matrix'''
         self.run_test("""
@@ -250,6 +279,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot20=[NDArray[numpy.float32,:,:],
                                 NDArray[numpy.float64,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot21(self):
         ''' Mixed type: matrix x vector'''
         self.run_test("""
@@ -263,6 +293,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot21=[NDArray[numpy.float32,:,:],
                                 NDArray[numpy.float64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot22(self):
         ''' Mixed type: matrix x vector'''
         self.run_test("""
@@ -276,6 +307,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot22=[NDArray[numpy.float32,:,:],
                                 NDArray[numpy.float64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot23(self):
         ''' Nd x 1d, N > 2'''
         self.run_test("""
@@ -290,6 +322,7 @@ class TestNumpyFunc3(TestEnv):
                                 NDArray[numpy.float64,:]])
 
     @unittest.skip("not implemented yet")
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot24(self):
         ''' Nd x 1d, N > 2'''
         self.run_test("""
@@ -303,6 +336,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot24=[NDArray[numpy.float32,:,:,:],
                                 NDArray[numpy.float64,:,:,:,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot25(self):
         ''' 1d x 1d, slice'''
         self.run_test("""
@@ -314,6 +348,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot25=[NDArray[numpy.float32,:],
                                 NDArray[numpy.float32,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot26(self):
         ''' 1d x 1d, slice'''
         self.run_test("""
@@ -325,6 +360,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot26=[NDArray[numpy.float64,:],
                                 NDArray[numpy.float64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot27(self):
         ''' 1d x 1d, slice'''
         self.run_test("""
@@ -336,6 +372,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot27=[NDArray[numpy.complex64,:],
                                 NDArray[numpy.complex64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot28(self):
         ''' 1d x 1d, slice'''
         self.run_test("""
@@ -347,6 +384,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot28=[NDArray[numpy.complex128,:],
                                 NDArray[numpy.complex128,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot29(self):
         ''' 1d x 1d, slice'''
         self.run_test("""
@@ -358,6 +396,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot29=[NDArray[numpy.float32,:],
                                 NDArray[numpy.float32,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot30(self):
         ''' 1d x 1d, slice'''
         self.run_test("""
@@ -369,6 +408,7 @@ class TestNumpyFunc3(TestEnv):
                       np_dot30=[NDArray[numpy.float32,:],
                                 NDArray[numpy.float32,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_dot31(self):
         ''' 1d x 1d, expr'''
         self.run_test("""
@@ -381,6 +421,7 @@ class TestNumpyFunc3(TestEnv):
                       numpy.arange(24., dtype=numpy.float32),
                       np_dot31=[NDArray[numpy.float32,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_vdot0(self):
         self.run_test("""
         def np_vdot0(x, y):
@@ -393,6 +434,7 @@ class TestNumpyFunc3(TestEnv):
                       np_vdot0=[NDArray[numpy.float32,:,:],
                                 NDArray[numpy.float32,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_vdot1(self):
         self.run_test("""
         def np_vdot1(x, y):
@@ -405,6 +447,7 @@ class TestNumpyFunc3(TestEnv):
                       np_vdot1=[NDArray[numpy.float32,:,:],
                                 NDArray[numpy.float64,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_vdot2(self):
         self.run_test("""
         def np_vdot2(x, y):
@@ -417,6 +460,7 @@ class TestNumpyFunc3(TestEnv):
                       np_vdot2=[NDArray[numpy.complex128,:,:],
                                 NDArray[numpy.complex128,:]])
 
+    @unittest.skipIf(cfg.get('compiler', 'blas') == 'none', "blas required")
     def test_vdot3(self):
         self.run_test("""
         def np_vdot3(x, y):

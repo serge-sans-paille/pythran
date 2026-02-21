@@ -1,5 +1,6 @@
 from pythran.typing import List, NDArray
 from pythran.tests import TestFromDir, TestEnv
+from pythran.config import cfg
 
 import os
 import numpy as np
@@ -77,6 +78,10 @@ def ramp(result, start, end):
     path = os.path.join(os.path.dirname(__file__), "scipy")
 
 TestScipy.populate(TestScipy)
+
+# requires blas
+if cfg.get('compiler', 'blas') == 'none':
+    del TestScipy.test__solve_toeplitz_run0
 
 class TestPyData(TestFromDir):
     path = os.path.join(os.path.dirname(__file__), "pydata")

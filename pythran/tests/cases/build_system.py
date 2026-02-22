@@ -14,7 +14,7 @@ def _kernel_matrix_impl(x, y, kernel_func, xp):
 
 # pythran export build_system(float[:, :],
 #                       float[:, :],
-#                       int64[:, :],
+#                       int[:, :],
 #                       numpy pkg)
 def build_system(x, y, powers, xp):
     """Construct the coefficients needed to evaluate

@@ -16,7 +16,7 @@ jobs:
       run: |
         pip install scipy scipy-openblas64
         pip install pytest-xdist
-        sudo apt install ${{ matrix.cpp-version }}
+        sudo apt update
         sudo apt install libopenblas-dev
         sudo apt install libboost-all-dev libxsimd-dev
     - name: Unvendor

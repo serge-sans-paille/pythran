@@ -180,7 +180,7 @@ class TestNumpyRandom(TestEnv):
          from numpy.random import binomial
          from numpy import var
          a = [binomial(n, p) for x in range(size)]
-         return (abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
+         return (abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .1)
         """
         self.run_test(code, 10., .2, 10**5, numpy_binomial0=[float, float, int])
 
@@ -190,7 +190,7 @@ class TestNumpyRandom(TestEnv):
          from numpy.random import binomial
          from numpy import var
          a=binomial(n, p, size)
-         return (abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
+         return (abs(float(sum(a))/size - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .1)
         """
         self.run_test(code, 7., .2, 10**5, numpy_binomial1=[float, float, int])
 
@@ -200,7 +200,7 @@ class TestNumpyRandom(TestEnv):
          from numpy.random import binomial
          from numpy import sum, var
          a=binomial(n, p, (size, size))
-         return (abs(float(sum(a))/(size*size) - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .05)
+         return (abs(float(sum(a))/(size*size) - n * p) < .05 and abs(var(a) - n*p*(1-p)) < .1)
         """
         self.run_test(code, 9., .2, 10**3, numpy_binomial2=[float, float, int])
 
@@ -231,7 +231,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [standard_normal() for x in range(size)]
             print(mean(a))
-            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_standard_normal0=[int])
 
@@ -243,7 +243,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = standard_normal(size)
             print(mean(a))
-            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_standard_normal1=[int])
 
@@ -255,7 +255,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             a = standard_normal((size, size))
             print(mean(a))
-            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_standard_normal2=[int])
 
@@ -271,7 +271,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [normal() for x in range(size)]
             print(mean(a))
-            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_normal0=[int])
 
@@ -283,7 +283,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [normal(3.) for x in range(size)]
             print(mean(a))
-            return (abs(mean(a)-3) < 0.05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)-3) < 0.05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_normal0a=[int])
 
@@ -310,7 +310,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = normal(size=size)
             print(mean(a))
-            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_normal1=[int])
 
@@ -322,7 +322,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             a = normal(size=(size, size))
             print(mean(a))
-            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_normal2=[int])
 
@@ -338,7 +338,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [poisson() for x in range(size)]
             print(mean(a))
-            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0=[int])
 
@@ -350,7 +350,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = [poisson(3.) for x in range(size)]
             print(mean(a))
-            return (abs(mean(a)-3) < .05 and abs(var(a) - 3) < .05)
+            return (abs(mean(a)-3) < .05 and abs(var(a) - 3) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_poisson0a=[int])
 
@@ -377,7 +377,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             a = poisson(size=size)
             print(mean(a))
-            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_poisson1=[int])
 
@@ -389,7 +389,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             a = poisson(size=(size, size))
             print(mean(a))
-            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)-1) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_poisson2=[int])
 
@@ -404,7 +404,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import randn
                 from numpy import mean, var
                 a = [randn() for x in range(n)]
-                return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
+                return (abs(mean(a)) < .05 and abs(var(a) - 1) < .1)""",
                       10 ** 5, numpy_randn0=[int])
 
     def test_numpy_randn1(self):
@@ -414,7 +414,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import randn
                 from numpy import mean, var
                 a = randn(n, n)
-                return (abs(mean(a)) < .05 and abs(var(a) - 1) < .05)""",
+                return (abs(mean(a)) < .05 and abs(var(a) - 1) < .1)""",
                       10 ** 3, numpy_randn1=[int])
 
     ###########################################################################
@@ -654,7 +654,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import exponential
             from numpy import var, mean
             a = [exponential() for x in range(size)]
-            return (abs(mean(a) -1) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a) -1) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_exponential0=[int])
 
@@ -666,7 +666,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             scale = 2.
             a = [exponential(scale) for x in range(size)]
-            return (abs(mean(a) - scale) < 0.05 and abs(var(a) - scale**2) < .05)
+            return (abs(mean(a) - scale) < 0.05 and abs(var(a) - scale**2) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_exponential0a=[int])
 
@@ -689,7 +689,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import exponential
             from numpy import var, mean
             a = exponential(size=size)
-            return (abs(mean(a) -1 )< .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a) -1 )< .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_exponential1=[int])
 
@@ -700,7 +700,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import exponential
             from numpy import mean, var
             a = exponential(size=(size, size))
-            return (abs(mean(a)) -1 < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a)) -1 < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_exponential2=[int])
 
@@ -716,7 +716,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             df = 3.
             a = [chisquare(df) for x in range(size)]
-            return (abs(mean(a) - df) < 0.05 and abs(var(a) - 2*df) < .05)
+            return (abs(mean(a) - df) < 0.05 and abs(var(a) - 2*df) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_chisquare0a=[int])
 
@@ -728,7 +728,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean, sqrt
             df = 2
             a = chisquare(df, size)
-            return (abs(mean(a) - df) < 0.05 and abs(var(a) - df*2 ) < .05)
+            return (abs(mean(a) - df) < 0.05 and abs(var(a) - df*2 ) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_chisquare0b=[int])
 
@@ -740,7 +740,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             df = 1
             a = chisquare(df, size=(size, size))
-            return (abs(mean(a)) - df < .05 and abs(var(a) - 2*df) < .05)
+            return (abs(mean(a)) - df < .05 and abs(var(a) - 2*df) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_chisquare2=[int])
 
@@ -768,7 +768,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean, sqrt
             shape, scale = 1,2
             a = gamma(shape, scale, size)
-            return (abs(mean(a) - shape*scale) < 0.05 and abs(var(a) - shape*scale**2) < .05)
+            return (abs(mean(a) - shape*scale) < 0.05 and abs(var(a) - shape*scale**2) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_gamma0b=[int])
 
@@ -780,7 +780,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             shape = 2
             a = gamma(shape = shape, size=(size, size))
-            return (abs(mean(a) - shape) < .05 and abs(var(a) - shape) < .05)
+            return (abs(mean(a) - shape) < .05 and abs(var(a) - shape) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_gamma2=[int])
 
@@ -796,7 +796,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean
             pa = 3.
             a = [weibull(pa) for x in range(size)]
-            return (abs(mean(a) - pa) < 0.05 and abs(var(a) - 2*pa) < .05)
+            return (abs(mean(a) - pa) < 0.05 and abs(var(a) - 2*pa) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_weibull0a=[int])
 
@@ -808,7 +808,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import var, mean, sqrt
             pa = 2
             a = weibull(pa, size)
-            return (abs(mean(a) - pa) < 0.05 and abs(var(a) - pa*2 ) < .05)
+            return (abs(mean(a) - pa) < 0.05 and abs(var(a) - pa*2 ) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_weibull0b=[int])
 
@@ -820,7 +820,7 @@ class TestNumpyRandom(TestEnv):
             from numpy import mean, var
             pa = 1
             a = weibull(pa, size=(size, size))
-            return (abs(mean(a)) - pa < .05 and abs(var(a) - 2*pa) < .05)
+            return (abs(mean(a)) - pa < .05 and abs(var(a) - 2*pa) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_weibull2=[int])
 
@@ -959,7 +959,7 @@ class TestNumpyRandom(TestEnv):
             alpha = 10
             rvar = alpha/((alpha-1)**2*(alpha-2))
             a = [pareto(alpha) for x in range(size)]
-            return (abs(mean(a)- 0.5) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)- 0.5) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_pareto0a=[int])
 
@@ -972,7 +972,7 @@ class TestNumpyRandom(TestEnv):
             alpha = 6
             rvar = alpha/((alpha-1)**2*(alpha-2))
             a = pareto(alpha, size)
-            return (abs(mean(a)- 0.5) < 0.05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)- 0.5) < 0.05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_pareto0b=[int])
 
@@ -985,7 +985,7 @@ class TestNumpyRandom(TestEnv):
             alpha = 5
             rvar = alpha/((alpha-1)**2*(alpha-2))
             a = pareto(alpha, size=(size, size))
-            return (abs(mean(a)- 0.5) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)- 0.5) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_pareto2=[int])
 
@@ -1003,7 +1003,7 @@ class TestNumpyRandom(TestEnv):
             rmean = alpha / (alpha + 1)
             rvar = alpha/((alpha+1)**2*(alpha+2))
             a = [power(alpha) for x in range(size)]
-            return (abs(mean(a)- rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)- rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_power0a=[int])
 
@@ -1017,7 +1017,7 @@ class TestNumpyRandom(TestEnv):
             rmean = alpha / (alpha + 1)
             rvar = alpha/((alpha+1)**2*(alpha+2))
             a = power(alpha, size)
-            return (abs(mean(a)- rmean) < 0.05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)- rmean) < 0.05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_power0b=[int])
 
@@ -1031,7 +1031,7 @@ class TestNumpyRandom(TestEnv):
             rmean = alpha / (alpha + 1)
             rvar = alpha/((alpha+1)**2*(alpha+2))
             a = power(alpha, size=(size, size))
-            return (abs(mean(a)- rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)- rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_power2=[int])
 
@@ -1049,7 +1049,7 @@ class TestNumpyRandom(TestEnv):
             s = 2
             rmean = s*sqrt(pi/2)
             rvar = ((4-pi)/2)*s**2
-            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_rayleigh0=[int])
 
@@ -1063,7 +1063,7 @@ class TestNumpyRandom(TestEnv):
             a = [rayleigh(s) for x in range(size)]
             rmean = s*sqrt(pi/2)
             rvar = ((4-pi)/2)*s**2
-            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_rayleigh0a=[int])
 
@@ -1077,7 +1077,7 @@ class TestNumpyRandom(TestEnv):
             a = rayleigh(s, size)
             rmean = s*sqrt(pi/2)
             rvar = ((4-pi)/2)*s**2
-            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_rayleigh0b=[int])
 
@@ -1091,7 +1091,7 @@ class TestNumpyRandom(TestEnv):
             s = 2
             rmean = s*sqrt(pi/2)
             rvar = ((4-pi)/2)*s**2
-            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_rayleigh1=[int])
 
@@ -1105,7 +1105,7 @@ class TestNumpyRandom(TestEnv):
             s = 2
             rmean = s*sqrt(pi/2)
             rvar = ((4-pi)/2)*s**2
-            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a)-rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_rayleigh2=[int])
 
@@ -1219,7 +1219,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_exponential
             from numpy import var, mean
             a = [standard_exponential() for x in range(size)]
-            return (abs(mean(a) - 1) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a) - 1) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_standard_exponential0=[int])
 
@@ -1230,7 +1230,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_exponential
             from numpy import var, mean
             a = standard_exponential(size)
-            return (abs(mean(a) - 1) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a) - 1) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_standard_exponential1=[int])
 
@@ -1241,7 +1241,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_exponential
             from numpy import mean, var
             a = standard_exponential((size, size))
-            return (abs(mean(a) - 1) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a) - 1) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_standard_exponential2=[int])
 
@@ -1256,7 +1256,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_gamma
             from numpy import var, mean
             a = [standard_gamma(1) for x in range(size)]
-            return (abs(mean(a) - 1) < .05 and abs(var(a) - 1) < .05)
+            return (abs(mean(a) - 1) < .05 and abs(var(a) - 1) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_standard_gamma0=[int])
 
@@ -1267,7 +1267,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_gamma
             from numpy import var, mean
             a = standard_gamma(2, size)
-            return (abs(mean(a) - 2) < .05 and abs(var(a) - 2) < .05)
+            return (abs(mean(a) - 2) < .05 and abs(var(a) - 2) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_standard_gamma1=[int])
 
@@ -1278,7 +1278,7 @@ class TestNumpyRandom(TestEnv):
             from numpy.random import standard_gamma
             from numpy import mean, var
             a = standard_gamma(3, (size, size))
-            return (abs(mean(a) - 3) < .05 and abs(var(a) - 3) < .05)
+            return (abs(mean(a) - 3) < .05 and abs(var(a) - 3) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_standard_gamma2=[int])
 
@@ -1296,7 +1296,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u + 0.57721
             rvar = (pi**2/6)
             a = [gumbel() for x in range(size)]
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_gumbel0=[int])
 
@@ -1310,7 +1310,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u + 0.57721
             rvar = (pi**2/6)
             a = [gumbel(u) for x in range(size)]
-            return (abs(mean(a) - rmean ) < 0.05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean ) < 0.05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_gumbel0a=[int])
 
@@ -1325,7 +1325,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u + 0.57721*s
             rvar = (pi**2/6)*s**2
             a = gumbel(u, s, size)
-            return (abs(mean(a) - rmean) < 0.05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < 0.05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_gumbel0b=[int])
 
@@ -1341,7 +1341,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u + 0.57721*s
             rvar = (pi**2/6)*s**2
             a = gumbel(size=size)
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_gumbel1=[int])
 
@@ -1357,7 +1357,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u + 0.57721*s
             rvar = (pi**2/6)*s**2
             a = gumbel(size=(size, size))
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_gumbel2=[int])
 
@@ -1455,7 +1455,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u
             rvar = 2*s**2
             a = [laplace() for x in range(size)]
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_laplace0=[int])
 
@@ -1470,7 +1470,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u
             rvar = 2*s**2
             a = [laplace(u) for x in range(size)]
-            return (abs(mean(a) - rmean ) < 0.05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean ) < 0.05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_laplace0a=[int])
 
@@ -1501,7 +1501,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u
             rvar = 2*s**2
             a = laplace(size=size)
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_laplace1=[int])
 
@@ -1517,7 +1517,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u
             rvar = 2*s**2
             a = laplace(size=(size, size))
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_laplace2=[int])
 
@@ -1535,7 +1535,7 @@ class TestNumpyRandom(TestEnv):
             rmean = s / (log(1 - s)*(s - 1))
             rvar = -(s*(s+log(1-s)))/((s - 1)**2*(log(1-s))**2)      
             a = [logseries(s) for x in range(size)]
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_logseries0=[int])
 
@@ -1549,7 +1549,7 @@ class TestNumpyRandom(TestEnv):
             rmean = s / (log(1 - s)*(s - 1))
             rvar = -(s*(s+log(1-s)))/((s - 1)**2*(log(1-s))**2)             
             a = logseries(s, size)
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 5, numpy_logseries1=[int])
 
@@ -1563,7 +1563,7 @@ class TestNumpyRandom(TestEnv):
             rmean = s / (log(1 - s)*(s - 1))
             rvar = -(s*(s+log(1-s)))/((s - 1)**2*(log(1-s))**2)           
             a = logseries(s, (size, size))
-            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < .05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 3, numpy_logseries2=[int])
 

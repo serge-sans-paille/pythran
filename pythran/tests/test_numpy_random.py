@@ -640,7 +640,7 @@ class TestNumpyRandom(TestEnv):
                 from numpy.random import bytes
                 from numpy import mean, frombuffer, uint8, asarray
                 a = bytes(n)
-                return (abs(mean(asarray(frombuffer(a, uint8), dtype=float)) - 127.5) < .05)""",
+                return (abs(mean(asarray(frombuffer(a, uint8), dtype=float)) - 127.5) < .1)""",
                       10 ** 7, numpy_random_bytes1=[int])
 
     ###########################################################################

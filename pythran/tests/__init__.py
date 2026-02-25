@@ -26,9 +26,10 @@ import logging
 
 from pythran import compile_pythrancode, spec_parser, load_specfile, frontend
 from pythran.backend import Python
+from pythran.errors import PythranCompileError
 from pythran.middlend import refine
 from pythran.passmanager import PassManager
-from pythran.toolchain import _parse_optimization, generate_cxx
+from pythran.toolchain import _parse_optimization, generate_cxx, compile_cxxcode
 from pythran.spec import Spec
 
 logger = logging.getLogger("pythran")
@@ -306,14 +307,26 @@ class TestEnv(unittest.TestCase):
 
         code = dedent(code)
 
-        cxx0, _ = generate_cxx(modname, code, interface)
-        cxx1, _ = generate_cxx(modname, code, interface)
-        self.maxDiff, maxDiff = None, self.maxDiff
-        self.assertEqual(str(cxx0), str(cxx1))
-        self.maxDiff = maxDiff
+        module, error_checker = generate_cxx(modname, code, interface)
+        cxx_code = str(module)
+        del module
 
-        cxx_compiled = compile_pythrancode(
-            modname, code, interface, extra_compile_args=self.PYTHRAN_CXX_FLAGS)
+        # Verify that code generation is deterministic by generating twice
+        # and comparing. Set PYTHRAN_SKIP_DETERMINISM_CHECK=1 to disable
+        # this check and reduce memory usage (e.g. for 32-bit systems).
+        if not os.environ.get('PYTHRAN_SKIP_DETERMINISM_CHECK'):
+            cxx1, _ = generate_cxx(modname, code, interface)
+            self.maxDiff, maxDiff = None, self.maxDiff
+            self.assertEqual(cxx_code, str(cxx1))
+            self.maxDiff = maxDiff
+            del cxx1
+
+        try:
+            cxx_compiled = compile_cxxcode(modname, cxx_code,
+                                           extra_compile_args=self.PYTHRAN_CXX_FLAGS)
+        except PythranCompileError:
+            error_checker()
+            raise
 
         # FIXME Check should be done on input parameters after function call
         python_ref = self.run_python(code, (name, copy.deepcopy(params)),

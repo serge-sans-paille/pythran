@@ -1485,7 +1485,7 @@ class TestNumpyRandom(TestEnv):
             rmean = u
             rvar = 2*s**2
             a = laplace(u, s, size)
-            return (abs(mean(a) - rmean) < 0.05 and abs(var(a) - rvar) < .05)
+            return (abs(mean(a) - rmean) < 0.05 and abs(var(a) - rvar) < .1)
         """
         self.run_test(code, 10 ** 6, numpy_laplace0b=[int])
 

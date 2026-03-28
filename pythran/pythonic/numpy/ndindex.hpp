@@ -23,7 +23,7 @@ namespace numpy
   }
 
   template <size_t N>
-  types::array_tuple<long, N> ndindex_iterator<N>::operator*() const
+  typename ndindex_iterator<N>::value_type ndindex_iterator<N>::operator*() const
   {
     types::array_tuple<long, N> out;
     long mult = 1;

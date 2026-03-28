@@ -65,7 +65,13 @@ namespace types
   };
 
   template <class E>
-  struct array_iterator : std::iterator<std::random_access_iterator_tag, typename E::value_type> {
+  struct array_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = typename E::value_type;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     E data;
     long index;
     array_iterator(E data, long index) : data(data), index(index)

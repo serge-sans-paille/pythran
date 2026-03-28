@@ -11,14 +11,19 @@ namespace builtins
 
   namespace
   {
-    struct xrange_iterator : std::iterator<std::random_access_iterator_tag, long, ptrdiff_t, long *,
-                                           long /*no ref here*/> {
+    struct xrange_iterator {
+      using iterator_category = std::random_access_iterator_tag;
+      using value_type = long;
+      using difference_type = std::ptrdiff_t;
+      using pointer = value_type *;
+      using reference = value_type /* no ref */;
+
       long value_;
       long step_;
 
       xrange_iterator() = default;
       xrange_iterator(long v, long s);
-      long operator*() const;
+      value_type operator*() const;
       xrange_iterator &operator++();
       xrange_iterator operator++(int);
       xrange_iterator &operator+=(long n);

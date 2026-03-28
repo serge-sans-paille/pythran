@@ -40,7 +40,8 @@ namespace builtins
     }
 
     template <typename Operator, typename List0>
-    typename List0::value_type filter_iterator<Operator, List0>::operator*() const
+    typename filter_iterator<Operator, List0>::value_type
+    filter_iterator<Operator, List0>::operator*() const
     {
       return *iter;
     }

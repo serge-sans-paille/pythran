@@ -10,14 +10,19 @@ PYTHONIC_NS_BEGIN
 namespace itertools
 {
   template <class T, bool Endless>
-  struct repeat_iterator : std::iterator<std::forward_iterator_tag, T, ptrdiff_t, T *, T /* no ref*/
-                                         > {
+  struct repeat_iterator {
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     T value_;
     long count_;
 
     repeat_iterator(T value, long count);
     repeat_iterator &operator++();
-    T operator*();
+    value_type operator*();
     bool operator!=(repeat_iterator const &other) const;
     bool operator==(repeat_iterator const &other) const;
     bool operator<(repeat_iterator const &other) const;

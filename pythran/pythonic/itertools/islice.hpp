@@ -33,7 +33,7 @@ namespace itertools
   }
 
   template <typename Iterable>
-  typename Iterable::value_type islice_iterator<Iterable>::operator*() const
+  typename islice_iterator<Iterable>::value_type islice_iterator<Iterable>::operator*() const
   {
     return *iterable;
   }

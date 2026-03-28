@@ -23,7 +23,7 @@ namespace itertools
   }
 
   template <class T, bool Endless>
-  T repeat_iterator<T, Endless>::operator*()
+  typename repeat_iterator<T, Endless>::value_type repeat_iterator<T, Endless>::operator*()
   {
     return value_;
   }

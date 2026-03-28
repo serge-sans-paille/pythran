@@ -79,10 +79,13 @@ namespace types
   }
 
   template <class Op, class Steps, class... Iters>
-  struct numpy_expr_iterator
-      : std::iterator<
-            std::random_access_iterator_tag,
-            std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>> {
+  struct numpy_expr_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type =
+        std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
     Steps steps_;
     std::tuple<Iters...> iters_;
 
@@ -235,10 +238,13 @@ namespace types
   };
 #ifdef USE_XSIMD
   template <class E, class Op, class Steps, class SIters, class... Iters>
-  struct numpy_expr_simd_iterator
-      : std::iterator<
-            std::random_access_iterator_tag,
-            std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>> {
+  struct numpy_expr_simd_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type =
+        std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
     Steps steps_;
     std::tuple<Iters...> iters_;
     SIters siters_;
@@ -390,10 +396,14 @@ namespace types
   };
 
   template <class E, class Op, class... Iters>
-  struct numpy_expr_simd_iterator_nobroadcast
-      : std::iterator<
-            std::random_access_iterator_tag,
-            std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>> {
+  struct numpy_expr_simd_iterator_nobroadcast {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type =
+        std::remove_reference_t<decltype(std::declval<Op>()(*std::declval<Iters>()...))>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     std::tuple<Iters...> iters_;
 
     numpy_expr_simd_iterator_nobroadcast(Iters... iters) : iters_(iters...)

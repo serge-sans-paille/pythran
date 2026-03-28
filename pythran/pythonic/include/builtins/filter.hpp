@@ -14,7 +14,12 @@ namespace builtins
   {
 
     template <typename Operator, typename List0>
-    struct filter_iterator : std::iterator<std::forward_iterator_tag, typename List0::value_type> {
+    struct filter_iterator {
+      using iterator_category = std::forward_iterator_tag;
+      using value_type = typename List0::value_type;
+      using difference_type = std::ptrdiff_t;
+      using pointer = value_type *;
+      using reference = value_type /* no ref */;
       using sequence_type = std::remove_cv_t<std::remove_reference_t<List0>>;
 
       Operator op;
@@ -31,7 +36,7 @@ namespace builtins
       filter_iterator(Operator _op, List0 &_seq);
       filter_iterator(itertools::npos, Operator _op, List0 &_seq);
 
-      typename List0::value_type operator*() const;
+      value_type operator*() const;
 
       filter_iterator &operator++();
       void next_value();

@@ -13,12 +13,18 @@ namespace itertools
   namespace details
   {
     template <class T>
-    struct count_iterator : std::iterator<std::random_access_iterator_tag, T> {
+    struct count_iterator {
+      using iterator_category = std::random_access_iterator_tag;
+      using value_type = T;
+      using difference_type = std::ptrdiff_t;
+      using pointer = value_type *;
+      using reference = value_type /* no ref */;
+
       T value;
       T step;
       count_iterator() = default;
       count_iterator(T value, T step);
-      T operator*() const;
+      value_type operator*() const;
       count_iterator &operator++();
       count_iterator &operator+=(long n);
       bool operator!=(count_iterator const &other) const;

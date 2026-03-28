@@ -44,7 +44,7 @@ namespace itertools
   }
 
   template <class T, class H>
-  H permutations_iterator<T, H>::operator*() const
+  typename permutations_iterator<T, H>::value_type permutations_iterator<T, H>::operator*() const
   {
     H res = init_permut_from(_size, (H *)nullptr);
     for (size_t i = 0; i < _size; i++)

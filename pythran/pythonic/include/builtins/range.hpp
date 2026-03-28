@@ -10,14 +10,18 @@ namespace builtins
 {
   namespace
   {
-    struct range_iterator : std::iterator<std::random_access_iterator_tag, long, ptrdiff_t, long *,
-                                          long /*no ref here*/> {
+    struct range_iterator {
+      using iterator_category = std::random_access_iterator_tag;
+      using value_type = long;
+      using pointer = value_type *;
+      using difference_type = std::ptrdiff_t;
+      using reference = value_type /* no ref */;
       long value_;
       long step_;
 
       range_iterator() = default;
       range_iterator(long v, long s);
-      long operator*() const;
+      value_type operator*() const;
       range_iterator &operator++();
       range_iterator &operator--();
       range_iterator operator++(int);

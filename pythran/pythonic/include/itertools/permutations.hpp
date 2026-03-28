@@ -30,9 +30,13 @@ namespace itertools
    *
    */
   template <class T, class H>
-  struct permutations_iterator
-      : std::iterator<std::forward_iterator_tag, H, ptrdiff_t, H *, H /* no ref*/
-                      > {
+  struct permutations_iterator {
+
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = H;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
 
     // Vector of inputs, contains elements to permute
     using pool_type = std::vector<typename T::value_type, utils::allocator<typename T::value_type>>;
@@ -51,7 +55,7 @@ namespace itertools
     permutations_iterator(pool_type const &iter, size_t num_elts, bool end);
 
     /** Build the permutation visible from the "outside" */
-    H operator*() const;
+    value_type operator*() const;
 
     /*  Generate next permutation
      *

@@ -301,7 +301,7 @@ namespace types
     return *this;
   }
 
-  inline types::str file_iterator::operator*() const
+  inline file_iterator::value_type file_iterator::operator*() const
   {
     if (!set) {
       curr = f->readline();

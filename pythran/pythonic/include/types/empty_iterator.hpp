@@ -8,7 +8,13 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
 
-  struct empty_iterator : std::iterator<std::forward_iterator_tag, int> {
+  struct empty_iterator {
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = int;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     // Empty iterator used, among other things, by empty_set
     empty_iterator();
     empty_iterator(empty_iterator const &);
@@ -17,7 +23,7 @@ namespace types
     bool operator<(empty_iterator const &) const;
     empty_iterator &operator++();
     empty_iterator &operator++(int);
-    double operator*() const;
+    value_type operator*() const;
     void operator->() const;
   };
 } // namespace types

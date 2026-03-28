@@ -32,9 +32,13 @@ namespace builtins
     };
 
     template <typename Operator, typename... Iters>
-    struct map_iterator
-        : std::iterator<typename utils::iterator_min<typename Iters::iterator...>::type,
-                        typename map_res<Operator, Iters...>::type> {
+    struct map_iterator {
+      using iterator_category = typename utils::iterator_min<typename Iters::iterator...>::type;
+      using value_type = typename map_res<Operator, Iters...>::type;
+      using difference_type = std::ptrdiff_t;
+      using pointer = value_type *;
+      using reference = value_type /* no ref */;
+
       std::tuple<typename Iters::iterator...> it;
       Operator _op;
 
@@ -45,7 +49,7 @@ namespace builtins
       map_iterator(itertools::npos, Operator const &_op, std::tuple<Iters...> &_iters,
                    std::index_sequence<I...>);
 
-      typename map_res<Operator, Iters...>::type operator*() const;
+      value_type operator*() const;
       map_iterator &operator++();
       map_iterator &operator+=(long i);
       map_iterator operator+(long i) const;

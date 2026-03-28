@@ -28,7 +28,7 @@ namespace builtins
   {
   }
 
-  inline long range_iterator::operator*() const
+  inline range_iterator::value_type range_iterator::operator*() const
   {
     return value_;
   }

@@ -41,7 +41,7 @@ namespace types
     return *this;
   }
 
-  inline double empty_iterator::operator*() const
+  inline typename empty_iterator::value_type empty_iterator::operator*() const
   {
     return {};
   }

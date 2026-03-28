@@ -11,16 +11,18 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <size_t N>
-  struct ndindex_iterator
-      : std::iterator<
-            std::random_access_iterator_tag, types::array_tuple<long, N>, ptrdiff_t,
-            types::array_tuple<long, N> *,
-            types::array_tuple<long, N> /* reference_type, but no reference is possible*/> {
+  struct ndindex_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = types::array_tuple<long, N>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     long index;
     types::array_tuple<long, N> shape;
     ndindex_iterator();
     ndindex_iterator(types::array_tuple<long, N> const &shape, long first);
-    types::array_tuple<long, N> operator*() const;
+    value_type operator*() const;
     ndindex_iterator &operator++();
     ndindex_iterator &operator+=(long n);
     bool operator!=(ndindex_iterator const &other) const;

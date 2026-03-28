@@ -11,9 +11,13 @@ PYTHONIC_NS_BEGIN
 namespace itertools
 {
   template <typename Iterable>
-  struct islice_iterator
-      : std::iterator<typename Iterable::iterator::iterator_category,
-                      typename std::iterator_traits<typename Iterable::iterator>::value_type> {
+  struct islice_iterator {
+    using iterator_category = typename Iterable::iterator::iterator_category;
+    using value_type = typename std::iterator_traits<typename Iterable::iterator>::value_type;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     std::remove_reference_t<std::remove_cv_t<Iterable>> iterable_ref;
     typename std::remove_reference_t<std::remove_cv_t<Iterable>>::iterator iterable;
 
@@ -25,7 +29,7 @@ namespace itertools
     islice_iterator(Iterable const &iterable, builtins::range const &xr);
     islice_iterator(npos const &n, Iterable const &iterable, builtins::range const &xr);
 
-    typename Iterable::value_type operator*() const;
+    value_type operator*() const;
     islice_iterator &operator++();
     bool operator==(islice_iterator const &other) const;
     bool operator!=(islice_iterator const &other) const;

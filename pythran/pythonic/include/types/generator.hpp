@@ -9,15 +9,18 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
   template <class T>
-  struct generator_iterator
-      : std::iterator<std::forward_iterator_tag, typename T::result_type, ptrdiff_t,
-                      typename T::result_type *, typename T::result_type /* no ref */> {
+  struct generator_iterator {
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = typename T::result_type;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
 
     T the_generator;
     generator_iterator();
     generator_iterator(T const &a_generator);
     generator_iterator &operator++();
-    typename T::result_type operator*() const;
+    value_type operator*() const;
     bool operator!=(generator_iterator<T> const &other) const;
     bool operator==(generator_iterator<T> const &other) const;
     bool operator<(generator_iterator<T> const &other) const;

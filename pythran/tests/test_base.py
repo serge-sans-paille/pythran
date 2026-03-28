@@ -155,24 +155,6 @@ def fibo2(n): return fibo2(n-1) + fibo2(n-2) if n > 1 else n
     def test_multirange(self):
         self.run_test("def multirange(i): return list(map(lambda x,y:y*x//2, range(1,i), range(i,1,-1)))", 3, multirange=[int])
 
-    def test_xrange1(self):
-        self.run_test("def xrange1_(e): return list(range(e))", 3, xrange1_=[int])
-
-    def test_xrange2(self):
-        self.run_test("def xrange2_(b,e): return list(range(b,e))", 1, 3, xrange2_=[int,int])
-
-    def test_xrange3(self):
-        self.run_test("def xrange3_(b,e,s): return list(range(b,e,s))", 8,3,-2, xrange3_=[int,int,int])
-
-    def test_xrange4(self):
-        self.run_test("def xrange4_(b,e,s): return list(range(b,e,s))", 3,8,1, xrange4_=[int,int,int])
-
-    def test_xrange5(self):
-        self.run_test("def xrange5_(e): return max(range(e))", 3, xrange5_=[int])
-
-    def test_multixrange(self):
-        self.run_test("def multixrange(i): return list(map(lambda x,y:y*x//2, range(1,i), range(i,1,-1)))", 3, multixrange=[int])
-
     def test_print(self):
         self.run_test("def print_(a,b,c,d): print(a,b,c,d,'e',1.5)", [1.,2.,3.1],3,True, "d", print_=[List[float], int, bool, str])
 

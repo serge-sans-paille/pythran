@@ -224,8 +224,12 @@ namespace types
     }
   };
 
-  struct string_iterator
-      : std::iterator<std::random_access_iterator_tag, str, std::ptrdiff_t, str *, str> {
+  struct string_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = chr;
+    using pointer = value_type *;
+    using reference = value_type /* no ref*/;
+    using difference_type = std::ptrdiff_t;
     std::string::const_iterator curr;
     string_iterator() = default;
     string_iterator(std::string::const_iterator iter) : curr(iter)
@@ -284,8 +288,13 @@ namespace types
       return curr - other.curr;
     }
   };
-  struct const_sliced_str_iterator
-      : std::iterator<std::random_access_iterator_tag, str, std::ptrdiff_t, str *, str> {
+  struct const_sliced_str_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = chr;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     const char *data;
     long step;
     const_sliced_str_iterator(char const *data, long step);

@@ -15,11 +15,13 @@ namespace itertools
   namespace details
   {
     template <class T>
-    struct combination_iterator
-        : std::iterator<std::forward_iterator_tag, types::dynamic_tuple<typename T::value_type>,
-                        ptrdiff_t, types::dynamic_tuple<typename T::value_type> *,
-                        types::dynamic_tuple<typename T::value_type> /*no ref*/
-                        > {
+    struct combination_iterator {
+      using iterator_category = std::forward_iterator_tag;
+      using value_type = types::dynamic_tuple<typename T::value_type>;
+      using difference_type = std::ptrdiff_t;
+      using pointer = value_type *;
+      using reference = value_type /* no ref */;
+
       std::vector<typename T::value_type, utils::allocator<typename T::value_type>> pool;
       std::vector<long, utils::allocator<long>> indices;
       long r;
@@ -32,7 +34,7 @@ namespace itertools
       template <class Iter>
       combination_iterator(Iter &&pool, long r);
 
-      types::dynamic_tuple<typename T::value_type> operator*() const;
+      value_type operator*() const;
       combination_iterator &operator++();
       bool operator!=(combination_iterator const &other) const;
       bool operator==(combination_iterator const &other) const;

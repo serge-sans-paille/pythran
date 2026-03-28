@@ -15,8 +15,13 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
   template <class T>
-  struct broadcasted_iterator
-      : std::iterator<std::random_access_iterator_tag, std::remove_reference_t<T>> {
+  struct broadcasted_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = std::remove_reference_t<T>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     T value_;
 
     broadcasted_iterator(T const &value) : value_(value)
@@ -194,7 +199,13 @@ namespace types
 #endif
 
   template <class T>
-  struct const_broadcast_iterator : public std::iterator<std::random_access_iterator_tag, T> {
+  struct const_broadcast_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     T value;
     const_broadcast_iterator(T data) : value{data}
     {

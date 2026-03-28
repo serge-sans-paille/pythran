@@ -18,7 +18,7 @@ namespace itertools
     }
 
     template <class T>
-    T count_iterator<T>::operator*() const
+    typename count_iterator<T>::value_type count_iterator<T>::operator*() const
     {
       return value;
     }

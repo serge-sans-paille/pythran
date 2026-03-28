@@ -21,8 +21,7 @@ namespace numpy
   }
 
   template <class E>
-  std::tuple<types::array_tuple<long, E::value>, typename E::dtype>
-  ndenumerate_iterator<E>::operator*() const
+  typename ndenumerate_iterator<E>::value_type ndenumerate_iterator<E>::operator*() const
   {
     types::array_tuple<long, E::value> out;
     auto shape = sutils::getshape(expr);

@@ -19,8 +19,12 @@ namespace itertools
 
     // FIXME : should be a combined_iterator_tag
     template <typename... Iters>
-    struct product_iterator : std::iterator<std::forward_iterator_tag,
-                                            types::make_tuple_t<typename Iters::value_type...>> {
+    struct product_iterator {
+      using iterator_category = std::forward_iterator_tag;
+      using value_type = types::make_tuple_t<typename Iters::value_type...>;
+      using difference_type = std::ptrdiff_t;
+      using pointer = value_type *;
+      using reference = value_type /* no ref */;
 
       std::tuple<typename Iters::iterator...> const it_begin;
       std::tuple<typename Iters::iterator...> const it_end;
@@ -32,7 +36,7 @@ namespace itertools
       product_iterator(std::tuple<Iters...> &_iters, std::index_sequence<I...> const &);
       template <size_t... I>
       product_iterator(npos, std::tuple<Iters...> &_iters, std::index_sequence<I...> const &);
-      types::make_tuple_t<typename Iters::value_type...> operator*() const;
+      value_type operator*() const;
       product_iterator &operator++();
       bool operator==(product_iterator const &other) const;
       bool operator!=(product_iterator const &other) const;

@@ -28,7 +28,7 @@ namespace builtins
   {
   }
 
-  long xrange_iterator::operator*() const
+  xrange_iterator::value_type xrange_iterator::operator*() const
   {
     return value_;
   }

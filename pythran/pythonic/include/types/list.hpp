@@ -166,6 +166,8 @@ namespace types
     // data holder
     using _type = std::remove_cv_t<std::remove_reference_t<T>>;
     typedef container<_type> container_type;
+
+  public:
     utils::shared_ref<container_type> _data;
 
     template <class U, class S>

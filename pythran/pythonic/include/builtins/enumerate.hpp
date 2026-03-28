@@ -13,19 +13,20 @@ namespace builtins
 
   namespace details
   {
-    // FIXME return value may be a type::make_tuple
     template <class Iterator>
-    using enumerate_iterator_base = std::iterator<
-        typename std::iterator_traits<Iterator>::iterator_category,
-        types::make_tuple_t<long, typename std::iterator_traits<Iterator>::value_type>>;
+    struct enumerate_iterator {
+      using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
+      using value_type =
+          types::make_tuple_t<long, typename std::iterator_traits<Iterator>::value_type>;
+      using difference_type = std::ptrdiff_t;
+      using pointer = value_type *;
+      using reference = value_type;
 
-    template <class Iterator>
-    struct enumerate_iterator : public enumerate_iterator_base<Iterator> {
       long value;
       Iterator iter;
       enumerate_iterator();
       enumerate_iterator(Iterator const &iter, long first);
-      typename enumerate_iterator_base<Iterator>::value_type operator*() const
+      value_type operator*() const
       {
         return types::make_tuple(value, *iter);
       }

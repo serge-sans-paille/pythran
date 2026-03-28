@@ -32,7 +32,7 @@ namespace itertools
     }
 
     template <class T>
-    types::dynamic_tuple<typename T::value_type> combination_iterator<T>::operator*() const
+    typename combination_iterator<T>::value_type combination_iterator<T>::operator*() const
     {
       assert(!stopped && "! stopped");
       return {result.begin(), result.end()};

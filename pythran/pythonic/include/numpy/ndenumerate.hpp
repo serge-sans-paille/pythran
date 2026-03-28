@@ -8,9 +8,13 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class E>
-  struct ndenumerate_iterator
-      : std::iterator<std::random_access_iterator_tag,
-                      std::tuple<types::array_tuple<long, E::value>, typename E::dtype>> {
+  struct ndenumerate_iterator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = std::tuple<types::array_tuple<long, E::value>, typename E::dtype>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     long index;
     E const &expr;
     typename E::dtype *iter;
@@ -18,7 +22,7 @@ namespace numpy
     ndenumerate_iterator();
     ndenumerate_iterator(E const &expr, long first);
 
-    std::tuple<types::array_tuple<long, E::value>, typename E::dtype> operator*() const;
+    value_type operator*() const;
 
     ndenumerate_iterator &operator++();
     ndenumerate_iterator &operator+=(long n);

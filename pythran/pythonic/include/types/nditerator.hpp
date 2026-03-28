@@ -40,9 +40,13 @@ namespace types
   /* Iterator over whatever provides a fast(long) method to access its element
    */
   template <class E>
-  struct nditerator
-      : public std::iterator<std::random_access_iterator_tag,
-                             std::remove_reference_t<decltype(std::declval<E &>().fast(0))>> {
+  struct nditerator {
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = std::remove_reference_t<decltype(std::declval<E &>().fast(0))>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = value_type *;
+    using reference = value_type /* no ref */;
+
     E &data;
     long index;
     nditerator(E &data, long index);

@@ -44,7 +44,7 @@ namespace itertools
     }
 
     template <typename... Iters>
-    types::make_tuple_t<typename Iters::value_type...> product_iterator<Iters...>::operator*() const
+    typename product_iterator<Iters...>::value_type product_iterator<Iters...>::operator*() const
     {
       return get_value(std::make_index_sequence<sizeof...(Iters)>{});
     }

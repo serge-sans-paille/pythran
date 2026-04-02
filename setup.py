@@ -1,2 +1,3 @@
 from setuptools import setup
-setup()
+LICENSE = "BSD-3-Clause"
+setup(license=LICENSE)

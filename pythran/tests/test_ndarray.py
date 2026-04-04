@@ -825,6 +825,37 @@ def gexpr_baseid2(N):
                       numpy.arange(5),
                       gexpr_copy5=[NDArray[int, :]])
 
+    def test_gexpr_copy6(self):
+        self.run_test("def gexpr_copy6(a): a[:,1:] = a[:,:-1]; return a",
+                      numpy.arange(16).reshape(4,4),
+                      gexpr_copy6=[NDArray[int, :,:]])
+
+    def test_gexpr_copy7(self):
+        self.run_test("def gexpr_copy7(a): a[:,:-1] = a[:,1:]; return a",
+                      numpy.arange(16).reshape(4,4),
+                      gexpr_copy7=[NDArray[int, :,:]])
+
+    def test_gexpr_copy8(self):
+        self.run_test("def gexpr_copy8(a): a[1:,:] = a[:-1,:]; return a",
+                      numpy.arange(16).reshape(4,4),
+                      gexpr_copy8=[NDArray[int, :,:]])
+
+    def test_gexpr_copy9(self):
+        self.run_test("def gexpr_copy9(a): a[:-1,:] = a[1:,:]; return a",
+                      numpy.arange(16).reshape(4,4),
+                      gexpr_copy9=[NDArray[int, :,:]])
+
+
+    def test_gexpr_copy10(self):
+        self.run_test("def gexpr_copy10(a): a[:,::-1] = a[:]; return a",
+                      numpy.arange(16).reshape(4,4),
+                      gexpr_copy10=[NDArray[int, :,:]])
+
+    def test_gexpr_copy11(self):
+        self.run_test("def gexpr_copy11(a): a[:] = a[:,::-1]; return a",
+                      numpy.arange(16).reshape(4,4),
+                      gexpr_copy11=[NDArray[int, :,:]])
+
     def test_ndarray_iter0(self):
         self.run_test("def ndarray_iter0(a): return list(map(str, a))",
                       numpy.arange(16),

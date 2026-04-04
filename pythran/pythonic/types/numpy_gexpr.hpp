@@ -28,6 +28,17 @@ namespace numpy
 
 namespace types
 {
+  inline bool has_negative_step(long const &s)
+  {
+    return false;
+  }
+
+  template <class S>
+  inline bool has_negative_step(S const &s)
+  {
+    return (s.step) < 0;
+  }
+
   template <class S0, class S1>
   bool slices_may_overlap(S0 const &s0, S1 const &s1)
   {
@@ -45,6 +56,11 @@ namespace types
   bool slices_may_overlap(long const &i, S const &s)
   {
     return s.lower <= i && i < s.upper;
+  }
+
+  inline bool slices_may_overlap(long const &s0, long const &s1)
+  {
+    return s0 == s1;
   }
 
   template <class T>
@@ -127,6 +143,36 @@ namespace types
     return false;
   }
 
+  template <class E0, class E1>
+  bool any_slices_may_overlap(E0 const &gexpr, E1 const &expr, std::index_sequence<>) {
+    return false;
+  }
+
+  template <class E0, class E1, size_t I, size_t... Is>
+  bool any_slices_may_overlap(E0 const &gexpr, E1 const &expr, std::index_sequence<I, Is...>) {
+    return slices_may_overlap(std::get<I>(gexpr.slices), std::get<I>(expr.slices)) || any_slices_may_overlap(gexpr, expr, std::index_sequence<Is...>());
+  }
+
+  template <class E0>
+  bool any_trailing_slices_may_overlap(E0 const &gexpr, std::index_sequence<>) {
+    return false;
+  }
+
+  template <class E0, size_t I, size_t... Is>
+  bool any_trailing_slices_may_overlap(E0 const &gexpr, std::index_sequence<I, Is...>) {
+    return has_negative_step(std::get<I>(gexpr.slices)) || any_trailing_slices_may_overlap(gexpr, std::index_sequence<Is...>());
+  }
+
+  template<size_t I, size_t...Is>
+  constexpr std::index_sequence<(I + Is)...> add_to_sequence(std::index_sequence<Is...>) {
+    return {};
+  }
+
+  template<size_t I, size_t IMin>
+  constexpr auto make_tail_index_sequence() {
+    return add_to_sequence<IMin>(std::make_index_sequence<I - IMin>());
+  }
+
   template <class T, class pS, class Tp, class pSp, class E0, class E1>
   bool may_gexpr_overlap(E0 const &gexpr, E1 const &expr)
   {
@@ -139,9 +185,12 @@ namespace types
     if (gexpr.arg.id() != expr.arg.id()) {
       return false;
     }
-    if (!slices_may_overlap(std::get<0>(gexpr.slices), std::get<0>(expr.slices)))
-      return false;
-    return true;
+
+    constexpr auto gexpr_slice_size = std::tuple_size<decltype(gexpr.slices)>::value;
+    constexpr auto expr_slice_size = std::tuple_size<decltype(expr.slices)>::value;
+    constexpr auto min_slice_size = std::min(gexpr_slice_size, expr_slice_size);
+    return any_slices_may_overlap(gexpr, expr, std::make_index_sequence<min_slice_size>())
+      || any_trailing_slices_may_overlap(gexpr, make_tail_index_sequence<gexpr_slice_size,min_slice_size>());
   }
   template <class T, class pS, class Tp, class pSp, class... S, class... Sp>
   bool may_overlap(numpy_gexpr<ndarray<T, pS> const &, S...> const &gexpr,

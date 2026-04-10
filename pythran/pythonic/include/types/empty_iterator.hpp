@@ -16,8 +16,8 @@ namespace types
     using reference = value_type /* no ref */;
 
     // Empty iterator used, among other things, by empty_set
-    empty_iterator();
-    empty_iterator(empty_iterator const &);
+    empty_iterator() = default;
+    empty_iterator(empty_iterator const &) = default;
     bool operator==(empty_iterator const &) const;
     bool operator!=(empty_iterator const &) const;
     bool operator<(empty_iterator const &) const;

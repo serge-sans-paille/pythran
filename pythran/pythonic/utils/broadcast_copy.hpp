@@ -62,7 +62,7 @@ namespace utils
                     OtherIndices &&other_indices)
     {
       helper(std::forward<E>(self), other, self_indices, other_indices,
-             std::make_index_sequence<std::tuple_size<std::decay_t<SelfIndices>>::value>());
+             std::make_index_sequence<std::tuple_size_v<std::decay_t<SelfIndices>>>());
     }
   };
   template <size_t N>
@@ -357,7 +357,7 @@ namespace utils
                     OtherIndices &&other_indices)
     {
       helper(std::forward<E>(self), other, self_indices, other_indices,
-             std::make_index_sequence<std::tuple_size<std::decay_t<SelfIndices>>::value>());
+             std::make_index_sequence<std::tuple_size_v<std::decay_t<SelfIndices>>>());
     }
   };
 

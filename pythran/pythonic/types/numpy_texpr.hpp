@@ -120,7 +120,7 @@ namespace types
   /* element filtering */
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        F::value == 1 && !is_pod_array<F>::value,
                    numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::fast(F const &filter) const
@@ -136,7 +136,7 @@ namespace types
   }
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        F::value != 1 && !is_pod_array<F>::value,
                    numpy_vexpr<ndarray<typename numpy_texpr_2<E>::dtype, pshape<long>>,
                                ndarray<long, pshape<long>>>>
@@ -148,7 +148,7 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        F::value == 1 && !is_pod_array<F>::value,
                    numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::operator[](F const &filter) const
@@ -158,7 +158,7 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        F::value != 1 && !is_pod_array<F>::value,
                    numpy_vexpr<ndarray<typename numpy_texpr_2<E>::dtype, pshape<long>>,
                                ndarray<long, pshape<long>>>>
@@ -169,7 +169,7 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
-  std::enable_if_t<is_numexpr_arg<F>::value && !std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && !std::is_same_v<bool, typename F::dtype> &&
                        !is_pod_array<F>::value,
                    numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::operator[](F const &filter) const
@@ -181,7 +181,7 @@ namespace types
 
   template <class E>
   template <class F> // indexing through an array of indices -- a view
-  std::enable_if_t<is_numexpr_arg<F>::value && !std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && !std::is_same_v<bool, typename F::dtype> &&
                        !is_pod_array<F>::value,
                    numpy_vexpr<numpy_texpr_2<E>, ndarray<long, pshape<long>>>>
   numpy_texpr_2<E>::fast(F const &filter) const
@@ -231,7 +231,7 @@ namespace types
   numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::operator=(Expr const &expr)
   {
     return utils::broadcast_copy < numpy_texpr_2 &, Expr, value, value - utils::dim_of<Expr>::value,
-           is_vectorizable && std::is_same<dtype, typename dtype_of<Expr>::type>::value &&
+           is_vectorizable && std::is_same_v<dtype, typename dtype_of<Expr>::type> &&
                types::is_vectorizable<Expr>::value > (*this, expr);
   }
   template <class Arg>
@@ -246,15 +246,14 @@ namespace types
   template <class Op, class Expr>
   numpy_texpr_2<Arg> &numpy_texpr_2<Arg>::update_(Expr const &expr)
   {
-    using BExpr =
-        std::conditional_t<std::is_scalar<Expr>::value, broadcast<Expr, dtype>, Expr const &>;
+    using BExpr = std::conditional_t<std::is_scalar_v<Expr>, broadcast<Expr, dtype>, Expr const &>;
     BExpr bexpr = expr;
     utils::broadcast_update<
         Op, numpy_texpr_2 &, BExpr, value,
-        value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
+        value - (std::is_scalar_v<Expr> + utils::dim_of<Expr>::value),
         is_vectorizable &&
             types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
-            std::is_same<dtype, typename dtype_of<std::decay_t<BExpr>>::type>::value>(*this, bexpr);
+            std::is_same_v<dtype, typename dtype_of<std::decay_t<BExpr>>::type>>(*this, bexpr);
     return *this;
   }
 

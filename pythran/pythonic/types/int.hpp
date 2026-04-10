@@ -9,12 +9,12 @@ PYTHONIC_NS_BEGIN
 namespace builtins
 {
   template <class T>
-  std::enable_if_t<std::is_integral<T>::value, T> getattr(types::attr::REAL, T self)
+  std::enable_if_t<std::is_integral_v<T>, T> getattr(types::attr::REAL, T self)
   {
     return self;
   }
   template <class T>
-  std::enable_if_t<std::is_integral<T>::value, T> getattr(types::attr::IMAG, T self)
+  std::enable_if_t<std::is_integral_v<T>, T> getattr(types::attr::IMAG, T self)
   {
     return T(0);
   }

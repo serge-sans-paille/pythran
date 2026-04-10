@@ -47,8 +47,8 @@ namespace numpy
     // without shape
 
     template <class T, class pS, class Axes, class Norm>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value, std::complex<double>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fftn(types::ndarray<T, pS> const &in_array, types::none_type s, Axes const &axes,
          Norm const &norm)
     {
@@ -57,12 +57,12 @@ namespace numpy
     }
 
     template <class T, class pS, class Axes, class Norm>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fftn(types::ndarray<T, pS> const &in_array, types::none_type s, Axes const &axes,
          Norm const &norm)
     {
-      auto naxes = details::normalize_axes<std::tuple_size<pS>::value, 1>(axes);
+      auto naxes = details::normalize_axes<std::tuple_size_v<pS>, 1>(axes);
       auto nnorm = details::normalize_norm(norm);
       auto result = r2c(in_array, -1, naxes[0], nnorm.c_str(), true, true);
       for (size_t i = 1; i < naxes.size(); ++i)
@@ -72,11 +72,11 @@ namespace numpy
 
     template <class T, class pS, class Axes, class Norm>
     types::ndarray<std::enable_if_t<types::is_complex<T>::value, T>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fftn(types::ndarray<T, pS> const &in_array, types::none_type s, Axes const &axes,
          Norm const &norm)
     {
-      auto naxes = details::normalize_axes<std::tuple_size<pS>::value, 1>(axes);
+      auto naxes = details::normalize_axes<std::tuple_size_v<pS>, 1>(axes);
       auto nnorm = details::normalize_norm(norm);
       auto result = c2c(in_array, -1, naxes[0], nnorm.c_str(), true);
       for (size_t i = 1; i < naxes.size(); ++i)
@@ -86,8 +86,8 @@ namespace numpy
 
     // with shape
     template <class T, class pS, class I, size_t N, class V, class Axes, class Norm>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value, std::complex<double>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fftn(types::ndarray<T, pS> const &a, types::array_base<I, N, V> const &s, Axes const &axes,
          Norm const &norm)
     {
@@ -96,13 +96,13 @@ namespace numpy
     }
 
     template <class T, class pS, class I, size_t N, class V, class Axes, class Norm>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fftn(types::ndarray<T, pS> const &a, types::array_base<I, N, V> const &s, Axes const &axes,
          Norm const &norm)
     {
       auto nnorm = details::normalize_norm(norm);
-      auto naxes = details::normalize_axes<std::tuple_size<pS>::value, N>(axes);
+      auto naxes = details::normalize_axes<std::tuple_size_v<pS>, N>(axes);
       size_t i = 0;
       auto out = r2c(a, s[i], naxes[i], nnorm.c_str(), true, true);
       for (++i; i < N; ++i) {
@@ -113,12 +113,12 @@ namespace numpy
 
     template <class T, class pS, class I, size_t N, class V, class Axes, class Norm>
     types::ndarray<std::enable_if_t<types::is_complex<T>::value, T>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fftn(types::ndarray<T, pS> const &a, types::array_base<I, N, V> const &s, Axes const &axes,
          Norm const &norm)
     {
       auto nnorm = details::normalize_norm(norm);
-      auto naxes = details::normalize_axes<std::tuple_size<pS>::value, N>(axes);
+      auto naxes = details::normalize_axes<std::tuple_size_v<pS>, N>(axes);
       size_t i = 0;
       auto out = c2c(a, s[i], naxes[i], nnorm.c_str(), true);
       for (++i; i < N; ++i) {

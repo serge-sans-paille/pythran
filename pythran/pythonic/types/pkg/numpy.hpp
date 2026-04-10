@@ -11,7 +11,7 @@ inline bool from_python<types::pkg::numpy>::is_convertible(PyObject *obj)
   if (!PyModule_Check(obj)) {
     return false;
   }
-  const char * pkg_name = PyModule_GetName(obj);
+  const char *pkg_name = PyModule_GetName(obj);
   const size_t pkg_name_len = strlen(pkg_name);
   const size_t numpy_len = sizeof("numpy") - 1;
   if (pkg_name_len == numpy_len) {

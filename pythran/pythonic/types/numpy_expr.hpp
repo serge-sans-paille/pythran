@@ -5,7 +5,6 @@
 
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/utils/allocate.hpp"
-#include "pythonic/utils/meta.hpp"
 
 #include "pythonic/builtins/ValueError.hpp"
 
@@ -283,7 +282,7 @@ namespace types
 
   template <class Op, class... Args>
   template <class F>
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        !is_pod_array<F>::value,
                    numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, pshape<long>>>>
   numpy_expr<Op, Args...>::fast(F const &filter) const
@@ -301,7 +300,7 @@ namespace types
 
   template <class Op, class... Args>
   template <class F>
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        !is_pod_array<F>::value,
                    numpy_vexpr<numpy_expr<Op, Args...>, ndarray<long, pshape<long>>>>
   numpy_expr<Op, Args...>::operator[](F const &filter) const
@@ -311,7 +310,7 @@ namespace types
   template <class Op, class... Args>
   template <class F> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
-                       !std::is_same<bool, typename F::dtype>::value && !is_pod_array<F>::value,
+                       !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
                    numpy_vexpr<numpy_expr<Op, Args...>, F>>
   numpy_expr<Op, Args...>::operator[](F const &filter) const
   {
@@ -321,7 +320,7 @@ namespace types
   template <class Op, class... Args>
   template <class F> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
-                       !std::is_same<bool, typename F::dtype>::value && !is_pod_array<F>::value,
+                       !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
                    numpy_vexpr<numpy_expr<Op, Args...>, F>>
   numpy_expr<Op, Args...>::fast(F const &filter) const
   {

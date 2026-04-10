@@ -11,7 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T>
-  std::enable_if_t<std::is_scalar<T>::value, std::tuple<T, int>> frexp(T val);
+  std::enable_if_t<std::is_scalar_v<T>, std::tuple<T, int>> frexp(T val);
 
   template <class E>
   std::enable_if_t<!types::is_dtype<E>::value,

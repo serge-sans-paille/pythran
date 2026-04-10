@@ -263,8 +263,8 @@ namespace types
   template <class InputIterator>
   list<T>::list(InputIterator start, InputIterator stop) : _data()
   {
-    if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category,
-                     std::random_access_iterator_tag>::value)
+    if (std::is_same_v<typename std::iterator_traits<InputIterator>::iterator_category,
+                       std::random_access_iterator_tag>)
       _data->reserve(std::distance(start, stop));
     else
       _data->reserve(DEFAULT_CAPACITY);
@@ -831,7 +831,7 @@ inline PyObject *to_python<typename std::vector<bool>::reference>::convert(
 }
 
 inline PyObject *
-to_python<std::conditional_t<std::is_same<bool, typename std::vector<bool>::const_reference>::value,
+to_python<std::conditional_t<std::is_same_v<bool, typename std::vector<bool>::const_reference>,
                              phantom_type, typename std::vector<bool>::const_reference>>::
     convert(typename std::vector<bool>::const_reference const &v)
 {

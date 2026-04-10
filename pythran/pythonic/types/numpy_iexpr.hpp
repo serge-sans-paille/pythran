@@ -67,7 +67,7 @@ namespace types
   {
     assert(buffer);
     return utils::broadcast_copy < numpy_iexpr &, E, value, value - utils::dim_of<E>::value,
-           is_vectorizable && std::is_same<dtype, typename dtype_of<E>::type>::value &&
+           is_vectorizable && std::is_same_v<dtype, typename dtype_of<E>::type> &&
                types::is_vectorizable<E>::value > (*this, expr);
   }
 
@@ -83,7 +83,7 @@ namespace types
     return utils::broadcast_copy < numpy_iexpr &, numpy_iexpr const &, value,
            value - utils::dim_of<numpy_iexpr>::value,
            is_vectorizable && numpy_iexpr<Arg>::is_vectorizable &&
-               std::is_same<dtype, typename numpy_iexpr<Arg>::dtype>::value > (*this, expr);
+               std::is_same_v<dtype, typename numpy_iexpr<Arg>::dtype> > (*this, expr);
   }
 
   template <class Arg>
@@ -98,23 +98,22 @@ namespace types
     return utils::broadcast_copy < numpy_iexpr &, numpy_iexpr const &, value,
            value - utils::dim_of<numpy_iexpr>::value,
            is_vectorizable && numpy_iexpr<Arg>::is_vectorizable &&
-               std::is_same<dtype, typename numpy_iexpr<Arg>::dtype>::value > (*this, expr);
+               std::is_same_v<dtype, typename numpy_iexpr<Arg>::dtype> > (*this, expr);
   }
 
   template <class Arg>
   template <class Op, class Expr>
   numpy_iexpr<Arg> &numpy_iexpr<Arg>::update_(Expr const &expr)
   {
-    using BExpr =
-        std::conditional_t<std::is_scalar<Expr>::value, broadcast<Expr, dtype>, Expr const &>;
+    using BExpr = std::conditional_t<std::is_scalar_v<Expr>, broadcast<Expr, dtype>, Expr const &>;
     assert(buffer);
     BExpr bexpr = expr;
     utils::broadcast_update<
         Op, numpy_iexpr &, BExpr, value,
-        value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
+        value - (std::is_scalar_v<Expr> + utils::dim_of<Expr>::value),
         is_vectorizable &&
             types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
-            std::is_same<dtype, typename dtype_of<std::decay_t<BExpr>>::type>::value>(*this, bexpr);
+            std::is_same_v<dtype, typename dtype_of<std::decay_t<BExpr>>::type>>(*this, bexpr);
     return *this;
   }
 
@@ -288,7 +287,7 @@ namespace types
 
   template <class Arg>
   template <class F>
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype>,
                    numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>
   numpy_iexpr<Arg>::fast(F const &filter) const
   {
@@ -364,7 +363,7 @@ namespace types
 
   template <class Arg>
   template <class F>
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value,
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype>,
                    numpy_vexpr<numpy_iexpr<Arg>, ndarray<long, pshape<long>>>>
   numpy_iexpr<Arg>::operator[](F const &filter) const
   {

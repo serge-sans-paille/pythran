@@ -45,7 +45,7 @@ namespace numpy
       }
       bool operator()(long i0, long i1)
       {
-        return lexcmp_nth<std::tuple_size<K>::value>{}(keys, i0, i1);
+        return lexcmp_nth<std::tuple_size_v<K>>{}(keys, i0, i1);
       }
     };
   } // namespace details

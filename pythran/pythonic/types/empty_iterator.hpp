@@ -7,15 +7,6 @@ PYTHONIC_NS_BEGIN
 
 namespace types
 {
-
-  empty_iterator::empty_iterator()
-  {
-  }
-
-  empty_iterator::empty_iterator(empty_iterator const &)
-  {
-  }
-
   inline bool empty_iterator::operator==(empty_iterator const &) const
   {
     return true;

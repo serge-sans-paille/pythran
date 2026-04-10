@@ -22,7 +22,7 @@ namespace numpy
       stop = start + ((num > 0) ? 1 : 0);
     else
       step = (stop - start) / (num - (endpoint ? 1 : 0));
-    if (std::is_integral<typename dtype::type>::value)
+    if (std::is_integral_v<typename dtype::type>)
       return asarray(arange(start, stop + (endpoint ? step * .5 : 0), step), d);
     else
       return arange(start, stop + (endpoint ? step * .5 : 0), step, d);

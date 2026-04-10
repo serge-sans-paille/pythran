@@ -73,22 +73,20 @@ PYTHONIC_NS_BEGIN
 namespace types
 {
   template <class pS, size_t... Is>
-  array_tuple<long, std::tuple_size<pS>::value> make_strides(pS const &shape,
-                                                             std::index_sequence<Is...>)
+  array_tuple<long, std::tuple_size_v<pS>> make_strides(pS const &shape, std::index_sequence<Is...>)
   {
-    array_tuple<long, std::tuple_size<pS>::value> out;
-    out[std::tuple_size<pS>::value - 1] = 1;
+    array_tuple<long, std::tuple_size_v<pS>> out;
+    out[std::tuple_size_v<pS> - 1] = 1;
     (void)std::initializer_list<long>{
-        (out[std::tuple_size<pS>::value - Is - 2] =
-             out[std::tuple_size<pS>::value - Is - 1] *
-             std::get<std::tuple_size<pS>::value - Is - 1>(shape))...};
+        (out[std::tuple_size_v<pS> - Is - 2] = out[std::tuple_size_v<pS> - Is - 1] *
+                                               std::get<std::tuple_size_v<pS> - Is - 1>(shape))...};
     return out;
   }
 
   template <class pS>
-  array_tuple<long, std::tuple_size<pS>::value> make_strides(pS const &shape)
+  array_tuple<long, std::tuple_size_v<pS>> make_strides(pS const &shape)
   {
-    return make_strides(shape, std::make_index_sequence<std::tuple_size<pS>::value - 1>());
+    return make_strides(shape, std::make_index_sequence<std::tuple_size_v<pS> - 1>());
   }
 
   template <class T, class pS>
@@ -137,8 +135,7 @@ namespace types
   template <class S, class Iter>
   T *type_helper<ndarray<T, pS> const &>::initialize_from_iterable(S &shape, T *from, Iter &&iter)
   {
-    sutils::assign(std::get<std::tuple_size<S>::value - std::tuple_size<pS>::value>(shape),
-                   iter.size());
+    sutils::assign(std::get<std::tuple_size_v<S> - std::tuple_size_v<pS>>(shape), iter.size());
     for (auto content : iter)
       from = type_helper<ndarray<T, sutils::pop_tail_t<pS>> const &>::initialize_from_iterable(
           shape, from, content);
@@ -170,7 +167,7 @@ namespace types
   template <class S, class Iter>
   T *type_helper<ndarray<T, pshape<pS>>>::initialize_from_iterable(S &shape, T *from, Iter &&iter)
   {
-    sutils::assign(std::get<std::tuple_size<S>::value - 1>(shape), iter.size());
+    sutils::assign(std::get<std::tuple_size_v<S> - 1>(shape), iter.size());
     return std::copy(iter.begin(), iter.end(), from);
   }
 
@@ -200,7 +197,7 @@ namespace types
   T *type_helper<ndarray<T, pshape<pS>> const &>::initialize_from_iterable(S &shape, T *from,
                                                                            Iter &&iter)
   {
-    sutils::assign(std::get<std::tuple_size<S>::value - 1>(shape), iter.size());
+    sutils::assign(std::get<std::tuple_size_v<S> - 1>(shape), iter.size());
     return std::copy(iter.begin(), iter.end(), from);
   }
 
@@ -232,7 +229,7 @@ namespace types
   T *type_helper<ndarray<T, array_tuple<pS, 1>>>::initialize_from_iterable(S &shape, T *from,
                                                                            Iter &&iter)
   {
-    sutils::assign(std::get<std::tuple_size<S>::value - 1>(shape), iter.size());
+    sutils::assign(std::get<std::tuple_size_v<S> - 1>(shape), iter.size());
     return std::copy(iter.begin(), iter.end(), from);
   }
 
@@ -264,7 +261,7 @@ namespace types
                                                                                    T *from,
                                                                                    Iter &&iter)
   {
-    sutils::assign(std::get<std::tuple_size<S>::value - 1>(shape), iter.size());
+    sutils::assign(std::get<std::tuple_size_v<S> - 1>(shape), iter.size());
     return std::copy(iter.begin(), iter.end(), from);
   }
 
@@ -355,7 +352,7 @@ namespace types
   ndarray<T, pS>::ndarray(ndarray<Tp, pSp> const &other)
       : mem(other.flat_size()), buffer(mem->data), _shape(other._shape), _strides(other._strides)
   {
-    static_assert(std::tuple_size<pS>::value == std::tuple_size<pSp>::value, "compatible shapes");
+    static_assert(std::tuple_size_v<pS> == std::tuple_size_v<pSp>, "compatible shapes");
     std::copy(other.fbegin(), other.fend(), fbegin());
   }
 
@@ -364,7 +361,7 @@ namespace types
   ndarray<T, pS>::ndarray(ndarray<T, pSp> const &other)
       : mem(other.mem), buffer(mem->data), _shape(other._shape), _strides(other._strides)
   {
-    static_assert(std::tuple_size<pS>::value == std::tuple_size<pSp>::value, "compatible shapes");
+    static_assert(std::tuple_size_v<pS> == std::tuple_size_v<pSp>, "compatible shapes");
   }
 
   /* from a seed */
@@ -433,7 +430,7 @@ namespace types
     assert(buffer);
     utils::broadcast_copy<ndarray &, E, value, 0,
                           is_vectorizable && E::is_vectorizable &&
-                              std::is_same<dtype, typename E::dtype>::value>(*this, expr);
+                              std::is_same_v<dtype, typename E::dtype>>(*this, expr);
   }
 
   template <class T, class pS>
@@ -496,14 +493,13 @@ namespace types
   template <class Op, class Expr>
   ndarray<T, pS> &ndarray<T, pS>::update_(Expr const &expr)
   {
-    using BExpr = std::conditional_t<std::is_scalar<Expr>::value, broadcast<Expr, T>, Expr const &>;
+    using BExpr = std::conditional_t<std::is_scalar_v<Expr>, broadcast<Expr, T>, Expr const &>;
     BExpr bexpr = expr;
     utils::broadcast_update<
-        Op, ndarray &, BExpr, value,
-        value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
+        Op, ndarray &, BExpr, value, value - (std::is_scalar_v<Expr> + utils::dim_of<Expr>::value),
         is_vectorizable &&
             types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
-            std::is_same<dtype, typename dtype_of<std::decay_t<BExpr>>::type>::value>(*this, bexpr);
+            std::is_same_v<dtype, typename dtype_of<std::decay_t<BExpr>>::type>>(*this, bexpr);
     return *this;
   }
 
@@ -562,26 +558,26 @@ namespace types
 
   template <class T, class pS>
   template <class Ty>
-  std::enable_if_t<std::is_integral<Ty>::value, T &>
+  std::enable_if_t<std::is_integral_v<Ty>, T &>
   ndarray<T, pS>::fast(array_tuple<Ty, value> const &indices)
   {
     assert(inbound_indices(indices));
-    return *(buffer + noffset<std::tuple_size<pS>::value>{}(*this, indices));
+    return *(buffer + noffset<std::tuple_size_v<pS>>{}(*this, indices));
   }
 
   template <class T, class pS>
   template <class Ty>
-  std::enable_if_t<std::is_integral<Ty>::value, T>
+  std::enable_if_t<std::is_integral_v<Ty>, T>
   ndarray<T, pS>::fast(array_tuple<Ty, value> const &indices) const
   {
     assert(inbound_indices(indices));
-    return *(buffer + noffset<std::tuple_size<pS>::value>{}(*this, indices));
+    return *(buffer + noffset<std::tuple_size_v<pS>>{}(*this, indices));
   }
 
   template <class T, class pS>
   template <class Ty, size_t M>
-  auto ndarray<T, pS>::fast(array_tuple<Ty, M> const &indices) const & -> std::enable_if_t<
-      std::is_integral<Ty>::value, decltype(nget<M - 1>().fast(*this, indices))>
+  auto ndarray<T, pS>::fast(array_tuple<Ty, M> const &indices) const
+      & -> std::enable_if_t<std::is_integral_v<Ty>, decltype(nget<M - 1>().fast(*this, indices))>
   {
     return nget<M - 1>().fast(*this, indices);
   }
@@ -589,31 +585,31 @@ namespace types
   template <class T, class pS>
   template <class Ty, size_t M>
   auto ndarray<T, pS>::fast(array_tuple<Ty, M> const &indices) && -> std::enable_if_t<
-      std::is_integral<Ty>::value, decltype(nget<M - 1>().fast(std::move(*this), indices))>
+      std::is_integral_v<Ty>, decltype(nget<M - 1>().fast(std::move(*this), indices))>
   {
     return nget<M - 1>().fast(std::move(*this), indices);
   }
 
   template <class T, class pS>
   template <class Ty>
-  std::enable_if_t<std::is_integral<Ty>::value, T const &>
+  std::enable_if_t<std::is_integral_v<Ty>, T const &>
   ndarray<T, pS>::operator[](array_tuple<Ty, value> const &indices) const
   {
-    return *(buffer + noffset<std::tuple_size<pS>::value>{}(*this, indices, _shape));
+    return *(buffer + noffset<std::tuple_size_v<pS>>{}(*this, indices, _shape));
   }
 
   template <class T, class pS>
   template <class Ty>
-  std::enable_if_t<std::is_integral<Ty>::value, T &>
+  std::enable_if_t<std::is_integral_v<Ty>, T &>
   ndarray<T, pS>::operator[](array_tuple<Ty, value> const &indices)
   {
-    return *(buffer + noffset<std::tuple_size<pS>::value>{}(*this, indices, _shape));
+    return *(buffer + noffset<std::tuple_size_v<pS>>{}(*this, indices, _shape));
   }
 
   template <class T, class pS>
   template <class Ty, size_t M>
-  auto ndarray<T, pS>::operator[](array_tuple<Ty, M> const &indices) const
-      & -> std::enable_if_t<std::is_integral<Ty>::value, decltype(nget<M - 1>()(*this, indices))>
+  auto ndarray<T, pS>::operator[](array_tuple<Ty, M> const &indices)
+      const & -> std::enable_if_t<std::is_integral_v<Ty>, decltype(nget<M - 1>()(*this, indices))>
   {
     return nget<M - 1>()(*this, indices);
   }
@@ -621,7 +617,7 @@ namespace types
   template <class T, class pS>
   template <class Ty, size_t M>
   auto ndarray<T, pS>::operator[](array_tuple<Ty, M> const &indices) && -> std::enable_if_t<
-      std::is_integral<Ty>::value, decltype(nget<M - 1>()(std::move(*this), indices))>
+      std::is_integral_v<Ty>, decltype(nget<M - 1>()(std::move(*this), indices))>
   {
     return nget<M - 1>()(std::move(*this), indices);
   }
@@ -651,8 +647,7 @@ namespace types
   ndarray<T, pS>::operator[](none_type) const
   {
     sutils::push_front_t<pS, std::integral_constant<long, 1>> new_shape;
-    sutils::copy_shape<1, -1>(new_shape, *this,
-                              std::make_index_sequence<std::tuple_size<pS>::value>());
+    sutils::copy_shape<1, -1>(new_shape, *this, std::make_index_sequence<std::tuple_size_v<pS>>());
     return reshape(new_shape);
   }
 
@@ -706,7 +701,7 @@ namespace types
   /* element filtering */
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        F::value == 1 && !is_pod_array<F>::value,
                    numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>
   ndarray<T, pS>::fast(F const &filter) const
@@ -723,7 +718,7 @@ namespace types
 
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        F::value == 1 && !is_pod_array<F>::value,
                    numpy_vexpr<ndarray<T, pS>, ndarray<long, pshape<long>>>>
   ndarray<T, pS>::operator[](F const &filter) const
@@ -732,7 +727,7 @@ namespace types
   }
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        F::value != 1 && !is_pod_array<F>::value,
                    numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>
   ndarray<T, pS>::fast(F const &filter) const
@@ -742,7 +737,7 @@ namespace types
 
   template <class T, class pS>
   template <class F> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                        F::value != 1 && !is_pod_array<F>::value,
                    numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>
   ndarray<T, pS>::operator[](F const &filter) const
@@ -753,7 +748,7 @@ namespace types
   template <class T, class pS>
   template <class F> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
-                       !std::is_same<bool, typename F::dtype>::value && !is_pod_array<F>::value,
+                       !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
                    numpy_vexpr<ndarray<T, pS>, F>>
   ndarray<T, pS>::operator[](F const &filter) const
   {
@@ -763,7 +758,7 @@ namespace types
   template <class T, class pS>
   template <class F> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
-                       !std::is_same<bool, typename F::dtype>::value && !is_pod_array<F>::value,
+                       !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
                    numpy_vexpr<ndarray<T, pS>, F>>
   ndarray<T, pS>::fast(F const &filter) const
   {
@@ -919,14 +914,14 @@ namespace types
   template <class T, class pS>
   std::ostream &operator<<(std::ostream &os, ndarray<T, pS> const &e)
   {
-    std::array<long, std::tuple_size<pS>::value> strides;
+    std::array<long, std::tuple_size_v<pS>> strides;
     auto shape = sutils::getshape(e);
-    strides[std::tuple_size<pS>::value - 1] = std::get<std::tuple_size<pS>::value - 1>(shape);
-    if (strides[std::tuple_size<pS>::value - 1] == 0)
+    strides[std::tuple_size_v<pS> - 1] = std::get<std::tuple_size_v<pS> - 1>(shape);
+    if (strides[std::tuple_size_v<pS> - 1] == 0)
       return os << "[]";
     std::transform(strides.rbegin(), strides.rend() - 1, shape.rbegin() + 1, strides.rbegin() + 1,
                    std::multiplies<long>());
-    size_t depth = std::tuple_size<pS>::value;
+    size_t depth = std::tuple_size_v<pS>;
     int step = -1;
     size_t size = impl::get_spacing(e);
     auto iter = e.fbegin();
@@ -938,7 +933,7 @@ namespace types
         if (depth == 1) {
           os.width(size);
           os << *iter++;
-          for (int i = 1; i < std::get<std::tuple_size<pS>::value - 1>(shape); i++) {
+          for (int i = 1; i < std::get<std::tuple_size_v<pS> - 1>(shape); i++) {
             os.width(size + 1);
             os << *iter++;
           }
@@ -947,13 +942,13 @@ namespace types
           max_modulo = std::lower_bound(strides.begin(), strides.end(), iter - e.buffer,
                                         [](int comp, int val) { return val % comp != 0; }) -
                        strides.begin();
-        } else if (max_modulo + depth == std::tuple_size<pS>::value + 1) {
+        } else if (max_modulo + depth == std::tuple_size_v<pS> + 1) {
           depth--;
           step = -1;
           os << "]";
           for (size_t i = 0; i < depth; i++)
             os << std::endl;
-          for (size_t i = 0; i < std::tuple_size<pS>::value - depth; i++)
+          for (size_t i = 0; i < std::tuple_size_v<pS> - depth; i++)
             os << " ";
           os << "[";
         } else {
@@ -963,7 +958,7 @@ namespace types
           else
             os << "[";
         }
-      } while (depth != std::tuple_size<pS>::value + 1);
+      } while (depth != std::tuple_size_v<pS> + 1);
 
     return os << "]";
   }
@@ -1283,7 +1278,7 @@ PYTHONIC_NS_BEGIN
 template <class T, size_t N>
 struct pyarray_new {
 
-  static_assert(!std::is_same<T, npy_intp>::value, "correctly specialized");
+  static_assert(!std::is_same_v<T, npy_intp>, "correctly specialized");
 
   PyObject *from_descr(PyTypeObject *subtype, PyArray_Descr *descr, T *dims, void *data, int flags,
                        PyObject *obj)
@@ -1355,7 +1350,7 @@ PyObject *to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const 
     } else {
       Py_INCREF((PyObject *)PyArray_DESCR(arr));
       auto array = sutils::array(n._shape);
-      auto *res = pyarray_new<long, std::tuple_size<pS>::value>{}.from_descr(
+      auto *res = pyarray_new<long, std::tuple_size_v<pS>>{}.from_descr(
           Py_TYPE((PyObject *)arr), PyArray_DESCR(arr), array.data(), PyArray_DATA(arr),
           PyArray_FLAGS(arr) & ~NPY_ARRAY_OWNDATA, p);
       if (transpose && (PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS)) {
@@ -1367,7 +1362,7 @@ PyObject *to_python<types::ndarray<T, pS>>::convert(types::ndarray<T, pS> const 
     }
   } else {
     auto array = sutils::array(n._shape);
-    PyObject *result = pyarray_new<long, std::tuple_size<pS>::value>{}.from_data(
+    PyObject *result = pyarray_new<long, std::tuple_size_v<pS>>{}.from_data(
         array.data(), c_type_to_numpy_type<T>::value, n.buffer);
     if (!result)
       return nullptr;
@@ -1457,7 +1452,7 @@ namespace impl
     PyArrayObject *arr = reinterpret_cast<PyArrayObject *>(obj);
     if (PyArray_TYPE(arr) != c_type_to_numpy_type<T>::value)
       return nullptr;
-    if (PyArray_NDIM(arr) != std::tuple_size<pS>::value)
+    if (PyArray_NDIM(arr) != std::tuple_size_v<pS>)
       return nullptr;
     return arr;
   }
@@ -1487,8 +1482,8 @@ namespace impl
   void fill_slice(Slice &slice, long const *strides, long const *offsets, S const *dims,
                   utils::int_<N>)
   {
-    set_slice(std::get<std::tuple_size<Slice>::value - N>(slice), *offsets,
-              *offsets + *dims * *strides, *strides);
+    set_slice(std::get<std::tuple_size_v<Slice> - N>(slice), *offsets, *offsets + *dims * *strides,
+              *strides);
     fill_slice<T>(slice, strides + 1, offsets + 1, dims + 1, utils::int_<N - 1>());
   }
 } // namespace impl
@@ -1503,7 +1498,7 @@ bool from_python<types::ndarray<T, pS>>::is_convertible(PyObject *obj)
   auto const *dims = PyArray_DIMS(arr);
   long current_stride = PyArray_ITEMSIZE(arr);
   if (PyArray_SIZE(arr)) {
-    for (long i = std::tuple_size<pS>::value - 1; i >= 0; i--) {
+    for (long i = std::tuple_size_v<pS> - 1; i >= 0; i--) {
       if (stride[i] == 0 && dims[i] == 1) {
         // happens when a new dim is added though None/newaxis
       } else if (stride[i] != current_stride && dims[i] > 1) {
@@ -1513,13 +1508,13 @@ bool from_python<types::ndarray<T, pS>>::is_convertible(PyObject *obj)
     }
     // this is supposed to be a texpr
     if ((PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS) &&
-        ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) && (std::tuple_size<pS>::value > 1)) {
+        ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) && (std::tuple_size_v<pS> > 1)) {
       return false;
     }
   }
 
   // check if dimension size match
-  return impl::check_shape<pS>(dims, std::make_index_sequence<std::tuple_size<pS>::value>());
+  return impl::check_shape<pS>(dims, std::make_index_sequence<std::tuple_size_v<pS>>());
 }
 template <typename T, class pS>
 types::ndarray<T, pS> from_python<types::ndarray<T, pS>>::convert(PyObject *obj)
@@ -1538,7 +1533,7 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::is_convertibl
     return false;
 
   if ((PyArray_FLAGS(arr) & NPY_ARRAY_F_CONTIGUOUS) &&
-      ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) && (std::tuple_size<pS>::value > 1)) {
+      ((PyArray_FLAGS(arr) & NPY_ARRAY_C_CONTIGUOUS) == 0) && (std::tuple_size_v<pS> > 1)) {
     return false;
   }
 
@@ -1556,7 +1551,7 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::is_convertibl
    */
   long current_stride = PyArray_ITEMSIZE(arr);
   bool at_least_one_stride = false;
-  for (long i = std::tuple_size<pS>::value - 1; i >= 0; i--) {
+  for (long i = std::tuple_size_v<pS> - 1; i >= 0; i--) {
     if (stride[i] < 0) {
       return false;
     }
@@ -1569,7 +1564,7 @@ bool from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::is_convertibl
     current_stride *= dims[i];
   }
   if (at_least_one_stride) {
-    if (PyArray_NDIM(base_arr) != std::tuple_size<pS>::value) {
+    if (PyArray_NDIM(base_arr) != std::tuple_size_v<pS>) {
       return false;
     }
     return true;
@@ -1593,16 +1588,16 @@ from_python<types::numpy_gexpr<types::ndarray<T, pS>, S...>>::convert(PyObject *
    * base
    * pointer and not relative to the lower dimension
    */
-  long offsets[std::tuple_size<pS>::value];
-  long strides[std::tuple_size<pS>::value];
+  long offsets[std::tuple_size_v<pS>];
+  long strides[std::tuple_size_v<pS>];
   auto const *base_dims = PyArray_DIMS(base_arr);
 
   auto full_offset = (PyArray_BYTES(arr) - PyArray_BYTES(base_arr)) / sizeof(T);
   auto const *arr_strides = PyArray_STRIDES(arr);
   long accumulated_dim = 1;
-  offsets[std::tuple_size<pS>::value - 1] = full_offset % base_dims[std::tuple_size<pS>::value - 1];
-  strides[std::tuple_size<pS>::value - 1] = arr_strides[std::tuple_size<pS>::value - 1] / sizeof(T);
-  for (ssize_t i = std::tuple_size<pS>::value - 2; i >= 0; --i) {
+  offsets[std::tuple_size_v<pS> - 1] = full_offset % base_dims[std::tuple_size_v<pS> - 1];
+  strides[std::tuple_size_v<pS> - 1] = arr_strides[std::tuple_size_v<pS> - 1] / sizeof(T);
+  for (ssize_t i = std::tuple_size_v<pS> - 2; i >= 0; --i) {
     accumulated_dim *= base_dims[i + 1];
     offsets[i] = full_offset / accumulated_dim;
     strides[i] = arr_strides[i] / sizeof(T) / accumulated_dim;

@@ -28,14 +28,13 @@ namespace numpy
     template <class Op, class E>
     struct reduce_result_type_helper<Op, E, types::none_type> {
       using type = std::conditional_t<
-          std::is_integral<typename types::dtype_of<E>::type>::value &&
+          std::is_integral_v<typename types::dtype_of<E>::type> &&
               (sizeof(typename types::dtype_of<E>::type) < sizeof(long)) &&
-              !std::is_same<Op, operator_::functor::imin>::value &&
-              !std::is_same<Op, operator_::functor::imax>::value,
-          std::conditional_t<
-              std::is_same<typename types::dtype_of<E>::type, bool>::value, long,
-              std::conditional_t<std::is_signed<typename types::dtype_of<E>::type>::value, long,
-                                 unsigned long>>,
+              !std::is_same_v<Op, operator_::functor::imin> &&
+              !std::is_same_v<Op, operator_::functor::imax>,
+          std::conditional_t<std::is_same_v<typename types::dtype_of<E>::type, bool>, long,
+                             std::conditional_t<std::is_signed_v<typename types::dtype_of<E>::type>,
+                                                long, unsigned long>>,
           typename types::dtype_of<E>::type>;
     };
     template <class Op, class E, class T = types::none_type>
@@ -43,12 +42,12 @@ namespace numpy
   } // namespace
 
   template <class Op, class E>
-  std::enable_if_t<std::is_scalar<E>::value || types::is_complex<E>::value, E>
+  std::enable_if_t<std::is_scalar_v<E> || types::is_complex<E>::value, E>
   reduce(E const &expr, types::none_type _ = types::none_type());
 
   template <class Op, class E>
-  std::enable_if_t<std::is_scalar<E>::value || types::is_complex<E>::value, E>
-  reduce(E const &array, long axis);
+  std::enable_if_t<std::is_scalar_v<E> || types::is_complex<E>::value, E> reduce(E const &array,
+                                                                                 long axis);
 
   template <class Op, class E, class dtype = types::none_type>
   std::enable_if_t<types::is_numexpr_arg<E>::value, reduce_result_type<Op, E, dtype>>

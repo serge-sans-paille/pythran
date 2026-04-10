@@ -18,7 +18,7 @@ namespace numpy
   {
 
     template <class T_out, class T, class pS>
-    std::enable_if_t<std::tuple_size<pS>::value != 1, void>
+    std::enable_if_t<std::tuple_size_v<pS> != 1, void>
     _median(T_out *out, types::ndarray<T, pS> const &tmp, long axis)
     {
       auto tmp_shape = sutils::getshape(tmp);
@@ -85,29 +85,29 @@ namespace numpy
   }
 
   template <class T, class pS>
-  std::enable_if_t<std::tuple_size<pS>::value != 1,
+  std::enable_if_t<std::tuple_size_v<pS> != 1,
                    types::ndarray<decltype(std::declval<T>() + 1.),
-                                  types::array_tuple<long, std::tuple_size<pS>::value - 1>>>
+                                  types::array_tuple<long, std::tuple_size_v<pS> - 1>>>
   median(types::ndarray<T, pS> const &arr, long axis)
   {
-    constexpr auto N = std::tuple_size<pS>::value;
+    constexpr auto N = std::tuple_size_v<pS>;
     if (axis < 0)
       axis += N;
 
-    types::array_tuple<long, std::tuple_size<pS>::value - 1> shp;
+    types::array_tuple<long, std::tuple_size_v<pS> - 1> shp;
     auto stmp = sutils::getshape(arr);
     auto next = std::copy(stmp.begin(), stmp.begin() + axis, shp.begin());
     std::copy(stmp.begin() + axis + 1, stmp.end(), next);
 
     types::ndarray<decltype(std::declval<T>() + 1.),
-                   types::array_tuple<long, std::tuple_size<pS>::value - 1>>
+                   types::array_tuple<long, std::tuple_size_v<pS> - 1>>
         out(shp, types::none_type{});
     _median(out.buffer, arr, axis);
     return out;
   }
 
   template <class T, class pS>
-  std::enable_if_t<std::tuple_size<pS>::value == 1, decltype(std::declval<T>() + 1.)>
+  std::enable_if_t<std::tuple_size_v<pS> == 1, decltype(std::declval<T>() + 1.)>
   median(types::ndarray<T, pS> const &arr, long axis)
   {
     if (axis != 0)

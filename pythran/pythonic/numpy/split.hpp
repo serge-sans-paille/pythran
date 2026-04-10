@@ -11,7 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class pS>
-  types::list<types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>>
+  types::list<types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>>
   split(types::ndarray<T, pS> const &a, long nb_split)
   {
     if (a.flat_size() % nb_split != 0)
@@ -20,9 +20,8 @@ namespace numpy
   }
 
   template <class T, class pS, class I>
-  std::enable_if_t<
-      types::is_iterable<I>::value,
-      types::list<types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>>>
+  std::enable_if_t<types::is_iterable<I>::value,
+                   types::list<types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>>>
   split(types::ndarray<T, pS> const &a, I const &split_mask)
   {
     return array_split(a, split_mask);

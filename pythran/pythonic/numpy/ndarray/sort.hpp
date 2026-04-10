@@ -93,17 +93,17 @@ namespace numpy
       using comparator = _comp<T>;
 
       template <class T, class pS, class Sorter>
-      std::enable_if_t<std::tuple_size<pS>::value == 1, void> _sort(types::ndarray<T, pS> &out,
-                                                                    long axis, Sorter sorter)
+      std::enable_if_t<std::tuple_size_v<pS> == 1, void> _sort(types::ndarray<T, pS> &out,
+                                                               long axis, Sorter sorter)
       {
         sorter(out.begin(), out.end(), comparator<T>{});
       }
 
       template <class T, class pS, class Sorter>
-      std::enable_if_t<std::tuple_size<pS>::value != 1, void> _sort(types::ndarray<T, pS> &out,
-                                                                    long axis, Sorter sorter)
+      std::enable_if_t<std::tuple_size_v<pS> != 1, void> _sort(types::ndarray<T, pS> &out,
+                                                               long axis, Sorter sorter)
       {
-        constexpr auto N = std::tuple_size<pS>::value;
+        constexpr auto N = std::tuple_size_v<pS>;
         if (axis < 0)
           axis += N;
         long const flat_size = out.flat_size();

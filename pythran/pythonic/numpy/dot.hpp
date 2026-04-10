@@ -1103,7 +1103,7 @@ namespace numpy
                        types::is_numexpr_arg<F>::value   // Arguments are array_like
                        && E::value == 1 && F::value == 1 // It is a two vectors.
                        && (!is_blas_view<E>::value || !is_blas_view<F>::value ||
-                           !std::is_same<typename E::dtype, typename F::dtype>::value),
+                           !std::is_same_v<typename E::dtype, typename F::dtype>),
                    typename __combined<typename E::dtype, typename F::dtype>::type>
   dot(E const &e, F const &f)
   {
@@ -1111,9 +1111,8 @@ namespace numpy
   }
 
   template <class E, class F>
-  std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, float>::value &&
-                       std::is_same<typename F::dtype, float>::value && is_blas_array<E>::value &&
+  std::enable_if_t<E::value == 1 && F::value == 1 && std::is_same_v<typename E::dtype, float> &&
+                       std::is_same_v<typename F::dtype, float> && is_blas_array<E>::value &&
                        is_blas_array<F>::value,
                    float>
   dot(E const &e, F const &f)
@@ -1122,9 +1121,8 @@ namespace numpy
   }
 
   template <class E, class F>
-  std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, double>::value &&
-                       std::is_same<typename F::dtype, double>::value && is_blas_array<E>::value &&
+  std::enable_if_t<E::value == 1 && F::value == 1 && std::is_same_v<typename E::dtype, double> &&
+                       std::is_same_v<typename F::dtype, double> && is_blas_array<E>::value &&
                        is_blas_array<F>::value,
                    double>
   dot(E const &e, F const &f)
@@ -1134,8 +1132,8 @@ namespace numpy
 
   template <class E, class F>
   std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, std::complex<float>>::value &&
-                       std::is_same<typename F::dtype, std::complex<float>>::value &&
+                       std::is_same_v<typename E::dtype, std::complex<float>> &&
+                       std::is_same_v<typename F::dtype, std::complex<float>> &&
                        is_blas_array<E>::value && is_blas_array<F>::value,
                    std::complex<float>>
   dot(E const &e, F const &f)
@@ -1148,8 +1146,8 @@ namespace numpy
 
   template <class E, class F>
   std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, std::complex<double>>::value &&
-                       std::is_same<typename F::dtype, std::complex<double>>::value &&
+                       std::is_same_v<typename E::dtype, std::complex<double>> &&
+                       std::is_same_v<typename F::dtype, std::complex<double>> &&
                        is_blas_array<E>::value && is_blas_array<F>::value,
                    std::complex<double>>
   dot(E const &e, F const &f)
@@ -1161,9 +1159,8 @@ namespace numpy
   }
 
   template <class E, class F>
-  std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, float>::value &&
-                       std::is_same<typename F::dtype, float>::value &&
+  std::enable_if_t<E::value == 1 && F::value == 1 && std::is_same_v<typename E::dtype, float> &&
+                       std::is_same_v<typename F::dtype, float> &&
                        (is_blas_view<E>::value && is_blas_view<F>::value &&
                         !(is_blas_array<E>::value && is_blas_array<F>::value)),
                    float>
@@ -1178,9 +1175,8 @@ namespace numpy
   }
 
   template <class E, class F>
-  std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, double>::value &&
-                       std::is_same<typename F::dtype, double>::value &&
+  std::enable_if_t<E::value == 1 && F::value == 1 && std::is_same_v<typename E::dtype, double> &&
+                       std::is_same_v<typename F::dtype, double> &&
                        (is_blas_view<E>::value && is_blas_view<F>::value &&
                         !(is_blas_array<E>::value && is_blas_array<F>::value)),
                    double>
@@ -1196,8 +1192,8 @@ namespace numpy
 
   template <class E, class F>
   std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, std::complex<float>>::value &&
-                       std::is_same<typename F::dtype, std::complex<float>>::value &&
+                       std::is_same_v<typename E::dtype, std::complex<float>> &&
+                       std::is_same_v<typename F::dtype, std::complex<float>> &&
                        (is_blas_view<E>::value && is_blas_view<F>::value &&
                         !(is_blas_array<E>::value && is_blas_array<F>::value)),
                    std::complex<float>>
@@ -1216,8 +1212,8 @@ namespace numpy
 
   template <class E, class F>
   std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, std::complex<double>>::value &&
-                       std::is_same<typename F::dtype, std::complex<double>>::value &&
+                       std::is_same_v<typename E::dtype, std::complex<double>> &&
+                       std::is_same_v<typename F::dtype, std::complex<double>> &&
                        (is_blas_view<E>::value && is_blas_view<F>::value &&
                         !(is_blas_array<E>::value && is_blas_array<F>::value)),
                    std::complex<double>>
@@ -1272,8 +1268,8 @@ namespace numpy
 #undef MV_DEF
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 1,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 1,
                    types::ndarray<E, types::pshape<long>>>
   dot(types::ndarray<E, pS0> const &f, types::ndarray<E, pS1> const &e)
   {
@@ -1285,8 +1281,8 @@ namespace numpy
   }
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 1,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 1,
                    types::ndarray<E, types::pshape<long>>>
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &f, types::ndarray<E, pS1> const &e)
   {
@@ -1332,8 +1328,8 @@ namespace numpy
 #undef VM_DEF
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 1 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 1 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::pshape<long>>>
   dot(types::ndarray<E, pS0> const &e, types::ndarray<E, pS1> const &f)
   {
@@ -1345,8 +1341,8 @@ namespace numpy
   }
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 1 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 1 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::pshape<long>>>
   dot(types::ndarray<E, pS0> const &e, types::numpy_texpr<types::ndarray<E, pS1>> const &f)
   {
@@ -1363,7 +1359,7 @@ namespace numpy
   std::enable_if_t<types::is_numexpr_arg<E>::value &&
                        types::is_numexpr_arg<F>::value // It is an array_like
                        && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
-                           !std::is_same<typename E::dtype, typename F::dtype>::value) &&
+                           !std::is_same_v<typename E::dtype, typename F::dtype>) &&
                        is_blas_type<typename E::dtype>::value &&
                        is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                               // blas
@@ -1387,7 +1383,7 @@ namespace numpy
   std::enable_if_t<types::is_numexpr_arg<E>::value &&
                        types::is_numexpr_arg<F>::value // It is an array_like
                        && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
-                           !std::is_same<typename E::dtype, typename F::dtype>::value) &&
+                           !std::is_same_v<typename E::dtype, typename F::dtype>) &&
                        is_blas_type<typename E::dtype>::value &&
                        is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                               // blas
@@ -1467,8 +1463,8 @@ namespace numpy
 #undef MM_DEF
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::array_tuple<long, 2>>>
   dot(types::ndarray<E, pS0> const &a, types::ndarray<E, pS1> const &b)
   {
@@ -1481,8 +1477,8 @@ namespace numpy
   }
 
   template <class E, class pS0, class pS1, class pS2>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2 && std::tuple_size<pS2>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2 && std::tuple_size_v<pS2> == 2,
                    types::ndarray<E, pS2>> &
   dot(types::ndarray<E, pS0> const &a, types::ndarray<E, pS1> const &b, types::ndarray<E, pS2> &c)
   {
@@ -1514,8 +1510,8 @@ namespace numpy
 #undef TM_DEF
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::array_tuple<long, 2>>>
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a, types::ndarray<E, pS1> const &b)
   {
@@ -1549,8 +1545,8 @@ namespace numpy
 #undef MT_DEF
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::array_tuple<long, 2>>>
   dot(types::ndarray<E, pS0> const &a, types::numpy_texpr<types::ndarray<E, pS1>> const &b)
   {
@@ -1584,8 +1580,8 @@ namespace numpy
 #undef TT_DEF
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::array_tuple<long, 2>>>
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
       types::numpy_texpr<types::ndarray<E, pS1>> const &b)
@@ -1604,7 +1600,7 @@ namespace numpy
   std::enable_if_t<types::is_numexpr_arg<E>::value &&
                        types::is_numexpr_arg<F>::value // It is an array_like
                        && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
-                           !std::is_same<typename E::dtype, typename F::dtype>::value) &&
+                           !std::is_same_v<typename E::dtype, typename F::dtype>) &&
                        is_blas_type<typename E::dtype>::value &&
                        is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                               // blas

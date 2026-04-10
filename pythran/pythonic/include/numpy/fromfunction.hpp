@@ -30,7 +30,7 @@ namespace numpy
 
   template <class F, class pS, class dtype = double>
   auto fromfunction(F &&f, pS const &shape, dtype d = dtype())
-      -> decltype(fromfunction_helper<F, std::tuple_size<pS>::value, dtype,
+      -> decltype(fromfunction_helper<F, std::tuple_size_v<pS>, dtype,
                                       typename pythonic::purity_of<F>::type>()(std::forward<F>(f),
                                                                                shape));
 

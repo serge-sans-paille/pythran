@@ -24,7 +24,7 @@ namespace numpy
       }
     } // namespace misc
     template <class T, class pS, class NpS>
-    std::enable_if_t<!std::is_integral<NpS>::value, types::ndarray<T, NpS>>
+    std::enable_if_t<!std::is_integral_v<NpS>, types::ndarray<T, NpS>>
     reshape(types::ndarray<T, pS> const &expr, NpS const &new_shape)
     {
       long where = sutils::sfind(new_shape, -1,
@@ -56,7 +56,7 @@ namespace numpy
       }
     }
     template <class T, class pS, class NpS>
-    std::enable_if_t<std::is_integral<NpS>::value, types::ndarray<T, types::pshape<long>>>
+    std::enable_if_t<std::is_integral_v<NpS>, types::ndarray<T, types::pshape<long>>>
     reshape(types::ndarray<T, pS> const &expr, NpS const &new_shape)
     {
       auto n = expr.flat_size();

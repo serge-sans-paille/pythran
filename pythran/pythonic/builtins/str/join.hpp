@@ -19,7 +19,7 @@ namespace builtins
     types::str join(S const &s, types::str const &iterable)
     {
       long ssize =
-          std::distance(std::begin(s), std::end(s)) - (std::is_same<S, types::str>::value ? 0 : 1);
+          std::distance(std::begin(s), std::end(s)) - (std::is_same_v<S, types::str> ? 0 : 1);
       /* first iterate over iterable to gather sizes */
       size_t n = ssize * (iterable.size() - 1) + iterable.size();
 
@@ -43,10 +43,10 @@ namespace builtins
 
     template <class S, class Iterable>
     std::enable_if_t<
-        !std::is_same<std::remove_cv_t<std::remove_reference_t<Iterable>>, types::str>::value &&
-            std::is_same<typename std::iterator_traits<typename std::remove_reference_t<
-                             Iterable>::iterator>::iterator_category,
-                         std::random_access_iterator_tag>::value,
+        !std::is_same_v<std::remove_cv_t<std::remove_reference_t<Iterable>>, types::str> &&
+            std::is_same_v<typename std::iterator_traits<typename std::remove_reference_t<
+                               Iterable>::iterator>::iterator_category,
+                           std::random_access_iterator_tag>,
         types::str>
     join(S const &s, Iterable &&iterable)
     {
@@ -88,9 +88,9 @@ namespace builtins
     }
 
     template <class S, class Iterable>
-    std::enable_if_t<!std::is_same<typename std::iterator_traits<typename std::remove_reference_t<
-                                       Iterable>::iterator>::iterator_category,
-                                   std::random_access_iterator_tag>::value,
+    std::enable_if_t<!std::is_same_v<typename std::iterator_traits<typename std::remove_reference_t<
+                                         Iterable>::iterator>::iterator_category,
+                                     std::random_access_iterator_tag>,
                      types::str>
     join(S const &s, Iterable &&iterable)
     {

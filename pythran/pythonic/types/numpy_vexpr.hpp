@@ -84,7 +84,7 @@ namespace types
   /* element filtering */
   template <class T, class F>
   template <class E> // indexing through an array of boolean -- a mask
-  std::enable_if_t<is_numexpr_arg<E>::value && std::is_same<bool, typename E::dtype>::value &&
+  std::enable_if_t<is_numexpr_arg<E>::value && std::is_same_v<bool, typename E::dtype> &&
                        !is_pod_array<F>::value,
                    numpy_vexpr<numpy_vexpr<T, F>, ndarray<long, pshape<long>>>>
   numpy_vexpr<T, F>::fast(E const &filter) const
@@ -103,7 +103,7 @@ namespace types
   template <class T, class F>
   template <class E> // indexing through an array of boolean -- a mask
   std::enable_if_t<!is_slice<E>::value && is_numexpr_arg<E>::value &&
-                       std::is_same<bool, typename E::dtype>::value && !is_pod_array<F>::value,
+                       std::is_same_v<bool, typename E::dtype> && !is_pod_array<F>::value,
                    numpy_vexpr<numpy_vexpr<T, F>, ndarray<long, pshape<long>>>>
   numpy_vexpr<T, F>::operator[](E const &filter) const
   {
@@ -113,7 +113,7 @@ namespace types
   template <class T, class F>
   template <class E> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<E>::value && !is_array_index<E>::value &&
-                       !std::is_same<bool, typename E::dtype>::value && !is_pod_array<F>::value,
+                       !std::is_same_v<bool, typename E::dtype> && !is_pod_array<F>::value,
                    numpy_vexpr<numpy_vexpr<T, F>, E>>
   numpy_vexpr<T, F>::operator[](E const &filter) const
   {
@@ -123,7 +123,7 @@ namespace types
   template <class T, class F>
   template <class E> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<E>::value && !is_array_index<E>::value &&
-                       !std::is_same<bool, typename E::dtype>::value && !is_pod_array<F>::value,
+                       !std::is_same_v<bool, typename E::dtype> && !is_pod_array<F>::value,
                    numpy_vexpr<numpy_vexpr<T, F>, E>>
   numpy_vexpr<T, F>::fast(E const &filter) const
   {
@@ -133,15 +133,14 @@ namespace types
   template <class Op, class Expr>
   numpy_vexpr<T, F> &numpy_vexpr<T, F>::update_(Expr const &expr)
   {
-    using BExpr =
-        std::conditional_t<std::is_scalar<Expr>::value, broadcast<Expr, dtype>, Expr const &>;
+    using BExpr = std::conditional_t<std::is_scalar_v<Expr>, broadcast<Expr, dtype>, Expr const &>;
     BExpr bexpr = expr;
     utils::broadcast_update<
         Op, numpy_vexpr &, BExpr, value,
-        value - (std::is_scalar<Expr>::value + utils::dim_of<Expr>::value),
+        value - (std::is_scalar_v<Expr> + utils::dim_of<Expr>::value),
         is_vectorizable &&
             types::is_vectorizable<std::remove_cv_t<std::remove_reference_t<BExpr>>>::value &&
-            std::is_same<dtype, typename dtype_of<std::decay_t<BExpr>>::type>::value>(*this, bexpr);
+            std::is_same_v<dtype, typename dtype_of<std::decay_t<BExpr>>::type>>(*this, bexpr);
     return *this;
   }
   template <class T, class F>

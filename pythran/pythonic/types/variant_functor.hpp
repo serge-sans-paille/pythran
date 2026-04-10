@@ -219,8 +219,7 @@ namespace types
   template <class OtherType>
   variant_functor<Types...> &variant_functor<Types...>::operator=(OtherType const &other)
   {
-    static_assert(utils::any_of<std::is_same<OtherType, Types>::value...>::value,
-                  "consistent assign");
+    static_assert(utils::any_of<std::is_same_v<OtherType, Types>...>::value, "consistent assign");
     details::variant_functor_impl<Types...>::assign(mem, other);
     return *this;
   }

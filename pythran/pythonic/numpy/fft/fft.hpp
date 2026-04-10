@@ -56,7 +56,7 @@ namespace numpy
     }
 
     template <class T, class pS, class N, class Norm>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value, std::complex<double>>,
+    types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     fft(types::ndarray<T, pS> const &in_array, N const &n, long axis, Norm const &norm)
     {

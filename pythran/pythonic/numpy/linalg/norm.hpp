@@ -80,11 +80,10 @@ namespace numpy
       else if (ord == 2.) {
         auto out = pythonic::numpy::functor::sum{}(pythonic::builtins::pythran::functor::abssqr{}(std::forward<Array>(x)), axis);
         using out_type = std::decay_t<decltype(out)>;
-        if( std::is_same<out_type, norm_t<Array>>::value) {
+        if (std::is_same_v<out_type, norm_t<Array>>) {
           // FIXME: use an out parameter once available
           return detail::sqrt_out(out, std::integral_constant<bool, types::is_array<out_type>::value>{});
-        }
-        else {
+        } else {
           return pythonic::numpy::functor::sqrt{}(out);
         }
       }

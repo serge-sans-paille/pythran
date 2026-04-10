@@ -409,7 +409,7 @@ namespace types
     template <class K, class V>
     operator std::pair<const K, V>() const
     {
-      static_assert(std::is_same<K, T>::value && std::is_same<V, T>::value && N == 2,
+      static_assert(std::is_same_v<K, T> && std::is_same_v<V, T> && N == 2,
                     "compatible conversion");
       return {data()[0], data()[1]};
     }
@@ -498,7 +498,7 @@ namespace types
 
     template <class T0, class T1>
     struct alike<T0, T1> {
-      static bool const value = std::is_same<T0, T1>::value;
+      static bool const value = std::is_same_v<T0, T1>;
       using type = std::conditional_t<value, T0, void>;
     };
 
@@ -907,7 +907,7 @@ namespace sutils
   };
 
   template <class T>
-  using shape_t = std::enable_if_t<!std::is_integral<T>::value, typename make_shape<T>::type>;
+  using shape_t = std::enable_if_t<!std::is_integral_v<T>, typename make_shape<T>::type>;
 
   template <class Curr, class... Ss>
   struct shape_merger;

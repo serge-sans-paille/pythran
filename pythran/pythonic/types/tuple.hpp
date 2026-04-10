@@ -351,14 +351,14 @@ namespace types
   template <typename T, size_t N, class V>
   std::ostream &operator<<(std::ostream &os, types::array_base<T, N, V> const &v)
   {
-    os << "(["[std::is_same<V, types::list_version>::value];
+    os << "(["[std::is_same_v<V, types::list_version>];
     auto iter = v.begin();
     if (iter != v.end()) {
       while (iter + 1 != v.end())
         os << *iter++ << ", ";
       os << *iter;
     }
-    return os << ")]"[std::is_same<V, types::list_version>::value];
+    return os << ")]"[std::is_same_v<V, types::list_version>];
   }
 
   template <class T, size_t N, class V, class... Types>

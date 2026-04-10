@@ -53,55 +53,51 @@ namespace numpy
   std::enable_if_t<types::is_numexpr_arg<E>::value && types::is_numexpr_arg<F>::value &&
                        E::value == 1 && F::value == 1 &&
                        (!is_blas_view<E>::value || !is_blas_view<F>::value ||
-                        !std::is_same<typename E::dtype, typename F::dtype>::value),
+                        !std::is_same_v<typename E::dtype, typename F::dtype>),
                    typename __combined<typename E::dtype, typename F::dtype>::type>
   dot(E const &e, F const &f);
 
   template <class E, class F>
-  std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, float>::value &&
-                       std::is_same<typename F::dtype, float>::value && is_blas_array<E>::value &&
+  std::enable_if_t<E::value == 1 && F::value == 1 && std::is_same_v<typename E::dtype, float> &&
+                       std::is_same_v<typename F::dtype, float> && is_blas_array<E>::value &&
                        is_blas_array<F>::value,
                    float>
   dot(E const &e, F const &f);
 
   template <class E, class F>
-  std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, double>::value &&
-                       std::is_same<typename F::dtype, double>::value && is_blas_array<E>::value &&
+  std::enable_if_t<E::value == 1 && F::value == 1 && std::is_same_v<typename E::dtype, double> &&
+                       std::is_same_v<typename F::dtype, double> && is_blas_array<E>::value &&
                        is_blas_array<F>::value,
                    double>
   dot(E const &e, F const &f);
 
   template <class E, class F>
   std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, std::complex<float>>::value &&
-                       std::is_same<typename F::dtype, std::complex<float>>::value &&
+                       std::is_same_v<typename E::dtype, std::complex<float>> &&
+                       std::is_same_v<typename F::dtype, std::complex<float>> &&
                        is_blas_array<E>::value && is_blas_array<F>::value,
                    std::complex<float>>
   dot(E const &e, F const &f);
 
   template <class E, class F>
   std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, std::complex<double>>::value &&
-                       std::is_same<typename F::dtype, std::complex<double>>::value &&
+                       std::is_same_v<typename E::dtype, std::complex<double>> &&
+                       std::is_same_v<typename F::dtype, std::complex<double>> &&
                        is_blas_array<E>::value && is_blas_array<F>::value,
                    std::complex<double>>
   dot(E const &e, F const &f);
 
   template <class E, class F>
-  std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, float>::value &&
-                       std::is_same<typename F::dtype, float>::value &&
+  std::enable_if_t<E::value == 1 && F::value == 1 && std::is_same_v<typename E::dtype, float> &&
+                       std::is_same_v<typename F::dtype, float> &&
                        (is_blas_view<E>::value && is_blas_view<F>::value &&
                         !(is_blas_array<E>::value && is_blas_array<F>::value)),
                    float>
   dot(E const &e, F const &f);
 
   template <class E, class F>
-  std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, double>::value &&
-                       std::is_same<typename F::dtype, double>::value &&
+  std::enable_if_t<E::value == 1 && F::value == 1 && std::is_same_v<typename E::dtype, double> &&
+                       std::is_same_v<typename F::dtype, double> &&
                        (is_blas_view<E>::value && is_blas_view<F>::value &&
                         !(is_blas_array<E>::value && is_blas_array<F>::value)),
                    double>
@@ -109,8 +105,8 @@ namespace numpy
 
   template <class E, class F>
   std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, std::complex<float>>::value &&
-                       std::is_same<typename F::dtype, std::complex<float>>::value &&
+                       std::is_same_v<typename E::dtype, std::complex<float>> &&
+                       std::is_same_v<typename F::dtype, std::complex<float>> &&
                        (is_blas_view<E>::value && is_blas_view<F>::value &&
                         !(is_blas_array<E>::value && is_blas_array<F>::value)),
                    std::complex<float>>
@@ -118,8 +114,8 @@ namespace numpy
 
   template <class E, class F>
   std::enable_if_t<E::value == 1 && F::value == 1 &&
-                       std::is_same<typename E::dtype, std::complex<double>>::value &&
-                       std::is_same<typename F::dtype, std::complex<double>>::value &&
+                       std::is_same_v<typename E::dtype, std::complex<double>> &&
+                       std::is_same_v<typename F::dtype, std::complex<double>> &&
                        (is_blas_view<E>::value && is_blas_view<F>::value &&
                         !(is_blas_array<E>::value && is_blas_array<F>::value)),
                    std::complex<double>>
@@ -159,7 +155,7 @@ namespace numpy
   std::enable_if_t<types::is_numexpr_arg<E>::value &&
                        types::is_numexpr_arg<F>::value // It is an array_like
                        && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
-                           !std::is_same<typename E::dtype, typename F::dtype>::value) &&
+                           !std::is_same_v<typename E::dtype, typename F::dtype>) &&
                        is_blas_type<typename E::dtype>::value &&
                        is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                               // blas
@@ -174,7 +170,7 @@ namespace numpy
   std::enable_if_t<types::is_numexpr_arg<E>::value &&
                        types::is_numexpr_arg<F>::value // It is an array_like
                        && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
-                           !std::is_same<typename E::dtype, typename F::dtype>::value) &&
+                           !std::is_same_v<typename E::dtype, typename F::dtype>) &&
                        is_blas_type<typename E::dtype>::value &&
                        is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                               // blas
@@ -245,7 +241,7 @@ namespace numpy
   std::enable_if_t<types::is_numexpr_arg<E>::value &&
                        types::is_numexpr_arg<F>::value // It is an array_like
                        && (!(types::is_ndarray<E>::value && types::is_ndarray<F>::value) ||
-                           !std::is_same<typename E::dtype, typename F::dtype>::value) &&
+                           !std::is_same_v<typename E::dtype, typename F::dtype>) &&
                        is_blas_type<typename E::dtype>::value &&
                        is_blas_type<typename F::dtype>::value // With dtype compatible with
                                                               // blas

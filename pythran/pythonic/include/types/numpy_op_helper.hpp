@@ -17,7 +17,7 @@ namespace types
   template <class T>
   struct all_valid_arg<T> {
     static constexpr bool value =
-        (is_numexpr_arg<T>::value || is_complex<T>::value || std::is_scalar<T>::value);
+        (is_numexpr_arg<T>::value || is_complex<T>::value || std::is_scalar_v<T>);
   };
 
   template <class T0, class... Types>
@@ -164,7 +164,7 @@ namespace types
     using ctype = typename common_type<std::decay_t<T>, OtherTypes...>::type;
     static constexpr bool isdtype = is_dtype<std::decay_t<T>>::value;
     using type =
-        typename adapted_type<T, ctype, std::is_same<std::decay_t<T>, ctype>::value, isdtype>::type;
+        typename adapted_type<T, ctype, std::is_same_v<std::decay_t<T>, ctype>, isdtype>::type;
   };
   template <class T, class Tp, class... OtherTypes>
   struct adapt_type<broadcast<T, Tp>, OtherTypes...> {
@@ -197,8 +197,8 @@ namespace types
   struct reshape_type {
     using ctype = typename common_type<std::decay_t<T>, OtherTypes...>::type;
     static constexpr bool isdtype = is_dtype<std::decay_t<T>>::value;
-    using type = typename reshaped_type<T, ctype, std::is_same<std::decay_t<T>, ctype>::value,
-                                        isdtype>::type;
+    using type =
+        typename reshaped_type<T, ctype, std::is_same_v<std::decay_t<T>, ctype>, isdtype>::type;
   };
   template <class T>
   struct is_array_index : std::false_type {

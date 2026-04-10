@@ -22,7 +22,7 @@ namespace numpy
 
     template <class Arg0, class Arg1>
     auto divfloor(Arg0 const &arg0, Arg1 const &arg1)
-        -> std::enable_if_t<(std::is_integral<Arg0>::value && std::is_integral<Arg1>::value),
+        -> std::enable_if_t<(std::is_integral_v<Arg0> && std::is_integral_v<Arg1>),
                             decltype(arg0 / arg1)>
     {
       bool opposite_sign = (arg0 >= 0 && arg1 < 0) || (arg0 < 0 && arg1 >= 0);
@@ -31,7 +31,7 @@ namespace numpy
 
     template <class Arg0, class Arg1>
     auto divfloor(Arg0 const &arg0, Arg1 const &arg1)
-        -> std::enable_if_t<!std::is_integral<Arg0>::value || !std::is_integral<Arg1>::value,
+        -> std::enable_if_t<!std::is_integral_v<Arg0> || !std::is_integral_v<Arg1>,
                             decltype(functor::floor{}(arg0 / arg1))>
     {
       return functor::floor{}(arg0 / arg1);

@@ -146,15 +146,15 @@ namespace numpy
     }
   };
   template <class Op, class E>
-  std::enable_if_t<std::is_scalar<E>::value || types::is_complex<E>::value, E>
-  reduce(E const &expr, types::none_type)
+  std::enable_if_t<std::is_scalar_v<E> || types::is_complex<E>::value, E> reduce(E const &expr,
+                                                                                 types::none_type)
   {
     return expr;
   }
 
   template <class Op, class E>
-  std::enable_if_t<std::is_scalar<E>::value || types::is_complex<E>::value, E>
-  reduce(E const &array, long axis)
+  std::enable_if_t<std::is_scalar_v<E> || types::is_complex<E>::value, E> reduce(E const &array,
+                                                                                 long axis)
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");
@@ -167,8 +167,8 @@ namespace numpy
   {
     using rrt = reduce_result_type<Op, E, dtype>;
     bool constexpr is_vectorizable = E::is_vectorizable &&
-                                     !std::is_same<typename E::dtype, bool>::value &&
-                                     std::is_same<rrt, typename E::dtype>::value;
+                                     !std::is_same_v<typename E::dtype, bool> &&
+                                     std::is_same_v<rrt, typename E::dtype>;
     rrt p = utils::neutral<Op, rrt>::value;
     return reduce_helper<Op, E, is_vectorizable>{}(expr, p);
   }

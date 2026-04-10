@@ -27,7 +27,7 @@ namespace numpy
     using ldbl_t = std::conditional_t<sizeof(long double) == sizeof(double), double, long double>;
 
     template <class T, class pS>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value, double>,
+    types::ndarray<std::enable_if_t<std::is_integral_v<T>, double>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     _copy_to_double(types::ndarray<T, pS> const &in_array)
     {
@@ -51,7 +51,7 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value, std::complex<double>>,
+    types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     _copy_to_complex(types::ndarray<T, pS> const &in_array)
     {

@@ -12,7 +12,7 @@ PYTHONIC_NS_BEGIN
 namespace builtins
 {
   template <class T>
-  std::enable_if_t<std::is_scalar<T>::value, types::str> bin(T const &v);
+  std::enable_if_t<std::is_scalar_v<T>, types::str> bin(T const &v);
 
   DEFINE_FUNCTOR(pythonic::builtins, bin);
 } // namespace builtins

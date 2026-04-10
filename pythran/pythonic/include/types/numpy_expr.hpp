@@ -11,9 +11,9 @@ namespace types
   template <size_t I, class Args>
   bool is_trivial_broadcast()
   {
-    return std::is_same<
+    return std::is_same_v<
         std::tuple_element_t<0, typename std::decay_t<std::tuple_element_t<I, Args>>::shape_t>,
-        std::integral_constant<long, 1>>::value;
+        std::integral_constant<long, 1>>;
   }
 
   template <class... Tys>
@@ -138,8 +138,7 @@ namespace types
     void _incr(std::index_sequence<I...>)
     {
       (void)std::initializer_list<bool>{_incr_opt<I>(
-          std::integral_constant<bool,
-                                 std::is_same<long, std::tuple_element_t<I, Steps>>::value>{})...};
+          std::integral_constant<bool, std::is_same_v<long, std::tuple_element_t<I, Steps>>>{})...};
     }
     numpy_expr_iterator &operator++()
     {
@@ -301,8 +300,7 @@ namespace types
     void _incr(std::index_sequence<I...>)
     {
       (void)std::initializer_list<bool>{_incr_opt<I>(
-          std::integral_constant<bool,
-                                 std::is_same<long, std::tuple_element_t<I, Steps>>::value>{})...};
+          std::integral_constant<bool, std::is_same_v<long, std::tuple_element_t<I, Steps>>>{})...};
     }
     numpy_expr_simd_iterator &operator++()
     {
@@ -545,13 +543,13 @@ namespace types
   template <class S>
   constexpr size_t count_none(size_t I)
   {
-    return I == 0 ? 0 : std::is_same<S, none_type>::value;
+    return I == 0 ? 0 : std::is_same_v<S, none_type>;
   }
 
   template <class S, class Sp, class... Ss>
   constexpr size_t count_none(size_t I)
   {
-    return I == 0 ? 0 : (std::is_same<S, none_type>::value + count_none<Sp, Ss...>(I - 1));
+    return I == 0 ? 0 : (std::is_same_v<S, none_type> + count_none<Sp, Ss...>(I - 1));
   }
 
   template <class BT, class T>
@@ -580,9 +578,9 @@ namespace types
     using first_arg = typename utils::front<Args...>::type;
     static const bool is_vectorizable =
         utils::all_of<std::remove_reference_t<Args>::is_vectorizable...>::value &&
-        utils::all_of<std::is_same<
+        utils::all_of<std::is_same_v<
             typename std::remove_cv_t<std::remove_reference_t<first_arg>>::dtype,
-            typename std::remove_cv_t<std::remove_reference_t<Args>>::dtype>::value...>::value &&
+            typename std::remove_cv_t<std::remove_reference_t<Args>>::dtype>...>::value &&
         types::is_vector_op<Op, typename std::remove_reference_t<Args>::dtype...>::value;
     static const bool is_flat = false;
     static const bool is_strided =
@@ -733,26 +731,26 @@ namespace types
         -> decltype(this->_get(std::make_index_sequence<sizeof...(Args)>{}, s...));
 
     template <class F>
-    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                          !is_pod_array<F>::value,
                      numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F>
-    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                          !is_pod_array<F>::value,
                      numpy_vexpr<numpy_expr, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
-                         !std::is_same<bool, typename F::dtype>::value && !is_pod_array<F>::value,
+                         !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
                      numpy_vexpr<numpy_expr, F>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
-                         !std::is_same<bool, typename F::dtype>::value && !is_pod_array<F>::value,
+                         !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
                      numpy_vexpr<numpy_expr, F>>
     fast(F const &filter) const;
 

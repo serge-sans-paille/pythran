@@ -47,7 +47,7 @@ namespace numpy
     // without shape
 
     template <class T, class pS, class Axes, class Norm>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value, std::complex<double>>,
+    types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     fftn(types::ndarray<T, pS> const &in_array, types::none_type s, Axes const &axes,
          Norm const &norm)
@@ -86,7 +86,7 @@ namespace numpy
 
     // with shape
     template <class T, class pS, class I, size_t N, class V, class Axes, class Norm>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value, std::complex<double>>,
+    types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     fftn(types::ndarray<T, pS> const &a, types::array_base<I, N, V> const &s, Axes const &axes,
          Norm const &norm)

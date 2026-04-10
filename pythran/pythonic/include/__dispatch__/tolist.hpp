@@ -15,28 +15,27 @@ namespace __dispatch__
   }
 
   template <class T, class S>
-  types::list<std::conditional_t<std::is_integral<T>::value, long, double>>
+  types::list<std::conditional_t<std::is_integral_v<T>, long, double>>
   tolist(types::sliced_array<T, S> &&a)
   {
     return {a.begin(), a.end()};
   }
 
   template <class T, class S>
-  types::list<std::conditional_t<std::is_integral<T>::value, long, double>>
+  types::list<std::conditional_t<std::is_integral_v<T>, long, double>>
   tolist(types::sliced_array<T, S> const &a)
   {
     return {a.begin(), a.end()};
   }
 
   template <class T>
-  types::list<std::conditional_t<std::is_integral<T>::value, long, double>>
-  tolist(types::array<T> &&a)
+  types::list<std::conditional_t<std::is_integral_v<T>, long, double>> tolist(types::array<T> &&a)
   {
     return {a.begin(), a.end()};
   }
 
   template <class T>
-  types::list<std::conditional_t<std::is_integral<T>::value, long, double>>
+  types::list<std::conditional_t<std::is_integral_v<T>, long, double>>
   tolist(types::array<T> const &a)
   {
     return {a.begin(), a.end()};

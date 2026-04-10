@@ -14,7 +14,7 @@ namespace numpy
     template <class E>
     E fix(E const &e)
     {
-      if (std::is_integral<E>::value)
+      if (std::is_integral_v<E>)
         return e;
       else
         return std::trunc(e);

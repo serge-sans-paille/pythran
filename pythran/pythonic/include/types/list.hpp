@@ -72,9 +72,9 @@ namespace types
     static const size_t value = utils::nested_container_depth<sliced_list>::value;
     static_assert(value != 0, "valid shape");
     static const bool is_vectorizable =
-        types::is_vectorizable_dtype<dtype>::value && !std::is_same<S, slice>::value;
-    static const bool is_flat = std::is_same<slice, S>::value;
-    static const bool is_strided = std::is_same<slice, S>::value;
+        types::is_vectorizable_dtype<dtype>::value && !std::is_same_v<S, slice>;
+    static const bool is_flat = std::is_same_v<slice, S>;
+    static const bool is_strided = std::is_same_v<slice, S>;
 
     using shape_t = types::array_tuple<long, value>;
     template <size_t I>
@@ -633,7 +633,7 @@ struct to_python<typename std::vector<bool>::reference> {
 struct phantom_type; // ghost don't exist
 template <>
 struct to_python<
-    std::conditional_t<std::is_same<bool, typename std::vector<bool>::const_reference>::value,
+    std::conditional_t<std::is_same_v<bool, typename std::vector<bool>::const_reference>,
                        phantom_type, typename std::vector<bool>::const_reference>> {
   static PyObject *convert(typename std::vector<bool>::const_reference const &v);
 };

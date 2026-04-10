@@ -30,7 +30,7 @@ namespace types
     return os << "None";
   }
 
-  template <class T, bool is_fundamental = std::is_fundamental<T>::value>
+  template <class T, bool is_fundamental = std::is_fundamental_v<T>>
   struct none;
 
   /* Type adaptor to simulate an option type

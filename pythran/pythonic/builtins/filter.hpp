@@ -29,7 +29,7 @@ namespace builtins
     filter_iterator<Operator, List0>::filter_iterator(Operator _op, List0 &_seq)
         : op(_op), iter(_seq.begin()), iter_end(_seq.end())
     {
-      if (iter != iter_end && !test_filter(std::is_same<types::none_type, Operator>()))
+      if (iter != iter_end && !test_filter(std::is_same<types::none_type, Operator>{}))
         next_value();
     }
 
@@ -57,7 +57,7 @@ namespace builtins
     void filter_iterator<Operator, List0>::next_value()
     {
       while (++iter != iter_end) {
-        if (test_filter(std::is_same<types::none_type, Operator>()))
+        if (test_filter(std::is_same<types::none_type, Operator>{}))
           return;
       }
     }

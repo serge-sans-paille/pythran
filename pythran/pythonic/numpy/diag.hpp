@@ -13,7 +13,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class pS>
-  std::enable_if_t<std::tuple_size<pS>::value == 2, types::ndarray<T, types::pshape<long>>>
+  std::enable_if_t<std::tuple_size_v<pS> == 2, types::ndarray<T, types::pshape<long>>>
   diag(types::ndarray<T, pS> const &a, long k)
   {
     auto &&a_shape = a._shape;
@@ -33,7 +33,7 @@ namespace numpy
   }
 
   template <class T, class pS>
-  std::enable_if_t<std::tuple_size<pS>::value == 1, types::ndarray<T, types::array_tuple<long, 2>>>
+  std::enable_if_t<std::tuple_size_v<pS> == 1, types::ndarray<T, types::array_tuple<long, 2>>>
   diag(types::ndarray<T, pS> const &a, long k)
   {
     long n = a.flat_size() + std::abs(k);

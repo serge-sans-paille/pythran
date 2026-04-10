@@ -12,10 +12,10 @@ namespace numpy
   namespace ndarray
   {
     template <class T, class pS, class NpS>
-    std::enable_if_t<!std::is_integral<NpS>::value, types::ndarray<T, NpS>>
+    std::enable_if_t<!std::is_integral_v<NpS>, types::ndarray<T, NpS>>
     reshape(types::ndarray<T, pS> const &expr, NpS const &new_shape);
     template <class T, class pS, class NpS>
-    std::enable_if_t<std::is_integral<NpS>::value, types::ndarray<T, types::pshape<long>>>
+    std::enable_if_t<std::is_integral_v<NpS>, types::ndarray<T, types::pshape<long>>>
     reshape(types::ndarray<T, pS> const &expr, NpS const &new_shape);
 
     template <class T, class pS, class S0, class S1, class... S>

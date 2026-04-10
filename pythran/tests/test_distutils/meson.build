@@ -1,4 +1,6 @@
-project('pythran-test', 'cpp')
+project('pythran-test', 'cpp',
+  default_options: ['cpp_std=c++17']
+)
 
 pymod = import('python')
 py = pymod.find_installation(modules:['pythran'])

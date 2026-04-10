@@ -10,8 +10,8 @@ namespace numpy
   namespace ctypeslib
   {
     template <class T, class pS>
-    std::enable_if_t<!std::is_integral<pS>::value, types::ndarray<T, pS>>
-        as_array(types::pointer<T>, pS);
+    std::enable_if_t<!std::is_integral_v<pS>, types::ndarray<T, pS>> as_array(types::pointer<T>,
+                                                                              pS);
 
     template <class T>
     types::ndarray<T, types::pshape<long>> as_array(types::pointer<T>, long);

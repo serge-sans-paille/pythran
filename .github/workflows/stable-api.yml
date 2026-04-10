@@ -34,7 +34,7 @@ jobs:
         python -m pip install . 'pythran[test]'
         pip install -U numpy scipy
         printf '[compiler]\nblas=scipy-openblas\n' > ~/.config/.pythranrc
-        printf 'cflags=-std=c++14 -Wall -Werror -Wno-unknown-pragmas -Wno-unused-local-typedefs -Wno-cpp -Wno-deprecated-declarations -D_GLIBCXX_DEBUG -DPy_LIMITED_API=0x03080000\n' >> ~/.config/.pythranrc
+        printf 'cflags=-std=c++17 -Wall -Werror -Wno-unknown-pragmas -Wno-unused-local-typedefs -Wno-cpp -Wno-deprecated-declarations -D_GLIBCXX_DEBUG -DPy_LIMITED_API=0x03080000\n' >> ~/.config/.pythranrc
     - name: Testing minimal CLI
       run: |
         pythran --version

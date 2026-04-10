@@ -49,8 +49,7 @@ namespace numpy
       }
       // static version
       template <class Out, class A, size_t... I>
-      void operator()(Out &&out, A const &from, long axis,
-                      std::index_sequence<I...>) const
+      void operator()(Out &&out, A const &from, long axis, std::index_sequence<I...>) const
       {
         if (axis == 0) {
           auto out_iter = out.begin();

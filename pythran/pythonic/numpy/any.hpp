@@ -35,16 +35,15 @@ namespace numpy
   }
 
   template <class E>
-  std::enable_if_t<std::is_scalar<E>::value || types::is_complex<E>::value, bool>
-  any(E const &expr, types::none_type)
+  std::enable_if_t<std::is_scalar_v<E> || types::is_complex<E>::value, bool> any(E const &expr,
+                                                                                 types::none_type)
   {
     return expr;
   }
 
   template <class E>
   auto any(E const &array, long axis)
-      -> std::enable_if_t<std::is_scalar<E>::value || types::is_complex<E>::value,
-                          decltype(any(array))>
+      -> std::enable_if_t<std::is_scalar_v<E> || types::is_complex<E>::value, decltype(any(array))>
   {
     if (axis != 0)
       throw types::ValueError("axis out of bounds");

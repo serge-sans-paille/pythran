@@ -13,10 +13,10 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class pS>
-  types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+  types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
   rot90(types::ndarray<T, pS> const &expr, int k)
   {
-    auto constexpr N = std::tuple_size<pS>::value;
+    auto constexpr N = std::tuple_size_v<pS>;
     if (k % 4 == 0)
       return copy(expr);
     types::array_tuple<long, N> shape = sutils::getshape(expr);

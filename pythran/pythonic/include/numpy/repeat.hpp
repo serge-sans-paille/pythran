@@ -11,7 +11,7 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class pS>
-  types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+  types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
   repeat(types::ndarray<T, pS> const &expr, long repeats, long axis);
 
   template <class T, class pS>

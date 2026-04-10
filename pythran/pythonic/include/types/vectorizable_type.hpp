@@ -41,9 +41,9 @@ namespace types
 
   template <class T>
   struct is_vectorizable_dtype {
-    static const bool value = is_dtype<T>::value && !std::is_same<T, bool>::value &&
-                              !std::is_same<T, long double>::value &&
-                              !std::is_same<T, std::complex<long double>>::value;
+    static const bool value = is_dtype<T>::value && !std::is_same_v<T, bool> &&
+                              !std::is_same_v<T, long double> &&
+                              !std::is_same_v<T, std::complex<long double>>;
   };
 
   /* trait to check if is T is an array-like type that supports vectorization

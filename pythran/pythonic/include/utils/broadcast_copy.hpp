@@ -22,7 +22,7 @@ namespace utils
   };
 
   template <class T>
-  struct dim_of<T, std::enable_if_t<std::is_fundamental<T>::value>> {
+  struct dim_of<T, std::enable_if_t<std::is_fundamental_v<T>>> {
     static const size_t value = 0;
   };
 

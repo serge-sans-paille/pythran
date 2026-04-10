@@ -19,7 +19,7 @@ namespace numpy
   template <class T, class pS, class Sorter>
   types::ndarray<long, pS> _argsort(types::ndarray<T, pS> const &a, long axis, Sorter sorter)
   {
-    constexpr auto N = std::tuple_size<pS>::value;
+    constexpr auto N = std::tuple_size_v<pS>;
     if (axis < 0)
       axis += N;
 

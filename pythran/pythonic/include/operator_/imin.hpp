@@ -10,13 +10,13 @@ namespace operator_
 {
   template <class A, class B>
   auto imin(A &&a, B &&b)
-      -> std::enable_if_t<std::is_const<A>::value || !std::is_assignable<A, B>::value,
+      -> std::enable_if_t<std::is_const_v<A> || !std::is_assignable_v<A, B>,
                           decltype(numpy::functor::minimum{}(std::forward<A>(a),
                                                              std::forward<B>(b)))>;
 
   template <class A, class B>
   auto imin(A &&a, B &&b)
-      -> std::enable_if_t<!std::is_const<A>::value && std::is_assignable<A, B>::value,
+      -> std::enable_if_t<!std::is_const_v<A> && std::is_assignable_v<A, B>,
                           decltype(a = numpy::functor::minimum{}(std::forward<A>(a),
                                                                  std::forward<B>(b)))>;
 

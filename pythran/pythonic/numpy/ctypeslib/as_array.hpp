@@ -12,8 +12,8 @@ namespace numpy
   namespace ctypeslib
   {
     template <class T, class pS>
-    std::enable_if_t<!std::is_integral<pS>::value, types::ndarray<T, pS>>
-    as_array(types::pointer<T> ptr, pS shape)
+    std::enable_if_t<!std::is_integral_v<pS>, types::ndarray<T, pS>> as_array(types::pointer<T> ptr,
+                                                                              pS shape)
     {
       return {ptr.data, shape, types::ownership::external};
     }

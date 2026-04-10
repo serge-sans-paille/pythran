@@ -163,7 +163,7 @@ namespace types
   public:
     //  types
     typedef T data_type;
-    typedef std::conditional_t<std::is_integral<T>::value, long, double> value_type;
+    typedef std::conditional_t<std::is_integral_v<T>, long, double> value_type;
     typedef array_reference<sliced_array> reference;
     typedef value_type const_reference;
     typedef array_iterator<sliced_array> iterator;
@@ -180,9 +180,9 @@ namespace types
     typedef data_type dtype;
     static const size_t value = 1;
     static const bool is_vectorizable =
-        types::is_vectorizable_dtype<dtype>::value && !std::is_same<S, slice>::value;
-    static const bool is_flat = std::is_same<slice, S>::value;
-    static const bool is_strided = std::is_same<slice, S>::value;
+        types::is_vectorizable_dtype<dtype>::value && !std::is_same_v<S, slice>;
+    static const bool is_flat = std::is_same_v<slice, S>;
+    static const bool is_strided = std::is_same_v<slice, S>;
 
     using shape_t = types::array_tuple<long, value>;
     template <size_t I>
@@ -302,7 +302,7 @@ namespace types
   public:
     // types
     typedef T data_type;
-    typedef std::conditional_t<std::is_integral<T>::value, long, double> value_type;
+    typedef std::conditional_t<std::is_integral_v<T>, long, double> value_type;
     typedef array_reference<array> reference;
     typedef value_type const_reference;
     typedef array_iterator<array> iterator;

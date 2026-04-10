@@ -15,8 +15,7 @@ namespace numpy
       shape, typename types::dtype_t<typename types::dtype_of<E>::type>{}))
   {
     using dtype = typename types::dtype_of<E>::type;
-    using BExpr =
-        std::conditional_t<std::is_scalar<E>::value, types::broadcast<E, dtype>, E const &>;
+    using BExpr = std::conditional_t<std::is_scalar_v<E>, types::broadcast<E, dtype>, E const &>;
     auto out = numpy::functor::empty{}(shape, typename types::dtype_t<dtype>{});
     using array_type = decltype(out);
     BExpr bexpr = expr;

@@ -27,17 +27,17 @@ namespace numpy
 
     template <class T, class pS, class N = types::none_type, class Norm = types::none_type>
     types::ndarray<std::enable_if_t<types::is_complex<T>::value, T>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fft(types::ndarray<T, pS> const &a, N const &n = {}, long axis = -1, Norm const &norm = {});
 
     template <class T, class pS, class N = types::none_type, class Norm = types::none_type>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fft(types::ndarray<T, pS> const &a, N const &n = {}, long axis = -1, Norm const &norm = {});
 
     template <class T, class pS, class N = types::none_type, class Norm = types::none_type>
-    types::ndarray<std::enable_if_t<std::is_integral<T>::value, std::complex<double>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     fft(types::ndarray<T, pS> const &a, N const &n = {}, long axis = -1, Norm const &norm = {});
 
     NUMPY_EXPR_TO_NDARRAY0_DECL(fft);

@@ -16,7 +16,7 @@ namespace numpy
   {
 
     template <class T, class pS>
-    types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
     hfft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
          types::str const &norm)
     {
@@ -24,7 +24,7 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
     hfft(types::ndarray<std::complex<T>, pS> const &in_array, types::none_type n, long axis,
          types::none_type norm)
     {
@@ -32,7 +32,7 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
     hfft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
          types::none_type norm)
     {
@@ -40,7 +40,7 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
     hfft(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
          types::str const &norm)
     {
@@ -50,7 +50,7 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::enable_if_t<!types::is_complex<T>::value,
                                     std::conditional_t<std::is_integral_v<T>, double, T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     hfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::str const &norm)
     {
@@ -61,7 +61,7 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::enable_if_t<!types::is_complex<T>::value,
                                     std::conditional_t<std::is_integral_v<T>, double, T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     hfft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::none_type norm)
     {
@@ -72,7 +72,7 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::enable_if_t<!types::is_complex<T>::value,
                                     std::conditional_t<std::is_integral_v<T>, double, T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     hfft(types::ndarray<T, pS> const &in_array, long n, long axis, types::none_type norm)
     {
       auto tmp_array = _copy_to_complex(in_array);
@@ -82,7 +82,7 @@ namespace numpy
     template <class T, class pS>
     types::ndarray<std::enable_if_t<!types::is_complex<T>::value,
                                     std::conditional_t<std::is_integral_v<T>, double, T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     hfft(types::ndarray<T, pS> const &in_array, long n, long axis, types::str const &norm)
     {
       auto tmp_array = _copy_to_complex(in_array);

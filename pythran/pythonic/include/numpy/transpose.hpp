@@ -37,12 +37,12 @@ namespace numpy
   }
 
   template <class T, class pS>
-  std::enable_if_t<(std::tuple_size<pS>::value > 2),
-                   types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>>
+  std::enable_if_t<(std::tuple_size_v<pS> > 2),
+                   types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>>
   transpose(types::ndarray<T, pS> const &a);
 
   template <class T, class pS, size_t M>
-  types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+  types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
   transpose(types::ndarray<T, pS> const &a, types::array_tuple<long, M> const &t);
 
   template <class T, class pS, class... Args>

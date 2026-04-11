@@ -17,7 +17,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<types::is_complex<T>::value, T>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::str const &norm)
     {
@@ -26,7 +26,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<types::is_complex<T>::value, T>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::none_type norm)
     {
@@ -35,7 +35,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<types::is_complex<T>::value, T>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis, types::none_type norm)
     {
       return c2c(in_array, n, axis, "", false);
@@ -43,7 +43,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<types::is_complex<T>::value, T>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis, types::str const &norm)
     {
       return c2c(in_array, n, axis, norm, false);
@@ -51,7 +51,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::str const &norm)
     {
@@ -60,7 +60,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::none_type norm)
     {
@@ -69,7 +69,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis, types::none_type norm)
     {
       return r2c(in_array, n, axis, "", false, true);
@@ -77,7 +77,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis, types::str const &norm)
     {
       return r2c(in_array, n, axis, norm, false, true);
@@ -85,7 +85,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::str const &norm)
     {
@@ -95,7 +95,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, types::none_type n, long axis,
          types::none_type norm)
     {
@@ -105,7 +105,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis, types::none_type norm)
     {
       auto tmp_array = _copy_to_double(in_array);
@@ -114,7 +114,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     ifft(types::ndarray<T, pS> const &in_array, long n, long axis, types::str const &norm)
     {
       auto tmp_array = _copy_to_double(in_array);

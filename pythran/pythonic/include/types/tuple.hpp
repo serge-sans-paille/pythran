@@ -931,8 +931,8 @@ namespace sutils
 
   template <size_t I, class Ss>
   struct shape_selecter
-      : std::conditional<(I < std::tuple_size<Ss>::value),
-                         std::tuple_element_t<(I < std::tuple_size<Ss>::value ? I : 0L), Ss>,
+      : std::conditional<(I < std::tuple_size_v<Ss>),
+                         std::tuple_element_t<(I < std::tuple_size_v<Ss> ? I : 0L), Ss>,
                          std::integral_constant<long, 1>> {
   };
 
@@ -1193,11 +1193,10 @@ namespace sutils
 
   template <class S>
   long sfind(
-      S &s, long v, long start = std::tuple_size<S>::value,
+      S &s, long v, long start = std::tuple_size_v<S>,
       bool comp(long, long) = [](long a, long b) { return (a == b); })
   {
-    return sfind(s, v, std::integral_constant<size_t, std::tuple_size<S>::value - 1>(), start,
-                 comp);
+    return sfind(s, v, std::integral_constant<size_t, std::tuple_size_v<S> - 1>(), start, comp);
   }
 
   template <class S, class B>
@@ -1305,7 +1304,7 @@ namespace sutils
   template <class S>
   long sprod(S const &s)
   {
-    return sprod(s, std::integral_constant<size_t, std::tuple_size<S>::value - 1>());
+    return sprod(s, std::integral_constant<size_t, std::tuple_size_v<S> - 1>());
   }
 
   template <class S>
@@ -1342,7 +1341,7 @@ namespace sutils
 
   template <size_t I, class P>
   struct safe_tuple_element {
-    using type = std::tuple_element_t<(I < std::tuple_size<P>::value ? I : 0), P>;
+    using type = std::tuple_element_t<(I < std::tuple_size_v<P> ? I : 0), P>;
   };
 
   template <size_t I>
@@ -1351,14 +1350,14 @@ namespace sutils
   template <>
   struct copy_new_axis_helper<0> {
     template <class S0, class S1, class S2, size_t J>
-    std::enable_if_t<(0 != std::tuple_size<S2>::value) && std::tuple_element_t<0, S2>::value,
+    std::enable_if_t<(0 != std::tuple_size_v<S2>) && std::tuple_element_t<0, S2>::value,
                      sutils::push_front_t<S0, std::integral_constant<long, 1>>>
     doit(S0 s, S1 const &shape, S2 const &new_axis, std::integral_constant<size_t, J>)
     {
       return {std::tuple_cat(std::tuple<std::integral_constant<long, 1>>(), s.values)};
     }
     template <class S0, class S1, class S2, size_t J>
-    std::enable_if_t<(0 != std::tuple_size<S2>::value) && !std::tuple_element_t<0, S2>::value,
+    std::enable_if_t<(0 != std::tuple_size_v<S2>) && !std::tuple_element_t<0, S2>::value,
                      sutils::push_front_t<S0, std::tuple_element_t<0, typename S1::shape_t>>>
     doit(S0 s, S1 const &shape, S2 const &new_axis, std::integral_constant<size_t, J>)
     {
@@ -1366,7 +1365,7 @@ namespace sutils
     }
 
     template <class S0, class S1, class S2, size_t J>
-    std::enable_if_t<(0 == std::tuple_size<S2>::value),
+    std::enable_if_t<(0 == std::tuple_size_v<S2>),
                      sutils::push_front_t<S0, std::tuple_element_t<J, typename S1::shape_t>>>
     doit(S0 s, S1 const &shape, S2 const &new_axis, std::integral_constant<size_t, J>)
     {
@@ -1378,8 +1377,7 @@ namespace sutils
   struct copy_new_axis_helper {
     template <class S0, class S1, class S2, size_t J>
     auto doit(S0 s, S1 const &shape, S2 const &new_axis, std::integral_constant<size_t, J>)
-        -> std::enable_if_t<(I < std::tuple_size<S2>::value) &&
-                                safe_tuple_element<I, S2>::type::value,
+        -> std::enable_if_t<(I < std::tuple_size_v<S2>) && safe_tuple_element<I, S2>::type::value,
                             decltype(copy_new_axis_helper<I - 1>{}.doit(
                                 sutils::push_front_t<S0, std::integral_constant<long, 1>>(), shape,
                                 new_axis, std::integral_constant<size_t, J>()))>
@@ -1393,7 +1391,7 @@ namespace sutils
     template <class S0, class S1, class S2, size_t J>
     auto doit(S0 s, S1 const &shape, S2 const &new_axis, std::integral_constant<size_t, J>)
         -> std::enable_if_t<
-            (I >= std::tuple_size<S2>::value),
+            (I >= std::tuple_size_v<S2>),
             decltype(copy_new_axis_helper<I - 1>{}.doit(
                 sutils::push_front_t<S0, std::tuple_element_t<J, typename S1::shape_t>>(), shape,
                 new_axis, std::integral_constant<size_t, J == 0 ? J : J - 1>()))>
@@ -1406,7 +1404,7 @@ namespace sutils
     template <class S0, class S1, class S2, size_t J>
     auto doit(S0 s, S1 const &shape, S2 const &new_axis, std::integral_constant<size_t, J>)
         -> std::enable_if_t<
-            (I < std::tuple_size<S2>::value) && !safe_tuple_element<I, S2>::type::value,
+            (I < std::tuple_size_v<S2>) && !safe_tuple_element<I, S2>::type::value,
             decltype(copy_new_axis_helper<I - 1>{}.doit(
                 sutils::push_front_t<S0, std::tuple_element_t<J, typename S1::shape_t>>(), shape,
                 new_axis, std::integral_constant<size_t, J == 0 ? J : J - 1>()))>
@@ -1435,12 +1433,12 @@ namespace types
     template <class E, class S>
     void init_shape(S &res, E const &e, utils::int_<1>)
     {
-      sutils::assign(std::get<std::tuple_size<S>::value - 1>(res), e.size());
+      sutils::assign(std::get<std::tuple_size_v<S> - 1>(res), e.size());
     }
     template <class E, class S, size_t L>
     void init_shape(S &res, E const &e, utils::int_<L>)
     {
-      sutils::assign(std::get<std::tuple_size<S>::value - L>(res), e.size());
+      sutils::assign(std::get<std::tuple_size_v<S> - L>(res), e.size());
       init_shape(res, e[0], utils::int_<L - 1>{});
     }
   } // namespace details

@@ -72,7 +72,7 @@ namespace types
     };
     template <class T, class S0, class S1>
     struct is_almost_same<ndarray<T, S0>, ndarray<T, S1>>
-        : std::integral_constant<bool, (std::tuple_size<S0>::value == std::tuple_size<S1>::value)> {
+        : std::integral_constant<bool, (std::tuple_size_v<S0> == std::tuple_size_v<S1>)> {
     };
 
     template <class E,
@@ -267,7 +267,7 @@ namespace types
       sutils::push_front_t<pS, std::tuple_element_t<0, typename std::decay_t<Arg>::shape_t>>
           fixed_new_shape;
       sutils::scopy_shape<1, -1>(fixed_new_shape, new_shape,
-                                 std::make_index_sequence<std::tuple_size<pS>::value>{});
+                                 std::make_index_sequence<std::tuple_size_v<pS>>{});
       sutils::assign(std::get<0>(fixed_new_shape), arg.template shape<0>());
       return numpy_iexpr<decltype(arg.reshape(fixed_new_shape))>(
           arg.reshape(fixed_new_shape), (buffer - arg.buffer) / arg.template strides<0>());

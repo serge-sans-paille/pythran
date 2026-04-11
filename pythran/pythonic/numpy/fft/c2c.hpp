@@ -28,7 +28,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_integral_v<T>, double>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     _copy_to_double(types::ndarray<T, pS> const &in_array)
     {
       auto out_shape = sutils::getshape(in_array);
@@ -40,7 +40,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     _copy_to_complex(types::ndarray<T, pS> const &in_array)
     {
       auto out_shape = sutils::getshape(in_array);
@@ -52,7 +52,7 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_integral_v<T>, std::complex<double>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     _copy_to_complex(types::ndarray<T, pS> const &in_array)
     {
       auto out_shape = sutils::getshape(in_array);
@@ -111,7 +111,7 @@ namespace numpy
     template <class T, class pS>
     stride_t create_strides(types::ndarray<T, pS> const &in_array)
     {
-      auto constexpr N = std::tuple_size<pS>::value;
+      auto constexpr N = std::tuple_size_v<pS>;
       auto shape = sutils::getshape(in_array);
       stride_t strides = stride_t(N);
       strides[N - 1] = sizeof(T);
@@ -121,14 +121,14 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
     _pad_in_array(types::ndarray<T, pS> const &in_array, long axis, long n)
     {
-      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>> extended_array;
+      types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>> extended_array;
       auto tmp_shape = sutils::getshape(in_array);
       tmp_shape[axis] = n;
       auto tmp_array = zeros(tmp_shape, types::dtype_t<T>());
-      types::list<types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>> bi(0);
+      types::list<types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>> bi(0);
       bi.push_back(in_array);
       bi.push_back(tmp_array);
       extended_array = concatenate(bi, axis);
@@ -136,11 +136,11 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
     c2r(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
         types::str const &norm, bool forward)
     {
-      auto constexpr N = std::tuple_size<pS>::value;
+      auto constexpr N = std::tuple_size_v<pS>;
       Inorm inorm = _get_inorm(norm, forward);
       if (axis < 0)
         axis = N + axis;
@@ -151,10 +151,10 @@ namespace numpy
       auto out_shape = sutils::getshape(in_array);
       out_shape[axis] = n;
       // Create output array.
-      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>> out_array(
-          out_shape, builtins::None);
+      types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>> out_array(out_shape,
+                                                                                   builtins::None);
       std::complex<T> *d_in;
-      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
+      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size_v<pS>>>
           extended_array;
       stride_t in_strides;
       auto out_strides = create_strides(out_array);
@@ -180,11 +180,11 @@ namespace numpy
     }
 
     template <class T, class pS>
-    types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
+    types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size_v<pS>>>
     c2c(types::ndarray<std::complex<T>, pS> const &in_array, long n, long axis,
         types::str const &norm, bool forward)
     {
-      auto constexpr N = std::tuple_size<pS>::value;
+      auto constexpr N = std::tuple_size_v<pS>;
       Inorm inorm = _get_inorm(norm, forward);
       if (axis < 0)
         axis = N + axis;
@@ -195,10 +195,10 @@ namespace numpy
       auto out_shape = sutils::getshape(in_array);
       out_shape[axis] = n;
       // Create output array.
-      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
-          out_array(out_shape, builtins::None);
+      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size_v<pS>>> out_array(
+          out_shape, builtins::None);
       std::complex<T> *d_in;
-      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
+      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size_v<pS>>>
           extended_array;
       stride_t in_strides;
       if (n > npts) {
@@ -226,11 +226,11 @@ namespace numpy
 
     template <class T, class pS>
     types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
-                   types::array_tuple<long, std::tuple_size<pS>::value>>
+                   types::array_tuple<long, std::tuple_size_v<pS>>>
     r2c(types::ndarray<T, pS> const &in_array, long n, long axis, types::str const &norm,
         bool forward, bool extend = true)
     {
-      auto constexpr N = std::tuple_size<pS>::value;
+      auto constexpr N = std::tuple_size_v<pS>;
       Inorm inorm = _get_inorm(norm, forward);
       if (axis < 0)
         axis = N + axis;
@@ -245,10 +245,10 @@ namespace numpy
         out_shape[axis] = n / 2 + 1;
       }
       // Create output array.
-      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size<pS>::value>>
-          out_array(out_shape, builtins::None);
+      types::ndarray<std::complex<T>, types::array_tuple<long, std::tuple_size_v<pS>>> out_array(
+          out_shape, builtins::None);
       T *d_in;
-      types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>> extended_array;
+      types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>> extended_array;
       shape_t shapes = shape_t(size_t(N));
       stride_t in_strides;
       if (n > npts) {

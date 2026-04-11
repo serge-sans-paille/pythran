@@ -96,7 +96,7 @@ namespace types
 
   template <class T, class pS>
   struct type_helper<ndarray<T, pS>> {
-    static_assert(std::tuple_size<pS>::value != 1, "matching ok");
+    static_assert(std::tuple_size_v<pS> != 1, "matching ok");
     using type = numpy_iexpr<ndarray<T, pS>>;
     using iterator = nditerator<ndarray<T, pS>>;
     using const_iterator = const_nditerator<ndarray<T, pS>>;
@@ -114,7 +114,7 @@ namespace types
 
   template <class T, class pS>
   struct type_helper<ndarray<T, pS> const &> {
-    static_assert(std::tuple_size<pS>::value != 1, "matching ok");
+    static_assert(std::tuple_size_v<pS> != 1, "matching ok");
     using type = numpy_iexpr<ndarray<T, pS> const &>;
 
     using iterator = nditerator<ndarray<T, pS>>;
@@ -217,7 +217,7 @@ namespace types
     static const bool is_strided = false;
 
     /* types */
-    static constexpr size_t value = std::tuple_size<pS>::value;
+    static constexpr size_t value = std::tuple_size_v<pS>;
     using dtype = T;
     using value_type = typename type_helper<ndarray>::type;
     using reference = value_type &;
@@ -229,7 +229,7 @@ namespace types
     using const_flat_iterator = T const *;
 
     using shape_t = pS;
-    static_assert(std::tuple_size<shape_t>::value == value, "consistent shape size");
+    static_assert(std::tuple_size_v<shape_t> == value, "consistent shape size");
 
     /* members */
     utils::shared_ref<raw_array<T>> mem; // shared data pointer
@@ -336,14 +336,14 @@ namespace types
     void store(E elt, Indices... indices)
     {
       static_assert(is_dtype<E>::value, "valid store");
-      *(buffer + noffset<std::tuple_size<pS>::value>{}(
-                     *this, array_tuple<long, value>{{indices...}})) = static_cast<E>(elt);
+      *(buffer + noffset<std::tuple_size_v<pS>>{}(*this, array_tuple<long, value>{{indices...}})) =
+          static_cast<E>(elt);
     }
     template <class... Indices>
     dtype load(Indices... indices) const
     {
-      return *(buffer + noffset<std::tuple_size<pS>::value>{}(
-                            *this, array_tuple<long, value>{{indices...}}));
+      return *(buffer +
+               noffset<std::tuple_size_v<pS>>{}(*this, array_tuple<long, value>{{indices...}}));
     }
 
     template <class Op, class E, class... Indices>
@@ -351,7 +351,7 @@ namespace types
     {
       static_assert(is_dtype<E>::value, "valid store");
       Op{}(*(buffer +
-             noffset<std::tuple_size<pS>::value>{}(*this, array_tuple<long, value>{{indices...}})),
+             noffset<std::tuple_size_v<pS>>{}(*this, array_tuple<long, value>{{indices...}})),
            static_cast<E>(elt));
     }
 
@@ -718,7 +718,7 @@ namespace types
     struct dtype_helper {
       using table = std::conditional_t<std::is_signed_v<T>, dtype_table, dtype_utable>;
       using type =
-          std::tuple_element_t<(sizeof(T) < std::tuple_size<table>::value) ? sizeof(T) : 0, table>;
+          std::tuple_element_t<(sizeof(T) < std::tuple_size_v<table>) ? sizeof(T) : 0, table>;
     };
 
     template <>
@@ -885,11 +885,10 @@ namespace builtins
   auto getattr(types::attr::REAL, types::numpy_gexpr<E, S...> const &a)
       -> decltype(details::real_get(
           getattr(types::attr::REAL{}, a.arg), a.slices,
-          std::make_index_sequence<std::tuple_size<decltype(a.slices)>::value>()))
+          std::make_index_sequence<std::tuple_size_v<decltype(a.slices)>>()))
   {
-    return details::real_get(
-        getattr(types::attr::REAL{}, a.arg), a.slices,
-        std::make_index_sequence<std::tuple_size<decltype(a.slices)>::value>());
+    return details::real_get(getattr(types::attr::REAL{}, a.arg), a.slices,
+                             std::make_index_sequence<std::tuple_size_v<decltype(a.slices)>>());
   }
 
   template <class T, class pS>
@@ -927,11 +926,10 @@ namespace builtins
   auto getattr(types::attr::IMAG, types::numpy_gexpr<E, S...> const &a)
       -> decltype(details::imag_get(
           getattr(types::attr::IMAG{}, a.arg), a.slices,
-          std::make_index_sequence<std::tuple_size<decltype(a.slices)>::value>()))
+          std::make_index_sequence<std::tuple_size_v<decltype(a.slices)>>()))
   {
-    return details::imag_get(
-        getattr(types::attr::IMAG{}, a.arg), a.slices,
-        std::make_index_sequence<std::tuple_size<decltype(a.slices)>::value>());
+    return details::imag_get(getattr(types::attr::IMAG{}, a.arg), a.slices,
+                             std::make_index_sequence<std::tuple_size_v<decltype(a.slices)>>());
   }
 
   template <class E>
@@ -946,18 +944,17 @@ PYTHONIC_NS_END
 
 template <class T1, class T2, class pS1, class pS2>
 struct __combined<pythonic::types::ndarray<T1, pS1>, pythonic::types::ndarray<T2, pS2>> {
-  using type = pythonic::types::ndarray<
-      typename __combined<T1, T2>::type,
-      pythonic::sutils::common_shapes_t<std::tuple_size<pS1>::value, pS1, pS2>>;
+  using type =
+      pythonic::types::ndarray<typename __combined<T1, T2>::type,
+                               pythonic::sutils::common_shapes_t<std::tuple_size_v<pS1>, pS1, pS2>>;
 };
 
 template <class pS, class T, class... Tys>
 struct __combined<pythonic::types::ndarray<T, pS>, pythonic::types::numpy_expr<Tys...>> {
   using expr_type = pythonic::types::numpy_expr<Tys...>;
-  using type =
-      pythonic::types::ndarray<typename __combined<T, typename expr_type::dtype>::type,
-                               pythonic::sutils::common_shapes_t<std::tuple_size<pS>::value, pS,
-                                                                 typename expr_type::shape_t>>;
+  using type = pythonic::types::ndarray<
+      typename __combined<T, typename expr_type::dtype>::type,
+      pythonic::sutils::common_shapes_t<std::tuple_size_v<pS>, pS, typename expr_type::shape_t>>;
 };
 
 template <class pS, class T, class O>

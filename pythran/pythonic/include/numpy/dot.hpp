@@ -125,27 +125,27 @@ namespace numpy
 
   // We transpose the matrix to reflect our C order
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 1,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 1,
                    types::ndarray<E, types::pshape<long>>>
   dot(types::ndarray<E, pS0> const &f, types::ndarray<E, pS1> const &e);
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 1,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 1,
                    types::ndarray<E, types::pshape<long>>>
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &f, types::ndarray<E, pS1> const &e);
 
   // The trick is to not transpose the matrix so that MV become VM
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 1 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 1 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::pshape<long>>>
   dot(types::ndarray<E, pS0> const &e, types::ndarray<E, pS1> const &f);
 
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 1 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 1 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::pshape<long>>>
   dot(types::ndarray<E, pS0> const &e, types::numpy_texpr<types::ndarray<E, pS1>> const &f);
 
@@ -206,31 +206,31 @@ namespace numpy
   // So we compute B'A' == (AB)'. As this equality is perform with F order
   // We doesn't have to return a texpr because we want a C order matrice!!
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::array_tuple<long, 2>>>
   dot(types::ndarray<E, pS0> const &a, types::ndarray<E, pS1> const &b);
 
   template <class E, class pS0, class pS1, class pS2>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2 && std::tuple_size<pS2>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2 && std::tuple_size_v<pS2> == 2,
                    types::ndarray<E, pS2>> &
   dot(types::ndarray<E, pS0> const &a, types::ndarray<E, pS1> const &b, types::ndarray<E, pS2> &c);
 
   // texpr variants: MT, TM, TT
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::array_tuple<long, 2>>>
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a, types::ndarray<E, pS1> const &b);
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::array_tuple<long, 2>>>
   dot(types::ndarray<E, pS0> const &a, types::numpy_texpr<types::ndarray<E, pS1>> const &b);
   template <class E, class pS0, class pS1>
-  std::enable_if_t<is_blas_type<E>::value && std::tuple_size<pS0>::value == 2 &&
-                       std::tuple_size<pS1>::value == 2,
+  std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
+                       std::tuple_size_v<pS1> == 2,
                    types::ndarray<E, types::array_tuple<long, 2>>>
   dot(types::numpy_texpr<types::ndarray<E, pS0>> const &a,
       types::numpy_texpr<types::ndarray<E, pS1>> const &b);

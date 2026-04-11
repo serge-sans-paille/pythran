@@ -1,3 +1,4 @@
 [compiler]
 blas=openblas
 include_dirs=/usr/include/openblas
+cflags=-std=c++17

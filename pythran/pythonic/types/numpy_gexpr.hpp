@@ -187,15 +187,15 @@ namespace types
     if (!std::is_same_v<T, Tp>) {
       return false;
     }
-    if (std::tuple_size<pS>::value != std::tuple_size<pSp>::value) {
+    if (std::tuple_size_v<pS> != std::tuple_size_v<pSp>) {
       return false;
     }
     if (gexpr.arg.id() != expr.arg.id()) {
       return false;
     }
 
-    constexpr auto gexpr_slice_size = std::tuple_size<decltype(gexpr.slices)>::value;
-    constexpr auto expr_slice_size = std::tuple_size<decltype(expr.slices)>::value;
+    constexpr auto gexpr_slice_size = std::tuple_size_v<decltype(gexpr.slices)>;
+    constexpr auto expr_slice_size = std::tuple_size_v<decltype(expr.slices)>;
     constexpr auto min_slice_size = std::min(gexpr_slice_size, expr_slice_size);
     return any_slices_may_overlap(gexpr, expr, std::make_index_sequence<min_slice_size>()) ||
            any_trailing_slices_may_overlap(

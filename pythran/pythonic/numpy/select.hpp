@@ -75,32 +75,28 @@ namespace numpy
   }
 
   template <class T, class TpS, class U, class UpS>
-  std::enable_if_t<std::tuple_size<TpS>::value == std::tuple_size<UpS>::value,
-                   types::ndarray<T, TpS>>
+  std::enable_if_t<std::tuple_size_v<TpS> == std::tuple_size_v<UpS>, types::ndarray<T, TpS>>
   select(types::list<types::ndarray<U, UpS>> const &condlist,
          types::list<types::ndarray<T, TpS>> const &choicelist, T _default)
   {
     return select_helper(condlist, choicelist, _default);
   }
   template <class T, class TpS, class U, class UpS, size_t M>
-  std::enable_if_t<std::tuple_size<TpS>::value == std::tuple_size<UpS>::value,
-                   types::ndarray<T, TpS>>
+  std::enable_if_t<std::tuple_size_v<TpS> == std::tuple_size_v<UpS>, types::ndarray<T, TpS>>
   select(types::static_list<types::ndarray<U, UpS>, M> const &condlist,
          types::static_list<types::ndarray<T, TpS>, M> const &choicelist, T _default)
   {
     return select_helper(condlist, choicelist, _default);
   }
   template <class T, class TpS, class U, class UpS, size_t M>
-  std::enable_if_t<std::tuple_size<TpS>::value == std::tuple_size<UpS>::value,
-                   types::ndarray<T, TpS>>
+  std::enable_if_t<std::tuple_size_v<TpS> == std::tuple_size_v<UpS>, types::ndarray<T, TpS>>
   select(types::static_list<types::ndarray<U, UpS>, M> const &condlist,
          types::list<types::ndarray<T, TpS>> const &choicelist, T _default)
   {
     return select_helper(condlist, choicelist, _default);
   }
   template <class T, class TpS, class U, class UpS, size_t M>
-  std::enable_if_t<std::tuple_size<TpS>::value == std::tuple_size<UpS>::value,
-                   types::ndarray<T, TpS>>
+  std::enable_if_t<std::tuple_size_v<TpS> == std::tuple_size_v<UpS>, types::ndarray<T, TpS>>
   select(types::list<types::ndarray<U, UpS>> const &condlist,
          types::static_list<types::ndarray<T, TpS>, M> const &choicelist, T _default)
   {

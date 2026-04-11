@@ -445,7 +445,7 @@ namespace std
   template <class... Types>
   size_t hash<std::tuple<Types...>>::operator()(std::tuple<Types...> const &t) const
   {
-    const size_t begin = std::tuple_size<std::tuple<Types...>>::value - 1;
+    const size_t begin = std::tuple_size_v<std::tuple<Types...>> - 1;
     return hash_impl<begin, Types...>()(1, t); // 1 should be some largervalue
   }
 

@@ -30,6 +30,21 @@ if sys.version_info > (3, 9):
 
     class TestDistutils(unittest.TestCase):
 
+        def setUp(self):
+            old_env = os.environ.get('PYTHONPATH')
+            new_path = os.path.join(os.path.dirname(__file__), '..', '..')
+            if old_env is None:
+                os.environ['PYTHONPATH'] = new_path
+            else:
+                os.environ['_PYTHRAN_OLDPYTHONPATH'] = old_env
+                os.environ['PYTHONPATH'] = os.pathsep.join([new_path, old_env])
+            print("####",os.environ['PYTHONPATH'])
+
+        def tearDown(self):
+            oldenv = os.environ.pop('_PYTHRAN_OLDPYTHONPATH', None)
+            if oldenv is not None:
+                os.environ['PYTHONPATH'] = oldenv
+
         def test_setup_build(self):
             check_call([python, 'setup.py', 'build'],
                        cwd=os.path.join(cwd, 'test_distutils'))
@@ -100,6 +115,7 @@ if sys.version_info > (3, 9):
 
 
         def test_setup_build2(self):
+            print("####",os.environ['PYTHONPATH'])
             check_call([python, 'setup.py', 'build'],
                        cwd=os.path.join(cwd, 'test_distutils_packaged'))
 

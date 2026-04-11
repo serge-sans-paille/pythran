@@ -222,8 +222,8 @@ namespace numpy
     void operator()(E &&e, F &&f, EIndices &&e_indices, FIndices &&f_indices)
     {
       helper(std::forward<E>(e), std::forward<F>(f), e_indices, f_indices,
-             std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>(),
-             std::make_index_sequence<std::tuple_size<std::decay_t<FIndices>>::value>());
+             std::make_index_sequence<std::tuple_size_v<std::decay_t<EIndices>>>(),
+             std::make_index_sequence<std::tuple_size_v<std::decay_t<FIndices>>>());
     }
   };
 
@@ -238,7 +238,7 @@ namespace numpy
     auto loader(E &&e, EIndices &&e_indices, long i)
     {
       return loader(std::forward<E>(e), std::forward<EIndices>(e_indices), i,
-                    std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>());
+                    std::make_index_sequence<std::tuple_size_v<std::decay_t<EIndices>>>());
     }
 
     template <class T, class E, class EIndices, size_t... Es>
@@ -250,7 +250,7 @@ namespace numpy
     void storer(T acc, E &&e, EIndices &&e_indices)
     {
       return storer(acc, std::forward<E>(e), std::forward<EIndices>(e_indices),
-                    std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>());
+                    std::make_index_sequence<std::tuple_size_v<std::decay_t<EIndices>>>());
     }
   } // namespace detail
 

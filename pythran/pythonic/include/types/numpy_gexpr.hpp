@@ -221,10 +221,9 @@ namespace types
 
     template <class T, class Ts>
     auto tuple_push_head(T const &val, Ts const &vals)
-        -> decltype(tuple_push_head(val, vals,
-                                    std::make_index_sequence<std::tuple_size<Ts>::value>()))
+        -> decltype(tuple_push_head(val, vals, std::make_index_sequence<std::tuple_size_v<Ts>>()))
     {
-      return tuple_push_head(val, vals, std::make_index_sequence<std::tuple_size<Ts>::value>());
+      return tuple_push_head(val, vals, std::make_index_sequence<std::tuple_size_v<Ts>>());
     }
 
     // this struct is specialized for every type combination && takes care of

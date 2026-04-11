@@ -3,7 +3,6 @@
 
 #include "pythonic/include/types/numpy_iexpr.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
-#include "pythonic/include/utils/meta.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -458,7 +457,7 @@ namespace types
 
   template <class Op, class... Args>
   struct may_overlap_gexpr<numpy_expr<Op, Args...>>
-      : utils::any_of<may_overlap_gexpr<Args>::value...> {
+      : std::bool_constant<(may_overlap_gexpr<Args>::value || ...)> {
   };
 
   template <class OpS, class pS, class... S>

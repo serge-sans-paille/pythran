@@ -2,8 +2,8 @@
 #define PYTHONIC_INCLUDE_TYPES_VARIANT_FUNCTOR_HPP
 
 #include "pythonic/include/types/combined.hpp"
-#include "pythonic/include/utils/meta.hpp"
 
+#include <algorithm>
 #include <utility>
 
 PYTHONIC_NS_BEGIN
@@ -126,7 +126,7 @@ namespace types
     // memory used to initialize the actual functor
     // default construction cannot be used because generator are not
     // default-constructible
-    char mem[utils::max_element<sizeof(Types)...>::value];
+    char mem[std::max({sizeof(Types)...})];
 
     variant_functor() = default;
     variant_functor(variant_functor const &);

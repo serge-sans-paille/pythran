@@ -4,7 +4,6 @@
 #include "pythonic/include/types/complex.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 #include "pythonic/include/utils/functor.hpp"
-#include "pythonic/include/utils/meta.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
 PYTHONIC_NS_BEGIN

@@ -5,7 +5,6 @@
 
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/utils/allocate.hpp"
-#include "pythonic/utils/meta.hpp"
 
 #include "pythonic/builtins/ValueError.hpp"
 

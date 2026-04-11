@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_EXPR_HPP
 
 #include "pythonic/include/types/nditerator.hpp"
-#include "pythonic/include/utils/meta.hpp"
 
 PYTHONIC_NS_BEGIN
 
@@ -575,7 +574,7 @@ namespace types
    */
   template <class Op, class... Args>
   struct numpy_expr {
-    using first_arg = typename utils::front<Args...>::type;
+    using first_arg = typename std::tuple_element_t<0, std::tuple<Args...>>;
     static const bool is_vectorizable =
         (std::remove_reference_t<Args>::is_vectorizable && ...) &&
         (std::is_same_v<typename std::remove_cv_t<std::remove_reference_t<first_arg>>::dtype,
@@ -583,11 +582,9 @@ namespace types
          ...) &&
         types::is_vector_op<Op, typename std::remove_reference_t<Args>::dtype...>::value;
     static const bool is_flat = false;
-    static const bool is_strided =
-        utils::any_of<std::remove_reference_t<Args>::is_strided...>::value;
+    static const bool is_strided = (std::remove_reference_t<Args>::is_strided || ...);
 
-    static constexpr size_t value =
-        utils::max_element<std::remove_reference_t<Args>::value...>::value;
+    static constexpr size_t value = std::max({std::remove_reference_t<Args>::value...});
     using value_type =
         decltype(Op()(std::declval<typename std::remove_reference_t<Args>::value_type>()...));
     using dtype = decltype(Op()(std::declval<typename std::remove_reference_t<Args>::dtype>()...));

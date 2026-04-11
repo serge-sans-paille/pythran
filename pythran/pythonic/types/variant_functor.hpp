@@ -2,7 +2,6 @@
 #define PYTHONIC_TYPES_VARIANT_FUNCTOR_HPP
 
 #include "pythonic/include/types/variant_functor.hpp"
-#include "pythonic/utils/meta.hpp"
 
 #include <cassert>
 #include <utility>
@@ -219,7 +218,7 @@ namespace types
   template <class OtherType>
   variant_functor<Types...> &variant_functor<Types...>::operator=(OtherType const &other)
   {
-    static_assert(utils::any_of<std::is_same_v<OtherType, Types>...>::value, "consistent assign");
+    static_assert((std::is_same_v<OtherType, Types> || ...), "consistent assign");
     details::variant_functor_impl<Types...>::assign(mem, other);
     return *this;
   }

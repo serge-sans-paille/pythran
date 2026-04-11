@@ -124,7 +124,7 @@ namespace types
         !std::is_same_v<O, numpy::functor::nextafter> &&
         !std::is_same_v<O, numpy::functor::spacing> &&
         // not supported for complex numbers
-        !(utils::any_of<is_complex<typename dtype_of<Args>::type>::value...>::value &&
+        !((is_complex<typename dtype_of<Args>::type>::value || ...) &&
           (std::is_same_v<O, numpy::functor::floor_divide> ||
            std::is_same_v<O, numpy::functor::maximum> ||
            std::is_same_v<O, builtins::pythran::functor::abssqr> ||
@@ -137,7 +137,7 @@ namespace types
         !std::is_same_v<O, numpy::functor::uint64> && !std::is_same_v<O, numpy::functor::float32> &&
         !std::is_same_v<O, numpy::functor::float64> &&
         // not supported for integral numbers
-        !(utils::any_of<std::is_integral_v<typename dtype_of<Args>::type>...>::value &&
+        !((std::is_integral_v<typename dtype_of<Args>::type> || ...) &&
           (std::is_same_v<O, numpy::functor::floor_divide> ||
            std::is_same_v<O, numpy::functor::true_divide> ||
            std::is_same_v<O, numpy::functor::divide> ||

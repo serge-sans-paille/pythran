@@ -13,7 +13,6 @@
 #include "pythonic/operator_/ixor.hpp"
 #include "pythonic/types/numpy_iexpr.hpp"
 #include "pythonic/utils/allocate.hpp"
-#include "pythonic/utils/meta.hpp"
 
 PYTHONIC_NS_BEGIN
 

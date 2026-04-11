@@ -28,7 +28,7 @@ if sys.version_info > (3, 9):
                 if re.match(name, filename):
                     return os.path.join(root, filename)
 
-    class TestDistutils(unittest.TestCase):
+    class PythonPathHook:
 
         def setUp(self):
             old_env = os.environ.get('PYTHONPATH')
@@ -38,12 +38,13 @@ if sys.version_info > (3, 9):
             else:
                 os.environ['_PYTHRAN_OLDPYTHONPATH'] = old_env
                 os.environ['PYTHONPATH'] = os.pathsep.join([new_path, old_env])
-            print("####",os.environ['PYTHONPATH'])
 
         def tearDown(self):
             oldenv = os.environ.pop('_PYTHRAN_OLDPYTHONPATH', None)
             if oldenv is not None:
                 os.environ['PYTHONPATH'] = oldenv
+
+    class TestDistutils(PythonPathHook, unittest.TestCase):
 
         def test_setup_build(self):
             check_call([python, 'setup.py', 'build'],
@@ -115,7 +116,6 @@ if sys.version_info > (3, 9):
 
 
         def test_setup_build2(self):
-            print("####",os.environ['PYTHONPATH'])
             check_call([python, 'setup.py', 'build'],
                        cwd=os.path.join(cwd, 'test_distutils_packaged'))
 
@@ -217,7 +217,7 @@ if sys.version_info > (3, 9):
     except:
         has_meson = False
 
-    class TestMeson(unittest.TestCase):
+    class TestMeson(PythonPathHook, unittest.TestCase):
 
         @unittest.skipIf(not has_meson, "meson not found")
         @unittest.skipIf(not has_ninja, "ninja not found")

@@ -3,7 +3,6 @@
 
 #include "pythonic/builtins/pythran/is_none.hpp"
 #include "pythonic/include/utils/functor.hpp"
-#include "pythonic/include/utils/meta.hpp"
 
 PYTHONIC_NS_BEGIN
 namespace types
@@ -39,9 +38,10 @@ namespace builtins
     template <class Obj, class... Clss>
     struct isinstance<Obj, std::tuple<Clss...>> {
       using type = std::conditional_t<
-          utils::any_of<std::is_same_v<
-              typename types::isinstance<Obj, std::decay_t<decltype(std::declval<Clss>()())>>::type,
-              types::true_type>...>::value,
+          (std::is_same_v<typename types::isinstance<
+                              Obj, std::decay_t<decltype(std::declval<Clss>()())>>::type,
+                          types::true_type> ||
+           ...),
           types::true_type, types::false_type>;
     };
   } // namespace details

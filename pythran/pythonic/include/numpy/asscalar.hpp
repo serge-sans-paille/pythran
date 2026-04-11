@@ -11,8 +11,8 @@ namespace numpy
 {
   template <class T>
   using asscalar_result_type = std::conditional_t<
-      std::is_integral<T>::value, long,
-      std::conditional_t<std::is_floating_point<T>::value, double, std::complex<double>>>;
+      std::is_integral_v<T>, long,
+      std::conditional_t<std::is_floating_point_v<T>, double, std::complex<double>>>;
 
   template <class E>
   asscalar_result_type<typename E::dtype> asscalar(E const &expr);

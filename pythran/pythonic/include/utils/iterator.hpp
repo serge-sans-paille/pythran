@@ -56,8 +56,8 @@ namespace utils
   template <typename T, typename... Iters>
   struct iterator_min<T, Iters...> {
     using type =
-        std::conditional_t<std::is_same<typename std::iterator_traits<T>::iterator_category,
-                                        std::forward_iterator_tag>::value,
+        std::conditional_t<std::is_same_v<typename std::iterator_traits<T>::iterator_category,
+                                          std::forward_iterator_tag>,
                            std::forward_iterator_tag, typename iterator_min<Iters...>::type>;
   };
 } // namespace utils

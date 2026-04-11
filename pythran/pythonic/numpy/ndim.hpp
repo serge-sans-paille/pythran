@@ -14,7 +14,7 @@ namespace numpy
   template <class E>
   long ndim(E const &e)
   {
-    return std::tuple_size<decltype(shape(e))>::value;
+    return std::tuple_size_v<decltype(shape(e))>;
   }
 } // namespace numpy
 PYTHONIC_NS_END

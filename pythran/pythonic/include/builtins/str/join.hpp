@@ -19,18 +19,18 @@ namespace builtins
     /* Join for string.join(random acces iter but ! on string) */
     template <class S, class Iterable>
     std::enable_if_t<
-        !std::is_same<std::remove_cv_t<std::remove_reference_t<Iterable>>, types::str>::value &&
-            std::is_same<typename std::iterator_traits<typename std::remove_reference_t<
-                             Iterable>::iterator>::iterator_category,
-                         std::random_access_iterator_tag>::value,
+        !std::is_same_v<std::remove_cv_t<std::remove_reference_t<Iterable>>, types::str> &&
+            std::is_same_v<typename std::iterator_traits<typename std::remove_reference_t<
+                               Iterable>::iterator>::iterator_category,
+                           std::random_access_iterator_tag>,
         types::str>
     join(S const &s, Iterable &&iterable);
 
     /* Join for string.join(forward iterator) */
     template <class S, class Iterable>
-    std::enable_if_t<!std::is_same<typename std::iterator_traits<typename std::remove_reference_t<
-                                       Iterable>::iterator>::iterator_category,
-                                   std::random_access_iterator_tag>::value,
+    std::enable_if_t<!std::is_same_v<typename std::iterator_traits<typename std::remove_reference_t<
+                                         Iterable>::iterator>::iterator_category,
+                                     std::random_access_iterator_tag>,
                      types::str>
     join(S const &s, Iterable &&iterable);
 

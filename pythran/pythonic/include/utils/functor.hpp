@@ -1,6 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_FUNCTOR_HPP
 #define PYTHONIC_INCLUDE_UTILS_FUNCTOR_HPP
 
+#include <ostream>
 #include <utility>
 
 // create a function named `name' using function `f'

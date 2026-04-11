@@ -18,8 +18,8 @@ namespace numpy
 
     template <class Array>
     using norm_dtype_t =
-        std::conditional_t<std::is_floating_point<typename std::decay_t<Array>::dtype()>::value,
-                           typename std::decay_t<Array>::dtype(), double>;
+        std::conditional_t<std::is_floating_point_v<typename std::decay_t<Array>::dtype>,
+                           typename std::decay_t<Array>::dtype, double>;
 
     template <class Array>
     using norm_t = std::conditional_t<

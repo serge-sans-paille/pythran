@@ -13,10 +13,10 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <class T, class pS>
-  types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>>
+  types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>>
   repeat(types::ndarray<T, pS> const &expr, long repeats, long axis)
   {
-    constexpr auto N = std::tuple_size<pS>::value;
+    constexpr auto N = std::tuple_size_v<pS>;
     if (axis < 0)
       axis += N;
 
@@ -25,8 +25,7 @@ namespace numpy
         std::accumulate(shape.begin() + axis + 1, shape.end(), 1L, std::multiplies<long>());
     shape[axis] *= repeats;
 
-    types::ndarray<T, types::array_tuple<long, std::tuple_size<pS>::value>> out(shape,
-                                                                                builtins::None);
+    types::ndarray<T, types::array_tuple<long, std::tuple_size_v<pS>>> out(shape, builtins::None);
     auto out_iter = out.fbegin();
     for (auto iter = expr.fbegin(), end = expr.fend(); iter != end; iter += stride)
       for (int i = 0; i < repeats; ++i)

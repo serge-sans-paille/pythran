@@ -11,11 +11,11 @@ namespace numpy
   namespace random
   {
     template <class pS>
-    std::enable_if_t<!std::is_integral<pS>::value, types::ndarray<long, pS>>
-    randint(long min, long max, pS const &shape);
+    std::enable_if_t<!std::is_integral_v<pS>, types::ndarray<long, pS>> randint(long min, long max,
+                                                                                pS const &shape);
 
     template <class pS>
-    std::enable_if_t<std::is_integral<pS>::value, types::ndarray<long, types::pshape<long>>>
+    std::enable_if_t<std::is_integral_v<pS>, types::ndarray<long, types::pshape<long>>>
     randint(long min, long max, pS const &shape);
 
     template <class pS>

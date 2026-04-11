@@ -96,7 +96,7 @@ namespace types
 
   template <class T, class pS>
   struct type_helper<ndarray<T, pS>> {
-    static_assert(std::tuple_size<pS>::value != 1, "matching ok");
+    static_assert(std::tuple_size_v<pS> != 1, "matching ok");
     using type = numpy_iexpr<ndarray<T, pS>>;
     using iterator = nditerator<ndarray<T, pS>>;
     using const_iterator = const_nditerator<ndarray<T, pS>>;
@@ -114,7 +114,7 @@ namespace types
 
   template <class T, class pS>
   struct type_helper<ndarray<T, pS> const &> {
-    static_assert(std::tuple_size<pS>::value != 1, "matching ok");
+    static_assert(std::tuple_size_v<pS> != 1, "matching ok");
     using type = numpy_iexpr<ndarray<T, pS> const &>;
 
     using iterator = nditerator<ndarray<T, pS>>;
@@ -217,7 +217,7 @@ namespace types
     static const bool is_strided = false;
 
     /* types */
-    static constexpr size_t value = std::tuple_size<pS>::value;
+    static constexpr size_t value = std::tuple_size_v<pS>;
     using dtype = T;
     using value_type = typename type_helper<ndarray>::type;
     using reference = value_type &;
@@ -229,7 +229,7 @@ namespace types
     using const_flat_iterator = T const *;
 
     using shape_t = pS;
-    static_assert(std::tuple_size<shape_t>::value == value, "consistent shape size");
+    static_assert(std::tuple_size_v<shape_t> == value, "consistent shape size");
 
     /* members */
     utils::shared_ref<raw_array<T>> mem; // shared data pointer
@@ -336,14 +336,14 @@ namespace types
     void store(E elt, Indices... indices)
     {
       static_assert(is_dtype<E>::value, "valid store");
-      *(buffer + noffset<std::tuple_size<pS>::value>{}(
-                     *this, array_tuple<long, value>{{indices...}})) = static_cast<E>(elt);
+      *(buffer + noffset<std::tuple_size_v<pS>>{}(*this, array_tuple<long, value>{{indices...}})) =
+          static_cast<E>(elt);
     }
     template <class... Indices>
     dtype load(Indices... indices) const
     {
-      return *(buffer + noffset<std::tuple_size<pS>::value>{}(
-                            *this, array_tuple<long, value>{{indices...}}));
+      return *(buffer +
+               noffset<std::tuple_size_v<pS>>{}(*this, array_tuple<long, value>{{indices...}}));
     }
 
     template <class Op, class E, class... Indices>
@@ -351,7 +351,7 @@ namespace types
     {
       static_assert(is_dtype<E>::value, "valid store");
       Op{}(*(buffer +
-             noffset<std::tuple_size<pS>::value>{}(*this, array_tuple<long, value>{{indices...}})),
+             noffset<std::tuple_size_v<pS>>{}(*this, array_tuple<long, value>{{indices...}})),
            static_cast<E>(elt));
     }
 
@@ -369,18 +369,17 @@ namespace types
     }
 
     template <class Ty>
-    std::enable_if_t<std::is_integral<Ty>::value, T &> fast(array_tuple<Ty, value> const &indices);
+    std::enable_if_t<std::is_integral_v<Ty>, T &> fast(array_tuple<Ty, value> const &indices);
     template <class Ty>
-    std::enable_if_t<std::is_integral<Ty>::value, T>
-    fast(array_tuple<Ty, value> const &indices) const;
+    std::enable_if_t<std::is_integral_v<Ty>, T> fast(array_tuple<Ty, value> const &indices) const;
 
     template <class Ty, size_t M>
-    auto fast(array_tuple<Ty, M> const &indices) const & -> std::enable_if_t<
-        std::is_integral<Ty>::value, decltype(nget<M - 1>().fast(*this, indices))>;
+    auto fast(array_tuple<Ty, M> const &indices) const
+        & -> std::enable_if_t<std::is_integral_v<Ty>, decltype(nget<M - 1>().fast(*this, indices))>;
 
     template <class Ty, size_t M>
     auto fast(array_tuple<Ty, M> const &indices) && -> std::enable_if_t<
-        std::is_integral<Ty>::value, decltype(nget<M - 1>().fast(std::move(*this), indices))>;
+        std::is_integral_v<Ty>, decltype(nget<M - 1>().fast(std::move(*this), indices))>;
 
 #ifdef USE_XSIMD
     using simd_iterator = const_simd_nditerator<ndarray>;
@@ -422,8 +421,7 @@ namespace types
 
     /* extended slice indexing */
     template <class Ty>
-    auto operator()(Ty s) const
-        -> std::enable_if_t<std::is_integral<Ty>::value, decltype((*this)[s])>
+    auto operator()(Ty s) const -> std::enable_if_t<std::is_integral_v<Ty>, decltype((*this)[s])>
     {
       return (*this)[s];
     }
@@ -443,38 +441,38 @@ namespace types
 
     /* element filtering */
     template <class F> // indexing through an array of boolean -- a mask
-    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                          F::value == 1 && !is_pod_array<F>::value,
                      numpy_vexpr<ndarray, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                          F::value == 1 && !is_pod_array<F>::value,
                      numpy_vexpr<ndarray, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                          F::value != 1 && !is_pod_array<F>::value,
                      numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>
     fast(F const &filter) const;
 
     template <class F> // indexing through an array of boolean -- a mask
-    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same<bool, typename F::dtype>::value &&
+    std::enable_if_t<is_numexpr_arg<F>::value && std::is_same_v<bool, typename F::dtype> &&
                          F::value != 1 && !is_pod_array<F>::value,
                      numpy_vexpr<ndarray<T, pshape<long>>, ndarray<long, pshape<long>>>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
-                         !std::is_same<bool, typename F::dtype>::value && !is_pod_array<F>::value,
+                         !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
                      numpy_vexpr<ndarray, F>>
     operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
-                         !std::is_same<bool, typename F::dtype>::value && !is_pod_array<F>::value,
+                         !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
                      numpy_vexpr<ndarray, F>>
     fast(F const &filter) const;
 
@@ -495,20 +493,19 @@ namespace types
     }
 
     template <class Ty>
-    std::enable_if_t<std::is_integral<Ty>::value, T const &>
+    std::enable_if_t<std::is_integral_v<Ty>, T const &>
     operator[](array_tuple<Ty, value> const &indices) const;
 
     template <class Ty>
-    std::enable_if_t<std::is_integral<Ty>::value, T &>
-    operator[](array_tuple<Ty, value> const &indices);
+    std::enable_if_t<std::is_integral_v<Ty>, T &> operator[](array_tuple<Ty, value> const &indices);
 
     template <class Ty, size_t M>
     auto operator[](array_tuple<Ty, M> const &indices) const
-        & -> std::enable_if_t<std::is_integral<Ty>::value, decltype(nget<M - 1>()(*this, indices))>;
+        & -> std::enable_if_t<std::is_integral_v<Ty>, decltype(nget<M - 1>()(*this, indices))>;
 
     template <class Ty, size_t M>
     auto operator[](array_tuple<Ty, M> const &indices) && -> std::enable_if_t<
-        std::is_integral<Ty>::value, decltype(nget<M - 1>()(std::move(*this), indices))>;
+        std::is_integral_v<Ty>, decltype(nget<M - 1>()(std::move(*this), indices))>;
 
     template <class... Tys, size_t... Is>
     auto _fwdlongindex(std::tuple<Tys...> const &indices, std::index_sequence<Is...>) const
@@ -519,7 +516,7 @@ namespace types
 
     template <class... Tys>
     auto operator[](std::tuple<Tys...> const &indices) const -> std::enable_if_t<
-        utils::all_of<std::is_integral<Tys>::value...>::value,
+        (std::is_integral_v<Tys> && ...),
         decltype(this->_fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>()))>
     {
       return _fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>());
@@ -534,17 +531,17 @@ namespace types
 
     template <class... Tys>
     auto operator[](std::tuple<Tys...> const &indices) -> std::enable_if_t<
-        utils::all_of<std::is_integral<Tys>::value...>::value,
+        (std::is_integral_v<Tys> && ...),
         decltype(this->_fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>()))>
     {
       return _fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>());
     }
 
     template <class Ty0, class Ty1, class... Tys>
-    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const -> std::enable_if_t<
-        std::is_integral<Ty0>::value &&
-            !utils::all_of<std::is_integral<Ty1>::value, std::is_integral<Tys>::value...>::value,
-        decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>
+    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const
+        -> std::enable_if_t<std::is_integral_v<Ty0> &&
+                                !(std::is_integral_v<Ty1> && ... && std::is_integral_v<Tys>),
+                            decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>
     {
       return (*this)[std::get<0>(indices)][tuple_tail(indices)];
     }
@@ -571,7 +568,7 @@ namespace types
         is_numexpr_arg<Ty0>::value,
         decltype(this->_fwdindex(indices, std::make_index_sequence<2 + sizeof...(Tys)>()))>;
 
-    template <class Ty, size_t M, class _ = std::enable_if_t<!std::is_integral<Ty>::value, void>>
+    template <class Ty, size_t M, class _ = std::enable_if_t<!std::is_integral_v<Ty>, void>>
     auto operator[](array_tuple<Ty, M> const &indices)
         const & -> decltype(this->_fwdindex(indices, std::make_index_sequence<M>()))
     {
@@ -719,9 +716,9 @@ namespace types
 
     template <class T>
     struct dtype_helper {
-      using table = std::conditional_t<std::is_signed<T>::value, dtype_table, dtype_utable>;
+      using table = std::conditional_t<std::is_signed_v<T>, dtype_table, dtype_utable>;
       using type =
-          std::tuple_element_t<(sizeof(T) < std::tuple_size<table>::value) ? sizeof(T) : 0, table>;
+          std::tuple_element_t<(sizeof(T) < std::tuple_size_v<table>) ? sizeof(T) : 0, table>;
     };
 
     template <>
@@ -888,11 +885,10 @@ namespace builtins
   auto getattr(types::attr::REAL, types::numpy_gexpr<E, S...> const &a)
       -> decltype(details::real_get(
           getattr(types::attr::REAL{}, a.arg), a.slices,
-          std::make_index_sequence<std::tuple_size<decltype(a.slices)>::value>()))
+          std::make_index_sequence<std::tuple_size_v<decltype(a.slices)>>()))
   {
-    return details::real_get(
-        getattr(types::attr::REAL{}, a.arg), a.slices,
-        std::make_index_sequence<std::tuple_size<decltype(a.slices)>::value>());
+    return details::real_get(getattr(types::attr::REAL{}, a.arg), a.slices,
+                             std::make_index_sequence<std::tuple_size_v<decltype(a.slices)>>());
   }
 
   template <class T, class pS>
@@ -930,11 +926,10 @@ namespace builtins
   auto getattr(types::attr::IMAG, types::numpy_gexpr<E, S...> const &a)
       -> decltype(details::imag_get(
           getattr(types::attr::IMAG{}, a.arg), a.slices,
-          std::make_index_sequence<std::tuple_size<decltype(a.slices)>::value>()))
+          std::make_index_sequence<std::tuple_size_v<decltype(a.slices)>>()))
   {
-    return details::imag_get(
-        getattr(types::attr::IMAG{}, a.arg), a.slices,
-        std::make_index_sequence<std::tuple_size<decltype(a.slices)>::value>());
+    return details::imag_get(getattr(types::attr::IMAG{}, a.arg), a.slices,
+                             std::make_index_sequence<std::tuple_size_v<decltype(a.slices)>>());
   }
 
   template <class E>
@@ -949,18 +944,17 @@ PYTHONIC_NS_END
 
 template <class T1, class T2, class pS1, class pS2>
 struct __combined<pythonic::types::ndarray<T1, pS1>, pythonic::types::ndarray<T2, pS2>> {
-  using type = pythonic::types::ndarray<
-      typename __combined<T1, T2>::type,
-      pythonic::sutils::common_shapes_t<std::tuple_size<pS1>::value, pS1, pS2>>;
+  using type =
+      pythonic::types::ndarray<typename __combined<T1, T2>::type,
+                               pythonic::sutils::common_shapes_t<std::tuple_size_v<pS1>, pS1, pS2>>;
 };
 
 template <class pS, class T, class... Tys>
 struct __combined<pythonic::types::ndarray<T, pS>, pythonic::types::numpy_expr<Tys...>> {
   using expr_type = pythonic::types::numpy_expr<Tys...>;
-  using type =
-      pythonic::types::ndarray<typename __combined<T, typename expr_type::dtype>::type,
-                               pythonic::sutils::common_shapes_t<std::tuple_size<pS>::value, pS,
-                                                                 typename expr_type::shape_t>>;
+  using type = pythonic::types::ndarray<
+      typename __combined<T, typename expr_type::dtype>::type,
+      pythonic::sutils::common_shapes_t<std::tuple_size_v<pS>, pS, typename expr_type::shape_t>>;
 };
 
 template <class pS, class T, class O>

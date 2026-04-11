@@ -20,13 +20,13 @@ namespace numpy
           out_type &, decltype(aexpr), out_type::value,
           (int)out_type::value - (int)utils::dim_of<E>::value,
           out_type::is_vectorizable &&
-              std::is_same<typename out_type::dtype, typename types::dtype_of<E>::type>::value &&
+              std::is_same_v<typename out_type::dtype, typename types::dtype_of<E>::type> &&
               types::is_vectorizable<E>::value>(out, aexpr);
     } else {
       utils::broadcast_copy<
           out_type &, E, out_type::value, (int)out_type::value - (int)utils::dim_of<E>::value,
           out_type::is_vectorizable &&
-              std::is_same<typename out_type::dtype, typename types::dtype_of<E>::type>::value &&
+              std::is_same_v<typename out_type::dtype, typename types::dtype_of<E>::type> &&
               types::is_vectorizable<E>::value>(out, expr);
     }
     return {};
@@ -48,13 +48,13 @@ namespace numpy
           out_type &, decltype(aexpr), out_type::value,
           (int)out_type::value - (int)utils::dim_of<E>::value,
           out_type::is_vectorizable &&
-              std::is_same<typename out_type::dtype, typename types::dtype_of<E>::type>::value &&
+              std::is_same_v<typename out_type::dtype, typename types::dtype_of<E>::type> &&
               types::is_vectorizable<E>::value>(out, aexpr);
     } else {
       utils::broadcast_copy<
           out_type &, E, out_type::value, (int)out_type::value - (int)utils::dim_of<E>::value,
           out_type::is_vectorizable &&
-              std::is_same<typename out_type::dtype, typename types::dtype_of<E>::type>::value &&
+              std::is_same_v<typename out_type::dtype, typename types::dtype_of<E>::type> &&
               types::is_vectorizable<E>::value>(out, expr);
     }
     return {};

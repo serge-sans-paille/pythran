@@ -106,79 +106,67 @@ namespace types
     // vectorize everything but these ops. They require special handling for
     // vectorization, and SG did not invest enough time in those
     static const bool value =
-        !std::is_same<O, operator_::functor::mod>::value &&
-        (!std::is_same<O, operator_::functor::div>::value ||
-         utils::all_of<std::is_same<Args, decltype(std::declval<O>()(
-                                              std::declval<Args>()...))>::value...>::value) &&
-        !std::is_same<O, numpy::functor::logaddexp2>::value &&
+        !std::is_same_v<O, operator_::functor::mod> &&
+        (!std::is_same_v<O, operator_::functor::div> ||
+         (std::is_same_v<Args, decltype(std::declval<O>()(std::declval<Args>()...))> && ...)) &&
+        !std::is_same_v<O, numpy::functor::logaddexp2> &&
         // Return type for generic function should be generic
-        !std::is_same<O, numpy::functor::angle_in_rad>::value &&
-        !std::is_same<O, numpy::functor::ldexp>::value &&
-        !std::is_same<O, numpy::functor::isfinite>::value &&
-        !std::is_same<O, numpy::functor::fix>::value &&
-        !std::is_same<O, numpy::functor::isinf>::value &&
-        !std::is_same<O, numpy::functor::isnan>::value &&
-        !std::is_same<O, numpy::functor::isposinf>::value &&
-        !std::is_same<O, numpy::functor::rint>::value &&
-        !std::is_same<O, numpy::functor::signbit>::value &&
+        !std::is_same_v<O, numpy::functor::angle_in_rad> &&
+        !std::is_same_v<O, numpy::functor::ldexp> && !std::is_same_v<O, numpy::functor::isfinite> &&
+        !std::is_same_v<O, numpy::functor::fix> && !std::is_same_v<O, numpy::functor::isinf> &&
+        !std::is_same_v<O, numpy::functor::isnan> && !std::is_same_v<O, numpy::functor::isposinf> &&
+        !std::is_same_v<O, numpy::functor::rint> && !std::is_same_v<O, numpy::functor::signbit> &&
         // conditional processing doesn't permit SIMD
-        !std::is_same<O, numpy::functor::nan_to_num>::value &&
-        !std::is_same<O, numpy::functor::asarray_chkfinite>::value &&
-        !std::is_same<O, numpy::functor::clip>::value &&
-        !std::is_same<O, numpy::functor::where>::value &&
+        !std::is_same_v<O, numpy::functor::nan_to_num> &&
+        !std::is_same_v<O, numpy::functor::asarray_chkfinite> &&
+        !std::is_same_v<O, numpy::functor::clip> && !std::is_same_v<O, numpy::functor::where> &&
         // not supported by xsimd
-        !std::is_same<O, numpy::functor::nextafter>::value &&
-        !std::is_same<O, numpy::functor::spacing>::value &&
+        !std::is_same_v<O, numpy::functor::nextafter> &&
+        !std::is_same_v<O, numpy::functor::spacing> &&
         // not supported for complex numbers
-        !(utils::any_of<is_complex<typename dtype_of<Args>::type>::value...>::value &&
-          (std::is_same<O, numpy::functor::floor_divide>::value ||
-           std::is_same<O, numpy::functor::maximum>::value ||
-           std::is_same<O, builtins::pythran::functor::abssqr>::value ||
-           std::is_same<O, numpy::functor::minimum>::value)) &&
+        !((is_complex<typename dtype_of<Args>::type>::value || ...) &&
+          (std::is_same_v<O, numpy::functor::floor_divide> ||
+           std::is_same_v<O, numpy::functor::maximum> ||
+           std::is_same_v<O, builtins::pythran::functor::abssqr> ||
+           std::is_same_v<O, numpy::functor::minimum>)) &&
         // transtyping
-        !std::is_same<O, numpy::functor::bool_>::value &&
-        !std::is_same<O, numpy::functor::int8>::value &&
-        !std::is_same<O, numpy::functor::int16>::value &&
-        !std::is_same<O, numpy::functor::int32>::value &&
-        !std::is_same<O, numpy::functor::int64>::value &&
-        !std::is_same<O, numpy::functor::uint8>::value &&
-        !std::is_same<O, numpy::functor::uint16>::value &&
-        !std::is_same<O, numpy::functor::uint32>::value &&
-        !std::is_same<O, numpy::functor::uint64>::value &&
-        !std::is_same<O, numpy::functor::float32>::value &&
-        !std::is_same<O, numpy::functor::float64>::value &&
+        !std::is_same_v<O, numpy::functor::bool_> && !std::is_same_v<O, numpy::functor::int8> &&
+        !std::is_same_v<O, numpy::functor::int16> && !std::is_same_v<O, numpy::functor::int32> &&
+        !std::is_same_v<O, numpy::functor::int64> && !std::is_same_v<O, numpy::functor::uint8> &&
+        !std::is_same_v<O, numpy::functor::uint16> && !std::is_same_v<O, numpy::functor::uint32> &&
+        !std::is_same_v<O, numpy::functor::uint64> && !std::is_same_v<O, numpy::functor::float32> &&
+        !std::is_same_v<O, numpy::functor::float64> &&
         // not supported for integral numbers
-        !(utils::any_of<std::is_integral<typename dtype_of<Args>::type>::value...>::value &&
-          (std::is_same<O, numpy::functor::floor_divide>::value ||
-           std::is_same<O, numpy::functor::true_divide>::value ||
-           std::is_same<O, numpy::functor::divide>::value ||
-           std::is_same<O, numpy::functor::arctan2>::value ||
-           std::is_same<O, numpy::functor::copysign>::value ||
-           std::is_same<O, numpy::functor::logaddexp>::value ||
-           std::is_same<O, numpy::functor::power>::value ||
-           std::is_same<O, numpy::functor::remainder>::value ||
-           std::is_same<O, numpy::functor::hypot>::value ||
-           std::is_same<O, numpy::functor::fmod>::value)) &&
+        !((std::is_integral_v<typename dtype_of<Args>::type> || ...) &&
+          (std::is_same_v<O, numpy::functor::floor_divide> ||
+           std::is_same_v<O, numpy::functor::true_divide> ||
+           std::is_same_v<O, numpy::functor::divide> ||
+           std::is_same_v<O, numpy::functor::arctan2> ||
+           std::is_same_v<O, numpy::functor::copysign> ||
+           std::is_same_v<O, numpy::functor::logaddexp> ||
+           std::is_same_v<O, numpy::functor::power> ||
+           std::is_same_v<O, numpy::functor::remainder> ||
+           std::is_same_v<O, numpy::functor::hypot> || std::is_same_v<O, numpy::functor::fmod>)) &&
         // special functions not in the scope of xsimd
-        !std::is_same<O, numpy::functor::heaviside>::value &&
-        !std::is_same<O, scipy::special::functor::binom>::value &&
-        !std::is_same<O, scipy::special::functor::gammaincinv>::value &&
-        !std::is_same<O, scipy::special::functor::hankel1>::value &&
-        !std::is_same<O, scipy::special::functor::hankel2>::value &&
-        !std::is_same<O, scipy::special::functor::jv>::value &&
-        !std::is_same<O, scipy::special::functor::i0>::value &&
-        !std::is_same<O, scipy::special::functor::i0e>::value &&
-        !std::is_same<O, scipy::special::functor::iv>::value &&
-        !std::is_same<O, scipy::special::functor::kv>::value &&
-        !std::is_same<O, scipy::special::functor::yv>::value &&
-        !std::is_same<O, scipy::special::functor::jvp>::value &&
-        !std::is_same<O, scipy::special::functor::ivp>::value &&
-        !std::is_same<O, scipy::special::functor::kvp>::value &&
-        !std::is_same<O, scipy::special::functor::ndtr>::value &&
-        !std::is_same<O, scipy::special::functor::ndtri>::value &&
-        !std::is_same<O, scipy::special::functor::yvp>::value &&
-        !std::is_same<O, scipy::special::functor::spherical_jn>::value &&
-        !std::is_same<O, scipy::special::functor::spherical_yn>::value &&
+        !std::is_same_v<O, numpy::functor::heaviside> &&
+        !std::is_same_v<O, scipy::special::functor::binom> &&
+        !std::is_same_v<O, scipy::special::functor::gammaincinv> &&
+        !std::is_same_v<O, scipy::special::functor::hankel1> &&
+        !std::is_same_v<O, scipy::special::functor::hankel2> &&
+        !std::is_same_v<O, scipy::special::functor::jv> &&
+        !std::is_same_v<O, scipy::special::functor::i0> &&
+        !std::is_same_v<O, scipy::special::functor::i0e> &&
+        !std::is_same_v<O, scipy::special::functor::iv> &&
+        !std::is_same_v<O, scipy::special::functor::kv> &&
+        !std::is_same_v<O, scipy::special::functor::yv> &&
+        !std::is_same_v<O, scipy::special::functor::jvp> &&
+        !std::is_same_v<O, scipy::special::functor::ivp> &&
+        !std::is_same_v<O, scipy::special::functor::kvp> &&
+        !std::is_same_v<O, scipy::special::functor::ndtr> &&
+        !std::is_same_v<O, scipy::special::functor::ndtri> &&
+        !std::is_same_v<O, scipy::special::functor::yvp> &&
+        !std::is_same_v<O, scipy::special::functor::spherical_jn> &&
+        !std::is_same_v<O, scipy::special::functor::spherical_yn> &&
         //
         true;
   };

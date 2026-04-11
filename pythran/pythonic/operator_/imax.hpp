@@ -12,7 +12,7 @@ namespace operator_
 {
   template <class A, class B>
   auto imax(A &&a, B &&b)
-      -> std::enable_if_t<std::is_const<A>::value || !std::is_assignable<A, B>::value,
+      -> std::enable_if_t<std::is_const_v<A> || !std::is_assignable_v<A, B>,
                           decltype(numpy::functor::maximum{}(std::forward<A>(a),
                                                              std::forward<B>(b)))>
   {
@@ -21,7 +21,7 @@ namespace operator_
 
   template <class A, class B>
   auto imax(A &&a, B &&b)
-      -> std::enable_if_t<!std::is_const<A>::value && std::is_assignable<A, B>::value,
+      -> std::enable_if_t<!std::is_const_v<A> && std::is_assignable_v<A, B>,
                           decltype(a = numpy::functor::maximum{}(std::forward<A>(a),
                                                                  std::forward<B>(b)))>
   {

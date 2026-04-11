@@ -17,7 +17,7 @@ namespace numpy
   {
     using R = typename dtype::type;
     long size;
-    if (std::is_integral<R>::value)
+    if (std::is_integral_v<R>)
       size = std::max(R(0), R((end - begin + step - 1) / step));
     else
       size = std::max(R(0), R(std::ceil((end - begin) / step)));

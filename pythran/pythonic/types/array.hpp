@@ -252,8 +252,8 @@ namespace types
   template <class InputIterator>
   array<T>::array(InputIterator start, InputIterator stop) : _data()
   {
-    if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category,
-                     std::random_access_iterator_tag>::value)
+    if (std::is_same_v<typename std::iterator_traits<InputIterator>::iterator_category,
+                       std::random_access_iterator_tag>)
       _data->reserve(std::distance(start, stop));
     else
       _data->reserve(DEFAULT_CAPACITY);

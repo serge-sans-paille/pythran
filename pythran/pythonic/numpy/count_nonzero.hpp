@@ -13,7 +13,7 @@ namespace numpy
 
   template <class dtype, class E>
   auto _count_nonzero(E begin, E end, long &count, utils::int_<1>)
-      -> std::enable_if_t<std::is_same<dtype, bool>::value>
+      -> std::enable_if_t<std::is_same_v<dtype, bool>>
   {
     for (; begin != end; ++begin)
       // Behaviour defined in the standard
@@ -22,7 +22,7 @@ namespace numpy
 
   template <class dtype, class E>
   auto _count_nonzero(E begin, E end, long &count, utils::int_<1>)
-      -> std::enable_if_t<!std::is_same<dtype, bool>::value>
+      -> std::enable_if_t<!std::is_same_v<dtype, bool>>
   {
     for (; begin != end; ++begin)
       if (*begin != static_cast<dtype>(0))

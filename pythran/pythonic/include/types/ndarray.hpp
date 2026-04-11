@@ -516,7 +516,7 @@ namespace types
 
     template <class... Tys>
     auto operator[](std::tuple<Tys...> const &indices) const -> std::enable_if_t<
-        utils::all_of<std::is_integral_v<Tys>...>::value,
+        (std::is_integral_v<Tys> && ...),
         decltype(this->_fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>()))>
     {
       return _fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>());
@@ -531,17 +531,17 @@ namespace types
 
     template <class... Tys>
     auto operator[](std::tuple<Tys...> const &indices) -> std::enable_if_t<
-        utils::all_of<std::is_integral_v<Tys>...>::value,
+        (std::is_integral_v<Tys> && ...),
         decltype(this->_fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>()))>
     {
       return _fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>());
     }
 
     template <class Ty0, class Ty1, class... Tys>
-    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const -> std::enable_if_t<
-        std::is_integral_v<Ty0> &&
-            !utils::all_of<std::is_integral_v<Ty1>, std::is_integral_v<Tys>...>::value,
-        decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>
+    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const
+        -> std::enable_if_t<std::is_integral_v<Ty0> &&
+                                !(std::is_integral_v<Ty1> && ... && std::is_integral_v<Tys>),
+                            decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>
     {
       return (*this)[std::get<0>(indices)][tuple_tail(indices)];
     }

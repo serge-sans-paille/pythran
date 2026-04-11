@@ -577,10 +577,10 @@ namespace types
   struct numpy_expr {
     using first_arg = typename utils::front<Args...>::type;
     static const bool is_vectorizable =
-        utils::all_of<std::remove_reference_t<Args>::is_vectorizable...>::value &&
-        utils::all_of<std::is_same_v<
-            typename std::remove_cv_t<std::remove_reference_t<first_arg>>::dtype,
-            typename std::remove_cv_t<std::remove_reference_t<Args>>::dtype>...>::value &&
+        (std::remove_reference_t<Args>::is_vectorizable && ...) &&
+        (std::is_same_v<typename std::remove_cv_t<std::remove_reference_t<first_arg>>::dtype,
+                        typename std::remove_cv_t<std::remove_reference_t<Args>>::dtype> &&
+         ...) &&
         types::is_vector_op<Op, typename std::remove_reference_t<Args>::dtype...>::value;
     static const bool is_flat = false;
     static const bool is_strided =

@@ -108,8 +108,7 @@ namespace types
     static const bool value =
         !std::is_same_v<O, operator_::functor::mod> &&
         (!std::is_same_v<O, operator_::functor::div> ||
-         utils::all_of<std::is_same_v<Args, decltype(std::declval<O>()(
-                                                std::declval<Args>()...))>...>::value) &&
+         (std::is_same_v<Args, decltype(std::declval<O>()(std::declval<Args>()...))> && ...)) &&
         !std::is_same_v<O, numpy::functor::logaddexp2> &&
         // Return type for generic function should be generic
         !std::is_same_v<O, numpy::functor::angle_in_rad> &&

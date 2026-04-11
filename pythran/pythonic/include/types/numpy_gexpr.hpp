@@ -109,14 +109,14 @@ namespace types
   struct extended_slice<0> {
     template <class E, class... S>
     auto operator()(E &&expr, long const &s0, S const &...s)
-        -> std::enable_if_t<utils::all_of<std::is_integral_v<S>...>::value,
+        -> std::enable_if_t<(std::is_integral_v<S> && ...),
                             decltype(std::forward<E>(expr)[types::make_tuple(s0, s...)])>
     {
       return std::forward<E>(expr)[types::make_tuple(s0, s...)];
     }
     template <class E, class... S>
     auto operator()(E &&expr, long const &s0, S const &...s)
-        -> std::enable_if_t<!utils::all_of<std::is_integral_v<S>...>::value,
+        -> std::enable_if_t<!(std::is_integral_v<S> && ...),
                             decltype(std::forward<E>(expr)[s0](s...))>
     {
       return std::forward<E>(expr)[s0](s...);
@@ -241,8 +241,7 @@ namespace types
     struct merge_gexpr<std::tuple<T0...>, std::tuple<>> {
       template <size_t I, class S>
       std::tuple<T0...> run(S const &, std::tuple<T0...> const &t0, std::tuple<>);
-      static_assert(utils::all_of<std::is_same_v<T0, normalize_t<T0>>...>::value,
-                    "all slices are normalized");
+      static_assert((std::is_same_v<T0, normalize_t<T0>> && ...), "all slices are normalized");
     };
 
     template <class... T1>
@@ -515,11 +514,9 @@ namespace types
    */
   template <class Arg, class... S>
   struct numpy_gexpr {
-    static_assert(utils::all_of<std::is_same_v<S, normalize_t<S>>...>::value,
-                  "all slices are normalized");
-    static_assert(
-        utils::all_of<(std::is_same_v<S, long> || is_normalized_slice<S>::value)...>::value,
-        "all slices are valid");
+    static_assert((std::is_same_v<S, normalize_t<S>> && ...), "all slices are normalized");
+    static_assert(((std::is_same_v<S, long> || is_normalized_slice<S>::value) && ...),
+                  "all slices are valid");
     static_assert(std::decay_t<Arg>::value >= sizeof...(S), "slicing respects array shape");
 
     // numpy_gexpr is a wrapper for extended sliced array around a numpy
@@ -531,8 +528,7 @@ namespace types
     // through the S... template
     // && compacted values as we know that first S is a slice.
 
-    static_assert(utils::all_of<std::is_same_v<S, std::decay_t<S>>...>::value,
-                  "no modifiers on slices");
+    static_assert((std::is_same_v<S, std::decay_t<S>> && ...), "no modifiers on slices");
 
     using dtype = typename std::remove_reference_t<Arg>::dtype;
     static constexpr size_t value = std::remove_reference_t<Arg>::value - count_long<S...>::value;
@@ -548,9 +544,8 @@ namespace types
     static const bool is_vectorizable = std::remove_reference_t<Arg>::is_vectorizable &&
                                         (sizeof...(S) < std::remove_reference_t<Arg>::value ||
                                          std::is_same_v<cstride_normalized_slice<1>, last_slice_t>);
-    static const bool is_flat =
-        std::remove_reference_t<Arg>::is_flat && value == 1 &&
-        utils::all_of<std::is_same_v<cstride_normalized_slice<1>, S>...>::value;
+    static const bool is_flat = std::remove_reference_t<Arg>::is_flat && value == 1 &&
+                                (std::is_same_v<cstride_normalized_slice<1>, S> && ...);
     static const bool is_strided = std::remove_reference_t<Arg>::is_strided ||
                                    (((sizeof...(S) - count_long<S...>::value) == value) &&
                                     !std::is_same_v<cstride_normalized_slice<1>, last_slice_t>);

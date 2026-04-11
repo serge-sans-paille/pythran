@@ -227,25 +227,32 @@ namespace numpy
     }
   };
 
-  namespace detail {
-    template<class E, class EIndices, size_t... Es>
-    auto loader(E&& e, EIndices&& e_indices, long i, std::index_sequence<Es...>) {
+  namespace detail
+  {
+    template <class E, class EIndices, size_t... Es>
+    auto loader(E &&e, EIndices &&e_indices, long i, std::index_sequence<Es...>)
+    {
       return e.load(std::get<Es>(e_indices)..., i);
     }
-    template<class E, class EIndices>
-    auto loader(E&& e, EIndices&& e_indices, long i) {
-      return loader(std::forward<E>(e), std::forward<EIndices>(e_indices), i, std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>());
+    template <class E, class EIndices>
+    auto loader(E &&e, EIndices &&e_indices, long i)
+    {
+      return loader(std::forward<E>(e), std::forward<EIndices>(e_indices), i,
+                    std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>());
     }
 
-    template<class T, class E, class EIndices, size_t... Es>
-    void storer(T acc, E&& e, EIndices&& e_indices, std::index_sequence<Es...>) {
+    template <class T, class E, class EIndices, size_t... Es>
+    void storer(T acc, E &&e, EIndices &&e_indices, std::index_sequence<Es...>)
+    {
       e.store(acc, std::get<Es>(e_indices)...);
     }
-    template<class T, class E, class EIndices>
-    void storer(T acc, E&& e, EIndices&& e_indices) {
-      return storer(acc, std::forward<E>(e), std::forward<EIndices>(e_indices), std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>());
+    template <class T, class E, class EIndices>
+    void storer(T acc, E &&e, EIndices &&e_indices)
+    {
+      return storer(acc, std::forward<E>(e), std::forward<EIndices>(e_indices),
+                    std::make_index_sequence<std::tuple_size<std::decay_t<EIndices>>::value>());
     }
-  }
+  } // namespace detail
 
   template <class Op, size_t N>
   struct _reduce_axis {
@@ -254,7 +261,8 @@ namespace numpy
     {
       if (axis == std::decay_t<E>::value - N) {
         for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>(); i < n; ++i) {
-          _reduce_axisb<Op, N - 1>{}(e, f, std::tuple_cat(e_indices, std::make_tuple(i)), std::forward<EIndices>(e_indices));
+          _reduce_axisb<Op, N - 1>{}(e, f, std::tuple_cat(e_indices, std::make_tuple(i)),
+                                     std::forward<EIndices>(e_indices));
         }
       } else {
         for (long i = 0, n = e.template shape<std::decay_t<E>::value - N>(); i < n; ++i) {
@@ -294,7 +302,7 @@ namespace numpy
   reduce_no_axis_check(E const &array, long axis, types::none_type, Out &&out)
   {
     if (utils::no_broadcast(array)) {
-      if(axis != E::value - 1)
+      if (axis != E::value - 1)
         std::fill(out.begin(), out.end(), utils::neutral<Op, typename E::dtype>::value);
       _reduce_axis<Op, E::value>{}(array, std::forward<Out>(out), axis, std::make_tuple());
       return std::forward<Out>(out);

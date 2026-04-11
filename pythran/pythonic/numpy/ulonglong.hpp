@@ -36,24 +36,22 @@ PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE
 
-#include "pythonic/python/core.hpp"
 #include "numpy/arrayscalars.h"
+#include "pythonic/python/core.hpp"
 
 PYTHONIC_NS_BEGIN
 
-inline PyObject *
-to_python<numpy::functor::ulonglong>::convert(numpy::functor::ulonglong const &c)
+inline PyObject *to_python<numpy::functor::ulonglong>::convert(numpy::functor::ulonglong const &c)
 {
-  return (PyObject*)&PyULongLongArrType_Type;
+  return (PyObject *)&PyULongLongArrType_Type;
 }
 
 inline bool from_python<numpy::functor::ulonglong>::is_convertible(PyObject *obj)
 {
-  return obj == (PyObject*)&PyULongLongArrType_Type;
+  return obj == (PyObject *)&PyULongLongArrType_Type;
 }
 
-inline numpy::functor::ulonglong
-from_python<numpy::functor::ulonglong>::convert(PyObject *obj)
+inline numpy::functor::ulonglong from_python<numpy::functor::ulonglong>::convert(PyObject *obj)
 {
   return {};
 }

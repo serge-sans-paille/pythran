@@ -716,7 +716,7 @@ namespace types
 
     template <class T>
     struct dtype_helper {
-      using table = std::conditional_t<std::is_signed<T>::value, dtype_table, dtype_utable>;
+      using table = std::conditional_t<std::is_signed_v<T>, dtype_table, dtype_utable>;
       using type =
           std::tuple_element_t<(sizeof(T) < std::tuple_size<table>::value) ? sizeof(T) : 0, table>;
     };

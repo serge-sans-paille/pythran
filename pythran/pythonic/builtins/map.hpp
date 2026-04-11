@@ -60,7 +60,7 @@ namespace builtins
     map_iterator<Operator, Iters...>::operator*() const
     {
       return get_value(std::make_index_sequence<sizeof...(Iters)>{},
-                       std::is_same<Operator, types::none_type>());
+                       std::is_same<Operator, types::none_type>{});
     }
 
     template <typename Operator, typename... Iters>

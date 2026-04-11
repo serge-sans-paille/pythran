@@ -47,7 +47,7 @@ namespace numpy
     }
 
     template <class T, class pS, class N, class Norm>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
+    types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     fft(types::ndarray<T, pS> const &in_array, N const &n, long axis, Norm const &norm)
     {

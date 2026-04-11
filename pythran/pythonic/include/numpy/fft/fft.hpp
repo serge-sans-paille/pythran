@@ -31,7 +31,7 @@ namespace numpy
     fft(types::ndarray<T, pS> const &a, N const &n = {}, long axis = -1, Norm const &norm = {});
 
     template <class T, class pS, class N = types::none_type, class Norm = types::none_type>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
+    types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     fft(types::ndarray<T, pS> const &a, N const &n = {}, long axis = -1, Norm const &norm = {});
 

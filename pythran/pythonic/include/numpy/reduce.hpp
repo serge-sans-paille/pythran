@@ -32,10 +32,9 @@ namespace numpy
               (sizeof(typename types::dtype_of<E>::type) < sizeof(long)) &&
               !std::is_same_v<Op, operator_::functor::imin> &&
               !std::is_same_v<Op, operator_::functor::imax>,
-          std::conditional_t<
-              std::is_same_v<typename types::dtype_of<E>::type, bool>, long,
-              std::conditional_t<std::is_signed<typename types::dtype_of<E>::type>::value, long,
-                                 unsigned long>>,
+          std::conditional_t<std::is_same_v<typename types::dtype_of<E>::type, bool>, long,
+                             std::conditional_t<std::is_signed_v<typename types::dtype_of<E>::type>,
+                                                long, unsigned long>>,
           typename types::dtype_of<E>::type>;
     };
     template <class Op, class E, class T = types::none_type>

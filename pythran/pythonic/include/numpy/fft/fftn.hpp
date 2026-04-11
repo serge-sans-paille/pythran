@@ -18,7 +18,7 @@ namespace numpy
          Norm const &norm = {});
 
     template <class T, class pS, class Axes = types::none_type, class Norm = types::none_type>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
+    types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     fftn(types::ndarray<T, pS> const &a, types::none_type s = {}, Axes const &axes = {},
          Norm const &norm = {});
@@ -39,7 +39,7 @@ namespace numpy
 
     template <class T, class pS, class I, size_t N, class V, class Axes = types::none_type,
               class Norm = types::none_type>
-    types::ndarray<std::enable_if_t<std::is_floating_point<T>::value, std::complex<T>>,
+    types::ndarray<std::enable_if_t<std::is_floating_point_v<T>, std::complex<T>>,
                    types::array_tuple<long, std::tuple_size<pS>::value>>
     fftn(types::ndarray<T, pS> const &a, types::array_base<I, N, V> const &s, Axes const &axes = {},
          Norm const &norm = {});

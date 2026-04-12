@@ -1,6 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_COMPLEX_HPP
 #define PYTHONIC_INCLUDE_TYPES_COMPLEX_HPP
 
+#include "pythonic/include/types/attr.hpp"
 #include <complex>
 
 #if defined(_OPENMP)
@@ -89,9 +90,6 @@ namespace builtins
   T getattr(types::attr::REAL, std::complex<T> const &self);
   template <class T>
   T getattr(types::attr::IMAG, std::complex<T> const &self);
-  numpy::functor::complex64 getattr(types::attr::DTYPE, std::complex<float> const &self);
-  numpy::functor::complex128 getattr(types::attr::DTYPE, std::complex<double> const &self);
-  numpy::functor::complex256 getattr(types::attr::DTYPE, std::complex<long double> const &self);
 } // namespace builtins
 PYTHONIC_NS_END
 

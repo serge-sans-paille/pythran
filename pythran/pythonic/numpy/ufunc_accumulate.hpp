@@ -2,6 +2,8 @@
 #error missing UFUNC_NAME
 #endif
 
+#include "pythonic/core.hpp"
+
 // clang-format off
 #include INCLUDE_FILE(pythonic/numpy,UFUNC_NAME)
 // clang-format on

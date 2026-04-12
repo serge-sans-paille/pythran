@@ -1,6 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_LAZY_HPP
 #define PYTHONIC_INCLUDE_TYPES_LAZY_HPP
 
+#include "pythonic/include/types/combined.hpp"
+#include <type_traits>
+
 PYTHONIC_NS_BEGIN
 
 namespace types

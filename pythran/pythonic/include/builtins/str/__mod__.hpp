@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_STR_MOD_HPP
 
 #include "pythonic/include/types/str.hpp"
+#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

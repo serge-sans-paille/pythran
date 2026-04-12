@@ -24,6 +24,12 @@ namespace numpy
 #define NUMPY_NARY_EXTRA_METHOD using type = std::complex<float>;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::complex64 getattr(types::attr::DTYPE, std::complex<float> const &);
+} // namespace builtins
+
 PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 

@@ -6,6 +6,7 @@
 #include "pythonic/include/types/raw_array.hpp"
 #include "pythonic/types/ndarray.hpp" // we should remove that dep during a refactoring :-)
 #include "pythonic/types/nditerator.hpp"
+#include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/array_helper.hpp"

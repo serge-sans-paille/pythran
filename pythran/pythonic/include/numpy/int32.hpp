@@ -23,6 +23,12 @@ namespace numpy
 #define NUMPY_NARY_EXTRA_METHOD using type = int32_t;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::int32 getattr(types::attr::DTYPE, int32_t const &);
+} // namespace builtins
+
 PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 

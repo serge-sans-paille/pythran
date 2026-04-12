@@ -1,6 +1,11 @@
 #ifndef PYTHONIC_TYPES_NUMPY_VEXPR_HPP
 #define PYTHONIC_TYPES_NUMPY_VEXPR_HPP
 
+#include "pythonic/include/types/numpy_vexpr.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/nditerator.hpp"
+#include "pythonic/types/numpy_op_helper.hpp"
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/allocate.hpp"
 
 PYTHONIC_NS_BEGIN

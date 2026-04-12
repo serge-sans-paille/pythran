@@ -10,7 +10,7 @@ PYTHONIC_NS_BEGIN
 
 namespace cmath
 {
-  double constexpr e = std::exp(1);
+  double constexpr e = M_E;
 }
 PYTHONIC_NS_END
 

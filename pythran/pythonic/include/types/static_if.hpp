@@ -1,6 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_STATIC_IF_HPP
 #define PYTHONIC_INCLUDE_TYPES_STATIC_IF_HPP
 
+#include "pythonic/include/types/NoneType.hpp"
+
+#include <cstddef>
 #include <tuple>
 
 PYTHONIC_NS_BEGIN

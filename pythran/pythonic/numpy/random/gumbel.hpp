@@ -9,6 +9,8 @@
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
+#include <xsimd/xsimd.hpp>
+
 #include <algorithm>
 #include <random>
 

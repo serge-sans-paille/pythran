@@ -13,6 +13,29 @@ PYTHONIC_NS_BEGIN
 
 namespace numpy
 {
+  template <class E>
+  types::numpy_texpr<types::broadcasted<E>> transpose(types::broadcasted<E> const &arr)
+  {
+    return {arr};
+  }
+
+  template <class E>
+  E transpose(types::numpy_texpr<E> const &arr)
+  {
+    return arr.arg;
+  }
+
+  template <class E>
+  std::enable_if_t<E::value == 2, types::numpy_texpr<E>> transpose(E const &arr)
+  {
+    return {arr};
+  }
+
+  template <class E>
+  std::enable_if_t<E::value == 1, E> transpose(E const &arr)
+  {
+    return arr;
+  }
   namespace
   {
     template <class T, class pS, class O, class Indices, class S, class Perm>

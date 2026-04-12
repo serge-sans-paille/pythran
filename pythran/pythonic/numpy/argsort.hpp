@@ -3,6 +3,8 @@
 
 #include "pythonic/include/numpy/argsort.hpp"
 #include "pythonic/numpy/ndarray/sort.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 

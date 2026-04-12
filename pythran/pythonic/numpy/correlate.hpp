@@ -6,6 +6,7 @@
 #include "pythonic/numpy/conjugate.hpp"
 #include "pythonic/numpy/dot.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/str.hpp"
 
 PYTHONIC_NS_BEGIN
 

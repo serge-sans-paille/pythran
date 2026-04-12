@@ -3,7 +3,10 @@
 
 #include "pythonic/include/numpy/ndenumerate.hpp"
 
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
+#include "pythonic/utils/numpy_conversion.hpp"
 
 PYTHONIC_NS_BEGIN
 

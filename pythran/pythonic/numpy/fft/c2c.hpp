@@ -8,6 +8,7 @@
 #include "pythonic/numpy/empty.hpp"
 #include "pythonic/numpy/zeros.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
 #include <array>

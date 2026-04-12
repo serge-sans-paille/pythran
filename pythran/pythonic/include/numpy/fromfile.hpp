@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_NUMPY_FROMFILE_HPP
 
 #include "pythonic/include/numpy/float64.hpp"
-#include "pythonic/include/types/list.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"

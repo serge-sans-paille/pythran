@@ -7,6 +7,8 @@
 #ifndef PYTHONIC_SCIPY_SPECIAL_CHBEVL_HPP
 #define PYTHONIC_SCIPY_SPECIAL_CHBEVL_HPP
 
+#include <cstddef>
+
 PYTHONIC_NS_BEGIN
 
 namespace scipy

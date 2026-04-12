@@ -3,6 +3,7 @@
 
 #include "pythonic/include/numpy/float32.hpp"
 
+#include "pythonic/types/attr.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
@@ -31,6 +32,15 @@ namespace numpy
 #define NUMPY_NARY_FUNC_SYM details::float32
 #include "pythonic/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::float32 getattr(types::attr::DTYPE, float const &)
+  {
+    return {};
+  }
+} // namespace builtins
+
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE

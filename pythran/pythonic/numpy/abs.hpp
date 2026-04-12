@@ -3,7 +3,9 @@
 
 #include "pythonic/include/numpy/abs.hpp"
 
+#include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/utils/functor.hpp"
+#include "pythonic/utils/numpy_traits.hpp"
 
 PYTHONIC_NS_BEGIN
 

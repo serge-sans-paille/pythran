@@ -6,6 +6,7 @@
 #include "pythonic/numpy/correlate.hpp"
 #include "pythonic/numpy/flip.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/str.hpp"
 
 PYTHONIC_NS_BEGIN
 

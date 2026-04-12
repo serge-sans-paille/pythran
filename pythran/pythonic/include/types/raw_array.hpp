@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_RAW_ARRAY_HPP
 #define PYTHONIC_INCLUDE_TYPES_RAW_ARRAY_HPP
 
+#include <cstddef>
+
 PYTHONIC_NS_BEGIN
 
 namespace types

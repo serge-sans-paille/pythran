@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_NDITERATOR_HPP
 #define PYTHONIC_INCLUDE_TYPES_NDITERATOR_HPP
 
+#include "pythonic/include/types/traits.hpp"
+
 #include <iterator>
 
 #ifdef USE_XSIMD

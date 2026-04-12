@@ -10,7 +10,7 @@ PYTHONIC_NS_BEGIN
 
 namespace cmath
 {
-  double constexpr pi = std::atan(1) * 4;
+  double constexpr pi = M_PI;
 }
 PYTHONIC_NS_END
 

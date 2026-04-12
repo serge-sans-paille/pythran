@@ -4,6 +4,7 @@
 #include "pythonic/builtins/str/__mod__.hpp"
 
 #include "pythonic/types/str.hpp"
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
 #include <boost/format.hpp>

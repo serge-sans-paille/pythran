@@ -4,6 +4,7 @@
 #include "pythonic/include/builtins/filter.hpp"
 
 #include "pythonic/itertools/common.hpp"
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/iterator.hpp"
 

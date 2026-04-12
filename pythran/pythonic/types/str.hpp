@@ -3,8 +3,6 @@
 
 #include "pythonic/include/types/str.hpp"
 
-#include "pythonic/types/tuple.hpp"
-
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/int_.hpp"

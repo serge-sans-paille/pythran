@@ -1,6 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_ITERATOR_HPP
 #define PYTHONIC_INCLUDE_UTILS_ITERATOR_HPP
 
+#include <iterator>
+#include <tuple>
+#include <type_traits>
+
 PYTHONIC_NS_BEGIN
 
 namespace utils

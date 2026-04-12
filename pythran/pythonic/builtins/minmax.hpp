@@ -2,6 +2,7 @@
 #define PYTHONIC_BUILTIN_MINMAX_HPP
 
 #include "pythonic/include/builtins/minmax.hpp"
+#include "pythonic/types/combined.hpp"
 
 #include <algorithm>
 #include <utility>

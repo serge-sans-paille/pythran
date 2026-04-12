@@ -3,6 +3,7 @@
 
 #include "pythonic/include/__dispatch__/extend.hpp"
 
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

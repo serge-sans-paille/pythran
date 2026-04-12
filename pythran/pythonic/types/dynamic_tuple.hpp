@@ -6,6 +6,8 @@
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/nditerator.hpp"
 #include "pythonic/types/traits.hpp"
+#include "pythonic/types/tuple.hpp"
+#include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/utils/seq.hpp"

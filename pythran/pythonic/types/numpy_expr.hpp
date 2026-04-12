@@ -3,7 +3,11 @@
 
 #include "pythonic/include/types/numpy_expr.hpp"
 
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/nditerator.hpp"
+#include "pythonic/types/numpy_op_helper.hpp"
+#include "pythonic/types/tuple.hpp"
+#include "pythonic/types/vectorizable_type.hpp"
 #include "pythonic/utils/allocate.hpp"
 
 #include "pythonic/builtins/ValueError.hpp"

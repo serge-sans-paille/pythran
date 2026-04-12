@@ -1,6 +1,11 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_VECTORIZABLE_TYPE_HPP
 #define PYTHONIC_INCLUDE_TYPES_VECTORIZABLE_TYPE_HPP
 
+#include "pythonic/include/types/traits.hpp"
+
+#include <type_traits>
+#include <utility>
+
 PYTHONIC_NS_BEGIN
 namespace types
 {

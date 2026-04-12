@@ -3,6 +3,7 @@
 
 #include "pythonic/include/__dispatch__/insert.hpp"
 
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
@@ -18,7 +19,7 @@ namespace __dispatch__
     if (index < 0)
       index += any.size();
     any.insert(index, std::forward<Arg>(arg));
-    return builtins::None;
+    return {};
   }
 } // namespace __dispatch__
 PYTHONIC_NS_END

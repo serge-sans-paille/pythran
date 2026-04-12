@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_NUMPY_RANDOM_SEED_HPP
 
 #include "pythonic/include/numpy/random/generator.hpp"
+#include "pythonic/include/types/NoneType.hpp"
 
 PYTHONIC_NS_BEGIN
 

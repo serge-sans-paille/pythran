@@ -5,6 +5,8 @@
 #error missing UFUNC_INAME
 #endif
 
+#include "pythonic/core.hpp"
+
 // clang-format off
 #include INCLUDE_FILE(pythonic/include/operator_,UFUNC_INAME)
 // clang-format on

@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_ITERTOOLS_PRODUCT_HPP
 
 #include "pythonic/include/itertools/common.hpp"
+#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/iterator.hpp"

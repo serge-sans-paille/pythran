@@ -3,6 +3,7 @@
 
 #include "pythonic/include/operator_/is_not.hpp"
 
+#include "pythonic//builtins/id.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

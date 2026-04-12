@@ -482,7 +482,6 @@ CLASSES = {
             signature=Fun[[File], int],
         ),
         "isatty": MethodIntr(signature=Fun[[File], bool]),
-        "next": MethodIntr(global_effects=True),
         "read": MethodIntr(
             signature=Union[
                 Fun[[File], str],
@@ -3969,8 +3968,6 @@ MODULES = {
                 **expand_numpy_2_args(args=('df', 'size',))),
             "choice": FunctionIntr(global_effects=True,
                 **expand_numpy_2_args(args=('a', 'size', 'replace', 'p'))),
-            "dirichlet": FunctionIntr(global_effects=True,
-                **expand_numpy_2_args(args=('alpha', 'size',))),
             "exponential": FunctionIntr(global_effects=True,
                 **expand_numpy_2_args(args=('scale', 'size',),
                                       defaults=(1.0, None,))),

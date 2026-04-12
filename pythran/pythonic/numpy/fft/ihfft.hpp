@@ -5,6 +5,7 @@
 #include "pythonic/include/utils/array_helper.hpp"
 #include "pythonic/numpy/fft/c2c.hpp"
 #include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

@@ -23,7 +23,9 @@
 
 #include "pythonic/numpy/bool_.hpp"
 #include "pythonic/numpy/complex128.hpp"
+#include "pythonic/numpy/complex256.hpp"
 #include "pythonic/numpy/complex64.hpp"
+#include "pythonic/numpy/float128.hpp"
 #include "pythonic/numpy/float32.hpp"
 #include "pythonic/numpy/float64.hpp"
 #include "pythonic/numpy/int16.hpp"

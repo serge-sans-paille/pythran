@@ -4,6 +4,10 @@
 #include "pythonic/include/numpy/sort.hpp"
 #include "pythonic/numpy/ndarray/sort.hpp"
 
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/types/str.hpp"
+#include "pythonic/utils/functor.hpp"
+
 PYTHONIC_NS_BEGIN
 namespace numpy
 {

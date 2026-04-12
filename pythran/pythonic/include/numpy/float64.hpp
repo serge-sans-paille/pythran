@@ -22,6 +22,12 @@ namespace numpy
 #define NUMPY_NARY_EXTRA_METHOD using type = double;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::float64 getattr(types::attr::DTYPE, double const &);
+} // namespace builtins
+
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE

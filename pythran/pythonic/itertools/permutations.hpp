@@ -7,6 +7,7 @@
 #include "pythonic/utils/functor.hpp"
 
 #include <algorithm>
+#include <numeric>
 
 PYTHONIC_NS_BEGIN
 

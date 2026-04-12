@@ -2,6 +2,7 @@
 #define PYTHONIC_NUMPY_TAKE_HPP
 
 #include "pythonic/include/numpy/take.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 

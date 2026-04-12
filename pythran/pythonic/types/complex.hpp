@@ -144,19 +144,6 @@ namespace builtins
   {
     return std::imag(self);
   }
-  inline numpy::functor::complex64 getattr(types::attr::DTYPE, std::complex<float> const &self)
-  {
-    return {};
-  }
-  inline numpy::functor::complex128 getattr(types::attr::DTYPE, std::complex<double> const &self)
-  {
-    return {};
-  }
-  inline numpy::functor::complex256 getattr(types::attr::DTYPE,
-                                            std::complex<long double> const &self)
-  {
-    return {};
-  }
 } // namespace builtins
 PYTHONIC_NS_END
 

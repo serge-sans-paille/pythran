@@ -2,6 +2,9 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_EXPR_HPP
 
 #include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/types/numpy_op_helper.hpp"
+#include "pythonic/include/types/tuple.hpp"
+#include "pythonic/include/types/vectorizable_type.hpp"
 
 PYTHONIC_NS_BEGIN
 

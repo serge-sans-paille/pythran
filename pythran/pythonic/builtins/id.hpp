@@ -5,6 +5,8 @@
 
 #include "pythonic/utils/functor.hpp"
 
+#include <cstdint>
+
 /*
  * We use uintptr_t conversion because on windows 64 bits, sizeof(void*) == 8
  * && sizeof(long) == 4. Because of this, void* to long is forbidden but

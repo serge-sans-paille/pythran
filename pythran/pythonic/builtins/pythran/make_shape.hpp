@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_BUILTIN_MAKE_SHAPE_HPP
 #define PYTHONIC_BUILTIN_MAKE_SHAPE_HPP
 
+#include "pythonic/types/tuple.hpp"
+
 PYTHONIC_NS_BEGIN
 
 namespace builtins

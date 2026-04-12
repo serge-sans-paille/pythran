@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_NUMPY_HEAVISIDE_HPP
 #define PYTHONIC_NUMPY_HEAVISIDE_HPP
 
-#include "pythonic/include/numpy/cos.hpp"
+#include "pythonic/include/numpy/heaviside.hpp"
 
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/functor.hpp"

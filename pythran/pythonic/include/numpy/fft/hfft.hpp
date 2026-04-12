@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_NUMPY_FFT_HFFT_HPP
 
 #include "pythonic/include/types/ndarray.hpp"
+#include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
 /**

@@ -1,8 +1,10 @@
 #ifndef PYTHONIC_ARRAY_ARRAY_FROMFILE_HPP
 #define PYTHONIC_ARRAY_ARRAY_FROMFILE_HPP
 
-#include "pythonic/include/types/array.hpp"
-#include "pythonic/include/utils/functor.hpp"
+#include "pythonic/include/array/array/fromfile.hpp"
+#include "pythonic/types/array.hpp"
+#include "pythonic/types/file.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 

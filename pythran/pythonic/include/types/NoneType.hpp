@@ -3,6 +3,8 @@
 
 #include "pythonic/include/operator_/mod.hpp"
 #include "pythonic/include/types/assignable.hpp"
+#include <cassert>
+#include <cstdint>
 #include <ostream>
 
 PYTHONIC_NS_BEGIN
@@ -217,7 +219,7 @@ namespace std
 
   template <>
   struct hash<pythonic::types::none_type> {
-    size_t operator()(const pythonic::types::none_type &x) const
+    size_t operator()(const pythonic::types::none_type &) const
     {
       return 0;
     }

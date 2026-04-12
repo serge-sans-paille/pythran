@@ -6,6 +6,7 @@
 
 #include "pythonic/builtins/len.hpp"
 #include "pythonic/types/bool.hpp"
+#include "pythonic/types/list.hpp"
 #include "pythonic/types/slice.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/allocate.hpp"

@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_REDUCE_HPP
 
 #include "pythonic/include/utils/functor.hpp"
+#include "pythonic/types/combined.hpp"
 
 #include <numeric>
 #include <utility>

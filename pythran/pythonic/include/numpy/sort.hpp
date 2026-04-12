@@ -1,8 +1,6 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_SORT_HPP
 #define PYTHONIC_INCLUDE_NUMPY_SORT_HPP
 
-#include <algorithm>
-
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/functor.hpp"

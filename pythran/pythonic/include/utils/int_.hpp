@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_INT_HPP
 #define PYTHONIC_INCLUDE_UTILS_INT_HPP
 
+#include <cstddef>
+
 PYTHONIC_NS_BEGIN
 
 namespace utils

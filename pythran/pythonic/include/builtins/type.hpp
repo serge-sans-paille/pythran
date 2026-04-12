@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_TYPE_HPP
 
 #include "pythonic/include/types/type.hpp"
+#include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 

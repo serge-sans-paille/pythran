@@ -455,7 +455,7 @@ namespace types
     }
   };
 
-  std::ostream &operator<<(std::ostream &os, empty_list const &);
+  inline std::ostream &operator<<(std::ostream &os, empty_list const &);
   template <class T, size_t N>
   list<T> operator+(static_list<T, N> const &self, list<T> const &other)
   {

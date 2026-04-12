@@ -1,7 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_NDENUMERATE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_NDENUMERATE_HPP
 
+#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/functor.hpp"
+#include "pythonic/include/utils/numpy_conversion.hpp"
 
 PYTHONIC_NS_BEGIN
 

@@ -4,6 +4,7 @@
 #include "pythonic/include/utils/broadcast_copy.hpp"
 
 #include "pythonic/types/tuple.hpp"
+#include "pythonic/types/vectorizable_type.hpp"
 
 PYTHONIC_NS_BEGIN
 

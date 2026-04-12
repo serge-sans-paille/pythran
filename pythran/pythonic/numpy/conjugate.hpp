@@ -3,6 +3,7 @@
 
 #include "pythonic/include/numpy/conjugate.hpp"
 
+#include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
 

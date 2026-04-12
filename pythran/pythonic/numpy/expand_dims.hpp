@@ -4,6 +4,7 @@
 #include "pythonic/include/numpy/expand_dims.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
 #include "pythonic/numpy/asarray.hpp"
+#include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

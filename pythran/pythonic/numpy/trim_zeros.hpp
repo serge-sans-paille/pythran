@@ -4,6 +4,7 @@
 #include "pythonic/include/numpy/trim_zeros.hpp"
 
 #include "pythonic/types/numpy_gexpr.hpp"
+#include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

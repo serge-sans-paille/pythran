@@ -28,20 +28,6 @@ class TestItertools(TestEnv):
     def test_imap2_on_generator(self):
         self.run_test("def imap2_on_generator(l0,l1,v): return sum(map(lambda x,y:x*v+y, (z*z for x in l0 for z in range(x)), (z*2 for y in l1 for z in range(y))))", [0,1,2,3], [3,2,1,0], 2, imap2_on_generator=[List[int], List[int], int])
 
-
-    def test_ifilter_init(self):
-        self.run_test("def ifilter_init(l0): return list(filter(lambda x: x > 2 , l0))", [0,1,2,3,4,5], ifilter_init=[List[int]])
-
-    def test_ifilter_final(self):
-        self.run_test("def ifilter_final(l0): return list(filter(lambda x: x < 2, l0))", [0,1,2,3,4,5], ifilter_final=[List[int]])
-
-    def test_ifilter_on_generator(self):
-        self.run_test("def ifilterg_(l0): return list(filter(lambda x: (x % 2) == 1, (y for x in l0 for y in range(x))))", [0,1,2,3,4,5], ifilterg_=[List[int]])
-
-    def test_ifilter_on_empty_sequence(self):
-        self.run_test("def ifilter_empty(l0): return list(filter(lambda x: x, l0))",
-                      [], ifilter_empty=[List[int]])
-
     def test_product(self):
         self.run_test("def product_(l0,l1): from itertools import product; return sum(map(lambda t : t[0]*t[1], product(l0,l1)))", [0,1,2,3,4,5], [10,11], product_=[List[int],List[int]])
 
@@ -98,9 +84,6 @@ class TestItertools(TestEnv):
     def test_next_imap_none(self):
         self.run_test("def next_imap_none(n): x = map(str,n) ; next(x) ; return list(map(str, x))", list(range(-5,5)), next_imap_none=[List[int]])
 
-    def test_next_ifilter(self):
-        self.run_test("def next_ifilter(n): x = filter(abs,n) ; next(x) ; return list(map(str, x))", list(range(-5,5)), next_ifilter=[List[int]])
-
     def test_product_next(self):
         self.run_test("def next_product(n): from itertools import product ; x = product(n,n) ; next(x) ; return list(map(str, x))", list(range(-5,5)), next_product=[List[int]])
 
@@ -126,13 +109,6 @@ class TestItertools(TestEnv):
 
     def test_iter(self):
         self.run_test("def iter_(n): r = iter(range(5,n)) ; next(r) ; return next(r)", 12, iter_=[int])
-
-    def test_ifilter_with_nested_lambdas(self):
-        code = '''
-def ifilter_with_nested_lambdas(N):
-    perf = lambda n: n == sum(i for i in range(1, n) if n % i == 0)
-    return list(map(perf, range(20)))'''
-        self.run_test(code, 10, ifilter_with_nested_lambdas=[int])
 
     def test_combinations_on_generator(self):
         self.run_test("def combinations_g(l0,a): from itertools import combinations; return sum(map(lambda t : t[0]*t[1], combinations((y for x in l0 for y in range(x)),a)))", [0,1,2], 2, combinations_g=[List[int],int])

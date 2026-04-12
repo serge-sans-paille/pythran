@@ -1,6 +1,9 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_TAKE_HPP
 #define PYTHONIC_INCLUDE_NUMPY_TAKE_HPP
 
+#include "pythonic/include/utils/functor.hpp"
+#include <utility>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy

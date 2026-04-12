@@ -2,6 +2,8 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_VEXPR_HPP
 
 #include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/types/numpy_op_helper.hpp"
+#include "pythonic/include/types/tuple.hpp"
 
 PYTHONIC_NS_BEGIN
 

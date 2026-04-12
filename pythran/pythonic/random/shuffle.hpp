@@ -7,6 +7,7 @@
 #include "pythonic/random/random.hpp"
 #include "pythonic/utils/functor.hpp"
 
+#include <algorithm>
 #include <limits>
 
 PYTHONIC_NS_BEGIN

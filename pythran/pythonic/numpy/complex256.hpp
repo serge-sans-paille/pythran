@@ -3,6 +3,7 @@
 
 #include "pythonic/include/numpy/complex256.hpp"
 
+#include "pythonic/types/complex.hpp"
 #include "pythonic/types/numpy_op_helper.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
@@ -30,6 +31,15 @@ namespace numpy
 #define NUMPY_NARY_FUNC_SYM details::complex256
 #include "pythonic/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::complex256 getattr(types::attr::DTYPE, std::complex<long double> const &)
+  {
+    return {};
+  }
+} // namespace builtins
+
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE

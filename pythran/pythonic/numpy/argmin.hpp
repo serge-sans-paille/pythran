@@ -5,6 +5,8 @@
 
 #include "pythonic/numpy/argminmax.hpp"
 #include "pythonic/numpy/minimum.hpp"
+#include "pythonic/types/ndarray.hpp"
+#include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN
 

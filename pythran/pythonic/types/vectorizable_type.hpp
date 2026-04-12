@@ -3,17 +3,18 @@
 
 #include "pythonic/include/types/vectorizable_type.hpp"
 
-#include "pythonic/include/numpy/bool_.hpp"
-#include "pythonic/include/numpy/float32.hpp"
-#include "pythonic/include/numpy/float64.hpp"
-#include "pythonic/include/numpy/int16.hpp"
-#include "pythonic/include/numpy/int32.hpp"
-#include "pythonic/include/numpy/int64.hpp"
-#include "pythonic/include/numpy/int8.hpp"
-#include "pythonic/include/numpy/uint16.hpp"
-#include "pythonic/include/numpy/uint32.hpp"
-#include "pythonic/include/numpy/uint64.hpp"
-#include "pythonic/include/numpy/uint8.hpp"
+#include "pythonic/numpy/bool_.hpp"
+#include "pythonic/numpy/float32.hpp"
+#include "pythonic/numpy/float64.hpp"
+#include "pythonic/numpy/int16.hpp"
+#include "pythonic/numpy/int32.hpp"
+#include "pythonic/numpy/int64.hpp"
+#include "pythonic/numpy/int8.hpp"
+#include "pythonic/numpy/uint16.hpp"
+#include "pythonic/numpy/uint32.hpp"
+#include "pythonic/numpy/uint64.hpp"
+#include "pythonic/numpy/uint8.hpp"
+#include "pythonic/types/traits.hpp"
 
 PYTHONIC_NS_BEGIN
 namespace operator_

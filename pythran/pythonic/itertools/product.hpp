@@ -3,6 +3,7 @@
 
 #include "pythonic/include/itertools/product.hpp"
 #include "pythonic/itertools/common.hpp"
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/iterator.hpp"

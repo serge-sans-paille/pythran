@@ -3,6 +3,7 @@
 
 #include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/include/numpy/unravel_index.hpp"
+#include "pythonic/types/ndarray.hpp"
 
 PYTHONIC_NS_BEGIN
 

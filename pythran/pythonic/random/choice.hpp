@@ -5,6 +5,7 @@
 
 #include "pythonic/random/random.hpp"
 #include "pythonic/types/traits.hpp"
+#include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

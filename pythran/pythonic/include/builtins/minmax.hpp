@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_MINMAX_HPP
 
 #include "pythonic/include/builtins/pythran/kwonly.hpp"
+#include "pythonic/include/types/combined.hpp"
 #include <utility>
 
 PYTHONIC_NS_BEGIN

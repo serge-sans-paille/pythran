@@ -1,6 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_NUMPY_UINT8_HPP
 #define PYTHONIC_INCLUDE_NUMPY_UINT8_HPP
 
+#include "pythonic/include/types/attr.hpp"
 #include "pythonic/include/types/numpy_op_helper.hpp"
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
@@ -23,6 +24,12 @@ namespace numpy
 #define NUMPY_NARY_EXTRA_METHOD using type = uint8_t;
 #include "pythonic/include/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::uint8 getattr(types::attr::DTYPE, uint8_t const &);
+} // namespace builtins
+
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE

@@ -10,6 +10,12 @@ try:
 except AttributeError:
     has_float128 = False
 
+try:
+    numpy.complex256
+    has_complex256 = True
+except AttributeError:
+    has_complex256 = False
+
 
 huge = numpy.iinfo(numpy.intp).max // numpy.intp().itemsize
 
@@ -1313,16 +1319,52 @@ def complex_conversion0(x):
             5.,
             built_slice_indexing=[NDArray[float, :], int, int, float])
 
-    def test_dtype_type(self):
+    def test_dtype_type0(self):
         self.run_test('''
-            def dtype_type(x):
+            def dtype_type0(x):
                 import numpy as np
                 c = np.complex64(x)
                 f = np.float32(x)
                 u = np.uint8(x)
                 return c.dtype.type(1), f.dtype.type(2), u.dtype.type(3)''',
             2,
-            dtype_type=[int])
+            dtype_type0=[int])
+
+    def test_dtype_type1(self):
+        self.run_test('''
+            def dtype_type1(x):
+                import numpy as np
+                c = np.complex128(x)
+                f = np.float64(x)
+                u = np.uint16(x)
+                return c.dtype.type(1), f.dtype.type(2), u.dtype.type(3)''',
+            2,
+            dtype_type1=[int])
+
+    def test_dtype_type2(self):
+        import numpy as np
+        self.run_test('''
+            def dtype_type2(x):
+                import numpy as np
+                c = np.{complex256}(x)
+                f = np.uint32(x)
+                u = np.uint64(x)
+                return c.dtype.type(1), f.dtype.type(2), u.dtype.type(3)'''.
+                format(complex256='complex256' if has_complex256 else 'complex128'),
+            2,
+            dtype_type2=[int])
+
+    def test_dtype_type3(self):
+        self.run_test('''
+            def dtype_type3(x):
+                import numpy as np
+                c = np.int8(x)
+                f = np.int16(x)
+                u = np.int32(x)
+                i = np.int64(x)
+                return c.dtype.type(1), f.dtype.type(2), u.dtype.type(3), i.dtype.type(4)''',
+            2,
+            dtype_type3=[int])
 
     def test_transposed_slice_assign0(self):
                 self.run_test("""def transposed_slice_assign0(shape):

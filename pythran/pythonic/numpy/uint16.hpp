@@ -31,6 +31,15 @@ namespace numpy
 #define NUMPY_NARY_FUNC_SYM details::uint16
 #include "pythonic/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::uint16 getattr(types::attr::DTYPE, uint16_t const &)
+  {
+    return {};
+  }
+} // namespace builtins
+
 PYTHONIC_NS_END
 #ifdef ENABLE_PYTHON_MODULE
 

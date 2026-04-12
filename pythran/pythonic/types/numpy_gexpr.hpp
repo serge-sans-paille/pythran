@@ -6,12 +6,14 @@
 #include "pythonic/builtins/ValueError.hpp"
 
 #include "pythonic/operator_/iadd.hpp"
+#include "pythonic/operator_/iand.hpp"
 #include "pythonic/operator_/idiv.hpp"
 #include "pythonic/operator_/imul.hpp"
 #include "pythonic/operator_/ior.hpp"
 #include "pythonic/operator_/isub.hpp"
 #include "pythonic/operator_/ixor.hpp"
 #include "pythonic/types/numpy_iexpr.hpp"
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/allocate.hpp"
 
 PYTHONIC_NS_BEGIN

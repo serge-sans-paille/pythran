@@ -1,6 +1,7 @@
 #ifndef PYTHONIC_INCLUDE_DISPATCH_INSERT_HPP
 #define PYTHONIC_INCLUDE_DISPATCH_INSERT_HPP
 
+#include "pythonic/include/types/NoneType.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

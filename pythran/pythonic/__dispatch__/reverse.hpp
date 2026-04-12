@@ -3,6 +3,7 @@
 
 #include "pythonic/include/__dispatch__/reverse.hpp"
 
+#include "pythonic/types/NoneType.hpp"
 #include "pythonic/utils/functor.hpp"
 
 #include <algorithm>

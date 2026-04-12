@@ -37,6 +37,15 @@ namespace numpy
 #define NUMPY_NARY_FUNC_SYM details::complex64
 #include "pythonic/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::complex64 getattr(types::attr::DTYPE, std::complex<float> const &)
+  {
+    return {};
+  }
+} // namespace builtins
+
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE

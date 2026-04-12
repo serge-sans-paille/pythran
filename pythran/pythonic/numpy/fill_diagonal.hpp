@@ -4,6 +4,7 @@
 #include "pythonic/include/numpy/fill_diagonal.hpp"
 
 #include "pythonic/types/NoneType.hpp"
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

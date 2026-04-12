@@ -6,6 +6,7 @@
 #include "pythonic/builtins/KeyError.hpp"
 #include "pythonic/builtins/None.hpp"
 #include "pythonic/types/empty_iterator.hpp"
+#include "pythonic/types/list.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/iterator.hpp"
 #include "pythonic/utils/reserve.hpp"

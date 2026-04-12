@@ -2,13 +2,18 @@
 #define PYTHONIC_INCLUDE_TYPES_TUPLE_HPP
 
 #include "pythonic/include/types/assignable.hpp"
-#include "pythonic/include/types/nditerator.hpp"
+#include "pythonic/include/types/slice.hpp"
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/nested_container.hpp"
 #include "pythonic/include/utils/seq.hpp"
 
+#ifdef USE_XSIMD
+#include "pythonic/include/types/nditerator.hpp"
+#endif
+
 #include <algorithm>
+#include <cassert>
 #include <tuple>
 
 #if !defined(HAVE_SSIZE_T) || !HAVE_SSIZE_T
@@ -404,6 +409,11 @@ namespace types
     const_pointer data() const noexcept;
 
     // operator
+
+    explicit operator bool() const
+    {
+      return N != 0;
+    }
 
     // for conversion to dict item type
     template <class K, class V>

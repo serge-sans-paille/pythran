@@ -3,6 +3,8 @@
 
 #include "pythonic/include/types/nditerator.hpp"
 
+#include "pythonic/types/traits.hpp"
+
 #include <iterator>
 
 PYTHONIC_NS_BEGIN

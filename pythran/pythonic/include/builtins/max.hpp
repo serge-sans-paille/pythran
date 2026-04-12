@@ -2,7 +2,7 @@
 #define PYTHONIC_INCLUDE_BUILTIN_MAX_HPP
 
 #include "pythonic/include/builtins/minmax.hpp"
-#include "pythonic/include/operator_/gt.hpp"
+#include "pythonic/include/operator_/lt.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

@@ -1,7 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_OPERATOR_ISNOT_HPP
 #define PYTHONIC_INCLUDE_OPERATOR_ISNOT_HPP
 
+#include "pythonic/include/builtins/id.hpp"
 #include "pythonic/include/utils/functor.hpp"
+
+#include <utility>
 
 PYTHONIC_NS_BEGIN
 

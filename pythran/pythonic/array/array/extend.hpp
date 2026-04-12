@@ -15,7 +15,7 @@ namespace array
     template <class T, class S>
     types::none_type extend(types::array<T> &a, S &&elts)
     {
-      seq += std::forward<S>(elts);
+      a += std::forward<S>(elts);
       return {};
     }
 

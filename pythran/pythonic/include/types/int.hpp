@@ -3,6 +3,8 @@
 
 #include "pythonic/include/types/attr.hpp"
 
+#include <type_traits>
+
 PYTHONIC_NS_BEGIN
 namespace builtins
 {

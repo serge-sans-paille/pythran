@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_TYPES_NUMPY_GEXPR_HPP
 
 #include "pythonic/include/types/numpy_iexpr.hpp"
+#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/array_helper.hpp"
 
 PYTHONIC_NS_BEGIN

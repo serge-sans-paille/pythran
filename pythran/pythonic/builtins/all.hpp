@@ -4,6 +4,8 @@
 #include "pythonic/include/builtins/all.hpp"
 #include "pythonic/utils/functor.hpp"
 
+#include <algorithm>
+
 PYTHONIC_NS_BEGIN
 
 namespace builtins
@@ -12,11 +14,7 @@ namespace builtins
   template <class Iterable>
   bool all(Iterable &&s)
   {
-    auto iend = s.end();
-    for (auto iter = s.begin(); iter != iend; ++iter)
-      if (!*iter)
-        return false;
-    return true;
+    return std::all_of(std::begin(s), std::end(s), [](auto const &x) { return bool(x); });
   }
 } // namespace builtins
 PYTHONIC_NS_END

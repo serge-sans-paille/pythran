@@ -25,6 +25,15 @@ namespace numpy
 #define NUMPY_NARY_FUNC_SYM details::float128
 #include "pythonic/types/numpy_nary_expr.hpp"
 } // namespace numpy
+
+namespace builtins
+{
+  inline numpy::functor::float128 getattr(types::attr::DTYPE, long double const &)
+  {
+    return {};
+  }
+} // namespace builtins
+
 PYTHONIC_NS_END
 
 #ifdef ENABLE_PYTHON_MODULE

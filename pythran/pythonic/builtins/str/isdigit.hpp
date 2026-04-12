@@ -6,6 +6,7 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
+#include <algorithm>
 #include <cctype>
 
 PYTHONIC_NS_BEGIN

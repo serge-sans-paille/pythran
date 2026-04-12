@@ -1,6 +1,8 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_IMMEDIATE_HPP
 #define PYTHONIC_INCLUDE_TYPES_IMMEDIATE_HPP
 
+#include <type_traits>
+
 PYTHONIC_NS_BEGIN
 
 namespace types

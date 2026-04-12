@@ -1,10 +1,12 @@
 #ifndef PYTHONIC_NUMPY_STACK_HPP
 #define PYTHONIC_NUMPY_STACK_HPP
 
+#include <pythonic/include/numpy/stack.hpp>
+
 #include "pythonic/builtins/ValueError.hpp"
 #include "pythonic/builtins/len.hpp"
-#include <pythonic/include/numpy/stack.hpp>
 #include <pythonic/numpy/concatenate.hpp>
+#include <pythonic/types/ndarray.hpp>
 
 PYTHONIC_NS_BEGIN
 

@@ -3,6 +3,7 @@
 
 #include "pythonic/include/builtins/enumerate.hpp"
 
+#include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
 #include <tuple>

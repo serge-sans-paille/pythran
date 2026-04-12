@@ -2,13 +2,13 @@
 #define PYTHONIC_INCLUDE_TYPES_STR_HPP
 
 #include "pythonic/include/types/slice.hpp"
-#include "pythonic/include/types/tuple.hpp"
 
 #include "pythonic/include/types/assignable.hpp"
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/shared_ref.hpp"
 
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <sstream>

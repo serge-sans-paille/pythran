@@ -1,8 +1,10 @@
 #ifndef PYTHONIC_INCLUDE_BUILTIN_BOOL_HPP
 #define PYTHONIC_INCLUDE_BUILTIN_BOOL_HPP
 
-#include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/functor.hpp"
+
+#include <ostream>
+#include <tuple>
 
 PYTHONIC_NS_BEGIN
 
@@ -23,9 +25,6 @@ namespace builtins
 
       template <class... Ts>
       bool operator()(std::tuple<Ts...> const &val) const;
-
-      template <class T, size_t N>
-      bool operator()(types::array_tuple<T, N> const &val) const;
 
       friend std::ostream &operator<<(std::ostream &os, bool_)
       {

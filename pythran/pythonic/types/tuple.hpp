@@ -5,12 +5,15 @@
 
 #include "pythonic/types/assignable.hpp"
 #include "pythonic/types/dynamic_tuple.hpp"
-#include "pythonic/types/ndarray.hpp"
-#include "pythonic/types/nditerator.hpp"
+#include "pythonic/types/slice.hpp"
 #include "pythonic/types/traits.hpp"
 #include "pythonic/utils/int_.hpp"
 #include "pythonic/utils/nested_container.hpp"
 #include "pythonic/utils/seq.hpp"
+
+#ifdef USE_XSIMD
+#include "pythonic/include/types/nditerator.hpp"
+#endif
 
 #include <algorithm>
 #include <tuple>

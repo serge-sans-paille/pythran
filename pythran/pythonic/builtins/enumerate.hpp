@@ -16,12 +16,6 @@ namespace builtins
   namespace details
   {
     /// enumerate_iterator implementation
-
-    template <class Iterator>
-    enumerate_iterator<Iterator>::enumerate_iterator()
-    {
-    }
-
     template <class Iterator>
     enumerate_iterator<Iterator>::enumerate_iterator(Iterator const &iter, long first)
         : value(first), iter(iter)
@@ -65,10 +59,6 @@ namespace builtins
     }
 
     /// details::enumerate implementation
-    template <class Iterable>
-    enumerate<Iterable>::enumerate()
-    {
-    }
 
     template <class Iterable>
     enumerate<Iterable>::enumerate(Iterable seq, long first)

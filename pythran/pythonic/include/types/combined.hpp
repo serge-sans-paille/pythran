@@ -142,7 +142,7 @@ struct __combined<const T0, const T1> : std::add_const<typename __combined<T0, T
 
 template <class T0, class T1>
 struct __combined<const T0 &, const T1 &>
-    : std::add_lvalue_reference<typename std::add_const<typename __combined<T0, T1>::type>::type> {
+    : std::add_lvalue_reference<std::add_const_t<typename __combined<T0, T1>::type>> {
 };
 
 template <class T>

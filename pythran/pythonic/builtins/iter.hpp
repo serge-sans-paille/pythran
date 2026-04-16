@@ -14,11 +14,6 @@ namespace builtins
   {
     /// details iter implementation
 
-    template <class T>
-    iter<T>::iter()
-    {
-    }
-
     // FIXME : There is a dangling reference as data.begin() is ! the one
     // from data "saved" in the "iter" struct
     template <class T>

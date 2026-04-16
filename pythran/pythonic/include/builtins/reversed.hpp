@@ -19,7 +19,7 @@ namespace builtins
 
       Iterable iterable;
 
-      reversed();
+      reversed() = default;
       reversed(Iterable const &iterable);
       iterator begin();
       iterator end();

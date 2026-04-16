@@ -33,11 +33,6 @@ namespace operator_
   }
 
   template <typename... Types>
-  itemgetter_tuple_return<Types...>::itemgetter_tuple_return()
-  {
-  }
-
-  template <typename... Types>
   template <class T, class A, size_t I>
   void itemgetter_tuple_return<Types...>::helper(T &t, A const &a, utils::int_<I>) const
   {

@@ -19,7 +19,7 @@ namespace builtins
   types::str bin(T const &v)
   {
     if constexpr (std::is_integral_v<T>) {
-      using UT = typename std::make_unsigned<T>::type;
+      using UT = std::make_unsigned_t<T>;
       if (v < T{0})
         if (v == std::numeric_limits<T>::min()) {
           // In this special case, calling -v would overflow so

@@ -14,10 +14,6 @@ namespace types
 {
 
   /// none_type implementation
-  none_type::none_type()
-  {
-  }
-
   inline intptr_t none_type::id() const
   {
     return NONE_ID;

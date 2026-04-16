@@ -13,11 +13,6 @@ PYTHONIC_NS_BEGIN
 namespace numpy
 {
   template <size_t N>
-  ndindex_iterator<N>::ndindex_iterator()
-  {
-  }
-
-  template <size_t N>
   ndindex_iterator<N>::ndindex_iterator(types::array_tuple<long, N> const &shape, long first)
       : index(first), shape(shape)
   {
@@ -66,11 +61,6 @@ namespace numpy
   long ndindex_iterator<N>::operator-(ndindex_iterator<N> const &other) const
   {
     return index - other.index;
-  }
-
-  template <size_t N>
-  _ndindex<N>::_ndindex()
-  {
   }
 
   template <size_t N>

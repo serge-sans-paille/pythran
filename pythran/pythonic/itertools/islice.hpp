@@ -12,11 +12,6 @@ PYTHONIC_NS_BEGIN
 namespace itertools
 {
   template <typename Iterable>
-  islice_iterator<Iterable>::islice_iterator()
-  {
-  }
-
-  template <typename Iterable>
   islice_iterator<Iterable>::islice_iterator(Iterable const &iterable, builtins::range const &xr)
       : iterable_ref(iterable), iterable(iterable_ref.begin()), xr_ref(xr), state(xr_ref.begin()),
         prev(*state)
@@ -69,11 +64,6 @@ namespace itertools
   int islice_iterator<Iterable>::operator-(islice_iterator<Iterable> const &other) const
   {
     return state - other.state;
-  }
-
-  template <typename Iterable>
-  _islice<Iterable>::_islice()
-  {
   }
 
   template <typename Iterable>

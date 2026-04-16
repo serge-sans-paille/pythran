@@ -344,7 +344,7 @@ namespace types
     array<T> &operator=(array<T> &&other);
     template <class F>
     array<T> &operator=(array<F> const &other);
-    array<T> &operator=(array<T> const &other);
+    array<T> &operator=(array<T> const &other) = default;
     template <class Tp, size_t N, class V>
     array<T> &operator=(array_base<Tp, N, V> const &);
     template <class Tp, class S>

@@ -1,0 +1,96 @@
+import os
+import sys
+import unittest
+import subprocess
+
+pythonic = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                        "..",
+                        "pythonic"))
+
+class TestPythonic(unittest.TestCase):
+    """
+    Test various invariant on pythonic at the C++ level
+    """
+
+
+try:
+    subprocess.check_call(['clang-tidy', '--version'])
+    have_clang_tidy = True
+except:
+    have_clang_tidy = False
+
+try:
+    subprocess.check_call(['clang++', '--version'])
+    have_clang = True
+except:
+    have_clang = False
+
+try:
+    import scipy_openblas64
+    openblas_dir = scipy_openblas64.get_include_dir()
+except ImportError:
+    openblas_dir = None
+
+if 1 or all([have_clang, have_clang_tidy, openblas_dir]):
+
+    common_flags = [
+            '-xc++', '-std=c++17', '-Ipythran',
+            '-fsyntax-only',
+            '-DPYTHONIC_NS_BEGIN=namespace pythonic {',
+            '-DPYTHONIC_NS_END=}',
+            '-DPYTHRAN_BLAS_SCIPY_OPENBLAS',
+            '-fopenmp',
+            '-I' + openblas_dir,
+            ]
+
+    checks = [
+            'modernize-type-traits',
+            'performance-for-range-copy',
+            'modernize-replace-random-shuffle',
+            'modernize-use-equals-default',
+            ]
+
+
+    def make_independent_header_test(path):
+        def method(self):
+            subprocess.check_call(['clang++', '-w', path] + common_flags)
+        return method
+
+
+    def make_clang_tidy_test(path):
+        def method(self):
+            subprocess.check_call(
+                    ['clang-tidy',] +
+                    ['--extra-arg-before={}'.format(flag) for flag in common_flags] +
+                    ['-checks=-*,' + ','.join(checks)] +
+                    ['--warnings-as-errors=*', path,])
+        return method
+
+    # Those files are part of X-MACRO
+    skiplist = {
+            'icommon.hpp',
+            'numpy_binary_op.hpp',
+            'numpy_ufunc.hpp',
+            'numpy_nary_expr.hpp',
+            'numpy_unary_op.hpp',
+            'numpy_binary_op.hpp',
+            'ufunc_accumulate.hpp',
+            'ufunc_reduce.hpp',
+            }
+
+    # Dynamically fill the test bed
+    for root, dirs, files in os.walk(pythonic):
+        for name in files:
+            if not name.endswith('.hpp'):
+                continue
+            if name in skiplist:
+                continue
+            path = os.path.join(root, name)
+            for topic in ('independent_header', 'clang_tidy'):
+                suffix = path[len(pythonic):-4].replace(os.path.sep, '_')
+                methodname = '_'.join(['test', topic, suffix])
+                generator = globals()['_'.join(['make', topic, 'test'])]
+                setattr(TestPythonic, methodname, classmethod(generator(path)))
+
+if __name__ == '__main__':
+    unittest.main()

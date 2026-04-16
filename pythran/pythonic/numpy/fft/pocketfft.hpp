@@ -286,9 +286,7 @@ namespace pocketfft
     template <typename T>
     struct cmplx {
       T r, i;
-      cmplx()
-      {
-      }
+      cmplx() = default;
       cmplx(T r_, T i_) : r(r_), i(i_)
       {
       }
@@ -1049,7 +1047,7 @@ namespace pocketfft
 
 #define POCKETFFT_PARTSTEP5b(u1, u2, twar, twbr, twai, twbi)                                       \
   {                                                                                                \
-    T ca, cb, da, db;                                                                              \
+    T ca, cb;                                                                                      \
     ca.r = t0.r + twar * t1.r + twbr * t2.r;                                                       \
     ca.i = t0.i + twar * t1.i + twbr * t2.i;                                                       \
     cb.i = twai * t4.r twbi * t3.r;                                                                \

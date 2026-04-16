@@ -25,7 +25,7 @@ namespace operator_
 
     itemgetter_tuple_return(Types... items);
 
-    itemgetter_tuple_return();
+    itemgetter_tuple_return() = default;
 
     template <class T, class A, size_t I>
     void helper(T &t, A const &a, utils::int_<I>) const;

@@ -222,7 +222,7 @@ namespace types
     list<T> &operator=(list<T> &&other);
     template <class F>
     list<T> &operator=(list<F> const &other);
-    list<T> &operator=(list<T> const &other);
+    list<T> &operator=(list<T> const &other) = default;
     list<T> &operator=(empty_list const &);
     template <class Tp, size_t N, class V>
     list<T> &operator=(array_base<Tp, N, V> const &);

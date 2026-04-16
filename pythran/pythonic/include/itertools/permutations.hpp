@@ -51,7 +51,7 @@ namespace itertools
     size_t _size;
     bool end; // sentinel marker
 
-    permutations_iterator();
+    permutations_iterator() = default;
     permutations_iterator(pool_type const &iter, size_t num_elts, bool end);
 
     /** Build the permutation visible from the "outside" */
@@ -74,7 +74,7 @@ namespace itertools
     using iterator = permutations_iterator<T, H>;
     using value_type = typename iterator::value_type;
 
-    _permutations();
+    _permutations() = default;
     _permutations(T iter, long elts);
 
     iterator const &begin() const;

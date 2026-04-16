@@ -1,8 +1,6 @@
 #ifndef PYTHONIC_INCLUDE_OMP_SET_NUM_THREADS_HPP
 #define PYTHONIC_INCLUDE_OMP_SET_NUM_THREADS_HPP
 
-#include <omp.h>
-
 #include "pythonic/include/utils/functor.hpp"
 
 PYTHONIC_NS_BEGIN

@@ -9,6 +9,8 @@
 
 #include "pythonic/types/list.hpp"
 
+#include <random>
+
 PYTHONIC_NS_BEGIN
 
 namespace random
@@ -23,7 +25,7 @@ namespace random
     types::list<value_type> tmp(s.begin(), s.end());
     std::vector<size_t, utils::allocator<size_t>> indices(tmp.size());
     std::iota(indices.begin(), indices.end(), 0);
-    std::random_shuffle(indices.begin(), indices.end());
+    std::shuffle(indices.begin(), indices.end(), std::mt19937(std::random_device()()));
     types::list<value_type> out(k);
     for (size_t i = 0; i < k; i++)
       out[i] = tmp[indices[i]];

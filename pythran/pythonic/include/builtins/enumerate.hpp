@@ -24,7 +24,7 @@ namespace builtins
 
       long value;
       Iterator iter;
-      enumerate_iterator();
+      enumerate_iterator() = default;
       enumerate_iterator(Iterator const &iter, long first);
       value_type operator*() const
       {
@@ -54,7 +54,7 @@ namespace builtins
 
       iterator end_iter;
 
-      enumerate();
+      enumerate() = default;
       enumerate(Iterable seq, long first);
       iterator &begin();
       iterator const &begin() const;

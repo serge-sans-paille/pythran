@@ -15,11 +15,6 @@ namespace itertools
 {
 
   template <class T, class H>
-  permutations_iterator<T, H>::permutations_iterator()
-  {
-  }
-
-  template <class T, class H>
   permutations_iterator<T, H>::permutations_iterator(pool_type const &iter, size_t num_elts,
                                                      bool end)
       : pool(iter), curr_permut(pool.size()), _size(num_elts), end(end)
@@ -115,11 +110,6 @@ namespace itertools
       else if (other.curr_permut[i] > curr_permut[i])
         return true;
     return false;
-  }
-
-  template <class T, class H>
-  _permutations<T, H>::_permutations()
-  {
   }
 
   template <class T, class H>

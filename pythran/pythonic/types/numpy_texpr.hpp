@@ -22,11 +22,6 @@ namespace types
 {
 
   template <class E>
-  numpy_texpr_2<E>::numpy_texpr_2()
-  {
-  }
-
-  template <class E>
   numpy_texpr_2<E>::numpy_texpr_2(Arg const &arg) : arg(arg)
   {
   }

@@ -17,7 +17,7 @@ namespace builtins
       iterator _end;
       T data;
 
-      iter();
+      iter() = default;
       iter(T data);
       iterator &begin();
       iterator const &begin() const;

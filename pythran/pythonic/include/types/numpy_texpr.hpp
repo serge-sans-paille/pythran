@@ -47,7 +47,7 @@ namespace types
       return arg.template shape<I == 0 ? 1 : 0>();
     }
 
-    numpy_texpr_2();
+    numpy_texpr_2() = default;
     numpy_texpr_2(numpy_texpr_2 const &) = default;
     numpy_texpr_2(numpy_texpr_2 &&) = default;
     numpy_texpr_2 &operator=(numpy_texpr_2 const &) = default;

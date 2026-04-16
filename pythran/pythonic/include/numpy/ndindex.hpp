@@ -20,7 +20,7 @@ namespace numpy
 
     long index;
     types::array_tuple<long, N> shape;
-    ndindex_iterator();
+    ndindex_iterator() = default;
     ndindex_iterator(types::array_tuple<long, N> const &shape, long first);
     value_type operator*() const;
     ndindex_iterator &operator++();
@@ -40,7 +40,7 @@ namespace numpy
     types::array_tuple<long, N> shape;
     iterator end_iter;
 
-    _ndindex();
+    _ndindex() = default;
     _ndindex(types::array_tuple<long, N> const &shape);
     iterator &begin();
     iterator const &begin() const;

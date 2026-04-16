@@ -124,7 +124,7 @@ namespace types
     using iterator = typename D::item_const_iterator;
     using value_type = typename iterator::value_type;
     D data;
-    dict_items();
+    dict_items() = default;
     dict_items(D const &d);
     iterator begin() const;
     iterator end() const;
@@ -136,7 +136,7 @@ namespace types
     using iterator = typename D::key_const_iterator;
     using value_type = typename iterator::value_type;
     D data;
-    dict_keys();
+    dict_keys() = default;
     dict_keys(D const &d);
     iterator begin() const;
     iterator end() const;
@@ -148,7 +148,7 @@ namespace types
     using iterator = typename D::value_const_iterator;
     using value_type = typename iterator::value_type;
     D data;
-    dict_values();
+    dict_values() = default;
     dict_values(D const &d);
     iterator begin() const;
     iterator end() const;

@@ -25,7 +25,7 @@ namespace itertools
     builtins::range_iterator state;
     builtins::range_iterator::value_type prev;
 
-    islice_iterator();
+    islice_iterator() = default;
     islice_iterator(Iterable const &iterable, builtins::range const &xr);
     islice_iterator(npos const &n, Iterable const &iterable, builtins::range const &xr);
 
@@ -45,7 +45,7 @@ namespace itertools
 
     iterator end_iter;
 
-    _islice();
+    _islice() = default;
     _islice(Iterable const &iterable, builtins::range const &xr);
 
     iterator &begin();

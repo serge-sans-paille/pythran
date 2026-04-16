@@ -59,11 +59,6 @@ namespace types
   }
 
   template <class D>
-  dict_items<D>::dict_items()
-  {
-  }
-
-  template <class D>
   dict_items<D>::dict_items(D const &d) : data(d)
   {
   }
@@ -87,11 +82,6 @@ namespace types
   }
 
   template <class D>
-  dict_keys<D>::dict_keys()
-  {
-  }
-
-  template <class D>
   dict_keys<D>::dict_keys(D const &d) : data(d)
   {
   }
@@ -112,11 +102,6 @@ namespace types
   long dict_keys<D>::size() const
   {
     return data.size();
-  }
-
-  template <class D>
-  dict_values<D>::dict_values()
-  {
   }
 
   template <class D>

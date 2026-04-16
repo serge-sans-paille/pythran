@@ -15,7 +15,7 @@ namespace types
   static const intptr_t NONE_ID = 0x1331;
 
   struct none_type {
-    none_type();
+    none_type() = default;
     intptr_t id() const;
     bool operator==(none_type) const
     {

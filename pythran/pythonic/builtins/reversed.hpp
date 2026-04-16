@@ -13,11 +13,6 @@ namespace builtins
   {
 
     template <class Iterable>
-    reversed<Iterable>::reversed()
-    {
-    }
-
-    template <class Iterable>
     reversed<Iterable>::reversed(Iterable const &iterable) : iterable(iterable)
     {
     }

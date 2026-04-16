@@ -318,12 +318,6 @@ namespace types
     return *this;
   }
   template <class T>
-  list<T> &list<T>::operator=(list<T> const &other)
-  {
-    _data = other._data;
-    return *this;
-  }
-  template <class T>
   list<T> &list<T>::operator=(empty_list const &)
   {
     _data = utils::shared_ref<container_type>();

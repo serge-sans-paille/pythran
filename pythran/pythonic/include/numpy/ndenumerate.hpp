@@ -21,7 +21,7 @@ namespace numpy
     E const &expr;
     typename E::dtype *iter;
 
-    ndenumerate_iterator();
+    ndenumerate_iterator() = default;
     ndenumerate_iterator(E const &expr, long first);
 
     value_type operator*() const;
@@ -43,7 +43,7 @@ namespace numpy
     E expr; // we need to keep one ref over the enumerated sequence alive
     iterator end_iter;
 
-    _ndenumerate();
+    _ndenumerate() = default;
     _ndenumerate(E const &expr);
     iterator &begin();
     iterator const &begin() const;

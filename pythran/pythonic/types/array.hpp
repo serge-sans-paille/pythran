@@ -300,12 +300,6 @@ namespace types
     return *this;
   }
   template <class T>
-  array<T> &array<T>::operator=(array<T> const &other)
-  {
-    _data = other._data;
-    return *this;
-  }
-  template <class T>
   template <class Tp, size_t N, class V>
   array<T> &array<T>::operator=(array_base<Tp, N, V> const &other)
   {

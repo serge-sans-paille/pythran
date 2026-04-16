@@ -2,6 +2,7 @@
 #define PYTHONIC_INCLUDE_OPERATOR_NOT_HPP
 
 #include "pythonic/include/utils/functor.hpp"
+#include <complex>
 
 PYTHONIC_NS_BEGIN
 

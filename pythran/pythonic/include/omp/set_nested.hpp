@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_OMP_SET_NESTED_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include <omp.h>
 
 PYTHONIC_NS_BEGIN
 

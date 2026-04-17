@@ -5,6 +5,8 @@
 
 #include "pythonic/numpy/asarray.hpp"
 
+#include <numeric>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy

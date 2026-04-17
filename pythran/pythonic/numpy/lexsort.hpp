@@ -7,6 +7,8 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/pdqsort.hpp"
 
+#include <numeric>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy

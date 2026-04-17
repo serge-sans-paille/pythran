@@ -6,8 +6,6 @@
 #include "pythonic/builtins/StopIteration.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <utility>
-
 PYTHONIC_NS_BEGIN
 
 namespace builtins

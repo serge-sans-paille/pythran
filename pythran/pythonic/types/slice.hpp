@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <cassert>
 #include <ostream>
-#include <stdexcept>
 
 PYTHONIC_NS_BEGIN
 

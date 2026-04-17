@@ -17,9 +17,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <fstream>
-#include <iterator>
-#include <string>
 
 #ifdef _WIN32
 #include <io.h>

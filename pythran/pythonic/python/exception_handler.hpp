@@ -4,7 +4,6 @@
 #ifdef ENABLE_PYTHON_MODULE
 
 #include "Python.h"
-#include <utility>
 
 PYTHONIC_NS_BEGIN
 

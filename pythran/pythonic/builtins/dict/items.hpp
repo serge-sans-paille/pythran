@@ -7,8 +7,6 @@
 #include "pythonic/include/types/list.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <tuple>
-
 PYTHONIC_NS_BEGIN
 
 namespace builtins

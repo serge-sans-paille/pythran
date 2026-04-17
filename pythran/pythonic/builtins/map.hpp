@@ -11,7 +11,6 @@
 #include "pythonic/utils/iterator.hpp"
 #include "pythonic/utils/seq.hpp"
 
-#include <iterator>
 #include <tuple>
 #include <type_traits>
 

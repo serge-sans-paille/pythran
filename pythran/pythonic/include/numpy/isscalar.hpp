@@ -5,8 +5,6 @@
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <type_traits>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

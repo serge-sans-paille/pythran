@@ -6,6 +6,8 @@
 
 #include "pythonic/utils/functor.hpp"
 
+#include <limits>
+
 PYTHONIC_NS_BEGIN
 
 namespace operator_

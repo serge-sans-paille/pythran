@@ -8,6 +8,8 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
 
+#include <numeric>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy

@@ -5,8 +5,6 @@
 
 #include "pythonic/types/traits.hpp"
 
-#include <iterator>
-
 PYTHONIC_NS_BEGIN
 
 namespace types

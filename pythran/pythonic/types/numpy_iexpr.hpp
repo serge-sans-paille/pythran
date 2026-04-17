@@ -20,8 +20,6 @@
 #include "pythonic/operator_/isub.hpp"
 #include "pythonic/operator_/ixor.hpp"
 
-#include <numeric>
-
 PYTHONIC_NS_BEGIN
 
 namespace types

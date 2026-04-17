@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_MATH_GAMMA_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include <cmath>
 
 PYTHONIC_NS_BEGIN
 

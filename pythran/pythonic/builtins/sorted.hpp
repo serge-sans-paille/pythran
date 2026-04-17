@@ -7,8 +7,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/pdqsort.hpp"
 
-#include <algorithm>
-
 PYTHONIC_NS_BEGIN
 
 namespace builtins

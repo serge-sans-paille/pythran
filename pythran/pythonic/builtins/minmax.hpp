@@ -5,7 +5,6 @@
 #include "pythonic/types/combined.hpp"
 
 #include <algorithm>
-#include <utility>
 
 PYTHONIC_NS_BEGIN
 

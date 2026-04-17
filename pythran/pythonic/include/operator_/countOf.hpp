@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_OPERATOR_COUNTOF_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include <algorithm>
 
 PYTHONIC_NS_BEGIN
 

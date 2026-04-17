@@ -3,8 +3,6 @@
 
 #include "pythonic/include/utils/functor.hpp"
 
-#include <utility>
-
 PYTHONIC_NS_BEGIN
 
 namespace builtins

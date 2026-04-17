@@ -4,8 +4,6 @@
 #include "pythonic/include/builtins/None.hpp"
 #include "pythonic/include/types/ndarray.hpp"
 
-#include <algorithm>
-
 PYTHONIC_NS_BEGIN
 namespace operator_
 {

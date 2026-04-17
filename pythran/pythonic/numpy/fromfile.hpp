@@ -10,8 +10,6 @@
 #include "pythonic/utils/functor.hpp"
 #include <fstream>
 
-#include <limits>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

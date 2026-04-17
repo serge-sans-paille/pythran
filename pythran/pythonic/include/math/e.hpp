@@ -2,13 +2,12 @@
 #define PYTHONIC_INCLUDE_MATH_E_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include <cmath>
 
 PYTHONIC_NS_BEGIN
 
 namespace math
 {
-  double constexpr e = M_E;
+  double constexpr e = 2.71828182845904523536;
 }
 PYTHONIC_NS_END
 

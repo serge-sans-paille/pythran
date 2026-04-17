@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_BUILTIN_PRINT_HPP
 
 #include "pythonic/include/utils/functor.hpp"
-#include <ostream>
 
 PYTHONIC_NS_BEGIN
 

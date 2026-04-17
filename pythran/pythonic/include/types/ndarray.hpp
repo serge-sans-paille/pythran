@@ -50,7 +50,6 @@
 #include <cassert>
 #include <initializer_list>
 #include <iterator>
-#include <numeric>
 #include <ostream>
 
 #ifdef ENABLE_PYTHON_MODULE

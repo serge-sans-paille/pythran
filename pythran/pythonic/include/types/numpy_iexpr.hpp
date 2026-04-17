@@ -6,8 +6,6 @@
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/utils/array_helper.hpp"
 
-#include <numeric>
-
 PYTHONIC_NS_BEGIN
 
 namespace types

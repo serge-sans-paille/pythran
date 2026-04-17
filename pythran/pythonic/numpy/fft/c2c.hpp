@@ -11,9 +11,7 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <array>
 #include <cmath>
-#include <cstring>
 
 #include "pythonic/numpy/fft/pocketfft.hpp"
 

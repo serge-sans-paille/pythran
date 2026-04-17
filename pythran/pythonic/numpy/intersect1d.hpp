@@ -9,7 +9,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/pdqsort.hpp"
 
-#include <algorithm>
 #include <set>
 
 PYTHONIC_NS_BEGIN

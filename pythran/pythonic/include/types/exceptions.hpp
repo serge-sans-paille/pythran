@@ -6,8 +6,6 @@
 #include "pythonic/include/types/dynamic_tuple.hpp"
 #include "pythonic/include/types/str.hpp"
 
-#include <stdexcept>
-
 PYTHONIC_NS_BEGIN
 
 namespace types

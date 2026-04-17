@@ -4,8 +4,6 @@
 #include "pythonic/include/random/random.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <cmath>
-
 PYTHONIC_NS_BEGIN
 
 namespace random

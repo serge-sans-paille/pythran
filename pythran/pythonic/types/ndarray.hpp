@@ -61,7 +61,6 @@
 #include <initializer_list>
 #include <iostream>
 #include <iterator>
-#include <numeric>
 
 #if !defined(HAVE_SSIZE_T) || !HAVE_SSIZE_T
 #if defined(_MSC_VER)

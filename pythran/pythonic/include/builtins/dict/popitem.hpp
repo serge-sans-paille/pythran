@@ -4,8 +4,6 @@
 #include "pythonic/include/types/dict.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <tuple>
-
 PYTHONIC_NS_BEGIN
 
 namespace builtins

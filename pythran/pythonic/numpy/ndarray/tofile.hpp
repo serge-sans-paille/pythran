@@ -8,7 +8,6 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 #include <fstream>
-#include <limits>
 
 PYTHONIC_NS_BEGIN
 

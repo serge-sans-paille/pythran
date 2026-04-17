@@ -9,10 +9,6 @@
 #include "pythonic/include/utils/shared_ref.hpp"
 
 #include <array>
-#include <cassert>
-#include <cstring>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 
 PYTHONIC_NS_BEGIN

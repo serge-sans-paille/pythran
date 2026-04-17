@@ -8,9 +8,6 @@
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <limits>
-#include <sstream>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

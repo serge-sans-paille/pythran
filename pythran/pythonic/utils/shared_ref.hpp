@@ -4,7 +4,6 @@
 #include "pythonic/include/utils/shared_ref.hpp"
 #include "pythonic/utils/allocate.hpp"
 
-#include <unordered_map>
 #include <utility>
 #ifdef _OPENMP
 #include <atomic>

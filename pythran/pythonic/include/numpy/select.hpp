@@ -5,8 +5,6 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/int_.hpp"
 
-#include <tuple>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

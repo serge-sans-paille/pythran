@@ -8,7 +8,6 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
-#include <math.h>
 
 #include <algorithm>
 #include <random>

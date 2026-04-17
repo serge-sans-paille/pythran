@@ -5,8 +5,6 @@
 
 #include "pythonic/types/str.hpp"
 
-#include <cassert>
-
 PYTHONIC_NS_BEGIN
 
 namespace builtins

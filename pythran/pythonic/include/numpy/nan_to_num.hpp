@@ -6,8 +6,6 @@
 #include "pythonic/include/utils/functor.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
 
-#include <limits>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

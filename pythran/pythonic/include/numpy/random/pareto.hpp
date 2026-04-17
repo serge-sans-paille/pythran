@@ -5,7 +5,6 @@
 #include "pythonic/include/types/ndarray.hpp"
 #include "pythonic/include/types/tuple.hpp"
 #include "pythonic/include/utils/functor.hpp"
-#include <math.h>
 
 PYTHONIC_NS_BEGIN
 namespace numpy

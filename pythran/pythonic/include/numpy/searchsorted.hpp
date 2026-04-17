@@ -7,8 +7,6 @@
 #include "pythonic/include/utils/int_.hpp"
 #include "pythonic/include/utils/numpy_conversion.hpp"
 
-#include <algorithm>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

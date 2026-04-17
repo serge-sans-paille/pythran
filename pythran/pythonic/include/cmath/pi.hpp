@@ -4,13 +4,11 @@
 #include "pythonic/include/types/complex.hpp"
 #include "pythonic/include/utils/functor.hpp"
 
-#include <cmath>
-
 PYTHONIC_NS_BEGIN
 
 namespace cmath
 {
-  double constexpr pi = M_PI;
+  double constexpr pi = 3.14159265358979323846;
 }
 PYTHONIC_NS_END
 

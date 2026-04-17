@@ -3,14 +3,15 @@
 
 #include "pythonic/include/numpy/ndarray/sort.hpp"
 
-#include <algorithm>
-
 #include "pythonic/numpy/array.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/types/str.hpp"
 #include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/pdqsort.hpp"
+
+#include <algorithm>
+#include <numeric>
 
 PYTHONIC_NS_BEGIN
 

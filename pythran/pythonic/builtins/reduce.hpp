@@ -6,7 +6,6 @@
 #include "pythonic/types/combined.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <algorithm>
 #include <numeric>
 #include <utility>
 

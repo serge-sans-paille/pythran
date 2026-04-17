@@ -4,7 +4,6 @@
 #include "pythonic/include/types/float.hpp"
 
 #include "pythonic/types/attr.hpp"
-#include <cstddef>
 
 #ifdef ENABLE_PYTHON_MODULE
 

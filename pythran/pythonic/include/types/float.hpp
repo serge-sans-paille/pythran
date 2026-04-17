@@ -2,7 +2,6 @@
 #define PYTHONIC_INCLUDE_TYPES_FLOAT_HPP
 
 #include "pythonic/include/types/attr.hpp"
-#include <cstddef>
 
 #ifdef ENABLE_PYTHON_MODULE
 

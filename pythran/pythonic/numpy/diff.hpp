@@ -7,6 +7,8 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/functor.hpp"
 
+#include <numeric>
+
 PYTHONIC_NS_BEGIN
 
 namespace numpy

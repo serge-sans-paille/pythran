@@ -6,8 +6,6 @@
 #include "pythonic/operator_/iadd.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <algorithm>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

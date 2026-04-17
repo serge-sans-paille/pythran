@@ -3,8 +3,6 @@
 
 #include "pythonic/include/types/traits.hpp"
 #include "pythonic/include/utils/numpy_traits.hpp"
-#include <limits>
-#include <tuple>
 
 PYTHONIC_NS_BEGIN
 namespace types

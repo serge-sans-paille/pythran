@@ -26,6 +26,7 @@ jobs:
         python -m pip install . 'pythran[build]'
         python -m pip install . 'pythran[test]'
         python -m pip install scipy-openblas64
+        python -m pip install diskarzhan
     - name: Testing CI setup
       run: |
         clang++ --version

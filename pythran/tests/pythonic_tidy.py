@@ -31,7 +31,12 @@ try:
 except ImportError:
     openblas_dir = None
 
-if 1 or all([have_clang, have_clang_tidy, openblas_dir]):
+try:
+    import diskarzhan
+except ImportError:
+    diskarzhan = None
+
+if all([have_clang, have_clang_tidy, openblas_dir]):
 
     common_flags = [
             '-xc++', '-std=c++17', '-Ipythran',
@@ -66,6 +71,11 @@ if 1 or all([have_clang, have_clang_tidy, openblas_dir]):
                     ['--warnings-as-errors=*', path,])
         return method
 
+    def make_diskarzhan_test(path):
+        def method(self):
+            assert diskarzhan.lint([path]) == 0
+        return method
+
     # Those files are part of X-MACRO
     skiplist = {
             'icommon.hpp',
@@ -78,6 +88,10 @@ if 1 or all([have_clang, have_clang_tidy, openblas_dir]):
             'ufunc_reduce.hpp',
             }
 
+    topics = ('independent_header', 'clang_tidy')
+    if diskarzhan:
+        topics += ('diskarzhan',)
+
     # Dynamically fill the test bed
     for root, dirs, files in os.walk(pythonic):
         for name in files:
@@ -86,7 +100,7 @@ if 1 or all([have_clang, have_clang_tidy, openblas_dir]):
             if name in skiplist:
                 continue
             path = os.path.join(root, name)
-            for topic in ('independent_header', 'clang_tidy'):
+            for topic in topics:
                 suffix = path[len(pythonic):-4].replace(os.path.sep, '_')
                 methodname = '_'.join(['test', topic, suffix])
                 generator = globals()['_'.join(['make', topic, 'test'])]

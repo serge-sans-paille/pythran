@@ -8,8 +8,6 @@
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/int_.hpp"
 
-#include <algorithm>
-
 PYTHONIC_NS_BEGIN
 
 namespace builtins

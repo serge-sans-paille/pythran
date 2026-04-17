@@ -1,8 +1,6 @@
 #ifndef PYTHONIC_INCLUDE_UTILS_SHARED_REF_HPP
 #define PYTHONIC_INCLUDE_UTILS_SHARED_REF_HPP
 
-#include <unordered_map>
-#include <utility>
 #ifdef _OPENMP
 #define THREAD_SAFE_REF_COUNT
 #endif

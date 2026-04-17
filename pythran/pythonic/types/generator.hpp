@@ -4,7 +4,6 @@
 #include "pythonic/include/types/generator.hpp"
 
 #include "pythonic/builtins/StopIteration.hpp"
-#include <iterator>
 
 PYTHONIC_NS_BEGIN
 

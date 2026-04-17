@@ -8,9 +8,7 @@
 #include "pythonic/include/types/str.hpp"
 #include "pythonic/include/utils/shared_ref.hpp"
 
-#include <fstream>
 #include <iterator>
-#include <string>
 
 PYTHONIC_NS_BEGIN
 

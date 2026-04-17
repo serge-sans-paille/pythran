@@ -15,8 +15,6 @@
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <algorithm>
-
 PYTHONIC_NS_BEGIN
 
 namespace numpy

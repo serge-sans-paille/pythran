@@ -10,7 +10,6 @@
 #include "pythonic/types/tuple.hpp"
 #include "pythonic/utils/functor.hpp"
 
-#include <algorithm>
 #include <random>
 
 PYTHONIC_NS_BEGIN

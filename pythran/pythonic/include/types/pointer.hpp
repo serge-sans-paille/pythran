@@ -1,7 +1,6 @@
 #ifndef PYTHONIC_INCLUDE_TYPES_POINTER_HPP
 #define PYTHONIC_INCLUDE_TYPES_POINTER_HPP
 
-#include <cstdint>
 #include <tuple>
 
 PYTHONIC_NS_BEGIN

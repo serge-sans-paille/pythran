@@ -9,8 +9,6 @@
 #include "pythonic/types/dynamic_tuple.hpp"
 #include "pythonic/types/str.hpp"
 
-#include <stdexcept>
-
 PYTHONIC_NS_BEGIN
 
 namespace types

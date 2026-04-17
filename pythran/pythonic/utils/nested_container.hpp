@@ -5,7 +5,6 @@
 
 #include "pythonic/types/traits.hpp"
 #include "pythonic/utils/numpy_traits.hpp"
-#include <limits>
 
 PYTHONIC_NS_BEGIN
 namespace utils

@@ -51,8 +51,8 @@ namespace numpy
       -> types::array_tuple<types::ndarray<long, types::array_tuple<long, 1>>, E::value>
   {
     constexpr long N = E::value;
-    typedef types::array_tuple<types::ndarray<long, types::array_tuple<long, 1>>, E::value>
-        out_type;
+    using out_type =
+        types::array_tuple<types::ndarray<long, types::array_tuple<long, 1>>, E::value>;
     long sz = expr.flat_size();
 
     types::array_tuple<utils::shared_ref<types::raw_array<long>>, N> out_buffers =

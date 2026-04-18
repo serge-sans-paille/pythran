@@ -72,7 +72,7 @@ namespace std
 
   template <size_t I>
   struct tuple_element<I, pythonic::builtins::range> {
-    typedef long type;
+    using type = long;
   };
 } // namespace std
 

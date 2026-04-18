@@ -152,7 +152,7 @@ namespace types
 
     // data holder
     using _type = std::remove_cv_t<std::remove_reference_t<T>>;
-    typedef container<_type> container_type;
+    using container_type = container<_type>;
     utils::shared_ref<container_type> _data;
 
     template <class U>
@@ -162,22 +162,22 @@ namespace types
 
   public:
     //  types
-    typedef T data_type;
-    typedef std::conditional_t<std::is_integral_v<T>, long, double> value_type;
-    typedef array_reference<sliced_array> reference;
-    typedef value_type const_reference;
-    typedef array_iterator<sliced_array> iterator;
-    typedef array_iterator<sliced_array> const_iterator;
-    typedef typename container_type::size_type size_type;
-    typedef typename container_type::difference_type difference_type;
-    typedef typename container_type::allocator_type allocator_type;
-    typedef typename container_type::pointer pointer;
-    typedef typename container_type::const_pointer const_pointer;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    using data_type = T;
+    using value_type = std::conditional_t<std::is_integral_v<T>, long, double>;
+    using reference = array_reference<sliced_array>;
+    using const_reference = value_type;
+    using iterator = array_iterator<sliced_array>;
+    using const_iterator = array_iterator<sliced_array>;
+    using size_type = typename container_type::size_type;
+    using difference_type = typename container_type::difference_type;
+    using allocator_type = typename container_type::allocator_type;
+    using pointer = typename container_type::pointer;
+    using const_pointer = typename container_type::const_pointer;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     // minimal ndarray interface
-    typedef data_type dtype;
+    using dtype = data_type;
     static const size_t value = 1;
     static const bool is_vectorizable =
         types::is_vectorizable_dtype<dtype>::value && !std::is_same_v<S, slice>;
@@ -290,7 +290,7 @@ namespace types
 
     // data holder
     using _type = std::remove_cv_t<std::remove_reference_t<T>>;
-    typedef container<_type> container_type;
+    using container_type = container<_type>;
     utils::shared_ref<container_type> _data;
 
     template <class U, class S>
@@ -301,22 +301,22 @@ namespace types
 
   public:
     // types
-    typedef T data_type;
-    typedef std::conditional_t<std::is_integral_v<T>, long, double> value_type;
-    typedef array_reference<array> reference;
-    typedef value_type const_reference;
-    typedef array_iterator<array> iterator;
-    typedef array_iterator<array> const_iterator;
-    typedef typename container_type::size_type size_type;
-    typedef typename container_type::difference_type difference_type;
-    typedef typename container_type::allocator_type allocator_type;
-    typedef typename container_type::pointer pointer;
-    typedef typename container_type::const_pointer const_pointer;
-    typedef std::reverse_iterator<iterator> reverse_iterator;
-    typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+    using data_type = T;
+    using value_type = std::conditional_t<std::is_integral_v<T>, long, double>;
+    using reference = array_reference<array>;
+    using const_reference = value_type;
+    using iterator = array_iterator<array>;
+    using const_iterator = array_iterator<array>;
+    using size_type = typename container_type::size_type;
+    using difference_type = typename container_type::difference_type;
+    using allocator_type = typename container_type::allocator_type;
+    using pointer = typename container_type::pointer;
+    using const_pointer = typename container_type::const_pointer;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     // minimal ndarray interface
-    typedef data_type dtype;
+    using dtype = data_type;
     static const size_t value = 1;
     static const bool is_vectorizable = types::is_vectorizable<dtype>::value;
     static const bool is_flat = true;
@@ -520,17 +520,17 @@ namespace utils
 
 template <class T>
 struct assignable<types::array<T>> {
-  typedef types::array<typename assignable<T>::type> type;
+  using type = types::array<typename assignable<T>::type>;
 };
 
 template <class T, class S>
 struct assignable<types::sliced_array<T, S>> {
-  typedef types::array<typename assignable<T>::type> type;
+  using type = types::array<typename assignable<T>::type>;
 };
 
 template <class E>
 struct assignable<types::array_reference<E>> {
-  typedef typename E::value_type type;
+  using type = typename E::value_type;
 };
 
 PYTHONIC_NS_END
@@ -561,11 +561,11 @@ namespace std
 
   template <size_t I, class T>
   struct tuple_element<I, pythonic::types::array<T>> {
-    typedef typename pythonic::types::array<T>::value_type type;
+    using type = typename pythonic::types::array<T>::value_type;
   };
   template <size_t I, class T, class S>
   struct tuple_element<I, pythonic::types::sliced_array<T, S>> {
-    typedef typename pythonic::types::sliced_array<T, S>::value_type type;
+    using type = typename pythonic::types::sliced_array<T, S>::value_type;
   };
 } // namespace std
 
@@ -574,55 +574,55 @@ namespace std
 
 template <class A, class B>
 struct __combined<container<A>, pythonic::types::array<B>> {
-  typedef pythonic::types::array<typename __combined<A, B>::type> type;
+  using type = pythonic::types::array<typename __combined<A, B>::type>;
 };
 
 template <class A, class B>
 struct __combined<pythonic::types::array<B>, container<A>> {
-  typedef pythonic::types::array<typename __combined<A, B>::type> type;
+  using type = pythonic::types::array<typename __combined<A, B>::type>;
 };
 
 template <class K, class V>
 struct __combined<indexable<K>, pythonic::types::array<V>> {
-  typedef pythonic::types::array<V> type;
+  using type = pythonic::types::array<V>;
 };
 
 template <class V, class K>
 struct __combined<pythonic::types::array<V>, indexable<K>> {
-  typedef pythonic::types::array<V> type;
+  using type = pythonic::types::array<V>;
 };
 
 template <class K, class V0, class V1>
 struct __combined<indexable_container<K, V0>, pythonic::types::array<V1>> {
-  typedef pythonic::types::array<typename __combined<V0, V1>::type> type;
+  using type = pythonic::types::array<typename __combined<V0, V1>::type>;
 };
 
 template <class K, class V0, class V1>
 struct __combined<pythonic::types::array<V1>, indexable_container<K, V0>> {
-  typedef pythonic::types::array<typename __combined<V0, V1>::type> type;
+  using type = pythonic::types::array<typename __combined<V0, V1>::type>;
 };
 
 template <class T0, class T1>
 struct __combined<pythonic::types::array<T0>, pythonic::types::array<T1>> {
-  typedef pythonic::types::array<typename __combined<T0, T1>::type> type;
+  using type = pythonic::types::array<typename __combined<T0, T1>::type>;
 };
 
 template <class T0, class T1, class S>
 struct __combined<pythonic::types::sliced_array<T1, S>, pythonic::types::array<T0>> {
-  typedef pythonic::types::array<typename __combined<T0, T1>::type> type;
+  using type = pythonic::types::array<typename __combined<T0, T1>::type>;
 };
 template <class T0, class T1, class S>
 struct __combined<pythonic::types::array<T0>, pythonic::types::sliced_array<T1, S>> {
-  typedef pythonic::types::array<typename __combined<T0, T1>::type> type;
+  using type = pythonic::types::array<typename __combined<T0, T1>::type>;
 };
 
 template <class T, size_t N, class V, class Tp>
 struct __combined<pythonic::types::array_base<T, N, V>, pythonic::types::array<Tp>> {
-  typedef pythonic::types::array<typename __combined<T, Tp>::type> type;
+  using type = pythonic::types::array<typename __combined<T, Tp>::type>;
 };
 template <class T, size_t N, class V, class Tp>
 struct __combined<pythonic::types::array<Tp>, pythonic::types::array_base<T, N, V>> {
-  typedef pythonic::types::array<typename __combined<T, Tp>::type> type;
+  using type = pythonic::types::array<typename __combined<T, Tp>::type>;
 };
 
 /* } */

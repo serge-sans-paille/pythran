@@ -92,7 +92,7 @@ namespace pdqsort_detail
   template <class Iter, class Compare>
   inline void insertion_sort(Iter begin, Iter end, Compare comp)
   {
-    typedef typename std::iterator_traits<Iter>::value_type T;
+    using T = typename std::iterator_traits<Iter>::value_type;
     if (begin == end)
       return;
 
@@ -121,7 +121,7 @@ namespace pdqsort_detail
   template <class Iter, class Compare>
   inline void unguarded_insertion_sort(Iter begin, Iter end, Compare comp)
   {
-    typedef typename std::iterator_traits<Iter>::value_type T;
+    using T = typename std::iterator_traits<Iter>::value_type;
     if (begin == end)
       return;
 
@@ -151,7 +151,7 @@ namespace pdqsort_detail
   template <class Iter, class Compare>
   inline bool partial_insertion_sort(Iter begin, Iter end, Compare comp)
   {
-    typedef typename std::iterator_traits<Iter>::value_type T;
+    using T = typename std::iterator_traits<Iter>::value_type;
     if (begin == end)
       return true;
 
@@ -212,7 +212,7 @@ namespace pdqsort_detail
   inline void swap_offsets(Iter first, Iter last, unsigned char *offsets_l,
                            unsigned char *offsets_r, int num, bool use_swaps)
   {
-    typedef typename std::iterator_traits<Iter>::value_type T;
+    using T = typename std::iterator_traits<Iter>::value_type;
     if (use_swaps) {
       // This case is needed for the descending distribution, where we need
       // to have proper swapping for pdqsort to remain O(n).
@@ -245,7 +245,7 @@ namespace pdqsort_detail
   template <class Iter, class Compare>
   inline std::pair<Iter, bool> partition_right_branchless(Iter begin, Iter end, Compare comp)
   {
-    typedef typename std::iterator_traits<Iter>::value_type T;
+    using T = typename std::iterator_traits<Iter>::value_type;
 
     // Move pivot into local for speed.
     T pivot(PDQSORT_PREFER_MOVE(*begin));
@@ -436,7 +436,7 @@ namespace pdqsort_detail
   template <class Iter, class Compare>
   inline std::pair<Iter, bool> partition_right(Iter begin, Iter end, Compare comp)
   {
-    typedef typename std::iterator_traits<Iter>::value_type T;
+    using T = typename std::iterator_traits<Iter>::value_type;
 
     // Move pivot into local for speed.
     T pivot(PDQSORT_PREFER_MOVE(*begin));
@@ -496,7 +496,7 @@ namespace pdqsort_detail
   template <class Iter, class Compare>
   inline Iter partition_left(Iter begin, Iter end, Compare comp)
   {
-    typedef typename std::iterator_traits<Iter>::value_type T;
+    using T = typename std::iterator_traits<Iter>::value_type;
 
     T pivot(PDQSORT_PREFER_MOVE(*begin));
     Iter first = begin;
@@ -531,7 +531,7 @@ namespace pdqsort_detail
   inline void pdqsort_loop(Iter begin, Iter end, Compare comp, int bad_allowed,
                            bool leftmost = true)
   {
-    typedef typename std::iterator_traits<Iter>::difference_type diff_t;
+    using diff_t = typename std::iterator_traits<Iter>::difference_type;
 
     // Use a while loop for tail recursion elimination.
     while (true) {
@@ -656,7 +656,7 @@ inline void pdqsort(Iter begin, Iter end, Compare comp)
 template <class Iter>
 inline void pdqsort(Iter begin, Iter end)
 {
-  typedef typename std::iterator_traits<Iter>::value_type T;
+  using T = typename std::iterator_traits<Iter>::value_type;
   pdqsort(begin, end, std::less<T>());
 }
 
@@ -672,7 +672,7 @@ inline void pdqsort_branchless(Iter begin, Iter end, Compare comp)
 template <class Iter>
 inline void pdqsort_branchless(Iter begin, Iter end)
 {
-  typedef typename std::iterator_traits<Iter>::value_type T;
+  using T = typename std::iterator_traits<Iter>::value_type;
   pdqsort_branchless(begin, end, std::less<T>());
 }
 

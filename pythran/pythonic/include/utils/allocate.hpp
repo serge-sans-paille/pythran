@@ -52,7 +52,7 @@ namespace utils
 
   template <class T>
   struct allocator {
-    typedef T value_type;
+    using value_type = T;
 
     allocator() = default;
 

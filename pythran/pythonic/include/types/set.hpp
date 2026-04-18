@@ -32,7 +32,7 @@ namespace std
 {
   template <size_t I, class T>
   struct tuple_element<I, pythonic::types::set<T>> {
-    typedef typename pythonic::types::set<T>::value_type type;
+    using type = typename pythonic::types::set<T>::value_type;
   };
 } // namespace std
 

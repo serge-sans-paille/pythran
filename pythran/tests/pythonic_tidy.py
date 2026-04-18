@@ -56,11 +56,15 @@ if all([have_clang, have_clang_tidy, openblas_dir]):
             'modernize-unary-static-assert',
             'modernize-use-structured-binding',
             'modernize-use-equals-default',
+            'modernize-use-using',
             'performance-for-range-copy',
             'performance-inefficient-algorithm',
             'performance-inefficient-vector-operation',
             'performance-move-const-arg',
             'performance-noexcept-move-constructor',
+            'performance-unnecessary-value-param',
+            'performance-unnecessary-copy-initialization',
+            'performance-trivially-destructible',
             'performance-use-std-move',
             ]
 

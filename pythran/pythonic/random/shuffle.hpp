@@ -30,7 +30,7 @@ namespace random
       {
       }
 
-      typedef unsigned result_type;
+      using result_type = unsigned;
       static constexpr result_type min()
       {
         return 0;

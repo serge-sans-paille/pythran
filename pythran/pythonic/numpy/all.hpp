@@ -66,7 +66,7 @@ namespace numpy
   all(E const &array, long axis)
   {
     constexpr long N = E::value;
-    typedef typename E::dtype T;
+    using T = typename E::dtype;
     if (axis < 0 || axis >= long(N))
       throw types::ValueError("axis out of bounds");
     if (axis == 0) {

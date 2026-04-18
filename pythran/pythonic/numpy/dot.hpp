@@ -41,10 +41,11 @@ char *scipy_openblas_get_config64_(void);
 char *scipy_openblas_get_corename64_(void);
 
 /*Set the threading backend to a custom callback.*/
-typedef void (*scipy_openblas_dojob_callback64_)(int thread_num, void *jobdata, int dojob_data);
-typedef void (*scipy_openblas_threads_callback64_)(int sync, scipy_openblas_dojob_callback64_ dojob,
-                                                   int numjobs, size_t jobdata_elsize,
-                                                   void *jobdata, int dojob_data);
+using scipy_openblas_dojob_callback64_ = void (*)(int thread_num, void *jobdata, int dojob_data);
+using scipy_openblas_threads_callback64_ = void (*)(int sync,
+                                                    scipy_openblas_dojob_callback64_ dojob,
+                                                    int numjobs, size_t jobdata_elsize,
+                                                    void *jobdata, int dojob_data);
 void scipy_openblas_set_threads_callback_function64_(scipy_openblas_threads_callback64_ callback);
 
 #ifdef OPENBLAS_OS_LINUX
@@ -75,17 +76,17 @@ int scipy_openblas_get_parallel64_(void);
 
 #define CBLAS_INDEX size_t
 
-typedef enum CBLAS_ORDER { CblasRowMajor = 101, CblasColMajor = 102 } CBLAS_ORDER;
-typedef enum CBLAS_TRANSPOSE {
+using CBLAS_ORDER = enum CBLAS_ORDER { CblasRowMajor = 101, CblasColMajor = 102 };
+using CBLAS_TRANSPOSE = enum CBLAS_TRANSPOSE {
   CblasNoTrans = 111,
   CblasTrans = 112,
   CblasConjTrans = 113,
   CblasConjNoTrans = 114
-} CBLAS_TRANSPOSE;
-typedef enum CBLAS_UPLO { CblasUpper = 121, CblasLower = 122 } CBLAS_UPLO;
-typedef enum CBLAS_DIAG { CblasNonUnit = 131, CblasUnit = 132 } CBLAS_DIAG;
-typedef enum CBLAS_SIDE { CblasLeft = 141, CblasRight = 142 } CBLAS_SIDE;
-typedef CBLAS_ORDER CBLAS_LAYOUT;
+};
+using CBLAS_UPLO = enum CBLAS_UPLO { CblasUpper = 121, CblasLower = 122 };
+using CBLAS_DIAG = enum CBLAS_DIAG { CblasNonUnit = 131, CblasUnit = 132 };
+using CBLAS_SIDE = enum CBLAS_SIDE { CblasLeft = 141, CblasRight = 142 };
+using CBLAS_LAYOUT = CBLAS_ORDER;
 
 float scipy_cblas_sdsdot64_(OPENBLAS_CONST blasint n, OPENBLAS_CONST float alpha,
                             OPENBLAS_CONST float *x, OPENBLAS_CONST blasint incx,

@@ -16,7 +16,7 @@ namespace builtins
 
     inline types::empty_set set()
     {
-      return types::empty_set();
+      return {};
     }
 
     template <class Iterable>

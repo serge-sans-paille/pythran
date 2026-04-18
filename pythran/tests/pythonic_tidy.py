@@ -52,6 +52,8 @@ if all([have_clang, have_clang_tidy, openblas_dir]):
             'modernize-type-traits',
             'performance-for-range-copy',
             'modernize-replace-random-shuffle',
+            'modernize-min-max-use-initializer-list',
+            'modernize-return-braced-init-list',
             'modernize-use-equals-default',
             ]
 
@@ -68,7 +70,7 @@ if all([have_clang, have_clang_tidy, openblas_dir]):
                     ['clang-tidy',] +
                     ['--extra-arg-before={}'.format(flag) for flag in common_flags] +
                     ['-checks=-*,' + ','.join(checks)] +
-                    ['--warnings-as-errors=*', path,])
+                    ['--warnings-as-errors=*', path])
         return method
 
     def make_diskarzhan_test(path):

@@ -456,7 +456,7 @@ namespace types
 
   inline empty_dict empty_dict::operator+(empty_dict const &)
   {
-    return empty_dict();
+    return {};
   }
 
   inline empty_dict::operator bool() const
@@ -466,12 +466,12 @@ namespace types
 
   inline typename empty_dict::iterator empty_dict::begin() const
   {
-    return empty_iterator();
+    return {};
   }
 
   inline typename empty_dict::iterator empty_dict::end() const
   {
-    return empty_iterator();
+    return {};
   }
 
   template <class V>

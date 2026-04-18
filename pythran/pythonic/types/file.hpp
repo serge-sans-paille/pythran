@@ -155,7 +155,7 @@ namespace types
     if (mode.find_first_of("r+") == -1)
       throw IOError("File not open for reading");
     if (size == 0 || (feof(**data) && mode.find_first_of("ra") == -1))
-      return types::str();
+      return {};
     long curr_pos = tell();
     seek(0, SEEK_END);
     size = size < 0 ? tell() - curr_pos : size;

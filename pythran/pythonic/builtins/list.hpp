@@ -19,12 +19,12 @@ namespace builtins
 
     inline types::empty_list list()
     {
-      return types::empty_list();
+      return {};
     }
 
     inline types::empty_list list(types::empty_list)
     {
-      return types::empty_list();
+      return {};
     }
 
     template <class Iterable>

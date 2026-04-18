@@ -19,10 +19,10 @@ namespace builtins
         return self;
       auto first = self.find_first_not_of(to_del);
       if (first == -1)
-        return types::str();
+        return {};
       else
-        return types::str(self.chars().begin() + first,
-                          self.chars().begin() + self.find_last_not_of(to_del) + 1);
+        return {self.chars().begin() + first,
+                self.chars().begin() + self.find_last_not_of(to_del) + 1};
     }
   } // namespace str
 } // namespace builtins

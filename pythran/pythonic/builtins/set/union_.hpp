@@ -42,7 +42,7 @@ namespace builtins
 
     inline types::empty_set union_(types::empty_set const &init)
     {
-      return types::empty_set();
+      return {};
     }
   } // namespace set
 } // namespace builtins

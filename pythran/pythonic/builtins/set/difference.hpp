@@ -30,7 +30,7 @@ namespace builtins
     template <typename... Types>
     types::empty_set difference(types::empty_set const &set, Types const &...others)
     {
-      return types::empty_set();
+      return {};
     }
 
     template <typename T>
@@ -47,7 +47,7 @@ namespace builtins
 
     inline types::empty_set difference(types::empty_set const &set)
     {
-      return types::empty_set();
+      return {};
     }
   } // namespace set
 } // namespace builtins

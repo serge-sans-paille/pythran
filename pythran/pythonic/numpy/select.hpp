@@ -20,7 +20,7 @@ namespace numpy
     long _select(Ichoice ibegin, Ichoice iend, Iout obegin, Isel sbegin, Icond cbegin, long size,
                  utils::int_<1>)
     {
-      static_assert(std::is_same_v<Ichoice, int>, "");
+      static_assert(std::is_same_v<Ichoice, int>);
       for (; ibegin != iend && size != 0; ++ibegin, ++obegin, ++sbegin, ++cbegin) {
         // If elements it not already selected && condition match, copy it!
         if (!*sbegin && *cbegin) {

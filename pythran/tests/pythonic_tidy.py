@@ -54,6 +54,7 @@ if all([have_clang, have_clang_tidy, openblas_dir]):
             'modernize-replace-random-shuffle',
             'modernize-min-max-use-initializer-list',
             'modernize-return-braced-init-list',
+            'modernize-unary-static-assert',
             'modernize-use-equals-default',
             ]
 

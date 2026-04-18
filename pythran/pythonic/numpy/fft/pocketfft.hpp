@@ -52,6 +52,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define POCKETFFT_CACHE_SIZE 16
 #endif
 
+#include <algorithm>
 #include <cmath>
 #include <complex>
 #include <cstdlib>
@@ -545,8 +546,7 @@ namespace pocketfft
                 if (x < n)
                   x *= 3;
                 else if (x > n) {
-                  if (x < bestfac)
-                    bestfac = x;
+                  bestfac = std::min(x, bestfac);
                   if (x & 1)
                     break;
                   x >>= 1;
@@ -572,8 +572,7 @@ namespace pocketfft
             if (x < n)
               x *= 3;
             else if (x > n) {
-              if (x < bestfac)
-                bestfac = x;
+              bestfac = std::min(x, bestfac);
               if (x & 1)
                 break;
               x >>= 1;
@@ -1639,7 +1638,7 @@ namespace pocketfft
 
       /* (a+ib) = conj(c+id) * (e+if) */
       template <typename T1, typename T2, typename T3>
-      inline void MULPM(T1 &a, T1 &b, T2 c, T2 d, T3 e, T3 f) const
+      void MULPM(T1 &a, T1 &b, T2 c, T2 d, T3 e, T3 f) const
       {
         a = c * e + d * f;
         b = c * f - d * e;

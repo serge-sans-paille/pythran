@@ -56,6 +56,7 @@
 #include "pythonic/operator_/isub.hpp"
 #include "pythonic/operator_/ixor.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <initializer_list>
@@ -895,8 +896,7 @@ namespace types
           oss.width(s);
           oss << *iter;
           size_t ts = oss.str().length();
-          if (ts > s)
-            s = ts;
+          s = std::max(ts, s);
         }
         return s;
       }

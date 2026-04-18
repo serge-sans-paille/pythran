@@ -180,8 +180,7 @@ namespace types
     {
       static_assert(is_dtype<E>::value, "valid store");
       assert(buffer);
-      *(buffer + noffset<value>{}(*this, array_tuple<long, value>{{indices...}})) =
-          static_cast<E>(elt);
+      *(buffer + noffset<value>{}(*this, array_tuple<long, value>{{indices...}})) = elt;
     }
     template <class... Indices>
     dtype load(Indices... indices) const
@@ -194,8 +193,7 @@ namespace types
     {
       static_assert(is_dtype<E>::value, "valid store");
       assert(buffer);
-      Op{}(*(buffer + noffset<value>{}(*this, array_tuple<long, value>{{indices...}})),
-           static_cast<E>(elt));
+      Op{}(*(buffer + noffset<value>{}(*this, array_tuple<long, value>{{indices...}})), elt);
     }
 
 #ifdef USE_XSIMD

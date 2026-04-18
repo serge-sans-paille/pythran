@@ -39,7 +39,6 @@ namespace types
 
   inline void empty_iterator::operator->() const
   {
-    return;
   }
 } // namespace types
 PYTHONIC_NS_END

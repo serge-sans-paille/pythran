@@ -57,6 +57,7 @@ if all([have_clang, have_clang_tidy, openblas_dir]):
             'modernize-use-structured-binding',
             'modernize-use-equals-default',
             'modernize-use-using',
+            'modernize-use-nullptr',
             'performance-for-range-copy',
             'performance-inefficient-algorithm',
             'performance-inefficient-vector-operation',
@@ -66,6 +67,16 @@ if all([have_clang, have_clang_tidy, openblas_dir]):
             'performance-unnecessary-copy-initialization',
             'performance-trivially-destructible',
             'performance-use-std-move',
+            'readability-redundant-string-init',
+            'readability-redundant-inline-specifier',
+            'readability-redundant-control-flow',
+            'readability-redundant-casting',
+            'readability-redundant-member-init',
+            'readability-redundant-typename',
+            'readability-use-anyofallof',
+            'readability-use-std-min-max',
+            'readability-redundant-function-ptr-dereference',
+            'readability-static-definition-in-anonymous-namespace',
             ]
 
 

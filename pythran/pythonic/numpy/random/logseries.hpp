@@ -48,7 +48,7 @@ namespace numpy
         U = std::uniform_real_distribution<double>{0., 1.}(details::generator);
         q = -expm1(r * U);
         if (V <= q * q) {
-          result = (double)floor(1 + log(V) / log(q));
+          result = floor(1 + log(V) / log(q));
           if ((result < 1) || (V == 0.0)) {
             continue;
           } else {

@@ -247,9 +247,6 @@ namespace types
   }
 
   /// str implementation
-  inline str::str() : data()
-  {
-  }
 
   inline str::str(std::string const &s) : data(s)
   {

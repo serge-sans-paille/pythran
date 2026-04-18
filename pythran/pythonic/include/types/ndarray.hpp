@@ -336,7 +336,7 @@ namespace types
     {
       static_assert(is_dtype<E>::value, "valid store");
       *(buffer + noffset<std::tuple_size_v<pS>>{}(*this, array_tuple<long, value>{{indices...}})) =
-          static_cast<E>(elt);
+          elt;
     }
     template <class... Indices>
     dtype load(Indices... indices) const
@@ -351,7 +351,7 @@ namespace types
       static_assert(is_dtype<E>::value, "valid store");
       Op{}(*(buffer +
              noffset<std::tuple_size_v<pS>>{}(*this, array_tuple<long, value>{{indices...}})),
-           static_cast<E>(elt));
+           elt);
     }
 
     /* element indexing

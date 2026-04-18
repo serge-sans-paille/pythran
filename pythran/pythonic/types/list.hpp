@@ -746,7 +746,7 @@ namespace types
     return list<T>(0);
   }
 
-  inline constexpr long empty_list::size()
+  constexpr long empty_list::size()
   {
     return 0;
   }

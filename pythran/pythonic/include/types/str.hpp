@@ -137,7 +137,7 @@ namespace types
     using reverse_iterator = std::reverse_iterator<string_iterator>;
     using const_reverse_iterator = std::reverse_iterator<string_iterator>;
 
-    str();
+    str() = default;
     str(std::string const &s);
     str(std::string &&s);
     explicit str(char c);

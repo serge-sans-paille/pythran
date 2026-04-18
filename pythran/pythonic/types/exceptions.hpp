@@ -207,7 +207,7 @@ namespace types
       return o << "[Errno " << e.args[0] << "] " << e.args[1] << ": '" << e.args[2] << "'";
     else {
       // Generate "('a', 'b', 'c', 'd') if a,b,c, && d are in e.args
-      std::string listsep = "";
+      std::string listsep;
       o << "(";
       for (auto &arg : e.args) {
         o << listsep << "'" << arg << "'";

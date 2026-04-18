@@ -37,7 +37,7 @@ namespace types
   }
 
   template <class T>
-  raw_array<T>::raw_array(raw_array<T> &&d) : data(d.data), external(d.external)
+  raw_array<T>::raw_array(raw_array<T> &&d) noexcept : data(d.data), external(d.external)
   {
     d.data = nullptr;
   }

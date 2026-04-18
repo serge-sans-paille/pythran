@@ -327,7 +327,7 @@ namespace types
     template <class InputIterator>
     array(InputIterator start, InputIterator stop);
     array(size_type sz);
-    array(array &&other);
+    array(array &&other) noexcept;
     array(array const &other);
     template <class Tp>
     array(list<Tp> const &other) : array(other.begin(), other.end())
@@ -341,7 +341,7 @@ namespace types
     array(array<F> const &other);
     template <class Tp, class S>
     array(sliced_array<Tp, S> const &other);
-    array<T> &operator=(array<T> &&other);
+    array<T> &operator=(array<T> &&other) noexcept;
     template <class F>
     array<T> &operator=(array<F> const &other);
     array<T> &operator=(array<T> const &other) = default;

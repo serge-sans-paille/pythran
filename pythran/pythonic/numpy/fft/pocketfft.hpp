@@ -240,7 +240,7 @@ namespace pocketfft
       arr(size_t n) : p(ralloc(n)), sz(n)
       {
       }
-      arr(arr &&other) : p(other.p), sz(other.sz)
+      arr(arr &&other) noexcept : p(other.p), sz(other.sz)
       {
         other.p = nullptr;
         other.sz = 0;

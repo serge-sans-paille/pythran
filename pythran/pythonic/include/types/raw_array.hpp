@@ -27,7 +27,7 @@ namespace types
     raw_array();
     raw_array(size_t n);
     raw_array(T *d, ownership o);
-    raw_array(raw_array<T> &&d);
+    raw_array(raw_array<T> &&d) noexcept;
     void forget();
 
     ~raw_array();

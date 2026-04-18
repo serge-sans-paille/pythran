@@ -50,12 +50,18 @@ if all([have_clang, have_clang_tidy, openblas_dir]):
 
     checks = [
             'modernize-type-traits',
-            'performance-for-range-copy',
             'modernize-replace-random-shuffle',
             'modernize-min-max-use-initializer-list',
             'modernize-return-braced-init-list',
             'modernize-unary-static-assert',
+            'modernize-use-structured-binding',
             'modernize-use-equals-default',
+            'performance-for-range-copy',
+            'performance-inefficient-algorithm',
+            'performance-inefficient-vector-operation',
+            'performance-move-const-arg',
+            'performance-noexcept-move-constructor',
+            'performance-use-std-move',
             ]
 
 

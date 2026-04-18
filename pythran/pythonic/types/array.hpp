@@ -265,7 +265,7 @@ namespace types
   {
   }
   template <class T>
-  array<T>::array(array<T> &&other) : _data(std::move(other._data))
+  array<T>::array(array<T> &&other) noexcept : _data(std::move(other._data))
   {
   }
   template <class T>
@@ -286,7 +286,7 @@ namespace types
 
   // operators
   template <class T>
-  array<T> &array<T>::operator=(array<T> &&other)
+  array<T> &array<T>::operator=(array<T> &&other) noexcept
   {
     _data = std::move(other._data);
     return *this;

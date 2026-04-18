@@ -205,7 +205,7 @@ namespace types
     list(empty_list const &);
     list(size_type sz);
     list(std::initializer_list<T> l);
-    list(list<T> &&other);
+    list(list<T> &&other) noexcept;
     list(list<T> const &other);
     template <class F>
     list(list<F> const &other);
@@ -219,7 +219,7 @@ namespace types
     list(numpy_gexpr<static_list<Tp, N>, S...> const &other) : list(other.begin(), other.end())
     {
     }
-    list<T> &operator=(list<T> &&other);
+    list<T> &operator=(list<T> &&other) noexcept;
     template <class F>
     list<T> &operator=(list<F> const &other);
     list<T> &operator=(list<T> const &other) = default;

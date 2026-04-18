@@ -283,7 +283,7 @@ namespace types
   {
   }
   template <class T>
-  list<T>::list(list<T> &&other) : _data(std::move(other._data))
+  list<T>::list(list<T> &&other) noexcept : _data(std::move(other._data))
   {
   }
   template <class T>
@@ -304,7 +304,7 @@ namespace types
 
   // operators
   template <class T>
-  list<T> &list<T>::operator=(list<T> &&other)
+  list<T> &list<T>::operator=(list<T> &&other) noexcept
   {
     _data = std::move(other._data);
     return *this;

@@ -108,12 +108,12 @@ namespace builtins
 
   inline range_iterator range::begin() const
   {
-    return range_iterator(begin_, step_);
+    return {begin_, step_};
   }
 
   inline range_iterator range::end() const
   {
-    return range_iterator(end_, step_);
+    return {end_, step_};
   }
 
   inline typename range::reverse_iterator range::rbegin() const

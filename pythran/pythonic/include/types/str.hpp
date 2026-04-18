@@ -233,7 +233,7 @@ namespace types
     }
     chr operator*() const
     {
-      return chr(*curr);
+      return {*curr};
     }
     string_iterator &operator++()
     {

@@ -35,7 +35,7 @@ namespace numpy
     long i = 0;
     _flatnonzero(expr.begin(), expr.end(), iter, i, utils::int_<E::value>());
     types::pshape<long> shape = iter - buffer->data;
-    return types::ndarray<long, types::pshape<long>>(std::move(buffer), shape);
+    return {std::move(buffer), shape};
   }
 } // namespace numpy
 PYTHONIC_NS_END

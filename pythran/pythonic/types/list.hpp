@@ -727,7 +727,7 @@ namespace types
   }
   inline empty_list empty_list::operator+(empty_list const &) const
   {
-    return empty_list();
+    return {};
   }
   template <class F>
   std::enable_if_t<!is_numexpr_arg<F>::value, list<typename F::value_type>>

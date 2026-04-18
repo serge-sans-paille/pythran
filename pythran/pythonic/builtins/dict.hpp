@@ -18,7 +18,7 @@ namespace builtins
   {
     inline types::empty_dict dict()
     {
-      return types::empty_dict();
+      return {};
     }
 
     template <class K, class V>

@@ -24,7 +24,7 @@ namespace operator_
 
   inline itemgetter_return itemgetter(long item)
   {
-    return itemgetter_return(item);
+    return {item};
   }
 
   template <typename... Types>

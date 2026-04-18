@@ -3268,7 +3268,7 @@ namespace pocketfft
         if (sz > tmpsize)
           tmpsize = sz;
       }
-      return arr<char>(tmpsize * elemsize);
+      return {tmpsize * elemsize};
     }
 
     template <typename T, size_t vlen>

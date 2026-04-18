@@ -16,7 +16,7 @@ namespace math
   {
     int exp;
     double sig = std::frexp(x, &exp);
-    return std::tuple<double, long>(sig, exp);
+    return {sig, exp};
   }
 } // namespace math
 PYTHONIC_NS_END

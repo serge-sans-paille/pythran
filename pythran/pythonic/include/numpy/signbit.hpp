@@ -14,7 +14,7 @@ namespace numpy
 
   namespace details
   {
-    template <class T>
+    template <class T, typename = std::enable_if_t<std::is_scalar_v<T>>>
     auto signbit(T val) -> decltype(xsimd::signbit(val) == T(1))
     {
       return xsimd::signbit(val) == T(1);

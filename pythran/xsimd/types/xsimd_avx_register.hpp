@@ -12,7 +12,7 @@
 #ifndef XSIMD_AVX_REGISTER_HPP
 #define XSIMD_AVX_REGISTER_HPP
 
-#include "./xsimd_generic_arch.hpp"
+#include "./xsimd_common_arch.hpp"
 
 namespace xsimd
 {
@@ -22,7 +22,7 @@ namespace xsimd
      *
      * AVX instructions
      */
-    struct avx : generic
+    struct avx : common
     {
         static constexpr bool supported() noexcept { return XSIMD_WITH_AVX; }
         static constexpr bool available() noexcept { return true; }
@@ -33,6 +33,10 @@ namespace xsimd
 }
 
 #if XSIMD_WITH_AVX
+
+#if !XSIMD_WITH_SSE4_2
+#error "architecture inconsistency: avx requires sse4.2"
+#endif
 
 #include <immintrin.h>
 

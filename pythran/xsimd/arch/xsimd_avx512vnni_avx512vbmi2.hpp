@@ -9,15 +9,12 @@
  * The full license is in the file LICENSE, distributed with this software. *
  ****************************************************************************/
 
-#ifndef XSIMD_GENERIC_HPP
-#define XSIMD_GENERIC_HPP
+#ifndef XSIMD_AVX512VNNI_AVX512VBMI2_HPP
+#define XSIMD_AVX512VNNI_AVX512VBMI2_HPP
 
-#include "./generic/xsimd_generic_arithmetic.hpp"
-#include "./generic/xsimd_generic_complex.hpp"
-#include "./generic/xsimd_generic_logical.hpp"
-#include "./generic/xsimd_generic_math.hpp"
-#include "./generic/xsimd_generic_memory.hpp"
-#include "./generic/xsimd_generic_rounding.hpp"
-#include "./generic/xsimd_generic_trigo.hpp"
+#include <array>
+#include <type_traits>
+
+#include "../types/xsimd_avx512vnni_avx512vbmi2_register.hpp"
 
 #endif

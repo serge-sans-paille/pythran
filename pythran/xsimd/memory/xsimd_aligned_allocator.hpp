@@ -39,7 +39,7 @@ namespace xsimd
      * @tparam T type of objects to allocate.
      * @tparam Align alignment in bytes.
      */
-    template <class T, size_t Align>
+    template <class T, size_t Align = std::conditional<std::is_same<unsupported, default_arch>::value, common, default_arch>::type::alignment()>
     class aligned_allocator
     {
     public:
@@ -341,9 +341,9 @@ namespace xsimd
     }
 
     template <class T, class A = default_arch>
-    using default_allocator = typename std::conditional<A::requires_alignment(),
-                                                        aligned_allocator<T, A::alignment()>,
-                                                        std::allocator<T>>::type;
+    using default_allocator = std::conditional_t<A::requires_alignment(),
+                                                 aligned_allocator<T, A::alignment()>,
+                                                 std::allocator<T>>;
 }
 
 #endif

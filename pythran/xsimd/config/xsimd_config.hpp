@@ -12,15 +12,37 @@
 #ifndef XSIMD_CONFIG_HPP
 #define XSIMD_CONFIG_HPP
 
-#define XSIMD_VERSION_MAJOR 13
-#define XSIMD_VERSION_MINOR 0
+#define XSIMD_VERSION_MAJOR 14
+#define XSIMD_VERSION_MINOR 1
 #define XSIMD_VERSION_PATCH 0
+
+#if defined(__GNUC__) && defined(__BYTE_ORDER__)
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define XSIMD_LITTLE_ENDIAN
+#endif
+#elif defined(_WIN32)
+// We can safely assume that Windows is always little endian
+#define XSIMD_LITTLE_ENDIAN
+#elif defined(i386) || defined(i486) || defined(intel) || defined(x86) || defined(i86pc) || defined(__alpha) || defined(__osf__)
+#define XSIMD_LITTLE_ENDIAN
+#endif
 
 /**
  * high level free functions
  *
  * @defgroup xsimd_config_macro Instruction Set Detection
  */
+
+/**
+ * @ingroup xsimd_config_macro
+ *
+ * Set to 1 if the target is the x86 architecture family.
+ */
+#if defined(__x86_64__) || defined(__i386__) || defined(_M_AMD64) || defined(_M_IX86)
+#define XSIMD_TARGET_X86 1
+#else
+#define XSIMD_TARGET_X86 0
+#endif
 
 /**
  * @ingroup xsimd_config_macro
@@ -302,36 +324,34 @@
 /**
  * @ingroup xsimd_config_macro
  *
- * Set to 1 if AVX512VNNI is available at compile-time, to 0 otherwise.
+ * Set to 1 if AVX512VBMI2 is available at compile-time, to 0 otherwise.
  */
-#ifdef __AVX512VNNI__
-
-#if XSIMD_WITH_AVX512_VBMI
-#define XSIMD_WITH_AVX512VNNI_AVX512VBMI XSIMD_WITH_AVX512F
-#define XSIMD_WITH_AVX512VNNI_AVX512BW XSIMD_WITH_AVX512F
+#ifdef __AVX512VBMI2__
+#define XSIMD_WITH_AVX512VBMI2 XSIMD_WITH_AVX512F
 #else
-#define XSIMD_WITH_AVX512VNNI_AVX512VBMI 0
-#define XSIMD_WITH_AVX512VNNI_AVX512BW XSIMD_WITH_AVX512F
+#define XSIMD_WITH_AVX512VBMI2 0
 #endif
-
-#else
-
-#define XSIMD_WITH_AVX512VNNI_AVX512VBMI 0
-#define XSIMD_WITH_AVX512VNNI_AVX512BW 0
-
-#endif
-
-#ifdef __ARM_NEON
 
 /**
  * @ingroup xsimd_config_macro
  *
- * Set to 1 if NEON is available at compile-time, to 0 otherwise.
+ * Set to 1 if AVX512VNNI is available at compile-time, to 0 otherwise.
  */
-#if __ARM_ARCH >= 7
-#define XSIMD_WITH_NEON 1
+#ifdef __AVX512VNNI__
+
+#if XSIMD_WITH_AVX512VBMI2
+#define XSIMD_WITH_AVX512VNNI_AVX512VBMI2 XSIMD_WITH_AVX512F
+#define XSIMD_WITH_AVX512VNNI_AVX512BW XSIMD_WITH_AVX512F
 #else
-#define XSIMD_WITH_NEON 0
+#define XSIMD_WITH_AVX512VNNI_AVX512VBMI2 0
+#define XSIMD_WITH_AVX512VNNI_AVX512BW XSIMD_WITH_AVX512F
+#endif
+
+#else
+
+#define XSIMD_WITH_AVX512VNNI_AVX512VBMI2 0
+#define XSIMD_WITH_AVX512VNNI_AVX512BW 0
+
 #endif
 
 /**
@@ -339,14 +359,21 @@
  *
  * Set to 1 if NEON64 is available at compile-time, to 0 otherwise.
  */
-#ifdef __aarch64__
+#if defined(__aarch64__) || defined(_M_ARM64)
 #define XSIMD_WITH_NEON64 1
 #else
 #define XSIMD_WITH_NEON64 0
 #endif
+
+/**
+ * @ingroup xsimd_config_macro
+ *
+ * Set to 1 if NEON is available at compile-time, to 0 otherwise.
+ */
+#if (defined(__ARM_NEON) && __ARM_ARCH >= 7) || XSIMD_WITH_NEON64
+#define XSIMD_WITH_NEON 1
 #else
 #define XSIMD_WITH_NEON 0
-#define XSIMD_WITH_NEON64 0
 #endif
 
 /**
@@ -395,6 +422,17 @@
 #define XSIMD_WITH_WASM 1
 #else
 #define XSIMD_WITH_WASM 0
+#endif
+
+/**
+ * @ingroup xsimd_config_macro
+ *
+ * Set to 1 if VMX with VSX extension is available at compile-time, to 0 otherwise.
+ */
+#if defined(__VEC__) && defined(__VSX__)
+#define XSIMD_WITH_VSX 1
+#else
+#define XSIMD_WITH_VSX 0
 #endif
 
 // Workaround for MSVC compiler
@@ -448,14 +486,14 @@
 
 #endif
 
-#if XSIMD_WITH_SSE3 || defined(_M_AMD64) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+#if XSIMD_WITH_SSE3 || ((defined(_M_AMD64) || defined(_M_X64)) && !defined(_M_ARM64EC)) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #undef XSIMD_WITH_SSE2
 #define XSIMD_WITH_SSE2 1
 #endif
 
 #endif
 
-#if !XSIMD_WITH_SSE2 && !XSIMD_WITH_SSE3 && !XSIMD_WITH_SSSE3 && !XSIMD_WITH_SSE4_1 && !XSIMD_WITH_SSE4_2 && !XSIMD_WITH_AVX && !XSIMD_WITH_AVX2 && !XSIMD_WITH_AVXVNNI && !XSIMD_WITH_FMA3_SSE && !XSIMD_WITH_FMA4 && !XSIMD_WITH_FMA3_AVX && !XSIMD_WITH_FMA3_AVX2 && !XSIMD_WITH_AVX512F && !XSIMD_WITH_AVX512CD && !XSIMD_WITH_AVX512DQ && !XSIMD_WITH_AVX512BW && !XSIMD_WITH_AVX512ER && !XSIMD_WITH_AVX512PF && !XSIMD_WITH_AVX512IFMA && !XSIMD_WITH_AVX512VBMI && !XSIMD_WITH_NEON && !XSIMD_WITH_NEON64 && !XSIMD_WITH_SVE && !XSIMD_WITH_RVV && !XSIMD_WITH_WASM
+#if !XSIMD_WITH_SSE2 && !XSIMD_WITH_SSE3 && !XSIMD_WITH_SSSE3 && !XSIMD_WITH_SSE4_1 && !XSIMD_WITH_SSE4_2 && !XSIMD_WITH_AVX && !XSIMD_WITH_AVX2 && !XSIMD_WITH_AVXVNNI && !XSIMD_WITH_FMA3_SSE && !XSIMD_WITH_FMA4 && !XSIMD_WITH_FMA3_AVX && !XSIMD_WITH_FMA3_AVX2 && !XSIMD_WITH_AVX512F && !XSIMD_WITH_AVX512CD && !XSIMD_WITH_AVX512DQ && !XSIMD_WITH_AVX512BW && !XSIMD_WITH_AVX512ER && !XSIMD_WITH_AVX512PF && !XSIMD_WITH_AVX512IFMA && !XSIMD_WITH_AVX512VBMI && !XSIMD_WITH_AVX512VBMI2 && !XSIMD_WITH_NEON && !XSIMD_WITH_NEON64 && !XSIMD_WITH_SVE && !XSIMD_WITH_RVV && !XSIMD_WITH_WASM && !XSIMD_WITH_VSX && !XSIMD_WITH_EMULATED
 #define XSIMD_NO_SUPPORTED_ARCHITECTURE
 #endif
 

@@ -26,7 +26,7 @@ namespace xsimd
         using namespace types;
 
         // abs
-        template <class A, class T, typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, void>::type>
+        template <class A, class T, std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value>>
         XSIMD_INLINE batch<T, A> abs(batch<T, A> const& self, requires_arch<ssse3>) noexcept
         {
             XSIMD_IF_CONSTEXPR(sizeof(T) == 1)
@@ -57,33 +57,33 @@ namespace xsimd
         {
 
             template <class T, class A>
-            XSIMD_INLINE batch<T, A> extract_pair(batch<T, A> const&, batch<T, A> const& other, std::size_t, ::xsimd::detail::index_sequence<>) noexcept
+            XSIMD_INLINE batch<T, A> extract_pair(batch<T, A> const&, batch<T, A> const& other, std::size_t, std::index_sequence<>) noexcept
             {
                 return other;
             }
 
             template <class T, class A, std::size_t I, std::size_t... Is>
-            XSIMD_INLINE batch<T, A> extract_pair(batch<T, A> const& self, batch<T, A> const& other, std::size_t i, ::xsimd::detail::index_sequence<I, Is...>) noexcept
+            XSIMD_INLINE batch<T, A> extract_pair(batch<T, A> const& self, batch<T, A> const& other, std::size_t i, std::index_sequence<I, Is...>) noexcept
             {
                 if (i == I)
                 {
                     return _mm_alignr_epi8(self, other, sizeof(T) * I);
                 }
                 else
-                    return extract_pair(self, other, i, ::xsimd::detail::index_sequence<Is...>());
+                    return extract_pair(self, other, i, std::index_sequence<Is...>());
             }
         }
 
-        template <class A, class T, class _ = typename std::enable_if<std::is_integral<T>::value, void>::type>
+        template <class A, class T, class = std::enable_if_t<std::is_integral<T>::value>>
         XSIMD_INLINE batch<T, A> extract_pair(batch<T, A> const& self, batch<T, A> const& other, std::size_t i, requires_arch<ssse3>) noexcept
         {
             constexpr std::size_t size = batch<T, A>::size;
-            assert(0 <= i && i < size && "index in bounds");
-            return detail::extract_pair(self, other, i, ::xsimd::detail::make_index_sequence<size>());
+            assert(i < size && "index in bounds");
+            return detail::extract_pair(self, other, i, std::make_index_sequence<size>());
         }
 
         // reduce_add
-        template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
+        template <class A, class T, class = std::enable_if_t<std::is_integral<T>::value>>
         XSIMD_INLINE T reduce_add(batch<T, A> const& self, requires_arch<ssse3>) noexcept
         {
             XSIMD_IF_CONSTEXPR(sizeof(T) == 2)
@@ -105,16 +105,27 @@ namespace xsimd
             }
         }
 
-        // rotate_right
+        // rotate_left
         template <size_t N, class A>
-        XSIMD_INLINE batch<uint16_t, A> rotate_right(batch<uint16_t, A> const& self, requires_arch<ssse3>) noexcept
+        XSIMD_INLINE batch<uint8_t, A> rotate_left(batch<uint8_t, A> const& self, requires_arch<ssse3>) noexcept
         {
             return _mm_alignr_epi8(self, self, N);
         }
         template <size_t N, class A>
-        XSIMD_INLINE batch<int16_t, A> rotate_right(batch<int16_t, A> const& self, requires_arch<ssse3>) noexcept
+        XSIMD_INLINE batch<int8_t, A> rotate_left(batch<int8_t, A> const& self, requires_arch<ssse3>) noexcept
         {
-            return bitwise_cast<int16_t>(rotate_right<N, A>(bitwise_cast<uint16_t>(self), ssse3 {}));
+            return bitwise_cast<int8_t>(rotate_left<N, A>(bitwise_cast<uint8_t>(self), ssse3 {}));
+        }
+
+        template <size_t N, class A>
+        XSIMD_INLINE batch<uint16_t, A> rotate_left(batch<uint16_t, A> const& self, requires_arch<ssse3>) noexcept
+        {
+            return _mm_alignr_epi8(self, self, 2 * N);
+        }
+        template <size_t N, class A>
+        XSIMD_INLINE batch<int16_t, A> rotate_left(batch<int16_t, A> const& self, requires_arch<ssse3>) noexcept
+        {
+            return bitwise_cast<int16_t>(rotate_left<N, A>(bitwise_cast<uint16_t>(self), ssse3 {}));
         }
 
         // swizzle (dynamic mask)
@@ -130,7 +141,7 @@ namespace xsimd
         }
 
         template <class A, class T, class IT>
-        XSIMD_INLINE typename std::enable_if<std::is_arithmetic<T>::value, batch<T, A>>::type
+        XSIMD_INLINE std::enable_if_t<std::is_arithmetic<T>::value, batch<T, A>>
         swizzle(batch<T, A> const& self, batch<IT, A> mask, requires_arch<ssse3>) noexcept
         {
             constexpr auto pikes = static_cast<as_unsigned_integer_t<T>>(0x0706050403020100ul);

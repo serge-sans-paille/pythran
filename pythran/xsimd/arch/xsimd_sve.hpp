@@ -39,6 +39,17 @@ namespace xsimd
             template <class T>
             svbool_t sve_ptrue() noexcept { return sve_ptrue_impl(index<sizeof(T)> {}); }
 
+            // predicate loading
+            template <bool M0, bool M1>
+            svbool_t sve_pmask() noexcept { return svdupq_b64(M0, M1); }
+            template <bool M0, bool M1, bool M2, bool M3>
+            svbool_t sve_pmask() noexcept { return svdupq_b32(M0, M1, M2, M3); }
+            template <bool M0, bool M1, bool M2, bool M3, bool M4, bool M5, bool M6, bool M7>
+            svbool_t sve_pmask() noexcept { return svdupq_b16(M0, M1, M2, M3, M4, M5, M6, M7); }
+            template <bool M0, bool M1, bool M2, bool M3, bool M4, bool M5, bool M6, bool M7,
+                      bool M8, bool M9, bool M10, bool M11, bool M12, bool M13, bool M14, bool M15>
+            svbool_t sve_pmask() noexcept { return svdupq_b8(M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, M10, M11, M12, M13, M14, M15); }
+
             // count active lanes in a predicate
             XSIMD_INLINE uint64_t sve_pcount_impl(svbool_t p, index<1>) noexcept { return svcntp_b8(p, p); }
             XSIMD_INLINE uint64_t sve_pcount_impl(svbool_t p, index<2>) noexcept { return svcntp_b16(p, p); }
@@ -50,23 +61,23 @@ namespace xsimd
 
             // enable for signed integers
             template <class T>
-            using sve_enable_signed_int_t = typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, int>::type;
+            using sve_enable_signed_int_t = std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value, int>;
 
             // enable for unsigned integers
             template <class T>
-            using sve_enable_unsigned_int_t = typename std::enable_if<std::is_integral<T>::value && !std::is_signed<T>::value, int>::type;
+            using sve_enable_unsigned_int_t = std::enable_if_t<std::is_integral<T>::value && !std::is_signed<T>::value, int>;
 
             // enable for floating points
             template <class T>
-            using sve_enable_floating_point_t = typename std::enable_if<std::is_floating_point<T>::value, int>::type;
+            using sve_enable_floating_point_t = std::enable_if_t<std::is_floating_point<T>::value, int>;
 
             // enable for signed integers or floating points
             template <class T>
-            using sve_enable_signed_int_or_floating_point_t = typename std::enable_if<std::is_signed<T>::value, int>::type;
+            using sve_enable_signed_int_or_floating_point_t = std::enable_if_t<std::is_signed<T>::value, int>;
 
             // enable for all SVE supported types
             template <class T>
-            using sve_enable_all_t = typename std::enable_if<std::is_arithmetic<T>::value, int>::type;
+            using sve_enable_all_t = std::enable_if_t<std::is_arithmetic<T>::value, int>;
         } // namespace detail
 
         /*********
@@ -76,11 +87,11 @@ namespace xsimd
         namespace detail
         {
             // "char" is not allowed in SVE load/store operations
-            using sve_fix_char_t_impl = typename std::conditional<std::is_signed<char>::value, int8_t, uint8_t>::type;
+            using sve_fix_char_t_impl = std::conditional_t<std::is_signed<char>::value, int8_t, uint8_t>;
 
             template <class T>
-            using sve_fix_char_t = typename std::conditional<std::is_same<char, typename std::decay<T>::type>::value,
-                                                             sve_fix_char_t_impl, T>::type;
+            using sve_fix_char_t = std::conditional_t<std::is_same<char, std::decay_t<T>>::value,
+                                                      sve_fix_char_t_impl, T>;
         }
 
         template <class A, class T, detail::sve_enable_all_t<T> = 0>
@@ -93,6 +104,13 @@ namespace xsimd
         XSIMD_INLINE batch<T, A> load_unaligned(T const* src, convert<T>, requires_arch<sve>) noexcept
         {
             return load_aligned<A>(src, convert<T>(), sve {});
+        }
+
+        // load_masked
+        template <class A, class T, bool... Values, class Mode, detail::sve_enable_all_t<T> = 0>
+        XSIMD_INLINE batch<T, A> load_masked(T const* mem, batch_bool_constant<float, A, Values...> mask, Mode, requires_arch<sve>) noexcept
+        {
+            return svld1(detail::sve_pmask<Values...>(), reinterpret_cast<detail::sve_fix_char_t<T> const*>(mem));
         }
 
         // load_complex
@@ -132,7 +150,7 @@ namespace xsimd
         template <class A, class T, detail::sve_enable_floating_point_t<T> = 0>
         XSIMD_INLINE void store_complex_aligned(std::complex<T>* dst, batch<std::complex<T>, A> const& src, requires_arch<sve>) noexcept
         {
-            using v2type = typename std::conditional<(sizeof(T) == 4), svfloat32x2_t, svfloat64x2_t>::type;
+            using v2type = std::conditional_t<(sizeof(T) == 4), svfloat32x2_t, svfloat64x2_t>;
             v2type tmp {};
             tmp = svset2(tmp, 0, src.real());
             tmp = svset2(tmp, 1, src.imag());
@@ -153,7 +171,7 @@ namespace xsimd
         namespace detail
         {
             template <class T, class U>
-            using sve_enable_sg_t = typename std::enable_if<(sizeof(T) == sizeof(U) && (sizeof(T) == 4 || sizeof(T) == 8)), int>::type;
+            using sve_enable_sg_t = std::enable_if_t<(sizeof(T) == sizeof(U) && (sizeof(T) == 4 || sizeof(T) == 8)), int>;
         }
 
         // scatter
@@ -281,7 +299,7 @@ namespace xsimd
         }
 
         // div
-        template <class A, class T, typename std::enable_if<sizeof(T) >= 4, int>::type = 0>
+        template <class A, class T, std::enable_if_t<sizeof(T) >= 4, int> = 0>
         XSIMD_INLINE batch<T, A> div(batch<T, A> const& lhs, batch<T, A> const& rhs, requires_arch<sve>) noexcept
         {
             return svdiv_x(detail::sve_ptrue<T>(), lhs, rhs);
@@ -713,9 +731,9 @@ namespace xsimd
          * Permutation *
          ***************/
 
-        //  rotate_right
+        //  rotate_left
         template <size_t N, class A, class T, detail::sve_enable_all_t<T> = 0>
-        XSIMD_INLINE batch<T, A> rotate_right(batch<T, A> const& a, requires_arch<sve>) noexcept
+        XSIMD_INLINE batch<T, A> rotate_left(batch<T, A> const& a, requires_arch<sve>) noexcept
         {
             return svext(a, a, N);
         }
@@ -762,14 +780,14 @@ namespace xsimd
         namespace detail
         {
             template <class A, class T>
-            XSIMD_INLINE batch<T, A> sve_extract_pair(batch<T, A> const&, batch<T, A> const& /*rhs*/, std::size_t, ::xsimd::detail::index_sequence<>) noexcept
+            XSIMD_INLINE batch<T, A> sve_extract_pair(batch<T, A> const&, batch<T, A> const& /*rhs*/, std::size_t, std::index_sequence<>) noexcept
             {
                 assert(false && "extract_pair out of bounds");
                 return batch<T, A> {};
             }
 
             template <class A, class T, size_t I, size_t... Is>
-            XSIMD_INLINE batch<T, A> sve_extract_pair(batch<T, A> const& lhs, batch<T, A> const& rhs, std::size_t n, ::xsimd::detail::index_sequence<I, Is...>) noexcept
+            XSIMD_INLINE batch<T, A> sve_extract_pair(batch<T, A> const& lhs, batch<T, A> const& rhs, std::size_t n, std::index_sequence<I, Is...>) noexcept
             {
                 if (n == I)
                 {
@@ -777,12 +795,12 @@ namespace xsimd
                 }
                 else
                 {
-                    return sve_extract_pair(lhs, rhs, n, ::xsimd::detail::index_sequence<Is...>());
+                    return sve_extract_pair(lhs, rhs, n, std::index_sequence<Is...>());
                 }
             }
 
             template <class A, class T, size_t... Is>
-            XSIMD_INLINE batch<T, A> sve_extract_pair_impl(batch<T, A> const& lhs, batch<T, A> const& rhs, std::size_t n, ::xsimd::detail::index_sequence<0, Is...>) noexcept
+            XSIMD_INLINE batch<T, A> sve_extract_pair_impl(batch<T, A> const& lhs, batch<T, A> const& rhs, std::size_t n, std::index_sequence<0, Is...>) noexcept
             {
                 if (n == 0)
                 {
@@ -790,7 +808,7 @@ namespace xsimd
                 }
                 else
                 {
-                    return sve_extract_pair(lhs, rhs, n, ::xsimd::detail::index_sequence<Is...>());
+                    return sve_extract_pair(lhs, rhs, n, std::index_sequence<Is...>());
                 }
             }
         }
@@ -800,7 +818,7 @@ namespace xsimd
         {
             constexpr std::size_t size = batch<T, A>::size;
             assert(n < size && "index in bounds");
-            return detail::sve_extract_pair_impl(lhs, rhs, n, ::xsimd::detail::make_index_sequence<size>());
+            return detail::sve_extract_pair_impl(lhs, rhs, n, std::make_index_sequence<size>());
         }
 
         // select
@@ -947,6 +965,13 @@ namespace xsimd
             const auto iota = detail::sve_iota<T>();
             const auto index_predicate = svcmpeq(detail::sve_ptrue<T>(), iota, static_cast<as_unsigned_integer_t<T>>(I));
             return svsel(index_predicate, broadcast<A, T>(val, sve {}), arg);
+        }
+
+        // first
+        template <class A, class T, detail::sve_enable_all_t<T> = 0>
+        XSIMD_INLINE T first(batch<T, A> const& self, requires_arch<sve>) noexcept
+        {
+            return self.data[0];
         }
 
         // all

@@ -12,7 +12,7 @@
 #ifndef XSIMD_AVX512F_REGISTER_HPP
 #define XSIMD_AVX512F_REGISTER_HPP
 
-#include "./xsimd_generic_arch.hpp"
+#include "./xsimd_common_arch.hpp"
 
 namespace xsimd
 {
@@ -22,7 +22,7 @@ namespace xsimd
      *
      * AVX512F instructions
      */
-    struct avx512f : generic
+    struct avx512f : common
     {
         static constexpr bool supported() noexcept { return XSIMD_WITH_AVX512F; }
         static constexpr bool available() noexcept { return true; }
@@ -33,14 +33,18 @@ namespace xsimd
 
 #if XSIMD_WITH_AVX512F
 
+#if !XSIMD_WITH_AVX2
+#error "architecture inconsistency: avx512f requires avx2"
+#endif
+
     namespace types
     {
         template <class T>
         struct simd_avx512_bool_register
         {
-            using register_type = typename std::conditional<
-                (sizeof(T) < 4), std::conditional<(sizeof(T) == 1), __mmask64, __mmask32>,
-                std::conditional<(sizeof(T) == 4), __mmask16, __mmask8>>::type::type;
+            using register_type = std::conditional_t<
+                (sizeof(T) < 4), std::conditional_t<(sizeof(T) == 1), __mmask64, __mmask32>,
+                std::conditional_t<(sizeof(T) == 4), __mmask16, __mmask8>>;
             register_type data;
             simd_avx512_bool_register() = default;
             simd_avx512_bool_register(register_type r) { data = r; }

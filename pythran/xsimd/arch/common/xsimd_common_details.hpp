@@ -9,13 +9,13 @@
  * The full license is in the file LICENSE, distributed with this software. *
  ****************************************************************************/
 
-#ifndef XSIMD_GENERIC_DETAILS_HPP
-#define XSIMD_GENERIC_DETAILS_HPP
+#ifndef XSIMD_COMMON_DETAILS_HPP
+#define XSIMD_COMMON_DETAILS_HPP
 
 #include <complex>
 
 #include "../../math/xsimd_rem_pio2.hpp"
-#include "../../types/xsimd_generic_arch.hpp"
+#include "../../types/xsimd_common_arch.hpp"
 #include "../../types/xsimd_utils.hpp"
 #include "../xsimd_constants.hpp"
 
@@ -47,6 +47,8 @@ namespace xsimd
     template <class T, class A>
     XSIMD_INLINE batch<T, A> fms(batch<T, A> const& x, batch<T, A> const& y, batch<T, A> const& z) noexcept;
     template <class T, class A>
+    XSIMD_INLINE batch<T, A> fmas(batch<T, A> const& x, batch<T, A> const& y, batch<T, A> const& z) noexcept;
+    template <class T, class A>
     XSIMD_INLINE batch<T, A> frexp(const batch<T, A>& x, const batch<as_integer_t<T>, A>& e) noexcept;
     template <class T, class A, uint64_t... Coefs>
     XSIMD_INLINE batch<T, A> horner(const batch<T, A>& self) noexcept;
@@ -75,6 +77,8 @@ namespace xsimd
     template <class T, class A>
     XSIMD_INLINE T reduce_add(batch<T, A> const&) noexcept;
     template <class T, class A>
+    XSIMD_INLINE T reduce_mul(batch<T, A> const&) noexcept;
+    template <class T, class A>
     XSIMD_INLINE batch<T, A> select(batch_bool<T, A> const&, batch<T, A> const&, batch<T, A> const&) noexcept;
     template <class T, class A>
     XSIMD_INLINE batch<std::complex<T>, A> select(batch_bool<T, A> const&, batch<std::complex<T>, A> const&, batch<std::complex<T>, A> const&) noexcept;
@@ -90,6 +94,9 @@ namespace xsimd
     XSIMD_INLINE std::pair<batch<T, A>, batch<T, A>> sincos(batch<T, A> const& self) noexcept;
     template <class T, class A>
     XSIMD_INLINE batch<T, A> sqrt(batch<T, A> const& self) noexcept;
+    template <class T, class A, class Vt, Vt... Values>
+    XSIMD_INLINE std::enable_if_t<std::is_arithmetic<T>::value, batch<T, A>>
+    swizzle(batch<T, A> const& x, batch_constant<Vt, A, Values...> mask) noexcept;
     template <class T, class A>
     XSIMD_INLINE batch<T, A> tan(batch<T, A> const& self) noexcept;
     template <class T, class A>
@@ -137,54 +144,54 @@ namespace xsimd
             }
         }
 
-        // some generic fast_cast conversion
+        // some common fast_cast conversion
         namespace detail
         {
             template <class A>
-            XSIMD_INLINE batch<uint8_t, A> fast_cast(batch<int8_t, A> const& self, batch<uint8_t, A> const&, requires_arch<generic>) noexcept
+            XSIMD_INLINE batch<uint8_t, A> fast_cast(batch<int8_t, A> const& self, batch<uint8_t, A> const&, requires_arch<common>) noexcept
             {
                 return bitwise_cast<uint8_t>(self);
             }
             template <class A>
-            XSIMD_INLINE batch<uint16_t, A> fast_cast(batch<int16_t, A> const& self, batch<uint16_t, A> const&, requires_arch<generic>) noexcept
+            XSIMD_INLINE batch<uint16_t, A> fast_cast(batch<int16_t, A> const& self, batch<uint16_t, A> const&, requires_arch<common>) noexcept
             {
                 return bitwise_cast<uint16_t>(self);
             }
             template <class A>
-            XSIMD_INLINE batch<uint32_t, A> fast_cast(batch<int32_t, A> const& self, batch<uint32_t, A> const&, requires_arch<generic>) noexcept
+            XSIMD_INLINE batch<uint32_t, A> fast_cast(batch<int32_t, A> const& self, batch<uint32_t, A> const&, requires_arch<common>) noexcept
             {
                 return bitwise_cast<uint32_t>(self);
             }
             template <class A>
-            XSIMD_INLINE batch<uint64_t, A> fast_cast(batch<int64_t, A> const& self, batch<uint64_t, A> const&, requires_arch<generic>) noexcept
+            XSIMD_INLINE batch<uint64_t, A> fast_cast(batch<int64_t, A> const& self, batch<uint64_t, A> const&, requires_arch<common>) noexcept
             {
                 return bitwise_cast<uint64_t>(self);
             }
             template <class A>
-            XSIMD_INLINE batch<int8_t, A> fast_cast(batch<uint8_t, A> const& self, batch<int8_t, A> const&, requires_arch<generic>) noexcept
+            XSIMD_INLINE batch<int8_t, A> fast_cast(batch<uint8_t, A> const& self, batch<int8_t, A> const&, requires_arch<common>) noexcept
             {
                 return bitwise_cast<int8_t>(self);
             }
             template <class A>
-            XSIMD_INLINE batch<int16_t, A> fast_cast(batch<uint16_t, A> const& self, batch<int16_t, A> const&, requires_arch<generic>) noexcept
+            XSIMD_INLINE batch<int16_t, A> fast_cast(batch<uint16_t, A> const& self, batch<int16_t, A> const&, requires_arch<common>) noexcept
             {
                 return bitwise_cast<int16_t>(self);
             }
             template <class A>
-            XSIMD_INLINE batch<int32_t, A> fast_cast(batch<uint32_t, A> const& self, batch<int32_t, A> const&, requires_arch<generic>) noexcept
+            XSIMD_INLINE batch<int32_t, A> fast_cast(batch<uint32_t, A> const& self, batch<int32_t, A> const&, requires_arch<common>) noexcept
             {
                 return bitwise_cast<int32_t>(self);
             }
             template <class A>
-            XSIMD_INLINE batch<int64_t, A> fast_cast(batch<uint64_t, A> const& self, batch<int64_t, A> const&, requires_arch<generic>) noexcept
+            XSIMD_INLINE batch<int64_t, A> fast_cast(batch<uint64_t, A> const& self, batch<int64_t, A> const&, requires_arch<common>) noexcept
             {
                 return bitwise_cast<int64_t>(self);
             }
 
-            // Provide a generic uint32_t -> float cast only if we have a
-            // non-generic int32_t -> float fast_cast
-            template <class A, class _ = decltype(fast_cast(std::declval<batch<int32_t, A> const&>(), std::declval<batch<float, A> const&>(), A {}))>
-            XSIMD_INLINE batch<float, A> fast_cast(batch<uint32_t, A> const& v, batch<float, A> const&, requires_arch<generic>) noexcept
+            // Provide a common uint32_t -> float cast only if we have a
+            // non-common int32_t -> float fast_cast
+            template <class A, class = decltype(fast_cast(std::declval<batch<int32_t, A> const&>(), std::declval<batch<float, A> const&>(), A {}))>
+            XSIMD_INLINE batch<float, A> fast_cast(batch<uint32_t, A> const& v, batch<float, A> const&, requires_arch<common>) noexcept
             {
                 // see https://stackoverflow.com/questions/34066228/how-to-perform-uint32-float-conversion-with-sse
                 batch<uint32_t, A> msk_lo(0xFFFF);
@@ -198,17 +205,17 @@ namespace xsimd
                 return v_hi_flt + v_lo_flt; /* Rounding may occur here, mul and add may fuse to fma for haswell and newer   */
             }
 
-            // Provide a generic float -> uint32_t cast only if we have a
-            // non-generic float -> int32_t fast_cast
-            template <class A, class _ = decltype(fast_cast(std::declval<batch<float, A> const&>(), std::declval<batch<int32_t, A> const&>(), A {}))>
-            XSIMD_INLINE batch<uint32_t, A> fast_cast(batch<float, A> const& v, batch<uint32_t, A> const&, requires_arch<generic>) noexcept
+            // Provide a common float -> uint32_t cast only if we have a
+            // non-common float -> int32_t fast_cast
+            template <class A, class = decltype(fast_cast(std::declval<batch<float, A> const&>(), std::declval<batch<int32_t, A> const&>(), A {}))>
+            XSIMD_INLINE batch<uint32_t, A> fast_cast(batch<float, A> const& v, batch<uint32_t, A> const&, requires_arch<common>) noexcept
             {
                 auto is_large = v >= batch<float, A>(1u << 31);
-                auto small = bitwise_cast<float>(batch_cast<int32_t>(v));
-                auto large = bitwise_cast<float>(
+                auto small_v = bitwise_cast<float>(batch_cast<int32_t>(v));
+                auto large_v = bitwise_cast<float>(
                     batch_cast<int32_t>(v - batch<float, A>(1u << 31))
                     ^ batch<int32_t, A>(1u << 31));
-                return bitwise_cast<uint32_t>(select(is_large, large, small));
+                return bitwise_cast<uint32_t>(select(is_large, large_v, small_v));
             }
         }
 

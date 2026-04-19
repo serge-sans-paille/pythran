@@ -14,7 +14,7 @@
 
 #include "../config/xsimd_arch.hpp"
 
-#include "./xsimd_generic_fwd.hpp"
+#include "./xsimd_common_fwd.hpp"
 
 #if XSIMD_WITH_EMULATED
 #include "./xsimd_emulated.hpp"
@@ -72,6 +72,10 @@
 #include "./xsimd_avx512f.hpp"
 #endif
 
+#if XSIMD_WITH_AVX512DQ
+#include "./xsimd_avx512dq.hpp"
+#endif
+
 #if XSIMD_WITH_AVX512BW
 #include "./xsimd_avx512bw.hpp"
 #endif
@@ -92,12 +96,16 @@
 #include "./xsimd_avx512vbmi.hpp"
 #endif
 
+#if XSIMD_WITH_AVX512VBMI2
+#include "./xsimd_avx512vbmi2.hpp"
+#endif
+
 #if XSIMD_WITH_AVX512VNNI_AVX512BW
 #include "./xsimd_avx512vnni_avx512bw.hpp"
 #endif
 
-#if XSIMD_WITH_AVX512VNNI_AVX512VBMI
-#include "./xsimd_avx512vnni_avx512vbmi.hpp"
+#if XSIMD_WITH_AVX512VNNI_AVX512VBMI2
+#include "./xsimd_avx512vnni_avx512vbmi2.hpp"
 #endif
 
 #if XSIMD_WITH_NEON
@@ -124,7 +132,11 @@
 #include "./xsimd_wasm.hpp"
 #endif
 
+#if XSIMD_WITH_VSX
+#include "./xsimd_vsx.hpp"
+#endif
+
 // Must come last to have access to all conversion specializations.
-#include "./xsimd_generic.hpp"
+#include "./xsimd_common.hpp"
 
 #endif

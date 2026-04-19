@@ -508,41 +508,13 @@ namespace types
 
     template <class... Tys, size_t... Is>
     auto _fwdlongindex(std::tuple<Tys...> const &indices, std::index_sequence<Is...>) const
-        -> decltype((*this)(static_cast<long>(Is)...))
     {
       return (*this)(static_cast<long>(std::get<Is>(indices))...);
     }
-
-    template <class... Tys>
-    auto operator[](std::tuple<Tys...> const &indices) const -> std::enable_if_t<
-        (std::is_integral_v<Tys> && ...),
-        decltype(this->_fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>()))>
-    {
-      return _fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>());
-    }
-
     template <class... Tys, size_t... Is>
-    auto _fwdlongindex(std::tuple<Tys...> const &indices, std::index_sequence<Is...>)
-        -> decltype((*this)(static_cast<long>(Is)...))
+    decltype(auto) _fwdlongindex(std::tuple<Tys...> const &indices, std::index_sequence<Is...>)
     {
       return (*this)(static_cast<long>(std::get<Is>(indices))...);
-    }
-
-    template <class... Tys>
-    auto operator[](std::tuple<Tys...> const &indices) -> std::enable_if_t<
-        (std::is_integral_v<Tys> && ...),
-        decltype(this->_fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>()))>
-    {
-      return _fwdlongindex(indices, std::make_index_sequence<sizeof...(Tys)>());
-    }
-
-    template <class Ty0, class Ty1, class... Tys>
-    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const
-        -> std::enable_if_t<std::is_integral_v<Ty0> &&
-                                !(std::is_integral_v<Ty1> && ... && std::is_integral_v<Tys>),
-                            decltype((*this)[std::get<0>(indices)][tuple_tail(indices)])>
-    {
-      return (*this)[std::get<0>(indices)][tuple_tail(indices)];
     }
 
     template <class Slices, size_t... Is>
@@ -561,11 +533,33 @@ namespace types
       return (*this)((indices.size() > Is ? std::get<Is>(indices) : cstride_slice<1>())...);
     }
 
-    template <class Ty0, class Ty1, class... Tys,
-              class _ = std::enable_if_t<is_numexpr_arg<Ty0>::value, void>>
-    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const -> std::enable_if_t<
-        is_numexpr_arg<Ty0>::value,
-        decltype(this->_fwdindex(indices, std::make_index_sequence<2 + sizeof...(Tys)>()))>;
+    template <class Ty0, class... Tys>
+    decltype(auto) operator[](std::tuple<Ty0, Tys...> const &indices)
+    {
+      if constexpr (std::is_integral_v<Ty0>) {
+        if constexpr ((std::is_integral_v<Tys> && ...)) {
+          return _fwdlongindex(indices, std::make_index_sequence<1 + sizeof...(Tys)>());
+        } else {
+          return (*this)[std::get<0>(indices)][tuple_tail(indices)];
+        }
+      } else {
+        return _fwdindex(indices, std::make_index_sequence<1 + sizeof...(Tys)>());
+      }
+    }
+
+    template <class Ty0, class... Tys>
+    auto operator[](std::tuple<Ty0, Tys...> const &indices) const
+    {
+      if constexpr (std::is_integral_v<Ty0>) {
+        if constexpr ((std::is_integral_v<Tys> && ...)) {
+          return _fwdlongindex(indices, std::make_index_sequence<1 + sizeof...(Tys)>());
+        } else {
+          return (*this)[std::get<0>(indices)][tuple_tail(indices)];
+        }
+      } else {
+        return _fwdindex(indices, std::make_index_sequence<1 + sizeof...(Tys)>());
+      }
+    }
 
     template <class Ty, size_t M, class _ = std::enable_if_t<!std::is_integral_v<Ty>, void>>
     auto operator[](array_tuple<Ty, M> const &indices)

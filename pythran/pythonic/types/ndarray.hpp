@@ -767,16 +767,6 @@ namespace types
     return {*this, filter};
   }
 
-  template <class T, class pS>
-  template <class Ty0, class Ty1, class... Tys, class _>
-  auto ndarray<T, pS>::operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const
-      -> std::enable_if_t<is_numexpr_arg<Ty0>::value,
-                          decltype(this->_fwdindex(indices,
-                                                   std::make_index_sequence<2 + sizeof...(Tys)>()))>
-  {
-    return _fwdindex(indices, std::make_index_sequence<2 + sizeof...(Tys)>());
-  }
-
   /* through iterators */
   template <class T, class pS>
   typename ndarray<T, pS>::iterator ndarray<T, pS>::begin()

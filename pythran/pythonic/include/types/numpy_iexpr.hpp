@@ -217,7 +217,7 @@ namespace types
       return (*this)[s0](s...);
     }
 
-    auto operator()(long i) const -> decltype(this->fast(i))
+    decltype(auto) operator()(long i) const
     {
       return fast(i);
     }
@@ -309,6 +309,18 @@ namespace types
     auto operator[](std::tuple<Ty> const &index) const -> decltype((*this)[std::get<0>(index)])
     {
       return (*this)[std::get<0>(index)];
+    }
+
+    template <class Slices, size_t... Is>
+    auto _fwdindex(Slices const &indices, std::index_sequence<Is...>) const
+    {
+      return (*this)(std::get<Is>(indices)...);
+    }
+
+    template <class Ty0, class Ty1, class... Tys>
+    auto operator[](std::tuple<Ty0, Ty1, Tys...> const &indices) const
+    {
+      return _fwdindex(indices, std::make_index_sequence<2 + sizeof...(Tys)>());
     }
 
     dtype *data()

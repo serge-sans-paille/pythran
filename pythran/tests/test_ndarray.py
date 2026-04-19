@@ -452,6 +452,9 @@ def assign_ndarray(t):
     def test_gslice6(self):
         self.run_test("def np_gslice6(a): import numpy as np ; return a[:-1, :][1:,:]", numpy.array(range(10*9*8)).reshape((10,9,8)), np_gslice6=[NDArray[int, :,:,:]])
 
+    def test_gslice7(self):
+        self.run_test("def np_gslice7(a, x): import numpy as np ; s = slice(0, x); return a[1, s], a[s, 1]", numpy.array(range(10*9)).reshape((10,9)), 2, np_gslice7=[NDArray[int, :,:], int])
+
     def test_iexpr0(self):
         self.run_test("def np_iexpr0(a,i): return a[i][0,0]", numpy.array(range(10*9*8)).reshape(10,9,8), 0, np_iexpr0=[NDArray[int, :,:,:], int])
 

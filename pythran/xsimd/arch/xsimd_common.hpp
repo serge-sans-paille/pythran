@@ -9,12 +9,18 @@
  * The full license is in the file LICENSE, distributed with this software. *
  ****************************************************************************/
 
-#ifndef XSIMD_AVX512VNNI_AVX512VBMI_HPP
-#define XSIMD_AVX512VNNI_AVX512VBMI_HPP
+#ifndef XSIMD_COMMON_HPP
+#define XSIMD_COMMON_HPP
 
-#include <array>
-#include <type_traits>
-
-#include "../types/xsimd_avx512vnni_avx512vbmi_register.hpp"
+#include "./common/xsimd_common_arithmetic.hpp"
+#include "./common/xsimd_common_bit.hpp"
+#include "./common/xsimd_common_cast.hpp"
+#include "./common/xsimd_common_complex.hpp"
+#include "./common/xsimd_common_logical.hpp"
+#include "./common/xsimd_common_math.hpp"
+#include "./common/xsimd_common_memory.hpp"
+#include "./common/xsimd_common_rounding.hpp"
+#include "./common/xsimd_common_swizzle.hpp"
+#include "./common/xsimd_common_trigo.hpp"
 
 #endif

@@ -36,7 +36,7 @@ namespace xsimd
         }
 
         // load_unaligned
-        template <class A, class T, class = typename std::enable_if<std::is_integral<T>::value, void>::type>
+        template <class A, class T, class = std::enable_if_t<std::is_integral<T>::value>>
         XSIMD_INLINE batch<T, A> load_unaligned(T const* mem, convert<T>, requires_arch<sse3>) noexcept
         {
             return _mm_lddqu_si128((__m128i const*)mem);
@@ -50,13 +50,15 @@ namespace xsimd
             __m128 tmp1 = _mm_hadd_ps(tmp0, tmp0);
             return _mm_cvtss_f32(tmp1);
         }
-        template <class A>
-        XSIMD_INLINE double reduce_add(batch<double, A> const& self, requires_arch<sse3>) noexcept
-        {
-            __m128d tmp0 = _mm_hadd_pd(self, self);
-            return _mm_cvtsd_f64(tmp0);
-        }
 
+        // reduce_mul
+        template <class A>
+        XSIMD_INLINE float reduce_mul(batch<float, A> const& self, requires_arch<sse3>) noexcept
+        {
+            __m128 tmp1 = _mm_mul_ps(self, _mm_movehl_ps(self, self));
+            __m128 tmp2 = _mm_mul_ps(tmp1, _mm_movehdup_ps(tmp1));
+            return _mm_cvtss_f32(tmp2);
+        }
     }
 
 }

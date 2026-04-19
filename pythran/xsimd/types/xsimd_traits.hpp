@@ -12,6 +12,7 @@
 #ifndef XSIMD_TRAITS_HPP
 #define XSIMD_TRAITS_HPP
 
+#include <cstdint>
 #include <type_traits>
 
 #include "xsimd_batch.hpp"
@@ -35,6 +36,11 @@ namespace xsimd
     {
     };
 
+    template <class T, class A>
+    struct has_simd_register<std::complex<T>, A> : has_simd_register<T, A>
+    {
+    };
+
     namespace detail
     {
         template <class T, bool>
@@ -48,8 +54,10 @@ namespace xsimd
             static constexpr size_t size = 1;
         };
 
+#if __cplusplus < 201703L
         template <class T>
         constexpr size_t simd_traits_impl<T, false>::size;
+#endif
 
         template <class T>
         struct simd_traits_impl<T, true>
@@ -59,8 +67,10 @@ namespace xsimd
             static constexpr size_t size = type::size;
         };
 
+#if __cplusplus < 201703L
         template <class T>
         constexpr size_t simd_traits_impl<T, true>::size;
+#endif
 
         template <class T, class A>
         struct static_check_supported_config_emitter
@@ -70,6 +80,11 @@ namespace xsimd
                           "usage of batch type with unsupported architecture");
             static_assert(!A::supported() || xsimd::has_simd_register<T, A>::value,
                           "usage of batch type with unsupported type");
+        };
+
+        template <class A>
+        struct static_check_supported_config_emitter<bool, A> : static_check_supported_config_emitter<xsimd::as_unsigned_integer_t<bool>, A>
+        {
         };
 
         template <class T, class A>
@@ -118,8 +133,10 @@ namespace xsimd
         static constexpr size_t size = simd_traits<type>::size;
     };
 
+#if __cplusplus < 201703L
     template <class T>
     constexpr size_t revert_simd_traits<T>::size;
+#endif
 
     template <class T>
     struct revert_simd_traits<batch<T>>
@@ -128,8 +145,10 @@ namespace xsimd
         static constexpr size_t size = batch<T>::size;
     };
 
+#if __cplusplus < 201703L
     template <class T>
     constexpr size_t revert_simd_traits<batch<T>>::size;
+#endif
 
     template <class T>
     using simd_type = typename simd_traits<T>::type;
@@ -215,21 +234,91 @@ namespace xsimd
     /**
      * @ingroup batch_traits
      *
+     * type traits that provide information about a batch or scalar type.
+     *
+     * @tparam T type to analyze.
+     */
+
+    template <class T>
+    struct batch_traits
+    {
+        using scalar_type = T; ///< T if scalar, or type of the scalar element for the batch T.
+        using mask_type = bool; ///< Mask type for T: bool for scalars, or batch_bool for batch types.
+
+        static constexpr bool is_batch = false; ///< True if T is @c batch<...>.
+        static constexpr bool is_batch_bool = false; ///< True if T is @c batch_bool<...>.
+        static constexpr bool is_any_batch = false; ///< True if T is @c batch<...> or @c batch_bool<...>.
+        static constexpr bool is_complex = detail::is_complex<T>::value; ///< True if T is complex or a batch of complex values.
+    };
+
+#if __cplusplus < 201703L
+    template <class T>
+    constexpr bool batch_traits<T>::is_batch;
+    template <class T>
+    constexpr bool batch_traits<T>::is_batch_bool;
+    template <class T>
+    constexpr bool batch_traits<T>::is_any_batch;
+    template <class T>
+    constexpr bool batch_traits<T>::is_complex;
+#endif
+
+    template <class T, class A>
+    struct batch_traits<batch<T, A>>
+    {
+        using scalar_type = T;
+        using mask_type = typename batch<T, A>::batch_bool_type;
+
+        static constexpr bool is_batch = true;
+        static constexpr bool is_batch_bool = false;
+        static constexpr bool is_any_batch = true;
+        static constexpr bool is_complex = detail::is_complex<T>::value;
+    };
+
+#if __cplusplus < 201703L
+    template <class T, class A>
+    constexpr bool batch_traits<batch<T, A>>::is_batch;
+    template <class T, class A>
+    constexpr bool batch_traits<batch<T, A>>::is_batch_bool;
+    template <class T, class A>
+    constexpr bool batch_traits<batch<T, A>>::is_any_batch;
+    template <class T, class A>
+    constexpr bool batch_traits<batch<T, A>>::is_complex;
+#endif
+
+    template <class T, class A>
+    struct batch_traits<batch_bool<T, A>>
+    {
+        using scalar_type = bool;
+        using mask_type = batch_bool<T, A>;
+
+        static constexpr bool is_batch = false;
+        static constexpr bool is_batch_bool = true;
+        static constexpr bool is_any_batch = true;
+        static constexpr bool is_complex = false;
+    };
+
+#if __cplusplus < 201703L
+    template <class T, class A>
+    constexpr bool batch_traits<batch_bool<T, A>>::is_batch;
+    template <class T, class A>
+    constexpr bool batch_traits<batch_bool<T, A>>::is_batch_bool;
+    template <class T, class A>
+    constexpr bool batch_traits<batch_bool<T, A>>::is_any_batch;
+    template <class T, class A>
+    constexpr bool batch_traits<batch_bool<T, A>>::is_complex;
+#endif
+
+    /**
+     * @ingroup batch_traits
+     *
      * type traits that inherits from @c std::true_type for @c batch<...> types and from
      * @c std::false_type otherwise.
      *
      * @tparam T type to analyze.
      */
-    template <class T>
-    struct is_batch;
 
     template <class T>
-    struct is_batch : std::false_type
-    {
-    };
-
-    template <class T, class A>
-    struct is_batch<batch<T, A>> : std::true_type
+    struct is_batch : std::integral_constant<bool, batch_traits<T>::is_batch>
     {
     };
 
@@ -243,12 +332,21 @@ namespace xsimd
      */
 
     template <class T>
-    struct is_batch_bool : std::false_type
+    struct is_batch_bool : std::integral_constant<bool, batch_traits<T>::is_batch_bool>
     {
     };
 
-    template <class T, class A>
-    struct is_batch_bool<batch_bool<T, A>> : std::true_type
+    /**
+     * @ingroup batch_traits
+     *
+     * type traits that inherits from @c std::true_type for @c batch<...> or batch_bool<...>
+     * types and from @c std::false_type otherwise.
+     *
+     * @tparam T type to analyze.
+     */
+
+    template <class T>
+    struct is_any_batch : std::integral_constant<bool, batch_traits<T>::is_any_batch>
     {
     };
 
@@ -262,12 +360,7 @@ namespace xsimd
      */
 
     template <class T>
-    struct is_batch_complex : std::false_type
-    {
-    };
-
-    template <class T, class A>
-    struct is_batch_complex<batch<std::complex<T>, A>> : std::true_type
+    struct is_batch_complex : std::integral_constant<bool, batch_traits<T>::is_batch && batch_traits<T>::is_complex>
     {
     };
 
@@ -282,12 +375,7 @@ namespace xsimd
     template <class T>
     struct scalar_type
     {
-        using type = T;
-    };
-    template <class T, class A>
-    struct scalar_type<batch<T, A>>
-    {
-        using type = T;
+        using type = typename batch_traits<T>::scalar_type;
     };
 
     template <class T>
@@ -304,16 +392,58 @@ namespace xsimd
     template <class T>
     struct mask_type
     {
-        using type = bool;
-    };
-    template <class T, class A>
-    struct mask_type<batch<T, A>>
-    {
-        using type = typename batch<T, A>::batch_bool_type;
+        using type = typename batch_traits<T>::mask_type;
     };
 
     template <class T>
     using mask_type_t = typename mask_type<T>::type;
+
+    namespace detail
+    {
+        template <typename T>
+        struct widen
+        {
+            using type = std::make_signed_t<typename widen<std::make_unsigned_t<T>>::type>;
+        };
+
+        template <>
+        struct widen<uint32_t>
+        {
+            using type = uint64_t;
+        };
+        template <>
+        struct widen<uint16_t>
+        {
+            using type = uint32_t;
+        };
+        template <>
+        struct widen<uint8_t>
+        {
+            using type = uint16_t;
+        };
+        template <>
+        struct widen<int32_t>
+        {
+            using type = int64_t;
+        };
+        template <>
+        struct widen<int16_t>
+        {
+            using type = int32_t;
+        };
+        template <>
+        struct widen<int8_t>
+        {
+            using type = int16_t;
+        };
+        template <>
+        struct widen<float>
+        {
+            using type = double;
+        };
+    }
+    template <typename T>
+    using widen_t = typename detail::widen<T>::type;
 }
 
 #endif

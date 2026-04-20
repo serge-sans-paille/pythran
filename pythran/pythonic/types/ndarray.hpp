@@ -60,7 +60,6 @@
 #include <array>
 #include <cassert>
 #include <initializer_list>
-#include <iostream>
 #include <iterator>
 
 #if !defined(HAVE_SSIZE_T) || !HAVE_SSIZE_T

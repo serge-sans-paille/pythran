@@ -9,7 +9,6 @@
 
 #include "numpy/arrayscalars.h"
 #include "pythonic/python/core.hpp"
-#include <iostream>
 
 PYTHONIC_NS_BEGIN
 

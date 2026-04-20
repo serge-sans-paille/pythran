@@ -1,6 +1,5 @@
 #ifndef PYTHONIC_TYPES_INT_HPP
 #define PYTHONIC_TYPES_INT_HPP
-#include <iostream>
 
 #include "pythonic/include/types/int.hpp"
 #include "pythonic/types/attr.hpp"

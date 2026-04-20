@@ -5,9 +5,6 @@
 #include "pythonic/utils/allocate.hpp"
 
 #include <utility>
-#ifdef _OPENMP
-#include <atomic>
-#endif
 
 PYTHONIC_NS_BEGIN
 

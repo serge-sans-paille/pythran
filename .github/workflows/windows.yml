@@ -13,6 +13,9 @@ jobs:
     strategy:
       matrix:
           architectures: [x86, x64]
+    defaults:
+      run:
+        shell: bash
     steps:
     - uses: actions/checkout@v6
     - name: Setup Python

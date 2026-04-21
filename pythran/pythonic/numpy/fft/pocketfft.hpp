@@ -149,7 +149,16 @@ template<> struct VLEN<double> { static constexpr size_t val=2; };
 #endif
 #endif
 
-#if __cplusplus >= 201703L
+#if defined(_WIN32)
+inline void *aligned_alloc(size_t align, size_t size)
+  {
+  void *ptr = _aligned_malloc(size, align);
+  if (!ptr) throw std::bad_alloc();
+  return ptr;
+  }
+inline void aligned_dealloc(void *ptr)
+    { _aligned_free(ptr); }
+#elif __cplusplus >= 201703L
 inline void *aligned_alloc(size_t align, size_t size)
   {
   // aligned_alloc() requires that the requested size is a multiple of "align"

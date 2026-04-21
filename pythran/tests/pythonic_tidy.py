@@ -110,6 +110,8 @@ if all([have_clang, have_clang_tidy, openblas_dir]):
             'numpy_binary_op.hpp',
             'ufunc_accumulate.hpp',
             'ufunc_reduce.hpp',
+            # third party
+            'pocketfft.hpp'
             }
 
     topics = ('independent_header', 'clang_tidy')

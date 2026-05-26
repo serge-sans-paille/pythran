@@ -255,6 +255,8 @@ class ConstantIntr(Intrinsic):
         """ Forward arguments and remove arguments effects. """
         kwargs["argument_effects"] = ()
         super(ConstantIntr, self).__init__(**kwargs)
+        if 'signature' in kwargs:
+            self.signature = kwargs['signature']
 
     def isliteral(self):
         """ Mark this intrinsic as a literal. """

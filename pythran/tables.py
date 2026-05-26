@@ -4731,9 +4731,10 @@ def fill_constants_types(module_name, elements):
         if isinstance(intrinsic, dict):  # Submodule case
             fill_constants_types(module_name + (elem,), intrinsic)
         elif isinstance(intrinsic, ConstantIntr):
-            # use introspection to get the Python constants types
-            cst = getattr(import_module(".".join(module_name)), elem)
-            intrinsic.signature = type(cst)
+            if not hasattr(intrinsic, 'signature'):
+                # use introspection to get the Python constants types
+                cst = getattr(import_module(".".join(module_name)), elem)
+                intrinsic.signature = type(cst)
 
 
 fill_constants_types((), MODULES)

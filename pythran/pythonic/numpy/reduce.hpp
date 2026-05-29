@@ -139,7 +139,7 @@ namespace numpy
     template <class T>
     reduce_result_type<Op, E> operator()(E const &expr, T p) const
     {
-      if (utils::no_broadcast_vectorize(expr))
+      if (utils::no_broadcast_ex(expr))
         return _reduce<Op, E::value, types::vectorizer_nobroadcast>{}(expr, p);
       else
         return _reduce<Op, E::value, types::vectorizer>{}(expr, p);

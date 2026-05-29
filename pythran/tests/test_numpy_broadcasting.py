@@ -232,3 +232,9 @@ class TestBroadcasting(TestEnv):
             data[1:] = np.ones([1, n - 1])
             return data'''
         self.run_test(code, 4, downcasting1=[int])
+
+    def test_broadcast_sum_runtime_shape(self):
+        self.run_test('def broadcast_sum_runtime_shape(a, b): return float((a * b).sum())',
+                      np.array([[1.0], [2.0]]),
+                      np.array([[10.0, 20.0, 30.0], [10.0, 20.0, 30.0]]),
+                      broadcast_sum_runtime_shape=[NDArray[float, :, :], NDArray[float, :, :]])

@@ -779,6 +779,11 @@ namespace types
     long flat_size() const;
 
     long size() const;
+
+    ndarray<dtype, shape_t> copy() const
+    {
+      return {*this};
+    }
   };
 } // namespace types
 

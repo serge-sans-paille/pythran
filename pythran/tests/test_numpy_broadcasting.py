@@ -238,3 +238,14 @@ class TestBroadcasting(TestEnv):
                       np.array([[1.0], [2.0]]),
                       np.array([[10.0, 20.0, 30.0], [10.0, 20.0, 30.0]]),
                       broadcast_sum_runtime_shape=[NDArray[float, :, :], NDArray[float, :, :]])
+
+    def test_copy_broadcast_expr(self):
+        code = '''
+        import numpy as np
+        def copy_broadcast_expr(a, b):
+            return (a * b).copy()'''
+        self.run_test(code,
+                      np.array([[1.0], [2.0]]),
+                      np.array([[10.0, 20.0, 30.0]]),
+                      copy_broadcast_expr=[NDArray[float, :, :], NDArray[float, :, :]])
+

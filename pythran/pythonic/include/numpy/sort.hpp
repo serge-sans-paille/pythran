@@ -20,7 +20,6 @@ namespace numpy
   types::ndarray<typename E::dtype, types::array_tuple<long, E::value>>
   sort(E const &expr, long axis, types::str const &kind);
 
-  NUMPY_EXPR_TO_NDARRAY0_DECL(sort);
   DEFINE_FUNCTOR(pythonic::numpy, sort);
 } // namespace numpy
 PYTHONIC_NS_END

@@ -836,6 +836,18 @@ def np_ravel3(v):
     def test_sort11(self):
         self.run_test("def np_sort11(a): a.sort(kind='heapsort'); return a", numpy.arange(2*3*4, 0, -1).reshape(2,3,4), np_sort11=[NDArray[int, :, :, :]])
 
+    def test_sort_view0(self):
+        self.run_test("def np_sort_view0(a, n): from numpy import sort ; return sort(a[0:n, 0])", numpy.arange(4*3, 0, -1).reshape(4,3).astype(float), 3, np_sort_view0=[NDArray[float, :, :], int])
+
+    def test_sort_view1(self):
+        self.run_test("def np_sort_view1(a, n): from numpy import sort ; return sort(a[0:n, :], 0)", numpy.arange(4*3, 0, -1).reshape(4,3).astype(float), 3, np_sort_view1=[NDArray[float, :, :], int])
+
+    def test_sort_view2(self):
+        self.run_test("def np_sort_view2(a, n): from numpy import sort ; return sort(a[0:n, 0], None)", numpy.arange(4*3, 0, -1).reshape(4,3).astype(float), 3, np_sort_view2=[NDArray[float, :, :], int])
+
+    def test_sort_view3(self):
+        self.run_test("def np_sort_view3(a, n): from numpy import sort ; return sort(a[0:n, 0], 0, kind='stable')", numpy.arange(4*3, 0, -1).reshape(4,3).astype(float), 3, np_sort_view3=[NDArray[float, :, :], int])
+
     def test_sort_complex0(self):
         self.run_test("def np_sort_complex0(a): from numpy import sort_complex ; return sort_complex(a)", numpy.array([[1,6],[7,5]]), np_sort_complex0=[NDArray[int,:,:]])
 

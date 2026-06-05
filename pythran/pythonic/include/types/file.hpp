@@ -31,6 +31,7 @@ namespace types
 
   public:
     file_iterator(file &ref);
+    file_iterator(file &ref, file_iterator const &from);
     file_iterator();
     bool operator==(file_iterator const &f2) const;
     bool operator!=(file_iterator const &f2) const;
@@ -42,6 +43,7 @@ namespace types
   struct _file {
     FILE *f;
     _file();
+    _file(const _file &) = delete;
     _file(types::str const &filename, types::str const &strmode = "r");
     FILE *operator*() const;
     ~_file();
@@ -63,6 +65,15 @@ namespace types
 
     // Constructors
     file();
+    file(file &&other) noexcept
+        : file_iterator(*this, other), data(std::move(other.data)), is_open(other.is_open),
+          mode(std::move(other.mode)), name(std::move(other.name)),
+          newlines(std::move(other.newlines))
+    {
+    }
+
+    file(file const &other) = default;
+
     file(types::str const &filename, types::str const &strmode = "r");
 
     // Iterators

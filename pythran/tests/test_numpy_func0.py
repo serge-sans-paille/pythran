@@ -957,7 +957,7 @@ def np_ravel3(v):
         self.run_test("def np_fix4(x): from numpy import fix ; return fix(x+x)", numpy.array([2.1, 2.9, -2.1, -2.9]), np_fix4=[NDArray[float,:]])
 
     def test_cross1(self):
-        self.run_test("def np_cross1(x): from numpy import cross ; return cross(x, [3,4,5])", numpy.array([2.1, 2.9]), np_cross1=[NDArray[float,:]])
+        self.run_test("def np_cross1(x): from numpy import cross ; return cross(x, [3,4,5])", numpy.array([2, 2.1, 2.9]), np_cross1=[NDArray[float,:]])
 
     def test_cross2(self):
         self.run_test("def np_cross2(x): from numpy import cross ; return cross(x, -x)", numpy.array([2.1, 2.9, -2.1]), np_cross2=[NDArray[float,:]])
@@ -966,7 +966,7 @@ def np_ravel3(v):
         self.run_test("def np_cross3(x): from numpy import cross ; return cross(x, 2 * x)", numpy.array([[2.1, 2.9, -2.9]]), np_cross3=[NDArray[float,:, :]])
 
     def test_cross4(self):
-        self.run_test("def np_cross4(x): from numpy import cross ; return cross(x, [[1,2]])", numpy.array([[2.9, -2.1, -2.9]]), np_cross4=[NDArray[float,:, :]])
+        self.run_test("def np_cross4(x): from numpy import cross ; return cross(x, [[1,2,3]])", numpy.array([[2.9, -2.1, -2.9]]), np_cross4=[NDArray[float,:, :]])
 
     def test_finfo0(self):
         self.run_test("def np_finfo0(): from numpy import finfo, float64 ; x = finfo(float64) ; return x.eps", np_finfo0=[])

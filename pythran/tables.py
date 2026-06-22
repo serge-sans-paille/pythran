@@ -4693,17 +4693,20 @@ def save_arguments(module_name, elements):
 
             # Check if we already have a pythran description for that object
             if signature.args.args:
-                if module_name != ('numpy', 'random'):
+                if module_name == ('numpy', 'random'):
                     # Skip this warning for `numpy.random`, because the
                     # signatures changed in 1.25.x and that may yet be reverted
                     # (see pythran#2139) in 1.25.3 and/or 1.26.x
-                    logger.warning(
-                        "Overriding pythran description with argspec "
-                        "information for: {}".format(
-
-                        ".".join(module_name + (elem,))))
-                else:
                     continue
+                if module_name == ('numpy',) and elem == 'fromstring':
+                    # Skip this warning for `numpy.fromstring`, because the
+                    # signatures changed in 2.5 to deprecate the default sep
+                    continue
+                logger.warning(
+                    "Overriding pythran description with argspec "
+                    "information for: {}".format(
+
+                    ".".join(module_name + (elem,))))
 
             # Avoid use of comprehension to fill "as much args/defaults" as
             # possible

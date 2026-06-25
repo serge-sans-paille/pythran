@@ -38,5 +38,5 @@ jobs:
         pythran-config -vvv
         pythran -v pythran/tests/scipy/_group_columns.py
         ls -la _group_columns*
-        pythran -v pythran/tests/scipy/_group_columns.py -O2
+        pythran -v pythran/tests/scipy/_group_columns.py -GL
         ls -la _group_columns*

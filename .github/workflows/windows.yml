@@ -37,6 +37,6 @@ jobs:
         pythran --help
         pythran-config -vvv
         pythran -v pythran/tests/scipy/_group_columns.py
-        ls -la _group_columns*
-        pythran -v pythran/tests/scipy/_group_columns.py -GL
-        ls -la _group_columns*
+        stat _group_columns*
+        pythran -v pythran/tests/scipy/_group_columns.py -Zc:inline -Z7
+        stat _group_columns*

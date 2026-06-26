@@ -873,7 +873,9 @@ class RangeValues(RangeValuesBase):
         except RangeValueTooCostly:
             self.result = parent_result
             rvs = RangeValuesSimple(self)
-            rvs.visit(node)
+            rvs.function_visitor(node)
+            for k, v in rvs.result.items():
+                self.result[k] = v
 
     def visit_Return(self, node):
         if node.value:
@@ -1205,5 +1207,5 @@ class RangeValues(RangeValuesBase):
 
 
 # Un comment the line below to test RangeValuesSimple
-# RangeValues = RangeValuesSimple
-# RangeValues.__name__ = 'RangeValues'
+#RangeValues = RangeValuesSimple
+#RangeValues.__name__ = 'RangeValues'

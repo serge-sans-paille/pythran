@@ -116,6 +116,8 @@ namespace types
     none();
     none(none_type const &);
     none(T const &data);
+    template <class U, U V>
+    none(std::integral_constant<U, V> const &) : data(V), is_none(false) {}
     bool operator==(none_type const &) const;
     template <class O>
     bool operator==(O const &t) const;

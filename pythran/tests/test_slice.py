@@ -824,3 +824,25 @@ def slice_transpose0(n):
     slice1 = base[:10, 10:] # should have shape (10, 6)
     return slice1'''
         self.run_test(code, 16, slice_transpose0=[int])
+
+    def test_slice_bound_integral_constant(self):
+        # When a slice's upper bound is read from a nested tuple-of-list
+        # state whose leaf came from a local rebinding of a module-level
+        # int constant, pythran's type inference stores the leaf as
+        # `integral_constant<long, K>` rather than a plain `long`. The
+        # `contiguous_slice` ctor only accepts `none<long>` and there's no
+        # implicit conversion from `integral_constant<long, K>` -> the
+        # compile fails with "no matching constructor".
+        code = '''
+import numpy as np
+N_CONST = 5
+def _bump_and_slice(state, probs):
+    state[1][0][1][0] += 1
+    return np.argsort(-probs)[0:state[0][0]]
+def slice_bound_integral_constant(probs):
+    N = N_CONST
+    sub = tuple(([np.empty((0, N), dtype=np.float32)], [0]))
+    state = tuple(([N], [sub]))
+    return _bump_and_slice(state, probs)'''
+        self.run_test(code, numpy.zeros(16, dtype=numpy.float32),
+                      slice_bound_integral_constant=[NDArray[numpy.float32, :]])

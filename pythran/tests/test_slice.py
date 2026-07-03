@@ -824,3 +824,17 @@ def slice_transpose0(n):
     slice1 = base[:10, 10:] # should have shape (10, 6)
     return slice1'''
         self.run_test(code, 16, slice_transpose0=[int])
+
+    def test_slice_bound_integral_constant(self):
+        code = '''
+import numpy as np
+N_CONST = 5
+def slice_bound_integral_constant(probs):
+    N = N_CONST
+    sub = np.empty((1, N))
+    # type inference flags state[0][0] as an integral constant
+    # we must be sure that a slice is constructible from it
+    state = ([N], sub)
+    return np.argsort(-probs)[0:state[0][0]]'''
+        self.run_test(code, numpy.zeros(16, dtype=numpy.float32),
+                      slice_bound_integral_constant=[NDArray[numpy.float32, :]])

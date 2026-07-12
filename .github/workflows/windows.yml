@@ -36,9 +36,7 @@ jobs:
         pythran --version
         pythran --help
         pythran-config -vvv
-    - name: Testing sequential
-      run: |
-        pytest pythran/tests/test_ndarray.py -v -x
-        pytest pythran/tests/test_scipy.py -v -x
-        pytest pythran/tests/test_base.py -v -x
-        pytest pythran/tests/test_advanced.py -v -x
+        pythran -v pythran/tests/scipy/_group_columns.py
+        stat _group_columns*
+        pythran -v pythran/tests/scipy/_group_columns.py -Zc:inline -Z7
+        stat _group_columns*

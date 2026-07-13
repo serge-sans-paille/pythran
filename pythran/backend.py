@@ -444,21 +444,15 @@ class CxxFunction(ast.NodeVisitor):
                                             alltargets)
             elif isinstance(self.types[targets[0]],
                             self.types.builder.Assignable):
-                alltargets = '{} {}'.format(
-                    self.types.builder.AssignableNoEscape(
-                        self.types.builder.NamedType(
-                            'decltype({})'.format(value))).sgenerate(),
-                    alltargets)
+                alltargets = 'auto {}'.format(alltargets)
+                value = 'pythonic::make_assignable_noescape({})'.format(value)
             else:
                 assert isinstance(self.types[targets[0]],
                                   (self.types.builder.Lazy,
                                    self.types.builder.NamedType,
                                    self.types.builder.ListType))
-                alltargets = '{} {}'.format(
-                    self.types.builder.Lazy(
-                        self.types.builder.NamedType(
-                            'decltype({})'.format(value))).sgenerate(),
-                    alltargets)
+                alltargets = 'auto {}'.format(alltargets)
+                value = 'pythonic::make_lazy({})'.format(value)
         stmt = Assign(alltargets, value)
         return self.process_omp_attachements(node, stmt)
 

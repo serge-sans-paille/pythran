@@ -1659,3 +1659,18 @@ def test1(X,A):
         X = np.concatenate((np.zeros((N)),X))
     return X'''
         self.run_test(code, numpy.ones((10)), test_combiner_2=[NDArray[float,:]])
+
+    def test_combiner_3(self):
+        code = '''
+def fancy(signal, k):
+    sub = signal[1:]
+    s = sub[0]
+    if k:
+        sub = sub[1:]
+    return sub[0] + s
+
+def test_combiner_3(a, cutoff, k):
+    return fancy(-a[0:cutoff], k)
+'''
+        self.run_test(code, numpy.ones((10)), 5, 1,
+                      test_combiner_3=[NDArray[float,:], int, int])

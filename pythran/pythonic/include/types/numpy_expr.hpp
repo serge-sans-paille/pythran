@@ -834,8 +834,11 @@ template <class Op, class Op2, class... Args, class... Args2>
 struct __combined<pythonic::types::numpy_expr<Op, Args...>,
                   pythonic::types::numpy_expr<Op2, Args2...>> {
   using type = pythonic::types::ndarray<
-      typename pythonic::types::numpy_expr<Op, Args...>::dtype,
-      pythonic::types::array_tuple<long, pythonic::types::numpy_expr<Op, Args...>::value>>;
+      typename __combined<typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+                          typename pythonic::types::numpy_expr<Op2, Args2...>::dtype>::type,
+      pythonic::types::array_tuple<long,
+                                   std::max(pythonic::types::numpy_expr<Op, Args...>::value,
+                                            pythonic::types::numpy_expr<Op2, Args2...>::value)>>;
 };
 template <class E, class Op, class... Args>
 struct __combined<pythonic::types::numpy_iexpr<E>, pythonic::types::numpy_expr<Op, Args...>> {

@@ -1674,3 +1674,15 @@ def test_combiner_3(a, cutoff, k):
 '''
         self.run_test(code, numpy.ones((10)), 5, 1,
                       test_combiner_3=[NDArray[float,:], int, int])
+
+    def test_combiner_4(self):
+        code = '''
+import numpy as np
+def test_combiner_4(a, k):
+    x = a * 2
+    if k:
+        x = a * 2.13
+    return np.sum(x)
+'''
+        self.run_test(code, numpy.array([0, 2, 4, 1]), 1,
+                      test_combiner_4=[NDArray[int,:], int])

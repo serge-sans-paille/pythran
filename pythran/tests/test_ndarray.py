@@ -1686,3 +1686,17 @@ def test_combiner_4(a, k):
 '''
         self.run_test(code, numpy.array([0, 2, 4, 1]), 1,
                       test_combiner_4=[NDArray[int,:], int])
+
+    def test_combiner_5(self):
+        code = '''
+import numpy as np
+def test_combiner_5(a, idx, k):
+    x = a[idx]
+    if k:
+        x = a[1:]
+    return np.sum(x)
+'''
+        self.run_test(code, numpy.array([0, 2, 4, 1, 5.2]),
+                      numpy.array([0, 2, 4,]),
+                      1,
+                      test_combiner_5=[NDArray[float,:], NDArray[int, :],int])

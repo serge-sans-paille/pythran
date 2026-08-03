@@ -57,6 +57,14 @@ namespace types
       else
         return data_.template shape<I>();
     }
+    template <size_t I>
+    long strides() const
+    {
+      if (I == 0)
+        return view_.template strides<0>();
+      else
+        return data_.template strides<I>();
+    }
 
     iterator begin();
     iterator end();
@@ -186,6 +194,14 @@ struct __combined<pythonic::types::numpy_vexpr<E, F>, pythonic::types::ndarray<T
 template <class E, class F, class T, class pS>
 struct __combined<pythonic::types::ndarray<T, pS>, pythonic::types::numpy_vexpr<E, F>> {
   using type = pythonic::types::ndarray<T, pS>;
+};
+
+template <class E, class F, class Arg, class... S>
+struct __combined<pythonic::types::numpy_vexpr<E, F>, pythonic::types::numpy_gexpr<Arg, S...>> {
+  using type = pythonic::types::ndarray<
+      typename __combined<typename pythonic::types::numpy_vexpr<E, F>::dtype,
+                          typename pythonic::types::numpy_gexpr<Arg, S...>::dtype>::type,
+      pythonic::types::array_tuple<long, pythonic::types::numpy_vexpr<E, F>::value>>;
 };
 
 #endif

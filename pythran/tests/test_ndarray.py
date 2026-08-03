@@ -1700,3 +1700,15 @@ def test_combiner_5(a, idx, k):
                       numpy.array([0, 2, 4,]),
                       1,
                       test_combiner_5=[NDArray[float,:], NDArray[int, :],int])
+
+    def test_combiner_6(self):
+        code = '''
+import numpy as np
+def test_combiner_6(a, k):
+    x = a [:2]
+    for i in range(k):
+        x = x + a[i:i+2]
+    return x
+'''
+        self.run_test(code, numpy.array([3., -1., 4., -1., 5., 9., 2., 6.]), 3,
+                      test_combiner_6=[NDArray[float,:], int])

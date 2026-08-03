@@ -946,4 +946,13 @@ struct __combined<pythonic::types::ndarray<T, pS>, pythonic::types::numpy_gexpr<
   using type = pythonic::types::ndarray<T, pS>;
 };
 
+template <class Arg, class... S, class Op, class... Args>
+struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
+                  pythonic::types::numpy_expr<Op, Args...>> {
+  using type = pythonic::types::ndarray<
+      typename __combined<typename pythonic::types::numpy_gexpr<Arg, S...>::dtype,
+                          typename pythonic::types::numpy_expr<Op, Args...>::dtype>::type,
+      typename pythonic::types::numpy_gexpr<Arg, S...>::shape_t>;
+};
+
 #endif

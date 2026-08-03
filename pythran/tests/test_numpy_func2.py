@@ -562,6 +562,11 @@ def test_copy0(x):
     def test_asarray6(self):
         self.run_test("def np_asarray6(a):\n from numpy import asarray\n return asarray(a, dtype=int)", 1.5, np_asarray6=[float])
 
+    def test_asarray7(self):
+        self.run_test("def np_asarray7(a):\n from numpy import asarray; x = asarray(a[:-1]); y = asarray(x); y[0] = 1; return x[0], y[0]",
+                      numpy.array([0, 1, 2, 3]),
+                      np_asarray7=[NDArray[int, :]])
+
     if hasattr(numpy, 'farray'):
         def test_asfarray0(self):
             self.run_test("def np_asfarray0(a):\n from numpy import asfarray; b = asfarray(a) ; return a is b", numpy.arange(3.), np_asfarray0=[NDArray[float,:]])

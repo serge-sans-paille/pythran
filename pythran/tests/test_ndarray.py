@@ -1700,3 +1700,13 @@ def test_combiner_5(a, idx, k):
                       numpy.array([0, 2, 4,]),
                       1,
                       test_combiner_5=[NDArray[float,:], NDArray[int, :],int])
+
+    def test_combiner_7(self):
+        code = '''
+import numpy as np
+def test_combiner_7(a, k):
+    x = (a + 1) if k else np.zeros(3)
+    return np.sum(x)
+'''
+        self.run_test(code, numpy.ones(10), 1,
+                      test_combiner_7=[NDArray[float,:], int])

@@ -851,7 +851,10 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>, pythonic::types::num
 
 template <class T, class pS, class Op, class... Args>
 struct __combined<pythonic::types::numpy_expr<Op, Args...>, pythonic::types::ndarray<T, pS>> {
-  using type = pythonic::types::ndarray<T, pS>;
+  using type = pythonic::types::ndarray<
+    typename __combined<typename pythonic::types::numpy_expr<Op, Args...>::dtype,
+             T>::type,
+             pythonic::sutils::merged_shapes_t<pythonic::types::ndarray<T, pS>::value, typename pythonic::types::numpy_expr<Op, Args...>::shape_t, pS>>;
 };
 
 template <class T, class Op, class... Args>

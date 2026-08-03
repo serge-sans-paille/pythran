@@ -3,7 +3,7 @@
 
 #include "pythonic/include/numpy/append.hpp"
 
-#include "pythonic/numpy/asarray.hpp"
+#include "pythonic/numpy/ndarray/flatten.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/functor.hpp"
 
@@ -17,7 +17,7 @@ namespace numpy
                                   types::pshape<long>>>
   append(types::ndarray<T, pS> const &nto, F const &data)
   {
-    auto ndata = numpy::functor::asarray{}(data);
+    auto ndata = numpy::ndarray::functor::flatten{}(data);
     long nsize = nto.flat_size() + ndata.flat_size();
     types::ndarray<typename __combined<T, typename types::dtype_of<F>::type>::type,
                    types::pshape<long>>
@@ -47,7 +47,7 @@ namespace numpy
                  types::pshape<long>>
   append(T const &to, F const &data)
   {
-    return append(numpy::functor::asarray{}(to), data);
+    return append(numpy::ndarray::functor::flatten{}(to), data);
   }
 } // namespace numpy
 PYTHONIC_NS_END

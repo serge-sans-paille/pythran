@@ -1,7 +1,7 @@
 #ifndef PYTHONIC_NUMPY_COPYTO_HPP
 #define PYTHONIC_NUMPY_COPYTO_HPP
 
-#include "pythonic//numpy/asarray.hpp"
+#include "pythonic//numpy/array.hpp"
 #include "pythonic/include/numpy/copyto.hpp"
 
 #include "pythonic/types/ndarray.hpp"
@@ -15,7 +15,7 @@ namespace numpy
   {
     using out_type = types::ndarray<T, pS>;
     if (may_overlap(out, expr)) {
-      auto aexpr = asarray(expr);
+      auto aexpr = array(expr);
       utils::broadcast_copy<
           out_type &, decltype(aexpr), out_type::value,
           (int)out_type::value - (int)utils::dim_of<E>::value,
@@ -43,7 +43,7 @@ namespace numpy
   {
     using out_type = types::numpy_texpr<types::ndarray<T, pS>>;
     if (may_overlap(out, expr)) {
-      auto aexpr = asarray(expr);
+      auto aexpr = array(expr);
       utils::broadcast_copy<
           out_type &, decltype(aexpr), out_type::value,
           (int)out_type::value - (int)utils::dim_of<E>::value,

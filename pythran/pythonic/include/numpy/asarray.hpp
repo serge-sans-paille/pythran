@@ -21,6 +21,10 @@ namespace numpy
     F &&operator()(F &&a, dtype d = types::none_type());
   };
 
+  template <class Arg, class... S, class T>
+  struct _asarray<types::numpy_gexpr<Arg, S...>, T> : _asarray<std::decay_t<Arg>, T> {
+  };
+
   template <class E>
   auto asarray(E &&e, types::none_type d = types::none_type())
       -> decltype(_asarray<std::decay_t<E>, typename types::dtype_of<std::decay_t<E>>::type>{}(

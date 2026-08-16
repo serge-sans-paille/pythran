@@ -457,8 +457,10 @@ CLASSES = {
                 Fun[[Dict[T0, T1], T0], T1]
             ],
             return_alias=lambda args: {
-                ast.Subscript(args[0], args[1], ast.Load())
-            }.union({args[2]} if len(args) == 3 else set())
+                ast.Subscript(arg0, arg1, ast.Load())
+                              for arg0 in args[0]
+                              for arg1 in args[1]
+            }.union(args[2] if len(args) == 3 else set())
         ),
         "update": MethodIntr(update_effects),
         "values": ConstMethodIntr(signature=Fun[[Dict[T0, T1]], List[T1]]),
@@ -2775,7 +2777,7 @@ MODULES = {
             "abssqr": ConstFunctionIntr(),
             "static_list": ReadOnceFunctionIntr(
                 signature=Fun[[Iterable[T0]], List[T0]],
-                return_alias=lambda args: {args[0]}),
+                return_alias=lambda args: args[0]),
             "is_none": ConstFunctionIntr(),
             "kwonly": ConstFunctionIntr(),
             "len_set": ConstFunctionIntr(signature=Fun[[Iterable[T0]], int]),
@@ -4042,7 +4044,7 @@ MODULES = {
         # shares memory with its argument, but not the type.
         # Use a global effect to prevent the optimizer from removing it.
         "ravel": ConstMethodIntr(
-            #return_alias=lambda args: {args[0]},
+            #return_alias=lambda args: args[0],
             global_effects=True,
         ),
         "real": FunctionIntr(),

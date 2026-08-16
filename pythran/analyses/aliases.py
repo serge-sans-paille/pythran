@@ -248,15 +248,24 @@ class Aliases(ModuleAnalysis[GlobalDeclarations]):
         >>> module.body[0].return_alias # doctest: +ELLIPSIS
         <function ...merge_return_aliases at...>
 
-        This field is a function that takes as many nodes as the function
-        argument count as input and returns an expression based on
+        This field is a function that takes as many sets as the function
+        argument count as input and returns a list of expression based on
         these arguments if the function happens to create aliasing
         between its input and output. In our case:
 
         >>> f = module.body[0].return_alias
-        >>> Aliases.dump(f([ast.Name('A', ast.Load(), None, None),
-        ...                 ast.Constant(1, None)]))
+        >>> Aliases.dump(f([{ast.Name('A', ast.Load(), None, None)},
+        ...                 {ast.Constant(1, None)}]))
         ['A']
+
+        If an argument may alias to several nodes, this is also taken into
+        account:
+
+        >>> f = module.body[0].return_alias
+        >>> Aliases.dump(f([{ast.Name('A', ast.Load(), None, None),
+        ...                  ast.Name('B', ast.Load(), None, None)},
+        ...                 {ast.Constant(1, None)}]))
+        ['A', 'B']
 
         This also works if the relationship between input and output
         is more complex:
@@ -264,14 +273,15 @@ class Aliases(ModuleAnalysis[GlobalDeclarations]):
         >>> module = ast.parse('def foo(a, b): return a or b[0]')
         >>> result = pm.gather(Aliases, module)
         >>> f = module.body[0].return_alias
-        >>> List = ast.List([ast.Name('L0', ast.Load(), None, None)],
+        >>> List = ast.List([ast.Name('E', ast.Load(), None, None)],
         ...                 ast.Load())
-        >>> Aliases.dump(f([ast.Name('B', ast.Load(), None, None), List]))
-        ['B', '[L0][0]']
+        >>> Aliases.dump(f([{ast.Name('A', ast.Load(), None, None), ast.Name('B', ast.Load(), None, None)}, {List}]))
+        ['A', 'B', '[E][0]']
 
-        Which actually means that when called with two arguments ``B`` and
-        the single-element list ``[L[0]]``, ``foo`` may returns either the
-        first argument, or the first element of the second argument.
+        Which actually means that when called with two arguments: ``A`` or
+        ``B``, and the single-element list ``[E]``, ``foo`` may return
+        either the first argument, or the first element of the second argument,
+        a.k.a ``E``.
         '''
         if not node.value:
             return
@@ -283,18 +293,17 @@ class Aliases(ModuleAnalysis[GlobalDeclarations]):
     def call_return_alias(self, node):
 
         def interprocedural_aliases(func, args):
-            arg_aliases = [self.result[arg] or {arg} for arg in args]
+            args_aliases = [self.result[arg] or {arg} for arg in args]
             return_aliases = set()
-            for args_combination in product(*arg_aliases):
-                for ra in func.return_alias(args_combination):
-                    if isinstance(ra, ast.Subscript):
-                        if isinstance(ra.value, ContainerOf):
-                            if np.isnan(ra.value.index) or (isnum(ra.slice) and
-                                                            ra.slice.value ==
-                                                            ra.value.index):
-                                return_aliases.update(ra.value.containees)
-                            continue
-                    return_aliases.add(ra)
+            for ra in func.return_alias(args_aliases):
+                if isinstance(ra, ast.Subscript):
+                    if isinstance(ra.value, ContainerOf):
+                        if np.isnan(ra.value.index) or (isnum(ra.slice) and
+                                                        ra.slice.value ==
+                                                        ra.value.index):
+                            return_aliases.update(ra.value.containees)
+                        continue
+                return_aliases.add(ra)
             return return_aliases
 
         def full_args(func, call):
@@ -604,7 +613,7 @@ class Aliases(ModuleAnalysis[GlobalDeclarations]):
 
                         def return_alias(args):
                             if w < len(args):
-                                return {args[w]}
+                                return args[w]
                             else:
                                 return {node.args.defaults[w - len(args)]}
                         return return_alias

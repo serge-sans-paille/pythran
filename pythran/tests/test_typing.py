@@ -234,6 +234,25 @@ def typing_aliasing_and_update_and_multiple_aliasing1(i):
     foo(i)(h, 1)
     return h'''
         self.run_test(code, 1, typing_aliasing_and_update_and_multiple_aliasing1=[int])
+    def test_typing_aliasing_complexity(self):
+        code = '''
+def sink(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9):
+    return a0
+
+def typing_aliasing_complexity(x):
+    b0 = x
+    b1 = x
+    b2 = x
+    b3 = x
+    b4 = x
+    b5 = x
+    b6 = x
+    b7 = x
+    b8 = x
+    b9 = x
+    return sink(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9)'''
+        self.run_test(code, 11, typing_aliasing_complexity=[int])
+
 
 
     def test_functional_variant_assign0(self):

@@ -9,6 +9,7 @@
 #include "pythonic/utils/allocate.hpp"
 #include "pythonic/utils/functor.hpp"
 #include <algorithm>
+#include <limits>
 
 PYTHONIC_NS_BEGIN
 
@@ -62,15 +63,19 @@ namespace numpy
   decltype(std::declval<T>() + 1.) median(types::ndarray<T, pS> const &arr, types::none_type)
   {
     size_t n = arr.flat_size();
+    // numpy warns and returns nan for an empty input; without this guard the
+    // reads below run off the end of a zero-byte allocation.
+    if (n == 0)
+      return std::numeric_limits<double>::quiet_NaN();
     T *tmp = utils::allocate<T>(n);
     std::copy(arr.buffer, arr.buffer + n, tmp);
     std::nth_element(tmp, tmp + n / 2, tmp + n, ndarray::comparator<T>{});
-#if defined(_GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
     T t0 = tmp[n / 2];
-#if defined(_GNUC__) && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
     if (n % 2 == 1) {

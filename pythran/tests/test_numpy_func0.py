@@ -5,6 +5,7 @@ import numpy
 from packaging import version
 import tempfile
 import os
+import warnings
 
 from pythran.typing import NDArray, List, Tuple
 
@@ -266,6 +267,11 @@ def np_rosen_der(x):
 
     def test_nan_to_num0(self):
         self.run_test("def np_nan_to_num0(a): import numpy as np ; return np.nan_to_num(a)", numpy.array([numpy.inf, -numpy.inf, numpy.nan, -128, 128]), np_nan_to_num0=[NDArray[float,:]])
+
+    def test_median_empty(self):
+        with numpy.errstate(all="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            self.run_test("def np_median_empty(a): from numpy import median ; return median(a)", numpy.array([], dtype=float), np_median_empty=[NDArray[float,:]])
 
     def test_median0(self):
         self.run_test("def np_median0(a): from numpy import median ; return median(a)", numpy.array([[1, 2], [3, 4]]), np_median0=[NDArray[int,:,:]])
@@ -708,6 +714,54 @@ def np_ravel3(v):
 
     def test_rollaxis0(self):
         self.run_test("def np_rollaxis0(x): from numpy import rollaxis; return rollaxis(x, 1)", numpy.arange(24).reshape(2,3,4), np_rollaxis0=[NDArray[int, :, :, :]])
+
+    def test_roll22(self):
+        """Out-of-range axes raise like numpy's AxisError, a ValueError subclass."""
+        self.run_test("def np_roll22(x):\n from numpy import roll\n r = 0\n try:\n  r += roll(x, 1, 7)[0, 0]\n except ValueError:\n  r += 1\n try:\n  r += roll(x, (1,), (-5,))[0, 0]\n except ValueError:\n  r += 1\n return r",
+        numpy.arange(12).reshape(3, 4), np_roll22=[NDArray[int, :, :]])
+
+    def test_roll21(self):
+        """Empty array whose rolled axis is non-empty."""
+        self.run_test("def np_roll21(x): from numpy import roll; return roll(x, 1, 1)",
+        numpy.arange(0).reshape(0, 3), np_roll21=[NDArray[int, :, :]])
+
+    def test_roll20(self):
+        """Shift larger than the rolled dimension, tuple form."""
+        self.run_test("def np_roll20(x): from numpy import roll; return roll(x, (-50, 60), (-2, -1))",
+        numpy.arange(12).reshape(3, 4), np_roll20=[NDArray[int, :, :]])
+
+    def test_roll19(self):
+        """Negative axes, tuple form."""
+        self.run_test("def np_roll19(x): from numpy import roll; return roll(x, (1, 2), (-2, -1))",
+        numpy.arange(12).reshape(3, 4), np_roll19=[NDArray[int, :, :]])
+
+    def test_roll18(self):
+        """Fewer (shift, axis) pairs than dimensions."""
+        self.run_test("def np_roll18(x): from numpy import roll; return roll(x, (5,), (2,))",
+        numpy.arange(24).reshape(2, 3, 4), np_roll18=[NDArray[int, :, :, :]])
+
+    def test_roll17(self):
+        """Empty array, tuple form."""
+        self.run_test("def np_roll17(x): from numpy import roll; return roll(x, (1, 2), (0, 1))",
+        numpy.arange(0).reshape(0, 3), np_roll17=[NDArray[int, :, :]])
+
+    def test_roll16(self):
+        """Negative axis."""
+        self.run_test("def np_roll16(x): from numpy import roll; return roll(x, 1, -1)",
+        numpy.arange(12).reshape(3, 4), np_roll16=[NDArray[int, :, :]])
+
+    def test_roll15(self):
+        """Negative shift larger than the rolled dimension."""
+        self.run_test("def np_roll15(x): from numpy import roll; return roll(x, -123)",
+        numpy.arange(12), np_roll15=[NDArray[int, :]])
+
+    def test_roll14(self):
+        self.run_test("def np_roll14(x): from numpy import roll; return roll(x, -1, 0)",
+        numpy.arange(0).reshape(0, 3), np_roll14=[NDArray[int, :, :]])
+
+    def test_roll13(self):
+        self.run_test("def np_roll13(x): from numpy import roll; return roll(x, -1, 0)",
+        numpy.array([], dtype=int), np_roll13=[NDArray[int, :]])
 
     def test_roll12(self):
         self.run_test("def np_roll12(x): from numpy import roll; return roll(x, (1, 2, -3), (2, 0, 1))",

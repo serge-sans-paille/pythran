@@ -3,6 +3,8 @@
 
 #include "pythonic/include/numpy/roll.hpp"
 
+#include "pythonic/builtins/ValueError.hpp"
+#include "pythonic/operator_/mod.hpp"
 #include "pythonic/types/ndarray.hpp"
 #include "pythonic/utils/functor.hpp"
 #include "pythonic/utils/numpy_conversion.hpp"
@@ -16,15 +18,18 @@ namespace numpy
   template <class T, class pS>
   types::ndarray<T, pS> roll(types::ndarray<T, pS> const &expr, long shift)
   {
-    long expr_fsize = expr.flat_size();
-    if (expr_fsize == 0)
-      return expr.copy();
-    else if (shift < 0)
-      shift += expr_fsize;
-    else if (shift >= expr_fsize)
-      shift %= expr_fsize;
-
     types::ndarray<T, pS> out(expr._shape, builtins::None);
+    long expr_fsize = expr.flat_size();
+    // Nothing to roll: `out` has the right shape and no element, so it already
+    // matches `expr`. Returning it instead of `expr.copy()` also keeps GCC
+    // from deriving a zero-sized allocation for `copy()`, which triggers bogus
+    // -Warray-bounds. See #2472.
+    if (expr_fsize == 0)
+      return out;
+    // Python's floored modulo brings `shift` into [0, dim) whatever its sign;
+    // a plain `shift += dim` would only correct by one period.
+    shift = operator_::mod(shift, expr_fsize);
+
     std::copy(expr.fbegin(), expr.fend() - shift,
               std::copy(expr.fend() - shift, expr.fend(), out.fbegin()));
     return out;
@@ -70,15 +75,19 @@ namespace numpy
   template <class T, class pS>
   types::ndarray<T, pS> roll(types::ndarray<T, pS> const &expr, long shift, long axis)
   {
+    constexpr long ndim = types::ndarray<T, pS>::value;
     auto expr_shape = sutils::array(expr._shape);
-    if (expr_shape[axis] == 0)
-      return expr.copy();
-    if (shift < 0)
-      shift += expr_shape[axis];
-    else if (shift >= expr_shape[axis])
-      shift %= expr_shape[axis];
-
     types::ndarray<T, pS> out(expr._shape, builtins::None);
+    if (axis < 0)
+      axis += ndim;
+    if (axis < 0 || axis >= ndim)
+      throw types::ValueError("axis out of bounds");
+    // Nothing to roll: return the empty `out`, not `expr.copy()`. See the
+    // single-shift overload and #2472.
+    if (expr.flat_size() == 0)
+      return out;
+    shift = operator_::mod(shift, expr_shape[axis]);
+
     _roll(out.fbegin(), expr.fbegin(), shift, axis, expr_shape, utils::int_<0>());
     return out;
   }
@@ -127,18 +136,30 @@ namespace numpy
   {
     constexpr long ndim = types::ndarray<T, pS>::value;
     auto expr_shape = sutils::array(expr._shape);
-    long axes_shifts[ndim] = {0};
-    for (size_t i = 0; i < N; ++i)
-      axes_shifts[axes[i]] += shifts[i];
-
+    types::ndarray<T, pS> out(expr._shape, builtins::None);
     for (size_t i = 0; i < N; ++i) {
-      if (axes_shifts[i] < 0)
-        axes_shifts[i] += expr_shape[i];
-      else if (axes_shifts[i] >= expr_shape[i])
-        axes_shifts[i] %= expr_shape[i];
+      long axis = axes[i];
+      if (axis < 0)
+        axis += ndim;
+      if (axis < 0 || axis >= ndim)
+        throw types::ValueError("axis out of bounds");
+      axes[i] = axis;
+    }
+    // Nothing to roll (and no dimension to take a modulo of): return the
+    // empty `out`, not `expr.copy()`. See the single-shift overload and #2472.
+    if (expr.flat_size() == 0)
+      return out;
+
+    // Accumulate per-dimension shifts, keeping every entry in [0, dim):
+    // taking each shift modulo its dimension before adding keeps repeated
+    // axes from overflowing, and the trailing modulo reduces the sum of two
+    // such values back into range.
+    long axes_shifts[ndim] = {0};
+    for (size_t i = 0; i < N; ++i) {
+      long dim = expr_shape[axes[i]];
+      axes_shifts[axes[i]] = (axes_shifts[axes[i]] + operator_::mod(shifts[i], dim)) % dim;
     }
 
-    types::ndarray<T, pS> out(expr._shape, builtins::None);
     _rolls(out.fbegin(), expr.fbegin(), axes_shifts, expr_shape, utils::int_<0>());
     return out;
   }

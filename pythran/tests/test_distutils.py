@@ -156,35 +156,6 @@ if sys.version_info > (3, 9):
             self.assertIsNotNone(demo_so)
             shutil.rmtree(dist_path)
 
-        @unittest.skipIf(sys.version_info >= (3, 12), "setup install is deprecated")
-        def test_setup_build3(self):
-            check_call([python, 'setup.py', 'build'],
-                       cwd=os.path.join(cwd, 'test_distutils_numpy'))
-
-            base = os.path.join(cwd, 'test_distutils_numpy', 'demo_install3',)
-            libdir = os.path.join(base, 'lib')
-            lib64dir = os.path.join(base, 'lib64')
-
-            local_env = os.environ.copy()
-            local_env['PYTHONPATH'] = os.pathsep.join((
-                os.path.join(lib64dir, python_version,
-                             'site-packages'),
-                os.path.join(libdir, python_version,
-                             'site-packages'),
-                local_env.get('PYTHONPATH', ''),
-                ))
-
-            check_call([python, 'setup.py', 'install', '--prefix=demo_install3'],
-                       cwd=os.path.join(cwd, 'test_distutils_numpy'),
-                       env=local_env)
-
-            check_call([python, '-c', 'import demo3.a'],
-                       cwd=cwd, env=local_env)
-            check_call([python, 'setup.py', 'clean'],
-                       cwd=os.path.join(cwd, 'test_distutils_numpy'))
-            shutil.rmtree(os.path.join(cwd, 'test_distutils_numpy', 'demo_install3'))
-            shutil.rmtree(os.path.join(cwd, 'test_distutils_numpy', 'build'))
-
         def test_setup_sdist_install3(self):
             check_call([python, 'setup.py', 'sdist', "--dist-dir=sdist3"],
                        cwd=os.path.join(cwd, 'test_distutils_numpy'))

@@ -320,6 +320,7 @@ class LazynessAnalysis(FunctionAnalysis[ArgumentEffects, Aliases, PureExpression
                                           self.pre_loop_count[k][1])
 
     def visit_For(self, node):
+        self.visit(node.iter)
         md.visit(self, node)
         ids = self.gather(Identifiers, node.iter)
         if isinstance(node.target, ast.Name):

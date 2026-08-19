@@ -354,6 +354,19 @@ def foo():
         ref = 'def f(i):\n    while i:\n        if (i > 3):\n            x = 1\n            continue\n        x = 2\n    return x'
         self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
 
+    def test_forwarding2(self):
+        init = '''
+        def foo(a):
+            l = [0]
+            if a:
+                builtins.list.append(l, 1)
+            ret = 0
+            for i in l:
+                ret += i
+            return ret'''
+        ref = init
+        self.check_ast(init, ref, ["pythran.optimizations.ForwardSubstitution"])
+
     def test_full_unroll0(self):
         init = """
 def full_unroll0():

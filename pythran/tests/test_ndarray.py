@@ -112,6 +112,17 @@ class TestNdarray(TestEnv):
         self.run_test('def ndarray_imag_vexpr_read(a): import numpy as np ; return a[np.argsort(a)].imag',
                       1j * numpy.arange(10, dtype=numpy.complex128),
                       ndarray_imag_vexpr_read=[NDArray[complex, :]])
+    def test_sortmethod0(self):
+        self.run_test("def np_sortmethod0(a): from numpy import sort ; a.sort(); return a", numpy.array([[1,6],[7,5]]), np_sortmethod0=[NDArray[int,:,:]])
+
+    def test_sortmethod1(self):
+        self.run_test("def np_sortmethod1(a): from numpy import sort ; a.sort(axis=-1); return a", numpy.array([[1,6],[7,5]]), np_sortmethod1=[NDArray[int,:,:]])
+
+    def test_sortmethod2(self):
+        self.run_test("def np_sortmethod2(a): from numpy import sort ; a.sort(axis=0); return a", numpy.array([[1,6],[7,5]]), np_sortmethod2=[NDArray[int,:,:]])
+
+    def test_sortmethod3(self):
+        self.run_test("def np_sortmethod3(a): from numpy import sort ; a.sort(kind='stable'); return a", numpy.array([[1,6],[7,5]]), np_sortmethod3=[NDArray[int,:,:]])
 
     def test_ndarray_real_iexpr_read(self):
         self.run_test('def ndarray_real_iexpr_read(a): return a[1].real',

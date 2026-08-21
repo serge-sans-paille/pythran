@@ -149,7 +149,7 @@ namespace numpy
     template <class E>
     types::none_type sort(E &&expr, types::none_type)
     {
-      _sort(expr, 0, quicksorter());
+      _sort(expr, -1, quicksorter());
       return {};
     }
 

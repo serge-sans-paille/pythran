@@ -10,7 +10,7 @@ namespace numpy
   namespace ndarray
   {
     template <class E>
-    types::none_type sort(E &&expr, types::none_type);
+    types::none_type sort(E &&expr, types::none_type = {});
 
     template <class E>
     types::none_type sort(E &&expr, long axis, types::none_type = {});

@@ -148,6 +148,19 @@ class TestList(TestEnv):
                       [np.array([3,4])],
                       add_list_of_arrays=[List[NDArray[int, :]], List[NDArray[int, :]]])
 
+    def test_list_of_numpy_expr(self):
+        code = '''
+            def list_of_numpy_expr(a, idx, k):
+                import numpy
+                l = [a[idx]]
+                l.append(a[1:])
+                return numpy.sum(l[1])'''
+        self.run_test(code,
+                      np.array([3., -1., 4., -1., 5., 9., 2., 6.]),
+                      np.array([0, 2, 4, 1]),
+                      1,
+                      list_of_numpy_expr=[NDArray[float, :], NDArray[int, :], int])
+
     def test_slice_get_item_assign(self):
         self.run_test('def slice_get_item_assign(x): y = x[:]; y.remove(0); return x, y',
                       [0, 1,2,3],

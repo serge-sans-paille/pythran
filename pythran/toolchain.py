@@ -370,9 +370,15 @@ def compile_cxxfile(module_name, cxxfile, output_binary=None, **kwargs):
                 dest.write(src.read())
 
     ext = sysconfig.get_config_var('EXT_SUFFIX')
+    # Limited api seems to mangle the extension
     if getattr(extension, 'py_limited_api', False):
-        _, ext = os.path.splitext(ext)
-        ext = f".abi3{ext}"
+        if '.' in ext:
+            _, ext = os.path.splitext(ext)
+        binaries = glob.glob(os.path.join(builddir, f"{module_name}*{ext}"))
+        assert len(binaries) == 1, os.path.join(builddir,
+                                                f"{module_name}*{ext}")
+        ext = os.path.splitext(os.path.splitext(binaries[0])[0])[1] + ext
+
 
     # Copy all generated files including the module name prefix (.pdb, ...)
     for f in glob.glob(os.path.join(builddir, module_name + "*")):

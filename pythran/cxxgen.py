@@ -694,6 +694,7 @@ class PythonModule(object):
             '''.format(methods="".join(m + "," for m in themethods)))
 
         module = dedent('''
+        #if Py_LIMITED_API < 0x30f0000
             static struct PyModuleDef moduledef = {{
               PyModuleDef_HEAD_INIT,
               "{name}",            /* m_name */
@@ -734,6 +735,50 @@ class PythonModule(object):
                 {extraobjects}
                 return theModule;
             }}
+        #else
+            PyABIInfo_VAR(abi_info);
+
+            static int
+            _exec_{name}(PyObject *theModule)
+            {{
+                auto numpy_loader = []() -> bool {{
+                    import_array();
+                    {import_umath}
+                    return true;
+                }};
+                if(!numpy_loader())
+                    return 1;
+                PyObject * theDoc = Py_BuildValue("(ss)",
+                                                  "{version}",
+                                                  "{hash}");
+                if(! theDoc)
+                    return 1;
+                PyModule_AddObject(theModule,
+                                   "__pythran__",
+                                   theDoc);
+                {extraobjects}
+                return 0;
+            }}
+
+
+            static PySlot _slots_{name}[] = {{
+                PySlot_STATIC_DATA(Py_mod_abi, &abi_info),
+                PySlot_STATIC_DATA(Py_mod_name, (void*)"{name}"),
+                PySlot_STATIC_DATA(Py_mod_methods, Methods),
+                PySlot_STATIC_DATA(Py_mod_doc, (void*){moduledoc}),
+            #ifdef Py_GIL_DISABLED
+                PySlot_DATA(Py_mod_gil, Py_MOD_GIL_NOT_USED),
+            #endif
+                PySlot_FUNC(Py_mod_exec, _exec_{name}),
+                PySlot_END
+            }};
+
+            PyMODEXPORT_FUNC
+            PyModExport_{name}(void)
+            {{
+                return _slots_{name};
+            }}
+        #endif
             '''.format(name=self.name,
                        import_umath="import_umath();" if self.ufuncs else "",
                        extraobjects='\n'.join(theextraobjects),

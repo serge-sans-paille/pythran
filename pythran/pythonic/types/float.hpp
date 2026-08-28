@@ -33,7 +33,7 @@ inline bool from_python<long double>::is_convertible(PyObject *obj)
 
 inline long double from_python<long double>::convert(PyObject *obj)
 {
-#ifdef Py_LIMITED_API
+#if defined(Py_LIMITED_API) || defined(Py_TARGET_ABI3T)
   npy_longdouble val;
   PyArray_ScalarAsCtype(obj, &val);
   return val;
@@ -57,7 +57,7 @@ inline bool from_python<float>::is_convertible(PyObject *obj)
 }
 inline float from_python<float>::convert(PyObject *obj)
 {
-#ifdef Py_LIMITED_API
+#if defined(Py_LIMITED_API) || defined(Py_TARGET_ABI3T)
   npy_float val;
   PyArray_ScalarAsCtype(obj, &val);
   return val;

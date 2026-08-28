@@ -230,6 +230,8 @@ def make_extension(python, **extra):
         if limited_api:
             if sys.version_info < (3, 10):
                 logger.warning("Setting 'backend.limited_api' is only supported starting with Python 3.10, ignoring.")
+            elif cfg.getboolean("backend", "freethreading_compatible"):
+                major, minor = 3, 15
             else:
                 major, minor = 3, 7
     except ValueError:
@@ -243,8 +245,14 @@ def make_extension(python, **extra):
             logger.warning("Invalid 'backend.limited_api' entry, expected boolean or '3.7+', ignoring.")
 
     if major is not None:
-        extension["define_macros"].append(f'Py_LIMITED_API={hex(major << 24 | minor << 16)}')
-        extension["py_limited_api"] = True
+        api_version = hex(major << 24 | minor << 16)
+        if cfg.getboolean("backend", "freethreading_compatible"):
+            extension["define_macros"].append(f'Py_TARGET_ABI3T={api_version}')
+            # 2.5 seems to be the first numpy version supported by free-threading stable ABI
+            extension["define_macros"].append('NPY_TARGET_VERSION=NPY_2_5_API_VERSION')
+        else:
+            extension["define_macros"].append(f'Py_LIMITED_API={api_version}')
+            extension["py_limited_api"] = True
 
     for k, w in extra.items():
         extension[k].extend(w)

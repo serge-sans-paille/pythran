@@ -105,7 +105,11 @@ namespace python
     } else if (PyArray_Check(obj)) {
       auto *arr = (PyArrayObject *)obj;
       auto *descr = PyArray_DESCR(arr);
+#if NPY_TARGET_VERSION <= NPY_2_4_API_VERSION
       auto *dtype = descr->typeobj;
+#else
+      auto *dtype = PyDataType_TYPEOBJ(descr);
+#endif
       auto *repr = PyObject_GetAttrString((PyObject *)dtype, "__name__");
       oss << PyString_AS_STRING(repr);
       Py_DECREF(repr);

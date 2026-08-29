@@ -196,7 +196,7 @@ inline bool from_python<std::complex<float>>::is_convertible(PyObject *obj)
 template <>
 inline std::complex<long double> from_python<std::complex<long double>>::convert(PyObject *obj)
 {
-#ifdef Py_LIMITED_API
+#if defined(Py_LIMITED_API) || defined(Py_TARGET_ABI3T)
   npy_clongdouble val;
   PyArray_ScalarAsCtype(obj, &val);
 #else
@@ -214,7 +214,7 @@ inline std::complex<double> from_python<std::complex<double>>::convert(PyObject 
 template <>
 inline std::complex<float> from_python<std::complex<float>>::convert(PyObject *obj)
 {
-#ifdef Py_LIMITED_API
+#if defined(Py_LIMITED_API) || defined(Py_TARGET_ABI3T)
   npy_cfloat val;
   PyArray_ScalarAsCtype(obj, &val);
 #else

@@ -45,3 +45,12 @@ jobs:
         export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/gcc/'`
         export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/clang++/'`
         pytest pythran/tests/test_base.py -v -x
+    - name: Testing limited api
+      run: |
+        printf '[compiler]\nblas=scipy-openblas\n' > ~/.config/.pythranrc
+        printf 'cflags=-std=c++17 -DNPY_TARGET_VERSION=NPY_2_5_API_VERSION -Wall -Werror -Wno-unknown-pragmas -Wno-unused-local-typedefs -Wno-cpp -Wno-deprecated-declarations' >> ~/.config/.pythranrc
+        if test "${{ matrix.cpp-version }}" = "clang-13" ; then printf -- " -Wno-absolute-value -Wno-parentheses-equality\n" ; else printf "\n" ; fi >> ~/.config/.pythranrc
+        printf "[backend]\nlimited_api=1\n" >> ~/.config/.pythranrc
+        export CC=`echo ${{ matrix.cpp-version }} | sed -e 's/g++/gcc/'`
+        export CXX=`echo ${{ matrix.cpp-version }} | sed -e 's/clang/clang++/'`
+        pytest pythran/tests/test_base.py -v -x

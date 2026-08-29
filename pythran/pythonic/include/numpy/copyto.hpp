@@ -27,6 +27,13 @@ namespace numpy
     return {};
   }
 
+  template <class E, class F>
+  types::none_type copyto(E &&out, F const &expr)
+  {
+    std::move(out)[types::fast_contiguous_slice(0, types::none_type{})] = expr;
+    return {};
+  }
+
   DEFINE_FUNCTOR(pythonic::numpy, copyto);
 } // namespace numpy
 PYTHONIC_NS_END

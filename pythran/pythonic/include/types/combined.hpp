@@ -28,6 +28,23 @@ struct __combined<T0, T1, T2, Types...>
     : __combined<typename __combined<T0, T1>::type, T2, Types...> {
 };
 
+template <class... Types>
+struct __combine_updated ;
+
+template <class T>
+struct __combine_updated<T> {
+  using type = T;
+};
+
+template <class T0, class T1>
+struct __combine_updated<T0, T1> : __combined<T0, T1> {
+};
+
+template <class T0, class T1, class T2, class... Types>
+struct __combine_updated<T0, T1, T2, Types...>
+    : __combine_updated<typename __combine_updated<T0, T1>::type, T2, Types...> {
+};
+
 template <class T0, class T1>
 struct __combined<T0, T1> {
   // callable -> functor

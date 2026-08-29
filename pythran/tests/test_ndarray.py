@@ -1721,3 +1721,13 @@ def test_combiner_7(a, k):
 '''
         self.run_test(code, numpy.ones(10), 1,
                       test_combiner_7=[NDArray[float,:], int])
+
+    def test_combiner_8(self):
+        code = '''
+import numpy as np
+def test_combiner_8(a, k):
+    x = (a + 1) if k == 1 else (a[1:] if k == 2 else a * 3)
+    return x
+'''
+        self.run_test(code, numpy.ones(10), 3,
+                      test_combiner_8=[NDArray[float,:], int])

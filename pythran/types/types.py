@@ -219,11 +219,12 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         self.curr_locals_declaration = None
         self.ptype_count = 0
 
-    def combined(self, *types):
+    def combined(self, *types, update=False):
         all_types = ordered_set()
         for ty in types:
             if isinstance(ty, self.builder.CombinedTypes):
                 all_types.extend(ty.types)
+                update |= ty.update
             elif ty is not self.builder.UnknownType:
                 all_types.append(ty)
 
@@ -234,15 +235,22 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         else:
             all_types = all_types[:cfg.getint('typing', 'max_combiner')]
             if {type(ty) for ty in all_types} == {self.builder.ListType}:
-                return self.builder.ListType(self.combined(*[ty.of for ty in all_types]))
+                return self.builder.ListType(self.combined(*[ty.of for ty in
+                                                             all_types],
+                                                           update=update))
             if {type(ty) for ty in all_types} == {self.builder.SetType}:
-                return self.builder.SetType(self.combined(*[ty.of for ty in all_types]))
+                return self.builder.SetType(self.combined(*[ty.of for ty in
+                                                            all_types],
+                                                          update=update))
             if {type(ty) for ty in all_types} == {self.builder.Assignable}:
-                return self.builder.Assignable(self.combined(*[ty.of for ty in all_types]))
+                return self.builder.Assignable(self.combined(*[ty.of for ty in
+                                                               all_types],
+                                                             update=update))
             if {type(ty) for ty in all_types} == {self.builder.Lazy}:
-                return self.builder.Lazy(self.combined(*[ty.of for ty in all_types]))
-
-            return self.builder.CombinedTypes(*all_types)
+                return self.builder.Lazy(self.combined(*[ty.of for ty in
+                                                         all_types],
+                                                       update=update))
+            return self.builder.CombinedTypes(*all_types, update=update)
 
 
 
@@ -480,7 +488,9 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
         if isinstance(curr_ty, tuple):
             return
 
-        self.result[node] = self.combined(curr_ty, ty)
+        isupdate = isinstance(getattr(node, 'ctx', None), ast.Store) and any(isinstance(ancestor, ast.AugAssign) for ancestor in self.ancestors[node])
+        isupdate |= curr_ty is not self.builder.UnknownType
+        self.result[node] = self.combined(curr_ty, ty, update=isupdate)
 
     def visit_Import(self, node):
         for alias in node.names:
@@ -642,8 +652,8 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
 
     def visit_IfExp(self, node):
         self.generic_visit(node)
-        self.update_type(node, None, self.result[node.body])
-        self.update_type(node, None, self.result[node.orelse])
+        self.update_type(node, None, self.combined(self.result[node.body],
+                                                   self.result[node.orelse]))
 
     def visit_Compare(self, node):
         self.generic_visit(node)

@@ -901,10 +901,17 @@ struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
         pythonic::types::array_tuple<long, t0::value<t1::value ? t1::value : t0::value>>;
 };
 
-template <class Arg, class... S, class O>
+template <class Arg, class... S,  class O>
 struct __combined<pythonic::types::numpy_gexpr<Arg, S...>, O> {
+  using t = pythonic::types::numpy_gexpr<Arg, S...>;
+  using type = typename pythonic::assignable<decltype(std::declval<t>() + std::declval<O>())>::type;
+};
+
+template <class Arg, class... S, class O>
+struct __combine_updated<pythonic::types::numpy_gexpr<Arg, S...>, O> {
   using type = pythonic::types::numpy_gexpr<Arg, S...>;
 };
+
 template <class Arg, class... S, class T>
 struct __combined<pythonic::types::list<T>, pythonic::types::numpy_gexpr<Arg, S...>> {
   using type = pythonic::types::list<

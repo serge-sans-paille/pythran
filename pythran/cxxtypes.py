@@ -224,8 +224,9 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
 
             """
 
-            def __init__(self, *types):
+            def __init__(self, *types, update=False):
                 super(CombinedTypes, self).__init__(types=types)
+                self.update = update
 
             def iscombined(self):
                 return True
@@ -250,7 +251,8 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
                     sys.setrecursionlimit(current_recursion_limit)
                     return stypes[0]
                 else:
-                    stmp = f'typename __combined<{",".join(stypes)}>::type'
+                    typename = '__combine_updated' if self.update else '__combined'
+                    stmp = f'typename {typename}<{",".join(stypes)}>::type'
                     sys.setrecursionlimit(current_recursion_limit)
                     return stmp
 

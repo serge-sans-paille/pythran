@@ -1731,3 +1731,16 @@ def test_combiner_8(a, k):
 '''
         self.run_test(code, numpy.ones(10), 3,
                       test_combiner_8=[NDArray[float,:], int])
+
+
+    def test_combiner_9(self):
+        code = '''
+import numpy as np
+def test_combiner_9(a, k):
+    x = a [:2]
+    for i in range(k):
+        x = x + a[i:i+2]
+    return x
+'''
+        self.run_test(code, numpy.array([3., -1., 4., -1., 5., 9., 2., 6.]), 3,
+                      test_combiner_9=[NDArray[float,:], int])

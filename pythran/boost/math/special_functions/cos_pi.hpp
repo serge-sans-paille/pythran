@@ -10,8 +10,9 @@
 #pragma once
 #endif
 
+#include <cmath>
+#include <limits>
 #include <boost/math/special_functions/math_fwd.hpp>
-#include <boost/config/no_tr1/cmath.hpp>
 #include <boost/math/tools/config.hpp>
 #include <boost/math/special_functions/trunc.hpp>
 #include <boost/math/tools/promotion.hpp>
@@ -20,12 +21,12 @@
 namespace boost{ namespace math{ namespace detail{
 
 template <class T, class Policy>
-T cos_pi_imp(T x, const Policy& pol)
+T cos_pi_imp(T x, const Policy&)
 {
    BOOST_MATH_STD_USING // ADL of std names
    // cos of pi*x:
    bool invert = false;
-   if(fabs(x) < 0.25)
+   if(fabs(x) < T(0.25))
       return cos(constants::pi<T>() * x);
 
    if(x < 0)
@@ -33,8 +34,10 @@ T cos_pi_imp(T x, const Policy& pol)
       x = -x;
    }
    T rem = floor(x);
-   if(iconvert(rem, pol) & 1)
+   if(abs(floor(rem/2)*2 - rem) > std::numeric_limits<T>::epsilon())
+   {
       invert = !invert;
+   }
    rem = x - rem;
    if(rem > 0.5f)
    {
@@ -67,7 +70,7 @@ inline typename tools::promote_args<T>::type cos_pi(T x, const Policy&)
       policies::promote_double<false>,
       policies::discrete_quantile<>,
       policies::assert_undefined<>,
-      // We want to igore overflows since the result is in [-1,1] and the 
+      // We want to ignore overflows since the result is in [-1,1] and the 
       // check slows the code down considerably.
       policies::overflow_error<policies::ignore_error> >::type forwarding_policy;
    return policies::checked_narrowing_cast<result_type, forwarding_policy>(boost::math::detail::cos_pi_imp<value_type>(x, forwarding_policy()), "cos_pi");

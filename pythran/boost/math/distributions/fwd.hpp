@@ -64,6 +64,9 @@ template <class RealType, class Policy>
 class inverse_gaussian_distribution;
 
 template <class RealType, class Policy>
+class kolmogorov_smirnov_distribution;
+
+template <class RealType, class Policy>
 class laplace_distribution;
 
 template <class RealType, class Policy>
@@ -129,6 +132,7 @@ class weibull_distribution;
    typedef boost::math::gamma_distribution<Type, Policy> gamma;\
    typedef boost::math::geometric_distribution<Type, Policy> geometric;\
    typedef boost::math::hypergeometric_distribution<Type, Policy> hypergeometric;\
+   typedef boost::math::kolmogorov_smirnov_distribution<Type, Policy> kolmogorov_smirnov;\
    typedef boost::math::inverse_chi_squared_distribution<Type, Policy> inverse_chi_squared;\
    typedef boost::math::inverse_gaussian_distribution<Type, Policy> inverse_gaussian;\
    typedef boost::math::inverse_gamma_distribution<Type, Policy> inverse_gamma;\

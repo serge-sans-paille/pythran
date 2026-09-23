@@ -71,9 +71,20 @@ template <class T>
 struct assignable<T &&> : assignable<T> {
 };
 
+template<class T>
+typename assignable<T>::type make_assignable(T&& val) {
+  return std::forward<T>(val);
+}
+
+
 template <class T>
 struct lazy : assignable<T> {
 }; // very conservative
+
+template<class T>
+typename lazy<T>::type make_lazy(T&& val) {
+  return std::forward<T>(val);
+}
 
 template <class T>
 struct assignable_noescape : assignable<T> {
@@ -94,6 +105,11 @@ struct assignable_noescape<T &> : assignable_noescape<T> {
 template <class T>
 struct assignable_noescape<T &&> : assignable_noescape<T> {
 };
+
+template<class T>
+typename assignable_noescape<T>::type make_assignable_noescape(T&& val) {
+  return std::forward<T>(val);
+}
 
 template <class T>
 struct returnable : assignable<T> {

@@ -35,7 +35,7 @@ namespace types
   {
   }
 
-  // TODO : no check on file existance?
+  // TODO : no check on file existence?
   inline _file::_file(types::str const &filename, types::str const &strmode)
       : f(fopen(filename.c_str(), strmode.c_str()))
   {
@@ -264,6 +264,10 @@ namespace types
   // for line in open("myfile"):
   //     print line
   inline file_iterator::file_iterator(file &ref) : f(&ref), set(false), position(ref.tell())
+  {
+  }
+  inline file_iterator::file_iterator(file &ref, file_iterator const &from)
+      : f(&ref), set(from.set), curr(from.curr), position(from.position)
   {
   }
 

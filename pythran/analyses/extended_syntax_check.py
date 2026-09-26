@@ -3,7 +3,8 @@ ExtendedSyntaxCheck performs various syntax checks on the pythran AST.
 """
 
 from pythran.passmanager import ModuleAnalysis
-from pythran.analyses import StrictAliases, ArgumentEffects
+from pythran.analyses.aliases import StrictAliases
+from pythran.analyses.argument_effects import ArgumentEffects
 from pythran.syntax import PythranSyntaxError
 from pythran.intrinsic import ConstantIntr, FunctionIntr
 from pythran import metadata

@@ -4,7 +4,7 @@ and argument of functions flagged as immediate_arguments are
 considered as immediates
 """
 
-from pythran.analyses import Aliases
+from pythran.analyses.aliases import Aliases
 from pythran.passmanager import NodeAnalysis
 from pythran.utils import pythran_builtin, isnum, ispowi
 

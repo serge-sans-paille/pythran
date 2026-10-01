@@ -40,6 +40,7 @@ from .potential_iterator import PotentialIterator
 from .pure_expressions import PureExpressions
 from .pure_functions import PureFunctions
 from .range_values import RangeValues
+from .repeated_expressions import RepeatedExpressions
 from .scope import Scope
 from .static_expressions import StaticExpressions, HasStaticExpression
 from .use_def_chain import DefUseChains, UseDefChains, ExtendedDefUseChains

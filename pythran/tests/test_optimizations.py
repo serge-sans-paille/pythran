@@ -1,5 +1,15 @@
 from pythran.tests import TestEnv
 from pythran.typing import List, NDArray
+from pythran.backend import Python
+from pythran.optimizations import CommonSubexpressionElimination
+from pythran.passmanager import PassManager
+from pythran.middlend import refine
+from pythran.analyses.repeated_expressions import (
+    _children_with_conditionality)
+from pythran import frontend
+from textwrap import dedent
+import builtins
+import gast as ast
 import unittest
 import numpy
 
@@ -846,3 +856,535 @@ def inline_in_while_test(n: int) -> int:
     return result
         '''
         self.run_test(code, 7, inline_in_while_test=[int])
+
+
+class TestCommonSubexpressionElimination(TestEnv):
+
+    CSE = ["pythran.optimizations.CommonSubexpressionElimination"]
+
+    @staticmethod
+    def apply_cse(code):
+        pm = PassManager("testing")
+        node = ast.parse(dedent(code))
+        updated, node = pm.apply(CommonSubexpressionElimination, node)
+        return updated, pm.dump(Python, node)
+
+    @staticmethod
+    def optimize(code):
+        pm = PassManager("testing")
+        ir, _ = frontend.parse(pm, dedent(code))
+        refine(pm, ir, [CommonSubexpressionElimination])
+        return pm.dump(Python, ir)
+
+    def assert_same_behavior(self, code, name, arguments):
+        code = dedent(code)
+        optimized = self.optimize(code)
+        before, after = {}, {"builtins": builtins}
+        exec(code, before)
+        exec(optimized, after)
+        for args in arguments:
+            try:
+                expected = before[name](*args)
+            except Exception as e:
+                with self.assertRaises(type(e)):
+                    after[name](*args)
+            else:
+                self.assertEqual(expected, after[name](*args))
+        return optimized
+
+    def assert_hoisted(self, code, assignment, remaining):
+        updated, content = self.apply_cse(code)
+        self.assertTrue(updated)
+        self.assertIn(assignment, content)
+        self.assertEqual(content.count(remaining), 1)
+        return content
+
+    def assert_untouched(self, code):
+        updated, content = self.apply_cse(code)
+        self.assertFalse(updated)
+        self.assertNotIn("__cse", content)
+
+    def test_cse_binop(self):
+        init = """
+            def foo(a, b, c, d):
+                return (a + b) * c + (a + b) * d"""
+        ref = """
+            def foo(a, b, c, d):
+                __cse0 = (a + b)
+                return ((__cse0 * c) + (__cse0 * d))"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_three_occurrences(self):
+        init = """
+            def foo(a, b, c, d, e):
+                return (a + b) * c + (a + b) * d + (a + b) * e"""
+        ref = """
+            def foo(a, b, c, d, e):
+                __cse0 = (a + b)
+                return (((__cse0 * c) + (__cse0 * d)) + (__cse0 * e))"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_inserted_before_first_use(self):
+        init = """
+            def foo(a, b):
+                x = (a + b) * 2
+                y = (a + b) * 3
+                return x + y"""
+        ref = """
+            def foo(a, b):
+                __cse0 = (a + b)
+                x = (__cse0 * 2)
+                y = (__cse0 * 3)
+                return (x + y)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_unaryop(self):
+        init = """
+            def foo(a, b):
+                return (- (a * b)) + (- (a * b)) * 2"""
+        ref = """
+            def foo(a, b):
+                __cse0 = (- (a * b))
+                return (__cse0 + (__cse0 * 2))"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_compare(self):
+        self.assert_hoisted("""
+            def foo(a, b, c):
+                if a < b * c:
+                    return a
+                if a < b * c:
+                    return b
+                return c""", "__cse0 = (a < (b * c))", "(a < (b * c))")
+
+    def test_cse_call(self):
+        init = """
+            import math
+            def foo(a, b):
+                return math.sqrt(a * b) + math.sqrt(a * b)"""
+        ref = """
+            import math as __pythran_import_math
+            def foo(a, b):
+                __cse0 = __pythran_import_math.sqrt((a * b))
+                return (__cse0 + __cse0)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_attribute_operand(self):
+        init = """
+            import math
+            def foo(a, b):
+                return math.pi * (a + b) + math.pi * (a + b)"""
+        ref = """
+            import math as __pythran_import_math
+            def foo(a, b):
+                __cse0 = (__pythran_import_math.pi * (a + b))
+                return (__cse0 + __cse0)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_boolop(self):
+        init = """
+            def foo(a, b, c):
+                x = (a > 0) and (b > 0)
+                y = (a > 0) and (b > 0)
+                return x or y or c"""
+        ref = """
+            def foo(a, b, c):
+                __cse0 = ((a > 0) and (b > 0))
+                x = __cse0
+                y = __cse0
+                return (x or y or c)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_ifexp(self):
+        init = """
+            def foo(a, b, c):
+                x = (a if c > 0 else b) + 1
+                y = (a if c > 0 else b) + 2
+                return x + y"""
+        ref = """
+            def foo(a, b, c):
+                __cse0 = (a if (c > 0) else b)
+                x = (__cse0 + 1)
+                y = (__cse0 + 2)
+                return (x + y)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_single_occurrence(self):
+        self.assert_untouched("""
+            def foo(a, b):
+                return a + b""")
+
+    def test_cse_cheap_forms_untouched(self):
+        self.assert_untouched("""
+            def foo(a):
+                return a + a""")
+        self.assert_untouched("""
+            def foo():
+                return 42 + 42""")
+        self.assert_untouched("""
+            def foo(a):
+                return -a + -a""")
+        self.assert_untouched("""
+            def foo():
+                import math
+                return math.pi + math.pi""")
+
+    def test_cse_subscript_untouched(self):
+        self.assert_untouched("""
+            def foo(a, i):
+                return a[i] + a[i]""")
+
+    def test_cse_literals_untouched(self):
+        self.assert_untouched("""
+            def foo(a, b):
+                return [a, b] + [a, b]""")
+        self.assert_untouched("""
+            def foo(a, b):
+                x = (a, b)
+                y = (a, b)
+                return x, y""")
+        self.assert_untouched("""
+            def foo(a, b):
+                x = {a, b}
+                y = {a, b}
+                return x, y""")
+        self.assert_untouched("""
+            def foo(a, b):
+                x = {"a": a, "b": b}
+                y = {"a": a, "b": b}
+                return x, y""")
+
+    def test_cse_comprehension_not_hoisted(self):
+        pm = PassManager("testing")
+        node = ast.parse(dedent("""
+            def foo(a, b, items):
+                x = [a + b for _ in items]
+                y = [a + b for _ in items]
+                z = ((c for c in items), a + b)
+                w = ((c for c in items), a + b)
+                return x, y, z, w"""))
+        pm.apply(CommonSubexpressionElimination, node)
+        for stmt in ast.walk(node):
+            if (isinstance(stmt, ast.Assign) and
+                    isinstance(stmt.targets[0], ast.Name) and
+                    stmt.targets[0].id.startswith("__cse")):
+                self.assertNotIsInstance(stmt.value, (ast.ListComp,
+                                                      ast.GeneratorExp))
+
+    def test_cse_rebound_operand(self):
+        self.assert_untouched("""
+            def foo(a, b):
+                x = (a + b) * 2
+                a = a + 1
+                y = (a + b) * 3
+                return x + y""")
+
+    def test_cse_operand_rebound_in_branch(self):
+        self.assert_untouched("""
+            def foo(a, b, c, d):
+                x = (a + b) * c
+                if d:
+                    a = a + 1
+                y = (a + b) * c
+                return x + y""")
+
+    def test_cse_operand_rebound_in_loop(self):
+        init = """
+            def foo(a, b, c, d):
+                x = (a + b) * c
+                for i in range(d):
+                    a = a + i
+                y = (a + b) * c
+                return x + y"""
+        ref = """
+            def foo(a, b, c, d):
+                a_ = a
+                x = ((a_ + b) * c)
+                for i in builtins.range(d):
+                    a_ = (a_ + i)
+                y = ((a_ + b) * c)
+                return (x + y)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_across_branches(self):
+        self.assert_untouched("""
+            def foo(a, b, c):
+                if c > 0:
+                    x = (a + b) * 2
+                else:
+                    x = (a + b) * 3
+                return x""")
+
+    def test_cse_across_try_block(self):
+        self.assert_untouched("""
+            def foo(a, b, c):
+                try:
+                    x = (a + b) * c
+                except:
+                    x = 0
+                y = (a + b) * c
+                return x + y""")
+
+    def test_cse_across_with_block(self):
+        pm = PassManager("testing")
+        node = ast.parse(dedent("""
+            def foo(a, b, c, mgr):
+                with mgr:
+                    x = (a + b) * c
+                    pass
+                y = (a + b) * c
+                return x + y"""))
+        updated, _ = pm.apply(CommonSubexpressionElimination, node)
+        self.assertFalse(updated)
+        self.assertEqual([n for n in ast.walk(node)
+                          if isinstance(n, ast.Name) and
+                          n.id.startswith("__cse")], [])
+
+    def test_cse_loop_body(self):
+        init = """
+            def foo(a, b, n):
+                out = 0
+                for i in range(n):
+                    out += (a + b) * i + (a + b) * i
+                return out"""
+        ref = """
+            def foo(a, b, n):
+                out = 0
+                for i in builtins.range(n):
+                    __cse0 = ((a + b) * i)
+                    out += (__cse0 + __cse0)
+                return out"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_omp_loop(self):
+        init = """
+            def foo(a, b, n):
+                out = 0
+                "omp parallel for reduction(+:out)"
+                for i in range(n):
+                    out += (a + b) * i + (a + b) * i
+                return out"""
+        ref = """
+            def foo(a, b, n):
+                out = 0
+                'omp parallel for reduction(+:out)'
+                for i in builtins.range(n):
+                    out += (((a + b) * i) + ((a + b) * i))
+                return out"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_omp_in_other_function(self):
+        init = """
+            def foo(a, b, c, d):
+                return (a + b) * c + (a + b) * d
+            def bar(a, b, n):
+                out = 0
+                "omp parallel for reduction(+:out)"
+                for i in range(n):
+                    out += (a + b) * i + (a + b) * i
+                return out"""
+        ref = """
+            def foo(a, b, c, d):
+                __cse0 = (a + b)
+                return ((__cse0 * c) + (__cse0 * d))
+            def bar(a, b, n):
+                out = 0
+                'omp parallel for reduction(+:out)'
+                for i in builtins.range(n):
+                    out += (((a + b) * i) + ((a + b) * i))
+                return out"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_avoids_existing_name(self):
+        init = """
+            def foo(a, b, __cse0):
+                return (a + b) + (a + b) + __cse0"""
+        ref = """
+            def foo(a, b, __cse0):
+                __cse1 = (a + b)
+                return ((__cse1 + __cse1) + __cse0)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_counter_resets_per_function(self):
+        init = """
+            def foo(a, b):
+                return (a + b) + (a + b)
+            def bar(c, d):
+                return (c * d) + (c * d)"""
+        ref = """
+            def foo(a, b):
+                __cse0 = (a + b)
+                return (__cse0 + __cse0)
+            def bar(c, d):
+                __cse0 = (c * d)
+                return (__cse0 + __cse0)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_names_follow_source_order(self):
+        init = """
+            def foo(a, b, c, d):
+                p = (a + b)
+                q = (a + b)
+                r = (c + d)
+                s = (c + d)
+                return (p, q, r, s)"""
+        ref = """
+            def foo(a, b, c, d):
+                __cse0 = (a + b)
+                p = __cse0
+                __cse1 = (c + d)
+                q = __cse0
+                r = __cse1
+                s = __cse1
+                return (p, q, r, s)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_outer_expression_first(self):
+        updated, content = self.apply_cse("""
+            def foo(a, b, c, d):
+                x = (a + b) * c
+                y = (a + b) * c
+                return x + y + d""")
+        self.assertTrue(updated)
+        self.assertIn("__cse0 = ((a + b) * c)", content)
+        self.assertIn("x = __cse0", content)
+        self.assertIn("y = __cse0", content)
+
+    def test_cse_inner_expression_on_next_iteration(self):
+        init = """
+            def foo(a, b, c, d):
+                x = (a + b) * c
+                y = (a + b) * c
+                z = (a + b) + 1
+                return x + y + z + d"""
+        ref = """
+            def foo(a, b, c, d):
+                __cse1 = (a + b)
+                __cse0 = (__cse1 * c)
+                x = __cse0
+                y = __cse0
+                z = (__cse1 + 1)
+                return (((x + y) + z) + d)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_is_deterministic(self):
+        code = """
+            def foo(a, b, c, d):
+                return (a + b) * c + (a + b) * d"""
+        first = self.apply_cse(code)
+        for _ in range(3):
+            self.assertEqual(first, self.apply_cse(code))
+
+    def test_cse_reaches_fixed_point(self):
+        code = """
+            def foo(a, b, c, d):
+                return (a + b) * c + (a + b) * d"""
+        updated, content = self.apply_cse(code)
+        self.assertTrue(updated)
+        updated, again = self.apply_cse(content)
+        self.assertFalse(updated)
+        self.assertEqual(content, again)
+
+    def test_cse_preserves_value(self):
+        code = dedent("""
+            def foo(a, b, c, d):
+                x = (a + b) * c
+                y = (a + b) * c - d
+                return x * y + (a + b) * c""")
+        _, content = self.apply_cse(code)
+        before, after = {}, {}
+        exec(code, before)
+        exec(content, after)
+        for args in [(1, 2, 3, 4), (-5, 7, 11, 13), (0, 0, 0, 0)]:
+            self.assertEqual(before["foo"](*args), after["foo"](*args))
+
+    def test_cse_bool_operands_after_first_are_conditional(self):
+        code = """
+            def foo(a, i):
+                return i < len(a) and a[i] > 0 and a[i] < 9"""
+        self.assert_same_behavior(code, "foo", [([1, 5], 0), ([1, 5], 1),
+                                                ([1, 5], 2), ([1, 5], 7)])
+        code = """
+            def foo(x):
+                return x and (1 / x) * 2 + (1 / x) * 3"""
+        optimized = self.assert_same_behavior(code, "foo",
+                                              [(0.,), (2.,), (-4.,)])
+        self.assertNotIn("__cse", optimized)
+
+    def test_cse_ifexp_branches_are_conditional(self):
+        code = """
+            def foo(x):
+                return 1 / x + 1 / x if x else 0"""
+        optimized = self.assert_same_behavior(code, "foo", [(0.,), (4.,)])
+        self.assertNotIn("__cse", optimized)
+
+    def test_cse_ifexp_test_is_unconditional(self):
+        code = """
+            def foo(a, b, c):
+                x = (a + b) * 2 if (a + b) > c else c
+                return x"""
+        optimized = self.assert_same_behavior(code, "foo", [(1, 2, 0),
+                                                            (1, 2, 5)])
+        self.assertNotIn("__cse", optimized)
+
+    def test_cse_chained_comparison_is_conditional(self):
+        self.assert_untouched("""
+            def foo(x):
+                return 0 < x < 1 / x + 1 / x""")
+
+    def test_cse_assert_message_is_conditional(self):
+        code = """
+            def foo(x):
+                assert x, 1 / x + 1 / x
+                return x"""
+        optimized = self.assert_same_behavior(code, "foo", [(1.,), (3.,)])
+        self.assertNotIn("__cse", optimized)
+
+    def test_cse_comprehension_body_is_conditional(self):
+        pm = PassManager("testing")
+        node = ast.parse(dedent("""
+            def foo(a, b, items):
+                x = [(a + b) * i + (a + b) * i for i in items]
+                y = [i for i in items if (a + b) * i > (a + b) * i]
+                return x, y"""))
+        updated, _ = pm.apply(CommonSubexpressionElimination, node)
+        self.assertFalse(updated)
+
+    def test_cse_lambda_body_is_conditional(self):
+        node = ast.parse("lambda: (a + b) * c + (a + b) * c").body[0].value
+        self.assertTrue(all(conditional for _, conditional in
+                            _children_with_conditionality(node, False)))
+
+    def test_cse_conditional_occurrence_is_left_alone(self):
+        updated, content = self.apply_cse("""
+            def foo(a, b, c):
+                x = (a + b) * 2
+                y = (a + b) * 3
+                z = c and (a + b) * 4
+                return x, y, z""")
+        self.assertTrue(updated)
+        self.assertIn("__cse0 = (a + b)", content)
+        self.assertIn("x = (__cse0 * 2)", content)
+        self.assertIn("y = (__cse0 * 3)", content)
+        self.assertIn("z = (c and ((a + b) * 4))", content)
+
+    def test_cse_conditional_occurrence_alone_does_not_count(self):
+        self.assert_untouched("""
+            def foo(a, b, c):
+                x = (a + b) * 2
+                z = c and (a + b) * 4
+                return x, z""")
+
+    def test_cse_first_bool_operand_is_unconditional(self):
+        init = """
+            def foo(a, b, c):
+                x = ((a + b) > c) and c
+                y = ((a + b) > c) or c
+                return x, y"""
+        ref = """
+            def foo(a, b, c):
+                __cse0 = ((a + b) > c)
+                x = (__cse0 and c)
+                y = (__cse0 or c)
+                return (x, y)"""
+        self.check_ast(init, ref, self.CSE)

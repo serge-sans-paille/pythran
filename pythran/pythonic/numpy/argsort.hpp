@@ -60,7 +60,7 @@ namespace numpy
         for (long j = 0; j < buffer_size; ++j)
           indices.buffer[ith + j * stepper] = buffer[j];
 
-        ith = step;
+        ith += step;
         if (ith >= flat_size) {
           ith = ++nth;
         }

@@ -1,6 +1,7 @@
 """ NormalizeReturn adds return statement where relevant. """
 
-from pythran.analyses import CFG, YieldPoints
+from pythran.analyses.cfg import CFG
+from pythran.analyses.yield_points import YieldPoints
 from pythran.passmanager import Transformation
 
 import gast as ast

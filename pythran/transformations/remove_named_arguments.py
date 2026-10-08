@@ -1,6 +1,7 @@
 """ RemoveNamedArguments turns named arguments into regular ones.  """
 
-from pythran.analyses import Aliases, DefUseChains
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.use_def_chain import DefUseChains
 from pythran.conversion import PYTHRAN_IMPORT_MANGLING
 from pythran.errors import PythranInternalError
 from pythran.passmanager import Transformation

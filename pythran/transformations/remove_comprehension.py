@@ -1,6 +1,6 @@
 """ RemoveComprehension turns list comprehension into function calls. """
 
-from pythran.analyses import ImportedIds
+from pythran.analyses.imported_ids import ImportedIds
 from pythran.passmanager import Transformation
 from pythran.conversion import mangle
 

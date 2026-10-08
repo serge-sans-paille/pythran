@@ -1,8 +1,13 @@
 """ NormalizeStaticIf adds support for static guards. """
 
-from pythran.analyses import (ImportedIds, HasReturn, IsAssigned, CFG,
-                              HasBreak, HasContinue, DefUseChains, Ancestors,
-                              StaticExpressions, HasStaticExpression)
+from pythran.analyses.imported_ids import ImportedIds
+from pythran.analyses.has_return import HasReturn
+from pythran.analyses.is_assigned import IsAssigned
+from pythran.analyses.cfg import CFG
+from pythran.analyses.has_return import HasBreak, HasContinue
+from pythran.analyses.use_def_chain import DefUseChains
+from pythran.analyses.ancestors import Ancestors
+from pythran.analyses.static_expressions import StaticExpressions, HasStaticExpression
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 

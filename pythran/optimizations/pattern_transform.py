@@ -1,7 +1,7 @@
 """ Optimization for Python costly pattern. """
 
 from pythran.conversion import mangle
-from pythran.analyses import Check, Placeholder, AST_or
+from pythran.analyses.ast_matcher import Check, Placeholder, AST_or
 from pythran.passmanager import Transformation
 
 from copy import deepcopy

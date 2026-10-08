@@ -1,6 +1,6 @@
 """ TupleToShap transforms some Tuple node into shape nodes when relevant. """
 
-from pythran.analyses import Aliases
+from pythran.analyses.aliases import Aliases
 from pythran.tables import MODULES
 from pythran.passmanager import Transformation
 from pythran.utils import pythran_builtin_attr

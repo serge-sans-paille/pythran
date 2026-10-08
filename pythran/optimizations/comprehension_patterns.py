@@ -1,7 +1,7 @@
 
 """ Comprehension patterns transforms list comprehension into intrinsics.  """
 
-from pythran.analyses import OptimizableComprehension
+from pythran.analyses.optimizable_comprehension import OptimizableComprehension
 from pythran.passmanager import Transformation
 from pythran.transformations.normalize_tuples import ConvertToTuple
 from pythran.conversion import mangle

@@ -170,7 +170,7 @@ module. It can be used, for instance, to generate new unique identifiers::
   >>> from pythran import analyses
   >>> code = 'a = b = 1'
   >>> tree = ast.parse(code)
-  >>> sorted(pm.gather(analyses.Identifiers, tree))
+  >>> sorted(pm.gather(analyses.identifiers.Identifiers, tree))
   ['a', 'b']
 
 One can also computes the state of ``globals()``::
@@ -178,12 +178,12 @@ One can also computes the state of ``globals()``::
   >>> code = 'import math\n'
   >>> code += 'def foo(a): b = math.cos(a) ; return [b] * 3'
   >>> tree = ast.parse(code)
-  >>> sorted(list(pm.gather(analyses.Globals, tree)))
+  >>> sorted(list(pm.gather(analyses.globals_analysis.Globals, tree)))
   ['__dispatch__', 'builtins', 'foo', 'math']
 
 One can also compute the state of ``locals()`` at any point of the program::
 
-  >>> l = pm.gather(analyses.Locals, tree)
+  >>> l = pm.gather(analyses.locals_analysis.Locals, tree)
   >>> fdef = tree.body[-1]
   >>> freturn = fdef.body[-1]
   >>> sorted(l[freturn])
@@ -193,7 +193,7 @@ The ``ConstantFolding`` pass relies on the eponymous analyse that flags all
 constant expressions. In the previous code, there is only two constant
 *expressions* but only one can be evaluate::
 
-  >>> ce = pm.gather(analyses.ConstantExpressions, tree)
+  >>> ce = pm.gather(analyses.constant_expressions.ConstantExpressions, tree)
   >>> sorted(map(ast.dump, ce))
   ["Attribute(value=Name(id='math', ctx=Load(), annotation=None, type_comment=None), attr='cos', ctx=Load())", 'Constant(value=3, kind=None)']
 
@@ -203,7 +203,7 @@ variable, and one that computes an under set. ``Aliases`` computes an over-set::
 
   >>> code = 'def foo(c, d): b= c or d ; return b'
   >>> tree = ast.parse(code)
-  >>> al = pm.gather(analyses.Aliases, tree)
+  >>> al = pm.gather(analyses.aliases.Aliases, tree)
   >>> returned = tree.body[-1].body[-1].value
   >>> print(ast.dump(returned))
   Name(id='b', ctx=Load(), annotation=None, type_comment=None)
@@ -215,7 +215,7 @@ are updated, for instance using an augmented assign, or the ``append`` method::
 
   >>> code = 'def foo(l,a): l+=[a]\ndef bar(g): foo(g, 1)'
   >>> tree = ast.parse(code)
-  >>> ae = pm.gather(analyses.ArgumentEffects, tree)
+  >>> ae = pm.gather(analyses.argument_effects.ArgumentEffects, tree)
   >>> foo, bar = tree.body[0], tree.body[1]
   >>> ae[foo]
   [True, False]
@@ -227,7 +227,7 @@ pure functions, i.e. functions that have no side effects::
 
   >>> code = 'import random\ndef f():pass\ndef b(l): random.seed(0)'
   >>> tree = ast.parse(code)
-  >>> pf = pm.gather(analyses.PureExpressions, tree)
+  >>> pf = pm.gather(analyses.pure_expressions.PureExpressions, tree)
   >>> f = tree.body[1]
   >>> b = tree.body[2]
   >>> f in pf
@@ -241,6 +241,7 @@ application of a pure functions using a map results in a parallel ``map``::
   >>> code = 'def foo(x): return x*x\n'
   >>> code += 'builtins.map(foo, builtins.range(100))'
   >>> tree = ast.parse(code)
-  >>> pmaps = pm.gather(analyses.ParallelMaps, tree)
+  >>> from pythran.analyses.parallel_maps import ParallelMaps
+  >>> pmaps = pm.gather(ParallelMaps, tree)
   >>> len(pmaps)
   1

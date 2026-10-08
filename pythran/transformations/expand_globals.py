@@ -4,7 +4,7 @@ ExpandGlobals replaces globals variables by function call.
 It also turn globals assignment in function definition.
 """
 
-from pythran.analyses import LocalNameDeclarations
+from pythran.analyses.local_declarations import LocalNameDeclarations
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.utils import path_to_attr

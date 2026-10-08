@@ -1,6 +1,6 @@
 """ NormalizeTuples removes implicit variable -> tuple conversion. """
 
-from pythran.analyses import Identifiers
+from pythran.analyses.identifiers import Identifiers
 from pythran.passmanager import Transformation
 
 import gast as ast

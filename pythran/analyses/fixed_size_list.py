@@ -5,9 +5,10 @@ This could be a type information, but it seems easier to implement it that way
 """
 from pythran.passmanager import FunctionAnalysis
 from pythran.tables import MODULES
-from pythran.analyses import Aliases, Ancestors
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.ancestors import Ancestors
 from pythran.analyses.use_def_chain import DefUseChains
-from pythran.analyses import ArgumentEffects
+from pythran.analyses.argument_effects import ArgumentEffects
 
 import gast as ast
 

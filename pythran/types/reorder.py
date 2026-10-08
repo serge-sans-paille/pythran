@@ -2,7 +2,7 @@
 
 import gast as ast
 
-from pythran.analyses import OrderedGlobalDeclarations
+from pythran.analyses.ordered_global_declarations import OrderedGlobalDeclarations
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.types.type_dependencies import TypeDependencies

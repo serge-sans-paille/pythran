@@ -4,7 +4,7 @@ import gast as ast
 import itertools
 import os
 
-from pythran.analyses import GlobalDeclarations
+from pythran.analyses.global_declarations import GlobalDeclarations
 from pythran.errors import PythranInternalError
 from pythran.passmanager import ModuleAnalysis
 from pythran.types.conversion import PYTYPE_TO_CTYPE_TABLE

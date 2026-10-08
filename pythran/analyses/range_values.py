@@ -5,7 +5,8 @@ import gast as ast
 from collections import defaultdict
 from functools import reduce
 
-from pythran.analyses import Aliases, CFG
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.cfg import CFG
 from pythran.analyses.use_omp import UseOMP
 from pythran.intrinsic import Intrinsic
 from pythran.passmanager import ModuleAnalysis

@@ -1,6 +1,6 @@
 """This module turns a python AST into an optimized, pythran compatible ast."""
 
-from pythran.analyses import ExtendedSyntaxCheck
+from pythran.analyses.extended_syntax_check import ExtendedSyntaxCheck
 from pythran.optimizations import (ComprehensionPatterns, ListCompToGenexp,
                                    RemoveDeadFunctions)
 from pythran.transformations import (ExpandBuiltins, ExpandImports,

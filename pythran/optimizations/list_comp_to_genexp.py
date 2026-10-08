@@ -1,6 +1,6 @@
 """ ListCompToGenexp transforms list comprehension into genexp. """
 
-from pythran.analyses import PotentialIterator
+from pythran.analyses.potential_iterator import PotentialIterator
 from pythran.passmanager import Transformation
 
 import gast as ast

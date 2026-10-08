@@ -15,7 +15,7 @@ class ImportedIds(NodeAnalysis[Globals, Locals]):
 
     >>> import gast as ast
     >>> from pythran import passmanager
-    >>> from pythran.analyses import ImportedIds
+    >>> from pythran.analyses.imported_ids import ImportedIds
     >>> node = ast.parse('''
     ... def foo():
     ...   def t():

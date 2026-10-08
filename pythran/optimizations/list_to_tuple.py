@@ -1,6 +1,7 @@
 """ ListToTuple transforms some List node into more Efficient Tuple nodes. """
 
-from pythran.analyses import Aliases, FixedSizeList
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.fixed_size_list import FixedSizeList
 from pythran.tables import MODULES
 from pythran.passmanager import Transformation
 from pythran.utils import path_to_attr

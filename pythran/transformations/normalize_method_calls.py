@@ -1,6 +1,7 @@
 """ NormalizeMethodCalls turns built in method calls into function calls. """
 
-from pythran.analyses import Globals, Ancestors
+from pythran.analyses.globals_analysis import Globals
+from pythran.analyses.ancestors import Ancestors
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import attributes, functions, methods, MODULES

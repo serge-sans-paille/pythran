@@ -1,7 +1,7 @@
 """ Inlinable list function that may be inlined. """
 
 from pythran.passmanager import ModuleAnalysis
-from pythran.analyses import Identifiers
+from pythran.analyses.identifiers import Identifiers
 from pythran.analyses.pure_expressions import PureExpressions
 import pythran.metadata as metadata
 

@@ -4,10 +4,18 @@ This module contains all pythran backends.
     * Python dumps the AST into Python code
 '''
 
-from pythran.analyses import LocalNodeDeclarations, GlobalDeclarations, Scope
-from pythran.analyses import YieldPoints, IsAssigned, ASTMatcher, AST_any
-from pythran.analyses import RangeValues, PureExpressions, Dependencies
-from pythran.analyses import Immediates, Ancestors, StrictAliases
+from pythran.analyses.local_declarations import LocalNodeDeclarations
+from pythran.analyses.global_declarations import GlobalDeclarations
+from pythran.analyses.scope import Scope
+from pythran.analyses.yield_points import YieldPoints
+from pythran.analyses.is_assigned import IsAssigned
+from pythran.analyses.ast_matcher import ASTMatcher, AST_any
+from pythran.analyses.range_values import RangeValues
+from pythran.analyses.pure_expressions import PureExpressions
+from pythran.analyses.dependencies import Dependencies
+from pythran.analyses.immediates import Immediates
+from pythran.analyses.ancestors import Ancestors
+from pythran.analyses.aliases import StrictAliases
 from pythran.config import cfg
 from pythran.cxxgen import Template, Include, Namespace, CompilationUnit
 from pythran.cxxgen import Statement, Block, AnnotatedStatement, Typedef, Label

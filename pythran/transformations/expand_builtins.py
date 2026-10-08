@@ -1,6 +1,7 @@
 """ ExpandBuiltins replaces builtins by their full paths. """
 
-from pythran.analyses import Globals, Locals
+from pythran.analyses.globals_analysis import Globals
+from pythran.analyses.locals_analysis import Locals
 from pythran.passmanager import Transformation
 from pythran.syntax import PythranSyntaxError
 from pythran.tables import MODULES

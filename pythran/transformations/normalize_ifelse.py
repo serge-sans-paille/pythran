@@ -1,6 +1,6 @@
 """ NormalizeIfElse transform early exit in if into if-else. """
 
-from pythran.analyses import Ancestors
+from pythran.analyses.ancestors import Ancestors
 from pythran.passmanager import Transformation
 
 import gast as ast

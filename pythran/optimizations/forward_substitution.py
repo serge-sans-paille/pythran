@@ -3,8 +3,13 @@ Replace variable that can be lazy evaluated and used only once by their full
 computation code.
 """
 
-from pythran.analyses import LazynessAnalysis, UseDefChains, DefUseChains
-from pythran.analyses import Literals, Ancestors, Identifiers, CFG, IsAssigned
+from pythran.analyses.lazyness_analysis import LazynessAnalysis
+from pythran.analyses.use_def_chain import UseDefChains, DefUseChains
+from pythran.analyses.literals import Literals
+from pythran.analyses.ancestors import Ancestors
+from pythran.analyses.identifiers import Identifiers
+from pythran.analyses.cfg import CFG
+from pythran.analyses.is_assigned import IsAssigned
 from pythran.passmanager import Transformation
 import pythran.graph as graph
 

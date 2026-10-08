@@ -1,6 +1,7 @@
 """IterTransformation replaces expressions by iterators when possible."""
 
-from pythran.analyses import PotentialIterator, Aliases
+from pythran.analyses.potential_iterator import PotentialIterator
+from pythran.analyses.aliases import Aliases
 from pythran.passmanager import Transformation
 from pythran.utils import path_to_attr, path_to_node
 

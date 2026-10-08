@@ -1,8 +1,9 @@
 """ RemoveLambdas turns lambda into regular functions.  """
 
-from pythran.analyses import GlobalDeclarations, ImportedIds
-from pythran.analyses import Check
-from pythran.analyses import ExtendedDefUseChains
+from pythran.analyses.global_declarations import GlobalDeclarations
+from pythran.analyses.imported_ids import ImportedIds
+from pythran.analyses.ast_matcher import Check
+from pythran.analyses.use_def_chain import ExtendedDefUseChains
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.conversion import mangle

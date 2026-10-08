@@ -1,7 +1,8 @@
 """ LoopFullUnrolling fully unrolls loops with static bounds. """
 
 from pythran import metadata
-from pythran.analyses import HasBreak, HasContinue, NodeCount
+from pythran.analyses.has_return import HasBreak, HasContinue
+from pythran.analyses.node_count import NodeCount
 from pythran.openmp import OMPDirective
 from pythran.conversion import to_ast
 from pythran.passmanager import Transformation

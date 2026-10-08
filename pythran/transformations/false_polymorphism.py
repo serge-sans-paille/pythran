@@ -1,7 +1,8 @@
 """ FalsePolymorphism try to rename variable to avoid false polymorphism."""
 
 from pythran.passmanager import Transformation
-from pythran.analyses import DefUseChains, UseDefChains, Identifiers
+from pythran.analyses.use_def_chain import DefUseChains, UseDefChains
+from pythran.analyses.identifiers import Identifiers
 
 import gast as ast
 import re

@@ -1,6 +1,6 @@
 """ Optimize a[...] = b[...] + c when we have no conflicting aliasing """
 
-from pythran.analyses import InterproceduralAliases
+from pythran.analyses.aliases import InterproceduralAliases
 from pythran.passmanager import Transformation
 
 import gast as ast

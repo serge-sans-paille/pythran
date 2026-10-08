@@ -1,6 +1,7 @@
 """ Inlining inline functions body. """
 
-from pythran.analyses import Inlinable, Aliases
+from pythran.analyses.inlinable import Inlinable
+from pythran.analyses.aliases import Aliases
 from pythran.passmanager import Transformation
 
 import gast as ast

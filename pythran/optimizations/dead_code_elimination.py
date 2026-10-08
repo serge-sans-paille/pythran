@@ -1,6 +1,8 @@
 """ DeadCodeElimination remove useless code. """
 
-from pythran.analyses import PureExpressions, DefUseChains, Ancestors
+from pythran.analyses.pure_expressions import PureExpressions
+from pythran.analyses.use_def_chain import DefUseChains
+from pythran.analyses.ancestors import Ancestors
 from pythran.openmp import OMPDirective
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata

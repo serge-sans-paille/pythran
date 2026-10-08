@@ -4,10 +4,13 @@ This module performs the return type inference, according to symbolic types,
     * type_all generates a node -> type binding
 '''
 
-from pythran.analyses import LazynessAnalysis, StrictAliases, YieldPoints
-from pythran.analyses import LocalNodeDeclarations, Immediates, RangeValues
-from pythran.analyses import Ancestors
-from pythran.analyses.aliases import ContainerOf
+from pythran.analyses.lazyness_analysis import LazynessAnalysis
+from pythran.analyses.aliases import StrictAliases, ContainerOf
+from pythran.analyses.yield_points import YieldPoints
+from pythran.analyses.local_declarations import LocalNodeDeclarations
+from pythran.analyses.immediates import Immediates
+from pythran.analyses.range_values import RangeValues
+from pythran.analyses.ancestors import Ancestors
 from pythran.config import cfg
 from pythran.cxxtypes import TypeBuilder, ordered_set
 from pythran.intrinsic import UserFunction, Class

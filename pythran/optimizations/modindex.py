@@ -1,7 +1,10 @@
 ''' Simplify modulo computation based on index'''
 
-from pythran.analyses import UseDefChains, Ancestors, Aliases, RangeValues
-from pythran.analyses import Identifiers
+from pythran.analyses.use_def_chain import UseDefChains
+from pythran.analyses.ancestors import Ancestors
+from pythran.analyses.aliases import Aliases
+from pythran.analyses.range_values import RangeValues
+from pythran.analyses.identifiers import Identifiers
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 

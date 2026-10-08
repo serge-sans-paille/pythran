@@ -1,6 +1,6 @@
 """ Expand some builtins implementation when it is profitable."""
 
-from pythran.analyses import Aliases
+from pythran.analyses.aliases import Aliases
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.intrinsic import FunctionIntr

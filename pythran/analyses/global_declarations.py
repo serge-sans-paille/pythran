@@ -9,7 +9,7 @@ class GlobalDeclarations(ModuleAnalysis):
 
     >>> import gast as ast
     >>> from pythran import passmanager
-    >>> from pythran.analyses import GlobalDeclarations
+    >>> from pythran.analyses.global_declarations import GlobalDeclarations
     >>> node = ast.parse('''
     ... import math
     ... import math as maths
@@ -48,7 +48,7 @@ class NonlocalDeclarations(ModuleAnalysis):
 
     >>> import gast as ast
     >>> from pythran import passmanager
-    >>> from pythran.analyses import NonlocalDeclarations
+    >>> from pythran.analyses.global_declarations import NonlocalDeclarations
     >>> node = ast.parse('''
     ... def foo(a):
     ...   def t():

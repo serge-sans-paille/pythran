@@ -1,6 +1,7 @@
 """ RemoveNestedFunctions turns nested function into top-level functions. """
 
-from pythran.analyses import GlobalDeclarations, NonlocalDeclarations, ImportedIds
+from pythran.analyses.global_declarations import GlobalDeclarations, NonlocalDeclarations
+from pythran.analyses.imported_ids import ImportedIds
 from pythran.passmanager import Transformation
 from pythran.tables import MODULES
 from pythran.conversion import mangle

@@ -1,6 +1,6 @@
 """ DeadCodeElimination remove useless code. """
 
-from pythran.analyses import DefUseChains
+from pythran.analyses.use_def_chain import DefUseChains
 from pythran.passmanager import Transformation
 import pythran.metadata as metadata
 

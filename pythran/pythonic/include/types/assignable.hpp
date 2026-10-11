@@ -36,14 +36,26 @@ namespace types
   template <class T>
   using by_val_t = typename by_val<T, std::is_integral_v<std::decay_t<T>>>::type;
 
-  template <class F, class... Args>
-  static inline auto call(F &&f, Args &&...args)
-      -> decltype(std::forward<F>(f).template operator()<by_val_t<Args>...>(
-          static_cast<by_val_t<Args>>(args)...))
-  {
-    return std::forward<F>(f).template operator()<by_val_t<Args>...>(
-        static_cast<by_val_t<Args>>(args)...);
-  }
+  struct call {
+    template <class F, class... Args>
+    auto operator()(F &&f, Args &&...args) const
+        -> decltype(std::forward<F>(f).template operator()<by_val_t<Args>...>(
+            static_cast<by_val_t<Args>>(args)...))
+    {
+      return std::forward<F>(f).template operator()<by_val_t<Args>...>(
+          static_cast<by_val_t<Args>>(args)...);
+    }
+  };
+
+template <class... Ts> class pack_args {
+  std::tuple<Ts...> args;
+
+  public:
+    pack_args(Ts... args) : args{std::forward<Ts>(args)...} {}
+    auto get() && { return std::move(args); }
+};
+
+template <class... Ts> pack_args(Ts &&...) -> pack_args<Ts...>;
 
 } // namespace types
 

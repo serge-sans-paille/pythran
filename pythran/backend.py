@@ -916,7 +916,21 @@ class CxxFunction(ast.NodeVisitor):
             left = "pythonic::types::str({})".format(left)
         elif isstr(node.right):
             right = "pythonic::types::str({})".format(right)
-        return operator_to_lambda[type(node.op)](left, right)
+        f = {ast.Add: "pythonic::operator_::functor::add",
+             ast.Sub: "pythonic::operator_::functor::sub",
+             ast.Mult: "pythonic::operator_::functor::mul",
+             ast.Div: "pythonic::operator_::functor::div",
+             ast.Mod: "pythonic::operator_::functor::mod",
+             ast.Pow: "pythonic::builtins::functor::pow",
+             ast.LShift: "pythonic::operator_::functor::lshift",
+             ast.RShift: "pythonic::operator_::functor::rshift",
+             ast.BitOr: "pythonic::operator_::functor::or_",
+             ast.BitXor: "pythonic::operator_::functor::xor_",
+             ast.BitAnd: "pythonic::operator_::functor::and_",
+             ast.MatMult: "pythonic::operator_::functor::matmul",
+             ast.FloorDiv: "pythonic::operator_::functor::floordiv",
+        }[type(node.op)]
+        return f'std::apply({f}(), pythonic::types::pack_args{{{left}, {right}}}.get())'
 
     def visit_UnaryOp(self, node):
         operand = self.visit(node.operand)
@@ -968,7 +982,10 @@ class CxxFunction(ast.NodeVisitor):
     def visit_Tuple(self, node):
         elts = [self.visit(elt) for elt in node.elts]
         tuple_type = self.types[node]
-        result = "pythonic::types::make_tuple({0})".format(", ".join(elts))
+        if len(elts) > 1:
+            result = "std::apply(pythonic::types::functor::make_tuple(), pythonic::types::pack_args{{{}}}.get())".format(", ".join(elts))
+        else:
+            result = "pythonic::types::functor::make_tuple()({0})".format(", ".join(elts))
         if isinstance(tuple_type, self.types.builder.CombinedTypes):
             return '({}){}'.format(self.typeof(tuple_type), result)
         else:
@@ -995,12 +1012,21 @@ class CxxFunction(ast.NodeVisitor):
             else:
                 arg = args[0]
             result = fmt.format(attr, arg)
+
         # Avoid passing scalars by ref as it prevents some C++ optimization.
         # pythonic::types::call (tries to) handle that gracefully.
         elif args and self.is_user_function(node.func):
-            result = "pythonic::types::call({})".format(", ".join([func] + args))
+            # Using std::apply to force evaluation order. Useless and ambiguous with a single arg:
+            # std::tuple{a} does not create a tuple of tuple if a is a tuple, but a copy
+            if len(args) > 1:
+                result = f'std::apply(pythonic::types::call(), pythonic::types::pack_args{{{func}, {", ".join(args)}}}.get())'
+            else:
+                result = f'pythonic::types::call()({", ".join((func, *args))})'
         else:
-            result = "{}({})".format(func, ", ".join(args))
+            if len(args) > 1:
+                result = f'std::apply({func}, pythonic::types::pack_args{{{", ".join(args)}}}.get())'
+            else:
+                result = f'{func}({", ".join(args)})'
 
         # When we have extra type information to inject as a cast
         if isinstance(self.types.get(node), self.types.builder.CombinedTypes):

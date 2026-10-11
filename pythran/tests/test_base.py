@@ -803,3 +803,21 @@ def add_slice_to_list(l):
                       numpy.array([-1.3, 2.3, -4]),
                       slice(0,2,1),
                       slice0=[NDArray[float, :], slice])
+
+    def test_evaluation_order0(self):
+        self.run_test("""
+        def foo(l, i): l.append(i)
+        def evaluation_order0(i):
+            t = []
+            r = foo(t, i), foo(t, i + 1)
+            return t, r""", 0, evaluation_order0=[int])
+
+    def test_evaluation_order1(self):
+        self.run_test("""
+        def foo(l, i): l.append(i); return i
+        def evaluation_order1(i):
+            t = []
+            r = foo(t, i) + foo(t, i + 1)
+            return t, r""", 0, evaluation_order1=[int])
+
+

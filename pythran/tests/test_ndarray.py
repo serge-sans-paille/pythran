@@ -1165,6 +1165,27 @@ def complex_conversion0(x):
                       1, numpy.array([1,2,3,4]),
                       numpy_lazy_gexpr2=[int, NDArray[int, :]])
 
+    def test_reassign_gexpr(self):
+        code = '''
+            import numpy as np
+
+            def inner(s, k):
+                x = s[0:k]
+                if k > 1:
+                    x = x[1:]
+                s = np.sum(x)
+                return s
+
+            def outer(s, k):
+                return inner(s, k) + inner(s * 2, k)
+
+            def reassign_gexpr(a, k):
+                return outer(a + 1, k)'''
+        self.run_test(code,
+            numpy.array([3., -1., 4., -1., 5., 9., 2., 6.]),
+            3,
+            reassign_gexpr=[NDArray[float, :], int])
+
     def test_fexpr0(self):
         code = '''
             import numpy as np

@@ -509,21 +509,23 @@ namespace types
   }
 
   template <class Arg, class... S>
-  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator=(numpy_gexpr<Arg, S...> const &expr)
+  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator=(numpy_gexpr<Arg, S...> const &expr) &
   {
-    if (buffer == nullptr) {
-      // arg = expr.arg;
-      const_cast<std::decay_t<Arg> &>(arg) = expr.arg;
-      slices = expr.slices;
-      assert(expr.buffer);
-      buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
-      _shape = expr._shape;
-      _strides = expr._strides;
-      assert(sutils::getshape(*this) == sutils::getshape(expr) && "compatible sizes");
-      return *this;
-    } else {
-      return _copy(expr);
-    }
+    // arg = expr.arg;
+    const_cast<std::decay_t<Arg> &>(arg) = expr.arg;
+    slices = expr.slices;
+    assert(expr.buffer);
+    buffer = arg.buffer + (expr.buffer - expr.arg.buffer);
+    _shape = expr._shape;
+    _strides = expr._strides;
+    assert(sutils::getshape(*this) == sutils::getshape(expr) && "compatible sizes");
+    return *this;
+  }
+
+  template <class Arg, class... S>
+  numpy_gexpr<Arg, S...> &numpy_gexpr<Arg, S...>::operator=(numpy_gexpr<Arg, S...> const &expr) &&
+  {
+    return _copy(expr);
   }
 
   template <class Arg, class... S>

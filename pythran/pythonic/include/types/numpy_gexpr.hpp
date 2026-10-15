@@ -672,7 +672,8 @@ namespace types
     template <class E>
     numpy_gexpr &operator=(E const &expr);
 
-    numpy_gexpr &operator=(numpy_gexpr const &expr);
+    numpy_gexpr &operator=(numpy_gexpr const &expr) &;
+    numpy_gexpr &operator=(numpy_gexpr const &expr) &&;
 
     template <class Argp>
     numpy_gexpr &operator=(numpy_gexpr<Argp, S...> const &expr);

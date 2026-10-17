@@ -21,6 +21,7 @@ from pythran.typing import List, Dict, Set, Tuple, NDArray, Union
 from pythran.types.conversion import pytype_to_ctype, PYTYPE_TO_CTYPE_TABLE
 from pythran.types.reorder import Reorder
 from pythran.utils import attr_to_path, isnum, isextslice
+import pythran.metadata as metadata
 
 from collections import defaultdict
 from functools import reduce
@@ -562,7 +563,8 @@ class Types(ModuleAnalysis[Reorder, StrictAliases, LazynessAnalysis,
     def get_qualifier(self, node):
         lazy_res = self.lazyness_analysis[node.id]
         return (self.lazy
-                if lazy_res <= self.max_recompute
+                if (lazy_res <= self.max_recompute or
+                    metadata.get(node, metadata.Lazy))
                 else self.assignable)
 
     def visit_Return(self, node):

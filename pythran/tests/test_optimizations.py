@@ -1,5 +1,7 @@
 from pythran.tests import TestEnv
+from pythran.toolchain import generate_cxx, generate_py
 from pythran.typing import List, NDArray
+from textwrap import dedent
 import unittest
 import numpy
 
@@ -846,3 +848,428 @@ def inline_in_while_test(n: int) -> int:
     return result
         '''
         self.run_test(code, 7, inline_in_while_test=[int])
+
+
+class TestCommonSubexpressionElimination(TestEnv):
+
+    CSE = ["pythran.optimizations.CommonSubexpressionElimination"]
+
+    def check_untouched(self, code, optimizations=CSE):
+        content = generate_py("test", dedent(code), optimizations=optimizations)
+        self.assertNotIn("__cse", content)
+
+    def test_cse_binop(self):
+        init = """
+            def foo(a, b, c, d):
+                return (a + b) * c + (a + b) * d"""
+        ref = """
+            def foo(a, b, c, d):
+                __cse0 = (a + b)
+                return ((__cse0 * c) + (__cse0 * d))"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_across_statements(self):
+        init = """
+            def foo(a, b):
+                x = (a + b) * 2
+                y = (a + b) * 3
+                return x + y"""
+        ref = """
+            def foo(a, b):
+                __cse0 = (a + b)
+                x = (__cse0 * 2)
+                y = (__cse0 * 3)
+                return (x + y)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_call(self):
+        init = """
+            import math
+            def foo(a, b):
+                return math.sqrt(a * b) + math.sqrt(a * b)"""
+        ref = """
+            import math as __pythran_import_math
+            def foo(a, b):
+                __cse0 = __pythran_import_math.sqrt((a * b))
+                return (__cse0 + __cse0)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_call_argument(self):
+        init = """
+            import math
+            def foo(a, b):
+                return math.sqrt(a * b + 1) + math.cos(a * b + 1)"""
+        ref = """
+            import math as __pythran_import_math
+            def foo(a, b):
+                __cse0 = ((a * b) + 1)
+                return (__pythran_import_math.sqrt(__cse0) + __pythran_import_math.cos(__cse0))"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_larger_expression_first(self):
+        init = """
+            def foo(a, b, c):
+                return (a + b) * c * 2 + (a + b) * c * 3 + (a + b)"""
+        ref = """
+            def foo(a, b, c):
+                __cse1 = (a + b)
+                __cse0 = (__cse1 * c)
+                return (((__cse0 * 2) + (__cse0 * 3)) + __cse1)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_index(self):
+        init = """
+            def foo(u, i, n):
+                return u[i + 1] - u[i + 1:n - 1] * u[0:n - 1]"""
+        ref = """
+            def foo(u, i, n):
+                __cse0 = (i + 1)
+                __cse1 = (n - 1)
+                return (u[__cse0] - (u[__cse0:__cse1] * u[0:__cse1]))"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_if_tests(self):
+        init = """
+            def foo(a, b, c):
+                x = 0
+                if a < b * c:
+                    x = 1
+                if a < b * c:
+                    x += 2
+                return x"""
+        ref = """
+            def foo(a, b, c):
+                x = 0
+                __cse0 = (a < (b * c))
+                if __cse0:
+                    x = 1
+                if __cse0:
+                    x += 2
+                return x"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_loop_body(self):
+        init = """
+            def foo(a, b, n):
+                out = 0
+                for i in range(n):
+                    out += (a + b) * i + (a + b) * i
+                return out"""
+        ref = """
+            def foo(a, b, n):
+                out = 0
+                for i in builtins.range(n):
+                    __cse0 = ((a + b) * i)
+                    out += (__cse0 + __cse0)
+                return out"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_assigned_by_last_statement(self):
+        init = """
+            def foo(a, b, n):
+                c = a
+                for i in range(n):
+                    c = (c + b) * 2 + (c + b) * 3
+                return c"""
+        ref = """
+            def foo(a, b, n):
+                c = a
+                for i in builtins.range(n):
+                    __cse0 = (c + b)
+                    c = ((__cse0 * 2) + (__cse0 * 3))
+                return c"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_lazy(self):
+        code = """
+            def foo(a, b, c):
+                return (a + b) * c + (a + b) / c"""
+        module, _ = generate_cxx("test", dedent(code),
+                                 optimizations=self.CSE)
+        self.assertRegex(str(module), "pythonic::lazy<.*>::type __cse0")
+
+    def test_cse_existing_name(self):
+        init = """
+            def foo(a, b, __cse0):
+                return (a + b) + (a + b) + __cse0
+            def bar(c, d):
+                return (c * d) + (c * d)"""
+        ref = """
+            def foo(a, b, __cse0):
+                __cse1 = (a + b)
+                return ((__cse1 + __cse1) + __cse0)
+            def bar(c, d):
+                __cse0 = (c * d)
+                return (__cse0 + __cse0)"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_cheap(self):
+        self.check_untouched("""
+            import math
+            def foo(a, x):
+                p = -a * -a
+                q = math.pi * math.pi
+                r = x.real * x.real
+                s = (a + 1) * (a + 1.)
+                return p, q, r, s""")
+
+    def test_cse_subscript(self):
+        self.check_untouched("""
+            def foo(a, i):
+                return a[i] * 2 + a[i] * 3""")
+
+    def test_cse_bound_values(self):
+        self.check_untouched("""
+            def foo(a, b):
+                x = a + b
+                y = a + b
+                return x, y""")
+        self.check_untouched("""
+            def foo(a, b):
+                x = abs(a + b)
+                y = abs(a + b)
+                return x, y""")
+        self.check_untouched("""
+            def foo(a, b):
+                return (a + b) is (a + b)""")
+
+    def test_cse_view(self):
+        init = """
+            import numpy as np
+            def foo(x):
+                return np.transpose(x) * 2 + np.transpose(x) * 3"""
+        ref = """
+            import numpy as __pythran_import_numpy
+            def foo(x):
+                __cse0 = __pythran_import_numpy.transpose(x)
+                return ((__cse0 * 2) + (__cse0 * 3))"""
+        self.check_ast(init, ref, self.CSE)
+        self.check_untouched("""
+            import numpy as np
+            def foo(x):
+                y = np.transpose(x) * 2 + np.transpose(x) * 3
+                x[0, 0] = 7
+                return y""")
+        self.check_untouched("""
+            import numpy as np
+            def foo(x):
+                y = np.transpose(x[1:]) * 2 + np.transpose(x[1:]) * 3
+                x[1, 0] = 7
+                return y""")
+        self.check_untouched("""
+            def foo(a, b, c):
+                y = (a if c else b) * 2 + (a if c else b) * 3
+                a[0] = 7
+                return y""")
+        self.check_untouched("""
+            def foo(a, b):
+                y = (a + b) * 2 + (a + b) * 3
+                a[0] = 7
+                return y""")
+
+    def test_cse_inlinable(self):
+        self.check_untouched("""
+            def foo(a, b):
+                return (a + b) * 2 + (a + b) * 3
+            def bar(a, b):
+                return foo(a, b) + 1""")
+
+    def test_cse_iterator(self):
+        self.check_untouched("""
+            def foo(l):
+                return max(map(abs, l)) - min(map(abs, l))""")
+
+    def test_cse_in_place_update(self):
+        self.check_untouched("""
+            def foo(a, b, c):
+                x = (a + b) * c
+                c[0] = 1
+                return x + (a + b) / c""")
+        self.check_untouched("""
+            def foo(a, b):
+                c = a * 2
+                x = (a + b) * c
+                c += 1
+                return x + (a + b) / c""")
+        self.check_untouched("""
+            def foo(l):
+                a = len(l) + 1
+                l.append(3)
+                b = len(l) + 1
+                return a + b""")
+
+    def test_cse_rebound_operand(self):
+        self.check_untouched("""
+            def foo(a, b):
+                c = a
+                x = (c + b) * 2
+                c = c + 1
+                y = (c + b) * 3
+                return x + y""")
+        self.check_untouched("""
+            def foo(a, b, d):
+                c = a
+                x = (c + b) * 2
+                if d:
+                    c = c + 1
+                y = (c + b) * 3
+                return x + y""")
+
+    def test_cse_stored_index(self):
+        init = """
+            def foo(dx, L, i):
+                dx[i + 1] = dx[i + 1] - dx[i + 1] * L
+                dx[dx > L / 2] = dx[dx > L / 2] - L
+                return dx"""
+        ref = """
+            def foo(dx, L, i):
+                __cse0 = (i + 1)
+                dx[__cse0] = (dx[__cse0] - (dx[__cse0] * L))
+                dx[(dx > (L / 2))] = (dx[(dx > (L / 2))] - L)
+                return dx"""
+        self.check_ast(init, ref, self.CSE)
+
+    def test_cse_forwarded_value(self):
+        self.check_untouched("""
+            import numpy as np
+            def foo(a, lo, out):
+                mask = a < lo
+                out[mask] = 0
+                return out, np.logical_not(mask)""",
+                             ["pythran.optimizations.ForwardSubstitution"] + self.CSE)
+
+    def test_cse_across_branches(self):
+        self.check_untouched("""
+            def foo(a, b, c):
+                if c > 0:
+                    x = (a + b) * 2
+                else:
+                    x = (a + b) * 3
+                return x""")
+
+    def test_cse_while_test(self):
+        self.check_untouched("""
+            def foo(a, b):
+                n = 0
+                while (a + b) * n < (a + b) * 2 - n:
+                    n += 1
+                return n""")
+
+    def test_cse_guarded(self):
+        self.check_untouched("""
+            def foo(a, b):
+                x = (a / b) * 2 if b else 0
+                y = b and (a / b) * 3
+                return x, y""")
+
+    def test_cse_static(self):
+        self.check_untouched("""
+            def foo(a):
+                return isinstance(a, int) * 2 + isinstance(a, int) * 3""")
+
+    def test_cse_yield(self):
+        self.check_untouched("""
+            def foo(a, b):
+                x = (a + b) * 2
+                yield x
+                y = (a + b) * 3
+                yield y""")
+
+    def test_cse_omp(self):
+        self.check_untouched("""
+            def foo(a, b, n):
+                out = 0
+                "omp parallel for reduction(+:out)"
+                for i in range(n):
+                    out += (a + b) * i + (a + b) * i
+                return out""")
+        self.check_untouched("""
+            def foo(a, b, n):
+                x = (a + b) * 2
+                out = 0
+                "omp parallel for reduction(+:out)"
+                for i in range(n):
+                    out += i
+                y = (a + b) * 3
+                return x + y + out""")
+
+    def test_cse_run_array(self):
+        code = """
+import numpy as np
+def cse_run_array(a, b):
+    return (a + b) * np.cos(a + b) - (a + b)[1:].sum()"""
+        self.run_test(code, numpy.arange(5.), numpy.ones(5),
+                      cse_run_array=[NDArray[float, :], NDArray[float, :]])
+
+    def test_cse_run_scalar(self):
+        code = """
+def cse_run_scalar(x, n):
+    s = 0.
+    for i in range(n):
+        s += (x * i + 1.) * (x * i + 1.) - (x * i + 1.)
+    return s"""
+        self.run_test(code, 1.5, 10, cse_run_scalar=[float, int])
+
+    def test_cse_run_fresh_arrays(self):
+        code = """
+import numpy as np
+def cse_run_fresh_arrays(n):
+    a = np.zeros(n)
+    b = np.zeros(n)
+    a[0] = 1
+    return a, b"""
+        self.run_test(code, 3, cse_run_fresh_arrays=[int])
+
+    def test_cse_run_in_place_update(self):
+        code = """
+def cse_run_in_place_update(a, b, c):
+    x = (a + b) * c
+    c[0] = 7
+    return x + (a + b) / c"""
+        self.run_test(code, numpy.arange(4.), numpy.ones(4), numpy.ones(4),
+                      cse_run_in_place_update=[NDArray[float, :],
+                                               NDArray[float, :],
+                                               NDArray[float, :]])
+
+    def test_cse_run_view(self):
+        code = """
+import numpy as np
+def cse_run_view(x):
+    y = np.transpose(x) * 2 + np.transpose(x) * 3
+    x[0, 0] = 7
+    return y"""
+        self.run_test(code, numpy.arange(6.).reshape(2, 3),
+                      cse_run_view=[NDArray[float, :, :]])
+
+    def test_cse_run_forwarded(self):
+        code = """
+def cse_run_forwarded(a, b):
+    y = (a + b) * 2 + (a + b) * 3
+    a[0] = 7
+    return y"""
+        self.run_test(code, numpy.arange(4.), numpy.ones(4),
+                      cse_run_forwarded=[NDArray[float, :],
+                                         NDArray[float, :]])
+
+    def test_cse_run_impure_call(self):
+        code = """
+def cse_run_impure_call(l):
+    a = len(l) + 1
+    l.append(3)
+    b = len(l) + 1
+    return a, b"""
+        self.run_test(code, [1, 2], cse_run_impure_call=[List[int]])
+
+    def test_cse_run_stored_index(self):
+        code = """
+def cse_run_stored_index(dx, L):
+    dx[dx > L / 2] = dx[dx > L / 2] - L
+    return dx"""
+        self.run_test(code, numpy.arange(10.), 8.,
+                      cse_run_stored_index=[NDArray[float, :], float])
+
+    def test_cse_run_iterator(self):
+        code = """
+def cse_run_iterator(l):
+    return max(map(abs, l)) - min(map(abs, l))"""
+        self.run_test(code, [1, -5, 3], cse_run_iterator=[List[int]])

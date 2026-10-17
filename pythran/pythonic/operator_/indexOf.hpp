@@ -13,15 +13,33 @@ PYTHONIC_NS_BEGIN
 
 namespace operator_
 {
-
-  template <class A, class B>
-  long indexOf(A &&a, B &&b)
+  namespace detail
   {
-    auto where = std::find(a.begin(), a.end(), b);
-    if (where == a.end())
-      throw types::ValueError(builtins::anonymous::str(b) + " is not in this sequence");
-    return where - a.begin();
+    template <class C, class V>
+    struct has_index {
+      template <class Cp, class Vp,
+                class _ = decltype(std::declval<Cp>().index(std::declval<Vp>()))>
+      static constexpr std::true_type get(Cp *, Vp *);
+      static constexpr std::false_type get(...);
+      static constexpr bool value =
+          decltype(get(std::declval<C *>(), std::declval<std::decay_t<V> *>()))::value;
+    };
+  } // namespace detail
+
+  template <class C, class V, class... Args>
+  long indexOf(C const &c, V &&v, Args &&...args)
+  {
+    if constexpr (detail::has_index<C, V>::value) {
+      return c.index(std::forward<V>(v), std::forward<Args>(args)...);
+    } else {
+      static_assert(sizeof...(Args) == 0);
+      auto where = std::find(c.begin(), c.end(), v);
+      if (where == c.end())
+        throw types::ValueError(builtins::anonymous::str(v) + " is not in this sequence");
+      return where - c.begin();
+    }
   }
+
 } // namespace operator_
 PYTHONIC_NS_END
 

@@ -8,8 +8,8 @@ PYTHONIC_NS_BEGIN
 namespace operator_
 {
 
-  template <class A, class B>
-  long indexOf(A &&a, B &&b);
+  template <class C, class V, class... Args>
+  long indexOf(C const &c, V &&v, Args &&...args);
 
   DEFINE_FUNCTOR(pythonic::operator_, indexOf);
 } // namespace operator_

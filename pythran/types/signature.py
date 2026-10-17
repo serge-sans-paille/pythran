@@ -57,8 +57,9 @@ def path_to(self, t, deps_builders, node):
         )
     if isinstance(t, Fun):
         raise InfeasibleCombiner()
-    if isinstance(t, Iterable):  # FIXME?
-        raise InfeasibleCombiner()
+    if isinstance(t, Iterable):
+        return lambda arg: self.builder.ContainerType(
+            path_to(self, t.__args__[0], deps_builders, node)(arg))
 
     assert False, (t, t.mro())
 

@@ -565,7 +565,7 @@ struct __combined<indexable_container<K, V0>, pythonic::types::list<V1>> {
 };
 
 template <class K, class V0, class V1>
-struct __combined<pythonic::types::list<V1>, indexable_container<K, V0>> {
+struct __combined<pythonic::types::list<V0>, indexable_container<K, V1>> {
   using type = pythonic::types::list<typename __combined<V0, V1>::type>;
 };
 

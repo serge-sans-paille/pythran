@@ -445,6 +445,14 @@ pythonic::types::attr::REAL{}, std::declval<complex>()))
             def generate(self, ctx):
                 return f'pythonic::types::list<std::remove_reference_t<{ctx(self.of)}>>'
 
+        class SortedListType(DependentType):
+            '''
+            Type holding a sorted list of stuff of the same type
+            '''
+
+            def generate(self, ctx):
+                return f'pythonic::types::SortedList<std::remove_reference_t<{ctx(self.of)}>>'
+
         class SetType(DependentType):
             '''
             Type holding a set of stuff of the same type

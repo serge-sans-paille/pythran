@@ -9,6 +9,7 @@ import sys
 
 from pythran.typing import Dict, Set, List, TypeVar, Union, Optional, NDArray
 from pythran.typing import Generator, Fun, Tuple, Iterable, Sized, File
+from pythran.typing import SortedList
 
 from pythran.conversion import to_ast, ToNotEval
 from pythran.intrinsic import Class
@@ -391,6 +392,30 @@ CLASSES = {
             signature=Fun[[Set[T0], Set[T0]], bool]),
         "issubset": ConstMethodIntr(
             signature=Fun[[Set[T0], Set[T0]], bool]),
+    },
+    "SortedList": {
+        "add": MethodIntr(signature=Fun[[SortedList[T0], T0], None]),
+        "bisect_left": MethodIntr(signature=Fun[[SortedList[T0], T0], int]),
+        "bisect_right": MethodIntr(signature=Fun[[SortedList[T0], T0], int]),
+        "clear": MethodIntr(signature=Fun[[SortedList[T0]], None]),
+        "count": ConstMethodIntr(signature=Fun[[SortedList[T0], T0], int]),
+        "discard": MethodIntr(signature=Fun[[SortedList[T0], T0], None]),
+        "index": ConstMethodIntr(
+            signature=Union[
+                Fun[[SortedList[T0], T0], int],
+                Fun[[SortedList[T0], T0, int], int],
+                Fun[[SortedList[T0], T0, int, int], int],
+            ],
+            return_range=interval.positive_values
+        ),
+        "pop": MethodIntr(
+            signature=Union[
+                Fun[[SortedList[T0]], T0],
+                Fun[[SortedList[T0], int], T0],
+            ],
+        ),
+        "remove": MethodIntr(signature=Fun[[SortedList[T0], T0], None]),
+        "update": MethodIntr(update_effects),
     },
     "Exception": {
         "args": AttributeIntr(signature=Fun[[T0], str]),
@@ -4533,6 +4558,15 @@ MODULES = {
         ),
 
     },
+    "sortedcontainers": {
+        "SortedList": ClassWithReadOnceConstructor(
+            CLASSES['SortedList'],
+            signature=Union[
+                Fun[[], SortedList[T0]],
+                Fun[[Iterable[T0]], SortedList[T0]],
+            ],
+        ),
+    },
     "string": {
         "ascii_lowercase": ConstantIntr(signature=str),
         "ascii_uppercase": ConstantIntr(signature=str),
@@ -4556,6 +4590,7 @@ MODULES = {
     },
     # conflicting method names must be listed here
     "__dispatch__": {
+        "add": MethodIntr(signature=Fun[[Iterable[T0], T0], None]),
         "append": MethodIntr(signature=Fun[[List[T0], T0], None]),
         "clear": MethodIntr(signature=Fun[[T0], None]),
         "conjugate": ConstMethodIntr(),
@@ -4568,6 +4603,7 @@ MODULES = {
             ],
             return_range=interval.positive_values
         ),
+        "discard": MethodIntr(signature=Fun[[Iterable[T0], T0], None]),
         "extend": MethodIntr(signature=Fun[[List[T0], Iterable[T0]], None]),
         "index": ConstMethodIntr(
             signature=Union[
@@ -4579,7 +4615,7 @@ MODULES = {
         ),
         "insert": MethodIntr(signature=Fun[[List[T0], int, T0], None]),
         "pop": MethodIntr(),
-        "remove": MethodIntr(),
+        "remove": MethodIntr(signature=Fun[[Iterable[T0], T0], None]),
         "reverse": MethodIntr(),
         "sort": MethodIntr(),
         "tolist": ConstMethodIntr(),

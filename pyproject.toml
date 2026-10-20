@@ -1,7 +1,6 @@
 [project]
 name = "pythran"
 authors = [{name="Serge Guelton", email="serge.guelton@telecom-bretagne.eu"}]
-license = {file = "LICENSE"}
 description = "Ahead of Time compiler for numeric kernels"
 requires-python = ">=3.7"
 classifiers=[
@@ -17,7 +16,7 @@ classifiers=[
   'Topic :: Software Development :: Compilers',
   'Topic :: Software Development :: Code Generators'
 ]
-dynamic = ["version", "readme", "dependencies"]
+dynamic = ["version", "readme", "dependencies", "license"]
 
 [project.urls]
 Homepage = "https://github.com/serge-sans-paille/pythran"

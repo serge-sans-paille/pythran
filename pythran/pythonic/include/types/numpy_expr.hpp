@@ -745,14 +745,12 @@ namespace types
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
                          !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
-                     numpy_vexpr<numpy_expr, F>>
-    operator[](F const &filter) const;
+                     numpy_vexpr<numpy_expr, F>> operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
                          !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
-                     numpy_vexpr<numpy_expr, F>>
-    fast(F const &filter) const;
+                     numpy_vexpr<numpy_expr, F>> fast(F const &filter) const;
 
     // FIXME: this does not take into account bounds and broadcasting
     auto operator[](long i) const -> decltype(this->fast(i));

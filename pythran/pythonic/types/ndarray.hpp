@@ -750,8 +750,7 @@ namespace types
   template <class F> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
                        !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
-                   numpy_vexpr<ndarray<T, pS>, F>>
-  ndarray<T, pS>::operator[](F const &filter) const
+                   numpy_vexpr<ndarray<T, pS>, F>> ndarray<T, pS>::operator[](F const &filter) const
   {
     return {*this, filter};
   }
@@ -760,8 +759,7 @@ namespace types
   template <class F> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
                        !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
-                   numpy_vexpr<ndarray<T, pS>, F>>
-  ndarray<T, pS>::fast(F const &filter) const
+                   numpy_vexpr<ndarray<T, pS>, F>> ndarray<T, pS>::fast(F const &filter) const
   {
     return {*this, filter};
   }

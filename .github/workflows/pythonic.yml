@@ -17,8 +17,8 @@ jobs:
     - name: Install dependencies
       run: |
         pip install pytest-xdist
-        sudo apt install clang
-        sudo apt install clang-tidy
+        sudo apt install clang-22
+        sudo apt install clang-tidy-22
         sudo apt install libomp-dev
     - name: Setup
       run: |

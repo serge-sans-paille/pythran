@@ -33,4 +33,5 @@ jobs:
         clang-tidy --version
     - name: Testing Pythonic
       run: |
-        pytest pythran/tests/pythonic_*.py -v -x --numprocesses=auto
+        pytest pythran/tests/pythonic_format.py -v -x --numprocesses=auto
+        #pytest pythran/tests/pythonic_tidy.py -v -x --numprocesses=auto

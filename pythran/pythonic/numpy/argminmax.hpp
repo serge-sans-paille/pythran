@@ -73,8 +73,7 @@ namespace numpy
   template <class Op, class E, class T>
   std::enable_if_t<E::is_vectorizable && types::is_vector_op<typename Op::op, T, T>::value &&
                        !std::is_same_v<typename E::dtype, bool>,
-                   long>
-  _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
+                   long> _argminmax(E const &elts, T &minmax_elts, utils::int_<1>)
   {
     using vT = xsimd::batch<T>;
     using iT = xsimd::as_integer_t<T>;

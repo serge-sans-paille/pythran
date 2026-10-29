@@ -7,7 +7,7 @@ import unittest
 
 class FormatTest(unittest.TestCase):
     excluded_files = ['pdqsort.hpp']
-    clang_format = 'clang-format-20'
+    clang_format = 'clang-format-22'
 
     def setUp(self):
         try:

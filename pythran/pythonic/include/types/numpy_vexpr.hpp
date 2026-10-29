@@ -137,14 +137,12 @@ namespace types
     template <class E> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<E>::value && !is_array_index<E>::value &&
                          !std::is_same_v<bool, typename E::dtype> && !is_pod_array<F>::value,
-                     numpy_vexpr<numpy_vexpr, E>>
-    operator[](E const &filter) const;
+                     numpy_vexpr<numpy_vexpr, E>> operator[](E const &filter) const;
 
     template <class E> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<E>::value && !is_array_index<E>::value &&
                          !std::is_same_v<bool, typename E::dtype> && !is_pod_array<F>::value,
-                     numpy_vexpr<numpy_vexpr, E>>
-    fast(E const &filter) const;
+                     numpy_vexpr<numpy_vexpr, E>> fast(E const &filter) const;
 
     template <class Op, class Expr>
     numpy_vexpr &update_(Expr const &expr);

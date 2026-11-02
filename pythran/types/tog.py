@@ -172,6 +172,7 @@ def TupleTrait(of_types):
 
 
 ListTrait = TypeOperator('list', [])
+SortedListTrait = TypeOperator('sortedlist', [])
 SetTrait = TypeOperator('set', [])
 DictTrait = TypeOperator('dict', [])
 StrTrait = TypeOperator('str', [])
@@ -192,6 +193,11 @@ def File():
 
 def List(of_type):
     return Collection(Traits([ListTrait, LenTrait, SliceTrait]),
+                      Integer(), of_type, of_type)
+
+
+def SortedList(of_type):
+    return Collection(Traits([SortedListTrait, LenTrait, SliceTrait]),
                       Integer(), of_type, of_type)
 
 
@@ -437,6 +443,9 @@ def tr(t):
 
         elif isinstance(t, typing.List):
             return List(rec_tr(t.__args__[0], env))
+
+        elif isinstance(t, typing.SortedList):
+            return SortedList(rec_tr(t.__args__[0], env))
 
         elif isinstance(t, typing.Optional):
             return OptionType(rec_tr(t.__args__[0], env))

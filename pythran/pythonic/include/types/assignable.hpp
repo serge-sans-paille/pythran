@@ -47,15 +47,23 @@ namespace types
     }
   };
 
-template <class... Ts> class pack_args {
-  std::tuple<Ts...> args;
+  template <class... Ts>
+  class pack_args
+  {
+    std::tuple<Ts...> args;
 
   public:
-    pack_args(Ts... args) : args{std::forward<Ts>(args)...} {}
-    auto get() && { return std::move(args); }
-};
+    pack_args(Ts... args) : args{std::forward<Ts>(args)...}
+    {
+    }
+    auto get() &&
+    {
+      return std::move(args);
+    }
+  };
 
-template <class... Ts> pack_args(Ts &&...) -> pack_args<Ts...>;
+  template <class... Ts>
+  pack_args(Ts &&...) -> pack_args<Ts...>;
 
 } // namespace types
 

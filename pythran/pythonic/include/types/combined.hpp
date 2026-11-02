@@ -29,7 +29,7 @@ struct __combined<T0, T1, T2, Types...>
 };
 
 template <class... Types>
-struct __combine_updated ;
+struct __combine_updated;
 
 template <class T>
 struct __combine_updated<T> {

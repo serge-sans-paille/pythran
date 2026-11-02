@@ -16,7 +16,7 @@ namespace types
 
     template <class Type>
     variant_functor_impl<Type>::variant_functor_impl(char mem[], Type const &t)
-        : fun(new(mem) Type(t))
+        : fun(new (mem) Type(t))
     {
     }
 
@@ -29,7 +29,7 @@ namespace types
     template <class Type>
     variant_functor_impl<Type>::variant_functor_impl(char mem[],
                                                      variant_functor_impl<Type> const &t)
-        : fun(t.fun ? new(mem) Type(*t.fun) : nullptr)
+        : fun(t.fun ? new (mem) Type(*t.fun) : nullptr)
     {
     }
 

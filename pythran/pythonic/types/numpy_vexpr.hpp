@@ -129,8 +129,7 @@ namespace types
   template <class E> // indexing through an array of indices -- a view
   std::enable_if_t<is_numexpr_arg<E>::value && !is_array_index<E>::value &&
                        !std::is_same_v<bool, typename E::dtype> && !is_pod_array<F>::value,
-                   numpy_vexpr<numpy_vexpr<T, F>, E>>
-  numpy_vexpr<T, F>::fast(E const &filter) const
+                   numpy_vexpr<numpy_vexpr<T, F>, E>> numpy_vexpr<T, F>::fast(E const &filter) const
   {
     return (*this)[filter];
   }

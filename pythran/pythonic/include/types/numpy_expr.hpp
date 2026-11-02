@@ -745,14 +745,12 @@ namespace types
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
                          !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
-                     numpy_vexpr<numpy_expr, F>>
-    operator[](F const &filter) const;
+                     numpy_vexpr<numpy_expr, F>> operator[](F const &filter) const;
 
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
                          !std::is_same_v<bool, typename F::dtype> && !is_pod_array<F>::value,
-                     numpy_vexpr<numpy_expr, F>>
-    fast(F const &filter) const;
+                     numpy_vexpr<numpy_expr, F>> fast(F const &filter) const;
 
     // FIXME: this does not take into account bounds and broadcasting
     auto operator[](long i) const -> decltype(this->fast(i));
@@ -852,9 +850,10 @@ struct __combined<pythonic::types::numpy_expr<Op, Args...>, pythonic::types::num
 template <class T, class pS, class Op, class... Args>
 struct __combined<pythonic::types::numpy_expr<Op, Args...>, pythonic::types::ndarray<T, pS>> {
   using type = pythonic::types::ndarray<
-    typename __combined<typename pythonic::types::numpy_expr<Op, Args...>::dtype,
-             T>::type,
-             pythonic::sutils::merged_shapes_t<pythonic::types::ndarray<T, pS>::value, typename pythonic::types::numpy_expr<Op, Args...>::shape_t, pS>>;
+      typename __combined<typename pythonic::types::numpy_expr<Op, Args...>::dtype, T>::type,
+      pythonic::sutils::merged_shapes_t<pythonic::types::ndarray<T, pS>::value,
+                                        typename pythonic::types::numpy_expr<Op, Args...>::shape_t,
+                                        pS>>;
 };
 
 template <class T, class Op, class... Args>

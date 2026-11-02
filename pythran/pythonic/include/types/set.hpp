@@ -93,6 +93,11 @@ struct __combined<pythonic::types::empty_set, container<A>> {
   using type = pythonic::types::set<A>;
 };
 
+template <class A>
+struct __combined<container<A>, pythonic::types::empty_set> {
+  using type = pythonic::types::set<A>;
+};
+
 template <class K, class V>
 struct __combined<indexable<K>, pythonic::types::set<V>> {
   using type = pythonic::types::set<V>;

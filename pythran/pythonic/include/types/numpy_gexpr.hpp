@@ -790,16 +790,14 @@ namespace types
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
                          !std::is_same_v<bool, typename F::dtype>,
-                     numpy_vexpr<numpy_gexpr, F>>
-    operator[](F const &filter) const
+                     numpy_vexpr<numpy_gexpr, F>> operator[](F const &filter) const
     {
       return {*this, filter};
     }
     template <class F> // indexing through an array of indices -- a view
     std::enable_if_t<is_numexpr_arg<F>::value && !is_array_index<F>::value &&
                          !std::is_same_v<bool, typename F::dtype>,
-                     numpy_vexpr<numpy_gexpr, F>>
-    fast(F const &filter) const
+                     numpy_vexpr<numpy_gexpr, F>> fast(F const &filter) const
     {
       return {*this, filter};
     }
@@ -902,7 +900,7 @@ struct __combined<pythonic::types::numpy_gexpr<Arg, S...>,
         pythonic::types::array_tuple<long, t0::value<t1::value ? t1::value : t0::value>>;
 };
 
-template <class Arg, class... S,  class O>
+template <class Arg, class... S, class O>
 struct __combined<pythonic::types::numpy_gexpr<Arg, S...>, O> {
   using t = pythonic::types::numpy_gexpr<Arg, S...>;
   using type = typename pythonic::assignable<decltype(std::declval<t>() + std::declval<O>())>::type;

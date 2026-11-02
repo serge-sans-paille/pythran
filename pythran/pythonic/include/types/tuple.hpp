@@ -586,19 +586,20 @@ namespace types
     return _make_tuple<alike<Types...>::value, Types...>()(std::forward<Types>(types)...);
   }
 
-  namespace functor {
+  namespace functor
+  {
     struct make_tuple {
-      template<class... Types>
+      template <class... Types>
       auto operator()(Types &&...types) const
 #if !_MSC_VER || __clang__
-          -> decltype(_make_tuple<alike<Types...>::value, Types...>()(std::forward<Types>(types)...))
+          -> decltype(_make_tuple<alike<Types...>::value, Types...>()(
+              std::forward<Types>(types)...))
 #endif
       {
         return _make_tuple<alike<Types...>::value, Types...>()(std::forward<Types>(types)...);
       }
-
     };
-  }
+  } // namespace functor
 
   template <class... Tys>
   using make_tuple_t = decltype(types::make_tuple(std::declval<Tys>()...));

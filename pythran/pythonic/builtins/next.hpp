@@ -14,7 +14,7 @@ namespace builtins
   template <class T>
   auto next(T &&y) -> decltype(*y)
   {
-    if ((decltype(y.begin()) &)y != y.end()) {
+    if ((const decltype(y.begin()) &)y != y.end()) {
       auto tmp = *y;
       ++y;
       return tmp;

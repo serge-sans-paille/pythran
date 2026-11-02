@@ -1271,8 +1271,8 @@ namespace numpy
   template <class E, class pS0, class pS1>
   std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 2 &&
                        std::tuple_size_v<pS1> == 1,
-                   types::ndarray<E, types::pshape<long>>>
-  dot(types::ndarray<E, pS0> const &f, types::ndarray<E, pS1> const &e)
+                   types::ndarray<E, types::pshape<long>>> dot(types::ndarray<E, pS0> const &f,
+                                                               types::ndarray<E, pS1> const &e)
   {
     types::ndarray<E, types::pshape<long>> out(types::pshape<long>{f.template shape<0>()},
                                                builtins::None);
@@ -1331,8 +1331,8 @@ namespace numpy
   template <class E, class pS0, class pS1>
   std::enable_if_t<is_blas_type<E>::value && std::tuple_size_v<pS0> == 1 &&
                        std::tuple_size_v<pS1> == 2,
-                   types::ndarray<E, types::pshape<long>>>
-  dot(types::ndarray<E, pS0> const &e, types::ndarray<E, pS1> const &f)
+                   types::ndarray<E, types::pshape<long>>> dot(types::ndarray<E, pS0> const &e,
+                                                               types::ndarray<E, pS1> const &f)
   {
     types::ndarray<E, types::pshape<long>> out(types::pshape<long>{f.template shape<1>()},
                                                builtins::None);

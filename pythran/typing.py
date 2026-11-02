@@ -28,6 +28,12 @@ class ListMeta(type):
         return List(item)
 
 
+class SortedListMeta(type):
+
+    def __getitem__(cls, item):
+        return SortedList(item)
+
+
 class TypeMeta(type):
 
     def __getitem__(cls, item):
@@ -101,6 +107,10 @@ class Set(TypeBase, metaclass=SetMeta):
 
 
 class List(TypeBase, metaclass=ListMeta):
+    pass
+
+
+class SortedList(TypeBase, metaclass=SortedListMeta):
     pass
 
 

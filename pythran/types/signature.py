@@ -1,5 +1,5 @@
 from pythran.typing import List, Dict, Set, Fun, TypeVar, Type
-from pythran.typing import Union, Iterable
+from pythran.typing import Union, Iterable, SortedList
 
 
 def type_dependencies(t):
@@ -20,7 +20,7 @@ def dep_builder(type_var, ppal_index, index, t, self, node):
             return lambda arg: (arg
                                 if index == ppal_index
                                 else self.result[node.args[index]])
-    elif isinstance(t, (List, Set, Iterable, Dict, Type)):
+    elif isinstance(t, (List, Set, Iterable, Dict, Type, SortedList)):
         return lambda arg: self.builder.IteratorContentType(
             dep_builder(type_var,
                         ppal_index,
@@ -47,6 +47,9 @@ def path_to(self, t, deps_builders, node):
     if isinstance(t, List):
         return lambda arg: self.builder.ListType(
             path_to(self, t.__args__[0], deps_builders, node)(arg))
+    if isinstance(t, SortedList):
+        return lambda arg: self.builder.SortedListType(
+            path_to(self, t.__args__[0], deps_builders, node)(arg))
     if isinstance(t, Set):
         return lambda arg: self.builder.SetType(
             path_to(self, t.__args__[0], deps_builders, node)(arg))
@@ -57,8 +60,9 @@ def path_to(self, t, deps_builders, node):
         )
     if isinstance(t, Fun):
         raise InfeasibleCombiner()
-    if isinstance(t, Iterable):  # FIXME?
-        raise InfeasibleCombiner()
+    if isinstance(t, Iterable):
+        return lambda arg: self.builder.ContainerType(
+            path_to(self, t.__args__[0], deps_builders, node)(arg))
 
     assert False, (t, t.mro())
 

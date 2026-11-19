@@ -10,6 +10,7 @@ into
 import optimisations.xxxxx
 """
 
+from .common_subexpression_elimination import CommonSubexpressionElimination
 from .constant_folding import ConstantFolding, PartialConstantFolding
 from .copyto import CopyTo
 from .dead_code_elimination import DeadCodeElimination
